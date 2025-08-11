@@ -78,6 +78,15 @@ class AuthStore {
     }
   };
 
+   forgotPasswordStore = async (value: any) => {
+    try {
+      const { data } = await axios.post("/auth/forgot-password", value);
+      return data.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err?.message);
+    }
+  };
+
   openNotification = (data: {
     title: any;
     message: string;

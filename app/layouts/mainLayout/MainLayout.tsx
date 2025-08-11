@@ -9,7 +9,7 @@ interface MainLayoutProps {
   children: ReactNode;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);

@@ -11,6 +11,9 @@ import {
   Input,
   Text,
   Spinner,
+  VStack,
+  Divider,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -21,10 +24,20 @@ import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
 
 const Login = observer(() => {
-  const {auth : {login, openNotification}} = stores
-  const [formData, setFormData] = useState({ username: "", password: "", loginType : 'username' });
+  const {
+    auth: { login, openNotification },
+  } = stores;
+
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    loginType: "username",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const headingSize = useBreakpointValue({ base: "lg", md: "xl" });
+  const cardPadding = useBreakpointValue({ base: 2, md: 3 });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,15 +49,13 @@ const Login = observer(() => {
     setIsLoading(true);
 
     try {
-
-      const response : any = await login(formData);
+      const response: any = await login(formData);
       openNotification({
         title: "Login Successful",
         message: `${response.message}!`,
         type: "success",
         duration: 3000,
       });
-
       router.push("/dashboard");
     } catch (error: any) {
       openNotification({
@@ -58,81 +69,132 @@ const Login = observer(() => {
   };
 
   return (
-    <Flex justify={"center"}>
-      <Box w={"100%"} maxW="400px" p={6} textAlign={"center"}>
-        <Heading mb={2} size="lg" color="#0F0F0F">
-          Log in to your account
-        </Heading>
-        <Text mb={8} color="brand.1000">
-          Welcome back! Please enter your details.
-        </Text>
-        <form onSubmit={handleSubmit}>
-          <FormControl id="username" mb={4}>
-            <FormLabel>Username</FormLabel>
-            <Input
-              type="text"
-              name="username"
-              placeholder="Enter your username"
-              value={formData.username}
-              onChange={handleInputChange}
-              focusBorderColor="teal.500"
-              required
-            />
-          </FormControl>
-          <FormControl id="password" mb={4}>
-            <FormLabel>Password</FormLabel>
-            <Input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleInputChange}
-              focusBorderColor="teal.500"
-              required
-            />
-          </FormControl>
-          <Flex align={"center"} justify={"space-between"} my={4}>
-            <Checkbox colorScheme="teal">Remember me</Checkbox>
-            <Text fontWeight={600} color="#065F68" fontSize="sm">
-              <Link href="/forgot-password" style={{ textDecoration: "underline" }}>
-                Forgot Password?
-              </Link>
+    <Flex align="center" justify="center"
+      minH={{base : "90vh", md : '80vh'}}>
+      <Box
+        w="100%"
+        p={cardPadding}
+        borderRadius="xl"
+        animation="fadeIn 0.4s ease"
+      >
+        <VStack spacing={6} align="stretch">
+          {/* Heading */}
+          <Box textAlign="center">
+            <Heading size={headingSize} mb={2} color="teal.700">
+              Welcome Back
+            </Heading>
+            <Text fontSize="sm" color="gray.600">
+              Log in to continue
             </Text>
-          </Flex>
+          </Box>
 
-          <CustomButton
-            size="md"
-            width="100%"
-            type="submit"
-            mt={2}
-            isDisabled={!formData.username || !formData.password || isLoading}
-          >
-            {isLoading ? <Spinner size="sm" color="white" /> : "Sign in"}
-          </CustomButton>
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <VStack spacing={4} align="stretch">
+              <FormControl id="username">
+                <FormLabel fontSize="sm" fontWeight="500">
+                  Username
+                </FormLabel>
+                <Input
+                  type="text"
+                  name="username"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  focusBorderColor="teal.500"
+                  size="lg"
+                  required
+                />
+              </FormControl>
 
-          <Button
-            size="lg"
-            width="100%"
-            mt={4}
-            leftIcon={<FcGoogle size={"26px"} />}
-            fontSize={"16px"}
-            fontWeight={500}
-            bg={"white"}
-            color={"#616161"}
-            border={"1px solid"}
-            borderColor={"#D0D5DD"}
-            _hover={{ bg: "white" }}
-          >
-            Sign in with Google
-          </Button>
-        </form>
+              <FormControl id="password">
+                <FormLabel fontSize="sm" fontWeight="500">
+                  Password
+                </FormLabel>
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  focusBorderColor="teal.500"
+                  size="lg"
+                  required
+                />
+              </FormControl>
 
-        <Text mt={8} textAlign="center" color={"brand.1000"}>
-          Don’t have an account?{" "}
-          <Link href="/register" style={{ color: "#065F68", textDecoration: "none" }}>
-            Sign up
-          </Link>
-        </Text>
+              <Flex justify="space-between" align="center" fontSize="sm">
+                <Checkbox colorScheme="teal" size="sm">
+                  Remember me
+                </Checkbox>
+                <Link href="/forgot-password">
+                  <Text
+                    color="teal.600"
+                    fontWeight="500"
+                    _hover={{ textDecoration: "underline" }}
+                  >
+                    Forgot password?
+                  </Text>
+                </Link>
+              </Flex>
+
+              {/* Sign in button */}
+              <CustomButton
+                size="lg"
+                width="100%"
+                type="submit"
+                mt={2}
+                borderRadius="full"
+                isDisabled={
+                  !formData.username || !formData.password || isLoading
+                }
+              >
+                {isLoading ? <Spinner size="sm" color="white" /> : "Sign in"}
+              </CustomButton>
+
+              {/* OR divider */}
+              <Flex align="center" gap={2}>
+                <Divider />
+                <Text fontSize="xs" color="gray.500">
+                  OR
+                </Text>
+                <Divider />
+              </Flex>
+
+              {/* Google login */}
+              <Button
+                size="lg"
+                width="100%"
+                leftIcon={<FcGoogle size="22px" />}
+                fontSize="sm"
+                fontWeight="500"
+                bg="white"
+                color="gray.700"
+                border="1px solid"
+                borderColor="gray.300"
+                borderRadius="full"
+                _hover={{ bg: "gray.50" }}
+              >
+                Sign in with Google
+              </Button>
+            </VStack>
+          </form>
+
+          {/* Sign up */}
+          <Text display="none" textAlign="center" fontSize="sm" color="gray.600">
+            Don’t have an account?{" "}
+            <Link href="/register">
+              <Text
+                as="span"
+                color="teal.600"
+                fontWeight="500"
+                _hover={{ textDecoration: "underline" }}
+              >
+                Sign up
+              </Text>
+            </Link>
+          </Text>
+        </VStack>
       </Box>
     </Flex>
   );
