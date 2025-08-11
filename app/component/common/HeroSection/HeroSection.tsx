@@ -76,7 +76,7 @@ const HeroSection = observer(() => {
                 lineHeight={{ base: "24px", md: "28px" }}
                 px={{ base: 5, md: 0 }}
               >
-                {content?.HeroPara || "We support teenagers, adults, and families in their recovery from mental illness– Metamind is here to help. If you're searching for a trusted mental health clinic in Noida, reach out to us."}
+                {content?.HeroPara || "We support teenagers, adults, and families in their recovery from mental illness– Dental is here to help. If you're searching for a trusted Dental, reach out to us."}
               </Text>
               <Flex justify={{ base: "center", lg: "start" }} mt={{ base: 4, md: 6 }}>
                 <CustomButton

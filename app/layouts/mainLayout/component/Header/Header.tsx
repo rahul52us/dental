@@ -90,7 +90,7 @@ const Header = observer(() => {
             <Center mt={6} mb={4}>
               <Image
                 src="/images/logo.png"
-                alt="Mental Health Clinic In Noida"
+                alt="Dental"
                 h="50px"
                 onClick={() => router.push("/")}
               />

@@ -17,7 +17,7 @@ const SupervisionValuesSection = () => {
             display={{ base: "none", lg: "block" }}
           >
             <Image
-              alt="Mental Health Clinic In Noida"
+              alt="Dental"
               w={"100%"}
               h={{ base: "300px", md: "350px", lg: "440px" }}
               mr={6}
@@ -47,7 +47,7 @@ const SupervisionValuesSection = () => {
             >
               Psychological testing helps us understand how a person thinks, feels, and behaves.
               Using <strong>clinically-proven</strong> assessments, we can measure things like attention, memory, emotions, and personality.
-              At Metamind, every assessment follows strict professional guidelines and is conducted by trained experts,
+              At Dental, every assessment follows strict professional guidelines and is conducted by trained experts,
               ensuring accurate and research-backed results for right diagnosis & treatment planning.
             </Text>
 

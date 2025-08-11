@@ -49,7 +49,7 @@ const BookCallComponentBlog = ({ }) => {
                 position={"absolute"}
                 left={"0"}
                 bottom={"0"}
-                alt="Best psychologist in Noida quora"
+                alt="Best Dental in Noida quora"
             />
         </Box>
     );

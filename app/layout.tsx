@@ -22,8 +22,8 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
   const { companyStore: { getCompanyDetails } } = stores;
   const pathname = usePathname();
   const [metadata, setMetadata] = useState<PageMetadata>({
-    title: 'Mental Health Clinic In Noida | Best Psychologist In Noida | Metamind',
-    description: 'Searching for the best mental health doctor in Noida? Metamind, a trusted mental health clinic in Noida, offers expert care from top psychologists. Consult the best psychologist in Noida for therapy, counseling, and mental wellness now.'
+    title: 'Dental',
+    description: 'Searching for the best dental doctor ? dental, a trusted dental clinic , offers expert care from top dentalist. Consult the best dental, counseling, and doctor wellness now.'
   });
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
       <head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
-        <meta property="og:image" content="https://www.metamindhealth.com/images/logo.png" />
+        <meta property="og:image" content="https://www.Dentalhealth.com/images/logo.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="UTF-8" />
 

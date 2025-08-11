@@ -51,7 +51,7 @@ const ServiceValues = observer(() => {
         >
           <Text textTransform="uppercase" color="#DF837C">
           </Text>
-          <CustomSmallTitle>TRUST METAMIND</CustomSmallTitle>
+          <CustomSmallTitle>TRUST Dental</CustomSmallTitle>
           <Heading
             textAlign={"center"}
             as={"h2"}
@@ -100,7 +100,7 @@ const ServiceValues = observer(() => {
           <Box display={{ base: "none", lg: "block" }} mb={8}>
             <Text textTransform="uppercase" color="#DF837C" mb={2}>
             </Text>
-            <CustomSmallTitle textAlign={{ base: "center", lg: "start" }} ml={{ lg: "0.2rem" }}> TRUST METAMIND</CustomSmallTitle>
+            <CustomSmallTitle textAlign={{ base: "center", lg: "start" }} ml={{ lg: "0.2rem" }}> TRUST Dental</CustomSmallTitle>
             <Text fontSize={{ base: "20px", md: "44px" }} fontWeight={400} color={"#0F0F0F"}>
               Your Recovery is
               <Text fontWeight={600} as={"span"}>
@@ -116,7 +116,7 @@ const ServiceValues = observer(() => {
             >
               We know that seeking mental health care can be a long, frustrating journey.
               With us, you&apos;ll find the right support to move forward with clarity and confidence.
-              Whether you&apos;re looking for the best psychologist in Noida or a mental health doctor
+              Whether you&apos;re looking for the Best Dental in Noida or a mental health doctor
               in Noida that offers comprehensive care.
             </Text> */}
           </Box>

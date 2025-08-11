@@ -20,7 +20,7 @@ const SupervisionValuesSection = () => {
             display={{ base: "none", lg: "block" }}
           >
             <Image
-              alt="Mental Health Clinic In Noida"
+              alt="Dental"
               w={"100%"}
               h={{ base: "300px", md: "350px", lg: "440px" }}
               mr={6}

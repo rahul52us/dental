@@ -42,7 +42,7 @@ const CardComponent1 = ({
             w="100%"
             h="100%"
             transition="transform 0.3s ease-in-out"
-            alt="Mental Health Clinic In Noida"
+            alt="Dental"
             _hover={{ transform: "scale(1.1)" }}
           />
         </Box>

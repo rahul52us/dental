@@ -13,22 +13,22 @@ const CardComponent3 = ({
   onClick,  // Add the onClick prop here
 }) => {
   // Responsive sizing and layout
-  const boxWidth = useBreakpointValue({ 
+  const boxWidth = useBreakpointValue({
     base: "95%",    // Mobile (always full width)
-    md: isActive ? "100%" : "6rem",  // Tablet 
+    md: isActive ? "100%" : "6rem",  // Tablet
     lg: isActive ? "26rem" : "6rem"   // Desktop
   });
 
-  const fontSize = useBreakpointValue({ 
-    base: "18px",   // Mobile 
+  const fontSize = useBreakpointValue({
+    base: "18px",   // Mobile
     md: "24px",     // Tablet
     lg: "28px",     // Desktop
     xl: "30px"
   });
 
-  const imageSize = useBreakpointValue({ 
+  const imageSize = useBreakpointValue({
     base: "10rem",   // Mobile
-    md: "10rem",    // Tablet 
+    md: "10rem",    // Tablet
     lg: "13.5rem",   // Desktop
     xl: "14rem"
   });
@@ -106,8 +106,8 @@ const CardComponent3 = ({
         opacity={isMobile || isActive ? 1 : 0}
         transition={isMobile ? "none" : "opacity 0.8s ease-in-out"}
       >
-        <Text 
-          fontSize={fontSize} 
+        <Text
+          fontSize={fontSize}
           lineHeight="1.2"
           // noOfLines={2}  // Prevents text overflow
         >
@@ -118,7 +118,7 @@ const CardComponent3 = ({
       {/* Image */}
       <Image
         src={imageSrc}
-        alt="Best Psychologist In Noida"
+        alt="Best Dental In Noida"
         position="absolute"
         objectFit="cover"
         bottom={0}

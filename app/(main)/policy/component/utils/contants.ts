@@ -21,13 +21,13 @@ export const policyData = {
     "cancellation-policy": {
         "heroTitle": "Cancellation Policy",
         "mainTitle": "Cancellation, Reschedule, and Refund Policy",
-        "highlightText": "Metamind Healthcare - Cancellation Policy",
+        "highlightText": "Dental Healthcare - Cancellation Policy",
         "effectiveDate": "May 1st, 2025",
         "sections": [
             {
                 "title": "",
                 "paragraphs": [
-                    "At Metamind, we strive to offer a flexible and client-centered experience while maintaining the integrity of our appointment system. The following policy outlines our guidelines for session rescheduling, cancellations, and refunds."
+                    "At Dental, we strive to offer a flexible and client-centered experience while maintaining the integrity of our appointment system. The following policy outlines our guidelines for session rescheduling, cancellations, and refunds."
                 ]
             },
             {
@@ -48,15 +48,15 @@ export const policyData = {
             {
                 "title": "Cancellation by the Client",
                 "listItems": [
-                    "24 Hours or more in Advance: You may cancel your session and choose one of the following: Rebook another session immediately/ Request a full refund to your original payment method (please email us at support@metamindhealth.com).",
+                    "24 Hours or more in Advance: You may cancel your session and choose one of the following: Rebook another session immediately/ Request a full refund to your original payment method (please email us at support@Dentalhealth.com).",
                     "Within 24 Hours: No refund or credit will be issued for sessions cancelled within 24 hours of the appointment. The session will be billed in full."
                 ]
             },
             {
-                "title": "Cancellation by Metamind",
+                "title": "Cancellation by Dental",
                 "listItems": [
-                    "If a therapist cancels your session for any reason, you will receive a full refund/reschedule a session. You may request a refund by contacting support@metamindhealth.com.",
-                    "If your session is disrupted or incomplete due to technical issues or unforeseen circumstances on Metamind's end, please email us at support@metamindhealth.com. Refunds or reschedules in such cases will be handled on a case-by-case basis."
+                    "If a therapist cancels your session for any reason, you will receive a full refund/reschedule a session. You may request a refund by contacting support@Dentalhealth.com.",
+                    "If your session is disrupted or incomplete due to technical issues or unforeseen circumstances on Dental's end, please email us at support@Dentalhealth.com. Refunds or reschedules in such cases will be handled on a case-by-case basis."
                 ]
             },
             {
@@ -75,13 +75,13 @@ export const policyData = {
         "heroTitle": "Privacy Policy",
         "mainTitle": "",
         "effectiveDate": "May 7th, 2025",
-        "highlightText": "Metamind Healthcare - Privacy Policy",
+        "highlightText": "Dental Healthcare - Privacy Policy",
         "sections": [
             {
                 "title": "",
                 "paragraphs": [
-                    "Metamind Healthcare (\"Metamind\", \"we\", \"us\" or \"our\") is committed to respecting your privacy and maintaining the confidentiality of your personal and health information. This Privacy Policy outlines how we collect, use, disclose, and protect your information when you use our services, both offline at our clinics and online through our website and associated platforms.",
-                    "Please read this policy carefully. By using our services or providing information, you consent to the practices described here. If any term of this Policy is not acceptable to you, please refrain from using Metamind's services or platform."
+                    "Dental Healthcare (\"Dental\", \"we\", \"us\" or \"our\") is committed to respecting your privacy and maintaining the confidentiality of your personal and health information. This Privacy Policy outlines how we collect, use, disclose, and protect your information when you use our services, both offline at our clinics and online through our website and associated platforms.",
+                    "Please read this policy carefully. By using our services or providing information, you consent to the practices described here. If any term of this Policy is not acceptable to you, please refrain from using Dental's services or platform."
                 ]
             },
             {
@@ -90,12 +90,12 @@ export const policyData = {
                 "listItems": [
                     "\"User\", \"client\", \"your\" or \"you\" refers to the individual who uses our Services or Platform. This can include clients (patients), their parent/guardian (in case of minors), or other users accessing our Platform.",
                     "\"Platform\" refers to our website, online appointment system (including third-party systems like Therasoft), mobile applications, or any digital tools we use to provide our Services.",
-                    "\"Therapist\" or \"Clinician\" refers to a mental health professional (such as a psychologist, counselor, therapist, psychiatrist, social worker or other expert) who provides services to clients through Metamind. These may be Metamind's in-house clinicians or associated practitioners."
+                    "\"Therapist\" or \"Clinician\" refers to a mental health professional (such as a psychologist, counselor, therapist, psychiatrist, social worker or other expert) who provides services to clients through Dental. These may be Dental's in-house clinicians or associated practitioners."
                 ]
             },
             {
                 "title": "2. Information We Collect",
-                "content": "Personal and Health Information: To provide our Services, Metamind collects various types of personal information from you. This may include, but is not limited to:",
+                "content": "Personal and Health Information: To provide our Services, Dental collects various types of personal information from you. This may include, but is not limited to:",
                 "listItems": [
                     "Contact Details: Your full name, phone number, email address, postal address, and similar contact information. We also collect an emergency contact number (and the name/relation of that contact), which is mandatory for all clients as part of our safety protocol. If you are a teen client, we collect your parent or legal guardian's contact information as well.",
                     "Demographic Information: Age, date of birth, gender, occupation, and general demographic details you provide.",
@@ -121,34 +121,34 @@ export const policyData = {
                     "Social Media: Accepting requests from clients on social media platforms such as Facebook, Instagram or others for personal and professional purposes amounts to breach of privacy and confidentiality rules on the therapist's part. Your therapist cannot connect with you on social media since he/she is ethically obligated to protect your privacy.",
                     " Consent For Minors: If you are a minor, you need to understand the following about the things psychotherapy entails: When a person is feeling upset, or having some difficulties and wants to find ways that can help them feel better, think differently and do well, one way to help themselves is called 'Psychotherapy'. You will have a separate 'mind-doctor' or 'feelings- doctor' called a 'psychotherapist'. Your psychotherapist will first try to understand your difficulties as well as possible. Then, in discussion with you and your parents, make an agreement about what difficulties to work on. The agreement will also decide on when, for how long and how often you will need to fix a time to discuss. Your parents may be legally entitled to some information about your therapy. We will discuss with you and your parents what information is appropriate for them to receive and which issues are more appropriately kept confidential. For different reasons, you and your psychotherapist could talk to each other at the clinic or using a phone/a computer. Your parent/ guardian will be asked for their permission for this. When and how long you would talk would be discussed in advance with you and your parents, each time. In some sessions, the therapist may talk to your parent/s or both you and your parent/s together in order to help you. Nobody - neither you, your parents or your doctor/psychotherapist - will take photographs or record anything while you and your psychotherapist are talking. No information about these talks will be shared with anyone else. Sometimes, your psychotherapist may share information about your discussions with their supervisor/teacher. Sometimes, if you are too upset, talking either in-person at a clinic or over phone/computer would not be possible or helpful enough. In such situations, you may need to go to a hospital for urgent help and your parents will be guided about the closest suitable places where they can take you to.",
                     " Termination: Ending relationships can be difficult. Therefore, it is important to have a termination process in order to achieve some closure. The appropriate length of the termination depends on the length and intensity of the treatment. Therapists may terminate treatment after appropriate discussion with you and a termination process if they determine that the psychotherapy is not being effectively used or if you are in default on payment. The therapists will not terminate the therapeutic relationship without first discussing and exploring the reasons and purpose of terminating. If therapy is terminated for any reason or you request another therapist, the therapist will provide you with a list of qualified providers to treat you. You may also choose someone on your own or from another referral source.",
-                    " Consent to Engage in Consultation: You consent to engage in psychotherapy after careful consideration and understanding of the risks and benefits involved. You understand your rights to privacy and the limits to confidentiality. You understand your responsibilities as a client during the therapy and your therapist's responsibility towards you. You know that you are free to refuse requests by your therapist or terminate therapy at any time and do not require your therapist's permission to do so. Therefore, you agree to undertake psychotherapy with a therapist at Metamind Healthcare."
+                    " Consent to Engage in Consultation: You consent to engage in psychotherapy after careful consideration and understanding of the risks and benefits involved. You understand your rights to privacy and the limits to confidentiality. You understand your responsibilities as a client during the therapy and your therapist's responsibility towards you. You know that you are free to refuse requests by your therapist or terminate therapy at any time and do not require your therapist's permission to do so. Therefore, you agree to undertake psychotherapy with a therapist at Dental Healthcare."
                 ]
             },
             {
                 "title": "4. Data Sharing and Disclosure to Third Parties",
-                "content": "Metamind Healthcare will not sell, rent, or trade your personal information to any third party for their own marketing or other uses. We only share your data in the following contexts, each of which is governed by strict controls and, where required, your consent:",
+                "content": "Dental Healthcare will not sell, rent, or trade your personal information to any third party for their own marketing or other uses. We only share your data in the following contexts, each of which is governed by strict controls and, where required, your consent:",
                 "listItems": [
-                    "Within Metamind and Affiliated Service Providers: Your information may be shared internally among authorized Metamind personnel (therapists, psychologists, psychiatrists if any on our team, clinical supervisors, and administrative staff) who need the information to provide services to you. All such personnel are bound by confidentiality and data protection obligations as described in Section 3. If Metamind Healthcare works with partner professionals or consultants (for example, an external clinical supervisor or a specialist doctor consulting on a case), they would only receive information to the extent necessary and are required to adhere to our privacy standards by contractual agreement.",
-                    "Therasoft and Technological Partners: We use the Therasoft online platform for appointment scheduling and practice management. When you book an appointment or use our online portal, some of your personal data (such as name, contact, and appointment details) will be stored on Therasoft's systems. Therasoft serves as a data processor on our behalf for these functions. We have an agreement in place with Therasoft to ensure your data is protected and used only for managing our appointments. Therasoft is obligated to implement security measures and comply with applicable data protection laws. Similarly, if we use other third-party software or hosting services (for example, secure cloud storage or video conferencing tools for teletherapy), those providers may handle your data to the extent necessary for providing their service to us. We take care to choose reputable providers who employ strong security and confidentiality commitments. We do not permit our third-party vendors to use your data for anything other than providing services to Metamind.",
+                    "Within Dental and Affiliated Service Providers: Your information may be shared internally among authorized Dental personnel (therapists, psychologists, psychiatrists if any on our team, clinical supervisors, and administrative staff) who need the information to provide services to you. All such personnel are bound by confidentiality and data protection obligations as described in Section 3. If Dental Healthcare works with partner professionals or consultants (for example, an external clinical supervisor or a specialist doctor consulting on a case), they would only receive information to the extent necessary and are required to adhere to our privacy standards by contractual agreement.",
+                    "Therasoft and Technological Partners: We use the Therasoft online platform for appointment scheduling and practice management. When you book an appointment or use our online portal, some of your personal data (such as name, contact, and appointment details) will be stored on Therasoft's systems. Therasoft serves as a data processor on our behalf for these functions. We have an agreement in place with Therasoft to ensure your data is protected and used only for managing our appointments. Therasoft is obligated to implement security measures and comply with applicable data protection laws. Similarly, if we use other third-party software or hosting services (for example, secure cloud storage or video conferencing tools for teletherapy), those providers may handle your data to the extent necessary for providing their service to us. We take care to choose reputable providers who employ strong security and confidentiality commitments. We do not permit our third-party vendors to use your data for anything other than providing services to Dental.",
                     "Referrals and External Healthcare Providers: If we refer you to another mental health professional or a healthcare institution (or if we coordinate with one, like your psychiatrist or a laboratory for tests), we will share your relevant personal information with them only with your consent (except in emergency exceptions as noted in Section 3). For example, if your therapist believes you might benefit from a psychiatric evaluation, we would discuss this with you and, with your permission, forward a summary or referral note to a psychiatrist including pertinent information like diagnosis or medications tried. The external provider to whom information is disclosed will be responsible for that information under their own privacy policy, but we will advise them of the need to handle it confidentially. In any case, we share the minimum necessary information required for the purpose."
                 ],
-                "conclusion": "It's also important to note, when you yourself use certain features on our Platform (for example, posting a comment on an online forum or interacting with Metamind's social media), any information you publicly disclose can be seen by others. This Privacy Policy's restrictions apply to information you entrust to us directly – we are not responsible for what you choose to make public on forums not controlled by us. We strongly advise users not to post personal or health information in any public forums associated with us, to avoid inadvertent disclosure."
+                "conclusion": "It's also important to note, when you yourself use certain features on our Platform (for example, posting a comment on an online forum or interacting with Dental's social media), any information you publicly disclose can be seen by others. This Privacy Policy's restrictions apply to information you entrust to us directly – we are not responsible for what you choose to make public on forums not controlled by us. We strongly advise users not to post personal or health information in any public forums associated with us, to avoid inadvertent disclosure."
             },
             {
                 "title": "5. Data Security Measures",
                 "paragraphs": [
-                    "Metamind takes the security of your personal data very seriously. We implement administrative, physical, and technical safeguards to protect against unauthorized access, alteration, disclosure, or destruction of your information.",
+                    "Dental takes the security of your personal data very seriously. We implement administrative, physical, and technical safeguards to protect against unauthorized access, alteration, disclosure, or destruction of your information.",
                     "Despite all our efforts, it is important to note that no method of data transmission or storage is 100% secure. While we strive to use commercially acceptable means to protect your personal data, we cannot guarantee absolute security. This is a standard caveat in all privacy policies because unforeseen breaches or zero-day attacks can occur.",
-                    "Your Responsibilities for Data Security: We also request you to play a role in keeping your data safe. Please use strong passwords for any online account with Metamind (if applicable) and do not share your account credentials or OTPs with anyone. Be cautious about phishing – Metamind will never ask for your password via phone or email. Ensure the devices you use to access our services are secure. If you suspect any unauthorized access to your account or a potential security issue (such as you lost your phone which had our app logged in), please inform us immediately on support@metamindhealth.com , so we can take protective measures. We provide therapy-related communications (like appointment reminders) via phone/email – you are responsible for securing access to your phone, SMS, and email. We cannot be liable if someone else accesses your email or phone and thus gains information about your appointments​."
+                    "Your Responsibilities for Data Security: We also request you to play a role in keeping your data safe. Please use strong passwords for any online account with Dental (if applicable) and do not share your account credentials or OTPs with anyone. Be cautious about phishing – Dental will never ask for your password via phone or email. Ensure the devices you use to access our services are secure. If you suspect any unauthorized access to your account or a potential security issue (such as you lost your phone which had our app logged in), please inform us immediately on support@Dentalhealth.com , so we can take protective measures. We provide therapy-related communications (like appointment reminders) via phone/email – you are responsible for securing access to your phone, SMS, and email. We cannot be liable if someone else accesses your email or phone and thus gains information about your appointments​."
                 ]
             },
             {
                 "title": "6. Grievance Redressal",
-                // "content": "Metamind Healthcare has designated a Grievance Officer to address any user grievances. If you have any complaints, queries, or issues regarding your privacy or how we handled your data, you may contact:",
+                // "content": "Dental Healthcare has designated a Grievance Officer to address any user grievances. If you have any complaints, queries, or issues regarding your privacy or how we handled your data, you may contact:",
                 "paragraphs": [
-                    "Metamind Healthcare has designated a Grievance Officer to address any user grievances. If you have any complaints, queries, or issues regarding your privacy or how we handled your data, you may contact:",
+                    "Dental Healthcare has designated a Grievance Officer to address any user grievances. If you have any complaints, queries, or issues regarding your privacy or how we handled your data, you may contact:",
                     "Grievance Officer: Nikita Bhati",
-                    "Email: support@metamindhealth.com",
+                    "Email: support@Dentalhealth.com",
                     "We encourage you to reach out with any concerns – whether it's about accessing your records, withdrawing consent, reporting a suspected breach, or any perceived violation of your privacy rights. When you contact us, please provide the relevant details of your issue and any supporting information so we can address it promptly.",
 
                 ],
@@ -158,7 +158,7 @@ export const policyData = {
                 "title": "7. Changes to this Privacy Policy",
                 "paragraphs": [
                     "We may update or revise this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or for other operational reasons. If we make significant changes, we will notify users in an appropriate manner, such as by posting a prominent notice on our website or sending an email notification, prior to the change becoming effective. We encourage you to periodically review this page for the latest information on our privacy practices.",
-                    "Your continued use of our Services after any changes to the Privacy Policy indicates your acknowledgement of the changes and consent to the updated terms. If you do not agree with the modified terms, you must discontinue use of Metamind's services and platform, and you may request us to delete or return your data."
+                    "Your continued use of our Services after any changes to the Privacy Policy indicates your acknowledgement of the changes and consent to the updated terms. If you do not agree with the modified terms, you must discontinue use of Dental's services and platform, and you may request us to delete or return your data."
                 ]
             },
             {
@@ -170,9 +170,9 @@ export const policyData = {
             {
                 "title": "9 Contact Us",
                 "listItems": [
-                    "Email: support@metamindhealth.com",
+                    "Email: support@Dentalhealth.com",
                     "Phone: +91 9899 129943",
-                    "Postal Address: Metamind - Mental Health Clinic in Noida, 2nd Floor, LC complex Sector 49, near metro station, Sector 76, Noida, Uttar Pradesh 201301"
+                    "Postal Address: Dental - Dental, 2nd Floor, LC complex Sector 49, near metro station, Sector 76, Noida, Uttar Pradesh 201301"
                 ]
             }
         ]

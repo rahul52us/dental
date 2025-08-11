@@ -18,7 +18,7 @@ const LeftSection = () => {
 
       {/* Image */}
       <Image
-        alt="Mental Health Clinic In Noida"
+        alt="Dental"
         src={'https://res.cloudinary.com/dekfm4tfh/image/upload/v1746184761/Group_1000003463_jyu6sz.png'}
         h={{ base: "230px", lg: "370px" }}
         ml={{ base: "-1rem", lg: "-5rem" }}  // Move left by 2rem on larger screens

@@ -123,7 +123,7 @@ const OurValues = observer(() => {
             >
               We know that seeking mental health care can be a long, frustrating journey.
               With us, you’ll find the right support to move forward with clarity and confidence.
-              Whether you’re looking for the best psychologist in Noida or a mental health doctor
+              Whether you’re looking for the Best Dental in Noida or a mental health doctor
               in Noida that offers comprehensive care.
 
             </Text>

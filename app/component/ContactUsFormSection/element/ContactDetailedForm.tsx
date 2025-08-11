@@ -143,7 +143,7 @@ const ContactDetailedForm = observer(({ isHome, links, showHeader, isEquiry,hand
                 Contact us
                 <Image
                   src="/images/happy.svg"
-                  alt="best psychologist in greater noida"
+                  alt="Best Dental in greater noida"
                   w="20%" h="20%"
                   position="relative"
                   ml="-0.3rem"  // Fine-tune spacing
@@ -176,7 +176,7 @@ const ContactDetailedForm = observer(({ isHome, links, showHeader, isEquiry,hand
               fontWeight={400}
               fontSize={{ base: "28px", md: "40px" }}
             >
-              Get in touch with <Text fontWeight={700}>Metamind Health</Text>
+              Get in touch with <Text fontWeight={700}>Dental Health</Text>
             </Heading>
 
             <Text my={3} color="#434343">

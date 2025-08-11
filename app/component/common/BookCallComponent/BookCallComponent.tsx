@@ -21,7 +21,7 @@ const BookCallComponent = ({ showText }) => {
         position={"absolute"}
         right={"0"}
         top={"0"}
-        alt="best psychologist in greater noida"
+        alt="Best Dental in greater noida"
       />
       <Box
         bgGradient={"linear(to-r, #045B64, #066D77)"}

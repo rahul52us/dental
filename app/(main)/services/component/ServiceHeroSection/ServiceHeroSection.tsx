@@ -160,7 +160,7 @@ const ServiceHeroSection = () => {
                 </Box>
                 <Box maxW={{ base: '100%', lg: '50%' }} display={{ base: "none", lg: "block" }}>
                     <Image
-                        alt="Mental Health Clinic In Noida"
+                        alt="Dental"
                         w={'100%'}
                         h={{ base: '300px', md: '350px', lg: '400px' }}
                         objectFit={'contain'}

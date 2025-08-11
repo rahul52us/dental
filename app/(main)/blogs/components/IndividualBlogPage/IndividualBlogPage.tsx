@@ -8,17 +8,17 @@ import { useRouter } from 'next/navigation';
 const socialLinks = [
   {
     name: "LinkedIn",
-    url: "https://www.linkedin.com/company/metamind-healthcare/",
+    url: "https://www.linkedin.com/company/Dental-healthcare/",
     icon: FaLinkedinIn
   },
   {
     name: "FaXTwitter",
-    url: "https://x.com/metamindhealth",
+    url: "https://x.com/Dentalhealth",
     icon: FaXTwitter
   },
   {
     name: "Instagram",
-    url: "https://www.instagram.com/metamindhealth/",
+    url: "https://www.instagram.com/Dentalhealth/",
     icon: FaInstagram
   },
   {
@@ -35,7 +35,7 @@ const IndividualBlogPage = () => {
       {/* Meta Title & Description */}
 
       {/* <Head>
-        <title>How to Choose the Right Therapist for Your Mental Health | Metamind</title>
+        <title>How to Choose the Right Therapist for Your Mental Health | Dental</title>
         <meta
           name="description"
           content="Searching for the right therapist? Discover expert tips on How to Choose the Right Therapist for Your Mental Health and get the support you need. Learn about qualifications, therapy approaches, and ethical considerations to make an informed choice. Read now!"
@@ -67,7 +67,7 @@ const IndividualBlogPage = () => {
 
         {/* Main Content Grid */}
         <Grid
-          templateColumns={{ base: "1fr", md: "0.75fr 4fr 1fr" }} // Stack columns on mobile, side by side on tablet and desktop  
+          templateColumns={{ base: "1fr", md: "0.75fr 4fr 1fr" }} // Stack columns on mobile, side by side on tablet and desktop
           gap={{ base: 6, md: 4 }}
           my={{ base: 6, md: 12 }}
         >
@@ -82,7 +82,7 @@ const IndividualBlogPage = () => {
               </Text> */}
             </Box>
             <Flex
-              direction={{ base: "row", md: "column" }} // Horizontal on mobile/tablet, vertical on desktop  
+              direction={{ base: "row", md: "column" }} // Horizontal on mobile/tablet, vertical on desktop
               align="center"
               justify="center"
               gap={{ base: 3, md: 1 }}
@@ -98,8 +98,8 @@ const IndividualBlogPage = () => {
                     rounded="full"
                     bg="brand.100"
                     _hover={{ color: "gray.300" }}
-                    mb={{ base: 0, md: 3 }} // Add margin bottom for vertical layout  
-                    mr={{ base: 3, md: 0 }} // Add margin right for horizontal layout  
+                    mb={{ base: 0, md: 3 }} // Add margin bottom for vertical layout
+                    mr={{ base: 3, md: 0 }} // Add margin right for horizontal layout
                   >
                     <Icon as={social.icon} boxSize="60%" color="white" />
                   </Box>
@@ -119,8 +119,8 @@ const IndividualBlogPage = () => {
                 <br /><br />
                 To get the most out of it, you need to trust your therapist and feel at ease with them. Studies show that the bond you build with your therapist is a very important part of healing. It helps you deal with both your present struggles and past experiences.
                 <br /><br />
-                Here&apos;s some simple advice from Metamindhealth
-                <a href="https://metamindhealth.com" target="_blank" rel="noopener noreferrer"> <strong>“A Top Rated Mental Health Clinic In Noida”</strong></a>
+                Here&apos;s some simple advice from Dentalhealth
+                <a href="https://Dentalhealth.com" target="_blank" rel="noopener noreferrer"> <strong>“A Top Rated Dental”</strong></a>
                 on how to find the right therapist for you.
               </Text>
 
@@ -230,10 +230,10 @@ const IndividualBlogPage = () => {
               </Text>
 
               <Heading as="h3" size={{ base: "sm", md: "md" }}>
-                Why Choose Metamind Health?
+                Why Choose Dental Health?
               </Heading>
               <Text color="#757575" fontSize={{ base: "sm", md: "md" }}>
-                At Metamind Health, we make finding the right therapist easy. Here&apos;s how we help:
+                At Dental Health, we make finding the right therapist easy. Here&apos;s how we help:
                 <br /><strong>✔ Qualified Therapists</strong> – Our experts are licensed clinical psychologists with experience in different therapy approaches.
                 <br /><strong>✔ Personalized Therapy</strong> – Sessions are designed to meet your specific needs.
                 <br /><strong>✔ Online & Offline Therapy</strong> – Choose between in-person or virtual sessions based on your preference.
@@ -254,7 +254,7 @@ const IndividualBlogPage = () => {
               Contact Us Right Now
             </Text>
             <Text color="#616161" fontSize={{ base: "sm", md: "md" }}>
-              Find expert support for your concerns by consulting a Metamind therapist.
+              Find expert support for your concerns by consulting a Dental therapist.
             </Text>
             <CustomButton onClick={() => router.push("/therapist")} variant="outline" py={5} px={6} fontSize="sm" mt={4} colorScheme="teal">
               Need Help?

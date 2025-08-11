@@ -10,8 +10,8 @@ export async function generateMetadata({ params }: any) {
 
   if (!metData) {
     return {
-      title: 'Mental Health Clinic In Noida | Best Psychologist In Noida | Metamind',
-      description: 'Mental Health Clinic In Noida | Best Psychologist In Noida | Metamind',
+      title: 'Dental | Best Dental In Noida | Dental',
+      description: 'Dental | Best Dental In Noida | Dental',
     };
   }
 
@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: any) {
     openGraph: {
       title: metData.title,
       description: metData.description,
-      url: `https://www.metamindhealth.com/services/${services}`,
-      siteName: 'Metamind Health',
+      url: `https://www.Dentalhealth.com/services/${services}`,
+      siteName: 'Dental Health',
       images: [
         {
-          url: 'https://www.metamindhealth.com/images/logo.png',
+          url: 'https://www.Dentalhealth.com/images/logo.png',
           width: 1200,
           height: 630,
           alt: metData.title,
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: any) {
       card: 'summary_large_image',
       title: metData.title,
       description: metData.description,
-      images: ['https://www.metamindhealth.com/images/logo.png'],
+      images: ['https://www.Dentalhealth.com/images/logo.png'],
     },
   };
 }

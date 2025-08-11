@@ -18,7 +18,7 @@ const LeftSection = ({ data }) => {
 
       {/* Image */}
       <Image
-        alt="Mental Health Clinic In Noida"
+        alt="Dental"
         src={data?.image}
         h={{ base: "230px", lg: "370px" }}
         ml={{ base: "-1rem", lg: "-5rem" }}  // Move left by 2rem on larger screens

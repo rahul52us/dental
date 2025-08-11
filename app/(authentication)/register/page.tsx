@@ -66,7 +66,7 @@ const Register = () => {
         boxShadow="xl"
         textAlign="center"
       >
-        <Image src="/images/logo.png" alt="Best Psychologist In Noida" mx="auto" mb={6} />
+        <Image src="/images/logo.png" alt="Best Dental In Noida" mx="auto" mb={6} />
         <Heading mb={4} size="lg" color="teal.600">
           Create an Account
         </Heading>
