@@ -43,6 +43,13 @@ const sidebarDatas: SidebarItem[] = [
     role: ["user"],
   },
   {
+    id: 4,
+    name: "Staffs",
+    icon: <FaHandHoldingUsd />,
+    url: "/dashboard/staffs",
+    role: ["user"],
+  },
+  {
     id: 5,
     name: "Page Sections",
     icon: <FaFileAlt />,

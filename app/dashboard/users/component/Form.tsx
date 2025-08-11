@@ -129,7 +129,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
             <FormikForm onSubmit={handleSubmit}>
               <Box display="flex" justifyContent="space-between" mb={4}>
                 <Text fontSize="lg" fontWeight="semibold">
-                  {initialData?.username ? "Edit Therapist" : "Add Therapist"}
+                  {initialData?.username ? "Edit Patient" : "Add Patient"}
                 </Text>
                 <Button colorScheme="red" size="sm" onClick={onClose}>
                   Close

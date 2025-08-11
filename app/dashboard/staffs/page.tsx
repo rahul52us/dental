@@ -13,11 +13,11 @@ import { useState } from "react";
 import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
 import Form from "./component/Form";
-import TherapistsTable from "./component/Therapists/TherapistsTable";
 import { initialValues, titles } from "./component/utils/constant";
-import DeleteData from "./component/Therapists/component/DeleteUser";
+import DeleteData from "./component/staffs/component/DeleteUser";
+import StaffsTable from "./component/staffs/StaffTable";
 
-const TherapistPage = () => {
+const StaffPage = () => {
   const {
     userStore: { createUser, getAllUsers, updateUser },
   } = stores;
@@ -53,7 +53,7 @@ const TherapistPage = () => {
           getAllUsers({ page: 1, limit: 30 });
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
           toast({
-            title: "Therapist Added.",
+            title: "Staffs Added.",
             description: `${formData.name} has been successfully added.`,
             status: "success",
             duration: 5000,
@@ -136,7 +136,7 @@ const TherapistPage = () => {
 
   return (
     <Box>
-      <TherapistsTable
+      <StaffsTable
         onDelete={(ft: any) => {
           setIsDrawerOpen({ open: true, type: "delete", data: ft })
         }
@@ -177,8 +177,8 @@ const TherapistPage = () => {
               bgGradient="linear(to-r, blue.400, purple.400)"
             >
               {isDrawerOpen?.type === "edit"
-                ? "Edit Therapist"
-                : ""}
+                ? "Edit Staffs"
+                : "Add Staffs"}
             </DrawerHeader>
             <DrawerBody p={6} bg="gray.50">
               <Form
@@ -218,4 +218,4 @@ const TherapistPage = () => {
   );
 };
 
-export default TherapistPage;
+export default StaffPage;
