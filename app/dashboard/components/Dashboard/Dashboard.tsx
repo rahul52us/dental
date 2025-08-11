@@ -4,11 +4,11 @@ import {
   ChakraProvider,
   extendTheme,
   Grid,
-  GridItem,
   Heading,
   SimpleGrid,
   Skeleton,
   Text,
+  AspectRatio,
 } from "@chakra-ui/react";
 import {
   BarElement,
@@ -45,7 +45,7 @@ ChartJS.register(
   Legend
 );
 
-// Extend Chakra UI theme (optional)
+// Extend Chakra UI theme
 const theme = extendTheme({
   colors: {
     brand: {
@@ -66,7 +66,36 @@ const dummyData = {
   monthlyVisits: [100, 200, 150, 300, 250, 400, 500],
 };
 
-// Bar chart data
+// Chart options (responsive + preserve aspect ratio)
+const barChartOptions : any = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: { position: "top" },
+    title: { display: false },
+  },
+  scales: {
+    y: { beginAtZero: true },
+    x: { ticks: { autoSkip: true, maxTicksLimit: 12 } },
+  },
+  layout: { padding: 8 },
+};
+
+const lineChartOptions : any = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: { position: "top" },
+    title: { display: false },
+  },
+  scales: {
+    y: { beginAtZero: false },
+    x: { ticks: { autoSkip: true, maxTicksLimit: 12 } },
+  },
+  layout: { padding: 8 },
+};
+
+// Chart data
 const barChartData = {
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
   datasets: [
@@ -80,58 +109,51 @@ const barChartData = {
   ],
 };
 
-// Line chart data
-const lineChartData = {
+const lineChartData : any = {
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
   datasets: [
     {
       label: "Patient Growth",
       data: dummyData.patientGrowth,
       borderColor: "rgba(153, 102, 255, 1)",
-      backgroundColor: "rgba(153, 102, 255, 0.2)",
+      backgroundColor: "rgba(153, 102, 255, 0.15)",
       borderWidth: 2,
+      fill: true,
     },
   ],
 };
 
-// Dashboard component
 const Dashboard = observer(() => {
   const {
     dashboardStore: { getDashboardCount, count },
   } = stores;
+
   useEffect(() => {
     getDashboardCount();
   }, [getDashboardCount]);
 
   const dashboardData = [
     {
-      label: "Blogs",
+      label: "Doctors",
       value: count?.data?.blogs || 0,
       icon: FaNewspaper,
       color: "blue",
-      href: "/dashboard/blogs",
+      href: "/dashboard/doctors",
     },
     {
-      label: "Users",
+      label: "Patients",
       value: count?.data?.users || 0,
       icon: FaUsers,
       color: "green",
-      href: "/dashboard/users",
+      href: "/dashboard/patients",
     },
     {
-      label: "Testimonials",
+      label: "Staff",
       value: count?.data?.testimonials || 0,
       icon: FaComments,
       color: "purple",
       href: "/dashboard/testimonials",
-    },
-    {
-      label: "Contacts",
-      value: count?.data?.contacts || 0,
-      icon: FaAddressBook,
-      color: "orange",
-      href: "/dashboard/contacts",
-    },
+    }
   ];
 
   return (
@@ -140,8 +162,10 @@ const Dashboard = observer(() => {
         <Heading mb={5} size={"lg"} color={"teal.600"}>
           Dashboard
         </Heading>
+
+        {/* Cards Section */}
         <Box mb={4}>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
             {dashboardData.map((item, index) => (
               <Skeleton
                 isLoaded={!count?.loading}
@@ -160,23 +184,42 @@ const Dashboard = observer(() => {
           </SimpleGrid>
         </Box>
 
-        <Grid templateColumns="repeat(2, 1fr)" gap={6} mb={10}>
-          <GridItem>
-            <Box bg="white" p={5} borderRadius="lg" boxShadow="md">
-              <Text fontSize="lg" fontWeight="bold" mb={5}>
-                Monthly Visits
-              </Text>
-              <Bar data={barChartData} />
-            </Box>
-          </GridItem>
-          <GridItem>
-            <Box bg="white" p={5} borderRadius="lg" boxShadow="md">
-              <Text fontSize="lg" fontWeight="bold" mb={5}>
-                Patient Growth
-              </Text>
-              <Line data={lineChartData} />
-            </Box>
-          </GridItem>
+        {/* Charts Section */}
+        <Grid
+          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+          gap={6}
+          mb={10}
+        >
+          {/* Bar Chart */}
+          <Box bg="white" p={5} borderRadius="lg" boxShadow="md" overflow="hidden">
+            <Text fontSize="lg" fontWeight="bold" mb={4}>
+              Monthly Visits
+            </Text>
+
+            {/* AspectRatio keeps the chart inside the box and prevents overflow */}
+            <AspectRatio ratio={16 / 9} width="100%">
+              <Bar
+                data={barChartData}
+                options={barChartOptions}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </AspectRatio>
+          </Box>
+
+          {/* Line Chart */}
+          <Box bg="white" p={5} borderRadius="lg" boxShadow="md" overflow="hidden">
+            <Text fontSize="lg" fontWeight="bold" mb={4}>
+              Patient Growth
+            </Text>
+
+            <AspectRatio ratio={16 / 9} width="100%">
+              <Line
+                data={lineChartData}
+                options={lineChartOptions}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </AspectRatio>
+          </Box>
         </Grid>
       </Box>
     </ChakraProvider>
