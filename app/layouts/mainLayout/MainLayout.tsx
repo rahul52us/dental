@@ -1,28 +1,39 @@
 "use client";
 
-import { Box } from "@chakra-ui/react";
-import React, { ReactNode } from "react";
-import { usePathname } from "next/navigation";
-import Header from "./component/Header/Header";
-import { Footer } from "./component/Footer/Footer";
+import { Flex } from "@chakra-ui/react";
+import React, { ReactNode, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Loader from "../../component/common/Loader/Loader";
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const pathname = usePathname(); // Get current route
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
-  // Hide header only on /landingPage
-  const showHeader = pathname !== "/landingPage";
+  useEffect(() => {
+    // Only run in browser
+    if (typeof window !== "undefined") {
+      if (pathname && !pathname.startsWith("/dashboard")) {
+        router.replace("/login");
+      }
+      setIsChecking(false);
+    }
+  }, [pathname, router]);
 
-  return (
-    <>
-      {showHeader && <Header />}
-      <Box as="main">{children}</Box>
-      <Footer />
-    </>
-  );
+  // Show a loading spinner while checking
+  if (isChecking) {
+    return (
+      <Flex minH="100vh" align="center" justify="center">
+        <Loader />
+      </Flex>
+    );
+  }
+
+  return null
 };
 
 export default MainLayout;

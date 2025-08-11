@@ -9,7 +9,6 @@ import {
 } from "react-icons/fa";
 import { CalendarIcon } from "@chakra-ui/icons";
 import { dashboard } from "../../../../config/utils/routes";
-import { MdEventSeat } from "react-icons/md";
 
 interface SidebarItem {
   id: number;

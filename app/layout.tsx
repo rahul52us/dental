@@ -10,9 +10,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import stores from "./store/stores";
 import Notification from "./component/common/Notification/Notification";
-import Script from "next/script";
 import { Montserrat } from "next/font/google";
-import Image from "next/image";
 import DashboardLayout from "./layouts/dashboardLayout/DashboardLayout";
 import { getMetadataForPath, PageMetadata } from "./metadata";
 
