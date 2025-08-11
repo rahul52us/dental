@@ -28,17 +28,17 @@ import { stripHtmlTags } from "../../../config/utils/utils";
 const socialLinks = [
   {
     name: "LinkedIn",
-    url: "https://www.linkedin.com/company/metamind-healthcare/",
+    url: "https://www.linkedin.com/company/Dental-healthcare/",
     icon: FaLinkedinIn,
   },
   {
     name: "FaXTwitter",
-    url: "https://x.com/metamindhealth",
+    url: "https://x.com/Dentalhealth",
     icon: FaXTwitter,
   },
   {
     name: "Instagram",
-    url: "https://www.instagram.com/metamindhealth/",
+    url: "https://www.instagram.com/Dentalhealth/",
     icon: FaInstagram,
   },
   {
@@ -85,7 +85,7 @@ const BlogTitle = observer(() => {
     const currentUrl = window.location.href;
     const shareData = {
       title: blogData?.title?.split("-").join(" ") || 'Check out this blog',
-      text: stripHtmlTags(blogData?.subTitle) || 'Interesting read from Metamind Healthcare',
+      text: stripHtmlTags(blogData?.subTitle) || 'Interesting read from Dental Healthcare',
       url: currentUrl,
     };
 
@@ -238,7 +238,7 @@ const BlogTitle = observer(() => {
               Need Help?
             </Text>
             <Text color="#616161" fontSize={{ base: "17px", md: "md" }}>
-              Find expert support for your concerns by consulting a Metamind therapist.
+              Find expert support for your concerns by consulting a Dental therapist.
             </Text>
             <Link href="/therapist" passHref legacyBehavior>
               <a target="_blank" rel="noopener noreferrer">

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.metamindhealth.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.Dentalhealth.com";
 
   const robotsTxt = `
 User-agent: *

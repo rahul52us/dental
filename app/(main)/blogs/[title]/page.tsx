@@ -7,20 +7,20 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
   // Map specific blog titles to your predefined canonical URLs
   const canonicalMappings: { [key: string]: string } = {
-    'how-to-choose-the-right-therapist-for-your-mental-health': 
-      'https://www.metamindhealth.com/blogs/how-to-choose-the-right-therapist-for-your-mental-health',
-    'cost-of-mental-health-care-in-noida': 
-      'https://www.metamindhealth.com/blogs/cost-of-mental-health-care-in-noida',
-    'difference-between-psychologist-and-psychiatrist': 
-      'https://www.metamindhealth.com/blogs/difference-between-psychologist-and-psychiatrist',
-    'benefits-of-psychotherapy-for-anxiety-and-stress': 
-      'https://www.metamindhealth.com/blogs/benefits-of-psychotherapy-for-anxiety-and-stress'
+    'how-to-choose-the-right-therapist-for-your-mental-health':
+      'https://www.Dentalhealth.com/blogs/how-to-choose-the-right-therapist-for-your-mental-health',
+    'cost-of-mental-health-care-in-noida':
+      'https://www.Dentalhealth.com/blogs/cost-of-mental-health-care-in-noida',
+    'difference-between-psychologist-and-psychiatrist':
+      'https://www.Dentalhealth.com/blogs/difference-between-psychologist-and-psychiatrist',
+    'benefits-of-psychotherapy-for-anxiety-and-stress':
+      'https://www.Dentalhealth.com/blogs/benefits-of-psychotherapy-for-anxiety-and-stress'
   };
 
   let fetchedTitle = title;
   let fetchedDesc = null;
   // Use predefined canonical URL if exists, otherwise use dynamic URL
-  const canonicalUrl = canonicalMappings[title] || `https://www.metamindhealth.com/blogs/${title}`;
+  const canonicalUrl = canonicalMappings[title] || `https://www.Dentalhealth.com/blogs/${title}`;
 
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/blog/?title=${title}`, {
@@ -47,10 +47,10 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       title: fetchedTitle,
       description: fetchedDesc,
       url: canonicalUrl,
-      siteName: "Metamind Health",
+      siteName: "Dental Health",
       images: [
         {
-          url: "https://www.metamindhealth.com/images/logo.png",
+          url: "https://www.Dentalhealth.com/images/logo.png",
           width: 1200,
           height: 630,
           alt: fetchedTitle,
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       card: "summary_large_image",
       title: fetchedTitle,
       description: fetchedDesc,
-      images: ["https://www.metamindhealth.com/images/logo.png"],
+      images: ["https://www.Dentalhealth.com/images/logo.png"],
     },
   };
 }

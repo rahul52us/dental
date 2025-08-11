@@ -60,7 +60,7 @@ const MissionStatement = () => {
             color="white"
             textTransform="none"
           >
-           “At <Text as={'span'} fontWeight={600}>Metamind</Text>, we believe that <Text as={'span'} fontWeight={600}>everyone deserves access</Text> to high-quality, evidence-based, and holistic mental health care. When I founded Metamind in <Text as={'span'} fontWeight={600}>2023</Text>, my vision was to create a <Text as={'span'} fontWeight={600}>safe and supportive space</Text> where people of all ages could receive <Text as={'span'} fontWeight={600}>specialized care</Text> for their mental health challenges.
+           “At <Text as={'span'} fontWeight={600}>Dental</Text>, we believe that <Text as={'span'} fontWeight={600}>everyone deserves access</Text> to high-quality, evidence-based, and holistic mental health care. When I founded Dental in <Text as={'span'} fontWeight={600}>2023</Text>, my vision was to create a <Text as={'span'} fontWeight={600}>safe and supportive space</Text> where people of all ages could receive <Text as={'span'} fontWeight={600}>specialized care</Text> for their mental health challenges.
 
             <br /><br />
 

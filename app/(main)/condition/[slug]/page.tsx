@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: any) {
     openGraph: {
       title: metaData.title,
       description: metaData.description,
-      url: `https://www.metamindhealth.com/condition/${slug}`,
-      siteName: 'Metamind Health',
+      url: `https://www.Dentalhealth.com/condition/${slug}`,
+      siteName: 'Dental Health',
       images: [
         {
-          url: 'https://www.metamindhealth.com/images/logo.png',
+          url: 'https://www.Dentalhealth.com/images/logo.png',
           width: 1200,
           height: 630,
           alt: metaData.title,
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: any) {
       card: 'summary_large_image',
       title: metaData.title,
       description: metaData.description,
-      images: ['https://www.metamindhealth.com/images/logo.png'],
+      images: ['https://www.Dentalhealth.com/images/logo.png'],
     },
   };
 }

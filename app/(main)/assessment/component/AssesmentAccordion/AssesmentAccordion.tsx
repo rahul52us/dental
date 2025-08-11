@@ -131,7 +131,7 @@ const AssesmentAccordion = observer(() => {
                 lineHeight={{ base: "20px", md: "24px" }}
                 mt={2}
               >
-                At Metamind, we know that seeking mental health care can be a long, frustrating journey. With us, you’ll find the right support to move forward with clarity & confidence.
+                At Dental, we know that seeking mental health care can be a long, frustrating journey. With us, you’ll find the right support to move forward with clarity & confidence.
 
               </Text> */}
             </Box>

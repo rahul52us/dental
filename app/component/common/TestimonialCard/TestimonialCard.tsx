@@ -52,7 +52,7 @@ const TestimonialCard = () => {
     <Box>
       <Text fontSize={"22px"} w={"90%"} color={"#0F0F0F"}>
         I struggled with anxiety for years and was sceptical about therapy.
-        Metamind matched me with an incredible therapist who truly understood
+        Dental matched me with an incredible therapist who truly understood
         my challenges. Within months, I felt a noticeable difference in my
         outlook and coping mechanisms
       </Text>
@@ -106,7 +106,7 @@ const TestimonialCard = () => {
           <Box>
             <Text fontSize={"22px"} w={"90%"} color={"#0F0F0F"}>
               I struggled with anxiety for years and was sceptical about
-              therapy. Metamind matched me with an incredible therapist who
+              therapy. Dental matched me with an incredible therapist who
               truly understood my challenges. Within months, I felt a noticeable
               difference in my outlook and coping mechanisms
             </Text>

@@ -60,7 +60,7 @@ const ServiceProvidersSection = () => {
             lineHeight={{ base: "24px", md: "32px" }}
             px={{ base: 3, md: 4, lg: 0 }}
           >
-           Our licensed therapists specialize in a wide range of psychological conditions, 
+           Our licensed therapists specialize in a wide range of psychological conditions,
            12+ psychotherapy approaches and various psychological assessments.
           </Text>
           <Box display={{ base: "none", lg: "block" }}>
@@ -110,7 +110,7 @@ const ServiceProvidersSection = () => {
             textAlign={{ base: "center", md: "start" }}
             display={{base:"block",lg:"none"}}
           >
-            At Metamind, our licensed therapists specialize in various
+            At Dental, our licensed therapists specialize in various
             treatments, including CBT, ACT, Psychodynamic Therapy, and more. We
             treat a wide range of conditions, such as:
           </Text> */}

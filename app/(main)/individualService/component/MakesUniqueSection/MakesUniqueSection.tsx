@@ -30,7 +30,7 @@ const MakesUniqueSection = () => {
   return (
     <Box bgGradient={"linear(to-r,#065F68, #2A8A94)"} pt={{ base: "22px", md: "20px" }}>
       <CustomSmallTitle mt={{ base: "2rem" }} as="h2" px={2} textAlign="center" mb={2} fontSize={{ base: "15px", md: "18px" }} >
-        Care at Metamind
+        Care at Dental
       </CustomSmallTitle>
 
       <CustomSubHeading color="white" fontSize={{ base: "20px", md: "28px" }} textAlign="center">

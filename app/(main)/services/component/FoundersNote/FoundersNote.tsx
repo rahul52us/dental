@@ -56,7 +56,7 @@ const FoundersNote = () => {
                 verticalAlign="middle"
                 // width={{ base: "20px", md: "24px" }}  // Width adjusts on smaller screens
               />
-              Metamind stands for more than just therapy—it&apos;s about building trust.
+              Dental stands for more than just therapy—it&apos;s about building trust.
               Every therapist here is chosen not just for their qualifications but for their ability to connect with and truly understand our clients.
               Through rigorous advanced training, research and monitoring your progress, we make sure they are always evolving to provide the highest standard of care.
               Our goal is to work with you in every session, helping you take meaningful steps toward a stronger recovery.

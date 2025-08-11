@@ -7,15 +7,15 @@ const dummyData = [
   {
     image: "https://res.cloudinary.com/dekfm4tfh/image/upload/v1746126275/image_15_lwgvip.png",
     date: "12 January",
-    title: "What Happens During Your First Therapy Session? | Metamind Health",
+    title: "What Happens During Your First Therapy Session? | Dental Health",
     description:
-      "Many people seek therapy because they want something in their life to change. However, they may have misunderstandings about how therapy works..Starting therapy can be a life-changing experience. Whether you’re unsure about what’s bothering you or have specific concerns, therapy provides a safe space to talk and heal. Every therapist has their own approach, but the first session usually follows a simple process. Let’s get some insights with Metamind Health.",
+      "Many people seek therapy because they want something in their life to change. However, they may have misunderstandings about how therapy works..Starting therapy can be a life-changing experience. Whether you’re unsure about what’s bothering you or have specific concerns, therapy provides a safe space to talk and heal. Every therapist has their own approach, but the first session usually follows a simple process. Let’s get some insights with Dental Health.",
     link: "/blogs/what-happens-during-your-first-therapy-session",
   },
   {
     image: "https://res.cloudinary.com/dekfm4tfh/image/upload/v1746126275/image_fsonqh.png",
     date: "29 January",
-    title: "Difference Between Psychologist and Psychiatrist | Metamind Health",
+    title: "Difference Between Psychologist and Psychiatrist | Dental Health",
     description:
       "Difference Between Psychologist and Psychiatrist:- The mental health field has many kinds of experts who can help people facing different emotional and mental health problems.Two common types of professionals are psychologists and psychiatrists. Their job titles may sound similar, but they are different in how they study, get trained, and treat people. ",
     link: "/blogs/difference-between-psychologist-and-psychiatrist",

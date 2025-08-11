@@ -2,7 +2,7 @@ export const conditionData = {
   ocd: {
     metaData: {
       title: "OCD Treatment In Noida - Effective OCD Treatment For Long-Term Relief",
-      description: "Get specialized OCD treatment at Metamind Health. Our expert therapists use proven therapies like CBT and exposure therapy to help manage obsessive-compulsive disorder and promote lasting recovery."
+      description: "Get specialized OCD treatment at Dental Health. Our expert therapists use proven therapies like CBT and exposure therapy to help manage obsessive-compulsive disorder and promote lasting recovery."
     },
     hero: {
       title: "HOW WE TREAT OCD",
@@ -10,11 +10,11 @@ export const conditionData = {
       conditionName: "OCD",
       id: "ocir",
       description:
-        "OCD can make everyday life feel stuck, like you're caught in a loop you can’t escape. At Metamind, our therapists offer compassionate OCD Treatment in Noida, working closely with you to break the cycle—so you can find relief from the thoughts and behaviors that won’t let go, and slowly rebuild a life with more ease and freedom.",
+        "OCD can make everyday life feel stuck, like you're caught in a loop you can’t escape. At Dental, our therapists offer compassionate OCD Treatment in Noida, working closely with you to break the cycle—so you can find relief from the thoughts and behaviors that won’t let go, and slowly rebuild a life with more ease and freedom.",
     },
     offering: {
       offer:
-        "Metamind offers a variety and comprehensive therapeutic approaches for treating OCD to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
+        "Dental offers a variety and comprehensive therapeutic approaches for treating OCD to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
     },
     about: {
       name: "OCD",
@@ -39,7 +39,7 @@ export const conditionData = {
   depression: {
     metaData: {
       title: "Depression Therapy Services | Depression Counselling in Noida for Faster Healing",
-      description: "Find effective depression treatment at Metamind Health. Our expert therapists offer personalized therapy for clinical depression, mood disorders, and emotional well-being through evidence-based approaches."
+      description: "Find effective depression treatment at Dental Health. Our expert therapists offer personalized therapy for clinical depression, mood disorders, and emotional well-being through evidence-based approaches."
     },
     hero: {
       title: "HOW WE TREAT DEPRESSION",
@@ -51,7 +51,7 @@ export const conditionData = {
     },
     offering: {
       offer:
-        "Metamind offers a variety and comprehensive therapeutic approaches to treating depression to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
+        "Dental offers a variety and comprehensive therapeutic approaches to treating depression to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
     },
     about: {
       name: "Depression",
@@ -80,7 +80,7 @@ export const conditionData = {
   adhd: {
     metaData: {
       title: "ADHD Treatment in Noida - ADHD Treatment Services",
-      description: "At Metamind Health, we offer expert ADHD treatment to help improve focus, reduce impulsivity, and manage symptoms. Our personalized therapy plans support better behavior and emotional well-being."
+      description: "At Dental Health, we offer expert ADHD treatment to help improve focus, reduce impulsivity, and manage symptoms. Our personalized therapy plans support better behavior and emotional well-being."
     },
     hero: {
       title: "HOW WE TREAT ADHD",
@@ -88,11 +88,11 @@ export const conditionData = {
       conditionName: "ADHD",
       id: "adhd",
       description:
-        "Living with ADHD as an adult can feel like your mind is always racing—you start things with energy but struggle to finish them. At Metamind, we offer the Best ADHD Treatment in Noida that’s built around how your brain actually works. Our therapists understand the everyday challenges and help you create structure and strategies that truly fit your life.",
+        "Living with ADHD as an adult can feel like your mind is always racing—you start things with energy but struggle to finish them. At Dental, we offer the Best ADHD Treatment in Noida that’s built around how your brain actually works. Our therapists understand the everyday challenges and help you create structure and strategies that truly fit your life.",
     },
     offering: {
       offer:
-        "Metamind offers a variety and comprehensive therapeutic approaches for treating ADHD to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
+        "Dental offers a variety and comprehensive therapeutic approaches for treating ADHD to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
     },
     about: {
       name: "ADHD",
@@ -123,7 +123,7 @@ export const conditionData = {
   trauma: {
     metaData: {
       title: "Trauma Recovery Therapy In Noida For Healing and Emotional Well-being",
-      description: "Metamind Health offers trauma therapy to help individuals heal from past experiences. Our evidence-based treatments, including EMDR and cognitive processing therapy, support recovery from PTSD, emotional trauma, and other trauma-related disorders."
+      description: "Dental Health offers trauma therapy to help individuals heal from past experiences. Our evidence-based treatments, including EMDR and cognitive processing therapy, support recovery from PTSD, emotional trauma, and other trauma-related disorders."
     },
     hero: {
       title: "HOW WE TREAT TRAUMA",
@@ -135,7 +135,7 @@ export const conditionData = {
     },
     offering: {
       offer:
-        "Metamind offers a variety and comprehensive therapeutic approaches for treating Trauma to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
+        "Dental offers a variety and comprehensive therapeutic approaches for treating Trauma to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
     },
     about: {
       name: "Trauma",
@@ -163,7 +163,7 @@ export const conditionData = {
   "bipolar-disorder": {
     metaData: {
       title: " Bipolar Disorder Treatment In Noida - Bipolar Disorder Therapy For Emotional Support",
-      description: "At Metamind Health, we offer specialized treatment for bipolar disorder to manage mood episodes, stabilize emotions, and improve overall mental health with expert care."
+      description: "At Dental Health, we offer specialized treatment for bipolar disorder to manage mood episodes, stabilize emotions, and improve overall mental health with expert care."
     },
     hero: {
       title: "HOW WE TREAT BIPOLAR DISORDER",
@@ -175,7 +175,7 @@ export const conditionData = {
     },
     offering: {
       offer:
-        "Metamind offers a variety and comprehensive therapeutic approaches for treating Bipolar Disorder to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
+        "Dental offers a variety and comprehensive therapeutic approaches for treating Bipolar Disorder to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
     },
     about: {
       name: "Bipolar Disorder",
@@ -224,8 +224,8 @@ export const conditionData = {
   },
   anxiety: {
     metaData: {
-      title: "Anxiety Therapy in Noida | Anxiety Treatment Services | Metamind Health",
-      description: "Overcome anxiety with professional therapy at Metamind Health. We offer evidence-based treatment for generalized anxiety, panic attacks, social anxiety, and stress-related disorders."
+      title: "Anxiety Therapy in Noida | Anxiety Treatment Services | Dental Health",
+      description: "Overcome anxiety with professional therapy at Dental Health. We offer evidence-based treatment for generalized anxiety, panic attacks, social anxiety, and stress-related disorders."
     },
     hero: {
       title: "HOW WE TREAT ANXIETY",
@@ -233,11 +233,11 @@ export const conditionData = {
       conditionName: "Anxiety",
       id: "bai",
       description:
-        "Anxiety shows up for a reason, and we help you get to the root of it. Our licensed therapists at Metamind provide Anxiety Therapy in Noida using clinically proven methods like CBT, ACT, and mindfulness—tailored to your unique needs.",
+        "Anxiety shows up for a reason, and we help you get to the root of it. Our licensed therapists at Dental provide Anxiety Therapy in Noida using clinically proven methods like CBT, ACT, and mindfulness—tailored to your unique needs.",
     },
     offering: {
       offer:
-        "Metamind offers a variety and comprehensive therapeutic approaches for treating anxiety to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
+        "Dental offers a variety and comprehensive therapeutic approaches for treating anxiety to ensure you receive the best care for your needs. Our providers focus on evidence-based treatments so that you get better, faster.",
     },
     about: {
       name: "Anxiety",

@@ -227,7 +227,7 @@ export default function PostTraumaticAssessment() {
             </Text>
 
             <Text fontSize="md" mb={4} color="gray.600">
-              Find expert support by consulting a Metamind therapist.
+              Find expert support by consulting a Dental therapist.
             </Text>
 
             <CustomButton

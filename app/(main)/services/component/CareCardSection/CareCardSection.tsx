@@ -24,7 +24,7 @@ const CareCardSection = () => {
   return (
     <Box>
       <CustomSmallTitle as="h2" px={2} textAlign={'center'} mb={2} >
-        Care at Metamind
+        Care at Dental
       </CustomSmallTitle>
       <CustomSubHeading highlightText="safe, supportive space">
         Culture is how we create a

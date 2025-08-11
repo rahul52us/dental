@@ -2,7 +2,7 @@ const serviceData = {
   "individual-therapy": {
     metData: {
       title: "Personalized Individual Therapy Services for Mental Wellness",
-      description: "Experience personalized individual therapy at MetamindHealth, dedicated to your needs. Achieve mental wellness with expert guidance and support for lasting emotional health.",
+      description: "Experience personalized individual therapy at DentalHealth, dedicated to your needs. Achieve mental wellness with expert guidance and support for lasting emotional health.",
     },
     hero: {
       title: "INDIVIDUAL THERAPY",
@@ -36,7 +36,7 @@ const serviceData = {
         {
           id: 1,
           title: "What is individual therapy?",
-          paragraph: "Individual therapy is a private, one-on-one space with a trained therapist where you can talk about your emotions, challenges, and goals. At Metamind, we personalize each session to fit your needs and focus on helping you feel better, cope better, and grow stronger."
+          paragraph: "Individual therapy is a private, one-on-one space with a trained therapist where you can talk about your emotions, challenges, and goals. At Dental, we personalize each session to fit your needs and focus on helping you feel better, cope better, and grow stronger."
         },
         {
           id: 2,
@@ -46,26 +46,26 @@ const serviceData = {
         {
           id: 3,
           title: "Will everything I say in therapy stay confidential?",
-          paragraph: "Yes. At Metamind, your privacy is our top priority. What you share in therapy stays between you and your therapist, except in rare cases where safety concerns require action (which we’ll explain to you clearly beforehand)."
+          paragraph: "Yes. At Dental, your privacy is our top priority. What you share in therapy stays between you and your therapist, except in rare cases where safety concerns require action (which we’ll explain to you clearly beforehand)."
         },
         {
           id: 4,
           title: "Do I need a clinical diagnosis to start individual therapy?",
-          paragraph: "No, you don’t need a diagnosis to begin therapy at Metamind. You’re welcome to start sessions if you’re looking for support, growth, or help with any concern. If, after understanding your needs during early sessions, we feel a clinical assessment or diagnosis could support your healing journey better, your therapist will discuss it with you. It’s always your choice, and we’ll guide you through the process with care and transparency."
+          paragraph: "No, you don’t need a diagnosis to begin therapy at Dental. You’re welcome to start sessions if you’re looking for support, growth, or help with any concern. If, after understanding your needs during early sessions, we feel a clinical assessment or diagnosis could support your healing journey better, your therapist will discuss it with you. It’s always your choice, and we’ll guide you through the process with care and transparency."
         },
         {
           id: 5,
-          title: "What therapy approaches are used in individual therapy at Metamind?",
-          paragraph: "At Metamind, therapy isn’t a one-size-fits-all model. Our therapists are trained across multiple evidence-based approaches like Cognitive Behavioral Therapy (CBT), DBT, MBT, ERP, ACT, Psychodynamic Therapy, EFT, Somatic Experiencing, and Grief Therapy. We thoughtfully select the methods that align with your unique story, concerns, and pace, ensuring therapy feels relevant, supportive, and effective for you. As you grow, we may integrate different approaches to match your changing needs, always keeping your comfort and progress at the center."
+          title: "What therapy approaches are used in individual therapy at Dental?",
+          paragraph: "At Dental, therapy isn’t a one-size-fits-all model. Our therapists are trained across multiple evidence-based approaches like Cognitive Behavioral Therapy (CBT), DBT, MBT, ERP, ACT, Psychodynamic Therapy, EFT, Somatic Experiencing, and Grief Therapy. We thoughtfully select the methods that align with your unique story, concerns, and pace, ensuring therapy feels relevant, supportive, and effective for you. As you grow, we may integrate different approaches to match your changing needs, always keeping your comfort and progress at the center."
         },
         {
           id: 6,
-          title: "Will Metamind therapists share what I discuss in therapy with anyone?",
+          title: "Will Dental therapists share what I discuss in therapy with anyone?",
           paragraph: "We know that confidentiality is very important for your therapy. When you come for therapy with us, you can trust that what you say is kept private. Your therapist will not share anything about your sessions or personal information with anyone unless you give clear permission. We take all necessary steps to keep a safe and private space for you."
         },
         {
           id: 7,
-          title: "What should I expect during my first therapy session at Metamind?",
+          title: "What should I expect during my first therapy session at Dental?",
           paragraph: "In your first session, the therapist will focus on making you feel safe and comfortable. They will listen to your concerns and ask some questions to understand what you are going through. You might be asked to fill out a short form to help guide the conversation. Together, you and the therapist will create a plan for future sessions. Sometimes simple tests are used to get a clearer picture. At the end, the therapist will ask for your feedback to make sure you feel supported."
         }
       ]
@@ -75,7 +75,7 @@ const serviceData = {
   "couple-therapy": {
     metData: {
       title: "Couples therapists in Noida | Relationship Counselling Specialist in Noida",
-      description: "Couples therapy at Metamind Health helps in strengthening your relationship and improving communication. Our expert therapists provide support for improved communication and connection."
+      description: "Couples therapy at Dental Health helps in strengthening your relationship and improving communication. Our expert therapists provide support for improved communication and connection."
     },
     hero: {
       title: "COUPLE THERAPY",
@@ -103,7 +103,7 @@ const serviceData = {
       AccordionData: [
         {
           id: 1,
-          title: "What issues can couple’s therapy at Metamind help with?",
+          title: "What issues can couple’s therapy at Dental help with?",
           paragraph: "Couple’s therapy can help with communication problems, trust issues, frequent arguments, feeling distant, adjusting to major life changes, intimacy concerns, and rebuilding after conflict or infidelity. Our goal is to help you reconnect and resolve differences in a supportive way."
         },
         {
@@ -113,7 +113,7 @@ const serviceData = {
         },
         {
           id: 3,
-          title: "Do we need to be married to take couple’s therapy at Metamind?",
+          title: "Do we need to be married to take couple’s therapy at Dental?",
           paragraph: "No. You don’t have to be married. We work with dating couples, live-in partners, engaged couples, newlyweds, and married couples alike. If you want to work on your relationship, you’re welcome."
         },
         {
@@ -129,11 +129,11 @@ const serviceData = {
         {
           id: 6,
           title: "Is couple’s therapy confidential?",
-          paragraph: "Yes. Everything you discuss during therapy at Metamind is strictly confidential. However, when working with couples, confidentiality policies are shared clearly especially if one partner shares private information individually. We maintain transparency to keep therapy safe and ethical for both partners."
+          paragraph: "Yes. Everything you discuss during therapy at Dental is strictly confidential. However, when working with couples, confidentiality policies are shared clearly especially if one partner shares private information individually. We maintain transparency to keep therapy safe and ethical for both partners."
         },
         {
           id: 7,
-          title: "What approaches are used in couple’s therapy at Metamind?",
+          title: "What approaches are used in couple’s therapy at Dental?",
           paragraph: "We use approaches like Emotionally Focused Therapy (EFT), Gottman Method, Solution-Focused Therapy, and Communication Skills Training — chosen thoughtfully based on your relationship’s needs. The goal is always practical progress: better communication, deeper trust, and stronger emotional connection."
         },
         {
@@ -147,8 +147,8 @@ const serviceData = {
 
   "teen-therapy": {
     metData: {
-      title: "Teen Therapy Services In Noida at Metamind Health for Emotional Support",
-      description: "Help your teen navigate life's challenges with specialized therapy services at Metamind Health. Provide emotional support and guidance for healthier mental development."
+      title: "Teen Therapy Services In Noida at Dental Health for Emotional Support",
+      description: "Help your teen navigate life's challenges with specialized therapy services at Dental Health. Provide emotional support and guidance for healthier mental development."
     },
     hero: {
       title: "TEEN THERAPY",
@@ -182,8 +182,8 @@ const serviceData = {
       AccordionData: [
         {
           id: 1,
-          title: "What is teen therapy at Metamind really about?",
-          paragraph: "At Metamind, teen therapy provides a space where teenagers can talk about what’s going on in their lives — from school stress to family issues to feeling lost or overwhelmed. Our therapists help teens understand their emotions, find better ways to cope, and build the confidence they need to move forward."
+          title: "What is teen therapy at Dental really about?",
+          paragraph: "At Dental, teen therapy provides a space where teenagers can talk about what’s going on in their lives — from school stress to family issues to feeling lost or overwhelmed. Our therapists help teens understand their emotions, find better ways to cope, and build the confidence they need to move forward."
         },
         {
           id: 2,
@@ -192,8 +192,8 @@ const serviceData = {
         },
         {
           id: 3,
-          title: "Does Metamind offer both online and offline therapy for teens?",
-          paragraph: "Yes! At Metamind, we offer therapy for teens both online (via secure video sessions) and offline (in-person at our Noida center). This flexibility helps parents and teens choose the format they are most comfortable with."
+          title: "Does Dental offer both online and offline therapy for teens?",
+          paragraph: "Yes! At Dental, we offer therapy for teens both online (via secure video sessions) and offline (in-person at our Noida center). This flexibility helps parents and teens choose the format they are most comfortable with."
         },
         {
           id: 4,
@@ -217,7 +217,7 @@ const serviceData = {
   "family-therapy": {
     metData: {
       title: "Family Therapy - Family Counselling Services In Noida | Marriage Counselling ",
-      description: "Strengthen family relationships with professional family therapy at Metamind Health. Our licensed therapists help resolve conflicts, improve communication, and support mental well-being for all family members."
+      description: "Strengthen family relationships with professional family therapy at Dental Health. Our licensed therapists help resolve conflicts, improve communication, and support mental well-being for all family members."
     },
 
     hero: {
@@ -247,7 +247,7 @@ const serviceData = {
       AccordionData: [
         {
           id: 1,
-          title: "What types of issues can Family Therapy at Metamind help with?",
+          title: "What types of issues can Family Therapy at Dental help with?",
           paragraph: "Family therapy can help with communication breakdowns, constant arguments, parenting challenges, sibling conflicts, major life changes like divorce or relocation, grief, and managing mental health challenges within the family. The goal is to rebuild trust and strengthen relationships at home."
         },
         {
@@ -273,7 +273,7 @@ const serviceData = {
         {
           id: 6,
           title: "What does a treatment plan look like, and how do we know it’s working?",
-          paragraph: "At Metamind, we develop a structured treatment plan tailored to your family’s needs. This plan incorporates evidence-based methods and strategies, ensuring that your therapy is not only effective but measurable. We also monitor progress throughout the sessions, adjusting the approach as needed to achieve the best results for your family."
+          paragraph: "At Dental, we develop a structured treatment plan tailored to your family’s needs. This plan incorporates evidence-based methods and strategies, ensuring that your therapy is not only effective but measurable. We also monitor progress throughout the sessions, adjusting the approach as needed to achieve the best results for your family."
         },
         {
           id: 7,
@@ -292,7 +292,7 @@ const serviceData = {
   "psychodynamic-therapy": {
     metData: {
       title: "Psychodynamic Psychotherapy For Deep Self-Understanding",
-      description: "Explore expert Psychodynamic Psychotherapy at Metamind Health. Our evidence-based talk therapy helps treat anxiety, depression, trauma, and relationship issues by addressing deep-rooted emotional patterns."
+      description: "Explore expert Psychodynamic Psychotherapy at Dental Health. Our evidence-based talk therapy helps treat anxiety, depression, trauma, and relationship issues by addressing deep-rooted emotional patterns."
     },
     hero: {
       title: "PSYCHODYNAMIC THERAPY",

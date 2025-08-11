@@ -216,7 +216,7 @@ const StayTuned = observer(() => {
             fontFamily="Arial"
             fontSize="18px"
           >
-            Subscribe to Metamind Health
+            Subscribe to Dental Health
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody py={6}>
@@ -242,7 +242,7 @@ const StayTuned = observer(() => {
                 </Box>
                 <Text fontSize="md" fontWeight="medium">Subscription successful!</Text>
                 <Text fontSize="sm" color="gray.600" mt={2}>
-                  Thank you for subscribing to Metamind Health. You&apos;ll receive our updates soon.
+                  Thank you for subscribing to Dental Health. You&apos;ll receive our updates soon.
                 </Text>
               </Box>
             ) : (

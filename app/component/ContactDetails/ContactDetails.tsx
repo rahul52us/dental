@@ -8,12 +8,12 @@ const ContactDetails = () => {
       bg: "#FFB8B2",
       icon: "/icons/email.svg",
       title: "Email",
-      content: "support@metamindhealth.com",
+      content: "support@Dentalhealth.com",
       description: (
         <>
           <span style={{ fontSize: "0.8rem" }}>(We&apos;ll get back to you within 24 hrs)</span>
         </>),
-      onClick: () => window.open("mailto:support@metamindhealth.com"),
+      onClick: () => window.open("mailto:support@Dentalhealth.com"),
     },
     {
       bg: "#EAF475",

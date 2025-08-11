@@ -239,7 +239,7 @@ export default function AssessmentForm({
             </Box>
 
             <Text fontSize="md" mb={4} color="gray.600">
-              Find expert support for your concerns by consulting a Metamind therapist.
+              Find expert support for your concerns by consulting a Dental therapist.
             </Text>
 
             <Flex justify="center" gap={4}>

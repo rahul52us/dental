@@ -13,11 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: data.title,
       description: data.description,
-      url: "https://www.metamindhealth.com/terms-condition",
-      siteName: "Metamind Health",
+      url: "https://www.Dentalhealth.com/terms-condition",
+      siteName: "Dental Health",
       images: [
         {
-          url: "https://www.metamindhealth.com/images/logo.png",
+          url: "https://www.Dentalhealth.com/images/logo.png",
           width: 1200,
           height: 630,
           alt: data.title,
@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: data.title,
       description: data.description,
-      images: ["https://www.metamindhealth.com/images/logo.png"],
+      images: ["https://www.Dentalhealth.com/images/logo.png"],
     },
   };
 }

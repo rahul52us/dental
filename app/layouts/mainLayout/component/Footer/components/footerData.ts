@@ -9,17 +9,17 @@ export const footerData = {
     socialLinks: [
       {
         name: "LinkedIn",
-        url: "https://www.linkedin.com/company/metamind-healthcare/",
+        url: "https://www.linkedin.com/company/Dental-healthcare/",
         icon: FaLinkedinIn
       },
       {
         name: "FaXTwitter",
-        url: "https://x.com/metamindhealth",
+        url: "https://x.com/Dentalhealth",
         icon: FaXTwitter
       },
       {
         name: "Instagram",
-        url: "https://www.instagram.com/metamindhealth/",
+        url: "https://www.instagram.com/Dentalhealth/",
         icon: FaInstagram
       },
       {
@@ -29,14 +29,14 @@ export const footerData = {
       },
       {
         name: "YouTube",
-        url: "https://www.youtube.com/@Metamind_health",
+        url: "https://www.youtube.com/@Dental_health",
         icon: FaYoutube
       }
     ]
   },
   contactInfo: {
     phone: "+91 9899 129943",
-    email: "Support@metamindhealth.com",
+    email: "Support@Dentalhealth.com",
     address: "2nd Floor, LC complex, Sector 49, Noida, UP, IN- 201301"
   },
   sections: [
@@ -62,7 +62,7 @@ export const footerData = {
         { name: "Teen Therapy", href: "/services/teen-therapy" },
         { name: "Psychological Assessment", href: "/assessment" },
         { name: "Eating Disorder(Upcoming)", href: "" },
-        { name: "Metamind Anxiety Traumatic Stress Unit(Upcoming)", href: "" },
+        { name: "Dental Anxiety Traumatic Stress Unit(Upcoming)", href: "" },
         { name: "Psychodynamic Psychotherapy", href: "/services/psychodynamic-therapy" },
         { name: "Supervision", href: "/supervision" },
 

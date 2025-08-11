@@ -9,7 +9,7 @@ export const rotateCardData = [
     opacity: 1,
     width: "16rem",
     height: "18rem",
-    link: "https://www.metamindhealth.com/profile/Nikita-Bhati",  // Add your link here
+    link: "https://www.Dentalhealth.com/profile/Nikita-Bhati",  // Add your link here
     // link: "https://secure.therasoft.in/TSI/Bookyoursession.aspx?CC=zz3CPddnUoI=&CON=9ziJM2yrlOg=",
   },
   {
@@ -22,7 +22,7 @@ export const rotateCardData = [
     opacity: 0.5,
     width: "14rem",
     height: "16rem",
-    link: "https://www.metamindhealth.com/profile/Maiena-Pant",
+    link: "https://www.Dentalhealth.com/profile/Maiena-Pant",
     // link: "https://secure.therasoft.in/TSI/Bookyoursession.aspx?CC=zz3CPddnUoI=&CON=9ziJM2yrlOg="
   },
   {
@@ -35,7 +35,7 @@ export const rotateCardData = [
     opacity: 0.5,
     width: "14rem",
     height: "16rem",
-    link: "https://www.metamindhealth.com/profile/Pooja-Bharadwaj",
+    link: "https://www.Dentalhealth.com/profile/Pooja-Bharadwaj",
     //  link: "https://secure.therasoft.in/TSI/Bookyoursession.aspx?CC=zz3CPddnUoI=&CON=8rMNlUWtcq4="
   },
 ];

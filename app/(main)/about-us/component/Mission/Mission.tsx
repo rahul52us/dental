@@ -5,7 +5,7 @@ import CustomSubHeading from "../../../../component/common/CustomSubHeading/Cust
 const Mission = () => {
   return (
     <Box maxW={{ base: "100%", md: "92%", lg: "90%" }} mx="auto" px={{ base: 4, md: 6 }}>
-      <CustomSmallTitle textAlign="center">Care at Metamind</CustomSmallTitle>
+      <CustomSmallTitle textAlign="center">Care at Dental</CustomSmallTitle>
       <CustomSubHeading fontSize={{ base: "24px", md: "32px" }} highlightText="believe in" >What we </CustomSubHeading>
 
       {/* Mobile Layout: Image on Top, Problem and Solution below */}

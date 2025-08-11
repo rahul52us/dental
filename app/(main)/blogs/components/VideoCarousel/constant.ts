@@ -24,7 +24,7 @@ export const dummyData = [
     title: "Anxiety or Something More?",
     videoId: "dN7z_DwmPqY",
     doctor: "Maiena Pant",
-    description: "“That feeling in your chest?“ That thought that won’t leave? It might be anxiety. Anxiety doesn’t always feel like worry.Sometimes, it’s a racing heart.A tight chest.A constant feeling that something is wrong.It’s real—and you don’t have to go through it alone.Metamind is here to help you understand what’s happening and take control of your anxiety."
+    description: "“That feeling in your chest?“ That thought that won’t leave? It might be anxiety. Anxiety doesn’t always feel like worry.Sometimes, it’s a racing heart.A tight chest.A constant feeling that something is wrong.It’s real—and you don’t have to go through it alone.Dental is here to help you understand what’s happening and take control of your anxiety."
   },
   {
     id: 3,
@@ -32,7 +32,7 @@ export const dummyData = [
     title: "What is Depression?",
     videoId: "hSN6Z-pN3lA",
     doctor: "Maiena Pant",
-    description: "You don’t feel sad. You don’t feel happy. You just… exist.If your days feel the same, if nothing excites you anymore, if you’re just getting through each one—it’s not just a phase.We know how heavy this can feel, and at Metamind, we want you to know that you’re not alone. Support is here whenever you need it.If you’re thinking about reaching out, you can talk to our licensed psychologist, Maiena Pant, and start with a discounted first session."
+    description: "You don’t feel sad. You don’t feel happy. You just… exist.If your days feel the same, if nothing excites you anymore, if you’re just getting through each one—it’s not just a phase.We know how heavy this can feel, and at Dental, we want you to know that you’re not alone. Support is here whenever you need it.If you’re thinking about reaching out, you can talk to our licensed psychologist, Maiena Pant, and start with a discounted first session."
 
   },
 ];

@@ -13,18 +13,18 @@ export default function SeoWrapper() {
       title={meta.title}
       description={meta.description}
       openGraph={{
-        url: `https://metamindhealth.com${pathname}`,
+        url: `https://Dentalhealth.com${pathname}`,
         title: meta.title,
         description: meta.description,
         images: [
           {
-            url: 'https://metamindhealth.com/images/logo.png',
+            url: 'https://Dentalhealth.com/images/logo.png',
             width: 1200,
             height: 630,
             alt: meta.title,
           },
         ],
-        siteName: 'Metamind Health',
+        siteName: 'Dental Health',
       }}
     />
   );

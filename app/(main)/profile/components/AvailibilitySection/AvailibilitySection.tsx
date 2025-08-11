@@ -31,7 +31,7 @@ const AvailibilitySection = ({ data }: any) => {
               Availibility
             </Heading>
             <Box>
-              <Text fontWeight={600}>Metamind Clinic</Text>
+              <Text fontWeight={600}>Dental Clinic</Text>
               <Text my={2} fontSize={"sm"} fontWeight={500} color={"#757575"}>
                 {data?.address ||
                   "2nd  Floor,  LC Complex, Sector 49, Noida, UP"}

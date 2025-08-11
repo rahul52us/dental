@@ -101,7 +101,7 @@ const ProvidersSectionWithImage = ({ data }) => {
                 display="inline"
                 ml={{ base: "0", md: "4px" }}
               >
-                about with Metamind Therapists
+                about with Dental Therapists
               </Text>
             </Box>
             <Text

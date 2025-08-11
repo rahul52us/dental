@@ -22,7 +22,7 @@ const cardData2 = [
     image: "/icons/home/therapy1.svg",
     title: "Evidence-Based Success:",
     description:
-      "Metamind therapists practice evidence-based therapies. Studies show that 67% of clients see meaningful improvements with evidence-based therapy compared to people who don’t take treatment. Searching for a psychologist in Noida or best psychiatrist in noida who combines science and compassion? You’ll find it here.",
+      "Dental therapists practice evidence-based therapies. Studies show that 67% of clients see meaningful improvements with evidence-based therapy compared to people who don’t take treatment. Searching for a psychologist in Noida or best psychiatrist in noida who combines science and compassion? You’ll find it here.",
     boldWords: ["see meaningful improvements", "67%", "evidence-based therapy "],
   },
   {

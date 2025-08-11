@@ -232,7 +232,7 @@ export default function SelfAssessment() {
             </Text>
 
             <Text fontSize={{ base: "sm", md: "md" }} mb={{ base: 3, md: 4 }} color="gray.600">
-              Find expert support for your concerns by consulting a Metamind therapist.
+              Find expert support for your concerns by consulting a Dental therapist.
             </Text>
 
             <CustomButton

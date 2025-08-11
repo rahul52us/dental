@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-const baseUrl = "https://www.metamindhealth.com";
+const baseUrl = "https://www.Dentalhealth.com";
 
 // 1. STATIC PAGES
 const staticPages = [
