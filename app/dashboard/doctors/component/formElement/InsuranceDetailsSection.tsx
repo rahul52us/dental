@@ -12,13 +12,13 @@ import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { FiPlus } from "react-icons/fi";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { insuranceTypeOptions } from "../../../../config/constant";
 
 const InsuranceDetailsSection = ({
   values,
   handleChange,
   setFieldValue,
   errors,
-  touched,
 }: any) => {
   return (
     <GridItem colSpan={2}>
@@ -54,13 +54,7 @@ const InsuranceDetailsSection = ({
                           label="Type"
                           name={`insurances[${index}].type`}
                           type="select"
-                          options={[
-                            { label: "Health", value: "Health" },
-                            { label: "Life", value: "Life" },
-                            { label: "Vehicle", value: "Vehicle" },
-                            { label: "Home", value: "Home" },
-                            { label: "Other", value: "Other" },
-                          ]}
+                          options={insuranceTypeOptions}
                           value={insurance.type || ""}
                           onChange={(e: any) =>
                             setFieldValue(

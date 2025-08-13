@@ -12,13 +12,13 @@ import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { FiPlus } from "react-icons/fi";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { vaccinationTypeOptions } from "../../../../config/constant";
 
 const VaccinationHistorySection = ({
   values,
   handleChange,
   setFieldValue,
   errors,
-  touched,
 }: any) => {
   return (
     <GridItem colSpan={2}>
@@ -53,14 +53,7 @@ const VaccinationHistorySection = ({
                           label="Vaccine Type"
                           name={`vaccinations[${index}].type`}
                           type="select"
-                          options={[
-                            { label: "Hepatitis B", value: "Hepatitis B" },
-                            { label: "Tetanus", value: "Tetanus" },
-                            { label: "Influenza", value: "Influenza" },
-                            { label: "COVID-19", value: "COVID-19" },
-                            { label: "Typhoid", value: "Typhoid" },
-                            { label: "Other", value: "Other" },
-                          ]}
+                          options={vaccinationTypeOptions}
                           value={vac.type || ""}
                           onChange={(e: any) =>
                             setFieldValue(

@@ -1,3 +1,5 @@
+import { genderOptions } from "../../../../config/constant";
+
 export const titles = [
   { label: "Mr.", value: "Mr." },
   { label: "Mrs.", value: "Mrs." },
@@ -10,6 +12,7 @@ export const initialValues = {
   name: "",
   backgroundVideo: "",
   dob:"",
+  gender:genderOptions[0],
   username: "",
   languages: [],
   addresses: {

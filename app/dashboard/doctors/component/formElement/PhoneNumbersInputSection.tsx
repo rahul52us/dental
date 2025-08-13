@@ -21,7 +21,7 @@ interface Phone {
 
 interface PhoneNumbersInputProps {
   values: { phones: Phone[] };
-  setFieldValue: (field: string, value: any) => void;
+  setFieldValue: any;
   errors?: any;
   touched?: any;
 }
@@ -30,7 +30,6 @@ const PhoneNumbersInput = ({
   values,
   setFieldValue,
   errors,
-  touched,
 }: PhoneNumbersInputProps) => {
   const primaryIndex = values.phones.findIndex((p) => p.primary);
 

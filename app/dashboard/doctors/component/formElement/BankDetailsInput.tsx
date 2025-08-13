@@ -26,7 +26,7 @@ interface BankAccount {
 
 interface BankDetailsInputProps {
   values: { bankAccounts: BankAccount[] };
-  setFieldValue: (field: string, value: any) => void;
+  setFieldValue: any
   errors?: any;
   touched?: any;
 }
@@ -34,8 +34,7 @@ interface BankDetailsInputProps {
 const BankDetailsInput = ({
   values,
   setFieldValue,
-  errors,
-  touched,
+  errors
 }: BankDetailsInputProps) => {
   const primaryIndex = values.bankAccounts.findIndex((b) => b.primary);
 

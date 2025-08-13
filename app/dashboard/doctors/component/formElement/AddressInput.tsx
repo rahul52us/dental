@@ -12,7 +12,7 @@ interface AddressesInputProps {
   };
   errors?: any;
   touched?: any;
-  handleChange: (e: React.ChangeEvent<any>) => void;
+  handleChange: any
 }
 
 const AddressesInput = ({

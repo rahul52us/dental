@@ -21,7 +21,7 @@ interface Email {
 
 interface EmailsInputProps {
   values: { emails: Email[] };
-  setFieldValue: (field: string, value: any) => void;
+  setFieldValue: any;
   errors?: any;
   touched?: any;
 }

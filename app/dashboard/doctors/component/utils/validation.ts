@@ -4,6 +4,7 @@
  export const createValidationSchema = Yup.object({
     title: Yup.mixed().required("Title is required"),
     pic: Yup.mixed(),
+        gender: Yup.mixed().required("Gender is required"),
     dob: Yup.mixed().required('dob  is required'),
     name: Yup.string().required("Name is required"),
     username: Yup.string().required("Username is required"),
@@ -108,8 +109,7 @@
 export const updateValidationSchema = Yup.object({
     title: Yup.mixed().required("Title is required"),
     pic: Yup.mixed(),
-    dob: Yup.mixed().required('dob  is required'),
-    name: Yup.string().required("Name is required"),
+    gender: Yup.mixed().required("Gender is required"),
     username: Yup.string().required("Username is required"),
     phones: Yup.array().of(
       Yup.object().shape({

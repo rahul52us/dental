@@ -23,6 +23,7 @@ import EmailsInput from "./formElement/EmailInputs";
 import BankDetailsInput from "./formElement/BankDetailsInput";
 import AddressesInput from "./formElement/AddressInput";
 import { createValidationSchema, updateValidationSchema } from "./utils/validation";
+import { genderOptions } from "../../../config/constant";
 
 const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
@@ -144,6 +145,16 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         showError={errors.username && touched.username}
                       />
                       <CustomInput
+                        label="Code"
+                        name="code"
+                        placeholder="Enter Code"
+                        required={true}
+                        value={values.code}
+                        onChange={handleChange}
+                        error={errors.code}
+                        showError={errors.code}
+                      />
+                      <CustomInput
                         label="Date Of birth"
                         type="date"
                         name={`dob`}
@@ -154,14 +165,15 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         showError={errors?.dob}
                       />
                       <CustomInput
-                        label="Code"
-                        name="code"
-                        placeholder="Enter Code"
+                        label="Gender"
+                        name="gender"
+                        type="select"
+                        options={genderOptions}
                         required={true}
-                        value={values.code}
-                        onChange={handleChange}
-                        error={errors.code}
-                        showError={errors.code}
+                        value={values.gender}
+                        onChange={(e: any) => setFieldValue("gender", e)}
+                        error={errors.gender}
+                        showError={errors.gender}
                       />
                       <CustomInput
                         label="Languages"
@@ -176,9 +188,9 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         showError={errors.languages}
                       />
                       <CustomInput
-                        label="Background Video"
+                        label="Background Image"
                         name="backgroundVideo"
-                        placeholder="Enter Background Video"
+                        placeholder="Enter Background Image"
                         value={values.backgroundVideo}
                         onChange={handleChange}
                         error={

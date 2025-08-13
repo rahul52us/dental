@@ -5,8 +5,6 @@ import {
   Image,
   Heading,
   Stack,
-  Divider,
-  SimpleGrid,
   Badge,
   Card,
   CardHeader,
@@ -28,7 +26,7 @@ const InfoItem = ({ label, value }: { label: string; value: any }) => (
   </HStack>
 );
 
-const SectionCard = ({ icon, title, children } : any) => {
+const SectionCard = ({ icon, title, children }: any) => {
   const bg = useColorModeValue("white", "gray.800");
   return (
     <Card bg={bg} borderWidth="1px" borderRadius="lg" shadow="sm" mb={5}>
@@ -44,12 +42,17 @@ const SectionCard = ({ icon, title, children } : any) => {
 };
 
 const ViewDoctor = ({ doctor }) => {
+      const pageBg = useColorModeValue("gray.50", "gray.900");
+  const sectionItemBg = useColorModeValue("gray.50", "gray.700");
+
   if (!doctor) return <Text>No doctor data available</Text>;
 
   const personalInfo = doctor?.profileDetails?.personalInfo || {};
 
+  // ✅ Declare hook values only once at top level
+
   return (
-    <Box p={2} bg={useColorModeValue("gray.50", "gray.900")}>
+    <Box p={2} bg={pageBg}>
       {/* Profile Header */}
       <Card mb={6} shadow="sm">
         <CardBody>
@@ -131,7 +134,7 @@ const ViewDoctor = ({ doctor }) => {
             borderWidth="1px"
             borderRadius="md"
             mb={2}
-            bg={useColorModeValue("gray.50", "gray.700")}
+            bg={sectionItemBg} // ✅ Precomputed value
           >
             <InfoItem label="Account Holder" value={b.accountHolder} />
             <InfoItem label="Bank Name" value={b.bankName} />
@@ -152,7 +155,7 @@ const ViewDoctor = ({ doctor }) => {
             borderWidth="1px"
             borderRadius="md"
             mb={2}
-            bg={useColorModeValue("gray.50", "gray.700")}
+            bg={sectionItemBg} // ✅ Precomputed value
           >
             <InfoItem label="Type" value={v.type?.label} />
             <InfoItem label="Date Administered" value={v.dateAdministered} />
@@ -171,7 +174,7 @@ const ViewDoctor = ({ doctor }) => {
             borderWidth="1px"
             borderRadius="md"
             mb={2}
-            bg={useColorModeValue("gray.50", "gray.700")}
+            bg={sectionItemBg} // ✅ Precomputed value
           >
             <InfoItem label="Type" value={i.type?.label} />
             <InfoItem label="Start Date" value={i.startDate} />

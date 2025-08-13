@@ -3,7 +3,7 @@ import CustomInput from "../../../../component/config/component/customInput/Cust
 
 interface AvailabilityAuthProps {
   values: any;
-  handleChange: (e: React.ChangeEvent<any>) => void;
+  handleChange: any;
   errors: any;
   touched: any;
   isEdit: boolean;
@@ -13,7 +13,6 @@ const AvailabilityAuthSection = ({
   values,
   handleChange,
   errors,
-  touched,
   isEdit,
 }: AvailabilityAuthProps) => {
   return (

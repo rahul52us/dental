@@ -16,9 +16,10 @@ import Form from "./component/Form";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/Doctors/component/DeleteUser";
 import DoctorsTable from "./component/Doctors/DoctorTable";
+import { replaceLabelValueObjects } from "../../config/utils/function";
 
 const DoctorsPage = () => {
-  const [formLoading,setFormLoading] = useState(false)
+  const [formLoading, setFormLoading] = useState(false);
   const {
     userStore: { createUser, getAllUsers, updateUser },
   } = stores;
@@ -32,11 +33,10 @@ const DoctorsPage = () => {
 
   const handleAddSubmit = async (formData: any) => {
     try {
-      setFormLoading(true)
+      setFormLoading(true);
       const values = { ...formData };
       if (values.pic?.file && values.pic?.file?.length !== 0) {
         const buffer = await readFileAsBase64(values.pic?.file);
-        console.log(buffer)
         const fileData = {
           buffer: buffer,
           filename: values.pic?.file?.name,
@@ -48,13 +48,15 @@ const DoctorsPage = () => {
 
       createUser({
         ...values,
-        pic:formData?.pic || {},
+      ...(replaceLabelValueObjects(values) || {}),
+        pic: formData?.pic || {},
         title: formData?.data,
-        type: "doctor"
+        gender: formData?.gender?.value || 1,
+        type: "doctor",
       })
         .then(() => {
-          getAllUsers({ page: 1, limit: 30, type : 'doctor' });
-          setFormLoading(false)
+          getAllUsers({ page: 1, limit: 30, type: "doctor" });
+          setFormLoading(false);
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
           toast({
             title: "Doctors Added.",
@@ -65,7 +67,7 @@ const DoctorsPage = () => {
           });
         })
         .catch((err: any) => {
-          setFormLoading(false)
+          setFormLoading(false);
           toast({
             title: "failed to create",
             description: `${err?.message}`,
@@ -75,7 +77,7 @@ const DoctorsPage = () => {
           });
         });
     } catch (err: any) {
-      setFormLoading(false)
+      setFormLoading(false);
       toast({
         title: "failed to create",
         description: `${err?.message}`,
@@ -90,7 +92,7 @@ const DoctorsPage = () => {
     const formData: any = {
       ...values,
     };
-    setFormLoading(true)
+    setFormLoading(true);
     if (formData?.pic?.file && formData?.pic?.isAdd) {
       const buffer = await readFileAsBase64(formData?.pic?.file);
       const fileData = {
@@ -113,14 +115,14 @@ const DoctorsPage = () => {
 
     updateUser({
       ...values,
+      ...(replaceLabelValueObjects(values) || {}),
       pic: formData?.pic,
       title: formData?.title?.label || titles[0].label,
-      availability: formData?.availability || [],
-      profileDetails: { ...formData },
+      gender: formData?.gender?.value || 1
     })
       .then(() => {
-        getAllUsers({ page: 1, limit: 30, type : 'doctor' });
-        setFormLoading(false)
+        getAllUsers({ page: 1, limit: 30, type: "doctor" });
+        setFormLoading(false);
         setIsDrawerOpen({ isOpen: false, type: "add", data: null });
         toast({
           title: "User updated.",
@@ -131,7 +133,7 @@ const DoctorsPage = () => {
         });
       })
       .catch((err: any) => {
-        setFormLoading(false)
+        setFormLoading(false);
         toast({
           title: "failed to update",
           description: `${err?.message}`,
@@ -150,10 +152,14 @@ const DoctorsPage = () => {
         }}
         onAdd={() => setIsDrawerOpen({ isOpen: true, type: "add", data: null })}
         onEdit={(dt: any) => {
+          const { profileDetails, ...rest } = dt;
           setIsDrawerOpen({
             isOpen: true,
             type: "edit",
-            data: { ...dt, ...dt?.profileDetails?.personalInfo },
+            data: {
+              ...rest,
+              ...profileDetails?.personalInfo,
+            },
           });
         }}
       />

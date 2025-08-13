@@ -41,7 +41,7 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('RootLayout hydrated, body classes:', document.body.className);
+      // console.log('RootLayout hydrated, body classes:', document.body.className);
     }
   }, []);
 
