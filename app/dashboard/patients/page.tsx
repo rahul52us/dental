@@ -164,8 +164,8 @@ const PatientPage = () => {
             bg="white"
             borderRadius="lg"
             boxShadow="xl"
-            maxW="80%"
-            width="80%"
+            maxW={{base : "100%", md : '92%'}}
+            width={{base : "100%", md : "92%"}}
           >
             <DrawerCloseButton />
             <DrawerHeader

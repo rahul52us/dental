@@ -6,22 +6,22 @@ import {
   GridItem,
   Text,
   Flex,
-  VStack,
-  IconButton,
-  Divider,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FieldArray, Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
-import {
-  removeDataByIndex,
-} from "../../../config/utils/utils";
+import { removeDataByIndex } from "../../../config/utils/utils";
 import ShowFileUploadFile from "../../../component/common/ShowFileUploadFile/ShowFileUploadFile";
-import { DeleteIcon } from "@chakra-ui/icons";
 import { titles } from "./utils/constant";
 import { generateIntialValues } from "./utils/function";
-import { FiPlus, FiTrash2 } from "react-icons/fi";
+import VaccinationHistorySection from "./formElement/VaccinationHistory";
+import InsuranceDetailsSection from "./formElement/InsuranceDetailsSection";
+import AvailabilityAuthSection from "./formElement/AvailabilityAuthSection";
+import PhoneNumbersInput from "./formElement/PhoneNumbersInputSection";
+import EmailsInput from "./formElement/EmailInputs";
+import BankDetailsInput from "./formElement/BankDetailsInput";
+import AddressesInput from "./formElement/AddressInput";
 
 const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
@@ -32,27 +32,36 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
     }
   }, [initialData]);
 
+  // Updated validation schema for phoneNumbers, emails, addresses
   const validationSchema = Yup.object({
     title: Yup.mixed().required("Title is required"),
     backgroundVideo: Yup.mixed(),
     link: Yup.mixed().required("Link is required"),
     pic: Yup.mixed(),
-    reviews: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Reviewer name is required"),
-        dateInfo: Yup.string().required("Date information is required"),
-        description: Yup.string()
-          .required("Review description is required")
-          .min(5, "Description must be at least 5 characters"),
-        rating: Yup.number()
-          .required("Rating is required")
-          .min(1, "Rating must be between 1 and 5")
-          .max(5, "Rating must be between 1 and 5"),
-      })
-    ),
     name: Yup.string().required("Name is required"),
     username: Yup.string().required("Username is required"),
-    address: Yup.string(),
+
+    phoneNumbers: Yup.array()
+      .of(
+        Yup.string()
+          .matches(
+            /^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/,
+            "Phone number is not valid"
+          )
+          .required("Phone number is required")
+      )
+      .length(4, "Exactly 4 phone numbers are required"),
+
+    emails: Yup.array()
+      .of(Yup.string().email("Invalid email").required("Email is required"))
+      .length(2, "Exactly 2 emails are required"),
+
+    addresses: Yup.object().shape({
+      residential: Yup.string().required("Residential address is required"),
+      office: Yup.string().required("Office address is required"),
+      other: Yup.string(),
+    }),
+
     languages: Yup.array(),
     licence: Yup.string(),
     expertise: Yup.array()
@@ -71,23 +80,43 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
       [Yup.ref("password"), null],
       "Passwords must match"
     ),
-    phoneNumber: Yup.string()
-      .matches(
-        /^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/,
-        "Phone number is not valid"
-      )
-      .required("Phone number is required"),
     code: Yup.string().optional(),
     qualifications: Yup.string().required("Qualifications are required"),
     professionalInfo: Yup.string().required(
       "Professional Information is required"
     ),
-    // New field validations for Details section
     aboutMe: Yup.object().shape({
       paragraphs: Yup.array().of(
         Yup.string().required("Paragraph is required")
       ),
     }),
+    vaccinations: Yup.array().of(
+      Yup.object().shape({
+        type: Yup.string().required("Vaccine type is required"),
+        dateAdministered: Yup.string().required(
+          "Date administered is required"
+        ),
+        nextDueDate: Yup.string().nullable(),
+        reminder: Yup.boolean(),
+        remarks: Yup.string().nullable(),
+      })
+    ),
+    insurances: Yup.array().of(
+      Yup.object().shape({
+        type: Yup.string().required("Insurance type is required"),
+        startDate: Yup.string().required("Start date is required"),
+        renewalDate: Yup.string().required("Renewal date is required"),
+        amountInsured: Yup.number()
+          .required("Amount insured is required")
+          .positive("Amount insured must be positive")
+          .typeError("Amount insured must be a valid number"),
+        amountPaid: Yup.number()
+          .required("Amount paid is required")
+          .min(0, "Amount paid cannot be negative")
+          .typeError("Amount paid must be a valid number"),
+        remarks: Yup.string().nullable(),
+      })
+    ),
     services: Yup.array().min(1, "At least one service is required"),
     conditions: Yup.array().min(1, "At least one condition is required"),
     affiliations: Yup.array().of(
@@ -99,8 +128,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
     ),
     stats: Yup.array().of(
       Yup.object().shape({
-        value: Yup.string()
-          .required("Value is required"),
+        value: Yup.string().required("Value is required"),
         label: Yup.string().required("Label is required"),
       })
     ),
@@ -147,7 +175,9 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                   <Text fontSize="lg" fontWeight="semibold" mb={4}>
                     Personal Information
                   </Text>
+
                   <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
+                    {/* Pic Upload */}
                     <Box width="100%">
                       {values?.pic?.file?.length === 0 ? (
                         <CustomInput
@@ -181,6 +211,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         </Box>
                       )}
                     </Box>
+
+                    {/* Basic Details */}
                     <Grid
                       gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
                       gap={5}
@@ -220,16 +252,6 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         showError={errors.username && touched.username}
                       />
                       <CustomInput
-                        label="Phone Number"
-                        name="phoneNumber"
-                        type="text"
-                        placeholder="Enter Phone Number"
-                        value={values.phoneNumber}
-                        onChange={handleChange}
-                        error={errors.phoneNumber && touched.phoneNumber}
-                        showError={errors.phoneNumber && touched.phoneNumber}
-                      />
-                      <CustomInput
                         label="Code"
                         name="code"
                         placeholder="Enter Code"
@@ -253,8 +275,12 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         placeholder="Enter Background Video"
                         value={values.backgroundVideo}
                         onChange={handleChange}
-                        error={errors.backgroundVideo && touched.backgroundVideo}
-                        showError={errors.backgroundVideo && touched.backgroundVideo}
+                        error={
+                          errors.backgroundVideo && touched.backgroundVideo
+                        }
+                        showError={
+                          errors.backgroundVideo && touched.backgroundVideo
+                        }
                       />
                     </Grid>
                     <Box
@@ -262,6 +288,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       borderRadius="md"
                       boxShadow="sm"
                       bg="white"
+                      fontWeight="bold"
                       mt={3}
                       p={3}
                     >
@@ -282,21 +309,41 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       borderRadius="md"
                       boxShadow="sm"
                       bg="white"
+                      fontWeight="bold"
                       mt={3}
                       p={3}
                     >
                       <CustomInput
-                        label="Address"
-                        name="address"
+                        label="Medical History"
+                        name="medicalHistory"
                         type="textarea"
-                        placeholder="Enter Address"
-                        value={values.address}
+                        placeholder="Enter your medical history here"
+                        value={values.medicalHistory}
                         onChange={handleChange}
-                        error={errors.address && touched.address}
-                        showError={errors.address && touched.address}
-                        style={{ width: "100%" }}
+                        error={errors.medicalHistory && touched.medicalHistory}
+                        showError={
+                          errors.medicalHistory && touched.medicalHistory
+                        }
                       />
                     </Box>
+                    <PhoneNumbersInput
+                      values={values}
+                      setFieldValue={setFieldValue}
+                      errors={errors}
+                    />
+                    <EmailsInput
+                      values={values}
+                      setFieldValue={setFieldValue}
+                      errors={errors}
+                    />
+                    <AddressesInput
+                      values={values}
+                      handleChange={handleChange}
+                      errors={errors}
+                    />
+                    {/* Bio */}
+
+                    {/* Medical History */}
                   </SimpleGrid>
                 </GridItem>
 
@@ -393,416 +440,30 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                   </SimpleGrid>
                 </GridItem>
 
-                {/* Section 3: Details */}
-                <GridItem colSpan={2}>
-                  <Text fontSize="lg" fontWeight="semibold" mb={4}>
-                    Details
-                  </Text>
-                  <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
-                    <Box
-                      borderWidth={1}
-                      borderRadius="md"
-                      boxShadow="sm"
-                      bg="white"
-                      mt={3}
-                      p={3}
-                    >
-                      <CustomInput
-                        label="About Me"
-                        name="aboutMe.paragraphs[0]"
-                        type="textarea"
-                        placeholder="Enter About Me paragraph"
-                        value={values.aboutMe.paragraphs[0]}
-                        onChange={handleChange}
-                        error={
-                          errors.aboutMe?.paragraphs?.[0] &&
-                          touched.aboutMe?.paragraphs?.[0]
-                        }
-                        showError={
-                          errors.aboutMe?.paragraphs?.[0] &&
-                          touched.aboutMe?.paragraphs?.[0]
-                        }
-                      />
-                    </Box>
-                    <Box
-                      p={4}
-                      borderWidth={1}
-                      borderRadius="md"
-                      boxShadow="sm"
-                      bg="white"
-                      mt={3}
-                    >
-                      <Text
-                        fontSize="lg"
-                        fontWeight="bold"
-                        mb={4}
-                        color="teal.600"
-                      >
-                        Services
-                      </Text>
-                      <CustomInput
-                        label="Services"
-                        name="services"
-                        placeholder="Add Services (e.g., Mindfulness-based Therapy)"
-                        value={values.services}
-                        onChange={(newTags: any) =>
-                          setFieldValue("services", newTags)
-                        }
-                        type="tags"
-                        error={errors.services && touched.services}
-                        showError={errors.services && touched.services}
-                      />
-                    </Box>
-                    <Box
-                      p={4}
-                      borderWidth={1}
-                      borderRadius="md"
-                      boxShadow="sm"
-                      bg="white"
-                      mt={3}
-                    >
-                      <Text
-                        fontSize="lg"
-                        fontWeight="bold"
-                        mb={4}
-                        color="teal.600"
-                      >
-                        Conditions
-                      </Text>
-                      <CustomInput
-                        label="Conditions"
-                        name="conditions"
-                        placeholder="Add Conditions (e.g., Anxiety)"
-                        value={values.conditions}
-                        onChange={(newTags: any) =>
-                          setFieldValue("conditions", newTags)
-                        }
-                        type="tags"
-                        error={errors.conditions && touched.conditions}
-                        showError={errors.conditions && touched.conditions}
-                      />
-                    </Box>
-                  </SimpleGrid>
-                  <Box
-                    p={4}
-                    borderWidth={1}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    bg="white"
-                    mt={3}
-                  >
-                    <Text
-                      fontSize="lg"
-                      fontWeight="bold"
-                      mb={4}
-                      color="teal.600"
-                    >
-                      Affiliations
-                    </Text>
-                    <FieldArray name="affiliations">
-                      {({ remove, push }) => (
-                        <VStack spacing={4} align="stretch">
-                          {values.affiliations.map((aff, index) => (
-                            <SimpleGrid
-                              key={index}
-                              columns={{ base: 1, md: 4 }}
-                              spacing={4}
-                              p={4}
-                              borderWidth={1}
-                              borderRadius="md"
-                              boxShadow="xs"
-                              bg="gray.50"
-                            >
-                              <CustomInput
-                                label={`Affiliation Title ${index + 1}`}
-                                name={`affiliations[${index}].title`}
-                                placeholder="Enter Affiliation Title"
-                                value={aff.title}
-                                onChange={handleChange}
-                                error={
-                                  errors.affiliations?.[index]?.title &&
-                                  touched.affiliations?.[index]?.title
-                                }
-                                showError={
-                                  errors.affiliations?.[index]?.title &&
-                                  touched.affiliations?.[index]?.title
-                                }
-                              />
-                              <CustomInput
-                                label={`Organization ${index + 1}`}
-                                name={`affiliations[${index}].organization`}
-                                placeholder="Enter Organization"
-                                value={aff.organization}
-                                onChange={handleChange}
-                                error={
-                                  errors.affiliations?.[index]?.organization &&
-                                  touched.affiliations?.[index]?.organization
-                                }
-                                showError={
-                                  errors.affiliations?.[index]?.organization &&
-                                  touched.affiliations?.[index]?.organization
-                                }
-                              />
-                              <CustomInput
-                                label={`Location ${index + 1}`}
-                                name={`affiliations[${index}].location`}
-                                placeholder="Enter Location"
-                                value={aff.location}
-                                onChange={handleChange}
-                                error={
-                                  errors.affiliations?.[index]?.location &&
-                                  touched.affiliations?.[index]?.location
-                                }
-                                showError={
-                                  errors.affiliations?.[index]?.location &&
-                                  touched.affiliations?.[index]?.location
-                                }
-                              />
-                              <IconButton
-                                aria-label="Delete affiliation"
-                                icon={<DeleteIcon />}
-                                colorScheme="red"
-                                onClick={() => remove(index)}
-                                alignSelf="center"
-                              />
-                            </SimpleGrid>
-                          ))}
-                          <Button
-                            onClick={() =>
-                              push({
-                                title: "",
-                                organization: "",
-                                location: "",
-                                color: "#FFFFFF",
-                              })
-                            }
-                            colorScheme="teal"
-                            size="md"
-                          >
-                            Add Affiliation
-                          </Button>
-                        </VStack>
-                      )}
-                    </FieldArray>
-                  </Box>
-                  <Box
-                    p={4}
-                    borderWidth={1}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    bg="white"
-                    mt={3}
-                  >
-                    <Text
-                      fontSize="lg"
-                      fontWeight="bold"
-                      mb={4}
-                      color="teal.600"
-                    >
-                      Statistics
-                    </Text>
-                    <FieldArray name="stats">
-                      {() => (
-                        <VStack spacing={4} align="stretch">
-                          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                            {values.stats.map((stat, index) => (
-                              <Box
-                                key={index}
-                                p={4}
-                                borderWidth={1}
-                                borderRadius="md"
-                                boxShadow="xs"
-                                bg="gray.50"
-                                position="relative"
-                              >
-                                <CustomInput
-                                  label={stat.label}
-                                  name={`stats[${index}].value`}
-                                  placeholder="Enter Value"
-                                  value={stat.value}
-                                  onChange={handleChange}
-                                  // error={
-                                  //   errors.stats?.[index]?.value &&
-                                  //   touched.stats?.[index]?.value
-                                  // }
-                                  // showError={
-                                  //   errors.stats?.[index]?.value &&
-                                  //   touched.stats?.[index]?.value
-                                  // }
-                                />
-                              </Box>
-                            ))}
-                          </SimpleGrid>
-                        </VStack>
-                      )}
-                    </FieldArray>
-                  </Box>
-                </GridItem>
-                {/* Section 4: Availability and Password */}
-                <GridItem colSpan={2}>
-                <Box mt={6} p={4} borderRadius="lg" boxShadow="lg" bg="gray.50">
-        <Text fontSize="xl" fontWeight="bold" mb={2}>Reviews</Text>
-        <Divider mb={4} />
-
-        <FieldArray name="reviews">
-          {({ push, remove }) => (
-            <>
-              <VStack spacing={4} align="stretch">
-                {values.reviews.map((review, index) => (
-                  <Flex
-                    flexDirection="column"
-                    key={index}
-                    p={4}
-                    borderRadius="md"
-                    boxShadow="md"
-                    bg="white"
-                    position="relative"
-                    gap={4}
-                  >
-                    <Flex justify="space-between" align="center" mb={2}>
-                      <Text fontWeight="bold">Review {index + 1}</Text>
-                      <IconButton
-                        aria-label="Remove review"
-                        icon={<FiTrash2 />}
-                        colorScheme="red"
-                        size="sm"
-                        onClick={() => remove(index)}
-                        isDisabled={values.reviews.length === 1}
-                      />
-                    </Flex>
-
-                    <CustomInput
-                    style={{marginTop:'5px'}}
-                      label="Name"
-                      name={`reviews.${index}.name`}
-                      placeholder="Enter Review Name"
-                      value={review.name}
-                      onChange={handleChange}
-                      error={errors.reviews?.[index]?.name && touched.reviews?.[index]?.name}
-                      showError={errors.reviews?.[index]?.name && touched.reviews?.[index]?.name}
-                    />
-
-<CustomInput
-                    style={{marginTop:'5px'}}
-                      label="Date Info"
-                      name={`reviews.${index}.dateInfo`}
-                      placeholder="Enter  dateInfo"
-                      value={review.dateInfo}
-                      onChange={handleChange}
-                      error={errors.reviews?.[index]?.dateInfo && touched.reviews?.[index]?.dateInfo}
-                      showError={errors.reviews?.[index]?.dateInfo && touched.reviews?.[index]?.dateInfo}
-                    />
-
-                    <CustomInput
-                    style={{marginTop:'5px'}}
-                      label="Description"
-                      name={`reviews.${index}.description`}
-                      placeholder="Enter Review Description"
-                      value={review.description}
-                      onChange={handleChange}
-                      error={errors.reviews?.[index]?.description && touched.reviews?.[index]?.description}
-                      showError={errors.reviews?.[index]?.description && touched.reviews?.[index]?.description}
-                    />
-
-                    <CustomInput
-                      style={{marginTop:'5px'}}
-                      label="Rating (1-5)"
-                      name={`reviews.${index}.rating`}
-                      placeholder="Enter Rating"
-                      type="number"
-                      value={review.rating}
-                      onChange={handleChange}
-                      error={errors.reviews?.[index]?.rating && touched.reviews?.[index]?.rating}
-                      showError={errors.reviews?.[index]?.rating && touched.reviews?.[index]?.rating}
-                    />
-                  </Flex>
-                ))}
-              </VStack>
-
-              {/* Add Review Button */}
-              <Button
-                leftIcon={<FiPlus />}
-                colorScheme="blue"
-                mt={4}
-                onClick={() => push({ description: "", rating: "" })}
-              >
-                Add Review
-              </Button>
-            </>
-          )}
-        </FieldArray>
-      </Box>
-                </GridItem>
-                <GridItem colSpan={2}>
-                  <Box
-                    p={4}
-                    borderWidth={1}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    bg="white"
-                    mt={3}
-                  >
-                    <Text
-                      fontSize="lg"
-                      fontWeight="bold"
-                      mb={4}
-                      color="teal.600"
-                    >
-                      Availability & Authentication
-                    </Text>
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                      <CustomInput
-                        label="Availability"
-                        name="availability"
-                        placeholder="Add Availability"
-                        value={values.availability}
-                        onChange={(newTags: any) =>
-                          setFieldValue("availability", newTags)
-                        }
-                        type="tags"
-                        error={errors.availability && touched.availability}
-                        showError={errors.availability && touched.availability}
-                      />
-                      <CustomInput
-                        label="Time"
-                        name="time"
-                        placeholder="Enter Time (e.g., 9 AM, 3:30 PM)"
-                        value={values.time}
-                        onChange={handleChange}
-                        error={errors.time && touched.time}
-                        showError={errors.time && touched.time}
-                      />
-                      {!isEdit && (
-                        <>
-                          <CustomInput
-                            label="Password"
-                            name="password"
-                            type="password"
-                            placeholder="Enter Password"
-                            value={values.password}
-                            onChange={handleChange}
-                            error={errors.password && touched.password}
-                            showError={errors.password && touched.password}
-                          />
-                          <CustomInput
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={values.confirmPassword}
-                            onChange={handleChange}
-                            error={
-                              errors.confirmPassword && touched.confirmPassword
-                            }
-                            showError={
-                              errors.confirmPassword && touched.confirmPassword
-                            }
-                          />
-                        </>
-                      )}{" "}
-                    </SimpleGrid>
-                  </Box>
-                </GridItem>
+                <VaccinationHistorySection
+                  errors={errors}
+                  setFieldValue={setFieldValue}
+                  values={values}
+                  handleChange={handleChange}
+                />
+                <InsuranceDetailsSection
+                  errors={errors}
+                  setFieldValue={setFieldValue}
+                  values={values}
+                  handleChange={handleChange}
+                />
+                <BankDetailsInput
+                  errors={errors}
+                  setFieldValue={setFieldValue}
+                  values={values}
+                />
+                <AvailabilityAuthSection
+                  values={values}
+                  handleChange={handleChange}
+                  errors={errors}
+                  touched={touched}
+                  isEdit={isEdit}
+                />
               </Grid>
 
               <Flex justifyContent="flex-end" mt={4}>
