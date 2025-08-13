@@ -9,21 +9,14 @@ export const initialValues = {
   title: titles[0],
   name: "",
   backgroundVideo: "",
+  dob:"",
   username: "",
-  experience: "",
-  reviews: [{ description: "", rating: "", dateInfo: "", name: "" }],
-  expertise: [],
   languages: [],
-  licence: "",
   addresses: {
     residential: "",
     office: "",
     other: "",
   },
-  availability: [],
-  time: "",
-  link: "",
-  charges: "",
   bio: "",
   password: "",
   confirmPassword: "",
@@ -48,16 +41,7 @@ export const initialValues = {
   },
 ],
   code: "",
-  qualifications: "",
-  professionalInfo: "",
   pic: { file: [] },
-  aboutMe: {
-    title: "About Me",
-    paragraphs: [""],
-  },
-  affiliations: [],
-  services: [],
-  conditions: [],
   vaccinations: [
     {
       type: "",
@@ -76,12 +60,5 @@ export const initialValues = {
       amountPaid: "",
       remarks: "",
     },
-  ],
-  stats: [
-    { value: "", label: "YEARS OF EXPERIENCE" },
-    { value: "", label: "HOURS OF THERAPY" },
-    { value: "", label: "HOURS IN ASSESSMENT" },
-  ],
+  ]
 };
-
-

@@ -1,6 +1,29 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
-import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Badge,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  Flex,
+  Grid,
+  GridItem,
+  Image,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  Tooltip,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { FaBrain, FaUserFriends, FaVideo } from "react-icons/fa";
 import { GiPsychicWaves } from "react-icons/gi";
 import Link from "next/link";
@@ -9,8 +32,9 @@ import useDebounce from "../../../../component/config/component/customHooks/useD
 import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDateTime } from "../../../../component/config/utils/dateUtils";
+import ViewDoctor from "./ViewDoctor";
 
-const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
+const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
     userStore: { getAllUsers, therapist },
     auth: { openNotification },
@@ -24,7 +48,7 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
   const applyGetAllTherapists = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false }) => {
-      const query: any = { page, limit };
+      const query: any = { page, limit, type: "doctor" };
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -67,31 +91,20 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
     onOpen();
   };
 
-  const AvailabilityBadge = ({ type }: { type: string }) => (
-    <Badge colorScheme={type === "online" ? "green" : "blue"} px={3} py={1} borderRadius="full" w={"fit-content"} display="flex" alignItems="center" gap={2}>
-      {type === "online" ? <FaVideo /> : <FaUserFriends />}
-      {type}
-    </Badge>
-  );
-
   const TherapistTableColumns = [
     {
       headerName: "S.No.",
       key: "sno",
-      props: { row: { textAlign: "center" } }
+      props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "User",
+      headerName: "Pic",
       key: "user",
       type: "component",
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
-            <Avatar
-              src={dt.pic?.url}
-              name={dt.pic?.name}
-              size="sm"
-            />
+            <Avatar src={dt.pic?.url} name={dt.pic?.name} size="sm" />
           </Box>
         ),
       },
@@ -103,81 +116,59 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
     {
       headerName: "Username",
       key: "username",
-      props: { row: { textAlign: "center" } }
+      props: { row: { textAlign: "center" } },
     },
     {
       headerName: "Role",
-      key: "role",
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Experience",
-      key: "experience",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Stack direction="row" flexWrap="wrap">
-            <Text>{dt.profileDetails?.personalInfo?.experience || '-'}</Text>
-          </Stack>
-        ),
-      },
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Charges",
-      key: "charges",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Stack direction="row" flexWrap="wrap">
-            <Text>₹{dt.profileDetails?.personalInfo?.charges || '-'}</Text>
-          </Stack>
-        ),
-      },
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Availability",
-      key: "availability",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Stack direction="row" flexWrap="wrap" justify="center">
-            {dt.profileDetails?.personalInfo?.availability?.map((type: string, idx: number) => (
-              <AvailabilityBadge key={idx} type={type} />
-            )) || '-'}
-          </Stack>
-        ),
-      },
-      props: { row: { textAlign: "center" } }
+      key: "userType",
+      props: { row: { textAlign: "center" } },
     },
     {
       headerName: "Bio",
       key: "bio",
       type: "tooltip",
-      function: (dt: any) => dt.profileDetails?.personalInfo?.bio ? (
-        <Tooltip label={dt.profileDetails.personalInfo.bio} hasArrow zIndex={9999}>
-          <span>{dt.profileDetails.personalInfo.bio.slice(0, 50)}</span>
-        </Tooltip>
-      ) : "-",
-      props: { row: { textAlign: "center" } }
+      function: (dt: any) =>
+        dt.profileDetails?.personalInfo?.bio ? (
+          <Tooltip
+            label={dt.profileDetails.personalInfo.bio}
+            hasArrow
+            zIndex={9999}
+          >
+            <span>{dt.profileDetails.personalInfo.bio.slice(0, 50)}</span>
+          </Tooltip>
+        ) : (
+          "-"
+        ),
+      props: { row: { textAlign: "center" } },
     },
     {
-          headerName: "Created At",
-          key: "createdAt",
-          type: "component",
-          metaData: {
-            component: (dt: any) => (
-              <Box m={1}>
-                 {formatDateTime(dt?.createdAt)}
-              </Box>
-            ),
-          },
-          props: {
-            row: { minW: 120, textAlign: "center" },
-            column: { textAlign: "center" },
-          },
-        },
+      headerName: "Created At",
+      key: "createdAt",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{formatDateTime(dt?.createdAt)}</Box>
+        ),
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Last Updated At",
+      key: "updatedAt",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{formatDateTime(dt?.updatedAt)}</Box>
+        ),
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
     {
       headerName: "Actions",
       key: "table-actions",
@@ -193,10 +184,12 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
     <Box p={4}>
       <CustomTable
         title="Doctors"
-        data={therapist.data?.map((t: any, index: number) => ({
-          ...t,
-          sno: index + 1,
-        })) || []}
+        data={
+          therapist.data?.map((t: any, index: number) => ({
+            ...t,
+            sno: index + 1,
+          })) || []
+        }
         columns={TherapistTableColumns}
         actions={{
           actionBtn: {
@@ -208,7 +201,7 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
             },
             editKey: {
               showEditButton: true,
-              function: (e : any) => {
+              function: (e: any) => {
                 onEdit(e);
               },
             },
@@ -245,11 +238,14 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
         loading={therapist.loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
           <DrawerCloseButton />
-          <DrawerHeader bgGradient="linear(to-r, blue.400, purple.400)" color="white">
+          <DrawerHeader
+            bgGradient="linear(to-r, blue.400, purple.400)"
+            color="white"
+          >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
               User Profile
@@ -258,83 +254,12 @@ const DoctorTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
           {selectedTherapist && (
             <DrawerBody>
-              <Box position="relative">
-                <Flex justify={"center"}>
-                  <Image src={selectedTherapist?.pic?.url} h={"160px"} objectFit={"cover"} rounded={"xl"} alt="Top Clinical Psychologist Doctors in Noida" />
-                </Flex>
-
-                <Box textAlign="center" mt={2}>
-                  <Text fontSize="2xl" fontWeight="bold">
-                    {selectedTherapist.profileDetails?.personalInfo?.name}
-                  </Text>
-                  <Text color="gray.500">{selectedTherapist.profileDetails?.personalInfo?.qualifications}</Text>
-
-                  <Grid templateColumns="repeat(2, 1fr)" gap={4} mt={4}>
-                    <GridItem>
-                      <Box bg="blue.50" p={3} borderRadius="lg">
-                        <Text fontSize="sm" color="gray.500">Experience</Text>
-                        <Text fontWeight="bold">{selectedTherapist.profileDetails?.personalInfo?.experience} Years</Text>
-                      </Box>
-                    </GridItem>
-                    <GridItem>
-                      <Box bg="blue.50" p={3} borderRadius="lg">
-                        <Text fontSize="sm" color="gray.500">Session Fee</Text>
-                        <Text fontWeight="bold">₹{selectedTherapist.profileDetails?.personalInfo?.charges}</Text>
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </Box>
-
-                <Tabs mt={6} variant="soft-rounded" colorScheme="teal">
-                  <TabList>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Bio</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Expertise</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Availability</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Contact</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Link</Tab>
-                  </TabList>
-
-                  <TabPanels mt={2}>
-                    <TabPanel>
-                      <Text color="gray.600" lineHeight="tall">
-                        {selectedTherapist.profileDetails?.personalInfo?.bio}
-                      </Text>
-                    </TabPanel>
-
-                    <TabPanel>
-                      <Stack spacing={3}>
-                        {selectedTherapist.profileDetails?.personalInfo?.expertise?.map((item: string, idx: number) => (
-                          <Flex key={idx} align="center" gap={3} p={3} bg="gray.50" borderRadius="md">
-                            <FaBrain color="#3182CE" />
-                            <Text fontWeight="500">{item}</Text>
-                          </Flex>
-                        ))}
-                      </Stack>
-                    </TabPanel>
-
-                    <TabPanel>
-                      <Stack spacing={4}>
-                        {selectedTherapist.profileDetails?.personalInfo?.availability?.map((type: string, idx: number) => (
-                          <AvailabilityBadge key={idx} type={type} />
-                        ))}
-                      </Stack>
-                    </TabPanel>
-
-                    <TabPanel>
-                      <Stack spacing={4}>
-                        <Text fontSize="sm" color="gray.500">Email: {selectedTherapist.username}</Text>
-                        <Text fontSize="sm" color="gray.500">Phone: {selectedTherapist.profileDetails?.personalInfo?.phoneNumber}</Text>
-                      </Stack>
-                    </TabPanel>
-
-                    <TabPanel>
-                      <Link href={selectedTherapist.profileDetails?.personalInfo?.link || "#"} target="_blank" rel="noopener noreferrer">
-                        {selectedTherapist.profileDetails?.personalInfo?.link}
-                      </Link>
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-              </Box>
+              <ViewDoctor
+                doctor={{
+                  ...selectedTherapist.profileDetails?.personalInfo,
+                  ...selectedTherapist,
+                }}
+              />
             </DrawerBody>
           )}
         </DrawerContent>

@@ -18,6 +18,7 @@ import DeleteData from "./component/Doctors/component/DeleteUser";
 import DoctorsTable from "./component/Doctors/DoctorTable";
 
 const DoctorsPage = () => {
+  const [formLoading,setFormLoading] = useState(false)
   const {
     userStore: { createUser, getAllUsers, updateUser },
   } = stores;
@@ -31,9 +32,11 @@ const DoctorsPage = () => {
 
   const handleAddSubmit = async (formData: any) => {
     try {
+      setFormLoading(true)
       const values = { ...formData };
       if (values.pic?.file && values.pic?.file?.length !== 0) {
         const buffer = await readFileAsBase64(values.pic?.file);
+        console.log(buffer)
         const fileData = {
           buffer: buffer,
           filename: values.pic?.file?.name,
@@ -45,12 +48,13 @@ const DoctorsPage = () => {
 
       createUser({
         ...values,
+        pic:formData?.pic || {},
         title: formData?.data,
-        availability: formData?.availability?.map((it: any) => it.value),
-        profileDetails: { ...formData },
+        type: "doctor"
       })
         .then(() => {
-          getAllUsers({ page: 1, limit: 30 });
+          getAllUsers({ page: 1, limit: 30, type : 'doctor' });
+          setFormLoading(false)
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
           toast({
             title: "Doctors Added.",
@@ -61,6 +65,7 @@ const DoctorsPage = () => {
           });
         })
         .catch((err: any) => {
+          setFormLoading(false)
           toast({
             title: "failed to create",
             description: `${err?.message}`,
@@ -70,6 +75,7 @@ const DoctorsPage = () => {
           });
         });
     } catch (err: any) {
+      setFormLoading(false)
       toast({
         title: "failed to create",
         description: `${err?.message}`,
@@ -84,7 +90,7 @@ const DoctorsPage = () => {
     const formData: any = {
       ...values,
     };
-
+    setFormLoading(true)
     if (formData?.pic?.file && formData?.pic?.isAdd) {
       const buffer = await readFileAsBase64(formData?.pic?.file);
       const fileData = {
@@ -113,7 +119,8 @@ const DoctorsPage = () => {
       profileDetails: { ...formData },
     })
       .then(() => {
-        getAllUsers({ page: 1, limit: 30 });
+        getAllUsers({ page: 1, limit: 30, type : 'doctor' });
+        setFormLoading(false)
         setIsDrawerOpen({ isOpen: false, type: "add", data: null });
         toast({
           title: "User updated.",
@@ -124,6 +131,7 @@ const DoctorsPage = () => {
         });
       })
       .catch((err: any) => {
+        setFormLoading(false)
         toast({
           title: "failed to update",
           description: `${err?.message}`,
@@ -138,9 +146,8 @@ const DoctorsPage = () => {
     <Box>
       <DoctorsTable
         onDelete={(ft: any) => {
-          setIsDrawerOpen({ open: true, type: "delete", data: ft })
-        }
-        }
+          setIsDrawerOpen({ open: true, type: "delete", data: ft });
+        }}
         onAdd={() => setIsDrawerOpen({ isOpen: true, type: "add", data: null })}
         onEdit={(dt: any) => {
           setIsDrawerOpen({
@@ -150,60 +157,61 @@ const DoctorsPage = () => {
           });
         }}
       />
-      {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit")  && <Drawer
-        size="md"
-        isOpen={isDrawerOpen.isOpen}
-        placement="right"
-        onClose={() =>
-          setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-        }
-        autoFocus={false}
-      >
-        <DrawerOverlay>
-          <DrawerContent
-            bg="white"
-            borderRadius="lg"
-            boxShadow="xl"
-            maxW={{base : "100%", md : '92%'}}
-            width={{base : "100%", md : "92%"}}
-          >
-            <DrawerCloseButton />
-            <DrawerHeader
-              bg="teal.500"
-              color="white"
-              fontSize="lg"
-              fontWeight="bold"
-              textAlign="center"
-              bgGradient="linear(to-r, blue.400, purple.400)"
+      {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
+        <Drawer
+          size="md"
+          isOpen={isDrawerOpen.isOpen}
+          placement="right"
+          onClose={() =>
+            setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+          }
+          autoFocus={false}
+        >
+          <DrawerOverlay>
+            <DrawerContent
+              bg="white"
+              borderRadius="lg"
+              boxShadow="xl"
+              maxW={{ base: "100%", md: "92%" }}
+              width={{ base: "100%", md: "92%" }}
             >
-              {isDrawerOpen?.type === "edit"
-                ? "Edit Doctors"
-                : "Add Doctors"}
-            </DrawerHeader>
-            <DrawerBody p={6} bg="gray.50">
-              <Form
-                initialData={
-                  isDrawerOpen?.type === "edit"
-                    ? { ...initialValues, ...isDrawerOpen?.data }
-                    : initialValues
-                }
-                onSubmit={
-                  isDrawerOpen?.type === "edit"
-                    ? handleEditSubmit
-                    : handleAddSubmit
-                }
-                isOpen={isDrawerOpen}
-                onClose={() =>
-                  setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-                }
-                thumbnail={thumbnail}
-                isEdit={isDrawerOpen.type === "edit" ? true : false}
-                setThumbnail={setThumbnail}
-              />
-            </DrawerBody>
-          </DrawerContent>
-        </DrawerOverlay>
-      </Drawer>}
+              <DrawerCloseButton />
+              <DrawerHeader
+                bg="teal.500"
+                color="white"
+                fontSize="lg"
+                fontWeight="bold"
+                textAlign="center"
+                bgGradient="linear(to-r, blue.400, purple.400)"
+              >
+                {isDrawerOpen?.type === "edit" ? "Edit Doctors" : "Add Doctors"}
+              </DrawerHeader>
+              <DrawerBody p={6} bg="gray.50">
+                <Form
+                  initialData={
+                    isDrawerOpen?.type === "edit"
+                      ? { ...initialValues, ...isDrawerOpen?.data }
+                      : initialValues
+                  }
+                  onSubmit={
+                    isDrawerOpen?.type === "edit"
+                      ? handleEditSubmit
+                      : handleAddSubmit
+                  }
+                  isOpen={isDrawerOpen}
+                  onClose={() =>
+                    setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+                  }
+                  thumbnail={thumbnail}
+                  isEdit={isDrawerOpen.type === "edit" ? true : false}
+                  setThumbnail={setThumbnail}
+                  loading={formLoading}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </DrawerOverlay>
+        </Drawer>
+      )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
           getData={getAllUsers}

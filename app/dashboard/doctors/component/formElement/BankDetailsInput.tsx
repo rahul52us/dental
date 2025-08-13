@@ -127,6 +127,8 @@ const BankDetailsInput = ({
                         <CustomInput
                           name={`bankAccounts[${index}].accountHolder`}
                           placeholder="Account Holder"
+                          label="Account Holder"
+                          required
                           value={bank.accountHolder}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue(
@@ -135,18 +137,18 @@ const BankDetailsInput = ({
                             )
                           }
                           error={
-                            errors?.bankAccounts?.[index]?.accountHolder &&
-                            touched?.bankAccounts?.[index]?.accountHolder
+                            errors?.bankAccounts?.[index]?.accountHolder
                           }
                           showError={
-                            errors?.bankAccounts?.[index]?.accountHolder &&
-                            touched?.bankAccounts?.[index]?.accountHolder
+                            errors?.bankAccounts?.[index]?.accountHolder
                           }
                         />
 
                         <CustomInput
                           name={`bankAccounts[${index}].bankName`}
                           placeholder="Bank Name"
+                          label="Bank Name"
+                          required
                           value={bank.bankName}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue(
@@ -155,18 +157,18 @@ const BankDetailsInput = ({
                             )
                           }
                           error={
-                            errors?.bankAccounts?.[index]?.bankName &&
-                            touched?.bankAccounts?.[index]?.bankName
+                            errors?.bankAccounts?.[index]?.bankName
                           }
                           showError={
-                            errors?.bankAccounts?.[index]?.bankName &&
-                            touched?.bankAccounts?.[index]?.bankName
+                            errors?.bankAccounts?.[index]?.bankName
                           }
                         />
 
                         <CustomInput
                           name={`bankAccounts[${index}].accountNumber`}
                           placeholder="Account Number"
+                          label="Account Number"
+                          required
                           value={bank.accountNumber}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue(
@@ -175,18 +177,18 @@ const BankDetailsInput = ({
                             )
                           }
                           error={
-                            errors?.bankAccounts?.[index]?.accountNumber &&
-                            touched?.bankAccounts?.[index]?.accountNumber
+                            errors?.bankAccounts?.[index]?.accountNumber
                           }
                           showError={
-                            errors?.bankAccounts?.[index]?.accountNumber &&
-                            touched?.bankAccounts?.[index]?.accountNumber
+                            errors?.bankAccounts?.[index]?.accountNumber
                           }
                         />
 
                         <CustomInput
                           name={`bankAccounts[${index}].ifscCode`}
                           placeholder="IFSC Code"
+                          label="IFSC Code"
+                          required
                           value={bank.ifscCode}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue(
@@ -195,18 +197,18 @@ const BankDetailsInput = ({
                             )
                           }
                           error={
-                            errors?.bankAccounts?.[index]?.ifscCode &&
-                            touched?.bankAccounts?.[index]?.ifscCode
+                            errors?.bankAccounts?.[index]?.ifscCode
                           }
                           showError={
-                            errors?.bankAccounts?.[index]?.ifscCode &&
-                            touched?.bankAccounts?.[index]?.ifscCode
+                            errors?.bankAccounts?.[index]?.ifscCode
                           }
                         />
 
                         <CustomInput
                           name={`bankAccounts[${index}].branch`}
-                          placeholder="Branch (optional)"
+                          placeholder="Branch"
+                          label="Branch"
+                          required
                           value={bank.branch}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue(
@@ -215,12 +217,10 @@ const BankDetailsInput = ({
                             )
                           }
                           error={
-                            errors?.bankAccounts?.[index]?.branch &&
-                            touched?.bankAccounts?.[index]?.branch
+                            errors?.bankAccounts?.[index]?.branch
                           }
                           showError={
-                            errors?.bankAccounts?.[index]?.branch &&
-                            touched?.bankAccounts?.[index]?.branch
+                            errors?.bankAccounts?.[index]?.branch
                           }
                         />
                       </VStack>

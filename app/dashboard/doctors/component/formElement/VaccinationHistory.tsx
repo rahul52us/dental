@@ -69,12 +69,10 @@ const VaccinationHistorySection = ({
                             )
                           }
                           error={
-                            errors?.vaccinations?.[index]?.type &&
-                            touched?.vaccinations?.[index]?.type
+                            errors?.vaccinations?.[index]?.type
                           }
                           showError={
-                            errors?.vaccinations?.[index]?.type &&
-                            touched?.vaccinations?.[index]?.type
+                            errors?.vaccinations?.[index]?.type
                           }
                         />
 
@@ -85,12 +83,10 @@ const VaccinationHistorySection = ({
                           value={vac.dateAdministered || ""}
                           onChange={handleChange}
                           error={
-                            errors?.vaccinations?.[index]?.dateAdministered &&
-                            touched?.vaccinations?.[index]?.dateAdministered
+                            errors?.vaccinations?.[index]?.dateAdministered
                           }
                           showError={
-                            errors?.vaccinations?.[index]?.dateAdministered &&
-                            touched?.vaccinations?.[index]?.dateAdministered
+                            errors?.vaccinations?.[index]?.dateAdministered
                           }
                         />
 
@@ -101,13 +97,10 @@ const VaccinationHistorySection = ({
                           value={vac.nextDueDate || ""}
                           onChange={handleChange}
                           error={
-                            errors?.vaccinations?.[index]?.nextDueDate &&
-                            touched?.vaccinations?.[index]?.nextDueDate
+                            errors?.vaccinations?.[index]?.nextDueDate
                           }
                           showError={
-                            errors?.vaccinations?.[index]?.nextDueDate &&
-                            touched?.vaccinations?.[index]?.nextDueDate
-                          }
+                            errors?.vaccinations?.[index]?.nextDueDate                          }
                         />
 
                         <CustomInput
@@ -117,12 +110,11 @@ const VaccinationHistorySection = ({
                           value={vac.reminder || ""}
                           onChange={handleChange}
                           error={
-                            errors?.vaccinations?.[index]?.reminder &&
-                            touched?.vaccinations?.[index]?.reminder
+                            errors?.vaccinations?.[index]?.reminder
                           }
                           showError={
-                            errors?.vaccinations?.[index]?.reminder &&
-                            touched?.vaccinations?.[index]?.reminder
+                            errors?.vaccinations?.[index]?.reminder
+
                           }
                         />
 
@@ -135,12 +127,10 @@ const VaccinationHistorySection = ({
                             type="textarea"
                             placeholder="Any additional notes"
                             error={
-                              errors?.vaccinations?.[index]?.remarks &&
-                              touched?.vaccinations?.[index]?.remarks
+                              errors?.vaccinations?.[index]?.remarks
                             }
                             showError={
-                              errors?.vaccinations?.[index]?.remarks &&
-                              touched?.vaccinations?.[index]?.remarks
+                              errors?.vaccinations?.[index]?.remarks
                             }
                           />
                         </Grid>

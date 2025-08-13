@@ -57,8 +57,14 @@ const PhoneNumbersInput = ({
             Phone Numbers
           </Text>
 
-          <RadioGroup value={primaryIndex.toString()} onChange={handlePrimaryChange}>
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+          <RadioGroup
+            value={primaryIndex.toString()}
+            onChange={handlePrimaryChange}
+          >
+            <Grid
+              templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+              gap={6}
+            >
               {values.phones.map((phone, index) => (
                 <Box
                   key={index}
@@ -72,13 +78,30 @@ const PhoneNumbersInput = ({
                     <Radio
                       value={index.toString()}
                       mr={2}
-                      aria-label={`Select primary phone ${phone.number || index + 1}`}
+                      aria-label={`Select primary phone ${
+                        phone.number || index + 1
+                      }`}
                     />
                     <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
-                      {phone.number || "No number entered"}
+                      <Flex gap={2}>
+                        {" "}
+                        <Text> phone entered </Text>
+                        {phone.primary && (
+                          <Text as="span" color="red">
+                            {" "}
+                            *
+                          </Text>
+                        )}
+                      </Flex>
                     </Text>
                     {phone.primary && (
-                      <Badge colorScheme="teal" ml={2} fontSize="0.75rem" py={1} px={2}>
+                      <Badge
+                        colorScheme="teal"
+                        ml={2}
+                        fontSize="0.75rem"
+                        py={1}
+                        px={2}
+                      >
                         Primary
                       </Badge>
                     )}
@@ -92,8 +115,8 @@ const PhoneNumbersInput = ({
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFieldValue(`phones[${index}].number`, e.target.value)
                     }
-                    error={errors?.phones?.[index]?.number && touched?.phones?.[index]?.number}
-                    showError={errors?.phones?.[index]?.number && touched?.phones?.[index]?.number}
+                    error={errors?.phones?.[index]?.number}
+                    showError={errors?.phones?.[index]?.number}
                   />
 
                   <IconButton
@@ -120,7 +143,9 @@ const PhoneNumbersInput = ({
             leftIcon={<AddIcon />}
             mt={4}
             colorScheme="teal"
-            onClick={() => push({ number: "", primary: values.phones.length === 0 })}
+            onClick={() =>
+              push({ number: "", primary: values.phones.length === 0 })
+            }
           >
             Add Phone
           </Button>

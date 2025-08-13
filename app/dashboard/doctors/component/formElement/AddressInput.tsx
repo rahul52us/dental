@@ -18,8 +18,7 @@ interface AddressesInputProps {
 const AddressesInput = ({
   values,
   errors,
-  touched,
-  handleChange,
+  handleChange
 }: AddressesInputProps) => {
   return (
     <Box
@@ -41,7 +40,7 @@ const AddressesInput = ({
           value={values.addresses?.residential}
           onChange={handleChange}
           error={errors?.addresses?.residential}
-          showError={touched?.addresses?.residential && !!errors?.addresses?.residential}
+          showError={errors?.addresses?.residential}
         />
         <CustomInput
           label="Office Address"
@@ -50,7 +49,7 @@ const AddressesInput = ({
           value={values.addresses?.office}
           onChange={handleChange}
           error={errors?.addresses?.office}
-          showError={touched?.addresses?.office && !!errors?.addresses?.office}
+          showError={errors?.addresses?.office}
         />
         <CustomInput
           label="Other Address"
@@ -59,7 +58,7 @@ const AddressesInput = ({
           value={values.addresses?.other || ""}
           onChange={handleChange}
           error={errors?.addresses?.other}
-          showError={touched?.addresses?.other && !!errors?.addresses?.other}
+          showError={errors?.addresses?.other}
         />
       </SimpleGrid>
     </Box>

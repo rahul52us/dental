@@ -134,24 +134,24 @@ const Dashboard = observer(() => {
   const dashboardData = [
     {
       label: "Doctors",
-      value: count?.data?.blogs || 0,
+      value: count?.data?.doctors || 0,
       icon: FaNewspaper,
       color: "blue",
       href: "/dashboard/doctors",
     },
     {
       label: "Patients",
-      value: count?.data?.users || 0,
+      value: count?.data?.patients || 0,
       icon: FaUsers,
       color: "green",
       href: "/dashboard/patients",
     },
     {
       label: "Staff",
-      value: count?.data?.testimonials || 0,
+      value: count?.data?.staffs || 0,
       icon: FaComments,
       color: "purple",
-      href: "/dashboard/testimonials",
+      href: "/dashboard/staffs",
     }
   ];
 

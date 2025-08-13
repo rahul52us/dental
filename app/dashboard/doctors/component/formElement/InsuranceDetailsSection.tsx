@@ -39,7 +39,7 @@ const InsuranceDetailsSection = ({
             <>
               <VStack spacing={6} align="stretch">
                 {values.insurances && values.insurances.length > 0 ? (
-                  values.insurances.map((insurance, index) => (
+                  values.insurances.map((insurance : any, index : number) => (
                     <Box
                       key={index}
                       p={4}
@@ -69,12 +69,9 @@ const InsuranceDetailsSection = ({
                             )
                           }
                           error={
-                            errors?.insurances?.[index]?.type &&
-                            touched?.insurances?.[index]?.type
-                          }
+                            errors?.insurances?.[index]?.type}
                           showError={
-                            errors?.insurances?.[index]?.type &&
-                            touched?.insurances?.[index]?.type
+                            errors?.insurances?.[index]?.type
                           }
                         />
 
@@ -86,12 +83,10 @@ const InsuranceDetailsSection = ({
                           value={insurance.startDate || ""}
                           onChange={handleChange}
                           error={
-                            errors?.insurances?.[index]?.startDate &&
-                            touched?.insurances?.[index]?.startDate
+                            errors?.insurances?.[index]?.startDate
                           }
                           showError={
-                            errors?.insurances?.[index]?.startDate &&
-                            touched?.insurances?.[index]?.startDate
+                            errors?.insurances?.[index]?.startDate
                           }
                         />
 
@@ -103,12 +98,10 @@ const InsuranceDetailsSection = ({
                           value={insurance.renewalDate || ""}
                           onChange={handleChange}
                           error={
-                            errors?.insurances?.[index]?.renewalDate &&
-                            touched?.insurances?.[index]?.renewalDate
+                            errors?.insurances?.[index]?.renewalDate
                           }
                           showError={
-                            errors?.insurances?.[index]?.renewalDate &&
-                            touched?.insurances?.[index]?.renewalDate
+                            errors?.insurances?.[index]?.renewalDate
                           }
                         />
 
@@ -121,12 +114,10 @@ const InsuranceDetailsSection = ({
                           onChange={handleChange}
                           placeholder="Enter insured amount"
                           error={
-                            errors?.insurances?.[index]?.amountInsured &&
-                            touched?.insurances?.[index]?.amountInsured
+                            errors?.insurances?.[index]?.amountInsured
                           }
                           showError={
-                            errors?.insurances?.[index]?.amountInsured &&
-                            touched?.insurances?.[index]?.amountInsured
+                            errors?.insurances?.[index]?.amountInsured
                           }
                         />
 
@@ -139,12 +130,10 @@ const InsuranceDetailsSection = ({
                           onChange={handleChange}
                           placeholder="Enter amount paid"
                           error={
-                            errors?.insurances?.[index]?.amountPaid &&
-                            touched?.insurances?.[index]?.amountPaid
+                            errors?.insurances?.[index]?.amountPaid
                           }
                           showError={
-                            errors?.insurances?.[index]?.amountPaid &&
-                            touched?.insurances?.[index]?.amountPaid
+                            errors?.insurances?.[index]?.amountPaid
                           }
                         />
 

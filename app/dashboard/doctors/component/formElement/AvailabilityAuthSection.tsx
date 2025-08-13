@@ -39,8 +39,8 @@ const AvailabilityAuthSection = ({
                 placeholder="Enter Password"
                 value={values.password}
                 onChange={handleChange}
-                error={!!errors.password && touched.password}
-                showError={!!errors.password && touched.password}
+                error={errors.password}
+                showError={errors.password}
               />
               <CustomInput
                 label="Confirm Password"
@@ -49,8 +49,8 @@ const AvailabilityAuthSection = ({
                 placeholder="Confirm Password"
                 value={values.confirmPassword}
                 onChange={handleChange}
-                error={!!errors.confirmPassword && touched.confirmPassword}
-                showError={!!errors.confirmPassword && touched.confirmPassword}
+                error={errors.confirmPassword}
+                showError={errors.confirmPassword}
               />
             </>
           )}
