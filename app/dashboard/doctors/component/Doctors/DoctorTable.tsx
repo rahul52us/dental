@@ -104,6 +104,11 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
+      headerName: "Name",
+      key: "name",
+      props: { row: { textAlign: "center" } },
+    },
+    {
       headerName: "Username",
       key: "username",
       props: { row: { textAlign: "center" } },
@@ -207,18 +212,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => <Box m={1}>{formatDate(dt?.createdAt)}</Box>,
-      },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-    {
-      headerName: "Updated At",
-      key: "updatedAt",
-      type: "component",
-      metaData: {
-        component: (dt: any) => <Box m={1}>{formatDate(dt?.updatedAt)}</Box>,
       },
       props: {
         row: { minW: 120, textAlign: "center" },

@@ -17,6 +17,7 @@ import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/Doctors/component/DeleteUser";
 import DoctorsTable from "./component/Doctors/DoctorTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
+import { tablePageLimit } from "../../component/config/utils/variable";
 
 const DoctorsPage = () => {
   const [formLoading, setFormLoading] = useState(false);
@@ -57,7 +58,7 @@ const DoctorsPage = () => {
         type: "doctor",
       })
         .then(() => {
-          getAllUsers({ page: 1, limit: 30, type: "doctor" });
+          getAllUsers({ page: 1, limit: tablePageLimit, type: "doctor" });
           setFormLoading(false);
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
           toast({
@@ -125,7 +126,7 @@ const DoctorsPage = () => {
       gender: formData?.gender?.value || 1
     })
       .then(() => {
-        getAllUsers({ page: 1, limit: 30, type: "doctor" });
+        getAllUsers({ page: 1, limit: tablePageLimit, type: "doctor" });
         setFormLoading(false);
         setIsDrawerOpen({ isOpen: false, type: "add", data: null });
         toast({
@@ -224,7 +225,7 @@ const DoctorsPage = () => {
       )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
-          getData={getAllUsers}
+          getData={() => getAllUsers({ page: 1, limit: tablePageLimit, type: "doctor" })}
           data={isDrawerOpen.data}
           isOpen={isDrawerOpen.open}
           onClose={() =>
