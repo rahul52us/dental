@@ -51,6 +51,8 @@ const DoctorsPage = () => {
       ...(replaceLabelValueObjects(values) || {}),
         pic: formData?.pic || {},
         title: formData?.data,
+        mobileNumber : formData.phones.find((it : any) => it.primary === true).number || undefined,
+        username : formData.emails.find((it : any) => it.primary === true).email || undefined,
         gender: formData?.gender?.value || 1,
         type: "doctor",
       })
@@ -116,6 +118,8 @@ const DoctorsPage = () => {
     updateUser({
       ...values,
       ...(replaceLabelValueObjects(values) || {}),
+      mobileNumber : formData.phones.find((it : any) => it.primary === true).number || undefined,
+      username : formData.emails.find((it : any) => it.primary === true).email || undefined,
       pic: formData?.pic,
       title: formData?.title?.label || titles[0].label,
       gender: formData?.gender?.value || 1

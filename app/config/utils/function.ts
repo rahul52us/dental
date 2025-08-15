@@ -11,6 +11,15 @@ export const getStatusType = (code : string) => {
     }
 }
 
+export const copyToClipboard = (text: string) => {
+  if (!text || text === "--") return;
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      alert(`copied ---- ${text}`)
+    })
+};
+
+
 export function replaceLabelValueObjects(obj: any): any {
     if (Array.isArray(obj)) {
       return obj.map(item => replaceLabelValueObjects(item));

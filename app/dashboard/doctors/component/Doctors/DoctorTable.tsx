@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
 import {
   Avatar,
+  Badge,
   Box,
   Drawer,
   DrawerBody,
@@ -18,8 +19,10 @@ import stores from "../../../../store/stores";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
 import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
-import { formatDateTime } from "../../../../component/config/utils/dateUtils";
+import { formatDate } from "../../../../component/config/utils/dateUtils";
 import ViewDoctor from "./ViewDoctor";
+import { genderOptions } from "../../../../config/constant";
+import { copyToClipboard } from "../../../../config/utils/function";
 
 const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -106,9 +109,79 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Role",
-      key: "userType",
+      headerName: "Code",
+      key: "code",
       props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Gender",
+      key: "gender",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const genderLabel =
+            genderOptions.find((option: any) => option.value === dt?.gender)
+              ?.label || "--";
+
+          const colorScheme =
+            genderLabel === "Male"
+              ? "blue"
+              : genderLabel === "Female"
+              ? "pink"
+              : "gray";
+
+          return (
+            <Box m={1} textAlign="center" minW="120px">
+              <Badge
+                colorScheme={colorScheme}
+                variant="solid"
+                px={4}
+                py={1.5}
+                borderRadius="full"
+                fontSize="xs"
+                fontWeight="semibold"
+                boxShadow="sm"
+              >
+                {genderLabel}
+              </Badge>
+            </Box>
+          );
+        },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Mobile No.",
+      key: "mobile",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const number =
+            dt.phones?.find((it: any) => it.primary)?.number || "--";
+          const displayNumber =
+            number !== "--" ? `•••${number.slice(-4)}` : "--";
+
+          return (
+            <Tooltip label={`Click to copy: ${number}`} hasArrow>
+              <Box
+                m={1}
+                textAlign="center"
+                cursor={number !== "--" ? "pointer" : "default"}
+                onClick={() => copyToClipboard(number)}
+              >
+                {displayNumber}
+              </Box>
+            </Tooltip>
+          );
+        },
+      },
+      props: {
+        row: { minW: 10, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
     {
       headerName: "Bio",
@@ -133,9 +206,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       key: "createdAt",
       type: "component",
       metaData: {
-        component: (dt: any) => (
-          <Box m={1}>{formatDateTime(dt?.createdAt)}</Box>
-        ),
+        component: (dt: any) => <Box m={1}>{formatDate(dt?.createdAt)}</Box>,
       },
       props: {
         row: { minW: 120, textAlign: "center" },
@@ -143,13 +214,11 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Last Updated At",
+      headerName: "Updated At",
       key: "updatedAt",
       type: "component",
       metaData: {
-        component: (dt: any) => (
-          <Box m={1}>{formatDateTime(dt?.updatedAt)}</Box>
-        ),
+        component: (dt: any) => <Box m={1}>{formatDate(dt?.updatedAt)}</Box>,
       },
       props: {
         row: { minW: 120, textAlign: "center" },
@@ -172,10 +241,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       <CustomTable
         title="Doctors"
         data={
-          therapist.data?.map((t: any, index: number) => ({
-            ...t,
-            sno: index + 1,
-          })) || []
+          therapist.data?.map((t: any, index: number) => {
+            return {
+              ...t,
+              ...t.profileDetails?.personalInfo,
+              sno: index + 1,
+            };
+          }) || []
         }
         columns={TherapistTableColumns}
         actions={{

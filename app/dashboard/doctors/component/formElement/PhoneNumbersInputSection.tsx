@@ -32,7 +32,6 @@ const PhoneNumbersInput = ({
   errors,
 }: PhoneNumbersInputProps) => {
   const primaryIndex = values.phones.findIndex((p) => p.primary);
-
   const handlePrimaryChange = (val: string) => {
     const idx = parseInt(val, 10);
     const updatedPhones = values.phones.map((p, i) => ({

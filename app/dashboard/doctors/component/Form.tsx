@@ -135,16 +135,6 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         showError={errors.name && touched.name}
                       />
                       <CustomInput
-                        label="Username"
-                        name="username"
-                        placeholder="Enter Username"
-                        required={true}
-                        value={values.username}
-                        onChange={handleChange}
-                        error={errors.username && touched.username}
-                        showError={errors.username && touched.username}
-                      />
-                      <CustomInput
                         label="Code"
                         name="code"
                         placeholder="Enter Code"
@@ -218,7 +208,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         value={values.bio}
                         onChange={handleChange}
                         error={errors.bio}
-                        showError={errors.bio && touched.bio}
+                        showError={errors.bio}
                         style={{ width: "100%" }}
                       />
                     </Box>

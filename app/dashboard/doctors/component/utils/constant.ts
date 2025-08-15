@@ -13,7 +13,6 @@ export const initialValues = {
   backgroundVideo: "",
   dob:"",
   gender:genderOptions[0],
-  username: "",
   languages: [],
   addresses: {
     residential: "",

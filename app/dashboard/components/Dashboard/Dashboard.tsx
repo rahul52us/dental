@@ -20,19 +20,15 @@ import {
   PointElement,
   Title,
   Tooltip,
+  ArcElement,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
-import {
-  FaComments,
-  FaNewspaper,
-  FaUsers,
-} from "react-icons/fa";
+import { FaComments, FaNewspaper, FaUsers } from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import stores from "../../../store/stores";
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -41,7 +37,8 @@ ChartJS.register(
   PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
 
 // Extend Chakra UI theme
@@ -55,7 +52,6 @@ const theme = extendTheme({
   },
 });
 
-// Dummy data
 const dummyData = {
   visits: 1200,
   patients: 350,
@@ -65,8 +61,7 @@ const dummyData = {
   monthlyVisits: [100, 200, 150, 300, 250, 400, 500],
 };
 
-// Chart options (responsive + preserve aspect ratio)
-const barChartOptions : any = {
+const barChartOptions: any = {
   responsive: true,
   maintainAspectRatio: true,
   plugins: {
@@ -80,7 +75,7 @@ const barChartOptions : any = {
   layout: { padding: 8 },
 };
 
-const lineChartOptions : any = {
+const lineChartOptions: any = {
   responsive: true,
   maintainAspectRatio: true,
   plugins: {
@@ -94,21 +89,8 @@ const lineChartOptions : any = {
   layout: { padding: 8 },
 };
 
-// Chart data
-const barChartData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-  datasets: [
-    {
-      label: "Monthly Visits",
-      data: dummyData.monthlyVisits,
-      backgroundColor: "rgba(75, 192, 192, 0.6)",
-      borderColor: "rgba(75, 192, 192, 1)",
-      borderWidth: 1,
-    },
-  ],
-};
 
-const lineChartData : any = {
+const lineChartData: any = {
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
   datasets: [
     {
@@ -152,8 +134,21 @@ const Dashboard = observer(() => {
       icon: FaComments,
       color: "purple",
       href: "/dashboard/staffs",
-    }
+    },
   ];
+
+  const userChartData = {
+    labels: dashboardData.map((d) => d.label),
+    datasets: [
+      {
+        label: "Users Growth",
+        data: dashboardData.map((d) => d.value),
+        backgroundColor: ["#3182ce", "#38a169", "#805ad5"],
+        borderColor: ["#2b6cb0", "#2f855a", "#6b46c1"],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <ChakraProvider theme={theme}>
@@ -184,39 +179,36 @@ const Dashboard = observer(() => {
         </Box>
 
         {/* Charts Section */}
-        <Grid
-          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-          gap={6}
-          mb={10}
-        >
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} mb={10}>
           {/* Bar Chart */}
-          <Box bg="white" p={5} borderRadius="lg" boxShadow="md" overflow="hidden">
+          <Box
+            bg="white"
+            p={5}
+            borderRadius="lg"
+            boxShadow="md"
+            overflow="hidden"
+          >
             <Text fontSize="lg" fontWeight="bold" mb={4}>
-              Monthly Visits
+              Users Growth
             </Text>
-
-            {/* AspectRatio keeps the chart inside the box and prevents overflow */}
             <AspectRatio ratio={16 / 9} width="100%">
-              <Bar
-                data={barChartData}
-                options={barChartOptions}
-                style={{ width: "100%", height: "100%" }}
-              />
+              <Bar data={userChartData} options={barChartOptions} />
             </AspectRatio>
           </Box>
 
           {/* Line Chart */}
-          <Box bg="white" p={5} borderRadius="lg" boxShadow="md" overflow="hidden">
+          <Box
+            bg="white"
+            p={5}
+            borderRadius="lg"
+            boxShadow="md"
+            overflow="hidden"
+          >
             <Text fontSize="lg" fontWeight="bold" mb={4}>
               Patient Growth
             </Text>
-
             <AspectRatio ratio={16 / 9} width="100%">
-              <Line
-                data={lineChartData}
-                options={lineChartOptions}
-                style={{ width: "100%", height: "100%" }}
-              />
+              <Line data={lineChartData} options={lineChartOptions} />
             </AspectRatio>
           </Box>
         </Grid>
