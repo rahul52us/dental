@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import axios from "axios";
 import { authStore } from "../authStore/authStore";
 class UserStore {
-  therapist: any = {
+  user: any = {
     loading : false,
     data : [],
     totalPages : 1
@@ -80,19 +80,19 @@ class UserStore {
   };
 
   getAllUsers = async (payload: any) => {
-    this.therapist.loading = true;
+    this.user.loading = true;
     try {
       const response : any = await axios.post("/user", {
         ...payload,
         company: authStore.company,
       });
-      this.therapist.data = response?.data?.data?.data || []
-      this.therapist.totalPages = response?.data?.data?.totalPages || 1
+      this.user.data = response?.data?.data?.data || []
+      this.user.totalPages = response?.data?.data?.totalPages || 1
       return response;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err.message);
     } finally {
-      this.therapist.loading = false;
+      this.user.loading = false;
     }
   };
 

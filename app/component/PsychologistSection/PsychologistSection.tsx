@@ -176,7 +176,7 @@ const PsychologistSection: React.FC<PsychologistSectionProps> = observer(({
   subtitle = "What are you "
 }) => {
   const { userStore: { getAllUsers } } = stores;
-  const { userStore: { therapist } } = stores;
+  const { userStore: { user } } = stores;
 
   // Filter the tabs array based on visibleTabs prop
   const displayTabs = tabCategories.filter(tab => visibleTabs.includes(tab.id));
@@ -225,12 +225,12 @@ const PsychologistSection: React.FC<PsychologistSectionProps> = observer(({
 
   const filteredPsychologists =
     selectedExpertises.length > 0
-      ? therapist?.data?.filter((psychologist) =>
+      ? user?.data?.filter((psychologist) =>
         selectedExpertises.some((expertise) =>
           psychologist?.profileDetails?.personalInfo?.expertise?.includes(expertise)
         )
       )
-      : therapist?.data || [];
+      : user?.data || [];
 
   // Render expertise filters based on current category
   const renderExpertiseFilters = () => {

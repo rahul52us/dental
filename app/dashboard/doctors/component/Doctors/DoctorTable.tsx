@@ -26,7 +26,7 @@ import { copyToClipboard } from "../../../../config/utils/function";
 
 const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
-    userStore: { getAllUsers, therapist },
+    userStore: { getAllUsers, user },
     auth: { openNotification },
   } = stores;
 
@@ -234,7 +234,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       <CustomTable
         title="Doctors"
         data={
-          therapist.data?.map((t: any, index: number) => {
+          user.data?.map((t: any, index: number) => {
             return {
               ...t,
               ...t.profileDetails?.personalInfo,
@@ -284,10 +284,10 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             show: true,
             onClick: handleChangePage,
             currentPage: currentPage,
-            totalPages: therapist.totalPages || 1,
+            totalPages: user.totalPages || 1,
           },
         }}
-        loading={therapist.loading}
+        loading={user.loading}
       />
 
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>

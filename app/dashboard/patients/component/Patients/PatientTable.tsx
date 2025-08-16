@@ -12,7 +12,7 @@ import { formatDateTime } from "../../../../component/config/utils/dateUtils";
 
 const PatientTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const {
-    userStore: { getAllUsers, therapist },
+    userStore: { getAllUsers, user },
     auth: { openNotification },
   } = stores;
 
@@ -193,7 +193,7 @@ const PatientTable = observer(({onAdd, onEdit, onDelete} : any) => {
     <Box p={4}>
       <CustomTable
         title="Patients"
-        data={therapist.data?.map((t: any, index: number) => ({
+        data={user.data?.map((t: any, index: number) => ({
           ...t,
           sno: index + 1,
         })) || []}
@@ -239,10 +239,10 @@ const PatientTable = observer(({onAdd, onEdit, onDelete} : any) => {
             show: true,
             onClick: handleChangePage,
             currentPage: currentPage,
-            totalPages: therapist.totalPages || 1,
+            totalPages: user.totalPages || 1,
           },
         }}
-        loading={therapist.loading}
+        loading={user.loading}
       />
 
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">

@@ -23,7 +23,7 @@ import {
   ArcElement,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
-import { FaComments, FaNewspaper, FaUsers } from "react-icons/fa";
+import { FaUserMd, FaUserInjured, FaUserTie } from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -61,6 +61,13 @@ const dummyData = {
   monthlyVisits: [100, 200, 150, 300, 250, 400, 500],
 };
 
+const chartColors = [
+  { bg: "#2B6CB0", border: "#2C5282" },
+  { bg: "#38A169", border: "#2F855A" },
+  { bg: "#DD6B20", border: "#C05621" }
+];
+
+
 const barChartOptions: any = {
   responsive: true,
   maintainAspectRatio: true,
@@ -89,7 +96,6 @@ const lineChartOptions: any = {
   layout: { padding: 8 },
 };
 
-
 const lineChartData: any = {
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
   datasets: [
@@ -113,39 +119,49 @@ const Dashboard = observer(() => {
     getDashboardCount();
   }, [getDashboardCount]);
 
-  const dashboardData = [
-    {
-      label: "Doctors",
-      value: count?.data?.doctors || 0,
-      icon: FaNewspaper,
-      color: "blue",
-      href: "/dashboard/doctors",
-    },
-    {
-      label: "Patients",
-      value: count?.data?.patients || 0,
-      icon: FaUsers,
-      color: "green",
-      href: "/dashboard/patients",
-    },
-    {
-      label: "Staff",
-      value: count?.data?.staffs || 0,
-      icon: FaComments,
-      color: "purple",
-      href: "/dashboard/staffs",
-    },
-  ];
 
+const dashboardData = [
+  {
+    label: "Doctors",
+    value: count?.data?.doctors || 0,
+    icon: FaUserMd,
+    color: "blue",
+    href: "/dashboard/doctors",
+  },
+  {
+    label: "Patients",
+    value: count?.data?.patients || 0,
+    icon: FaUserInjured,
+    color: "green",
+    href: "/dashboard/patients",
+  },
+  {
+    label: "Staff",
+    value: count?.data?.staffs || 0,
+    icon: FaUserTie,
+    color: "purple",
+    href: "/dashboard/staffs",
+  },
+];
+
+
+  // Dynamic color handling for bar chart
   const userChartData = {
     labels: dashboardData.map((d) => d.label),
     datasets: [
       {
         label: "Users Growth",
         data: dashboardData.map((d) => d.value),
-        backgroundColor: ["#3182ce", "#38a169", "#805ad5"],
-        borderColor: ["#2b6cb0", "#2f855a", "#6b46c1"],
-        borderWidth: 1,
+        backgroundColor: dashboardData.map(
+          (_, i) => chartColors[i % chartColors.length].bg
+        ),
+        borderColor: dashboardData.map(
+          (_, i) => chartColors[i % chartColors.length].border
+        ),
+        hoverBackgroundColor: dashboardData.map(
+          (_, i) => `${chartColors[i % chartColors.length].bg}cc`
+        ),
+        borderWidth: 2,
       },
     ],
   };

@@ -15,9 +15,12 @@ import stores from "../../store/stores";
 import Form from "./component/Form";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/staffs/component/DeleteUser";
-import StaffsTable from "./component/staffs/StaffTable";
+import { replaceLabelValueObjects } from "../../config/utils/function";
+import { tablePageLimit } from "../../component/config/utils/variable";
+import StaffTable from "./component/staffs/StaffTable";
 
 const StaffPage = () => {
+  const [formLoading, setFormLoading] = useState(false);
   const {
     userStore: { createUser, getAllUsers, updateUser },
   } = stores;
@@ -31,6 +34,7 @@ const StaffPage = () => {
 
   const handleAddSubmit = async (formData: any) => {
     try {
+      setFormLoading(true);
       const values = { ...formData };
       if (values.pic?.file && values.pic?.file?.length !== 0) {
         const buffer = await readFileAsBase64(values.pic?.file);
@@ -45,15 +49,24 @@ const StaffPage = () => {
 
       createUser({
         ...values,
+        ...(replaceLabelValueObjects(values) || {}),
+        pic: formData?.pic || {},
         title: formData?.data,
-        availability: formData?.availability?.map((it: any) => it.value),
-        profileDetails: { ...formData },
+        mobileNumber:
+          formData.phones.find((it: any) => it.primary === true).number ||
+          undefined,
+        username:
+          formData.emails.find((it: any) => it.primary === true).email ||
+          undefined,
+        gender: formData?.gender?.value || 1,
+        type: "staff",
       })
         .then(() => {
-          getAllUsers({ page: 1, limit: 30 });
+          getAllUsers({ page: 1, limit: tablePageLimit, type: "staff" });
+          setFormLoading(false);
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
           toast({
-            title: "Staffs Added.",
+            title: "staffs Added.",
             description: `${formData.name} has been successfully added.`,
             status: "success",
             duration: 5000,
@@ -61,6 +74,7 @@ const StaffPage = () => {
           });
         })
         .catch((err: any) => {
+          setFormLoading(false);
           toast({
             title: "failed to create",
             description: `${err?.message}`,
@@ -70,6 +84,7 @@ const StaffPage = () => {
           });
         });
     } catch (err: any) {
+      setFormLoading(false);
       toast({
         title: "failed to create",
         description: `${err?.message}`,
@@ -84,7 +99,7 @@ const StaffPage = () => {
     const formData: any = {
       ...values,
     };
-
+    setFormLoading(true);
     if (formData?.pic?.file && formData?.pic?.isAdd) {
       const buffer = await readFileAsBase64(formData?.pic?.file);
       const fileData = {
@@ -107,13 +122,20 @@ const StaffPage = () => {
 
     updateUser({
       ...values,
+      ...(replaceLabelValueObjects(values) || {}),
+      mobileNumber:
+        formData.phones.find((it: any) => it.primary === true).number ||
+        undefined,
+      username:
+        formData.emails.find((it: any) => it.primary === true).email ||
+        undefined,
       pic: formData?.pic,
       title: formData?.title?.label || titles[0].label,
-      availability: formData?.availability || [],
-      profileDetails: { ...formData },
+      gender: formData?.gender?.value || 1,
     })
       .then(() => {
-        getAllUsers({ page: 1, limit: 30 });
+        getAllUsers({ page: 1, limit: tablePageLimit, type: "staff" });
+        setFormLoading(false);
         setIsDrawerOpen({ isOpen: false, type: "add", data: null });
         toast({
           title: "User updated.",
@@ -124,6 +146,7 @@ const StaffPage = () => {
         });
       })
       .catch((err: any) => {
+        setFormLoading(false);
         toast({
           title: "failed to update",
           description: `${err?.message}`,
@@ -136,77 +159,83 @@ const StaffPage = () => {
 
   return (
     <Box>
-      <StaffsTable
+      <StaffTable
         onDelete={(ft: any) => {
-          setIsDrawerOpen({ open: true, type: "delete", data: ft })
-        }
-        }
+          setIsDrawerOpen({ open: true, type: "delete", data: ft });
+        }}
         onAdd={() => setIsDrawerOpen({ isOpen: true, type: "add", data: null })}
         onEdit={(dt: any) => {
+          const { profileDetails, ...rest } = dt;
           setIsDrawerOpen({
             isOpen: true,
             type: "edit",
-            data: { ...dt, ...dt?.profileDetails?.personalInfo },
+            data: {
+              ...rest,
+              ...profileDetails?.personalInfo,
+            },
           });
         }}
       />
-      {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit")  && <Drawer
-        size="md"
-        isOpen={isDrawerOpen.isOpen}
-        placement="right"
-        onClose={() =>
-          setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-        }
-        autoFocus={false}
-      >
-        <DrawerOverlay>
-          <DrawerContent
-            bg="white"
-            borderRadius="lg"
-            boxShadow="xl"
-            maxW="80%"
-            width="80%"
-          >
-            <DrawerCloseButton />
-            <DrawerHeader
-              bg="teal.500"
-              color="white"
-              fontSize="lg"
-              fontWeight="bold"
-              textAlign="center"
-              bgGradient="linear(to-r, blue.400, purple.400)"
+      {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
+        <Drawer
+          size="md"
+          isOpen={isDrawerOpen.isOpen}
+          placement="right"
+          onClose={() =>
+            setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+          }
+          autoFocus={false}
+        >
+          <DrawerOverlay>
+            <DrawerContent
+              bg="white"
+              borderRadius="lg"
+              boxShadow="xl"
+              maxW={{ base: "100%", md: "92%" }}
+              width={{ base: "100%", md: "92%" }}
             >
-              {isDrawerOpen?.type === "edit"
-                ? "Edit Staffs"
-                : "Add Staffs"}
-            </DrawerHeader>
-            <DrawerBody p={6} bg="gray.50">
-              <Form
-                initialData={
-                  isDrawerOpen?.type === "edit"
-                    ? { ...initialValues, ...isDrawerOpen?.data }
-                    : initialValues
-                }
-                onSubmit={
-                  isDrawerOpen?.type === "edit"
-                    ? handleEditSubmit
-                    : handleAddSubmit
-                }
-                isOpen={isDrawerOpen}
-                onClose={() =>
-                  setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-                }
-                thumbnail={thumbnail}
-                isEdit={isDrawerOpen.type === "edit" ? true : false}
-                setThumbnail={setThumbnail}
-              />
-            </DrawerBody>
-          </DrawerContent>
-        </DrawerOverlay>
-      </Drawer>}
+              <DrawerCloseButton />
+              <DrawerHeader
+                bg="teal.500"
+                color="white"
+                fontSize="lg"
+                fontWeight="bold"
+                textAlign="center"
+                bgGradient="linear(to-r, blue.400, purple.400)"
+              >
+                {isDrawerOpen?.type === "edit" ? "Edit staffs" : "Add staffs"}
+              </DrawerHeader>
+              <DrawerBody p={6} bg="gray.50">
+                <Form
+                  initialData={
+                    isDrawerOpen?.type === "edit"
+                      ? { ...initialValues, ...isDrawerOpen?.data }
+                      : initialValues
+                  }
+                  onSubmit={
+                    isDrawerOpen?.type === "edit"
+                      ? handleEditSubmit
+                      : handleAddSubmit
+                  }
+                  isOpen={isDrawerOpen}
+                  onClose={() =>
+                    setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+                  }
+                  thumbnail={thumbnail}
+                  isEdit={isDrawerOpen.type === "edit" ? true : false}
+                  setThumbnail={setThumbnail}
+                  loading={formLoading}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </DrawerOverlay>
+        </Drawer>
+      )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
-          getData={getAllUsers}
+          getData={() =>
+            getAllUsers({ page: 1, limit: tablePageLimit, type: "staff" })
+          }
           data={isDrawerOpen.data}
           isOpen={isDrawerOpen.open}
           onClose={() =>

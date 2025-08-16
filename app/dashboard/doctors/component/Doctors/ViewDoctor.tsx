@@ -42,7 +42,7 @@ const SectionCard = ({ icon, title, children }: any) => {
 };
 
 const ViewDoctor = ({ doctor }) => {
-      const pageBg = useColorModeValue("gray.50", "gray.900");
+  const pageBg = useColorModeValue("gray.50", "gray.900");
   const sectionItemBg = useColorModeValue("gray.50", "gray.700");
 
   if (!doctor) return <Text>No doctor data available</Text>;
@@ -96,32 +96,38 @@ const ViewDoctor = ({ doctor }) => {
       {/* Contact Info */}
       <SectionCard title="Contact Information">
         <VStack align="stretch" spacing={2}>
-          {personalInfo.phones?.map((p, idx) => (
-            <HStack key={idx}>
-              <PhoneIcon color="teal.500" />
-              <Text>
-                {p.number}{" "}
-                {p.primary && (
-                  <Badge ml={1} colorScheme="green">
-                    Primary
-                  </Badge>
-                )}
-              </Text>
-            </HStack>
-          ))}
-          {personalInfo.emails?.map((e, idx) => (
-            <HStack key={idx}>
-              <EmailIcon color="teal.500" />
-              <Text>
-                {e.email}{" "}
-                {e.primary && (
-                  <Badge ml={1} colorScheme="green">
-                    Primary
-                  </Badge>
-                )}
-              </Text>
-            </HStack>
-          ))}
+          {personalInfo.phones
+            ?.filter((p) => p.number) // only keep non-empty
+            .map((p, idx) => (
+              <HStack key={idx}>
+                <PhoneIcon color="teal.500" />
+                <Text>
+                  {p.number}{" "}
+                  {p.primary && (
+                    <Badge ml={1} colorScheme="green">
+                      Primary
+                    </Badge>
+                  )}
+                </Text>
+              </HStack>
+            ))}
+
+          {/* Emails */}
+          {personalInfo.emails
+            ?.filter((e) => e.email) // only keep non-empty
+            .map((e, idx) => (
+              <HStack key={idx}>
+                <EmailIcon color="teal.500" />
+                <Text>
+                  {e.email}{" "}
+                  {e.primary && (
+                    <Badge ml={1} colorScheme="green">
+                      Primary
+                    </Badge>
+                  )}
+                </Text>
+              </HStack>
+            ))}
         </VStack>
       </SectionCard>
 
@@ -157,7 +163,7 @@ const ViewDoctor = ({ doctor }) => {
             mb={2}
             bg={sectionItemBg} // ✅ Precomputed value
           >
-            <InfoItem label="Type" value={v.type?.label} />
+            <InfoItem label="Type" value={v.type} />
             <InfoItem label="Date Administered" value={v.dateAdministered} />
             <InfoItem label="Next Due" value={v.nextDueDate || "N/A"} />
             <InfoItem label="Remarks" value={v.remarks || "None"} />
@@ -176,7 +182,7 @@ const ViewDoctor = ({ doctor }) => {
             mb={2}
             bg={sectionItemBg} // ✅ Precomputed value
           >
-            <InfoItem label="Type" value={i.type?.label} />
+            <InfoItem label="Type" value={i.type} />
             <InfoItem label="Start Date" value={i.startDate} />
             <InfoItem label="Renewal Date" value={i.renewalDate} />
             <InfoItem label="Amount Insured" value={i.amountInsured} />
