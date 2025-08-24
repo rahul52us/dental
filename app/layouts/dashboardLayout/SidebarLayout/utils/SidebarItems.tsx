@@ -1,5 +1,6 @@
 import { FaChartPie, FaUsers, FaUserMd, FaUserTie, FaCog } from "react-icons/fa";
-// import { CalendarIcon } from "@chakra-ui/icons";
+import { FaVials } from "react-icons/fa";
+
 
 interface SidebarItem {
   id: number;
@@ -38,6 +39,13 @@ const sidebarDatas: SidebarItem[] = [
     name: "Staffs",
     icon: <FaUserTie />, // staff / employee icon
     url: "/dashboard/staffs",
+    role: ["user"],
+  },
+  {
+    id: 5,
+    name: "labs",
+    icon: <FaVials />, // staff / employee icon
+    url: "/dashboard/labs",
     role: ["user"],
   },
   // {
