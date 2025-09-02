@@ -268,6 +268,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                     colorScheme="red"
                     size="lg"
                     onClick={onClose}
+                    bgColor="red"
                     _hover={{ bg: "red.500" }}
                     width="auto"
                   >
@@ -282,7 +283,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                     _hover={{ bg: "teal.500" }}
                     width="auto"
                   >
-                    {initialData?.username ? "Update" : "Add"} Patient
+                    {initialData?.username ? "Update" : "Save"}
                   </Button>
                 </Flex>
               </Flex>

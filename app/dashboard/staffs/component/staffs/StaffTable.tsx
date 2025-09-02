@@ -275,7 +275,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             onSearchChange: (e: any) => setSearchQuery(e.target.value),
           },
           resetData: {
-            show: true,
+            show: false,
             text: "Reset Data",
             function: resetTableData,
           },

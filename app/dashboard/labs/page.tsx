@@ -195,7 +195,7 @@ const PatientPage = () => {
                 textAlign="center"
                 bgGradient="linear(to-r, blue.400, purple.400)"
               >
-                {isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
+                {isDrawerOpen?.type === "edit" ? "Edit Lab" : "Add Lab"}
               </DrawerHeader>
               <DrawerBody p={6} bg="gray.50">
                 <Form
@@ -225,7 +225,7 @@ const PatientPage = () => {
       )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
-          getData={() => getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" })}
+          getData={() => getAllUsers({ page: 1, limit: tablePageLimit, type: "lab" })}
           data={isDrawerOpen.data}
           isOpen={isDrawerOpen.open}
           onClose={() =>

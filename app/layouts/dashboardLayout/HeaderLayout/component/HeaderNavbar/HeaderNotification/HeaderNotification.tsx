@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -44,12 +44,7 @@ const NotificationComponent = observer(() => {
   const [loadingId, setLoadingId] = useState<any>(null);
   const [loadingMore, setLoadingMore] = useState(false);
 
-
-  useEffect(() => {
-    fetchNotifications(1, true); // On dropdown open/reset
-  }, [selectedItem]);
-
-  const fetchNotifications = async (pageNumber: number, reset: boolean = false) => {
+  const fetchNotifications = useCallback( async (pageNumber: number, reset: boolean = false) => {
     const lists = {
       Unread: false,
       Read: true,
@@ -65,7 +60,13 @@ const NotificationComponent = observer(() => {
       setNotificationsList((prev) => [...prev, ...(result?.data || [])]);
       setPage(pageNumber);
     }
-  };
+  },[]);
+
+  useEffect(() => {
+    fetchNotifications(1, true); // On dropdown open/reset
+  }, [selectedItem, fetchNotifications]);
+
+
 
   const handleLoadMore = async () => {
     setLoadingMore(true);

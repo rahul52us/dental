@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex , Text, useColorModeValue, Tooltip } from "@chakra-ui/react";
+import { Box, Flex, Text, useColorModeValue, Tooltip } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import NextImage from "next/image";
 import { headerHeight } from "../../../../component/config/utils/variable";
@@ -10,51 +10,82 @@ import { useRouter } from "next/navigation";
 import { WEBSITE_TITLE } from "../../../../config/utils/variables";
 
 const SidebarLogo: React.FC = observer(() => {
-  const router = useRouter()
+  const router = useRouter();
   const {
     layout: { isCallapse },
     themeStore: { themeConfig },
   } = stores;
 
+  const bg = useColorModeValue(
+    themeConfig.colors.custom.light.primary,
+    themeConfig.colors.custom.dark.primary
+  );
+
   return (
     <Flex
-      bgColor={useColorModeValue(
-        themeConfig.colors.custom.light.primary,
-        themeConfig.colors.custom.dark.primary
-      )}
-      justifyContent={isCallapse ? "center" : undefined}
-      flexDirection={isCallapse ? "column" : undefined}
+      bgColor={bg}
+      justifyContent={isCallapse ? "center" : "flex-start"}
+      flexDirection={isCallapse ? "column" : "row"}
       alignItems="center"
       height={headerHeight}
+      px={isCallapse ? 0 : 3}
+      transition="all 0.3s ease-in-out"
+      borderBottom="1px solid"
+      borderColor={useColorModeValue("gray.200", "gray.700")}
     >
       <Box
         cursor="pointer"
         display="flex"
         alignItems="center"
         justifyContent="center"
-        zIndex={9999999}
         onClick={() => router.push(dashboard.home)}
       >
         {isCallapse ? (
-          <Text fontWeight={600} fontSize="lg">
-            {`${WEBSITE_TITLE?.charAt(0).toUpperCase()}.${WEBSITE_TITLE?.slice(-1).toUpperCase()}`}
+          <Text
+            fontWeight="bold"
+            fontSize="xl"
+            color={useColorModeValue("gray.800", "gray.100")}
+            letterSpacing="wide"
+          >
+            {`${WEBSITE_TITLE?.charAt(0).toUpperCase()}.${WEBSITE_TITLE?.slice(
+              -1
+            ).toUpperCase()}`}
           </Text>
         ) : (
-          <Flex alignItems="center" columnGap={4} maxW="100%" px={2} ml={3}>
-            {/* Company Logo with fallback and dynamic sizing */}
-            <Box display="none" position="relative" width={isCallapse ? "35px" : "50px"} height={isCallapse ? "35px" : "50px"}>
+          <Flex alignItems="center" columnGap={3} maxW="100%">
+            {/* Company Logo */}
+            <Box
+              position="relative"
+              width="40px"
+              height="40px"
+              borderRadius="full"
+              overflow="hidden"
+              bg={useColorModeValue("white", "gray.800")}
+              boxShadow="sm"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
               <NextImage
-                src={"/images/whiteLogo.png"}
+                src="/images/whiteLogo.png"
                 alt={WEBSITE_TITLE}
                 fill
-                style={{ objectFit: "contain", borderRadius: "50%" }}
+                style={{ objectFit: "contain" }}
               />
             </Box>
-            {/* Truncated Company Name with Tooltip */}
+
+            {/* Company Name with Tooltip */}
             <Tooltip
               label={WEBSITE_TITLE}
               hasArrow
-              isDisabled={false}
+              placement="right"
+              bg={useColorModeValue("gray.700", "gray.900")}
+              color="white"
+              px={3}
+              py={1}
+              borderRadius="md"
+              fontSize="sm"
+              openDelay={200}
             >
               <Text
                 textAlign="center"
@@ -62,6 +93,9 @@ const SidebarLogo: React.FC = observer(() => {
                 fontWeight="bold"
                 noOfLines={1}
                 isTruncated
+                color={useColorModeValue("gray.800", "gray.100")}
+                _hover={{ color: useColorModeValue("red.600", "red.300") }}
+                transition="color 0.2s ease-in-out"
               >
                 {WEBSITE_TITLE}
               </Text>

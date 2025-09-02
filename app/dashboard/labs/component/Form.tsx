@@ -121,6 +121,7 @@ const Form = ({
                   <Button
                     colorScheme="red"
                     size="lg"
+                    bgColor="red"
                     onClick={onClose}
                     _hover={{ bg: "red.500" }}
                     width="auto"
@@ -136,7 +137,7 @@ const Form = ({
                     _hover={{ bg: "teal.500" }}
                     width="auto"
                   >
-                    {initialData?.username ? "Update" : "Add"} Order
+                    {initialData?.username ? "Update" : "Save"}
                   </Button>
                 </Flex>
               </Flex>

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React from "react";
 import {
   Table,
@@ -24,13 +24,18 @@ import {
 import dynamic from "next/dynamic";
 import TableLoader from "./TableLoader";
 import Pagination from "../pagination/Pagination";
-const MultiDropdown = dynamic(() => import('../multiDropdown/MultiDropdown'), { ssr: false });
+const MultiDropdown = dynamic(() => import("../multiDropdown/MultiDropdown"), {
+  ssr: false,
+});
 import { FaEdit, FaEye } from "react-icons/fa";
 import { IoMdAdd, IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FcClearFilters } from "react-icons/fc";
 import { formatDate } from "../../utils/dateUtils";
-const CustomDateRange = dynamic(() => import('../CustomDateRange/CustomDateRange'), { ssr: false });
+const CustomDateRange = dynamic(
+  () => import("../CustomDateRange/CustomDateRange"),
+  { ssr: false }
+);
 
 interface Column {
   headerName?: string;
@@ -373,50 +378,126 @@ const CustomTable: React.FC<CustomTableProps> = ({
               />
             </Box>
           )}
-          {actions?.resetData?.show && (
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                colorScheme="red"
-                minW={{ base: "6rem", md: "10rem" }}
-                textAlign={"center"}
-              >
-                Actions
-              </MenuButton>
-              <MenuList
-                zIndex={15}
-                bg={menuListBg}
-                border="1px solid"
-                // borderColor={useColorModeValue("gray.200", "gray.600")}
-                boxShadow="md"
-                minW={"10rem"}
-                py={0}
-              >
-                {actions?.actionBtn?.addKey?.showAddButton && (
-                  <MenuItem
-                    onClick={() =>
-                      actions?.actionBtn?.addKey?.function?.("add")
-                    }
-                    _hover={{ bg: hoverBg }}
-                    icon={<IoMdAdd fontSize={"20px"} />}
-                    p={"0.7rem"}
+          {(actions?.actionBtn?.addKey?.showAddButton ||
+            actions?.resetData?.show) && (
+            <>
+              {/* Case 1: Both present → show Menu */}
+              {actions?.actionBtn?.addKey?.showAddButton &&
+              actions?.resetData?.show ? (
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="outline"
+                    colorScheme="red"
+                    minW={{ base: "6rem", md: "10rem" }}
+                    fontSize="sm"
+                    px={4}
+                    py={2}
+                    textAlign="center"
+                    transition="all 0.2s ease-in-out"
                   >
-                    Add
-                  </MenuItem>
-                )}
-                {actions?.resetData?.show && (
-                  <MenuItem
-                    onClick={actions?.resetData?.function}
-                    icon={<FcClearFilters fontSize={"20px"} />}
-                    _hover={{ bg: menuItemHover }}
-                    p={"0.7rem"}
+                    Actions
+                  </MenuButton>
+                  <MenuList
+                    zIndex={15}
+                    bg={menuListBg}
+                    border="1px solid"
+                    boxShadow="lg"
+                    borderRadius="md"
+                    minW="10rem"
+                    py={0}
                   >
-                    {actions?.resetData?.text || "Reset"}
-                  </MenuItem>
-                )}
-              </MenuList>
-            </Menu>
+                    {actions?.actionBtn?.addKey?.showAddButton && (
+                      <MenuItem
+                        onClick={() =>
+                          actions?.actionBtn?.addKey?.function?.("add")
+                        }
+                        _hover={{
+                          bg: hoverBg,
+                          transition: "background 0.2s ease-in-out",
+                        }}
+                        icon={
+                          <IoMdAdd
+                            fontSize="20px"
+                          />
+                        }
+                        p="0.7rem"
+                        fontSize="sm"
+                      >
+                        Add
+                      </MenuItem>
+                    )}
+                    {actions?.resetData?.show && (
+                      <MenuItem
+                        onClick={actions?.resetData?.function}
+                        _hover={{
+                          bg: menuItemHover,
+                          transition: "background 0.2s ease-in-out",
+                        }}
+                        icon={<FcClearFilters fontSize="20px" />}
+                        p="0.7rem"
+                        fontSize="sm"
+                      >
+                        {actions?.resetData?.text || "Reset"}
+                      </MenuItem>
+                    )}
+                  </MenuList>
+                </Menu>
+              ) : (
+                /* Case 2: Only one present → show Button directly */
+                <>
+                  {actions?.actionBtn?.addKey?.showAddButton && (
+                    <Button
+                      variant="solid"
+                      color="white"
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      px={5}
+                      py={2}
+                      w="160px"
+                      borderRadius="lg"
+                      boxShadow="sm"
+                      transition="all 0.2s ease-in-out"
+                      _hover={{
+                        boxShadow: "md",
+                      }}
+                      _active={{
+                        transform: "scale(0.98)",
+                      }}
+                      leftIcon={<IoMdAdd fontSize="18px" />}
+                      onClick={() =>
+                        actions?.actionBtn?.addKey?.function?.("add")
+                      }
+                    >
+                      Add
+                    </Button>
+                  )}
+                  {actions?.resetData?.show && (
+                    <Button
+                      variant="outline"
+                      fontSize="sm"
+                      fontWeight="medium"
+                      px={5}
+                      py={2}
+                      w="180px"
+                      borderRadius="lg"
+                      boxShadow="sm"
+                      transition="all 0.2s ease-in-out"
+                      _hover={{
+                        boxShadow: "md",
+                      }}
+                      _active={{
+                        transform: "scale(0.98)",
+                      }}
+                      leftIcon={<FcClearFilters fontSize="18px" />}
+                      onClick={actions?.resetData?.function}
+                    >
+                      {actions?.resetData?.text || "Reset"}
+                    </Button>
+                  )}
+                </>
+              )}
+            </>
           )}
         </Flex>
       </Flex>
@@ -480,7 +561,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </Thead>
 
           <TableLoader loader={loading} show={data.length}>
-            <Tbody >
+            <Tbody>
               {data.map((row, rowIndex) => (
                 <Tr
                   key={rowIndex}
