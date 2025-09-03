@@ -181,7 +181,6 @@ export const updateValidationSchema = Yup.object({
     languages: Yup.array(),
     bio: Yup.string().required("Bio is required"),
     medicalHistory: Yup.string().required("medical history is required"),
-       code: Yup.string().optional(),
     // insurances: Yup.array().of(
     //   Yup.object().shape({
     //     // type: Yup.mixed(),

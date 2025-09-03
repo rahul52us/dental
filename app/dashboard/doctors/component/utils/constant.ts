@@ -42,7 +42,6 @@ export const initialValues = {
     primary: true,
   },
 ],
-  code: "",
   pic: { file: [] },
   vaccinations: [
     {

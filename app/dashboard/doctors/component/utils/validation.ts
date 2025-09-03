@@ -87,7 +87,6 @@
   confirmPassword: Yup.string()
     .required("Confirm password is required")
     .oneOf([Yup.ref("password"), null], "Passwords must match"),
-    code: Yup.string().optional(),
     vaccinations: Yup.array().of(
       Yup.object().shape({
         type: Yup.mixed().required("Vaccine type is required"),
@@ -219,7 +218,6 @@ export const updateValidationSchema = Yup.object({
     languages: Yup.array(),
     bio: Yup.string().required("Bio is required"),
     medicalHistory: Yup.string().required("medical history is required"),
-       code: Yup.string().optional(),
     vaccinations: Yup.array().of(
       Yup.object().shape({
         type: Yup.mixed().required("Vaccine type is required"),

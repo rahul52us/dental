@@ -148,16 +148,6 @@ const Form = ({
                         showError={errors.name && touched.name}
                       />
                       <CustomInput
-                        label="Code"
-                        name="code"
-                        placeholder="Enter Code"
-                        required={true}
-                        value={values.code}
-                        onChange={handleChange}
-                        error={errors.code}
-                        showError={errors.code}
-                      />
-                      <CustomInput
                         label="Date Of birth"
                         type="date"
                         name={`dob`}

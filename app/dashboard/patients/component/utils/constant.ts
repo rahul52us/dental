@@ -32,7 +32,6 @@ export const initialValues = {
     { email: "", primary: true },
     { email: "", primary: false },
   ],
-  code: "",
   pic: { file: [] },
   insurances: [
     {
