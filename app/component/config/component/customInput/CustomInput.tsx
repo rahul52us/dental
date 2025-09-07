@@ -84,7 +84,7 @@ interface CustomInputProps {
   labelcolor?: string;
   isPortal?: boolean;
   params?: any;
-  query?:any
+  query?: any;
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -139,7 +139,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
           const response: any = await stores.auth.getCompanyUsers({
             page: 1,
             searchValue: searchValue,
-            ...query
+            ...query,
           });
 
           setUserOptions(
@@ -170,21 +170,21 @@ const CustomInput: React.FC<CustomInputProps> = ({
           const response: any = await entityStore[functionName]({
             page: 1,
             searchValue: searchValue,
-            ...query
+            ...query,
           });
 
-
-          if(Array.isArray(response?.data)){
-            return setUserOptions(response.data.map((item: any) => ({
-            label: item[key] || "Unknown",
-            value: item._id
-          })));
+          if (Array.isArray(response?.data)) {
+            return setUserOptions(
+              response.data.map((item: any) => ({
+                label: item[key] || "Unknown",
+                value: item._id,
+              }))
+            );
           }
           // map using provided key
-
         }
-      } catch (err :any) {
-        alert(err?.message)
+      } catch (err: any) {
+        alert(err?.message);
       }
     },
     [type, params, query]
@@ -562,18 +562,17 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 : userOptions.find((opt: any) => opt?.value === value?.value)
             }
             onChange={(selectedOption: any) => {
-  if (isMulti) {
-    if (onChange) {
-      onChange(selectedOption.map((opt: any) => opt));
-    }
-    setSearchInput(selectedOption ? selectedOption.label : "");
-  } else {
-    if (onChange) {
-      onChange(selectedOption ? selectedOption : "");
-    }
-  }
-}}
-
+              if (isMulti) {
+                if (onChange) {
+                  onChange(selectedOption.map((opt: any) => opt));
+                }
+                setSearchInput(selectedOption ? selectedOption.label : "");
+              } else {
+                if (onChange) {
+                  onChange(selectedOption ? selectedOption : "");
+                }
+              }
+            }}
             inputValue={searchInput}
             onInputChange={(input) => setSearchInput(input)}
             placeholder={placeholder}
