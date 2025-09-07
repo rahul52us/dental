@@ -61,12 +61,8 @@ const VaccinationHistorySection = ({
                               e.target ? e.target.value : e
                             )
                           }
-                          error={
-                            errors?.vaccinations?.[index]?.type
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.type
-                          }
+                          error={errors?.vaccinations?.[index]?.type}
+                          showError={errors?.vaccinations?.[index]?.type}
                         />
 
                         <CustomInput
@@ -75,12 +71,8 @@ const VaccinationHistorySection = ({
                           name={`vaccinations[${index}].dateAdministered`}
                           value={vac.dateAdministered || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.vaccinations?.[index]?.dateAdministered
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.dateAdministered
-                          }
+                          error={errors?.vaccinations?.[index]?.dateAdministered}
+                          showError={errors?.vaccinations?.[index]?.dateAdministered}
                         />
 
                         <CustomInput
@@ -89,11 +81,8 @@ const VaccinationHistorySection = ({
                           name={`vaccinations[${index}].nextDueDate`}
                           value={vac.nextDueDate || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.vaccinations?.[index]?.nextDueDate
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.nextDueDate                          }
+                          error={errors?.vaccinations?.[index]?.nextDueDate}
+                          showError={errors?.vaccinations?.[index]?.nextDueDate}
                         />
 
                         <CustomInput
@@ -102,13 +91,8 @@ const VaccinationHistorySection = ({
                           name={`vaccinations[${index}].reminder`}
                           value={vac.reminder || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.vaccinations?.[index]?.reminder
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.reminder
-
-                          }
+                          error={errors?.vaccinations?.[index]?.reminder}
+                          showError={errors?.vaccinations?.[index]?.reminder}
                         />
 
                         <Grid gridColumn={{ base: "span 1", md: "span 2" }}>
@@ -119,23 +103,14 @@ const VaccinationHistorySection = ({
                             onChange={handleChange}
                             type="textarea"
                             placeholder="Any additional notes"
-                            error={
-                              errors?.vaccinations?.[index]?.remarks
-                            }
-                            showError={
-                              errors?.vaccinations?.[index]?.remarks
-                            }
+                            error={errors?.vaccinations?.[index]?.remarks}
+                            showError={errors?.vaccinations?.[index]?.remarks}
                           />
                         </Grid>
 
                         <Grid
                           gridColumn={{ base: "span 1", md: "span 2" }}
                           textAlign="right"
-                          display={
-                            values?.vaccinations?.length === 1
-                              ? "none"
-                              : undefined
-                          }
                         >
                           <IconButton
                             aria-label="Remove Vaccine Entry"
@@ -150,26 +125,57 @@ const VaccinationHistorySection = ({
                     </Box>
                   ))
                 ) : (
-                  <Text>No vaccination records added yet.</Text>
+                  // Empty state card
+                  <Box
+                    p={6}
+                    borderWidth={1}
+                    borderRadius="md"
+                    borderStyle="dashed"
+                    borderColor="teal.400"
+                    bg="gray.50"
+                    textAlign="center"
+                  >
+                    <Text fontSize="md" color="teal.600" mb={3}>
+                      No vaccination records yet.
+                    </Text>
+                    <Button
+                      leftIcon={<FiPlus />}
+                      colorScheme="teal"
+                      onClick={() =>
+                        push({
+                          type: "",
+                          dateAdministered: "",
+                          nextDueDate: "",
+                          reminder: "",
+                          remarks: "",
+                        })
+                      }
+                    >
+                      Add Your First Vaccine
+                    </Button>
+                  </Box>
                 )}
               </VStack>
 
-              <Button
-                leftIcon={<FiPlus />}
-                colorScheme="teal"
-                mt={4}
-                onClick={() =>
-                  push({
-                    type: "",
-                    dateAdministered: "",
-                    nextDueDate: "",
-                    reminder: "",
-                    remarks: "",
-                  })
-                }
-              >
-                Add Vaccine
-              </Button>
+              {/* Always show Add Vaccine button if there is at least one entry */}
+              {values.vaccinations && values.vaccinations.length > 0 && (
+                <Button
+                  leftIcon={<FiPlus />}
+                  colorScheme="teal"
+                  mt={4}
+                  onClick={() =>
+                    push({
+                      type: "",
+                      dateAdministered: "",
+                      nextDueDate: "",
+                      reminder: "",
+                      remarks: "",
+                    })
+                  }
+                >
+                  Add Vaccine
+                </Button>
+              )}
             </>
           )}
         </FieldArray>

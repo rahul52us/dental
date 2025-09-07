@@ -33,14 +33,5 @@ export const initialValues = {
     { email: "", primary: false },
   ],
   pic: { file: [] },
-  insurances: [
-    {
-      type: "",
-      startDate: "",
-      renewalDate: "",
-      amountInsured: "",
-      amountPaid: "",
-      remarks: "",
-    },
-  ]
+  insurances: []
 };

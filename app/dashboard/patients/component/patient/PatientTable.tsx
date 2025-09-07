@@ -23,6 +23,8 @@ import { formatDate } from "../../../../component/config/utils/dateUtils";
 import ViewDoctor from "./ViewPatient";
 import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
+import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
+import LineItems from "../../LineItems/LineItems";
 
 const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -35,6 +37,12 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+
+  // for lineItems drawer
+  const [lineItemDrawer, setLineItemDrawer] = useState({
+    isOpen: false,
+    data: null,
+  });
 
   const applyGetAllTherapists = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false }) => {
@@ -49,15 +57,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         query.limit = tablePageLimit;
       }
 
-      getAllUsers(query)
-        .then(() => {})
-        .catch((err) => {
-          openNotification({
-            type: "error",
-            title: "Failed to get patient",
-            message: err?.message,
-          });
+      getAllUsers(query).catch((err) => {
+        openNotification({
+          type: "error",
+          title: "Failed to get patient",
+          message: err?.message,
         });
+      });
     },
     [debouncedSearchQuery, getAllUsers, openNotification]
   );
@@ -207,6 +213,32 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
+      headerName: "Orders",
+      key: "orders",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Badge
+            as="button"
+            px={3}
+            py={1}
+            borderRadius="md"
+            colorScheme="blue"
+            cursor="pointer"
+            onClick={() =>
+              setLineItemDrawer({ isOpen: true, data: dt })
+            }
+          >
+            View
+          </Badge>
+        ),
+      },
+      props: {
+        row: { minW: 10, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
       headerName: "Created At",
       key: "createdAt",
       type: "component",
@@ -230,93 +262,87 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   ];
 
   return (
-    <Box p={4}>
-      <CustomTable
-        title="Patient"
-        data={
-          user.data?.map((t: any, index: number) => {
-            return {
+    <>
+      <Box p={4}>
+        <CustomTable
+          title="Patient"
+          data={
+            user.data?.map((t: any, index: number) => ({
               ...t,
               ...t.profileDetails?.personalInfo,
               sno: index + 1,
-            };
-          }) || []
-        }
-        columns={TherapistTableColumns}
-        actions={{
-          actionBtn: {
-            addKey: {
-              showAddButton: true,
-              function: () => {
-                onAdd();
-              },
+            })) || []
+          }
+          columns={TherapistTableColumns}
+          actions={{
+            actionBtn: {
+              addKey: { showAddButton: true, function: onAdd },
+              editKey: { showEditButton: true, function: onEdit },
+              viewKey: { showViewButton: true, function: handleRowClick },
+              deleteKey: { showDeleteButton: true, function: onDelete },
             },
-            editKey: {
-              showEditButton: true,
-              function: (e: any) => {
-                onEdit(e);
-              },
+            search: {
+              show: true,
+              searchValue: searchQuery,
+              onSearchChange: (e: any) => setSearchQuery(e.target.value),
             },
-            viewKey: {
-              showViewButton: true,
-              function: (e: any) => {
-                handleRowClick(e);
-              },
+            resetData: {
+              show: false,
+              text: "Reset Data",
+              function: resetTableData,
             },
-            deleteKey: {
-              showDeleteButton: true,
-              function: (e: any) => {
-                onDelete(e);
-              },
+            pagination: {
+              show: true,
+              onClick: handleChangePage,
+              currentPage: currentPage,
+              totalPages: user.totalPages || 1,
             },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
-          resetData: {
-            show: false,
-            text: "Reset Data",
-            function: resetTableData,
-          },
-          pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage: currentPage,
-            totalPages: user.totalPages || 1,
-          },
-        }}
-        loading={user.loading}
-      />
+          }}
+          loading={user.loading}
+        />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
-          <DrawerCloseButton />
-          <DrawerHeader
-            bgGradient="linear(to-r, blue.400, purple.400)"
-            color="white"
-          >
-            <Flex align="center" gap={3}>
-              <GiPsychicWaves size="24px" />
-              User Profile
-            </Flex>
-          </DrawerHeader>
+        {/* Profile Drawer */}
+        <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+          <DrawerOverlay />
+          <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
+            <DrawerCloseButton />
+            <DrawerHeader
+              bgGradient="linear(to-r, blue.400, purple.400)"
+              color="white"
+            >
+              <Flex align="center" gap={3}>
+                <GiPsychicWaves size="24px" />
+                User Profile
+              </Flex>
+            </DrawerHeader>
 
-          {selectedUser && (
-            <DrawerBody>
-              <ViewDoctor
-                user={{
-                  ...selectedUser.profileDetails?.personalInfo,
-                  ...selectedUser,
-                }}
-              />
-            </DrawerBody>
-          )}
-        </DrawerContent>
-      </Drawer>
-    </Box>
+            {selectedUser && (
+              <DrawerBody>
+                <ViewDoctor
+                  user={{
+                    ...selectedUser.profileDetails?.personalInfo,
+                    ...selectedUser,
+                  }}
+                />
+              </DrawerBody>
+            )}
+          </DrawerContent>
+        </Drawer>
+      </Box>
+
+      {/* LineItems Drawer */}
+      {lineItemDrawer.isOpen && (
+        <CustomDrawer
+          loading={false}
+          open={lineItemDrawer.isOpen}
+          width={"85vw"}
+          close={() => setLineItemDrawer({ isOpen: false, data: null })}
+          title={'Orders'}
+        >
+          <LineItems data={lineItemDrawer.data} />
+        </CustomDrawer>
+      )}
+    </>
   );
 });
 

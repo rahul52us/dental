@@ -18,7 +18,7 @@ interface Staff {
 }
 
 interface StaffInputProps {
-  values: { staff: Staff[] };
+  values: { staffs: Staff[] };
   setFieldValue: any;
   errors?: any;
   touched?: any;
@@ -26,7 +26,7 @@ interface StaffInputProps {
 
 const StaffInput = ({ values, setFieldValue, errors }: StaffInputProps) => {
   return (
-    <FieldArray name="staff">
+    <FieldArray name="staffs">
       {({ remove, push }) => (
         <Box bg="white" p={4} borderRadius="md" boxShadow="md">
           <Text fontWeight="bold" fontSize="lg" mb={4}>
@@ -34,7 +34,7 @@ const StaffInput = ({ values, setFieldValue, errors }: StaffInputProps) => {
           </Text>
 
           <Grid templateColumns={{ base: "1fr", md: "1fr" }} gap={6}>
-            {values.staff.map((staff, index) => (
+            {values.staffs.map((staffs, index) => (
               <Box
                 key={index}
                 borderWidth="1px"
@@ -44,39 +44,39 @@ const StaffInput = ({ values, setFieldValue, errors }: StaffInputProps) => {
               >
                 <Flex gap={4} mb={3} flexDirection={{ base: "column", md: "row" }}>
                   <CustomInput
-                    name={`staff[${index}].name`}
+                    name={`staffs[${index}].name`}
                     placeholder="Staff Name"
                     type="text"
-                    value={staff.name}
+                    value={staffs.name}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFieldValue(`staff[${index}].name`, e.target.value)
+                      setFieldValue(`staffs[${index}].name`, e.target.value)
                     }
-                    error={errors?.staff?.[index]?.name}
-                    showError={errors?.staff?.[index]?.name}
+                    error={errors?.staffs?.[index]?.name}
+                    showError={errors?.staffs?.[index]?.name}
                   />
 
                   <CustomInput
-                    name={`staff[${index}].email`}
+                    name={`staffs[${index}].email`}
                     placeholder="Email"
                     // type="email"
-                    value={staff.email}
+                    value={staffs.email}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFieldValue(`staff[${index}].email`, e.target.value)
+                      setFieldValue(`staffs[${index}].email`, e.target.value)
                     }
-                    error={errors?.staff?.[index]?.email}
-                    showError={errors?.staff?.[index]?.email}
+                    error={errors?.staffs?.[index]?.email}
+                    showError={errors?.staffs?.[index]?.email}
                   />
 
                   <CustomInput
-                    name={`staff[${index}].phone`}
+                    name={`staffs[${index}].phone`}
                     placeholder="Phone"
                     // type="tel"
-                    value={staff.phone}
+                    value={staffs.phone}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFieldValue(`staff[${index}].phone`, e.target.value)
+                      setFieldValue(`staffs[${index}].phone`, e.target.value)
                     }
-                    error={errors?.staff?.[index]?.phone}
-                    showError={errors?.staff?.[index]?.phone}
+                    error={errors?.staffs?.[index]?.phone}
+                    showError={errors?.staffs?.[index]?.phone}
                   />
                 </Flex>
 
@@ -88,7 +88,7 @@ const StaffInput = ({ values, setFieldValue, errors }: StaffInputProps) => {
                   mt={2}
                   onClick={() => remove(index)}
                   float="right"
-                  isDisabled={values.staff.length === 1} // prevent removing last staff
+                  isDisabled={values.staffs.length === 1} // prevent removing last staffs
                 />
               </Box>
             ))}

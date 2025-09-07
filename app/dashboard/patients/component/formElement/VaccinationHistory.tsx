@@ -7,10 +7,18 @@ import {
   SimpleGrid,
   IconButton,
   Grid,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { FiPlus } from "react-icons/fi";
+import { useState } from "react";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import { vaccinationTypeOptions } from "../../../../config/constant";
 
@@ -20,6 +28,17 @@ const VaccinationHistorySection = ({
   setFieldValue,
   errors,
 }: any) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+
+  const confirmDelete = (remove : any) => {
+    if (deleteIndex !== null) {
+      remove(deleteIndex);
+      setDeleteIndex(null);
+      onClose();
+    }
+  };
+
   return (
     <GridItem colSpan={2}>
       <Box
@@ -61,12 +80,8 @@ const VaccinationHistorySection = ({
                               e.target ? e.target.value : e
                             )
                           }
-                          error={
-                            errors?.vaccinations?.[index]?.type
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.type
-                          }
+                          error={errors?.vaccinations?.[index]?.type}
+                          showError={errors?.vaccinations?.[index]?.type}
                         />
 
                         <CustomInput
@@ -75,9 +90,7 @@ const VaccinationHistorySection = ({
                           name={`vaccinations[${index}].dateAdministered`}
                           value={vac.dateAdministered || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.vaccinations?.[index]?.dateAdministered
-                          }
+                          error={errors?.vaccinations?.[index]?.dateAdministered}
                           showError={
                             errors?.vaccinations?.[index]?.dateAdministered
                           }
@@ -89,11 +102,8 @@ const VaccinationHistorySection = ({
                           name={`vaccinations[${index}].nextDueDate`}
                           value={vac.nextDueDate || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.vaccinations?.[index]?.nextDueDate
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.nextDueDate                          }
+                          error={errors?.vaccinations?.[index]?.nextDueDate}
+                          showError={errors?.vaccinations?.[index]?.nextDueDate}
                         />
 
                         <CustomInput
@@ -102,13 +112,8 @@ const VaccinationHistorySection = ({
                           name={`vaccinations[${index}].reminder`}
                           value={vac.reminder || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.vaccinations?.[index]?.reminder
-                          }
-                          showError={
-                            errors?.vaccinations?.[index]?.reminder
-
-                          }
+                          error={errors?.vaccinations?.[index]?.reminder}
+                          showError={errors?.vaccinations?.[index]?.reminder}
                         />
 
                         <Grid gridColumn={{ base: "span 1", md: "span 2" }}>
@@ -119,23 +124,14 @@ const VaccinationHistorySection = ({
                             onChange={handleChange}
                             type="textarea"
                             placeholder="Any additional notes"
-                            error={
-                              errors?.vaccinations?.[index]?.remarks
-                            }
-                            showError={
-                              errors?.vaccinations?.[index]?.remarks
-                            }
+                            error={errors?.vaccinations?.[index]?.remarks}
+                            showError={errors?.vaccinations?.[index]?.remarks}
                           />
                         </Grid>
 
                         <Grid
                           gridColumn={{ base: "span 1", md: "span 2" }}
                           textAlign="right"
-                          display={
-                            values?.vaccinations?.length === 1
-                              ? "none"
-                              : undefined
-                          }
                         >
                           <IconButton
                             aria-label="Remove Vaccine Entry"
@@ -143,14 +139,44 @@ const VaccinationHistorySection = ({
                             colorScheme="red"
                             variant="outline"
                             size="sm"
-                            onClick={() => remove(index)}
+                            onClick={() => {
+                              setDeleteIndex(index);
+                              onOpen();
+                            }}
                           />
                         </Grid>
                       </SimpleGrid>
                     </Box>
                   ))
                 ) : (
-                  <Text>No vaccination records added yet.</Text>
+                  <Box p={6}
+                    borderWidth={1}
+                    borderRadius="md"
+                    borderStyle="dashed"
+                    borderColor="teal.400"
+                    bg="gray.50"
+                    textAlign="center"
+                    position="relative">
+                  <Text color="gray.500" textAlign="center">
+                    No vaccination records added yet.
+                  </Text>
+                  <Button
+                leftIcon={<FiPlus />}
+                colorScheme="teal"
+                mt={4}
+                onClick={() =>
+                  push({
+                    type: "",
+                    dateAdministered: "",
+                    nextDueDate: "",
+                    reminder: "",
+                    remarks: "",
+                  })
+                }
+              >
+                Add Vaccine
+              </Button>
+                  </Box>
                 )}
               </VStack>
 
@@ -167,9 +193,34 @@ const VaccinationHistorySection = ({
                     remarks: "",
                   })
                 }
+                display={values?.vaccinations?.length === 0 ? 'none' : undefined}
               >
                 Add Vaccine
               </Button>
+
+              {/* Delete Confirmation Modal */}
+              <Modal isOpen={isOpen} onClose={onClose} isCentered>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Delete Confirmation</ModalHeader>
+                  <ModalBody>
+                    <Text>
+                      Are you sure you want to delete this vaccination record?
+                    </Text>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="ghost" mr={3} onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme="red"
+                      onClick={() => confirmDelete(remove)}
+                    >
+                      Delete
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
             </>
           )}
         </FieldArray>

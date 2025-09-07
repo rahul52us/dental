@@ -9,9 +9,11 @@ import {
   Text,
   useBreakpointValue,
   useColorMode,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import DrawerLoader from "../Loader/DrawerLoader";
+import stores from "../../../store/stores";
 
 interface CustomDrawerProps {
   open: boolean;
@@ -34,18 +36,18 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   loading = false,
   props,
 }) => {
-  // const {
-  //   themeStore: { themeConfig },
-  // } = store;
+  const {
+    themeStore: { themeConfig },
+  } = stores;
   const drawerRef = useRef<HTMLDivElement>(null);
   const { colorMode } = useColorMode();
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
-  // const headerBgColor = useColorModeValue(
-  //   themeConfig.colors.custom.light.primary,
-  //   themeConfig.colors.custom.dark.primary
-  // );
-  const headerTextColor = colorMode === "dark" ? "white" : "black";
+  const headerBgColor = useColorModeValue(
+    themeConfig.colors.custom.light.primary,
+    themeConfig.colors.custom.dark.primary
+  );
+  const headerTextColor = colorMode === "dark" ? "white" : "white";
   const handleCloseDrawer = () => {
     close();
   };
@@ -75,7 +77,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             justify="space-between"
             alignItems="center"
             p={4}
-            // bg={headerBgColor}
+            bg={headerBgColor}
             color={headerTextColor}
             fontWeight="bold"
           >

@@ -39,7 +39,7 @@ const InsuranceDetailsSection = ({
             <>
               <VStack spacing={6} align="stretch">
                 {values.insurances && values.insurances.length > 0 ? (
-                  values.insurances.map((insurance : any, index : number) => (
+                  values.insurances.map((insurance: any, index: number) => (
                     <Box
                       key={index}
                       p={4}
@@ -62,11 +62,8 @@ const InsuranceDetailsSection = ({
                               e.target ? e.target.value : e
                             )
                           }
-                          error={
-                            errors?.insurances?.[index]?.type}
-                          showError={
-                            errors?.insurances?.[index]?.type
-                          }
+                          error={errors?.insurances?.[index]?.type}
+                          showError={errors?.insurances?.[index]?.type}
                         />
 
                         {/* Start Date */}
@@ -76,12 +73,8 @@ const InsuranceDetailsSection = ({
                           name={`insurances[${index}].startDate`}
                           value={insurance.startDate || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.insurances?.[index]?.startDate
-                          }
-                          showError={
-                            errors?.insurances?.[index]?.startDate
-                          }
+                          error={errors?.insurances?.[index]?.startDate}
+                          showError={errors?.insurances?.[index]?.startDate}
                         />
 
                         {/* Renewal Date */}
@@ -91,12 +84,8 @@ const InsuranceDetailsSection = ({
                           name={`insurances[${index}].renewalDate`}
                           value={insurance.renewalDate || ""}
                           onChange={handleChange}
-                          error={
-                            errors?.insurances?.[index]?.renewalDate
-                          }
-                          showError={
-                            errors?.insurances?.[index]?.renewalDate
-                          }
+                          error={errors?.insurances?.[index]?.renewalDate}
+                          showError={errors?.insurances?.[index]?.renewalDate}
                         />
 
                         {/* Amount Insured */}
@@ -107,12 +96,8 @@ const InsuranceDetailsSection = ({
                           value={insurance.amountInsured || ""}
                           onChange={handleChange}
                           placeholder="Enter insured amount"
-                          error={
-                            errors?.insurances?.[index]?.amountInsured
-                          }
-                          showError={
-                            errors?.insurances?.[index]?.amountInsured
-                          }
+                          error={errors?.insurances?.[index]?.amountInsured}
+                          showError={errors?.insurances?.[index]?.amountInsured}
                         />
 
                         {/* Amount Paid */}
@@ -123,12 +108,8 @@ const InsuranceDetailsSection = ({
                           value={insurance.amountPaid || ""}
                           onChange={handleChange}
                           placeholder="Enter amount paid"
-                          error={
-                            errors?.insurances?.[index]?.amountPaid
-                          }
-                          showError={
-                            errors?.insurances?.[index]?.amountPaid
-                          }
+                          error={errors?.insurances?.[index]?.amountPaid}
+                          showError={errors?.insurances?.[index]?.amountPaid}
                         />
 
                         {/* Remarks - full width */}
@@ -147,9 +128,6 @@ const InsuranceDetailsSection = ({
                         <Grid
                           gridColumn={{ base: "span 1", md: "span 3" }}
                           textAlign="right"
-                          display={
-                            values?.insurances?.length === 1 ? "none" : undefined
-                          }
                         >
                           <IconButton
                             aria-label="Remove Insurance Entry"
@@ -164,28 +142,60 @@ const InsuranceDetailsSection = ({
                     </Box>
                   ))
                 ) : (
-                  <Text>No insurance records added yet.</Text>
+                  // Empty state card
+                  <Box
+                    p={6}
+                    borderWidth={1}
+                    borderRadius="md"
+                    borderStyle="dashed"
+                    borderColor="teal.400"
+                    bg="gray.50"
+                    textAlign="center"
+                    position="relative"
+                  >
+                    <Text fontSize="md" color="teal.600" mb={3}>
+                      No insurance records yet.
+                    </Text>
+                    <Button
+                      leftIcon={<FiPlus />}
+                      colorScheme="teal"
+                      onClick={() =>
+                        push({
+                          type: "",
+                          startDate: "",
+                          renewalDate: "",
+                          amountInsured: "",
+                          amountPaid: "",
+                          remarks: "",
+                        })
+                      }
+                    >
+                      Add Your First Insurance
+                    </Button>
+                  </Box>
                 )}
               </VStack>
 
-              {/* Add Insurance Button */}
-              <Button
-                leftIcon={<FiPlus />}
-                colorScheme="teal"
-                mt={4}
-                onClick={() =>
-                  push({
-                    type: "",
-                    startDate: "",
-                    renewalDate: "",
-                    amountInsured: "",
-                    amountPaid: "",
-                    remarks: "",
-                  })
-                }
-              >
-                Add Insurance
-              </Button>
+              {/* Always show Add Insurance button if there is at least one insurance */}
+              {values.insurances && values.insurances.length > 0 && (
+                <Button
+                  leftIcon={<FiPlus />}
+                  colorScheme="teal"
+                  mt={4}
+                  onClick={() =>
+                    push({
+                      type: "",
+                      startDate: "",
+                      renewalDate: "",
+                      amountInsured: "",
+                      amountPaid: "",
+                      remarks: "",
+                    })
+                  }
+                >
+                  Add Insurance
+                </Button>
+              )}
             </>
           )}
         </FieldArray>

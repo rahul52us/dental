@@ -230,7 +230,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   ];
 
   return (
-    <Box p={4}>
+    <Box p={1}>
       <CustomTable
         title="Doctors"
         data={

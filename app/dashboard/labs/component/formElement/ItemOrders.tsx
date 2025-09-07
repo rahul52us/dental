@@ -25,6 +25,7 @@ interface Item {
   quantity: number | "";
   price: number | "";
   total: number | "";
+  patientName:any
 }
 
 interface ItemOrderingInputProps {
@@ -74,6 +75,7 @@ const ItemOrderingInput = ({
               <Table size="sm" variant="simple">
                 <Thead bg={tableHeadBg}>
                   <Tr>
+                    <Th>Patient Name</Th>
                     <Th>Item Name</Th>
                     <Th>Item Code / SKU</Th>
                     <Th isNumeric>Quantity</Th>
@@ -86,7 +88,24 @@ const ItemOrderingInput = ({
                 <Tbody>
                   {values.items.map((item, index) => (
                     <Tr key={index} _hover={{ bg: rowHoverBg }}>
-                      <Td>
+                      <Td w={350}>
+                        <CustomInput
+                          name={`items[${index}].patientName`}
+                          placeholder="Patient Name"
+                          type="real-time-user-search"
+                          value={item.patientName}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setFieldValue(
+                              `items[${index}].patientName`,
+                              e
+                            )
+                          }
+                          error={errors?.items?.[index]?.itemName}
+                          showError={errors?.items?.[index]?.itemName}
+                          query={{type : "patient"}}
+                        />
+                        </Td>
+                        <Td w={220}>
                         <CustomInput
                           name={`items[${index}].itemName`}
                           placeholder="Item Name"
@@ -189,11 +208,13 @@ const ItemOrderingInput = ({
                 colorScheme="teal"
                 onClick={() =>
                   push({
+                    patientName:undefined,
                     itemName: "",
                     itemCode: "",
                     quantity: "",
                     price: "",
                     total: "",
+                    add:1
                   })
                 }
               >

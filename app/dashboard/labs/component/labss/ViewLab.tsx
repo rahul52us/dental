@@ -2,7 +2,6 @@ import React from "react";
 import {
   Box,
   Text,
-  Image,
   Heading,
   Stack,
   Badge,
@@ -13,146 +12,167 @@ import {
   HStack,
   useColorModeValue,
   Icon,
+  SimpleGrid,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Divider,
 } from "@chakra-ui/react";
-import { PhoneIcon, EmailIcon } from "@chakra-ui/icons";
-import { MdSecurity } from "react-icons/md";
+import { MdLocationOn, MdGroup, MdAccountBalance } from "react-icons/md";
 
-const InfoItem = ({ label, value }: { label: string; value: any }) => (
-  <HStack align="start">
-    <Text fontWeight="semibold" minW="140px" color="gray.600">
-      {label}:
-    </Text>
-    <Text flex="1">{value || "—"}</Text>
-  </HStack>
-);
-
-const SectionCard = ({ icon, title, children }: any) => {
-  const bg = useColorModeValue("white", "gray.800");
+// Circle Icon for Section Header
+const CircleIcon = ({ icon }: { icon: any }) => {
+  const bg = useColorModeValue("teal.100", "teal.700");
+  const color = useColorModeValue("teal.600", "teal.200");
   return (
-    <Card bg={bg} borderWidth="1px" borderRadius="lg" shadow="sm" mb={5}>
-      <CardHeader pb={2}>
-        <HStack spacing={2}>
-          {icon && <Icon as={icon} boxSize={5} color="teal.500" />}
-          <Heading size="sm">{title}</Heading>
-        </HStack>
-      </CardHeader>
-      <CardBody pt={2}>{children}</CardBody>
-    </Card>
-  );
-};
-
-const ViewPatient = ({ user }) => {
-  const pageBg = useColorModeValue("gray.50", "gray.900");
-  const sectionItemBg = useColorModeValue("gray.50", "gray.700");
-
-  if (!user) return <Text>No user data available</Text>;
-
-  const personalInfo = user?.profileDetails?.personalInfo || {};
-
-  // ✅ Declare hook values only once at top level
-
-  return (
-    <Box p={2} bg={pageBg}>
-      {/* Profile Header */}
-      <Card mb={6} shadow="sm">
-        <CardBody>
-          <Stack direction={["column", "row"]} spacing={4} align="center">
-            {user.pic?.url && (
-              <Image
-                src={user.pic.url}
-                alt={user.name}
-                boxSize="80px"
-                borderRadius="full"
-                shadow="md"
-              />
-            )}
-            <Box>
-              <Heading size="md">{user.name}</Heading>
-              <Text fontSize="sm" color="gray.500">
-                {user.userType} — {user.code}
-              </Text>
-            </Box>
-          </Stack>
-        </CardBody>
-      </Card>
-
-      {/* Basic Info */}
-      <SectionCard title="Basic Information">
-        <VStack align="stretch" spacing={2}>
-          <InfoItem label="Username" value={user.username} />
-          <InfoItem label="Bio" value={user.bio} />
-          <InfoItem label="DOB" value={personalInfo.dob} />
-          <InfoItem
-            label="Languages"
-            value={personalInfo.languages?.join(", ")}
-          />
-          <InfoItem
-            label="Medical History"
-            value={personalInfo.medicalHistory}
-          />
-        </VStack>
-      </SectionCard>
-
-      {/* Contact Info */}
-      <SectionCard title="Contact Information">
-        <VStack align="stretch" spacing={2}>
-          {personalInfo.phones
-            ?.filter((p) => p.number) // only keep non-empty
-            .map((p, idx) => (
-              <HStack key={idx}>
-                <PhoneIcon color="teal.500" />
-                <Text>
-                  {p.number}{" "}
-                  {p.primary && (
-                    <Badge ml={1} colorScheme="green">
-                      Primary
-                    </Badge>
-                  )}
-                </Text>
-              </HStack>
-            ))}
-
-          {/* Emails */}
-          {personalInfo.emails
-            ?.filter((e) => e.email) // only keep non-empty
-            .map((e, idx) => (
-              <HStack key={idx}>
-                <EmailIcon color="teal.500" />
-                <Text>
-                  {e.email}{" "}
-                  {e.primary && (
-                    <Badge ml={1} colorScheme="green">
-                      Primary
-                    </Badge>
-                  )}
-                </Text>
-              </HStack>
-            ))}
-        </VStack>
-      </SectionCard>
-
-      {/* Insurances */}
-      <SectionCard icon={MdSecurity} title="Insurances">
-        {personalInfo.insurances?.map((i, idx) => (
-          <Box
-            key={idx}
-            p={3}
-            borderWidth="1px"
-            borderRadius="md"
-            mb={2}
-            bg={sectionItemBg} // ✅ Precomputed value
-          >
-            <InfoItem label="Type" value={i.type} />
-            <InfoItem label="Start Date" value={i.startDate} />
-            <InfoItem label="Renewal Date" value={i.renewalDate} />
-            <InfoItem label="Amount Insured" value={i.amountInsured} />
-            <InfoItem label="Amount Paid" value={i.amountPaid} />
-            <InfoItem label="Remarks" value={i.remarks || "None"} />
-          </Box>
-        ))}
-      </SectionCard>
+    <Box
+      w={10}
+      h={10}
+      borderRadius="full"
+      bg={bg}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Icon as={icon} boxSize={5} color={color} />
     </Box>
   );
 };
 
-export default ViewPatient;
+// Card Component for each Section
+const SectionCard = ({ icon, title, children }: any) => {
+  const bg = useColorModeValue("white", "gray.800");
+  return (
+    <Card bg={bg} borderRadius="xl" shadow="lg" overflow="hidden">
+      <Box h="2px" bg="teal.400" />
+      <CardHeader pb={0}>
+        <HStack spacing={3} mt={2}>
+          <CircleIcon icon={icon} />
+          <Heading size="sm">{title}</Heading>
+        </HStack>
+      </CardHeader>
+      <CardBody>{children}</CardBody>
+    </Card>
+  );
+};
+
+// Main Component
+const ViewLab = ({ data }: { data: any }) => {
+  // ✅ Call hooks at top level only
+  const theadBg = useColorModeValue("gray.100", "gray.700");
+
+  if (!data) return <Text>No data available</Text>;
+
+  return (
+    <Box p={6}>
+      {/* Avatar & Info */}
+      <Stack direction={["column", "row"]} spacing={6} align="center">
+        <Box mb={10}>
+          <Heading size="xl" mb={2}>
+            {data.name}
+          </Heading>
+          <HStack spacing={4} align="center">
+            <Badge
+              colorScheme={data.isActive ? "green" : "red"}
+              px={4}
+              py={1}
+              borderRadius="full"
+              fontSize="0.9rem"
+            >
+              {data.isActive ? "Active" : "Inactive"}
+            </Badge>
+            <Text fontSize="sm" color="gray.400">
+              Created: {new Date(data.createdAt).toLocaleDateString()}
+            </Text>
+          </HStack>
+        </Box>
+      </Stack>
+
+      <SimpleGrid columns={[1, 2]} spacing={6}>
+        {/* Addresses */}
+        <SectionCard icon={MdLocationOn} title="Addresses">
+          <VStack align="stretch" spacing={3}>
+            <Text>
+              <b>Residential:</b> {data.addresses?.residential || "—"}
+            </Text>
+            <Divider />
+            <Text>
+              <b>Office:</b> {data.addresses?.office || "—"}
+            </Text>
+            <Divider />
+            <Text>
+              <b>Other:</b> {data.addresses?.other || "—"}
+            </Text>
+          </VStack>
+        </SectionCard>
+
+        {/* Staffs in Table Format */}
+        <SectionCard icon={MdGroup} title="Staff Members">
+          {data.staffs?.length ? (
+            <Table size="sm" variant="striped" colorScheme="teal">
+              <Thead bg={theadBg}>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Email</Th>
+                  <Th>Phone</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {data.staffs.map((s: any, idx: number) => (
+                  <Tr key={idx}>
+                    <Td>{s.name}</Td>
+                    <Td>{s.email}</Td>
+                    <Td>{s.phone}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          ) : (
+            <Text>No staff members</Text>
+          )}
+        </SectionCard>
+      </SimpleGrid>
+
+      {/* Bank Accounts */}
+      <Box mt={6}>
+        <SectionCard icon={MdAccountBalance} title="Bank Accounts">
+          {data.bankAccounts?.length ? (
+            <Table size="sm" variant="simple">
+              <Thead bg={theadBg}>
+                <Tr>
+                  <Th>Holder</Th>
+                  <Th>Bank</Th>
+                  <Th>Account No.</Th>
+                  <Th>IFSC</Th>
+                  <Th>Branch</Th>
+                  <Th>Status</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {data.bankAccounts.map((b: any, idx: number) => (
+                  <Tr key={idx}>
+                    <Td>{b.accountHolder}</Td>
+                    <Td>{b.bankName}</Td>
+                    <Td>{b.accountNumber}</Td>
+                    <Td>{b.ifscCode}</Td>
+                    <Td>{b.branch}</Td>
+                    <Td>
+                      {b.primary && <Badge colorScheme="green">Primary</Badge>}
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          ) : (
+            <Text>No bank accounts</Text>
+          )}
+        </SectionCard>
+      </Box>
+    </Box>
+  );
+};
+
+export default ViewLab;

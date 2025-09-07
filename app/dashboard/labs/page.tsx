@@ -10,164 +10,141 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
 import Form from "./component/Form";
-import { initialValues, titles } from "./component/utils/constant";
+import { initialValues } from "./component/utils/constant";
 import DeleteData from "./component/labss/component/DeleteUser";
 import DoctorsTable from "./component/labss/LabsTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 import { tablePageLimit } from "../../component/config/utils/variable";
+import { observer } from "mobx-react-lite";
+import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
+import LineItems from "./component/LineItems/LineItems";
 
-const PatientPage = () => {
+const LabPage = observer(() => {
   const [formLoading, setFormLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const {
-    userStore: { createUser, getAllUsers, updateUser },
+    labStore: { createLab, getLabs, updateLab, deleteLab },
   } = stores;
+
   const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
     isOpen: false,
     type: "add",
     data: null,
   });
-  const [thumbnail, setThumbnail] = useState([]);
+
   const toast = useToast();
 
   const handleAddSubmit = async (formData: any) => {
     try {
       setFormLoading(true);
       const values = { ...formData };
-      if (values.pic?.file && values.pic?.file?.length !== 0) {
-        const buffer = await readFileAsBase64(values.pic?.file);
-        const fileData = {
-          buffer: buffer,
-          filename: values.pic?.file?.name,
-          type: values.pic?.file?.type,
-          isAdd: values.pic?.isAdd || 1,
-        };
-        formData.pic = fileData;
-      }
-
-      createUser({
+      await createLab({
         ...values,
-      ...(replaceLabelValueObjects(values) || {}),
-        pic: formData?.pic || {},
-        title: formData?.data,
-        mobileNumber : formData.phones.find((it : any) => it.primary === true).number || undefined,
-        username : formData.emails.find((it : any) => it.primary === true).email || undefined,
-        gender: formData?.gender?.value || 1,
-        type: "patient"
-      })
-        .then(() => {
-          getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
-          setFormLoading(false);
-          setIsDrawerOpen({ isOpen: false, type: "add", data: null });
-          toast({
-            title: "Patient Added.",
-            description: `${formData.name} has been successfully added.`,
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-          });
-        })
-        .catch((err: any) => {
-          setFormLoading(false);
-          toast({
-            title: "failed to create",
-            description: `${err?.message}`,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-        });
-    } catch (err: any) {
-      setFormLoading(false);
+        ...(replaceLabelValueObjects(values) || {}),
+      });
+      getLabs({ page: 1, limit: tablePageLimit });
+      setIsDrawerOpen({ isOpen: false, type: "add", data: null });
       toast({
-        title: "failed to create",
-        description: `${err?.message}`,
+        title: "Lab Added",
+        description: `${formData.name} has been successfully added.`,
         status: "success",
         duration: 5000,
         isClosable: true,
       });
+    } catch (err: any) {
+      toast({
+        title: "Failed to create",
+        description: err?.message || "Something went wrong",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setFormLoading(false);
     }
   };
 
   const handleEditSubmit = async (values: any) => {
-    const formData: any = {
-      ...values,
-    };
-    setFormLoading(true);
-    if (formData?.pic?.file && formData?.pic?.isAdd) {
-      const buffer = await readFileAsBase64(formData?.pic?.file);
-      const fileData = {
-        buffer: buffer,
-        filename: formData?.pic?.file?.name,
-        type: formData?.pic?.file?.type,
-        isDeleted: formData?.pic?.isDeleted || 0,
-        isAdd: formData?.pic?.isAdd || 0,
-      };
-      formData.pic = fileData;
-    } else {
-      if (formData?.pic?.isDeleted) {
-        const fileData = {
-          isDeleted: formData?.pic?.isDeleted || 0,
-          isAdd: formData?.pic?.isAdd || 0,
-        };
-        formData.pic = fileData;
-      }
-    }
-
-    updateUser({
-      ...values,
-      ...(replaceLabelValueObjects(values) || {}),
-      mobileNumber : formData.phones.find((it : any) => it.primary === true).number || undefined,
-      username : formData.emails.find((it : any) => it.primary === true).email || undefined,
-      pic: formData?.pic,
-      title: formData?.title?.label || titles[0].label,
-      gender: formData?.gender?.value || 1
-    })
-      .then(() => {
-        getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
-        setFormLoading(false);
-        setIsDrawerOpen({ isOpen: false, type: "add", data: null });
-        toast({
-          title: "User updated.",
-          description: `${formData.name} has been successfully added.`,
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
-      })
-      .catch((err: any) => {
-        setFormLoading(false);
-        toast({
-          title: "failed to update",
-          description: `${err?.message}`,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+    try {
+      setFormLoading(true);
+      await updateLab({
+        ...values,
+        ...(replaceLabelValueObjects(values) || {}),
       });
+      getLabs({ page: 1, limit: tablePageLimit });
+      setIsDrawerOpen({ isOpen: false, type: "add", data: null });
+      toast({
+        title: "Lab Updated",
+        description: `${values.name} has been successfully updated.`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Failed to update",
+        description: err?.message || "Something went wrong",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteData = async (status: boolean, data: any) => {
+    setDeleteLoading(true);
+    try {
+      await deleteLab({ id : data._id, deleted: status });
+      toast({
+        title: "Lab Deleted",
+        description: `${data?.name} has been deleted successfully.`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      getLabs({ page: 1, limit: tablePageLimit });
+      setIsDrawerOpen({ isOpen: false, type: "add", data: null });
+    } catch (err: any) {
+      toast({
+        title: "Delete Failed",
+        description: err?.message || "Something went wrong",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
     <Box>
       <DoctorsTable
-        onDelete={(ft: any) => {
-          setIsDrawerOpen({ open: true, type: "delete", data: ft });
-        }}
-        onAdd={() => setIsDrawerOpen({ isOpen: true, type: "add", data: null })}
+        onDelete={(ft: any) =>
+          setIsDrawerOpen({ isOpen: true, type: "delete", data: ft })
+        }
+        onItemView={(dt: any) =>
+          setIsDrawerOpen({ isOpen: true, type: "lineItems", data: dt })
+        }
+        onAdd={() =>
+          setIsDrawerOpen({ isOpen: true, type: "add", data: null })
+        }
         onEdit={(dt: any) => {
-          const { profileDetails, ...rest } = dt;
+          const { ...rest } = dt;
           setIsDrawerOpen({
             isOpen: true,
             type: "edit",
-            data: {
-              ...rest,
-              ...profileDetails?.personalInfo,
-            },
+            data: { ...rest },
           });
         }}
       />
+
+      {/* Add / Edit Drawer */}
       {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
         <Drawer
           size="md"
@@ -183,8 +160,8 @@ const PatientPage = () => {
               bg="white"
               borderRadius="lg"
               boxShadow="xl"
-              maxW={{ base: "100%", md: "92%" }}
-              width={{ base: "100%", md: "92%" }}
+              maxW={{ base: "100%", md: "93%" }}
+              width={{ base: "100%", md: "95%" }}
             >
               <DrawerCloseButton />
               <DrawerHeader
@@ -213,9 +190,7 @@ const PatientPage = () => {
                   onClose={() =>
                     setIsDrawerOpen({ isOpen: false, type: "add", data: null })
                   }
-                  thumbnail={thumbnail}
-                  isEdit={isDrawerOpen.type === "edit" ? true : false}
-                  setThumbnail={setThumbnail}
+                  isEdit={isDrawerOpen.type === "edit"}
                   loading={formLoading}
                 />
               </DrawerBody>
@@ -223,18 +198,41 @@ const PatientPage = () => {
           </DrawerOverlay>
         </Drawer>
       )}
-      {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
+
+      {/* Delete Drawer */}
+      {isDrawerOpen.type === "delete" && isDrawerOpen.isOpen && (
         <DeleteData
-          getData={() => getAllUsers({ page: 1, limit: tablePageLimit, type: "lab" })}
+          getData={() =>
+            getLabs({ page: 1, limit: tablePageLimit, type: "lab" })
+          }
+          loading={deleteLoading}
+          handleDeleteData={(status: boolean) =>
+            handleDeleteData(status, isDrawerOpen.data)
+          }
           data={isDrawerOpen.data}
-          isOpen={isDrawerOpen.open}
+          isOpen={isDrawerOpen.isOpen}
           onClose={() =>
-            setIsDrawerOpen({ open: false, type: "add", data: null })
+            setIsDrawerOpen({ isOpen: false, type: "add", data: null })
           }
         />
       )}
+
+      {/* LineItems Drawer */}
+      {isDrawerOpen.type === "lineItems" && isDrawerOpen.isOpen && (
+        <CustomDrawer
+          loading={false}
+          open={isDrawerOpen.isOpen}
+          width={"85vw"}
+          close={() =>
+            setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+          }
+          title={isDrawerOpen?.data?.name}
+        >
+          <LineItems data={isDrawerOpen.data} />
+        </CustomDrawer>
+      )}
     </Box>
   );
-};
+});
 
-export default PatientPage;
+export default LabPage;

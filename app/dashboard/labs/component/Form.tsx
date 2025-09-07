@@ -30,6 +30,7 @@ const Form = ({
 }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
 
+
   useEffect(() => {
     if (initialData) {
       setFormData(generateIntialValues(initialData));
@@ -67,7 +68,7 @@ const Form = ({
                 {/* Section 1: Personal Info */}
                 <GridItem colSpan={2}>
                   <Text fontSize="lg" fontWeight="semibold" mb={4}>
-                    Personal Information
+                    Lab Information
                   </Text>
 
                   <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
@@ -105,11 +106,11 @@ const Form = ({
                     values={values}
                   />
                 </GridItem>
-                <ItemOrderingInput
+                {!initialData.name && <ItemOrderingInput
                   errors={errors}
                   setFieldValue={setFieldValue}
                   values={values}
-                />
+                />}
                 <BankDetailsInput
                   errors={errors}
                   setFieldValue={setFieldValue}
@@ -137,7 +138,7 @@ const Form = ({
                     _hover={{ bg: "teal.500" }}
                     width="auto"
                   >
-                    {initialData?.username ? "Update" : "Save"}
+                    {initialData?.name ? "Update" : "Save"}
                   </Button>
                 </Flex>
               </Flex>

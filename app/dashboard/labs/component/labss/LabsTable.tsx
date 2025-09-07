@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
 import {
+  Badge,
   Box,
   Drawer,
   DrawerBody,
@@ -9,7 +10,6 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
-  Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
@@ -19,11 +19,10 @@ import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDate } from "../../../../component/config/utils/dateUtils";
 import ViewDoctor from "./ViewLab";
-import { copyToClipboard } from "../../../../config/utils/function";
 
-const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
+const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
   const {
-    userStore: { getAllUsers, user },
+    labStore: { getLabs, labs },
     auth: { openNotification },
   } = stores;
 
@@ -46,7 +45,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         query.limit = tablePageLimit;
       }
 
-      getAllUsers(query)
+      getLabs(query)
         .then(() => {})
         .catch((err) => {
           openNotification({
@@ -56,7 +55,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           });
         });
     },
-    [debouncedSearchQuery, getAllUsers, openNotification]
+    [debouncedSearchQuery, getLabs, openNotification]
   );
 
   useEffect(() => {
@@ -73,8 +72,8 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     applyGetAllTherapists({ reset: true });
   };
 
-  const handleRowClick = (user: any) => {
-    setSelectedTherapist(user);
+  const handleRowClick = (labs: any) => {
+    setSelectedTherapist(labs);
     onOpen();
   };
 
@@ -90,51 +89,23 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Address",
+      headerName: "view Orders",
       key: "address",
       type: "component",
       metaData: {
         component: (dt: any) => {
           return (
-            <Tooltip label={`Click to copy: ${dt.address}`} hasArrow>
-              <Box
-                m={1}
-                textAlign="center"
-                onClick={() => copyToClipboard(dt.address)}
-              >
-                {dt.address || "NA"}
-              </Box>
-            </Tooltip>
-          );
-        },
-      },
-      props: {
-        row: { minW: 10, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-    {
-      headerName: "Mobile No.",
-      key: "mobile",
-      type: "component",
-      metaData: {
-        component: (dt: any) => {
-          const number =
-            dt.phones?.find((it: any) => it.primary)?.number || "--";
-          const displayNumber =
-            number !== "--" ? `•••${number.slice(-4)}` : "--";
-
-          return (
-            <Tooltip label={`Click to copy: ${number}`} hasArrow>
-              <Box
-                m={1}
-                textAlign="center"
-                cursor={number !== "--" ? "pointer" : "default"}
-                onClick={() => copyToClipboard(number)}
-              >
-                {displayNumber}
-              </Box>
-            </Tooltip>
+            <Badge
+              as="button"
+              px={3}
+              py={1}
+              borderRadius="md"
+              colorScheme="blue"
+              cursor="pointer"
+              onClick={() => onItemView(dt)}
+            >
+              View
+            </Badge>
           );
         },
       },
@@ -171,7 +142,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       <CustomTable
         title="Labs"
         data={
-          user.data?.map((t: any, index: number) => {
+          labs.data?.map((t: any, index: number) => {
             return {
               ...t,
               ...t.profileDetails?.personalInfo,
@@ -221,10 +192,10 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             show: true,
             onClick: handleChangePage,
             currentPage: currentPage,
-            totalPages: user.totalPages || 1,
+            totalPages: labs.TotalPages || 1,
           },
         }}
-        loading={user.loading}
+        loading={labs.loading}
       />
 
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
@@ -244,8 +215,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           {selectedUser && (
             <DrawerBody>
               <ViewDoctor
-                user={{
-                  ...selectedUser.profileDetails?.personalInfo,
+                data={{
                   ...selectedUser,
                 }}
               />

@@ -35,34 +35,8 @@ export const initialValues = {
     { email: "", primary: true },
     { email: "", primary: false },
   ],
-  bankAccounts: [
-  {
-    accountHolder: "",
-    bankName: "",
-    accountNumber: "",
-    ifscCode: "",
-    branch: "",
-    primary: true,
-  },
-],
+  bankAccounts: [],
   pic: { file: [] },
-  vaccinations: [
-    {
-      type: "",
-      dateAdministered: "",
-      nextDueDate: "",
-      reminder: false,
-      remarks: "",
-    },
-  ],
-  insurances: [
-    {
-      type: "",
-      startDate: "",
-      renewalDate: "",
-      amountInsured: "",
-      amountPaid: "",
-      remarks: "",
-    },
-  ]
+  vaccinations: [],
+  insurances: []
 };

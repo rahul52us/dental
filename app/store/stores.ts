@@ -12,11 +12,13 @@ import { bookingStore } from "./bookingStore/bookingStore";
 import { appointmentStore } from "./appointmentsStore/appointmentStore";
 import { dashboardStore } from "./dashboardStore/dashboardStore";
 import {EventStore} from './eventStore/eventStore'
+import { labStore } from "./labStore/labStore";
 
 const stores = {
   auth : authStore,
   dashboardStore : dashboardStore,
   userStore : userStore,
+  labStore:labStore,
   appointmentStore : appointmentStore,
   bookingStore : bookingStore,
   themeStore : themeStore,

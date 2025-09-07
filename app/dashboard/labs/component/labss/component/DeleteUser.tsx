@@ -10,7 +10,7 @@ import {
 import stores from "../../../../../store/stores";
 import FormModel from "../../../../../component/common/FormModel/FormModel";
 
-const DeleteData = ({ getData, data, isOpen, onClose }: any) => {
+const DeleteData = ({ getData, data, isOpen, onClose, handleDeleteData, loading }: any) => {
   const {
     userStore: { deleteUser },
     auth: { openNotification },
@@ -78,13 +78,17 @@ const DeleteData = ({ getData, data, isOpen, onClose }: any) => {
             colorScheme="red"
             variant="outline"
             onClick={() => {
-              handleDelete(true);
+              if(handleDeleteData){
+                handleDeleteData()
+              }else{
+                handleDelete(true);
+              }
             }}
             borderRadius="full"
             fontWeight="medium"
             size="sm"
             px={4}
-            isLoading={deleteLoading}
+            isLoading={loading || deleteLoading}
             _hover={{ bg: "red.50" }}
           >
             Delete
