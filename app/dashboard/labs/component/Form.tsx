@@ -19,6 +19,7 @@ import {
 import ItemOrderingInput from "./formElement/ItemOrders";
 import BankDetailsInput from "./formElement/BankDetailsInput";
 import StaffInput from "./formElement/StaffInput";
+import { toJS } from "mobx";
 
 const Form = ({
   loading,
@@ -57,6 +58,8 @@ const Form = ({
           errors,
           touched,
         }: any) => {
+
+          console.log('the values are', toJS(values))
           return (
             <FormikForm onSubmit={handleSubmit}>
               <Grid

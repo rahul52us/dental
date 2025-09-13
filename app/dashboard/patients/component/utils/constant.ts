@@ -21,6 +21,7 @@ export const initialValues = {
   },
   bio: "",
   password: "",
+  refrenceBy:null,
   confirmPassword: "",
   phones: [
     { number: "", primary: true },

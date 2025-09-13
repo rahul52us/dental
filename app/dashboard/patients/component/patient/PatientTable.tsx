@@ -267,11 +267,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         <CustomTable
           title="Patient"
           data={
-            user.data?.map((t: any, index: number) => ({
+            user.data?.map((t: any, index: number) => {
+              return({
               ...t,
               ...t.profileDetails?.personalInfo,
+              refrenceBy : t.refrenceBy,
               sno: index + 1,
-            })) || []
+            })}) || []
           }
           columns={TherapistTableColumns}
           actions={{

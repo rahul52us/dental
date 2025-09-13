@@ -23,6 +23,8 @@ import {
   VStack,
   HStack,
   useToast,
+  Divider,
+  Icon,
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
 import { Formik, Form } from "formik";
@@ -36,6 +38,7 @@ import CustomTable from "../../../component/config/component/CustomTable/CustomT
 import ViewLineItems from "./component/ViewLineItems";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import FormModel from "../../../component/common/FormModel/FormModel";
+import { FiTrash2 } from "react-icons/fi";
 
 const validationSchema = Yup.object().shape({
   lab: Yup.mixed().required("Lab is Required"),
@@ -477,6 +480,7 @@ const LineItems = observer(({ data }: any) => {
                     </Text>
                   </Box>
                 </Box>
+                <Divider mt={4} />
                 <ModalFooter borderTopWidth="1px" py={4} px={6}>
                   <Button onClick={onFormClose} variant="outline" mr={3}>
                     Cancel
@@ -504,22 +508,45 @@ const LineItems = observer(({ data }: any) => {
         isCentered
       >
         <AlertDialogOverlay>
-          <AlertDialogContent borderRadius="xl">
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Line Item
+          <AlertDialogContent borderRadius="2xl" boxShadow="2xl" p={2}>
+            <AlertDialogHeader>
+              <HStack spacing={3} align="center">
+                <Box
+                  bg="red.100"
+                  p={2}
+                  borderRadius="full"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={FiTrash2} w={5} h={5} color="red.500" />
+                </Box>
+                <Text fontSize="xl" fontWeight="bold">
+                  Delete Line Item
+                </Text>
+              </HStack>
             </AlertDialogHeader>
-            <AlertDialogBody>
-              Are you sure you want to delete this line item? This action cannot
-              be undone.
+
+            <AlertDialogBody fontSize="md" color="gray.600" pt={2}>
+              Are you sure you want to delete this line item? <br />
+              <Text as="span" fontWeight="semibold" color="red.500">
+                This action cannot be undone.
+              </Text>
             </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onDeleteClose}>
+
+            <AlertDialogFooter gap={3}>
+              <Button
+                ref={cancelRef}
+                onClick={onDeleteClose}
+                variant="outline"
+                borderRadius="lg"
+              >
                 Cancel
               </Button>
               <Button
                 isLoading={formLoading}
                 colorScheme="red"
-                ml={3}
+                borderRadius="lg"
                 onClick={confirmDelete}
               >
                 Delete

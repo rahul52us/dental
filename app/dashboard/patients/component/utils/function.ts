@@ -2,12 +2,14 @@ import { genderOptions, insuranceTypeOptions, vaccinationTypeOptions } from "../
 import { initialValues, titles } from "./constant";
 
 export const generateIntialValues = (initialData: any = {}) => {
+
   return {
     ...initialValues,
     ...initialData,
     pic: initialData?.pic?.url
       ? { file: initialData.pic }
       : { file: [] },
+    refrenceBy : initialData?.refrenceBy ? Object.keys(initialData?.refrenceBy || {}).length > 1 ? {label : `${initialData?.refrenceBy?.username}(${initialData?.refrenceBy?.code})`, value : initialData?.refrenceBy?._id } : undefined : undefined,
     gender:
       genderOptions.find((it: any) => it.value === initialData?.gender) ||
       genderOptions[0],

@@ -24,7 +24,7 @@ import { createValidationSchema, updateValidationSchema } from "./utils/validati
 import { genderOptions } from "../../../config/constant";
 
 const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
-  const [formData, setFormData] = useState<any>(initialData);
+  const [formData, setFormData] = useState<any>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -33,7 +33,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
   }, [initialData]);
 
   return (
-    isOpen && (
+    isOpen && formData && (
       <Formik
         initialValues={formData}
         validationSchema={isEdit ? updateValidationSchema : createValidationSchema}
@@ -178,6 +178,23 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                           errors.backgroundVideo && touched.backgroundVideo
                         }
                       />
+                      <CustomInput
+                          name="refrenceBy"
+                          placeholder="Refrence By (Patient)"
+                          type="real-time-user-search"
+                          label="Refrence By (Patient)"
+                          value={values.refrenceBy}
+                          options={values?.refrenceBy ? [values?.refrenceBy || {}] : []}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setFieldValue(
+                              `refrenceBy`,
+                              e
+                            )
+                          }
+                          error={errors?.refrenceBy}
+                          showError={errors?.refrenceBy}
+                          query={{type : "patient"}}
+                        />
                     </Grid>
                     <Box
                       borderWidth={1}

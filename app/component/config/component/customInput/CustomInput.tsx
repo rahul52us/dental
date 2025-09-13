@@ -144,7 +144,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
           setUserOptions(
             response.map((it: any) => ({
-              label: it.user.username,
+              label: `${it.user.username}(${it.user.code})`,
               value: it.user._id,
             }))
           );
