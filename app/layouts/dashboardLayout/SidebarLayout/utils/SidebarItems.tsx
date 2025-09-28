@@ -1,4 +1,4 @@
-import { FaChartPie, FaUsers, FaUserMd, FaUserTie, FaCog } from "react-icons/fa";
+import { FaChartPie, FaUsers, FaUserMd, FaUserTie, FaCog, FaListAlt } from "react-icons/fa";
 import { FaVials } from "react-icons/fa";
 
 
@@ -49,9 +49,9 @@ const sidebarDatas: SidebarItem[] = [
     role: ["user"],
   },
   {
-    id: 5,
+    id: 6,
     name: "masters",
-    icon: <FaVials />, // staff / employee icon
+    icon: <FaListAlt />, // staff / employee icon
     url: "/dashboard/masters",
     role: ["user"],
   },

@@ -79,7 +79,7 @@
     }),
     languages: Yup.array(),
     bio: Yup.string().required("Bio is required"),
-    medicalHistory: Yup.string().required("medical history is required"),
+    medicalHistory: Yup.mixed(),
    password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
@@ -180,7 +180,7 @@ export const updateValidationSchema = Yup.object({
     }),
     languages: Yup.array(),
     bio: Yup.string().required("Bio is required"),
-    medicalHistory: Yup.string().required("medical history is required"),
+    medicalHistory: Yup.mixed(),
     // insurances: Yup.array().of(
     //   Yup.object().shape({
     //     // type: Yup.mixed(),

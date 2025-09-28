@@ -22,6 +22,7 @@ import EmailsInput from "./formElement/EmailInputs";
 import AddressesInput from "./formElement/AddressInput";
 import { createValidationSchema, updateValidationSchema } from "./utils/validation";
 import { genderOptions } from "../../../config/constant";
+import MedicalHistorySection from "./formElement/MedicalHistory";
 
 const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
   const [formData, setFormData] = useState<any>(null);
@@ -217,7 +218,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         style={{ width: "100%" }}
                       />
                     </Box>
-                    <Box
+                    {/* <Box
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="sm"
@@ -236,7 +237,9 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         error={errors.medicalHistory}
                         showError={errors.medicalHistory}
                       />
-                    </Box>
+                    </Box> */}
+                                        <MedicalHistorySection values={values} setFieldValue={setFieldValue} />
+
                     <PhoneNumbersInput
                       values={values}
                       setFieldValue={setFieldValue}

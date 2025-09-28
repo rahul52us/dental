@@ -129,16 +129,6 @@
         primary: Yup.boolean().required("Primary field is required"),
       })
     )
-    .required("At least one bank account is required")
-    .min(1, "At least one bank account is required")
-    .test(
-      "one-primary-bank",
-      "Exactly one bank account must be marked as primary",
-      (accounts) => {
-        if (!accounts || accounts.length === 0) return false;
-        return accounts.filter((a) => a.primary).length === 1;
-      }
-    ),
   });
 
 export const updateValidationSchema = Yup.object({
@@ -260,14 +250,4 @@ export const updateValidationSchema = Yup.object({
         primary: Yup.boolean().required("Primary field is required"),
       })
     )
-    .required("At least one bank account is required")
-    .min(1, "At least one bank account is required")
-    .test(
-      "one-primary-bank",
-      "Exactly one bank account must be marked as primary",
-      (accounts) => {
-        if (!accounts || accounts.length === 0) return false;
-        return accounts.filter((a) => a.primary).length === 1;
-      }
-    ),
   });

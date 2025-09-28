@@ -34,5 +34,27 @@ export const initialValues = {
     { email: "", primary: false },
   ],
   pic: { file: [] },
-  insurances: []
+  insurances: [],
+  medicalHistory: {
+  allergies: { checked: false, text: "" },
+  bloodPressure: { checked: false, text: "" },
+  heartDisease: { checked: false, text: "" },
+  pacemaker: { checked: false, text: "" },
+  diabetes: { checked: false, text: "" },
+  asthma: { checked: false, text: "" },
+  smoking: { checked: false, text: "" },
+  tobacco: { checked: false, text: "" },
+  kidneyDisease: { checked: false, text: "" },
+  tuberculosis: { checked: false, text: "" },
+  hepatitis: { checked: false, text: "" },
+  alcohol: { checked: false, text: "" },
+  bloodTransfusion: { checked: false, text: "" },
+  cancer: { checked: false, text: "" },
+  neurologic: { checked: false, text: "" },
+  epilepsy: { checked: false, text: "" },
+  aids: { checked: false, text: "" },
+  hiv: { checked: false, text: "" },
+  anaemia: { checked: false, text: "" },
+  other: { checked: false, text: "" },
+}
 };
