@@ -36,7 +36,6 @@ import ViewLineItems from "./component/ViewLineItems";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import FormModel from "../../../../component/common/FormModel/FormModel";
 import { replaceLabelValueObjects } from "../../../../config/utils/function";
-import { toJS } from "mobx";
 
 const validationSchema = Yup.object().shape({
   patientName: Yup.mixed().required("Patient Name is required"),
@@ -352,8 +351,6 @@ const LineItems = observer(({ data }: any) => {
           onSubmit={(values) => handleSave(values)}
         >
           {({ values, setFieldValue, errors }: any) => {
-
-            console.log('the line itens are', toJS(values))
             return (
               <Form>
                 <Box mb={6}>

@@ -17,6 +17,7 @@ import PageLoader from '../../component/common/Loader/PageLoader';
 const DashboardLayout = observer(({ children }: { children: React.ReactNode }) => {
   const {
     auth: { user },
+    dashboardStore : {getMasterData},
     layout: { fullScreenMode, mediumScreenMode, isCallapse, openDashSidebarFun, openMobileSideDrawer, setOpenMobileSideDrawer },
     themeStore: { themeConfig },
   } = stores;
@@ -48,6 +49,10 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isCallapse, openDashSidebarFun]);
+
+  useEffect(() => {
+    getMasterData()
+  },[user])
 
   return user ? (
     <Box

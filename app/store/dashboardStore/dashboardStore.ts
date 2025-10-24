@@ -1,11 +1,18 @@
 import { makeAutoObservable } from "mobx";
 import axios from "axios";
+import { authStore } from "../authStore/authStore";
 
 class DashboardStore {
   count : any = {
     data: {},
     loading: false,
   };
+
+  masterData : any = {
+    data: {},
+    loading: false,
+  };
+
 
   notification : any = {
     data : [],
@@ -66,6 +73,40 @@ class DashboardStore {
       this.count.loading = false;
     }
   };
+
+  getMasterData = async () => {
+    this.masterData.loading = true;
+    try {
+      const { data } = await axios.post(`/masters`,{company : authStore.company});
+      this.masterData.data = data?.data?.masters || [];
+      return data.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+      this.masterData.loading = false;
+    }
+  };
+
+  createOrUpdateMasterData = async (sendData : any) => {
+    try {
+      const { data } = await axios.put(`/masters`, {...sendData,company : authStore.company});
+      return data.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+    }
+  };
+
+  getMasterOptions = (category: string): any=> {
+  const masters = this.masterData.data || [];
+  const cat = masters.find((c: any) => c.category === category);
+
+  if (!cat) return [];
+  return cat.options.map((o: any) => ({
+    label: o.optionName || o.label,
+    value: o.code || o.value,
+  }));
+};
 }
 
 export const dashboardStore = new DashboardStore();

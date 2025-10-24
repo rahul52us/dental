@@ -13,7 +13,6 @@ import { Formik, Form as FormikForm } from "formik";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { removeDataByIndex } from "../../../config/utils/utils";
 import ShowFileUploadFile from "../../../component/common/ShowFileUploadFile/ShowFileUploadFile";
-import { titles } from "./utils/constant";
 import { generateIntialValues } from "./utils/function";
 import VaccinationHistorySection from "./formElement/VaccinationHistory";
 import InsuranceDetailsSection from "./formElement/InsuranceDetailsSection";
@@ -24,8 +23,11 @@ import BankDetailsInput from "./formElement/BankDetailsInput";
 import AddressesInput from "./formElement/AddressInput";
 import { createValidationSchema, updateValidationSchema } from "./utils/validation";
 import { genderOptions } from "../../../config/constant";
+import { observer } from "mobx-react-lite";
+import stores from "../../../store/stores";
 
-const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
+const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
+  const {dashboardStore : {getMasterOptions}} = stores
   const [formData, setFormData] = useState<any>(initialData);
 
   useEffect(() => {
@@ -117,7 +119,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         label="Title"
                         name="title"
                         type="select"
-                        options={titles}
+                        options={getMasterOptions('titles')}
                         required={true}
                         value={values.title}
                         onChange={(e: any) => setFieldValue("title", e)}
@@ -296,6 +298,6 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
       </Formik>
     )
   );
-};
+});
 
 export default Form;

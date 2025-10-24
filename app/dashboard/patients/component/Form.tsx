@@ -13,7 +13,6 @@ import { Formik, Form as FormikForm } from "formik";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { removeDataByIndex } from "../../../config/utils/utils";
 import ShowFileUploadFile from "../../../component/common/ShowFileUploadFile/ShowFileUploadFile";
-import { titles } from "./utils/constant";
 import { generateIntialValues } from "./utils/function";
 import InsuranceDetailsSection from "./formElement/InsuranceDetailsSection";
 import AvailabilityAuthSection from "./formElement/AvailabilityAuthSection";
@@ -23,8 +22,11 @@ import AddressesInput from "./formElement/AddressInput";
 import { createValidationSchema, updateValidationSchema } from "./utils/validation";
 import { genderOptions } from "../../../config/constant";
 import MedicalHistorySection from "./formElement/MedicalHistory";
+import { observer } from "mobx-react-lite";
+import stores from "../../../store/stores";
 
-const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
+const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
+  const  {dashboardStore : {getMasterOptions}} = stores
   const [formData, setFormData] = useState<any>(null);
 
   useEffect(() => {
@@ -116,7 +118,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         label="Title"
                         name="title"
                         type="select"
-                        options={titles}
+                        options={getMasterOptions('titles')}
                         required={true}
                         value={values.title}
                         onChange={(e: any) => setFieldValue("title", e)}
@@ -238,8 +240,7 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
                         showError={errors.medicalHistory}
                       />
                     </Box> */}
-                                        <MedicalHistorySection values={values} setFieldValue={setFieldValue} />
-
+                    <MedicalHistorySection values={values} setFieldValue={setFieldValue} />
                     <PhoneNumbersInput
                       values={values}
                       setFieldValue={setFieldValue}
@@ -303,6 +304,6 @@ const Form = ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) 
       </Formik>
     )
   );
-};
+});
 
 export default Form;

@@ -49,13 +49,17 @@ const PatientPage = () => {
 
       createUser({
         ...values,
-      ...(replaceLabelValueObjects(values) || {}),
+        ...(replaceLabelValueObjects(values) || {}),
         pic: formData?.pic || {},
         title: formData?.data,
-        mobileNumber : formData.phones.find((it : any) => it.primary === true).number || undefined,
-        username : formData.emails.find((it : any) => it.primary === true).email || undefined,
+        mobileNumber:
+          formData.phones.find((it: any) => it.primary === true).number ||
+          undefined,
+        username:
+          formData.emails.find((it: any) => it.primary === true).email ||
+          undefined,
         gender: formData?.gender?.value || 1,
-        type: "patient"
+        type: "patient",
       })
         .then(() => {
           getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
@@ -119,11 +123,15 @@ const PatientPage = () => {
     updateUser({
       ...values,
       ...(replaceLabelValueObjects(values) || {}),
-      mobileNumber : formData.phones.find((it : any) => it.primary === true).number || undefined,
-      username : formData.emails.find((it : any) => it.primary === true).email || undefined,
+      mobileNumber:
+        formData.phones.find((it: any) => it.primary === true).number ||
+        undefined,
+      username:
+        formData.emails.find((it: any) => it.primary === true).email ||
+        undefined,
       pic: formData?.pic,
       title: formData?.title?.label || titles[0].label,
-      gender: formData?.gender?.value || 1
+      gender: formData?.gender?.value || 1,
     })
       .then(() => {
         getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
@@ -164,7 +172,7 @@ const PatientPage = () => {
             data: {
               ...rest,
               ...profileDetails?.personalInfo,
-              refrenceBy:rest?.refrenceBy
+              refrenceBy: rest?.refrenceBy,
             },
           });
         }}
@@ -226,7 +234,9 @@ const PatientPage = () => {
       )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
-          getData={() => getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" })}
+          getData={() =>
+            getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" })
+          }
           data={isDrawerOpen.data}
           isOpen={isDrawerOpen.open}
           onClose={() =>
