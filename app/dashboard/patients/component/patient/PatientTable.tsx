@@ -115,11 +115,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Username",
-      key: "username",
-      props: { row: { textAlign: "center" } },
-    },
-    {
       headerName: "Code",
       key: "code",
       props: { row: { textAlign: "center" } },
@@ -195,24 +190,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Bio",
-      key: "bio",
-      type: "tooltip",
-      function: (dt: any) =>
-        dt.profileDetails?.personalInfo?.bio ? (
-          <Tooltip
-            label={dt.profileDetails.personalInfo.bio}
-            hasArrow
-            zIndex={9999}
-          >
-            <span>{dt.profileDetails.personalInfo.bio.slice(0, 50)}</span>
-          </Tooltip>
-        ) : (
-          "-"
-        ),
-      props: { row: { textAlign: "center" } },
-    },
-    {
       headerName: "Orders",
       key: "orders",
       type: "component",
@@ -225,9 +202,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             borderRadius="md"
             colorScheme="blue"
             cursor="pointer"
-            onClick={() =>
-              setLineItemDrawer({ isOpen: true, data: dt })
-            }
+            onClick={() => setLineItemDrawer({ isOpen: true, data: dt })}
           >
             View
           </Badge>
@@ -268,12 +243,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           title="Patient"
           data={
             user.data?.map((t: any, index: number) => {
-              return({
-              ...t,
-              ...t.profileDetails?.personalInfo,
-              refrenceBy : t.refrenceBy,
-              sno: index + 1,
-            })}) || []
+              return {
+                ...t,
+                ...t.profileDetails?.personalInfo,
+                refrenceBy: t.refrenceBy,
+                sno: index + 1,
+              };
+            }) || []
           }
           columns={TherapistTableColumns}
           actions={{
@@ -339,7 +315,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           open={lineItemDrawer.isOpen}
           width={"85vw"}
           close={() => setLineItemDrawer({ isOpen: false, data: null })}
-          title={'Orders'}
+          title={"Orders"}
         >
           <LineItems data={lineItemDrawer.data} />
         </CustomDrawer>

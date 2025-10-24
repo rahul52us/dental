@@ -19,6 +19,11 @@ export const generateIntialValues = (initialData: any = {}) => {
             null,
         }))
       : [],
+    degreeInfo: Array.isArray(initialData?.degreeInfo)
+      ? initialData.degreeInfo.map((it: any) => ({
+          ...it,
+        }))
+      : [],
     insurances: Array.isArray(initialData?.insurances)
       ? initialData.insurances.map((it: any) => ({
           ...it,

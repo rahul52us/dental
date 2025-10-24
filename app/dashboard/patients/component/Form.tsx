@@ -24,6 +24,7 @@ import { genderOptions } from "../../../config/constant";
 import MedicalHistorySection from "./formElement/MedicalHistory";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
+import DegreeInfo from "./formElement/DegreeInfo";
 
 const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
   const  {dashboardStore : {getMasterOptions}} = stores
@@ -212,7 +213,6 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                         name="bio"
                         type="textarea"
                         placeholder="Enter Bio"
-                        required={true}
                         value={values.bio}
                         onChange={handleChange}
                         error={errors.bio}
@@ -251,6 +251,12 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                       setFieldValue={setFieldValue}
                       errors={errors}
                     />
+                    <DegreeInfo
+                      setFieldValue={setFieldValue}
+                      values={values}
+                      errors={errors}
+                      handleChange={handleChange}
+                    />
                     <AddressesInput
                       values={values}
                       handleChange={handleChange}
@@ -264,7 +270,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                   values={values}
                   handleChange={handleChange}
                 />
-                {!isEdit && <AvailabilityAuthSection
+                {false && <AvailabilityAuthSection
                   values={values}
                   handleChange={handleChange}
                   errors={errors}

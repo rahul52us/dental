@@ -71,6 +71,9 @@ export const initialValues = {
       other1: "",
       other2: "",
     },
+    degreeInfo: [
+    { name: "", universary: "", year : "" }
+   ],
     women: { pregnant: false, dueDate: "", hormones: false },
   }
 };

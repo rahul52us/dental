@@ -208,7 +208,7 @@ const Form = observer(({
                         name="bio"
                         type="textarea"
                         placeholder="Enter Bio"
-                        required={true}
+                        // required={true}
                         value={values.bio}
                         onChange={handleChange}
                         error={errors.bio}
@@ -256,7 +256,7 @@ const Form = observer(({
                   setFieldValue={setFieldValue}
                   values={values}
                 />
-                {!isEdit && (
+                {false && (
                   <AvailabilityAuthSection
                     values={values}
                     handleChange={handleChange}

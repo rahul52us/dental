@@ -109,11 +109,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Username",
-      key: "username",
-      props: { row: { textAlign: "center" } },
-    },
-    {
       headerName: "Code",
       key: "code",
       props: { row: { textAlign: "center" } },
@@ -187,24 +182,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         row: { minW: 10, textAlign: "center" },
         column: { textAlign: "center" },
       },
-    },
-    {
-      headerName: "Bio",
-      key: "bio",
-      type: "tooltip",
-      function: (dt: any) =>
-        dt.profileDetails?.personalInfo?.bio ? (
-          <Tooltip
-            label={dt.profileDetails.personalInfo.bio}
-            hasArrow
-            zIndex={9999}
-          >
-            <span>{dt.profileDetails.personalInfo.bio.slice(0, 50)}</span>
-          </Tooltip>
-        ) : (
-          "-"
-        ),
-      props: { row: { textAlign: "center" } },
     },
     {
       headerName: "Created At",

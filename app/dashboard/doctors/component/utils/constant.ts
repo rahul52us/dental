@@ -32,6 +32,9 @@ export const initialValues = {
     { email: "", primary: true },
     { email: "", primary: false },
   ],
+  degreeInfo: [
+    { name: "", universary: "", year : "" }
+  ],
   bankAccounts: [],
   pic: { file: [] },
   vaccinations: [],
