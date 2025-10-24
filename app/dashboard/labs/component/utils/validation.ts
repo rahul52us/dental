@@ -5,7 +5,7 @@ export const createValidationSchema = Yup.object({
   name: Yup.string().required("Name is required"),
 
   addresses: Yup.object().shape({
-    residential: Yup.string().required("Residential address is required"),
+    residential: Yup.string(),
     office: Yup.string(),
     other: Yup.string(),
   }),
@@ -37,11 +37,10 @@ export const createValidationSchema = Yup.object({
 
   staffs: Yup.array().of(
     Yup.object().shape({
-      name: Yup.string().required("Staff name is required"),
-      email: Yup.string().email("Invalid email address").required("Staff email is required"),
+      name: Yup.string(),
+      email: Yup.string(),
       phone: Yup.string()
-        .matches(/^[6-9]\d{9}$/, "Phone must be a valid 10-digit Indian number")
-        .required("Staff phone is required"),
+        .matches(/^[6-9]\d{9}$/, "Phone must be a valid 10-digit Indian number"),
     })
   ),
 });
@@ -84,11 +83,10 @@ export const updateValidationSchema = Yup.object({
 
   staffs: Yup.array().of(
     Yup.object().shape({
-      name: Yup.string().required("Staff name is required"),
-      email: Yup.string().email("Invalid email address").required("Staff email is required"),
+      name: Yup.string(),
+      email: Yup.string(),
       phone: Yup.string()
-        .matches(/^[6-9]\d{9}$/, "Phone must be a valid 10-digit Indian number")
-        .required("Staff phone is required"),
+        .matches(/^[6-9]\d{9}$/, "Phone must be a valid 10-digit Indian number"),
     })
   )
   });

@@ -60,7 +60,7 @@ const NotificationComponent = observer(() => {
       setNotificationsList((prev) => [...prev, ...(result?.data || [])]);
       setPage(pageNumber);
     }
-  },[]);
+  },[getNotifications]);
 
   useEffect(() => {
     fetchNotifications(1, true); // On dropdown open/reset

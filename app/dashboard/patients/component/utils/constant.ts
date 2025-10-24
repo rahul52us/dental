@@ -35,6 +35,9 @@ export const initialValues = {
   ],
   pic: { file: [] },
   insurances: [],
+   degreeInfo: [
+    { name: "", universary: "", year : "" }
+   ],
   medicalHistory: {
     allergies: { checked: false, text: "" },
     bloodPressure: { option: "", text: "" },
@@ -71,9 +74,12 @@ export const initialValues = {
       other1: "",
       other2: "",
     },
-    degreeInfo: [
-    { name: "", universary: "", year : "" }
-   ],
-    women: { pregnant: false, dueDate: "", hormones: false },
+    women: {
+    pregnant: false, // Checkbox for pregnancy
+    dueDate: "", // Text input for expected delivery date
+    breastFeeding: false, // Checkbox for breast feeding
+    pcodPcos: { option: "", text: "" }, // Radio group (yes/no) with details for PCOD/PCOS
+    hormones: false, // Existing field for hormones
+  },
   }
 };
