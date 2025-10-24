@@ -11,6 +11,7 @@ import {
   RadioGroup,
   Stack,
   Divider,
+  SimpleGrid,
 } from "@chakra-ui/react";
 
 const MedicalHistorySection = ({ values, setFieldValue }: any) => {
@@ -103,7 +104,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                blood pressure issues?
+                Blood pressure issues?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.bloodPressure?.option || ""}
@@ -197,19 +198,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.pacemaker?.checked ||
-                values.medicalHistory?.pacemaker?.text ||
-                Object.values(values.medicalHistory?.pacemakerMeds || {}).some(
-                  (val) => val
-                )
+                values.medicalHistory?.pacemaker?.text
                   ? "teal.100" // changed from teal.50 for more contrast
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.pacemaker?.checked ||
-                values.medicalHistory?.pacemaker?.text ||
-                Object.values(values.medicalHistory?.pacemakerMeds || {}).some(
-                  (val) => val
-                )
+                values.medicalHistory?.pacemaker?.text
                   ? "teal.500" // stronger border for active state
                   : "gray.200"
               }
@@ -251,10 +246,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
             </Box>
           </FormControl>
 
-          {(values.medicalHistory?.pacemaker?.checked ||
-            Object.values(values.medicalHistory?.pacemakerMeds || {}).some(
-              (val) => val
-            )) && (
+          {values.medicalHistory?.pacemaker?.checked && (
             <Box
               mt={1}
               p={4}
@@ -283,66 +275,79 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   boxShadow: "0 0 0 1px teal.500",
                 }}
               />
-
-              <Text fontSize="sm" fontWeight="medium" mb={3} color="gray.700">
-                Taking any of the following?
-              </Text>
-              <Stack spacing={3}>
-                {[
-                  { key: "aspirin", label: "Aspirin" },
-                  {
-                    key: "anticoagulants",
-                    label: "Anticoagulants (blood thinners)",
-                  },
-                  {
-                    key: "bloodPressureMeds",
-                    label: "High blood pressure medicine",
-                  },
-                  { key: "nitroglycerin", label: "Nitroglycerin" },
-                ].map((med) => (
-                  <Checkbox
-                    key={med.key}
-                    colorScheme="teal"
-                    size="sm"
-                    sx={{
-                      ".chakra-checkbox__control": {
-                        bg: values.medicalHistory?.pacemakerMeds?.[med.key]
-                          ? "teal.500"
-                          : "white",
-                        borderColor: "teal.400",
-                        _checked: {
-                          bg: "teal.600",
-                          borderColor: "teal.600",
-                        },
-                      },
-                    }}
-                    isChecked={
-                      values.medicalHistory?.pacemakerMeds?.[med.key] || false
-                    }
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      setFieldValue(
-                        `medicalHistory.pacemakerMeds.${med.key}`,
-                        e.target.checked
-                      );
-                      if (
-                        e.target.checked &&
-                        !values.medicalHistory?.pacemaker?.checked
-                      ) {
-                        setFieldValue("medicalHistory.pacemaker.checked", true);
-                      }
-                    }}
-                    fontSize="sm"
-                  >
-                    {med.label}
-                  </Checkbox>
-                ))}
-              </Stack>
             </Box>
           )}
         </GridItem>
+      </Grid>
+      <Box
+        p={5}
+        bg="gray.50"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="lg"
+        _dark={{
+          bg: "gray.800",
+          borderColor: "gray.700",
+        }}
+        w="full"
+        mt={8}
+      >
+        <Text
+          fontSize="md"
+          fontWeight="semibold"
+          mb={4}
+          // color={useColorModeValue("gray.700", "gray.100")}
+        >
+          Are you taking any of the following pacemaker-related medications?{" "}
+        </Text>
 
+        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={3}>
+          {[
+            { key: "aspirin", label: "Aspirin" },
+            { key: "anticoagulants", label: "Anticoagulants (blood thinners)" },
+            { key: "bloodPressureMeds", label: "High blood pressure medicine" },
+            { key: "nitroglycerin", label: "Nitroglycerin" },
+          ].map((med) => (
+            <Checkbox
+              key={med.key}
+              colorScheme="teal"
+              size="md"
+              fontWeight="medium"
+              iconColor="white"
+              // borderColor={useColorModeValue("gray.300", "gray.600")}
+              _hover={{
+                // bg: useColorModeValue("teal.50", "teal.900"),
+                borderColor: "teal.400",
+              }}
+              isChecked={
+                values.medicalHistory?.pacemakerMeds?.[med.key] || false
+              }
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                e.stopPropagation();
+                setFieldValue(
+                  `medicalHistory.pacemakerMeds.${med.key}`,
+                  e.target.checked
+                );
+              }}
+              sx={{
+                ".chakra-checkbox__control": {
+                  transition: "all 0.2s ease-in-out",
+                  boxShadow: "sm",
+                  _checked: {
+                    bg: "teal.500",
+                    borderColor: "teal.500",
+                  },
+                },
+              }}
+            >
+              {med.label}
+            </Checkbox>
+          ))}
+        </SimpleGrid>
+      </Box>
+
+      <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} mt={8}>
         <GridItem>
           <FormControl id="diabetes">
             <Box
@@ -487,7 +492,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                asthma?
+                Asthma?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.asthma?.option || ""}
@@ -540,7 +545,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                an artificial joint or valve?
+                An artificial joint or valve?
               </Text>
               <RadioGroup
                 value={
@@ -583,6 +588,63 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
           </FormControl>
         </GridItem>
 
+                <GridItem>
+          <FormControl id="thyroid">
+            <Box
+              p={4}
+              borderWidth={1}
+              borderRadius="md"
+              bg={
+                values.medicalHistory?.thyroid?.option ||
+                values.medicalHistory?.thyroid?.type ||
+                values.medicalHistory?.thyroid?.text
+                  ? "teal.50"
+                  : "gray.50"
+              }
+              borderColor={
+                values.medicalHistory?.thyroid?.option ||
+                values.medicalHistory?.thyroid?.type ||
+                values.medicalHistory?.thyroid?.text
+                  ? "teal.300"
+                  : "gray.200"
+              }
+            >
+              <Text fontWeight="medium" mb={2}>
+                Thyroid condition?
+              </Text>
+              <RadioGroup
+                value={values.medicalHistory?.thyroid?.option || ""}
+                onChange={(val) => {
+                  setFieldValue("medicalHistory.thyroid.option", val);
+                }}
+              >
+                <Stack direction="row">
+                  <Radio value="yes" colorScheme="teal">
+                    Yes
+                  </Radio>
+                  <Radio value="no" colorScheme="teal">
+                    No
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+              {values.medicalHistory?.thyroid?.option === "yes" && (
+                <>
+                  <Input
+                    size="sm"
+                    mt={3}
+                    placeholder="Enter details (e.g., medication, diagnosis date)"
+                    value={values.medicalHistory?.thyroid?.text || ""}
+                    onChange={(e) => {
+                      setFieldValue("medicalHistory.thyroid.text", e.target.value);
+                    }}
+                  />
+                </>
+              )}
+            </Box>
+          </FormControl>
+        </GridItem>
+
+
         {/* Kidney Disease */}
         <GridItem>
           <FormControl id="kidneyDisease">
@@ -604,7 +666,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                kidney disease?
+                Kidney disease?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.kidneyDisease?.option || ""}
@@ -660,7 +722,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                tuberculosis or other lung problems?
+                Tuberculosis or other lung problems?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.tuberculosis?.option || ""}
@@ -716,7 +778,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                hepatitis or other liver disease?
+                Hepatitis or other liver disease?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.hepatitis?.option || ""}
@@ -772,7 +834,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                blood transfusion?
+                Blood transfusion?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.bloodTransfusion?.option || ""}
@@ -828,7 +890,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                cancer or a tumour?
+                Cancer or a tumour?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.cancer?.option || ""}
@@ -881,7 +943,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                neurologic condition?
+                Neurologic condition?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.neurologicCondition?.option || ""}
@@ -940,7 +1002,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                epilepsy, seizures, or fainting spells?
+                Epilepsy, seizures, or fainting spells?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.epilepsy?.option || ""}
@@ -1102,7 +1164,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                anaemia or blood disorders?
+                Anaemia or blood disorders?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.anaemia?.option || ""}
@@ -1136,43 +1198,39 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
             </Box>
           </FormControl>
         </GridItem>
-
-        {/* Any Other Medical Issue */}
         <GridItem>
           <FormControl id="otherMedicalIssue">
             <Box
-              p={4}
+              p={5}
               borderWidth={1}
-              borderRadius="md"
+              borderRadius="xl"
+              boxShadow="sm"
               bg={
                 values.medicalHistory?.otherMedicalIssue?.option === "yes" ||
-                values.medicalHistory?.otherMedicalIssue?.text ||
-                Object.values(values.medicalHistory?.medications || {}).some(
-                  (val) => val === true || (typeof val === "string" && val)
-                )
+                values.medicalHistory?.otherMedicalIssue?.text
                   ? "teal.50"
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.otherMedicalIssue?.option === "yes" ||
-                values.medicalHistory?.otherMedicalIssue?.text ||
-                Object.values(values.medicalHistory?.medications || {}).some(
-                  (val) => val === true || (typeof val === "string" && val)
-                )
+                values.medicalHistory?.otherMedicalIssue?.text
                   ? "teal.300"
                   : "gray.200"
               }
+              transition="all 0.2s ease-in-out"
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="semibold" fontSize="md" mb={3} color="gray.800">
                 Any Other Medical Issue?
               </Text>
+
+              {/* ✅ Radio Selection */}
               <RadioGroup
                 value={values.medicalHistory?.otherMedicalIssue?.option || ""}
-                onChange={(val) => {
-                  setFieldValue("medicalHistory.otherMedicalIssue.option", val);
-                }}
+                onChange={(val) =>
+                  setFieldValue("medicalHistory.otherMedicalIssue.option", val)
+                }
               >
-                <Stack direction="row">
+                <Stack direction="row" spacing={6}>
                   <Radio value="yes" colorScheme="teal">
                     Yes
                   </Radio>
@@ -1181,113 +1239,138 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   </Radio>
                 </Stack>
               </RadioGroup>
+
+              {/* ✅ Text Input for Details */}
               {values.medicalHistory?.otherMedicalIssue?.option === "yes" && (
-                <Box mt={3}>
+                <Box mt={4}>
                   <Input
                     size="sm"
-                    mb={4}
-                    placeholder="Enter details"
+                    placeholder="Please specify the medical issue"
                     value={values.medicalHistory?.otherMedicalIssue?.text || ""}
-                    onChange={(e) => {
-                      e.preventDefault();
+                    onChange={(e) =>
                       setFieldValue(
                         "medicalHistory.otherMedicalIssue.text",
                         e.target.value
-                      );
+                      )
+                    }
+                    bg="white"
+                    borderColor="gray.300"
+                    _focus={{
+                      borderColor: "teal.400",
+                      boxShadow: "0 0 0 1px teal.400",
                     }}
-                    tabIndex={-1}
                   />
                 </Box>
               )}
             </Box>
           </FormControl>
-          {values.medicalHistory?.otherMedicalIssue?.option === "yes" && (
-            <Box
-              p={4}
-              borderWidth={1}
-              borderRadius="md"
-              bg={
-                Object.values(values.medicalHistory?.medications || {}).some(
-                  (val) => val === true || (typeof val === "string" && val)
-                )
-                  ? "teal.50"
-                  : "gray.50"
-              }
-              borderColor={
-                Object.values(values.medicalHistory?.medications || {}).some(
-                  (val) => val === true || (typeof val === "string" && val)
-                )
-                  ? "teal.300"
-                  : "gray.200"
-              }
-              mt={2}
-            >
-              <Text fontWeight="medium" mb={3} color="gray.700">
-                Taking Any of the Following?
-              </Text>
-              <Stack spacing={3}>
-                {[
-                  { key: "antibiotics", label: "Antibiotics" },
-                  {
-                    key: "antidepressants",
-                    label: "Antidepressants / Tranquilizers",
-                  },
-                  { key: "steroids", label: "Cortisone / Steroids" },
-                  { key: "osteoporosisMeds", label: "Osteoporosis Medicine" },
-                ].map((med) => (
-                  <Checkbox
-                    key={med.key}
-                    colorScheme="teal"
-                    isChecked={
-                      values.medicalHistory?.medications?.[med.key] || false
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                    }}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setFieldValue(
-                        `medicalHistory.medications.${med.key}`,
-                        e.target.checked
-                      );
-                    }}
-                  >
-                    {med.label}
-                  </Checkbox>
-                ))}
-                <Input
-                  size="sm"
-                  placeholder="Other medications (first)"
-                  value={values.medicalHistory?.medications?.other1 || ""}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    setFieldValue(
-                      "medicalHistory.medications.other1",
-                      e.target.value
-                    );
-                  }}
-                  tabIndex={-1}
-                />
-                <Input
-                  size="sm"
-                  placeholder="Other medications (second)"
-                  value={values.medicalHistory?.medications?.other2 || ""}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    setFieldValue(
-                      "medicalHistory.medications.other2",
-                      e.target.value
-                    );
-                  }}
-                  tabIndex={-1}
-                />
-              </Stack>
-            </Box>
-          )}
         </GridItem>
+
+        {/* Any Other Medical Issue */}
       </Grid>
+
+      <Box>
+        {/* ✅ Other Medical Issue Section */}
+
+        {/* ✅ Medication Section */}
+        <Box
+          mt={4}
+          p={5}
+          borderWidth={1}
+          borderRadius="xl"
+          boxShadow="sm"
+          bg={
+            Object.values(values.medicalHistory?.medications || {}).some(
+              (val) => val === true || (typeof val === "string" && val)
+            )
+              ? "teal.50"
+              : "gray.50"
+          }
+          borderColor={
+            Object.values(values.medicalHistory?.medications || {}).some(
+              (val) => val === true || (typeof val === "string" && val)
+            )
+              ? "teal.300"
+              : "gray.200"
+          }
+          transition="all 0.2s ease-in-out"
+        >
+          <Text fontWeight="semibold" fontSize="md" mb={3} color="gray.800">
+            Are you taking any medication for the following medical issues?
+          </Text>
+
+          {/* ✅ Checkbox List */}
+          <Stack spacing={3} mt={2}>
+            {[
+              { key: "antibiotics", label: "Antibiotics" },
+              {
+                key: "antidepressants",
+                label: "Antidepressants / Tranquilizers",
+              },
+              { key: "steroids", label: "Cortisone / Steroids" },
+              { key: "osteoporosisMeds", label: "Osteoporosis Medicine" },
+            ].map((med) => (
+              <Checkbox
+                key={med.key}
+                colorScheme="teal"
+                isChecked={
+                  values.medicalHistory?.medications?.[med.key] || false
+                }
+                onChange={(e) =>
+                  setFieldValue(
+                    `medicalHistory.medications.${med.key}`,
+                    e.target.checked
+                  )
+                }
+                _hover={{ bg: "teal.50" }}
+                px={2}
+                borderRadius="md"
+              >
+                {med.label}
+              </Checkbox>
+            ))}
+
+            {/* ✅ Additional Inputs */}
+            <Divider my={3} borderColor="gray.300" />
+
+            <Input
+              size="sm"
+              placeholder="Other medications (first)"
+              value={values.medicalHistory?.medications?.other1 || ""}
+              onChange={(e) =>
+                setFieldValue(
+                  "medicalHistory.medications.other1",
+                  e.target.value
+                )
+              }
+              bg="white"
+              borderColor="gray.300"
+              _focus={{
+                borderColor: "teal.400",
+                boxShadow: "0 0 0 1px teal.400",
+              }}
+            />
+
+            <Input
+              size="sm"
+              placeholder="Other medications (second)"
+              value={values.medicalHistory?.medications?.other2 || ""}
+              onChange={(e) =>
+                setFieldValue(
+                  "medicalHistory.medications.other2",
+                  e.target.value
+                )
+              }
+              bg="white"
+              borderColor="gray.300"
+              _focus={{
+                borderColor: "teal.400",
+                boxShadow: "0 0 0 1px teal.400",
+              }}
+            />
+          </Stack>
+        </Box>
+      </Box>
 
       {/* Divider */}
       <Divider my={8} />
@@ -1318,7 +1401,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                smoke? (Habitual)
+                Smoke? (Habitual)
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.smoking?.option || ""}
@@ -1374,7 +1457,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                chew tobacco? (Habitual)
+                Chew tobacco? (Habitual)
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.chewingTobacco?.option || ""}
@@ -1430,7 +1513,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                consume alcohol?
+                Consume alcohol?
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.alcohol?.option || ""}
@@ -1606,36 +1689,6 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   }}
                 />
               )}
-            </Box>
-          </FormControl>
-        </GridItem>
-
-        {/* Hormones */}
-        <GridItem>
-          <FormControl id="hormones">
-            <Box
-              p={4}
-              borderWidth={1}
-              borderRadius="md"
-              bg={
-                values.medicalHistory?.women?.hormones ? "teal.50" : "gray.50"
-              }
-              borderColor={
-                values.medicalHistory?.women?.hormones ? "teal.300" : "gray.200"
-              }
-            >
-              <Checkbox
-                colorScheme="teal"
-                isChecked={values.medicalHistory?.women?.hormones || false}
-                onChange={(e) => {
-                  setFieldValue(
-                    "medicalHistory.women.hormones",
-                    e.target.checked
-                  );
-                }}
-              >
-                Taking hormones?
-              </Checkbox>
             </Box>
           </FormControl>
         </GridItem>

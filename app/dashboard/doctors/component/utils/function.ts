@@ -32,8 +32,9 @@ export const generateIntialValues = (initialData: any = {}) => {
             null,
         }))
       : [],
-    title:
-      titles.find((it: any) => it.label === initialData?.title) || titles[0],
+        title:
+         initialData?.title?.value  ?  titles[0] : {label : initialData?.title, value : initialData?.title},
+
   };
 };
 

@@ -52,6 +52,7 @@ export const initialValues = {
     diabetes: { checked: false, text: "", insulin: false },
     asthma: { option: "", text: "" },
     artificialJointOrValve: { option: "", text: "" },
+    thyroid: { option: "", type: "", text: "" }, // Added thyroid field
     kidneyDisease: { option: "", text: "" },
     tuberculosis: { option: "", text: "" },
     hepatitis: { option: "", text: "" },

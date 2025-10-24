@@ -251,12 +251,12 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                       setFieldValue={setFieldValue}
                       errors={errors}
                     />
-                    <DegreeInfo
+                    {false &&<DegreeInfo
                       setFieldValue={setFieldValue}
                       values={values}
                       errors={errors}
                       handleChange={handleChange}
-                    />
+                    />}
                     <AddressesInput
                       values={values}
                       handleChange={handleChange}

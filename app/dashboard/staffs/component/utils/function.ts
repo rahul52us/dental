@@ -1,13 +1,15 @@
-import { genderOptions, insuranceTypeOptions, vaccinationTypeOptions } from "../../../../config/constant";
+import {
+  genderOptions,
+  insuranceTypeOptions,
+  vaccinationTypeOptions,
+} from "../../../../config/constant";
 import { initialValues, titles } from "./constant";
 
 export const generateIntialValues = (initialData: any = {}) => {
   return {
     ...initialValues,
     ...initialData,
-    pic: initialData?.pic?.url
-      ? { file: initialData.pic }
-      : { file: [] },
+    pic: initialData?.pic?.url ? { file: initialData.pic } : { file: [] },
     gender:
       genderOptions.find((it: any) => it.value === initialData?.gender) ||
       genderOptions[0],
@@ -27,8 +29,8 @@ export const generateIntialValues = (initialData: any = {}) => {
             null,
         }))
       : [],
-    title:
-      titles.find((it: any) => it.label === initialData?.title) || titles[0],
+        title:
+         initialData?.title?.value  ?  titles[0] : {label : initialData?.title, value : initialData?.title},
+
   };
 };
-

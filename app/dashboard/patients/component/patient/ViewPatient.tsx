@@ -123,6 +123,7 @@ const RenderMedicalHistory = ({
     { key: "heartDisease", label: "Heart Disease", type: "condition" },
     { key: "pacemaker", label: "Pacemaker", type: "condition" },
     { key: "diabetes", label: "Diabetes", type: "condition" },
+    { key: "thyroid", label: "Thyroid", type: "condition" }, // Added thyroid field
     { key: "asthma", label: "Asthma", type: "condition" },
     { key: "artificialJointOrValve", label: "Artificial Joint or Valve", type: "condition" },
     { key: "kidneyDisease", label: "Kidney Disease", type: "condition" },
@@ -167,11 +168,16 @@ const RenderMedicalHistory = ({
       const data = key.includes(".") ? safeHistory[key.split(".")[0]]?.[key.split(".")[1]] || {} : safeHistory[key] || {};
       isActive = data.checked === true || ["yes", "high", "low", "occasional"].includes(data.option) || !!data.text;
       value = data.option ? data.option.charAt(0).toUpperCase() + data.option.slice(1) : (data.checked === true ? "Yes" : "No");
-      subItems = data.text
-        ? [{ label: "Details", value: data.text, isActive: !!data.text }]
-        : key === "diabetes"
-        ? [{ label: "Insulin", value: data.insulin === true ? "Yes" : "No", isActive: data.insulin === true }]
-        : null;
+      subItems = [];
+      if (data.text) {
+        subItems.push({ label: "Details", value: data.text, isActive: !!data.text });
+      }
+      if (key === "diabetes" && data.insulin != null) {
+        subItems.push({ label: "Insulin", value: data.insulin === true ? "Yes" : "No", isActive: data.insulin === true });
+      }
+      if (key === "thyroid" && data.type) {
+        subItems.push({ label: "Type", value: data.type === "hyper" ? "Hyperthyroidism" : "Hypothyroidism", isActive: !!data.type });
+      }
     } else if (type === "pacemakerMed" || type === "medication") {
       const [parent, child] = key.split(".");
       const data = safeHistory[parent]?.[child] ?? (type === "medication" ? "" : false);
@@ -184,7 +190,7 @@ const RenderMedicalHistory = ({
     }
 
     return { label, value, isActive, subItems };
-  });
+  }).filter(item => item.isActive); // Filter out inactive items
 
   // Group related fields
   const groups = [
@@ -198,6 +204,7 @@ const RenderMedicalHistory = ({
           "Heart Disease",
           "Pacemaker",
           "Diabetes",
+          "Thyroid",
           "Asthma",
           "Artificial Joint or Valve",
           "Kidney Disease",
@@ -224,6 +231,7 @@ const RenderMedicalHistory = ({
             "Heart Disease",
             "Pacemaker",
             "Diabetes",
+            "Thyroid",
             "Asthma",
             "Artificial Joint or Valve",
             "Kidney Disease",
@@ -296,7 +304,11 @@ const RenderMedicalHistory = ({
         .filter((item) => ["Pregnant", "Due Date", "Breast Feeding", "Hormones", "PCOD/PCOS"].includes(item.label))
         .some((item) => item.isActive),
     },
-  ].filter((group) => group.subItems.length > 0);
+  ].filter((group) => group.subItems.length > 0); // Only show groups with active sub-items
+
+  if (groups.length === 0) {
+    return <Text>No relevant medical history to display</Text>;
+  }
 
   return (
     <Box
