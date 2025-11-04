@@ -142,7 +142,6 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                         name={`dob`}
                         value={values.dob || ""}
                         onChange={handleChange}
-                        required={true}
                         error={errors?.dob}
                         showError={errors?.dob}
                       />

@@ -5,7 +5,7 @@ export const createValidationSchema = Yup.object({
   title: Yup.mixed().required("Title is required"),
   pic: Yup.mixed(),
   gender: Yup.mixed().required("Gender is required"),
-  dob: Yup.mixed().required("dob  is required"),
+  dob: Yup.mixed(),
   name: Yup.string().required("Name is required"),
   phones: Yup.array().of(
     Yup.object().shape({
