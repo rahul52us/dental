@@ -1,28 +1,50 @@
-'use client'
+"use client";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
 import stores from "../../store/stores";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
-import { Box } from "@chakra-ui/react";
-import { formatDateTime } from "../../component/config/utils/dateUtils";
+import { Box, Text } from "@chakra-ui/react";
+import {
+  formatDate,
+  formatDateTime,
+} from "../../component/config/utils/dateUtils";
+import AttendanceCalendar from "./element/AppointmentCalender";
+import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
+import AppointChangeStatus from "./element/AppointmentStatusChange";
+import AppointmentDetailsView from "./element/AppointmentDetailsView"; // ✅ Import details view
 
-const AppointmentList = observer(({ onAdd, onEdit }: any) => {
+const AppointmentList = observer(() => {
   const {
-    appointmentStore: { getAppointmentBooking, appointments },
+    DoctorAppointment: { getDoctorAppointment, appointments },
     auth: { openNotification },
   } = stores;
+
+  const [openChangeStatus, setOpenChangeStatus] = useState({
+    open: false,
+    data: null,
+  });
+
+  const [openDrawer, setOpenDrawer] = useState({
+    open: false,
+    data: null,
+    type: "add",
+  });
+
+  const [openView, setOpenView] = useState({
+    open: false,
+    data: null,
+  });
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllRecords = useCallback(
-    ({ page = 1, limit = tablePageLimit, reset = false }) => {
+    ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
       const query: any = { page, limit };
 
-      // Only add the search query if debouncedSearchQuery is a non-empty string
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
       }
@@ -32,19 +54,18 @@ const AppointmentList = observer(({ onAdd, onEdit }: any) => {
         query.limit = tablePageLimit;
       }
 
-      getAppointmentBooking(query)
+      getDoctorAppointment(query)
         .then(() => {})
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to get Booking",
+            title: "Failed to get Appointments",
             message: err?.message,
           });
         });
     },
-    [debouncedSearchQuery, getAppointmentBooking, openNotification]
+    [debouncedSearchQuery, getDoctorAppointment, openNotification, currentPage]
   );
-
 
   useEffect(() => {
     applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
@@ -57,25 +78,96 @@ const AppointmentList = observer(({ onAdd, onEdit }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
-    applyGetAllRecords({ reset: true });
+    applyGetAllRecords({ page: 1, reset: true });
   };
 
   // Define table columns
   const ContactTableColumn = [
-    { headerName: "Name", key: "name", props: { row: { textAlign: "center" } } },
-    { headerName: "Phone", key: "phone", props: { row: { textAlign: "center" } } },
-    { headerName: "Emergency Contact Name", key: "emergencyContactName", props: { row: { textAlign: "center" } } },
-    { headerName: "Emergency Number", key: "emergencyNumber", props: { row: { textAlign: "center" } } },
-    { headerName: "Assign To", key: "assignTo", props: { row: { textAlign: "center" } } },
     {
-      headerName: "Page Link",
-      key: "details",
-      type: "component",
+      headerName: "Doctor",
+      key: "doctorName",
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
-             {dt?.details?.pageLink || "--"}
+            <Text>{dt?.doctorName || "--"}</Text>
           </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Patient",
+      key: "patientName",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>
+            <Text>{dt?.patientName || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Status",
+      key: "status",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const getStatusColor = (status: string) => {
+            switch (status) {
+              case "scheduled":
+                return "blue";
+              case "in-progress":
+                return "yellow";
+              case "completed":
+                return "green";
+              case "cancelled":
+                return "red";
+              case "rescheduled":
+                return "purple";
+              case "no-show":
+                return "gray";
+              default:
+                return "gray";
+            }
+          };
+
+          return (
+            <Box
+              as="button"
+              onClick={() => setOpenChangeStatus({ open: true, data: dt })}
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontSize="sm"
+              fontWeight="semibold"
+              textTransform="capitalize"
+              bg={`${getStatusColor(dt.status)}.100`}
+              color={`${getStatusColor(dt.status)}.700`}
+              _hover={{
+                bg: `${getStatusColor(dt.status)}.200`,
+                transform: "scale(1.05)",
+                boxShadow: "sm",
+              }}
+              transition="all 0.15s ease-in-out"
+            >
+              {dt.status?.replace("-", " ") || "—"}
+            </Box>
+          );
+        },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Appointment Date",
+      key: "appointmentDate",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{formatDate(dt?.appointmentDate)}</Box>
         ),
       },
       props: {
@@ -84,68 +176,125 @@ const AppointmentList = observer(({ onAdd, onEdit }: any) => {
       },
     },
     {
-          headerName: "Created At",
-          key: "createdAt",
-          type: "component",
-          metaData: {
-            component: (dt: any) => (
-              <Box m={1}>
-                 {formatDateTime(dt?.createdAt)}
-              </Box>
-            ),
-          },
-          props: {
-            row: { minW: 120, textAlign: "center" },
-            column: { textAlign: "center" },
-          },
-        }
+      headerName: "Start & End Time",
+      key: "startTime",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{`${dt.startTime || "--"} - ${dt?.endTime || "--"}`}</Box>
+        ),
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Created By",
+      key: "actionBy",
+      type: "component",
+      metaData: {
+        component: (dt: any) => <Box m={1}>{dt?.actionBy || "--"}</Box>,
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Created At",
+      key: "createdAt",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{formatDateTime(dt?.created_At)}</Box>
+        ),
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
   ];
 
   return (
-    <CustomTable
-      title="Appointments"
-      data={appointments?.data || []}
-      columns={ContactTableColumn}
-      actions={{
-        actionBtn: {
-          addKey: {
-            showAddButton: false,
-            function: () => {
-              onAdd()
+    <>
+      <CustomTable
+        title="Appointments"
+        data={appointments?.data || []}
+        columns={ContactTableColumn}
+        actions={{
+          actionBtn: {
+            addKey: {
+              showAddButton: true,
+              function: () => {
+                setOpenDrawer({ open: true, data: null, type: "add" });
+              },
             },
+            viewKey : {
+              showViewButton : true,
+              function: (dt : any) => {
+                setOpenView({ open: true, data: dt });
+              },
+            }
           },
-          editKey: {
-            showEditButton: false,
-            function: (e : any) => {
-              onEdit(e)
-            },
+          search: {
+            show: true,
+            searchValue: searchQuery,
+            onSearchChange: (e: any) => setSearchQuery(e.target.value),
           },
-          deleteKey: {
-            showDeleteButton: false,
-            function: (dt: string) => {
-              alert(dt);
-            },
+          resetData: {
+            show: true,
+            text: "Reset Data",
+            function: resetTableData,
           },
-        },
-        search: {
-          show: true,
-          searchValue: searchQuery,
-          onSearchChange: (e: any) => setSearchQuery(e.target.value),
-        },
-        resetData: {
-          show: true,
-          text: "Reset Data",
-          function: resetTableData,
-        },
-        pagination: {
-          show: true,
-          onClick: handleChangePage,
-          currentPage: currentPage,
-          totalPages: appointments.totalPages,
-        },
-      }}
-      loading={appointments.loading}
-    />
+          pagination: {
+            show: true,
+            onClick: handleChangePage,
+            currentPage: currentPage,
+            totalPages: appointments.totalPages,
+          },
+        }}
+        loading={appointments.loading}
+      />
+
+      {/* Add / Calendar Drawer */}
+      <CustomDrawer
+        width={"90vw"}
+        open={openDrawer.open}
+        close={() => setOpenDrawer({ open: false, data: null, type: "add" })}
+        title="Appointment Lists"
+      >
+        <AttendanceCalendar type={openDrawer.type} />
+      </CustomDrawer>
+
+      {/* Change Status Modal */}
+      <AppointChangeStatus
+        open={openChangeStatus.open}
+        appointmentData={openChangeStatus.data}
+        applyGetAllRecords={applyGetAllRecords}
+        close={() => setOpenChangeStatus({ open: false, data: null })}
+      />
+
+      {/* View Appointment Details Drawer */}
+      <CustomDrawer
+        width={"80vw"}
+        open={openView.open}
+        close={() => setOpenView({ open: false, data: null })}
+        title="Appointment Details"
+      >
+        <AppointmentDetailsView data={openView.data} />
+      </CustomDrawer>
+    </>
   );
 });
 

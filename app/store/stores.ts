@@ -13,7 +13,7 @@ import { appointmentStore } from "./appointmentsStore/appointmentStore";
 import { dashboardStore } from "./dashboardStore/dashboardStore";
 import {EventStore} from './eventStore/eventStore'
 import { labStore } from "./labStore/labStore";
-
+import {doctorAppointment} from './doctorAppointmentStore/doctorAppointmentStore'
 const stores = {
   auth : authStore,
   dashboardStore : dashboardStore,
@@ -28,7 +28,8 @@ const stores = {
   companyStore : CompanyStore,
   orderStore : orderStore,
   testimonialStore : testimonialStore,
-  EventStore:EventStore
+  EventStore:EventStore,
+  DoctorAppointment:doctorAppointment
 };
 
 export default stores;

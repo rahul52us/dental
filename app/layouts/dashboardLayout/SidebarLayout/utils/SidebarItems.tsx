@@ -42,6 +42,13 @@ const sidebarDatas: SidebarItem[] = [
     role: ["user"],
   },
   {
+    id: 8,
+    name: "appointments",
+    icon: <FaVials />, // staff / employee icon
+    url: "/dashboard/appointments",
+    role: ["user"],
+  },
+  {
     id: 5,
     name: "labs",
     icon: <FaVials />, // staff / employee icon

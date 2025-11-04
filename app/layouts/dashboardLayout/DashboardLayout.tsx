@@ -52,7 +52,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
 
   useEffect(() => {
     getMasterData()
-  },[user])
+  },[user , getMasterData])
 
   return user ? (
     <Box

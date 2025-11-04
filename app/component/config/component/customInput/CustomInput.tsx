@@ -56,7 +56,8 @@ interface CustomInputProps {
     | "file-drag"
     | "tags"
     | "real-time-user-search"
-    | "real-time-search";
+    | "real-time-search"
+    | "timeOnly";
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -545,111 +546,147 @@ const CustomInput: React.FC<CustomInputProps> = ({
           />
         );
 
+        case "timeOnly":
+  return (
+    <Input
+      readOnly={readOnly}
+      style={style}
+      bg={inputBg}
+      type="time"
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      name={name}
+      disabled={disabled}
+      _placeholder={{ fontSize: "12px" }}
+      {...rest}
+    />
+  );
+
       case "real-time-user-search":
-      case "real-time-search":
-        return (
-          <Select
-            key={name}
-            name={name}
-            options={userOptions}
-            value={
-              isMulti
-                ? Array.isArray(value)
-                  ? value?.length > 0
-                    ? value
-                    : null
-                  : null
-                : userOptions.find((opt: any) => opt?.value === value?.value)
-            }
-            onChange={(selectedOption: any) => {
-              if (isMulti) {
-                if (onChange) {
-                  onChange(selectedOption.map((opt: any) => opt));
-                }
-                setSearchInput(selectedOption ? selectedOption.label : "");
-              } else {
-                if (onChange) {
-                  onChange(selectedOption ? selectedOption : "");
-                }
-              }
-            }}
-            inputValue={searchInput}
-            onInputChange={(input) => setSearchInput(input)}
-            placeholder={placeholder}
-            isClearable={isClear ? true : undefined}
-            isMulti={isMulti}
-            isSearchable={isSearchable}
-            getOptionLabel={getOptionLabel}
-            getOptionValue={getOptionValue}
-            isDisabled={disabled}
-            styles={{
-              control: (baseStyles, state) => ({
-                ...baseStyles,
-                borderColor: state.isFocused ? "gray.200" : "gray.300",
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                fontSize: "14px",
-              }),
-              option: (styles, { isSelected, isFocused }) => ({
-                ...styles,
-                backgroundColor:
-                  colorMode === "light"
-                    ? isSelected
-                      ? "#4299e1"
-                      : isFocused
-                      ? "gray.100"
-                      : "white"
-                    : isSelected
-                    ? "#2b6cb0"
-                    : isFocused
-                    ? "gray.700"
-                    : "#2D3748",
-                color: colorMode === "light" ? "black" : "white",
-                padding: "8px 12px",
-                ":hover": {
-                  backgroundColor:
-                    colorMode === "light" ? "#bee3f8" : "#2b6cb0",
-                },
-              }),
-              menu: (baseStyles) => ({
-                ...baseStyles,
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
-              }),
-              multiValue: (styles) => ({
-                ...styles,
-                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
-                color: colorMode === "light" ? "black" : "white",
-              }),
-              multiValueLabel: (styles) => ({
-                ...styles,
-                color: colorMode === "light" ? "blue.400" : "blue.200",
-              }),
-              singleValue: (styles) => ({
-                ...styles,
-                color: colorMode === "light" ? "black" : "white",
-              }),
-              clearIndicator: (styles) => ({
-                ...styles,
-                color: colorMode === "light" ? "black" : "white",
-              }),
-              dropdownIndicator: (styles) => ({
-                ...styles,
-                color: colorMode === "light" ? "black" : "white",
-              }),
-              indicatorSeparator: (styles) => ({
-                ...styles,
-                backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
-              }),
-            }}
-            components={{
-              IndicatorSeparator: null,
-              DropdownIndicator: () => (
-                <div className="chakra-select__dropdown-indicator" />
-              ),
-            }}
-            menuPosition={isPortal ? "fixed" : undefined}
-          />
-        );
+case "real-time-search":
+  return (
+    <Select
+      key={name}
+      name={name}
+      options={userOptions}
+      value={
+        isMulti
+          ? Array.isArray(value)
+            ? value
+            : [] // ensure always array for multi-select
+          : userOptions.find((opt: any) => opt?.value === value?.value) ||
+            value ||
+            null
+      }
+      onChange={(selectedOption: any) => {
+        if (isMulti) {
+          // Always store an array of selected objects
+          if (onChange) {
+            onChange(selectedOption || []);
+          }
+        } else {
+          // Store a single selected object or null
+          if (onChange) {
+            onChange(selectedOption || null);
+          }
+        }
+      }}
+      inputValue={searchInput}
+      onInputChange={(input, { action }) => {
+        if (action === "input-change") setSearchInput(input);
+      }}
+      placeholder={placeholder}
+      isClearable={!!isClear}
+      isMulti={isMulti}
+      isSearchable={isSearchable}
+      getOptionLabel={getOptionLabel}
+      getOptionValue={getOptionValue}
+      isDisabled={disabled}
+      menuPortalTarget={document.body}     // ✅ key fix — portal to body
+      menuPosition="fixed"                 // ✅ ensures dropdown overlays properly
+      styles={{
+        control: (baseStyles, state) => ({
+          ...baseStyles,
+          borderColor: state.isFocused ? "gray.300" : "gray.200",
+          backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+          fontSize: "14px",
+          minHeight: "38px",
+          boxShadow: state.isFocused ? "0 0 0 1px #3182ce" : "none",
+          "&:hover": {
+            borderColor: "#3182ce",
+          },
+        }),
+        option: (styles, { isSelected, isFocused }) => ({
+          ...styles,
+          backgroundColor:
+            colorMode === "light"
+              ? isSelected
+                ? "#4299e1"
+                : isFocused
+                ? "gray.100"
+                : "white"
+              : isSelected
+              ? "#2b6cb0"
+              : isFocused
+              ? "gray.700"
+              : "#2D3748",
+          color: colorMode === "light" ? "black" : "white",
+          padding: "8px 12px",
+          cursor: "pointer",
+          ":hover": {
+            backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+          },
+        }),
+        menu: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+          borderRadius: 8,
+          borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          zIndex: 9999,
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999, // ✅ ensure appears above Drawer/Card
+        }),
+        multiValue: (styles) => ({
+          ...styles,
+          backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+          borderRadius: 6,
+          color: colorMode === "light" ? "black" : "white",
+        }),
+        multiValueLabel: (styles) => ({
+          ...styles,
+          color: colorMode === "light" ? "blue.600" : "blue.200",
+        }),
+        singleValue: (styles) => ({
+          ...styles,
+          color: colorMode === "light" ? "black" : "white",
+        }),
+        clearIndicator: (styles) => ({
+          ...styles,
+          color: colorMode === "light" ? "black" : "white",
+          cursor: "pointer",
+        }),
+        dropdownIndicator: (styles) => ({
+          ...styles,
+          color: colorMode === "light" ? "black" : "white",
+          cursor: "pointer",
+        }),
+        indicatorSeparator: (styles) => ({
+          ...styles,
+          backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
+        }),
+      }}
+      components={{
+        IndicatorSeparator: null,
+        DropdownIndicator: () => (
+          <div className="chakra-select__dropdown-indicator" />
+        ),
+      }}
+    />
+  );
 
       default:
         return (
