@@ -10,7 +10,7 @@ import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import AddForm from "../component/AddForm";
 import EditForm from "../component/EditForm";
 
-const AttendanceCalendar = ({ type }: any) => {
+const AttendanceCalendar = ({ type, close, applyGetAllRecords }: any) => {
   const [selectedDateTime, setSelectedDateTime] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -98,7 +98,7 @@ const AttendanceCalendar = ({ type }: any) => {
       >
         <Box p={2}>
           {type === "add" ? (
-            <AddForm selectedDateAndTime={selectedDateTime} />
+            <AddForm applyGetAllRecords={applyGetAllRecords} close={close} selectedDateAndTime={selectedDateTime} />
           ) : (
             <EditForm />
           )}

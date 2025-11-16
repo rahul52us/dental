@@ -15,7 +15,7 @@ import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
 import AppointChangeStatus from "./element/AppointmentStatusChange";
 import AppointmentDetailsView from "./element/AppointmentDetailsView"; // ✅ Import details view
 
-const AppointmentList = observer(() => {
+const AppointmentList = observer(({isPatient, patientDetails } : any) => {
   const {
     DoctorAppointment: { getDoctorAppointment, appointments },
     auth: { openNotification, userType },
@@ -52,6 +52,10 @@ const AppointmentList = observer(() => {
       if (reset) {
         query.page = 1;
         query.limit = tablePageLimit;
+      }
+
+      if(isPatient && patientDetails){
+        query.patientId = patientDetails?._id
       }
 
       getDoctorAppointment(query)
@@ -280,7 +284,7 @@ const AppointmentList = observer(() => {
         close={() => setOpenDrawer({ open: false, data: null, type: "add" })}
         title="Appointment Lists"
       >
-        <AttendanceCalendar type={openDrawer.type} />
+        <AttendanceCalendar applyGetAllRecords={applyGetAllRecords} close={() => setOpenDrawer({ open: false, data: null, type: "add" })} type={openDrawer.type} />
       </CustomDrawer>
 
       {/* Change Status Modal */}
@@ -298,7 +302,7 @@ const AppointmentList = observer(() => {
         close={() => setOpenView({ open: false, data: null })}
         title="Appointment Details"
       >
-        <AppointmentDetailsView data={openView.data} />
+        <AppointmentDetailsView  data={openView.data} />
       </CustomDrawer>
     </>
   );

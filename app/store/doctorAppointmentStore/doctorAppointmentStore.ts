@@ -27,7 +27,7 @@ class DoctorAppointment {
       const searchQuery = sendData.search ? `&search=${encodeURIComponent(sendData.search)}` : '';
       const { data } = await axios.post(
         `/doctor/appointment/get`,
-        {page:sendData.page,limit:tablePageLimit,searchQuery,company :authStore.company}
+        {...sendData, page:sendData.page,limit:tablePageLimit,searchQuery,company :authStore.company}
       );
       this.appointments.data = Array.isArray(data?.data?.data) ? data?.data?.data?.map((it : any) => ({...it, actionBy : it?.createdBy?.name || '--' , doctorName : it?.primaryDoctor?.name, patientName : it?.patient?.name})) : [];
       this.appointments.totalPages = data?.totalPages || 0;

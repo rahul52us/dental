@@ -25,13 +25,18 @@ import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import LineItems from "../../LineItems/LineItems";
+import AppointmentList from "../../../appointments/Appointments";
+import { CalendarIcon } from "@chakra-ui/icons";
 
 const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
     userStore: { getAllUsers, user },
     auth: { openNotification },
   } = stores;
-
+  const [openAppointDetails, setOpenAppointmentDetails] = useState({
+    open: false,
+    data: null,
+  });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedUser, setSelectedTherapist] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -190,6 +195,36 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
+      headerName: "Appointments",
+      key: "appointment",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Badge
+            as="button"
+            px={3}
+            py={1.5}
+            borderRadius="md"
+            display="flex"
+            alignItems="center"
+            gap={2}
+            colorScheme="blue"
+            cursor="pointer"
+            _hover={{ bg: "blue.500", color: "white" }}
+            _active={{ transform: "scale(0.95)" }}
+            onClick={() => setOpenAppointmentDetails({ open: true, data: dt })}
+          >
+            <CalendarIcon />
+            Details
+          </Badge>
+        ),
+      },
+      props: {
+        row: { minW: 10, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
       headerName: "Orders",
       key: "orders",
       type: "component",
@@ -318,6 +353,20 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           title={"Orders"}
         >
           <LineItems data={lineItemDrawer.data} />
+        </CustomDrawer>
+      )}
+
+      {openAppointDetails.open && (
+        <CustomDrawer
+          width="92%"
+          title="Appointments"
+          open={openAppointDetails.open}
+          close={() => setOpenAppointmentDetails({ open: false, data: null })}
+        >
+          <AppointmentList
+            isPatient={true}
+            patientDetails={openAppointDetails?.data}
+          />
         </CustomDrawer>
       )}
     </>

@@ -102,7 +102,7 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
   </Card>
 );
 
-const AddAppointmentForm = observer(({ selectedDateAndTime }: any) => {
+const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRecords }: any) => {
   const {
     DoctorAppointment: { createDoctorAppointment },
     auth: { openNotification },
@@ -138,6 +138,10 @@ const AddAppointmentForm = observer(({ selectedDateAndTime }: any) => {
           title: "CREATED SUCCESSFULLY",
           message: "Appointment has been Created Successfully",
         });
+        if(close && applyGetAllRecords){
+          applyGetAllRecords({})
+          close()
+        }
       })
       .catch((err) => {
         openNotification({
