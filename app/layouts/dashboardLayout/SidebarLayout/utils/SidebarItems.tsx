@@ -6,7 +6,8 @@ import {
   FaCog,
   FaListAlt,
   FaNotesMedical,
-  FaCalendarCheck
+  FaCalendarCheck,
+  FaUserAstronaut
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
@@ -77,6 +78,13 @@ const sidebarDatas: SidebarItem[] = [
     url: "/dashboard/masters",
     role: ["admin"],
   },
+  {
+    id: 10,
+    name: "Admins",
+    icon: <FaUserAstronaut />,
+    url: "/dashboard/admins",
+    role: ["superAdmin"],
+  }
 ];
 
 export const sidebarFooterData: SidebarItem[] = [
@@ -85,7 +93,7 @@ export const sidebarFooterData: SidebarItem[] = [
     name: "Settings",
     icon: <FaCog />,
     url: "/profile",
-    role: ["admin", "superadmin", "patient", "doctor"],
+    role: ["admin", "superAdmin", "patient", "doctor"],
   },
 ];
 
@@ -101,4 +109,5 @@ const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
   return filterByRole(sidebarDatas);
 };
 
-export { getSidebarDataByRole };
+
+export { sidebarDatas, getSidebarDataByRole };

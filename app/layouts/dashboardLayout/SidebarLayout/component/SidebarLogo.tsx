@@ -1,25 +1,25 @@
 "use client";
 
-import { Box, Flex, Text, useColorModeValue, Tooltip } from "@chakra-ui/react";
+import { Box, Flex, Text, useColorModeValue, Tooltip, Avatar } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import NextImage from "next/image";
 import { headerHeight } from "../../../../component/config/utils/variable";
 import stores from "../../../../store/stores";
 import { dashboard } from "../../../../config/utils/routes";
 import { useRouter } from "next/navigation";
-import { WEBSITE_TITLE } from "../../../../config/utils/variables";
 
 const SidebarLogo: React.FC = observer(() => {
   const router = useRouter();
   const {
     layout: { isCallapse },
     themeStore: { themeConfig },
+    auth:{user}
   } = stores;
 
   const bg = useColorModeValue(
     themeConfig.colors.custom.light.primary,
     themeConfig.colors.custom.dark.primary
   );
+
 
   return (
     <Flex
@@ -47,7 +47,7 @@ const SidebarLogo: React.FC = observer(() => {
             color={useColorModeValue("gray.800", "gray.100")}
             letterSpacing="wide"
           >
-            {`${WEBSITE_TITLE?.charAt(0).toUpperCase()}.${WEBSITE_TITLE?.slice(
+            {`${user?.companyDetails?.company_name?.charAt(0).toUpperCase()}.${user?.companyDetails?.company_name?.slice(
               -1
             ).toUpperCase()}`}
           </Text>
@@ -66,17 +66,15 @@ const SidebarLogo: React.FC = observer(() => {
               alignItems="center"
               justifyContent="center"
             >
-              <NextImage
-                src="/images/whiteLogo.png"
-                alt={WEBSITE_TITLE}
-                fill
+              <Avatar
+                src={user?.companyDetails?.logo?.url || "/images/whiteLogo.png"}
                 style={{ objectFit: "contain" }}
               />
             </Box>
 
             {/* Company Name with Tooltip */}
             <Tooltip
-              label={WEBSITE_TITLE}
+              label={user?.companyDetails?.company_name}
               hasArrow
               placement="right"
               bg={useColorModeValue("gray.700", "gray.900")}
@@ -97,7 +95,7 @@ const SidebarLogo: React.FC = observer(() => {
                 _hover={{ color: useColorModeValue("red.600", "red.300") }}
                 transition="color 0.2s ease-in-out"
               >
-                {WEBSITE_TITLE}
+                {user?.companyDetails?.company_name}
               </Text>
             </Tooltip>
           </Flex>

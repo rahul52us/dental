@@ -10,7 +10,7 @@ import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDateTime } from "../../../../component/config/utils/dateUtils";
 
-const TherapistsTable = observer(({onAdd, onEdit, onDelete} : any) => {
+const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const {
     userStore: { getAllUsers, user },
     auth: { openNotification },
@@ -111,47 +111,6 @@ const TherapistsTable = observer(({onAdd, onEdit, onDelete} : any) => {
       props: { row: { textAlign: "center" } }
     },
     {
-      headerName: "Experience",
-      key: "experience",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Stack direction="row" flexWrap="wrap">
-            <Text>{dt.profileDetails?.personalInfo?.experience || '-'}</Text>
-          </Stack>
-        ),
-      },
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Charges",
-      key: "charges",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Stack direction="row" flexWrap="wrap">
-            <Text>₹{dt.profileDetails?.personalInfo?.charges || '-'}</Text>
-          </Stack>
-        ),
-      },
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Availability",
-      key: "availability",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Stack direction="row" flexWrap="wrap" justify="center">
-            {dt.profileDetails?.personalInfo?.availability?.map((type: string, idx: number) => (
-              <AvailabilityBadge key={idx} type={type} />
-            )) || '-'}
-          </Stack>
-        ),
-      },
-      props: { row: { textAlign: "center" } }
-    },
-    {
       headerName: "Bio",
       key: "bio",
       type: "tooltip",
@@ -192,7 +151,7 @@ const TherapistsTable = observer(({onAdd, onEdit, onDelete} : any) => {
   return (
     <Box p={4}>
       <CustomTable
-        title="Therapists"
+        title="Admins"
         data={user.data?.map((t: any, index: number) => ({
           ...t,
           sno: index + 1,
@@ -213,7 +172,7 @@ const TherapistsTable = observer(({onAdd, onEdit, onDelete} : any) => {
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: false,
               function: (e: any) => {
                 handleRowClick(e);
               },
@@ -343,4 +302,4 @@ const TherapistsTable = observer(({onAdd, onEdit, onDelete} : any) => {
   );
 });
 
-export default TherapistsTable;
+export default UserTable;

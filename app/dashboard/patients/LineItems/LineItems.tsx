@@ -56,6 +56,7 @@ const LineItems = observer(({ data }: any) => {
       updateLabItem,
       deleteLabItem,
     },
+    auth:{userType}
   } = stores;
 
   const toast = useToast();
@@ -308,13 +309,13 @@ const LineItems = observer(({ data }: any) => {
         columns={TherapistTableColumns}
         actions={{
           actionBtn: {
-            addKey: { showAddButton: true, function: handleAdd },
-            editKey: { showEditButton: true, function: handleEdit },
+            addKey: { showAddButton: false, function: handleAdd },
+            editKey: { showEditButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleEdit },
             viewKey: {
               showViewButton: true,
               function: (e: any) => handleRowClick(e),
             },
-            deleteKey: { showDeleteButton: true, function: handleDelete },
+            deleteKey: { showDeleteButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleDelete },
           },
           search: {
             show: true,

@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ["www.facebook.com"],
+    domains: ["www.facebook.com", "res.cloudinary.com"],
   },
   async rewrites() {
     return [

@@ -45,6 +45,21 @@ class UserStore {
     }
   };
 
+  createAdmin = async (payload: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.post("/user/admin/create", {
+        ...payload,
+        company: authStore.company,
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   deleteUser = async (payload: any) => {
     try {
       const response = await axios.delete(`/user/profile/${payload?._id}`);

@@ -13,13 +13,14 @@ import { useState } from "react";
 import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
 import Form from "./component/Form";
-import TherapistsTable from "./component/users/UserTable";
+import UserTable from "./component/users/UserTable";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/users/component/DeleteUser";
+import { replaceLabelValueObjects } from "../../config/utils/function";
 
-const TherapistPage = () => {
+const AdminPage = () => {
   const {
-    userStore: { createUser, getAllUsers, updateUser },
+    userStore: { createAdmin, getAllUsers, updateUser },
   } = stores;
   const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
     isOpen: false,
@@ -32,28 +33,40 @@ const TherapistPage = () => {
   const handleAddSubmit = async (formData: any) => {
     try {
       const values = { ...formData };
-      if (values.pic?.file && values.pic?.file?.length !== 0) {
-        const buffer = await readFileAsBase64(values.pic?.file);
-        const fileData = {
-          buffer: buffer,
-          filename: values.pic?.file?.name,
-          type: values.pic?.file?.type,
-          isAdd: values.pic?.isAdd || 1,
+
+      // --- Convert Image ---
+      if (values.pic?.file) {
+        const buffer = await readFileAsBase64(values.pic.file);
+
+        values.pic = {
+          buffer,
+          filename: values.pic.file.name,
+          type: values.pic.file.type,
+          isAdd: values.pic.isAdd || 1,
         };
-        formData.pic = fileData;
       }
 
-      createUser({
+      // ---- EXCLUDE PIC FROM PROFILE ----
+      const keysToRemove = ["pic"];
+
+      const profileDetails = Object.fromEntries(
+        Object.entries(values).filter(([key]) => !keysToRemove.includes(key))
+      );
+
+      // ---- CLEAN PAYLOAD ----
+      const payload = replaceLabelValueObjects({
         ...values,
-        title: formData?.data,
-        availability: formData?.availability?.map((it: any) => it.value),
-        profileDetails: { ...formData },
-      })
+        title: values.title,
+        profileDetails,
+      });
+
+      createAdmin(payload)
         .then(() => {
           getAllUsers({ page: 1, limit: 30 });
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
+
           toast({
-            title: "Therapist Added.",
+            title: "Admin Added.",
             description: `${formData.name} has been successfully added.`,
             status: "success",
             duration: 5000,
@@ -62,7 +75,7 @@ const TherapistPage = () => {
         })
         .catch((err: any) => {
           toast({
-            title: "failed to create",
+            title: "Failed to create",
             description: `${err?.message}`,
             status: "error",
             duration: 5000,
@@ -71,9 +84,9 @@ const TherapistPage = () => {
         });
     } catch (err: any) {
       toast({
-        title: "failed to create",
+        title: "Failed to create",
         description: `${err?.message}`,
-        status: "success",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -136,11 +149,11 @@ const TherapistPage = () => {
 
   return (
     <Box>
-      <TherapistsTable
+      <UserTable
+        title="Admins"
         onDelete={(ft: any) => {
-          setIsDrawerOpen({ open: true, type: "delete", data: ft })
-        }
-        }
+          setIsDrawerOpen({ open: true, type: "delete", data: ft });
+        }}
         onAdd={() => setIsDrawerOpen({ isOpen: true, type: "add", data: null })}
         onEdit={(dt: any) => {
           setIsDrawerOpen({
@@ -150,60 +163,60 @@ const TherapistPage = () => {
           });
         }}
       />
-      {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit")  && <Drawer
-        size="md"
-        isOpen={isDrawerOpen.isOpen}
-        placement="right"
-        onClose={() =>
-          setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-        }
-        autoFocus={false}
-      >
-        <DrawerOverlay>
-          <DrawerContent
-            bg="white"
-            borderRadius="lg"
-            boxShadow="xl"
-            maxW="80%"
-            width="80%"
-          >
-            <DrawerCloseButton />
-            <DrawerHeader
-              bg="teal.500"
-              color="white"
-              fontSize="lg"
-              fontWeight="bold"
-              textAlign="center"
-              bgGradient="linear(to-r, blue.400, purple.400)"
+      {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
+        <Drawer
+          size="md"
+          isOpen={isDrawerOpen.isOpen}
+          placement="right"
+          onClose={() =>
+            setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+          }
+          autoFocus={false}
+        >
+          <DrawerOverlay>
+            <DrawerContent
+              bg="white"
+              borderRadius="lg"
+              boxShadow="xl"
+              maxW="80%"
+              width="80%"
             >
-              {isDrawerOpen?.type === "edit"
-                ? "Edit Therapist"
-                : ""}
-            </DrawerHeader>
-            <DrawerBody p={6} bg="gray.50">
-              <Form
-                initialData={
-                  isDrawerOpen?.type === "edit"
-                    ? { ...initialValues, ...isDrawerOpen?.data }
-                    : initialValues
-                }
-                onSubmit={
-                  isDrawerOpen?.type === "edit"
-                    ? handleEditSubmit
-                    : handleAddSubmit
-                }
-                isOpen={isDrawerOpen}
-                onClose={() =>
-                  setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-                }
-                thumbnail={thumbnail}
-                isEdit={isDrawerOpen.type === "edit" ? true : false}
-                setThumbnail={setThumbnail}
-              />
-            </DrawerBody>
-          </DrawerContent>
-        </DrawerOverlay>
-      </Drawer>}
+              <DrawerCloseButton />
+              <DrawerHeader
+                bg="teal.500"
+                color="white"
+                fontSize="lg"
+                fontWeight="bold"
+                textAlign="center"
+                bgGradient="linear(to-r, blue.400, purple.400)"
+              >
+                {isDrawerOpen?.type === "edit" ? "Edit Admin" : "Add Admin"}
+              </DrawerHeader>
+              <DrawerBody p={6} bg="gray.50">
+                <Form
+                  initialData={
+                    isDrawerOpen?.type === "edit"
+                      ? { ...initialValues, ...isDrawerOpen?.data }
+                      : initialValues
+                  }
+                  onSubmit={
+                    isDrawerOpen?.type === "edit"
+                      ? handleEditSubmit
+                      : handleAddSubmit
+                  }
+                  isOpen={isDrawerOpen}
+                  onClose={() =>
+                    setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+                  }
+                  thumbnail={thumbnail}
+                  isEdit={isDrawerOpen.type === "edit" ? true : false}
+                  setThumbnail={setThumbnail}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </DrawerOverlay>
+        </Drawer>
+      )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
           getData={getAllUsers}
@@ -218,4 +231,4 @@ const TherapistPage = () => {
   );
 };
 
-export default TherapistPage;
+export default AdminPage;

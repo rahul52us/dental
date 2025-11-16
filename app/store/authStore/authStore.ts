@@ -21,7 +21,7 @@ class AuthStore {
   isLoading: boolean = false;
   error: string | null = null;
   notification: Notification | null = null;
-  company: any = "65f65a70fbe7ae65d05dac64"
+  company: any = undefined
 
   constructor() {
     makeAutoObservable(this);
@@ -218,6 +218,7 @@ class AuthStore {
       );
 
       this.user = response.data?.data;
+      this.company = response?.data?.data?.company
       this.userType = response?.data?.data?.userType || "patient"
       this.saveUserToSessionStorage(this.user);
 
