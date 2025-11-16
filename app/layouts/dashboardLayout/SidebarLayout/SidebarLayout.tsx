@@ -475,7 +475,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const { colorMode } = useColorMode();
 
     useEffect(() => {
-      setSidebarData(getSidebarDataByRole(["user", user.role]));
+      setSidebarData(getSidebarDataByRole([user.userType]));
     }, [user]);
 
     useEffect(() => {

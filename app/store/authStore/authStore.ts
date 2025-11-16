@@ -16,6 +16,7 @@ interface Notification {
 
 class AuthStore {
   user: any = null;
+  userType : any = null
   token: string | null = null;
   isLoading: boolean = false;
   error: string | null = null;
@@ -217,6 +218,7 @@ class AuthStore {
       );
 
       this.user = response.data?.data;
+      this.userType = response?.data?.data?.userType || "patient"
       this.saveUserToSessionStorage(this.user);
 
       // If there's a company field

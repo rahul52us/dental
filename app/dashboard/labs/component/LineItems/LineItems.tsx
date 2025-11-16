@@ -53,6 +53,9 @@ const LineItems = observer(({ data }: any) => {
       updateLabItem,
       deleteLabItem,
     },
+    auth:{
+      userType
+    }
   } = stores;
 
   const toast = useToast();
@@ -76,6 +79,8 @@ const LineItems = observer(({ data }: any) => {
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
+
+
   const cancelRef = useRef<any>(null);
 
   // Loader for form submit
@@ -86,30 +91,38 @@ const LineItems = observer(({ data }: any) => {
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllTherapists = useCallback(
-    ({ page = 1, limit = tablePageLimit, reset = false }) => {
-      const query: any = { page, limit, lab: data?._id };
+  ({ page = 1, limit = tablePageLimit, reset = false }) => {
+    const query: any = { page, limit };
 
-      if (debouncedSearchQuery?.trim()) {
-        query.search = debouncedSearchQuery.trim();
-      }
+    if (debouncedSearchQuery?.trim()) {
+      query.search = debouncedSearchQuery.trim();
+    }
 
-      if (reset) {
-        query.page = 1;
-        query.limit = tablePageLimit;
-      }
+    if (reset) {
+      query.page = 1;
+      query.limit = tablePageLimit;
+    }
 
-      getLabLineItems({ ...query, lab: data?._id }).catch((err) => {
-        toast({
-          title: "Failed to get line items",
-          description: err?.message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+    // 👇 condition: pass patientId OR lab
+    if (data?.isPatient) {
+      query.patientId = data?.patientData?._id;
+    } else {
+      query.lab = data?._id;
+    }
+
+    getLabLineItems(query).catch((err) => {
+      toast({
+        title: "Failed to get line items",
+        description: err?.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
       });
-    },
-    [debouncedSearchQuery, getLabLineItems, toast, data]
-  );
+    });
+  },
+  [debouncedSearchQuery, getLabLineItems, toast, data]
+);
+
 
   useEffect(() => {
     applyGetAllTherapists({ page: currentPage, limit: tablePageLimit });
@@ -286,13 +299,13 @@ const LineItems = observer(({ data }: any) => {
         columns={TherapistTableColumns}
         actions={{
           actionBtn: {
-            addKey: { showAddButton: true, function: handleAdd },
-            editKey: { showEditButton: true, function: handleEdit },
+            addKey: { showAddButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleAdd },
+            editKey: { showEditButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleEdit },
             viewKey: {
               showViewButton: true,
               function: (e: any) => handleRowClick(e),
             },
-            deleteKey: { showDeleteButton: true, function: handleDelete },
+            deleteKey: { showDeleteButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleDelete },
           },
           search: {
             show: true,

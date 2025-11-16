@@ -1,6 +1,15 @@
-import { FaChartPie, FaUsers, FaUserMd, FaUserTie, FaCog, FaListAlt } from "react-icons/fa";
-import { FaVials } from "react-icons/fa";
+import {
+  FaChartPie,
+  FaUsers,
+  FaUserMd,
+  FaUserTie,
+  FaCog,
+  FaListAlt,
+  FaNotesMedical,
+  FaCalendarCheck
+} from "react-icons/fa";
 
+import { FaVial } from "react-icons/fa"; // correct icon
 
 interface SidebarItem {
   id: number;
@@ -11,89 +20,64 @@ interface SidebarItem {
   children?: SidebarItem[];
 }
 
-
 const sidebarDatas: SidebarItem[] = [
   {
     id: 1,
     name: "Dashboard",
     icon: <FaChartPie />,
     url: "/dashboard",
-    role: ["user"],
+    role: ["patient", "doctor", "admin"],
   },
   {
     id: 2,
     name: "Patients",
-    icon: <FaUsers />, // multiple users icon
+    icon: <FaUsers />,
     url: "/dashboard/patients",
-    role: ["user"],
+    role: ["admin"],
   },
   {
     id: 3,
     name: "Doctors",
-    icon: <FaUserMd />, // doctor icon
+    icon: <FaUserMd />,
     url: "/dashboard/doctors",
-    role: ["user"],
+    role: ["admin"],
   },
   {
     id: 4,
     name: "Staffs",
-    icon: <FaUserTie />, // staff / employee icon
+    icon: <FaUserTie />,
     url: "/dashboard/staffs",
-    role: ["user"],
-  },
-  {
-    id: 8,
-    name: "appointments",
-    icon: <FaVials />, // staff / employee icon
-    url: "/dashboard/appointments",
-    role: ["user"],
+    role: ["admin"],
   },
   {
     id: 5,
-    name: "labs",
-    icon: <FaVials />, // staff / employee icon
+    name: "Labs",
+    icon: <FaVial />,
     url: "/dashboard/labs",
-    role: ["user"],
+    role: ["admin"],
+  },
+  {
+    id: 8,
+    name: "Appointments",
+    icon: <FaCalendarCheck />,
+    url: "/dashboard/appointments",
+    role: ["patient", "doctor", "admin"],
+  },
+  {
+    id: 12,
+    name: "Orders",
+    icon: <FaNotesMedical />,
+    url: "/dashboard/orders",
+    role: ["admin", "patient"],
   },
   {
     id: 6,
-    name: "masters",
-    icon: <FaListAlt />, // staff / employee icon
+    name: "Masters",
+    icon: <FaListAlt />,
     url: "/dashboard/masters",
-    role: ["user"],
+    role: ["admin"],
   },
-  // {
-  //   id: 5,
-  //   name: "Page Sections",
-  //   icon: <FaFileAlt />, // content / sections icon
-  //   url: "/dashboard/content-section",
-  //   role: ["user"],
-  // },
-  // {
-  //   id: 501,
-  //   name: "Blogs",
-  //   icon: <FaBookOpen />, // blog icon
-  //   url: "/dashboard/blogs",
-  //   role: ["user", "superadmin", "manager", "admin"],
-  //   children: [
-  //     {
-  //       id: 502,
-  //       name: "Index",
-  //       icon: <CalendarIcon />,
-  //       url: "/dashboard/blogs/index",
-  //       role: ["user", "superadmin", "manager", "admin"],
-  //     },
-  //     {
-  //       id: 503,
-  //       name: "Create",
-  //       icon: <FaFileAlt />,
-  //       url: "/dashboard/blogs/create",
-  //       role: ["superadmin", "manager", "admin"],
-  //     },
-  //   ],
-  // },
 ];
-
 
 export const sidebarFooterData: SidebarItem[] = [
   {
@@ -101,11 +85,11 @@ export const sidebarFooterData: SidebarItem[] = [
     name: "Settings",
     icon: <FaCog />,
     url: "/profile",
-    role: ["user", "admin", "superadmin", "manager"],
+    role: ["admin", "superadmin", "patient", "doctor"],
   },
 ];
 
-const getSidebarDataByRole = (role: string[] = ["user"]): SidebarItem[] => {
+const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
   const filterByRole = (items: SidebarItem[]): SidebarItem[] => {
     return items
       .filter((item) => !item.role || item.role.some((r) => role.includes(r)))
@@ -117,8 +101,4 @@ const getSidebarDataByRole = (role: string[] = ["user"]): SidebarItem[] => {
   return filterByRole(sidebarDatas);
 };
 
-// Example usage
-const userRole = ["user"]; // Example role
-const sidebarData = getSidebarDataByRole(userRole);
-
-export { sidebarData, getSidebarDataByRole };
+export { getSidebarDataByRole };

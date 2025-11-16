@@ -18,7 +18,7 @@ import AppointmentDetailsView from "./element/AppointmentDetailsView"; // ✅ Im
 const AppointmentList = observer(() => {
   const {
     DoctorAppointment: { getDoctorAppointment, appointments },
-    auth: { openNotification },
+    auth: { openNotification, userType },
   } = stores;
 
   const [openChangeStatus, setOpenChangeStatus] = useState({
@@ -135,7 +135,11 @@ const AppointmentList = observer(() => {
           return (
             <Box
               as="button"
-              onClick={() => setOpenChangeStatus({ open: true, data: dt })}
+              onClick={() => {
+                if (["admin", "superAdmin"].includes(userType)) {
+                  setOpenChangeStatus({ open: true, data: dt });
+                }
+              }}
               px={3}
               py={1}
               borderRadius="full"
@@ -235,17 +239,19 @@ const AppointmentList = observer(() => {
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: ["admin", "superAdmin"].includes(userType)
+                ? true
+                : false,
               function: () => {
                 setOpenDrawer({ open: true, data: null, type: "add" });
               },
             },
-            viewKey : {
-              showViewButton : true,
-              function: (dt : any) => {
+            viewKey: {
+              showViewButton: true,
+              function: (dt: any) => {
                 setOpenView({ open: true, data: dt });
               },
-            }
+            },
           },
           search: {
             show: true,

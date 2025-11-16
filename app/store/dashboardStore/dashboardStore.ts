@@ -13,6 +13,14 @@ class DashboardStore {
     loading: false,
   };
 
+  patientCount : any = {
+    data : {
+      appointments : 0,
+      orders : 0
+    },
+    loading : false
+  }
+
 
   notification : any = {
     data : [],
@@ -107,6 +115,21 @@ class DashboardStore {
     value: o.code || o.value,
   }));
 };
+
+
+// patient counts
+
+getPatientDashboardCount = async(sendData : any = {}) => {
+  try {
+      const { data } = await axios.post(`/dashboard/getPatientDashboardCount`, {...sendData,company : authStore.company});
+      const results = data?.data || {}
+      this.patientCount.data = {...results}
+      return data.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+    }
+}
 }
 
 export const dashboardStore = new DashboardStore();

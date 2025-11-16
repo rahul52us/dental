@@ -9,6 +9,8 @@ import {
   FormLabel,
   Heading,
   Input,
+  InputGroup,
+  InputRightElement,
   Text,
   Spinner,
   VStack,
@@ -18,6 +20,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import CustomButton from "../../component/common/CustomButton/CustomButton";
 import { useRouter } from "next/navigation";
 import { observer } from "mobx-react-lite";
@@ -34,6 +37,7 @@ const Login = observer(() => {
     loginType: "username",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // NEW: toggle state
   const router = useRouter();
 
   const headingSize = useBreakpointValue({ base: "lg", md: "xl" });
@@ -43,6 +47,8 @@ const Login = observer(() => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  const handleTogglePassword = () => setShowPassword(!showPassword); // NEW
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,14 +75,8 @@ const Login = observer(() => {
   };
 
   return (
-    <Flex align="center" justify="center"
-      minH={{base : "90vh", md : '80vh'}}>
-      <Box
-        w="100%"
-        p={cardPadding}
-        borderRadius="xl"
-        animation="fadeIn 0.4s ease"
-      >
+    <Flex align="center" justify="center" minH={{ base: "90vh", md: "80vh" }}>
+      <Box w="100%" p={cardPadding} borderRadius="xl" animation="fadeIn 0.4s ease">
         <VStack spacing={6} align="stretch">
           {/* Heading */}
           <Box textAlign="center">
@@ -107,20 +107,26 @@ const Login = observer(() => {
                 />
               </FormControl>
 
+              {/* Password with toggle */}
               <FormControl id="password">
                 <FormLabel fontSize="sm" fontWeight="500">
                   Password
                 </FormLabel>
-                <Input
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  focusBorderColor="teal.500"
-                  size="lg"
-                  required
-                />
+                <InputGroup>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    focusBorderColor="teal.500"
+                    size="lg"
+                    required
+                  />
+                  <InputRightElement mt={1} cursor="pointer" onClick={handleTogglePassword}>
+                    {showPassword ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}
+                  </InputRightElement>
+                </InputGroup>
               </FormControl>
 
               <Flex justify="space-between" align="center" fontSize="sm">
@@ -145,9 +151,7 @@ const Login = observer(() => {
                 type="submit"
                 mt={2}
                 borderRadius="full"
-                isDisabled={
-                  !formData.username || !formData.password || isLoading
-                }
+                isDisabled={!formData.username || !formData.password || isLoading}
               >
                 {isLoading ? <Spinner size="sm" color="white" /> : "Sign in"}
               </CustomButton>
@@ -179,21 +183,6 @@ const Login = observer(() => {
               </Button>
             </VStack>
           </form>
-
-          {/* Sign up */}
-          <Text display="none" textAlign="center" fontSize="sm" color="gray.600">
-            Don’t have an account?{" "}
-            <Link href="/register">
-              <Text
-                as="span"
-                color="teal.600"
-                fontWeight="500"
-                _hover={{ textDecoration: "underline" }}
-              >
-                Sign up
-              </Text>
-            </Link>
-          </Text>
         </VStack>
       </Box>
     </Flex>
