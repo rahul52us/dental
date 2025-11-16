@@ -62,7 +62,12 @@ const Login = observer(() => {
         type: "success",
         duration: 3000,
       });
-      router.push("/dashboard");
+
+      if(response?.data?.userType === "superAdmin"){
+        router.push("/dashboard/admins");
+      }else{
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       openNotification({
         title: "Login Failed",

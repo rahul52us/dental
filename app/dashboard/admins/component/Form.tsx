@@ -16,7 +16,7 @@ import { removeDataByIndex } from "../../../config/utils/utils";
 import { titles } from "./utils/constant";
 import { generateIntialValues } from "./utils/function";
 
-const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
+const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
 
   useEffect(() => {
@@ -73,14 +73,10 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
         values,
         handleChange,
         handleSubmit,
-        isSubmitting,
         setFieldValue,
         errors,
         touched,
       }: any) => {
-
-        console.log('the values are are', values)
-
         return (
           <FormikForm onSubmit={handleSubmit}>
             <Grid
@@ -355,7 +351,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                 <Button
                   type="submit"
                   colorScheme="teal"
-                  isLoading={isSubmitting}
+                  isLoading={isLoading}
                   size="lg"
                 >
                   {isEdit ? "Update" : "Add"} Admin

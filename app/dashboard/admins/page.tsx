@@ -19,6 +19,7 @@ import DeleteData from "./component/users/component/DeleteUser";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 
 const AdminPage = () => {
+  const [loading, setIsLoading] = useState(false);
   const {
     userStore: { createAdmin, getAllUsers, updateUser },
   } = stores;
@@ -32,6 +33,7 @@ const AdminPage = () => {
 
   const handleAddSubmit = async (formData: any) => {
     try {
+      setIsLoading(true);
       const values = { ...formData };
 
       // --- Convert Image ---
@@ -72,8 +74,11 @@ const AdminPage = () => {
             duration: 5000,
             isClosable: true,
           });
+          setIsLoading(false);
         })
         .catch((err: any) => {
+          setIsLoading(false);
+
           toast({
             title: "Failed to create",
             description: `${err?.message}`,
@@ -83,6 +88,7 @@ const AdminPage = () => {
           });
         });
     } catch (err: any) {
+      setIsLoading(false);
       toast({
         title: "Failed to create",
         description: `${err?.message}`,
@@ -90,6 +96,7 @@ const AdminPage = () => {
         duration: 5000,
         isClosable: true,
       });
+    } finally {
     }
   };
 
@@ -211,6 +218,7 @@ const AdminPage = () => {
                   thumbnail={thumbnail}
                   isEdit={isDrawerOpen.type === "edit" ? true : false}
                   setThumbnail={setThumbnail}
+                  isLoading={loading}
                 />
               </DrawerBody>
             </DrawerContent>
