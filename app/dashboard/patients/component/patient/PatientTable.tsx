@@ -224,30 +224,30 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         column: { textAlign: "center" },
       },
     },
-    {
-      headerName: "Orders",
-      key: "orders",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Badge
-            as="button"
-            px={3}
-            py={1}
-            borderRadius="md"
-            colorScheme="blue"
-            cursor="pointer"
-            onClick={() => setLineItemDrawer({ isOpen: true, data: dt })}
-          >
-            View
-          </Badge>
-        ),
-      },
-      props: {
-        row: { minW: 10, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
+    // {
+    //   headerName: "Orders",
+    //   key: "orders",
+    //   type: "component",
+    //   metaData: {
+    //     component: (dt: any) => (
+    //       <Badge
+    //         as="button"
+    //         px={3}
+    //         py={1}
+    //         borderRadius="md"
+    //         colorScheme="blue"
+    //         cursor="pointer"
+    //         onClick={() => setLineItemDrawer({ isOpen: true, data: dt })}
+    //       >
+    //         View
+    //       </Badge>
+    //     ),
+    //   },
+    //   props: {
+    //     row: { minW: 10, textAlign: "center" },
+    //     column: { textAlign: "center" },
+    //   },
+    // },
     {
       headerName: "Created At",
       key: "createdAt",

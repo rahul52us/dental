@@ -1,25 +1,25 @@
 "use client";
-import { observer } from "mobx-react-lite";
-import { useEffect, useState, useCallback } from "react";
-import stores from "../../store/stores";
-import useDebounce from "../../component/config/component/customHooks/useDebounce";
-import { tablePageLimit } from "../../component/config/utils/variable";
-import CustomTable from "../../component/config/component/CustomTable/CustomTable";
 import { Box, Text } from "@chakra-ui/react";
-import {
-  formatDate,
-  formatDateTime,
-} from "../../component/config/utils/dateUtils";
-import AttendanceCalendar from "./element/AppointmentCalender";
+import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
-import AppointChangeStatus from "./element/AppointmentStatusChange";
+import useDebounce from "../../component/config/component/customHooks/useDebounce";
+import CustomTable from "../../component/config/component/CustomTable/CustomTable";
+import {
+  formatDate
+} from "../../component/config/utils/dateUtils";
+import { tablePageLimit } from "../../component/config/utils/variable";
+import stores from "../../store/stores";
+import AttendanceCalendar from "./element/AppointmentCalender";
 import AppointmentDetailsView from "./element/AppointmentDetailsView"; // ✅ Import details view
+import AppointChangeStatus from "./element/AppointmentStatusChange";
 
 const AppointmentList = observer(({isPatient, patientDetails } : any) => {
   const {
     DoctorAppointment: { getDoctorAppointment, appointments },
     auth: { openNotification, userType },
   } = stores;
+  
 
   const [openChangeStatus, setOpenChangeStatus] = useState({
     open: false,
@@ -88,24 +88,24 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
   // Define table columns
   const ContactTableColumn = [
     {
-      headerName: "Doctor",
-      key: "doctorName",
-      metaData: {
-        component: (dt: any) => (
-          <Box m={1}>
-            <Text>{dt?.doctorName || "--"}</Text>
-          </Box>
-        ),
-      },
-      props: { row: { textAlign: "center" } },
-    },
-    {
       headerName: "Patient",
       key: "patientName",
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
             <Text>{dt?.patientName || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Doctor",
+      key: "doctorName",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>
+            <Text>{dt?.doctorName || "--"}</Text>
           </Box>
         ),
       },
@@ -131,6 +131,8 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
                 return "purple";
               case "no-show":
                 return "gray";
+                case "arrived":
+                return "green";
               default:
                 return "gray";
             }
@@ -215,7 +217,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box m={1}>{formatDateTime(dt?.created_At)}</Box>
+          <Box m={1}>{formatDate(dt?.created_At)}</Box>
         ),
       },
       props: {

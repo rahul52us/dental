@@ -216,9 +216,9 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
               <Box mt={4}>
                 <CustomInput
                   name="additionalDoctors"
-                  placeholder="Select Additional Doctors"
+                  placeholder="Select Assisted By"
                   type="real-time-user-search"
-                  label="Additional Doctors"
+                  label="Assisted By"
                   isMulti
                   value={values.additionalDoctors}
                   onChange={(val: any) =>

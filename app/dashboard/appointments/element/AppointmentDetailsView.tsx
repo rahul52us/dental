@@ -157,7 +157,7 @@ export default function AppointmentDetailsView({ data }: { data: any }) {
               <HStack align="start">
                 <Icon as={FaUserMd} color="teal.400" />
                 <Text>
-                  <b>Additional Doctors:</b>{" "}
+                  <b>Assisted By:</b>{" "}
                   {additionalDoctors.map((doc: any) => doc.name).join(", ")}
                 </Text>
               </HStack>

@@ -5,4 +5,5 @@ export const appointStatus = [
   { label: "Cancelled", value: "cancelled" },
   { label: "Rescheduled", value: "rescheduled" },
   { label: "No Show", value: "no-show" },
+  { label: "Arrived", value: "arrived" },
 ];
