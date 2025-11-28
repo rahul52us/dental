@@ -109,20 +109,20 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
   </Card>
 );
 
-const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRecords }: any) => {
+const AddAppointmentForm = observer(({isPatient, patientDetails, close , selectedDateAndTime, applyGetAllRecords }: any) => {
   const {
     DoctorAppointment: { createDoctorAppointment },
     auth: { openNotification },  userStore: { createUser,getAllUsers }
   } = stores;
 
-   
+
     const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
       isOpen: false,
       type: "add",
       data: null,
     });
 
-    
+
       const [thumbnail, setThumbnail] = useState([]);
       const toast = useToast();
       const [formLoading, setFormLoading] = useState(false);
@@ -188,7 +188,7 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
           };
           formData.pic = fileData;
         }
-  
+
         createUser({
           ...values,
           ...(replaceLabelValueObjects(values) || {}),
@@ -243,7 +243,7 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
       initialValues={{
         primaryDoctor: "",
         additionalDoctors: [],
-        patient: "",
+        patient: isPatient ? {label : patientDetails?.username , value : patientDetails?._id} : "",
         appointmentDate: parsedDateAndTime.appointmentDate || "",
         startTime: parsedDateAndTime.startTime || "",
         endTime: parsedDateAndTime.endTime || "",
@@ -270,7 +270,6 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
             <SectionCard title="Patient & Doctors">
               <Grid gap={4} gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}>
                 <Flex align={'end'} gap={2}>
-
                 <CustomInput
                   name="patient"
                   placeholder="Search Patient"
@@ -279,7 +278,7 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
                   required
                   value={values.patient}
                   onChange={(val: any) => setFieldValue("patient", val)}
-                  options={values?.patient ? [values?.patient] : []}
+                  options={ isPatient ? [{label : patientDetails?.username, value : patientDetails?._id}] : values?.patient ? [values?.patient] : []}
                   error={errors.patient as string}
                   showError={touched.patient}
                   query={{ type: "patient" }}

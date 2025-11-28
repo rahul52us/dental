@@ -19,7 +19,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
     DoctorAppointment: { getDoctorAppointment, appointments },
     auth: { openNotification, userType },
   } = stores;
-  
+
 
   const [openChangeStatus, setOpenChangeStatus] = useState({
     open: false,
@@ -286,7 +286,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
         close={() => setOpenDrawer({ open: false, data: null, type: "add" })}
         title="Appointment Lists"
       >
-        <AttendanceCalendar applyGetAllRecords={applyGetAllRecords} close={() => setOpenDrawer({ open: false, data: null, type: "add" })} type={openDrawer.type} />
+        <AttendanceCalendar isPatient={isPatient} patientDetails={patientDetails} applyGetAllRecords={applyGetAllRecords} close={() => setOpenDrawer({ open: false, data: null, type: "add" })} type={openDrawer.type} />
       </CustomDrawer>
 
       {/* Change Status Modal */}
@@ -304,7 +304,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
         close={() => setOpenView({ open: false, data: null })}
         title="Appointment Details"
       >
-        <AppointmentDetailsView  data={openView.data} />
+        <AppointmentDetailsView   data={openView.data} />
       </CustomDrawer>
     </>
   );
