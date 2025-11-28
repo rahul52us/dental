@@ -1,27 +1,34 @@
 "use client";
-import React, { useMemo } from "react";
+import { AddIcon } from "@chakra-ui/icons";
 import {
-  VStack,
-  HStack,
-  Button,
-  Switch,
-  FormLabel,
-  FormControl,
   Box,
-  Text,
-  SimpleGrid,
-  Grid,
+  Button,
   Card,
-  CardHeader,
   CardBody,
+  CardHeader,
   Divider,
+  Flex,
+  FormControl,
+  FormLabel,
+  Grid,
+  HStack,
+  IconButton,
+  SimpleGrid,
+  Switch,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { Formik, Form } from "formik";
+import { Form, Formik } from "formik";
+import { observer } from "mobx-react-lite";
+import { useMemo, useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
-import { observer } from "mobx-react-lite";
-import stores from "../../../store/stores";
+import { tablePageLimit } from "../../../component/config/utils/variable";
 import { replaceLabelValueObjects } from "../../../config/utils/function";
+import { readFileAsBase64 } from "../../../config/utils/utils";
+import stores from "../../../store/stores";
+import AddPatientDrawer from "../../patients/component/patient/component/AddPatientDrawer";
 import { appointStatus } from "../constant";
 
 const validationSchema = Yup.object().shape({
@@ -105,8 +112,20 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
 const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRecords }: any) => {
   const {
     DoctorAppointment: { createDoctorAppointment },
-    auth: { openNotification },
+    auth: { openNotification },  userStore: { createUser,getAllUsers }
   } = stores;
+
+   
+    const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
+      isOpen: false,
+      type: "add",
+      data: null,
+    });
+
+    
+      const [thumbnail, setThumbnail] = useState([]);
+      const toast = useToast();
+      const [formLoading, setFormLoading] = useState(false);
 
   const parsedDateAndTime = useMemo(() => {
     if (!selectedDateAndTime?.start) return {};
@@ -155,7 +174,71 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
       });
   };
 
+    const handleAddSubmit = async (formData: any) => {
+      try {
+        setFormLoading(true);
+        const values = { ...formData };
+        if (values.pic?.file && values.pic?.file?.length !== 0) {
+          const buffer = await readFileAsBase64(values.pic?.file);
+          const fileData = {
+            buffer: buffer,
+            filename: values.pic?.file?.name,
+            type: values.pic?.file?.type,
+            isAdd: values.pic?.isAdd || 1,
+          };
+          formData.pic = fileData;
+        }
+  
+        createUser({
+          ...values,
+          ...(replaceLabelValueObjects(values) || {}),
+          pic: formData?.pic || {},
+          title: formData?.data,
+          mobileNumber:
+            formData.phones.find((it: any) => it.primary === true).number ||
+            undefined,
+          username:
+            formData.emails.find((it: any) => it.primary === true).email ||
+            undefined,
+          gender: formData?.gender?.value || 1,
+          type: "patient",
+        })
+          .then(() => {
+            getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
+            setFormLoading(false);
+            setIsDrawerOpen({ isOpen: false, type: "add", data: null });
+            toast({
+              title: "Patient Added.",
+              description: `${formData.name} has been successfully added.`,
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+            });
+          })
+          .catch((err: any) => {
+            setFormLoading(false);
+            toast({
+              title: "failed to create",
+              description: `${err?.message}`,
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            });
+          });
+      } catch (err: any) {
+        setFormLoading(false);
+        toast({
+          title: "failed to create",
+          description: `${err?.message}`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    };
+
   return (
+    <>
     <Formik
       initialValues={{
         primaryDoctor: "",
@@ -186,6 +269,8 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
             {/* === Patient & Doctors === */}
             <SectionCard title="Patient & Doctors">
               <Grid gap={4} gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}>
+                <Flex align={'end'} gap={2}>
+
                 <CustomInput
                   name="patient"
                   placeholder="Search Patient"
@@ -198,7 +283,15 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
                   error={errors.patient as string}
                   showError={touched.patient}
                   query={{ type: "patient" }}
-                />
+                  />
+                  <IconButton
+                  aria-label="add"
+                  variant={'ghost'}
+                  icon={<AddIcon/>}
+                  colorScheme="blue"
+                  onClick={()=> setIsDrawerOpen({isOpen:true})}
+                  />
+                  </Flex>
                 <CustomInput
                   name="primaryDoctor"
                   placeholder="Search Doctor"
@@ -431,6 +524,15 @@ const AddAppointmentForm = observer(({close , selectedDateAndTime, applyGetAllRe
         </Form>
       )}
     </Formik>
+      <AddPatientDrawer
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
+        handleAddSubmit={handleAddSubmit}
+        thumbnail={thumbnail}
+        setThumbnail={setThumbnail}
+        formLoading={formLoading}
+        />
+    </>
   );
 });
 

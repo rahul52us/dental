@@ -1,35 +1,40 @@
 'use client'
+import { AddIcon } from "@chakra-ui/icons";
 import {
-  SimpleGrid,
-  Button,
   Box,
+  Button,
+  Flex,
   Grid,
   GridItem,
+  IconButton,
+  SimpleGrid,
   Text,
-  Flex,
 } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
 import { Formik, Form as FormikForm } from "formik";
-import CustomInput from "../../../component/config/component/customInput/CustomInput";
-import { removeDataByIndex } from "../../../config/utils/utils";
-import ShowFileUploadFile from "../../../component/common/ShowFileUploadFile/ShowFileUploadFile";
-import { generateIntialValues } from "./utils/function";
-import VaccinationHistorySection from "./formElement/VaccinationHistory";
-import InsuranceDetailsSection from "./formElement/InsuranceDetailsSection";
-import AvailabilityAuthSection from "./formElement/AvailabilityAuthSection";
-import PhoneNumbersInput from "./formElement/PhoneNumbersInputSection";
-import EmailsInput from "./formElement/EmailInputs";
-import BankDetailsInput from "./formElement/BankDetailsInput";
-import AddressesInput from "./formElement/AddressInput";
-import { createValidationSchema, updateValidationSchema } from "./utils/validation";
-import { genderOptions } from "../../../config/constant";
 import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
+import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
+import ShowFileUploadFile from "../../../component/common/ShowFileUploadFile/ShowFileUploadFile";
+import CustomInput from "../../../component/config/component/customInput/CustomInput";
+import { genderOptions } from "../../../config/constant";
+import { removeDataByIndex } from "../../../config/utils/utils";
 import stores from "../../../store/stores";
+import MasterDataForm from "../../masters/page";
+import AddressesInput from "./formElement/AddressInput";
+import AvailabilityAuthSection from "./formElement/AvailabilityAuthSection";
+import BankDetailsInput from "./formElement/BankDetailsInput";
 import DegreeInfo from "./formElement/DegreeInfo";
+import EmailsInput from "./formElement/EmailInputs";
+import InsuranceDetailsSection from "./formElement/InsuranceDetailsSection";
+import PhoneNumbersInput from "./formElement/PhoneNumbersInputSection";
+import VaccinationHistorySection from "./formElement/VaccinationHistory";
+import { generateIntialValues } from "./utils/function";
+import { createValidationSchema, updateValidationSchema } from "./utils/validation";
 
 const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
-  const {dashboardStore : {getMasterOptions}} = stores
+  const {dashboardStore : {getMasterOptions,getMasterData}} = stores
   const [formData, setFormData] = useState<any>(initialData);
+  const [isDrawerOpen,setIsDrawerOpen]= useState(false)
 
   useEffect(() => {
     if (initialData) {
@@ -37,8 +42,14 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
     }
   }, [initialData]);
 
+  const handleCloseDrawer = async() => {
+    setIsDrawerOpen(false);
+     await getMasterData();
+  };
+
   return (
     isOpen && (
+      <>
       <Formik
         initialValues={formData}
         validationSchema={isEdit ? updateValidationSchema : createValidationSchema}
@@ -116,6 +127,8 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                       bg="white"
                       mt={3}
                     >
+                      <Flex gap={2} align={'end'}>
+
                       <CustomInput
                         label="Title"
                         name="title"
@@ -126,7 +139,15 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                         onChange={(e: any) => setFieldValue("title", e)}
                         error={errors.title && touched.title}
                         showError={errors.title && touched.title}
-                      />
+                        />
+                             <IconButton
+                                          aria-label="add"
+                                          variant={'ghost'}
+                                          icon={<AddIcon/>}
+                                          colorScheme="blue"
+                                          onClick={()=> setIsDrawerOpen(true)}
+                                          />
+                        </Flex>
                       <CustomInput
                         label="Name"
                         name="name"
@@ -304,6 +325,10 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
           );
         }}
       </Formik>
+      <CustomDrawer open={isDrawerOpen} close={handleCloseDrawer}>
+        <MasterDataForm showSidebar={false} handleCloseDrawer={handleCloseDrawer} />
+      </CustomDrawer>
+      </>
     )
   );
 });

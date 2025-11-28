@@ -1,41 +1,45 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon, InfoIcon } from '@chakra-ui/icons';
 import {
+  Badge,
   Box,
   Button,
-  Flex,
-  VStack,
-  HStack,
-  Input,
-  Text,
-  IconButton,
-  useToast,
-  FormControl,
-  FormLabel,
-  Tooltip,
-  Badge,
-  Collapse,
-  useDisclosure,
-  FormErrorMessage,
   Card,
   CardBody,
   CardHeader,
-  Heading,
-  SimpleGrid,
   Center,
+  Collapse,
   Divider,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  HStack,
+  IconButton,
+  Input,
+  SimpleGrid,
+  Text,
+  Tooltip,
+  useDisclosure,
+  useToast,
+  VStack,
 } from '@chakra-ui/react';
-import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon, InfoIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
+import React, { useCallback, useEffect, useState } from 'react';
 import stores from '../../store/stores';
 
 type Option = { optionName: string; code: string };
 type MasterData = { category: string; options: Option[] };
 
 const MotionBox = motion(Box);
+interface Sidebar  {
+  showSidebar?: boolean;
+  handleCloseDrawer?: () => void
+}
 
-const MasterDataForm: React.FC = observer(() => {
+const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleCloseDrawer }) => {
   const { dashboardStore: { getMasterData, createOrUpdateMasterData } } = stores;
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -170,12 +174,16 @@ const MasterDataForm: React.FC = observer(() => {
       });
     } finally {
       setLoading(false);
+      await getMasterData();
+      handleCloseDrawer();
+
     }
   };
 
   return (
     <Flex direction={{ base: 'column', md: 'row' }} h="100%" bgGradient="linear(to-br, blue.100, blue.50)" overflow="hidden" p={4} gap={4}>
       {/* Sidebar */}
+      {showSidebar && (
       <Box w={{ base: '100%', md: isSidebarOpen ? '280px' : '70px' }} bg="blue.500" color="white" borderRadius="2xl" boxShadow="lg" p={4} transition="all 0.3s ease">
         <HStack justify="space-between" mb={4}>
           {isSidebarOpen && <Heading size="md">Categories</Heading>}
@@ -213,6 +221,7 @@ const MasterDataForm: React.FC = observer(() => {
           </VStack>
         </Collapse>
       </Box>
+      )}
 
       {/* Main area */}
       <Box flex="1" bg="white" borderRadius="2xl" boxShadow="xl" p={{ base: 4, md: 6 }} overflowY="auto">

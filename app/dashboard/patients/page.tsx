@@ -18,9 +18,9 @@ import DeleteData from "./component/patient/component/DeleteUser";
 import DoctorsTable from "./component/patient/PatientTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 import { tablePageLimit } from "../../component/config/utils/variable";
+import AddPatientDrawer from "./component/patient/component/AddPatientDrawer";
 
 const PatientPage = () => {
-  const [formLoading, setFormLoading] = useState(false);
   const {
     userStore: { createUser, getAllUsers, updateUser },
   } = stores;
@@ -31,6 +31,7 @@ const PatientPage = () => {
   });
   const [thumbnail, setThumbnail] = useState([]);
   const toast = useToast();
+  const [formLoading, setFormLoading] = useState(false);
 
   const handleAddSubmit = async (formData: any) => {
     try {
@@ -178,59 +179,69 @@ const PatientPage = () => {
         }}
       />
       {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
-        <Drawer
-          size="md"
-          isOpen={isDrawerOpen.isOpen}
-          placement="right"
-          onClose={() =>
-            setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-          }
-          autoFocus={false}
-        >
-          <DrawerOverlay>
-            <DrawerContent
-              bg="white"
-              borderRadius="lg"
-              boxShadow="xl"
-              maxW={{ base: "100%", md: "92%" }}
-              width={{ base: "100%", md: "92%" }}
-            >
-              <DrawerCloseButton />
-              <DrawerHeader
-                bg="teal.500"
-                color="white"
-                fontSize="lg"
-                fontWeight="bold"
-                textAlign="center"
-                bgGradient="linear(to-r, blue.400, purple.400)"
-              >
-                {isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
-              </DrawerHeader>
-              <DrawerBody p={6} bg="gray.50">
-                <Form
-                  initialData={
-                    isDrawerOpen?.type === "edit"
-                      ? { ...initialValues, ...isDrawerOpen?.data }
-                      : initialValues
-                  }
-                  onSubmit={
-                    isDrawerOpen?.type === "edit"
-                      ? handleEditSubmit
-                      : handleAddSubmit
-                  }
-                  isOpen={isDrawerOpen}
-                  onClose={() =>
-                    setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-                  }
-                  thumbnail={thumbnail}
-                  isEdit={isDrawerOpen.type === "edit" ? true : false}
-                  setThumbnail={setThumbnail}
-                  loading={formLoading}
-                />
-              </DrawerBody>
-            </DrawerContent>
-          </DrawerOverlay>
-        </Drawer>
+        // <Drawer
+        //   size="md"
+        //   isOpen={isDrawerOpen.isOpen}
+        //   placement="right"
+        //   onClose={() =>
+        //     setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+        //   }
+        //   autoFocus={false}
+        // >
+        //   <DrawerOverlay>
+        //     <DrawerContent
+        //       bg="white"
+        //       borderRadius="lg"
+        //       boxShadow="xl"
+        //       maxW={{ base: "100%", md: "92%" }}
+        //       width={{ base: "100%", md: "92%" }}
+        //     >
+        //       <DrawerCloseButton />
+        //       <DrawerHeader
+        //         bg="teal.500"
+        //         color="white"
+        //         fontSize="lg"
+        //         fontWeight="bold"
+        //         textAlign="center"
+        //         bgGradient="linear(to-r, blue.400, purple.400)"
+        //       >
+        //         {isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
+        //       </DrawerHeader>
+        //       <DrawerBody p={6} bg="gray.50">
+        //         <Form
+        //           initialData={
+        //             isDrawerOpen?.type === "edit"
+        //               ? { ...initialValues, ...isDrawerOpen?.data }
+        //               : initialValues
+        //           }
+        //           onSubmit={
+        //             isDrawerOpen?.type === "edit"
+        //               ? handleEditSubmit
+        //               : handleAddSubmit
+        //           }
+        //           isOpen={isDrawerOpen}
+        //           onClose={() =>
+        //             setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+        //           }
+        //           thumbnail={thumbnail}
+        //           isEdit={isDrawerOpen.type === "edit" ? true : false}
+        //           setThumbnail={setThumbnail}
+        //           loading={formLoading}
+        //         />
+        //       </DrawerBody>
+        //     </DrawerContent>
+        //   </DrawerOverlay>
+        // </Drawer>
+
+        <AddPatientDrawer
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
+        handleAddSubmit={handleAddSubmit}
+        handleEditSubmit={handleEditSubmit}
+        thumbnail={thumbnail}
+        setThumbnail={setThumbnail}
+        formLoading={formLoading}
+        />
       )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (
         <DeleteData
