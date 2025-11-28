@@ -234,6 +234,7 @@ const PatientPage = () => {
         thumbnail={thumbnail}
         setThumbnail={setThumbnail}
         formLoading={formLoading}
+        getAllUsers={getAllUsers}
         />
       )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (

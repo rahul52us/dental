@@ -6,7 +6,8 @@ import {
   Grid,
   GridItem,
   Text,
-  Flex
+  Flex,
+  IconButton
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Formik, Form as FormikForm } from "formik";
@@ -29,6 +30,9 @@ import { genderOptions } from "../../../config/constant";
 import DegreeInfo from "./formElement/DegreeInfo";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
+import { AddIcon } from "@chakra-ui/icons";
+import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
+import MasterDataForm from "../../masters/page";
 
 const Form = observer(({
   loading,
@@ -37,9 +41,17 @@ const Form = observer(({
   isOpen,
   onClose,
   isEdit,
+  getAllUsers
 }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
   const {dashboardStore : {getMasterOptions}} = stores
+
+   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    
+      const handleCloseDrawer = async () => {
+        setIsDrawerOpen(false);
+        await getAllUsers();
+      };
   useEffect(() => {
     if (initialData) {
       setFormData(generateIntialValues(initialData));
@@ -48,6 +60,7 @@ const Form = observer(({
 
   return (
     isOpen && (
+      <>
       <Formik
         initialValues={formData}
         validationSchema={
@@ -127,17 +140,26 @@ const Form = observer(({
                       bg="white"
                       mt={3}
                     >
-                      <CustomInput
-                        label="Title"
-                        name="title"
-                        type="select"
-                        options={getMasterOptions('titles')}
-                        required={true}
-                        value={values.title}
-                        onChange={(e: any) => setFieldValue("title", e)}
-                        error={errors.title && touched.title}
-                        showError={errors.title && touched.title}
-                      />
+                      <Flex align={'end'} gap={2}>
+                        <CustomInput
+                          label="Title"
+                          name="title"
+                          type="select"
+                          options={getMasterOptions("titles")}
+                          required={true}
+                          value={values.title}
+                          onChange={(e: any) => setFieldValue("title", e)}
+                          error={errors.title && touched.title}
+                          showError={errors.title && touched.title}
+                        />
+                        <IconButton
+                          aria-label="add"
+                          variant={"ghost"}
+                          icon={<AddIcon />}
+                          colorScheme="blue"
+                          onClick={() => setIsDrawerOpen(true)}
+                        />
+                      </Flex>
                       <CustomInput
                         label="Name"
                         name="name"
@@ -296,6 +318,13 @@ const Form = observer(({
           );
         }}
       </Formik>
+       <CustomDrawer open={isDrawerOpen} close={handleCloseDrawer}>
+                <MasterDataForm
+                  showSidebar={false}
+                  handleCloseDrawer={handleCloseDrawer}
+                />
+              </CustomDrawer>
+      </>
     )
   );
 });

@@ -14,6 +14,7 @@ import { dashboardStore } from "./dashboardStore/dashboardStore";
 import {EventStore} from './eventStore/eventStore'
 import { labStore } from "./labStore/labStore";
 import {doctorAppointment} from './doctorAppointmentStore/doctorAppointmentStore'
+import { chairsStore } from "./chairsStore/chairsStore";
 const stores = {
   auth : authStore,
   dashboardStore : dashboardStore,
@@ -29,7 +30,8 @@ const stores = {
   orderStore : orderStore,
   testimonialStore : testimonialStore,
   EventStore:EventStore,
-  DoctorAppointment:doctorAppointment
+  DoctorAppointment:doctorAppointment,
+  chairsStore:chairsStore
 };
 
 export default stores;

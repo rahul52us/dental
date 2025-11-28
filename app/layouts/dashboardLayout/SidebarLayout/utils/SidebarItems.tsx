@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
+import { GiOfficeChair } from "react-icons/gi";
 
 interface SidebarItem {
   id: number;
@@ -84,7 +85,14 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaUserAstronaut />,
     url: "/dashboard/admins",
     role: ["superAdmin"],
-  }
+  },
+  {
+    id: 11,
+    name: "Chairs",
+    icon: <GiOfficeChair />,
+    url: "/dashboard/chairs",
+    role: ["superAdmin","admin"],
+  },
 ];
 
 export const sidebarFooterData: SidebarItem[] = [

@@ -3,7 +3,7 @@ import React from 'react'
 import { initialValues } from '../../utils/constant'
 import Form from '../../Form'
 
-const AddPatientDrawer = ({isDrawerOpen, setIsDrawerOpen, handleAddSubmit, handleEditSubmit, thumbnail, setThumbnail, formLoading}:any) => {
+const AddPatientDrawer = ({isDrawerOpen, setIsDrawerOpen, handleAddSubmit, handleEditSubmit, thumbnail, setThumbnail, formLoading,getAllUsers}:any) => {
   return (
       <Drawer
           size="md"
@@ -53,6 +53,7 @@ const AddPatientDrawer = ({isDrawerOpen, setIsDrawerOpen, handleAddSubmit, handl
                   isEdit={isDrawerOpen.type === "edit" ? true : false}
                   setThumbnail={setThumbnail}
                   loading={formLoading}
+                  getAllUsers={getAllUsers}
                 />
               </DrawerBody>
             </DrawerContent>

@@ -225,6 +225,7 @@ const StaffPage = () => {
                   isEdit={isDrawerOpen.type === "edit" ? true : false}
                   setThumbnail={setThumbnail}
                   loading={formLoading}
+                  getAllUsers={getAllUsers}
                 />
               </DrawerBody>
             </DrawerContent>
