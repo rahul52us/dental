@@ -1,19 +1,12 @@
 "use client";
 import {
   Box,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
-import Form from "./component/Form";
-import { initialValues, titles } from "./component/utils/constant";
+import { titles } from "./component/utils/constant";
 import DeleteData from "./component/patient/component/DeleteUser";
 import DoctorsTable from "./component/patient/PatientTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
