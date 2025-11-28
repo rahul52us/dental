@@ -283,13 +283,13 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
                   showError={touched.patient}
                   query={{ type: "patient" }}
                   />
-                  <IconButton
+                  {!isPatient && <IconButton
                   aria-label="add"
                   variant={'ghost'}
                   icon={<AddIcon/>}
                   colorScheme="blue"
                   onClick={()=> setIsDrawerOpen({isOpen:true})}
-                  />
+                  />}
                   </Flex>
                 <CustomInput
                   name="primaryDoctor"
