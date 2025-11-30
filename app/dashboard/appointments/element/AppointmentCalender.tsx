@@ -10,7 +10,7 @@ import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import AddForm from "../component/AddForm";
 import EditForm from "../component/EditForm";
 
-const AttendanceCalendar = ({ isPatient, patientDetails,  type, close, applyGetAllRecords }: any) => {
+const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAllRecords }: any) => {
   const [selectedDateTime, setSelectedDateTime] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -34,6 +34,14 @@ const AttendanceCalendar = ({ isPatient, patientDetails,  type, close, applyGetA
     select: handleDateSelect,
     editable: false,
     height: "80vh",
+
+    //  ADD THIS LINE
+    validRange: { start: moment().startOf("day").toDate() },
+
+    // (Optional) Also prevent clicking past days
+    selectAllow: (selectInfo: any) => {
+      return moment(selectInfo.start).isSameOrAfter(moment(), "day");
+    },
   };
 
   const calendarBg = useColorModeValue("gray.50", "gray.800");
@@ -91,8 +99,8 @@ const AttendanceCalendar = ({ isPatient, patientDetails,  type, close, applyGetA
         title={
           selectedDateTime
             ? `Selected: ${moment(selectedDateTime.start).format(
-                "DD MMM YYYY, hh:mm A"
-              )}`
+              "DD MMM YYYY, hh:mm A"
+            )}`
             : "Select a date & time"
         }
       >
