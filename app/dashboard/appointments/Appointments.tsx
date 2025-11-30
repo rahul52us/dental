@@ -14,7 +14,7 @@ import AttendanceCalendar from "./element/AppointmentCalender";
 import AppointmentDetailsView from "./element/AppointmentDetailsView"; // ✅ Import details view
 import AppointChangeStatus from "./element/AppointmentStatusChange";
 
-const AppointmentList = observer(({isPatient, patientDetails } : any) => {
+const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
     DoctorAppointment: { getDoctorAppointment, appointments },
     auth: { openNotification, userType },
@@ -54,12 +54,12 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
         query.limit = tablePageLimit;
       }
 
-      if(isPatient && patientDetails){
+      if (isPatient && patientDetails) {
         query.patientId = patientDetails?._id
       }
 
       getDoctorAppointment(query)
-        .then(() => {})
+        .then(() => { })
         .catch((err) => {
           openNotification({
             type: "error",
@@ -131,7 +131,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
                 return "purple";
               case "no-show":
                 return "gray";
-                case "arrived":
+              case "arrived":
                 return "green";
               default:
                 return "gray";
@@ -286,7 +286,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
         close={() => setOpenDrawer({ open: false, data: null, type: "add" })}
         title="Appointment Lists"
       >
-        <AttendanceCalendar isPatient={isPatient} patientDetails={patientDetails} applyGetAllRecords={applyGetAllRecords} close={() => setOpenDrawer({ open: false, data: null, type: "add" })} type={openDrawer.type} />
+        <AttendanceCalendar isPatient={isPatient} patientDetails={patientDetails} applyGetAllRecords={applyGetAllRecords} close={() => setOpenDrawer({ open: false, data: null, type: "add" })} type={openDrawer.type} appointments={appointments} />
       </CustomDrawer>
 
       {/* Change Status Modal */}
@@ -304,7 +304,7 @@ const AppointmentList = observer(({isPatient, patientDetails } : any) => {
         close={() => setOpenView({ open: false, data: null })}
         title="Appointment Details"
       >
-        <AppointmentDetailsView   data={openView.data} />
+        <AppointmentDetailsView data={openView.data} />
       </CustomDrawer>
     </>
   );
