@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Box,
@@ -6,30 +6,30 @@ import {
   Flex,
   Grid,
   GridItem,
-  SimpleGrid
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
 import * as Yup from "yup";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import stores from "../../../../store/stores";
+import ChairColorPicker from "../ChairColorPicker/ChairColorPicker";
+import { useState } from "react";
 
 // -------------------------------------------------
 // Validation Schema
 // -------------------------------------------------
 const ChairSchema = Yup.object().shape({
   chairName: Yup.string().required("Chair Name is required"),
-  chairColor: Yup.mixed().required("Chair Color is required"),
+  chairColor: Yup.string().required("Chair Color is required"),
   chairDetails: Yup.string().required("Chair Details are required"),
   chairNo: Yup.string().required("Chair Number is required"),
 });
 
-// -------------------------------------------------
-
 const ChairsForm = observer(({ isOpen, onClose }: any) => {
   if (!isOpen) return null;
-
   const { chairsStore } = stores;
+  const [loading, setLoading] = useState(false);
 
   const initialValues = {
     chairName: "",
@@ -42,31 +42,31 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
     <Formik
       initialValues={initialValues}
       validationSchema={ChairSchema}
-
       // -----------------------------
       // 🔥 SUBMIT WITH API INTEGRATION
       // -----------------------------
       onSubmit={async (values, { resetForm }) => {
         try {
+          setLoading(true);
           const payload = {
             ...values,
           };
 
           const res: any = await chairsStore.createChair(payload);
-          if(res.status === "success"){            
+          if (res.status === "success") {
             stores.auth?.openNotification?.({
-            type: "success",
-            title: "Chair Added",
-            message: "Chair created successfully!",
-          });
-          
-        }else {
-          stores.auth?.openNotification?.({
-            type: "error",
-            title: "Failed",
-            message: res?.message || "Something went wrong",
-          });
-        }
+              type: "success",
+              title: "Chair Added",
+              message: "Chair created successfully!",
+            });
+            setLoading(false);
+          } else {
+            stores.auth?.openNotification?.({
+              type: "error",
+              title: "Failed",
+              message: res?.message || "Something went wrong",
+            });
+          }
           resetForm();
           onClose();
         } catch (err: any) {
@@ -78,7 +78,14 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
         }
       }}
     >
-      {({ values, errors, touched, handleChange, handleSubmit, setFieldValue }: any) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleSubmit,
+        setFieldValue,
+      }: any) => (
         <FormikForm onSubmit={handleSubmit}>
           <Grid
             templateColumns={{ base: "1fr", md: "1fr 1fr" }}
@@ -89,7 +96,6 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
           >
             <GridItem colSpan={2}>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-
                 <CustomInput
                   label="Chair Name"
                   name="chairName"
@@ -101,7 +107,7 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
                   showError={touched.chairName}
                 />
 
-                <CustomInput
+                {/* <CustomInput
                   label="Chair Color"
                   name="chairColor"
                   type="select"
@@ -118,7 +124,7 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
                   onChange={(val: any) => setFieldValue("chairColor", val)}
                   error={errors.chairColor}
                   showError={touched.chairColor}
-                />
+                /> */}
 
                 <CustomInput
                   label="Chair Number"
@@ -146,10 +152,22 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
                 </Box>
               </SimpleGrid>
             </GridItem>
+            <GridItem colSpan={2}>
+              <ChairColorPicker
+                value={values.chairColor}
+                onChange={(col: string) => setFieldValue("chairColor", col)}
+              />
+
+              {errors.chairColor && touched.chairColor && (
+                <p style={{ color: "red", fontSize: "12px" }}>
+                  {errors.chairColor}
+                </p>
+              )}
+            </GridItem>
           </Grid>
 
           <Flex justifyContent="flex-end" mt={4}>
-            <Flex gap={4} align={'end'}>
+            <Flex gap={4} align={"end"}>
               <Button
                 colorScheme="red"
                 bgColor="red"

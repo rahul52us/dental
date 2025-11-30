@@ -1,7 +1,6 @@
 "use client";
 import { AddIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Button,
   Card,
   CardBody,
@@ -17,11 +16,11 @@ import {
   Switch,
   Text,
   useToast,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { observer } from "mobx-react-lite";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { tablePageLimit } from "../../../component/config/utils/variable";
@@ -112,7 +111,7 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
 const AddAppointmentForm = observer(({isPatient, patientDetails, close , selectedDateAndTime, applyGetAllRecords }: any) => {
   const {
     DoctorAppointment: { createDoctorAppointment },
-    auth: { openNotification },  userStore: { createUser,getAllUsers }
+    auth: { openNotification },  userStore: { createUser,getAllUsers },chairsStore:{getChairs}
   } = stores;
 
 
@@ -126,6 +125,7 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
       const [thumbnail, setThumbnail] = useState([]);
       const toast = useToast();
       const [formLoading, setFormLoading] = useState(false);
+      const [chairsData, setChairsData] = useState<any>([]);
 
   const parsedDateAndTime = useMemo(() => {
     if (!selectedDateAndTime?.start) return {};
@@ -237,6 +237,40 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
       }
     };
 
+    //  const fetchChairs = useCallback(async () => {
+    //     await chairsStore.getChairs({
+    //       page: currentPage,
+    //       limit: tablePageLimit,
+    //       // search: debouncedSearch,
+    //     });
+    //   }, []);
+    
+    
+    //   const resetTable = () => {
+    //     setSearch("");
+    //     setCurrentPage(1);
+    //   };
+
+    const fetchChairs = async () => {
+     const resposne= await getChairs({
+        page: 1,
+        limit: 1000,
+        // search: debouncedSearch,
+      });
+      setChairsData(resposne.data)
+    }
+    
+    useEffect(() => {
+      fetchChairs();
+    }, []);
+      // const chairsData = getChairs({ page: 1, limit: 1000 })
+      const chairsOptions = chairsData.map((item: any) => ({
+        value: item._id,
+        label: item.chairName
+      }))
+
+      // console.log('chairsData----------',chairsData)
+
   return (
     <>
     <Formik
@@ -258,6 +292,7 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
           referenceAppointmentId: "",
         },
         doctorNote: "",
+        chair:"",
       }}
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting }) => onSubmit(values, setSubmitting)}
@@ -305,7 +340,7 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
                   query={{ type: "doctor" }}
                 />
               </Grid>
-              <Box mt={4}>
+              <Flex gap={4} mt={4}>
                 <CustomInput
                   name="additionalDoctors"
                   placeholder="Select Assisted By"
@@ -318,7 +353,20 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
                   }
                   query={{ type: "doctor" }}
                 />
-              </Box>
+                <CustomInput
+                  name="chair"
+                  placeholder="Select Chair"
+                  type="select"
+                  label="Chair"
+                  options={chairsOptions}
+                  value={values.chair.label}
+                  onChange={(val: any) =>{
+                    setFieldValue("chair", val.value)
+                  }
+
+                  }
+                />
+              </Flex>
             </SectionCard>
 
             {/* === Appointment Details === */}

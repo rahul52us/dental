@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Tooltip } from "@chakra-ui/react";
+import { Badge, Box, Flex, Tooltip } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
@@ -65,8 +65,19 @@ const ChairsTable = observer(() => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Color",
+      headerName: "Chair Color",
       key: "chairColor",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Flex justify={'center'}>
+
+          <Box bg={dt.chairColor} boxSize={5}  rounded={"full"}>
+            {""}
+          </Box>
+          </Flex>
+        ),
+      },
       props: { row: { textAlign: "center" } },
     },
     {
