@@ -1,4 +1,9 @@
-import { CalendarIcon, CheckCircleIcon, InfoIcon } from '@chakra-ui/icons'; // Assuming standard chakra icons
+import {
+  CalendarIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  InfoIcon,
+} from "@chakra-ui/icons"; // Assuming standard chakra icons
 import {
   Avatar,
   Badge,
@@ -21,66 +26,136 @@ import {
   TabPanels,
   Tabs,
   Text,
-  VStack
-} from '@chakra-ui/react'
-import { observer } from 'mobx-react-lite'
-import OperatingHours from '../OperatingHours/OperatingHours'
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import { useState } from "react";
+import stores from "../../../../store/stores";
+import { getDefaultSchedule } from "../../utils/constant";
+import OperatingHours from "../OperatingHours/OperatingHours";
 
 // Helper component for consistent key-value display
 const DetailItem = ({ label, value, icon }) => (
   <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
     <Flex align="center" mb={1}>
       {icon && <Icon as={icon} color="blue.500" mr={2} boxSize={3} />}
-      <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500">
+      <Text
+        fontSize="xs"
+        fontWeight="bold"
+        textTransform="uppercase"
+        color="gray.500"
+      >
         {label}
       </Text>
     </Flex>
     <Text fontSize="md" fontWeight="medium" color="gray.700">
-      {value || '-'}
+      {value || "-"}
     </Text>
   </Box>
-)
+);
 
-const ProfileDetailsModal = observer(({ isOpen, onClose, user }:any) => {
+const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
+  const [schedule, setSchedule] = useState(
+    user.companyDetails.operatingHours || getDefaultSchedule()
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const { companyStore } = stores;
+  const toast = useToast();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const payload = schedule.map((item) => ({
+      day: item.day,
+      isOpen: item.isOpen,
+      slots: item.isOpen ? item.slots.filter((s) => s.start && s.end) : [],
+    }));
+
+    try {
+      const response = await companyStore.updateOperatingHours({
+        operatingHours: payload,
+      });
+
+      if (response?.data?.success) {
+        toast({
+          title: "Configuration Saved",
+          description: "Operating hours updated successfully.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+        onClose();
+      }
+    } catch (err) {
+      toast({
+        title: "Update Failed",
+        description: err?.message || "Something went wrong.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   // Safety check if user is null
-  if (!user) return null
+  if (!user) return null;
+  const {
+    name,
+    title,
+    username,
+    role,
+    pic,
+    code,
+    is_active,
+    companyDetails,
+    createdAt,
+  } = user;
 
-  const { 
-    name, 
-    title, 
-    username, 
-    role, 
-    pic, 
-    code, 
-    is_active, 
-    companyDetails, 
-    createdAt 
-  } = user
-
-  const joinedDate = createdAt ? new Date(createdAt).toLocaleDateString() : '-';
+  const joinedDate = createdAt ? new Date(createdAt).toLocaleDateString() : "-";
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size={'3xl'} scrollBehavior="inside">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size={"3xl"}
+      scrollBehavior="inside"
+    >
       <ModalOverlay backdropFilter="blur(2px)" />
       <ModalContent borderRadius="xl" overflow="hidden">
         {/* Header Section: Identity */}
         <Box bg="blue.600" p={5} color="white" position="relative">
           <ModalCloseButton color="white" />
-          <Flex direction={{ base: 'column', sm: 'row' }} align="center" gap={5}>
-            <Avatar 
-              size="lg" 
-              src={pic?.url} 
-              name={name} 
-              border="4px solid white" 
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            align="center"
+            gap={5}
+          >
+            <Avatar
+              size="lg"
+              src={pic?.url}
+              name={name}
+              border="4px solid white"
               boxShadow="lg"
             />
-            <Box textAlign={{ base: 'center', sm: 'left' }}>
-              <Flex align="center" gap={2} justify={{ base: 'center', sm: 'flex-start' }}>
+            <Box textAlign={{ base: "center", sm: "left" }}>
+              <Flex
+                align="center"
+                gap={2}
+                justify={{ base: "center", sm: "flex-start" }}
+              >
                 <Heading size="md">
                   {title} {name}
                 </Heading>
-                <Badge colorScheme={is_active ? 'green' : 'red'} variant="solid" borderRadius="full" px={2}>
-                  {is_active ? 'Active' : 'Inactive'}
+                <Badge
+                  colorScheme={is_active ? "green" : "red"}
+                  variant="solid"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {is_active ? "Active" : "Inactive"}
                 </Badge>
               </Flex>
               <Text fontSize="md" opacity={0.9} mt={1}>
@@ -104,34 +179,32 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }:any) => {
               {/* TAB 1: Profile Overview */}
               <TabPanel p={6}>
                 <VStack spacing={6} align="stretch">
-                  
-             
-
                   <Divider />
-
                   {/* Details Grid */}
                   <Box>
-                    <Text fontWeight="bold" mb={3}>Account & Company Details</Text>
+                    <Text fontWeight="bold" mb={3}>
+                      Account & Company Details
+                    </Text>
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                      <DetailItem 
-                        label="Employee Code" 
-                        value={code} 
-                        icon={InfoIcon} 
+                      <DetailItem
+                        label="Employee Code"
+                        value={code}
+                        icon={InfoIcon}
                       />
-                      <DetailItem 
-                        label="Company" 
-                        value={companyDetails?.company_name} 
-                        icon={CheckCircleIcon} 
+                      <DetailItem
+                        label="Company"
+                        value={companyDetails?.company_name}
+                        icon={CheckCircleIcon}
                       />
-                      <DetailItem 
-                        label="User Type" 
-                        value={user.userType} 
-                        icon={InfoIcon} 
+                      <DetailItem
+                        label="User Type"
+                        value={user.userType}
+                        icon={InfoIcon}
                       />
-                      <DetailItem 
-                        label="Joined On" 
-                        value={joinedDate} 
-                        icon={CalendarIcon} 
+                      <DetailItem
+                        label="Joined On"
+                        value={joinedDate}
+                        icon={CalendarIcon}
                       />
                     </SimpleGrid>
                   </Box>
@@ -140,23 +213,29 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }:any) => {
 
               {/* TAB 2: Operating Hours (Placeholder) */}
               <TabPanel p={6}>
-                {/* <Flex direction="column" align="center" justify="center" h="200px" bg="gray.50" borderRadius="md" border="1px dashed" borderColor="gray.300">
-                  <Icon as={CalendarIcon} w={8} h={8} color="gray.400" mb={3} />
-                  <Text color="gray.500" fontWeight="medium">Operating hours configuration coming soon.</Text>
-                </Flex> */}
-                <OperatingHours  />
+                <OperatingHours schedule={schedule} setSchedule={setSchedule} />
               </TabPanel>
-
             </TabPanels>
           </Tabs>
         </ModalBody>
 
         <ModalFooter bg="gray.50">
-          <Button onClick={onClose}>Close</Button>
+          <Button variant="ghost" mr={3} onClick={onClose}>
+            Close
+          </Button>
+
+          <Button
+            colorScheme="blue"
+            leftIcon={<CheckIcon />}
+            onClick={handleSave}
+            isLoading={isSaving}
+          >
+            Save Changes
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
-  )
-})
+  );
+});
 
-export default ProfileDetailsModal
+export default ProfileDetailsModal;

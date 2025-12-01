@@ -1,52 +1,23 @@
-import React, { useState } from 'react'
+import { AddIcon, DeleteIcon, TimeIcon } from '@chakra-ui/icons'
 import {
+  Badge,
   Box,
   Button,
+  Divider,
   Flex,
   FormControl,
   FormLabel,
   Heading,
+  HStack,
   IconButton,
   Input,
   Switch,
   Text,
-  VStack,
-  Divider,
-  useToast,
-  Badge,
-  HStack,
-  Tooltip
+  Tooltip,
+  VStack
 } from '@chakra-ui/react'
-import { AddIcon, DeleteIcon, TimeIcon, CheckIcon } from '@chakra-ui/icons'
-import stores from '../../../../store/stores'
 
-const DAYS_OF_WEEK = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-]
-
-const getDefaultSchedule = () => {
-  return DAYS_OF_WEEK.map((day) => ({
-    day,
-    isOpen: day !== 'Sunday', // Example: Default Sunday to closed
-    slots: [{ start: '09:00', end: '17:00' }], 
-  }))
-}
-
-const OperatingHours = () => {
-  const [schedule, setSchedule] = useState(getDefaultSchedule())
-  const toast = useToast()
-const { companyStore } = stores;
-
-
-
-  // --- Handlers ---
-
+const OperatingHours = ({ schedule, setSchedule }) => {
   const handleToggleDay = (index) => {
     const newSchedule = [...schedule]
     newSchedule[index].isOpen = !newSchedule[index].isOpen
@@ -71,46 +42,10 @@ const { companyStore } = stores;
     setSchedule(newSchedule)
   }
 
-const handleSave = async () => {
-  const payload = schedule.map((item) => ({
-    day: item.day,
-    isOpen: item.isOpen,
-    slots: item.isOpen 
-      ? item.slots.filter(s => s.start && s.end)
-      : []
-  }));
-
-  try {
-   const response:any = await companyStore.updateOperatingHours({
-      operatingHours: payload
-    });
-    if(response.success){        
-    toast({
-      title: "Configuration Saved",
-      description: "Operating hours updated successfully.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-      position: "top-right",
-    });
-}
-  } catch (err) {
-    toast({
-      title: "Update Failed",
-      description: err?.message || "Something went wrong.",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-      position: "top-right",
-    });
-  }
-};
-
-
   return (
-    <Box w="100%" p={6} bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" shadow="sm">
+    <Box w="100%" p={4} bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" shadow="sm">
       {/* Header */}
-      <Flex justify="space-between" align="center" mb={6} pb={4} borderBottomWidth="1px" borderColor="gray.100">
+      <Flex justify="space-between" align="center" mb={4} pb={4} borderBottomWidth="1px" borderColor="gray.100">
         <Box>
             <HStack mb={1}>
                 <TimeIcon color="blue.500" boxSize={5} />
@@ -120,15 +55,6 @@ const handleSave = async () => {
                 Configure your weekly availability. Toggle days to mark them as closed.
             </Text>
         </Box>
-        <Button 
-            colorScheme="blue" 
-            onClick={handleSave} 
-            leftIcon={<CheckIcon />}
-            size="sm"
-            px={6}
-        >
-            Save Changes
-        </Button>
       </Flex>
 
       {/* Schedule List */}
