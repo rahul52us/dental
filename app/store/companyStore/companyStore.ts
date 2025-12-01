@@ -44,6 +44,20 @@ class CompanyStores {
       this.isLoading = false;
     }
   };
+  updateOperatingHours = async (payload: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.post("/company/updateOperatingHours", {
+        ...payload,
+        company: authStore.company
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
 
   getPageContent = (name : string) => {
     if(Object.keys(this.companyDetails || {}).length){

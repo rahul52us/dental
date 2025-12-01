@@ -30,6 +30,8 @@ import { authentication, main } from "../../../../../../config/utils/routes";
 import { useRouter, usePathname } from "next/navigation";
 import { WEBSITE_TITLE } from "../../../../../../config/utils/variables";
 import ChangePasswordModal from "./component/ChangePasswordModal";
+import { toJS } from "mobx";
+import ProfileDetailsModal from "../../../../../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal";
 
 const HeaderProfile = observer(() => {
   const { auth: { doLogout } } = stores;
@@ -40,6 +42,9 @@ const HeaderProfile = observer(() => {
     themeStore: { setOpenThemeDrawer },
   } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen:profileIsOpen, onOpen:profileOnOpen, onClose:profileOnClose } = useDisclosure()
+  
+
 
   return user ? (
     <>
@@ -74,7 +79,10 @@ const HeaderProfile = observer(() => {
                   <FaHome style={{ marginRight: "8px" }} /> Home
                 </MenuItem>
               )}
-              <MenuItem onClick={() => router.push(main.profile)}>
+              <MenuItem
+              //  onClick={() => router.push(main.profile)}
+               onClick={profileOnOpen}
+              >
                 <FaCog style={{ marginRight: "8px" }} /> Profile Settings
               </MenuItem>
               <MenuItem onClick={onOpen}>
@@ -97,6 +105,7 @@ const HeaderProfile = observer(() => {
         </Portal>
       </Menu>
       <ChangePasswordModal isOpen={isOpen} onClose={onClose} />
+      <ProfileDetailsModal isOpen={profileIsOpen} onClose={profileOnClose} user={user} />
     </>
   ) : (
     <Menu closeOnSelect={false} placement="bottom-end">
