@@ -34,17 +34,17 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
   };
 
   // ⭐ COLOR BASED ON STATUS (OPTIONAL - IF YOU WANT STATUS-BASED COLORING)
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "scheduled": return { bg: "#3182CE", border: "#2C5282", text: "#FFFFFF" };
-      case "in-progress": return { bg: "#D69E2E", border: "#B7791F", text: "#FFFFFF" };
-      case "completed": return { bg: "#38A169", border: "#2F855A", text: "#FFFFFF" };
-      case "cancelled": return { bg: "#E53E3E", border: "#C53030", text: "#FFFFFF" };
-      case "rescheduled": return { bg: "#805AD5", border: "#6B46C1", text: "#FFFFFF" };
-      case "arrived": return { bg: "#2F855A", border: "#276749", text: "#FFFFFF" };
-      default: return { bg: "#A0AEC0", border: "#718096", text: "#FFFFFF" };
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case "scheduled": return { bg: "#3182CE", border: "#2C5282", text: "#FFFFFF" };
+  //     case "in-progress": return { bg: "#D69E2E", border: "#B7791F", text: "#FFFFFF" };
+  //     case "completed": return { bg: "#38A169", border: "#2F855A", text: "#FFFFFF" };
+  //     case "cancelled": return { bg: "#E53E3E", border: "#C53030", text: "#FFFFFF" };
+  //     case "rescheduled": return { bg: "#805AD5", border: "#6B46C1", text: "#FFFFFF" };
+  //     case "arrived": return { bg: "#2F855A", border: "#276749", text: "#FFFFFF" };
+  //     default: return { bg: "#A0AEC0", border: "#718096", text: "#FFFFFF" };
+  //   }
+  // };
 
   const formatDateOnly = (isoDate: string) => {
     return moment(isoDate).format("YYYY-MM-DD");
@@ -52,10 +52,10 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
 
   const bookedEvents = appointments?.data?.map((item: any, index: number) => {
     const date = formatDateOnly(item.appointmentDate);
-    
+
     // Choose color strategy: by index for variety, or by status
     const colors = getAppointmentColor(index); // Change to getStatusColor(item.status) if preferred
-    
+
     return {
       id: item?._id,
       title: item?.patientName || "Booked",
@@ -105,7 +105,7 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
 
     // ⭐ EVENT STYLING
     eventClassNames: "custom-event",
-    
+
     // ⭐ OPEN DRAWER WHEN CLICK ON EVENT
     eventClick: (info: any) => {
       setSelectedDateTime({

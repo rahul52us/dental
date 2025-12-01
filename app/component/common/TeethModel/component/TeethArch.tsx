@@ -26,7 +26,7 @@ const TeethArch = ({
   teeth: ToothData[];
   isUpper: boolean;
   selectedId: number | undefined;
-  onSelect: (t: ToothData) => void;
+  onSelect?: any
 }) => {
   const [hoveredTooth, setHoveredTooth] = useState<ToothData | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });

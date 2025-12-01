@@ -29,7 +29,7 @@ const ChairSchema = Yup.object().shape({
 const ChairsForm = observer(({ isOpen, onClose }: any) => {
   if (!isOpen) return null;
   const { chairsStore } = stores;
-  const [loading, setLoading] = useState(false);
+  const setLoading = useState(false)[1];
 
   const initialValues = {
     chairName: "",

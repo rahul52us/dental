@@ -209,7 +209,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
       key: "treatment",
       type: "component",
       metaData: {
-        component: (dt: any) => (
+        component: () => (
           <Tag variant={'outline'} _hover={{bg:"blue.50"}} onClick={()=>setOpenTreatmentDrawer({open:true,data:null})} rounded={'full'} colorScheme="blue">View</Tag>
         ),
       },

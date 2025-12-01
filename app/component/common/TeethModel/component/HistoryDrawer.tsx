@@ -11,13 +11,6 @@ import {
     Text,
     VStack
 } from "@chakra-ui/react";
-import { ToothData } from "../utils/constant";
-
-interface HistoryDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  tooth: ToothData | null;
-}
 
 export default function HistoryDrawer({
   isOpen,
@@ -49,7 +42,7 @@ export default function HistoryDrawer({
             <VStack align="stretch" spacing={4} mt={2}>
               {history
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((entry, idx) => (
+                .map((entry) => (
                   <Box
                     key={entry.id}
                     p={4}
@@ -57,6 +50,7 @@ export default function HistoryDrawer({
                     borderRadius="lg"
                     shadow="sm"
                     bg="white"
+
                   >
                     <HStack justify="space-between">
                       <Badge colorScheme="blue">{entry.condition}</Badge>

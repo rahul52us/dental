@@ -36,19 +36,19 @@ const BASIC_COLORS = [
 ];
 interface ChairColorPickerProps {
   value: string;
-  onChange: (color: string) => void;
+  onChange: any;
 }
 
 const ChairColorPicker = ({ value, onChange }: ChairColorPickerProps) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
 
   return (
-    <Box 
-      p={4} 
-      border="1px solid" 
-      borderColor="gray.200" 
-      borderRadius="xl" 
-      bg="white" 
+    <Box
+      p={4}
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="xl"
+      bg="white"
       shadow="sm"
     >
       <Flex justify="space-between" align="center" mb={4}>
@@ -62,7 +62,7 @@ const ChairColorPicker = ({ value, onChange }: ChairColorPickerProps) => {
 
       {/* Preset Colors Grid */}
       <Flex wrap="wrap" gap={3} mb={5}>
-        {BASIC_COLORS.map((col) => {
+        {BASIC_COLORS.map((col, index : number) => {
           const isSelected = value?.toLowerCase() === col.toLowerCase();
           return (
               <Box
@@ -72,6 +72,7 @@ const ChairColorPicker = ({ value, onChange }: ChairColorPickerProps) => {
                 h="36px"
                 borderRadius="full"
                 bg={col}
+                key={index}
                 border="1px solid"
                 borderColor="gray.200"
                 position="relative"

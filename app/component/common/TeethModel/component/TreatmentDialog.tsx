@@ -78,17 +78,15 @@ export default function TreatmentDialog({
         <Formik
           initialValues={initialValues}
           validationSchema={TreatmentSchema}
-       onSubmit={(values, { resetForm }) => {
+       onSubmit={({},{}) => {
 
-  const payload = {
-    ...values,
-    toothNumber: tooth?.number,
-    toothName: tooth?.name,
-    toothType: tooth?.type,
-    quadrant: tooth?.quadrant
-  };
-
-  console.log("FINAL PAYLOAD:", payload);
+  // const payload = {
+  //   ...values,
+  //   toothNumber: tooth?.number,
+  //   toothName: tooth?.name,
+  //   toothType: tooth?.type,
+  //   quadrant: tooth?.quadrant
+  // };
 
   toast({
     title: "Success",
@@ -96,7 +94,7 @@ export default function TreatmentDialog({
     status: "success",
   });
 
-  resetForm();
+  // resetForm();
   onClose();
 }}
 

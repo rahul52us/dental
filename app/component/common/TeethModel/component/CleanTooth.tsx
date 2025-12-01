@@ -1,5 +1,5 @@
 import { Box, Text } from '@chakra-ui/react';
-import { getToothName, ToothData } from '../utils/constant';
+import { ToothData } from '../utils/constant';
 
 const CleanTooth = ({
   tooth,
@@ -11,13 +11,11 @@ const CleanTooth = ({
 }: {
   tooth: ToothData;
   isSelected: boolean;
-  onClick: (t: ToothData) => void;
+  onClick: any;
   rotation: number;
-  onMouseEnter: (t: ToothData) => void;
+  onMouseEnter: any;
   onMouseLeave: () => void;
 }) => {
-  const name = getToothName(tooth.number);
-  const label = `#${tooth.number} - ${name}`;
 
   return (
       <Box
@@ -32,7 +30,7 @@ const CleanTooth = ({
         alignItems="center"
         justifyContent="center"
         transform={`rotate(${rotation}deg)`}
-        transition="all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)" 
+        transition="all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
         _hover={{
           transform: `rotate(${rotation}deg) scale(1.18)`,
           zIndex: 10,
@@ -86,7 +84,7 @@ const CleanTooth = ({
             strokeWidth="2"
             strokeLinecap="round"
           />
-          
+
         </svg>
 
         {/* Upright number */}
@@ -96,7 +94,7 @@ const CleanTooth = ({
           fontWeight="bold"
           color={isSelected ? "blue.500" : "gray.500"}
           textShadow="0 1px 2px rgba(0,0,0,0.15)"
-          transform={`rotate(${-rotation}deg)`} 
+          transform={`rotate(${-rotation}deg)`}
           pointerEvents="none"
         >
           {tooth.number}

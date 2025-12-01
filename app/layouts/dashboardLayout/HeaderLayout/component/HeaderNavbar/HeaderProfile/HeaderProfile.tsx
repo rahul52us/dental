@@ -30,7 +30,6 @@ import { authentication, main } from "../../../../../../config/utils/routes";
 import { useRouter, usePathname } from "next/navigation";
 import { WEBSITE_TITLE } from "../../../../../../config/utils/variables";
 import ChangePasswordModal from "./component/ChangePasswordModal";
-import { toJS } from "mobx";
 import ProfileDetailsModal from "../../../../../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal";
 
 const HeaderProfile = observer(() => {
@@ -43,7 +42,7 @@ const HeaderProfile = observer(() => {
   } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen:profileIsOpen, onOpen:profileOnOpen, onClose:profileOnClose } = useDisclosure()
-  
+
 
 
   return user ? (
