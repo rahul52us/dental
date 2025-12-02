@@ -1,9 +1,8 @@
 "use client";
-import { Box, Tag, Text } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
-import TeethModel from "../../component/common/TeethModel/TeethModel";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
 import {
@@ -34,10 +33,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   });
 
   const [openView, setOpenView] = useState({
-    open: false,
-    data: null,
-  });
-  const [openTreatmentDrawer, setOpenTreatmentDrawer] = useState({
     open: false,
     data: null,
   });
@@ -204,20 +199,20 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
-    {
-      headerName: "Treatment",
-      key: "treatment",
-      type: "component",
-      metaData: {
-        component: () => (
-          <Tag variant={'outline'} _hover={{bg:"blue.50"}} onClick={()=>setOpenTreatmentDrawer({open:true,data:null})} rounded={'full'} colorScheme="blue">View</Tag>
-        ),
-      },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
+    // {
+    //   headerName: "Treatment",
+    //   key: "treatment",
+    //   type: "component",
+    //   metaData: {
+    //     component: () => (
+    //       <Tag variant={'outline'} _hover={{bg:"blue.50"}} onClick={()=>setOpenTreatmentDrawer({open:true,data:null})} rounded={'full'} colorScheme="blue">View</Tag>
+    //     ),
+    //   },
+    //   props: {
+    //     row: { minW: 120, textAlign: "center" },
+    //     column: { textAlign: "center" },
+    //   },
+    // },
     {
       headerName: "Created By",
       key: "actionBy",
@@ -325,14 +320,14 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
       >
         <AppointmentDetailsView data={openView.data} />
       </CustomDrawer>
-      <CustomDrawer
+      {/* <CustomDrawer
         width={"80vw"}
         open={openTreatmentDrawer.open}
         close={() => setOpenTreatmentDrawer({ open: false, data: null })}
         title="Treatment Details"
       >
         <TeethModel/>
-      </CustomDrawer>
+      </CustomDrawer> */}
     </>
   );
 });

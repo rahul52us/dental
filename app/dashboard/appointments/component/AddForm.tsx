@@ -1,6 +1,7 @@
 "use client";
 import { AddIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
   Card,
   CardBody,
@@ -277,6 +278,7 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
       initialValues={{
         primaryDoctor: "",
         additionalDoctors: [],
+        additionalStaff: [],
         patient: isPatient ? {label : patientDetails?.username , value : patientDetails?._id} : "",
         appointmentDate: parsedDateAndTime.appointmentDate || "",
         startTime: parsedDateAndTime.startTime || "",
@@ -345,7 +347,7 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
                   name="additionalDoctors"
                   placeholder="Select Assisted By"
                   type="real-time-user-search"
-                  label="Assisted By"
+                  label="Assisted By Doctor"
                   isMulti
                   value={values.additionalDoctors}
                   onChange={(val: any) =>
@@ -353,6 +355,20 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
                   }
                   query={{ type: "doctor" }}
                 />
+                <CustomInput
+                  name="additionalStaff"
+                  placeholder="Select Assisted By"
+                  type="real-time-user-search"
+                  label="Assisted By Staff"
+                  isMulti
+                  value={values.additionalStaff}
+                  onChange={(val: any) =>
+                    setFieldValue("additionalStaff", val)
+                  }
+                  query={{ type: "staff" }}
+                />
+              </Flex>
+              <Box w={'50%'} mt={4}>
                 <CustomInput
                   name="chair"
                   placeholder="Select Chair"
@@ -363,10 +379,10 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
                   onChange={(val: any) =>{
                     setFieldValue("chair", val.value)
                   }
-
-                  }
+                  
+                }
                 />
-              </Flex>
+                </Box>
             </SectionCard>
 
             {/* === Appointment Details === */}
@@ -410,7 +426,7 @@ const AddAppointmentForm = observer(({isPatient, patientDetails, close , selecte
 
                 <CustomInput
                   name="title"
-                  label="Title"
+                  label="Appointment Title"
                   type="text"
                   placeholder="Enter appointment title"
                   required

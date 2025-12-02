@@ -12,6 +12,8 @@ import {
 
 import { FaVial } from "react-icons/fa"; // correct icon
 import { GiOfficeChair } from "react-icons/gi";
+import { RiToothLine } from "react-icons/ri";
+import { VscWorkspaceTrusted } from "react-icons/vsc";
 
 interface SidebarItem {
   id: number;
@@ -92,6 +94,25 @@ const sidebarDatas: SidebarItem[] = [
     icon: <GiOfficeChair />,
     url: "/dashboard/chairs",
     role: ["superAdmin","admin"],
+  },
+  {
+    id: 12,
+    name: "Work Done",
+    icon: <VscWorkspaceTrusted />,
+    url: "work-done",
+    children: [
+      {
+        id: 13,
+        name: "Treatment",
+        icon: <RiToothLine />,
+        url: "/dashboard/work-done/treatment",
+        role: ["superAdmin","admin"],
+      },
+    ]
+    // url: "/dashboard/work-done",
+
+    // url: "/dashboard/chairs",
+    // role: ["superAdmin","admin"],
   },
 ];
 
