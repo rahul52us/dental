@@ -9,6 +9,7 @@ import CustomTable from "../../../../component/config/component/CustomTable/Cust
 import { tablePageLimit } from "../../../../component/config/utils/variable";
 import stores from "../../../../store/stores";
 import ChairsForm from "../ChairsForm/ChairsForm";
+import DeleteChairModal from "./DeleteChairModal";
 
 const ChairsTable = observer(() => {
   const { chairsStore } = stores;
@@ -17,6 +18,9 @@ const ChairsTable = observer(() => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 700);
   const [isDrawerOpen, setIsDrawerOpen] = useState<any>(false);
+
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedChair, setSelectedChair] = useState(null);
 
   // --------------------------------------------
   // Fetch Chairs from API
@@ -70,11 +74,10 @@ const ChairsTable = observer(() => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Flex justify={'center'}>
-
-          <Box bg={dt.chairColor} boxSize={5}  rounded={"full"}>
-            {""}
-          </Box>
+          <Flex justify={"center"}>
+            <Box bg={dt.chairColor} boxSize={5} rounded={"full"}>
+              {""}
+            </Box>
           </Flex>
         ),
       },
@@ -94,6 +97,15 @@ const ChairsTable = observer(() => {
         ),
       props: { row: { textAlign: "center" } },
     },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
   ];
 
   return (
@@ -109,7 +121,13 @@ const ChairsTable = observer(() => {
               function: () => setIsDrawerOpen(true),
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+            deleteKey: {
+              showDeleteButton: true,
+              function: (c: any) => {
+                setSelectedChair(c);
+                setIsDeleteOpen(true); // open confirmation modal
+              },
+            },
           },
           search: {
             show: true,
@@ -144,6 +162,12 @@ const ChairsTable = observer(() => {
           }}
         />
       </CustomDrawer>
+      <DeleteChairModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        data={selectedChair}
+        refresh={fetchChairs}
+      />
     </>
   );
 });

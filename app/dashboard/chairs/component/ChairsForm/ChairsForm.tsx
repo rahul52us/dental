@@ -10,11 +10,11 @@ import {
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import stores from "../../../../store/stores";
 import ChairColorPicker from "../ChairColorPicker/ChairColorPicker";
-import { useState } from "react";
 
 // -------------------------------------------------
 // Validation Schema
@@ -29,7 +29,8 @@ const ChairSchema = Yup.object().shape({
 const ChairsForm = observer(({ isOpen, onClose }: any) => {
   if (!isOpen) return null;
   const { chairsStore } = stores;
-  const setLoading = useState(false)[1];
+ const [loading, setLoading] = useState(false);
+
 
   const initialValues = {
     chairName: "",
@@ -42,41 +43,38 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
     <Formik
       initialValues={initialValues}
       validationSchema={ChairSchema}
-      // -----------------------------
-      // 🔥 SUBMIT WITH API INTEGRATION
-      // -----------------------------
-      onSubmit={async (values, { resetForm }) => {
-        try {
-          setLoading(true);
-          const payload = {
-            ...values,
-          };
+onSubmit={async (values, { resetForm }) => {
+  try {
+    setLoading(true);
 
-          const res: any = await chairsStore.createChair(payload);
-          if (res.status === "success") {
-            stores.auth?.openNotification?.({
-              type: "success",
-              title: "Chair Added",
-              message: "Chair created successfully!",
-            });
-            setLoading(false);
-          } else {
-            stores.auth?.openNotification?.({
-              type: "error",
-              title: "Failed",
-              message: res?.message || "Something went wrong",
-            });
-          }
-          resetForm();
-          onClose();
-        } catch (err: any) {
-          stores.auth?.openNotification?.({
-            type: "error",
-            title: "Failed",
-            message: err?.message || "Something went wrong",
-          });
-        }
-      }}
+    const res: any = await chairsStore.createChair(values);
+
+    if (res.status === "success") {
+      stores.auth?.openNotification?.({
+        type: "success",
+        title: "Chair Added",
+        message: "Chair created successfully!",
+      });
+      resetForm();
+      onClose();
+    } else {
+      stores.auth?.openNotification?.({
+        type: "error",
+        title: "Failed",
+        message: res?.message || "Something went wrong",
+      });
+    }
+  } catch (err: any) {
+    stores.auth?.openNotification?.({
+      type: "error",
+      title: "Failed",
+      message: err?.message || "Something went wrong",
+    });
+  } finally {
+    setLoading(false);   // 👉 Always stop loading
+  }
+}}
+
     >
       {({
         values,
@@ -106,26 +104,6 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
                   error={errors.chairName}
                   showError={touched.chairName}
                 />
-
-                {/* <CustomInput
-                  label="Chair Color"
-                  name="chairColor"
-                  type="select"
-                  required
-                  options={[
-                    { label: "black", value: "Black" },
-                    { label: "brown", value: "Brown" },
-                    { label: "blue", value: "Blue" },
-                    { label: "red", value: "Red" },
-                    { label: "green", value: "Green" },
-                    { label: "pink", value: "Pink" },
-                  ]}
-                  value={values.chairColor}
-                  onChange={(val: any) => setFieldValue("chairColor", val)}
-                  error={errors.chairColor}
-                  showError={touched.chairColor}
-                /> */}
-
                 <CustomInput
                   label="Chair Number"
                   name="chairNo"
@@ -177,13 +155,15 @@ const ChairsForm = observer(({ isOpen, onClose }: any) => {
                 Close
               </Button>
 
-              <Button
-                type="submit"
-                colorScheme="teal"
-                _hover={{ bg: "teal.500" }}
-              >
-                Save
-              </Button>
+          <Button
+  type="submit"
+  colorScheme="teal"
+  isLoading={loading}
+  _hover={{ bg: "teal.500" }}
+>
+  Save
+</Button>
+
             </Flex>
           </Flex>
         </FormikForm>

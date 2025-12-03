@@ -85,13 +85,13 @@ getChairs = async (sendData: { limit?: number; page: number; search?: string }) 
   // ------------------------------------------------------------
   // DELETE CHAIR
   // ------------------------------------------------------------
-  deleteChair = async (sendData: any) => {
+  deleteChair = async (id: any) => {
     try {
-      const { data } = await axios.delete(`/chairs/${sendData._id}`);
+      const { data } = await axios.delete(`/chairs/delete/${id}`);
 
       // Remove from local store
       this.chairs.data = this.chairs.data.filter(
-        (item: any) => item._id !== sendData._id
+        (item: any) => item._id !== id
       );
 
       return data;

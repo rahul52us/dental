@@ -396,7 +396,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     textAlign="center"
                     transition="all 0.2s ease-in-out"
                   >
-                    Actions
+                    Add
                   </MenuButton>
                   <MenuList
                     zIndex={15}
