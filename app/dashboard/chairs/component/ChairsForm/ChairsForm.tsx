@@ -15,7 +15,6 @@ import * as Yup from "yup";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import stores from "../../../../store/stores";
 import ChairColorPicker from "../ChairColorPicker/ChairColorPicker";
-
 // -------------------------------------------------
 // Validation Schema
 // -------------------------------------------------
@@ -26,34 +25,34 @@ const ChairSchema = Yup.object().shape({
   chairNo: Yup.string().required("Chair Number is required"),
 });
 
-const ChairsForm = observer(({ isOpen, onClose }: any) => {
+const ChairsForm = observer(({ isOpen, onClose, initialValues, isEdit }: any) => {
+
   if (!isOpen) return null;
   const { chairsStore } = stores;
  const [loading, setLoading] = useState(false);
 
-
-  const initialValues = {
-    chairName: "",
-    chairColor: "",
-    chairDetails: "",
-    chairNo: "",
-  };
-
   return (
     <Formik
-      initialValues={initialValues}
+    enableReinitialize
+initialValues={initialValues}
+      // initialValues={initialValues}
       validationSchema={ChairSchema}
 onSubmit={async (values, { resetForm }) => {
   try {
     setLoading(true);
 
-    const res: any = await chairsStore.createChair(values);
+    // const res: any = await chairsStore.createChair(values);
+    const res: any = isEdit
+   ? await chairsStore.updateChair(values._id, values)
+    : await chairsStore.createChair(values);
 
     if (res.status === "success") {
       stores.auth?.openNotification?.({
         type: "success",
-        title: "Chair Added",
-        message: "Chair created successfully!",
+         title: isEdit ? "Chair Updated" : "Chair Added",
+     message: isEdit ? "Chair updated successfully!" : "Chair created successfully!",
+        // title: "Chair Added",
+        // message: "Chair created successfully!",
       });
       resetForm();
       onClose();
@@ -74,7 +73,6 @@ onSubmit={async (values, { resetForm }) => {
     setLoading(false);   // 👉 Always stop loading
   }
 }}
-
     >
       {({
         values,

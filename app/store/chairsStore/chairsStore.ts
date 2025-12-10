@@ -1,5 +1,5 @@
-import { makeAutoObservable } from "mobx";
 import axios from "axios";
+import { makeAutoObservable } from "mobx";
 import { authStore } from "../authStore/authStore";
 
 class ChairsStore {
@@ -67,20 +67,24 @@ getChairs = async (sendData: { limit?: number; page: number; search?: string }) 
   // ------------------------------------------------------------
   // UPDATE CHAIR
   // ------------------------------------------------------------
-  updateChair = async (id: string, sendData: any) => {
-    try {
-      const { data } = await axios.put(`/chairs/${id}`, sendData);
+updateChair = async (id: string, sendData: any) => {
+  try {
+    const { data } = await axios.put(`/chairs/update/${id}`, sendData);
 
-      // Update item in store array
-      this.chairs.data = this.chairs.data.map((item: any) =>
-        item._id === id ? data.data : item
-      );
-
-      return data;
-    } catch (err: any) {
-      return Promise.reject(err?.response?.data || err);
+    if (!data?.data) {
+      return { status: "error", message: "No updated chair returned" };
     }
-  };
+
+    this.chairs.data = this.chairs.data.map((item: any) =>
+      item._id === id ? data.data : item
+    );
+
+    return data;
+  } catch (err: any) {
+    return Promise.reject(err?.response?.data || err);
+  }
+};
+
 
   // ------------------------------------------------------------
   // DELETE CHAIR

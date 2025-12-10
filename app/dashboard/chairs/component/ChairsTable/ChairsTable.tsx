@@ -17,13 +17,13 @@ const ChairsTable = observer(() => {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 700);
-  const [isDrawerOpen, setIsDrawerOpen] = useState<any>(false);
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState<false | "add" | "edit">(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedChair, setSelectedChair] = useState(null);
+  const [selectedChair, setSelectedChair] = useState<any>(null);
 
   // --------------------------------------------
-  // Fetch Chairs from API
+  // Fetch Chairs
   // --------------------------------------------
   const fetchChairs = useCallback(async () => {
     await chairsStore.getChairs({
@@ -46,7 +46,7 @@ const ChairsTable = observer(() => {
   const totalPages = chairsStore.chairs.totalPages || 1;
 
   // --------------------------------------------
-  // Table Columns
+  // Columns
   // --------------------------------------------
   const ChairColumns = [
     {
@@ -55,14 +55,13 @@ const ChairsTable = observer(() => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Badge colorScheme="cyan" size={"lg"} px={2} py={1} rounded={"full"}>
-            {dt.chairNo}
+          <Badge colorScheme="cyan" size="lg" px={2} py={1} rounded="full">
+            {dt?.chairNo}
           </Badge>
         ),
       },
       props: { row: { textAlign: "center" } },
     },
-
     {
       headerName: "Chair Name",
       key: "chairName",
@@ -74,10 +73,8 @@ const ChairsTable = observer(() => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Flex justify={"center"}>
-            <Box bg={dt.chairColor} boxSize={5} rounded={"full"}>
-              {""}
-            </Box>
+          <Flex justify="center">
+            <Box bg={dt?.chairColor} boxSize={5} rounded="full" />
           </Flex>
         ),
       },
@@ -88,9 +85,9 @@ const ChairsTable = observer(() => {
       key: "chairDetails",
       type: "tooltip",
       function: (c: any) =>
-        c.chairDetails ? (
-          <Tooltip label={c.chairDetails} hasArrow zIndex={9999}>
-            <span>{c.chairDetails.slice(0, 40)}...</span>
+        c?.chairDetails ? (
+          <Tooltip label={c?.chairDetails} hasArrow zIndex={9999}>
+            <span>{c?.chairDetails.slice(0, 40)}...</span>
           </Tooltip>
         ) : (
           "-"
@@ -118,27 +115,41 @@ const ChairsTable = observer(() => {
           actionBtn: {
             addKey: {
               showAddButton: true,
-              function: () => setIsDrawerOpen(true),
+              function: () => {
+                setSelectedChair(null);
+                setIsDrawerOpen("add");
+              },
             },
-            editKey: { showEditButton: false },
+
+            editKey: {
+              showEditButton: true,
+              function: (c: any) => {
+                setSelectedChair(c);
+                setIsDrawerOpen("edit");
+              },
+            },
+
             deleteKey: {
               showDeleteButton: true,
               function: (c: any) => {
                 setSelectedChair(c);
-                setIsDeleteOpen(true); // open confirmation modal
+                setIsDeleteOpen(true);
               },
             },
           },
+
           search: {
-            show: true,
+            show: false,
             searchValue: search,
             onSearchChange: (e: any) => setSearch(e.target.value),
           },
+
           resetData: {
             show: true,
             text: "Reset Data",
             function: resetTable,
           },
+
           pagination: {
             show: true,
             currentPage,
@@ -149,19 +160,31 @@ const ChairsTable = observer(() => {
         loading={chairsStore.chairs.loading}
       />
 
+      {/* Drawer */}
       <CustomDrawer
-        open={isDrawerOpen}
+        open={!!isDrawerOpen}
         close={() => setIsDrawerOpen(false)}
-        title="Add Chair"
+        title={selectedChair ? "Update Chair" : "Add Chair"}
       >
         <ChairsForm
-          isOpen={isDrawerOpen}
+          isOpen={!!isDrawerOpen}
+          isEdit={!!selectedChair}
+          initialValues={
+            selectedChair || {
+              chairName: "",
+              chairColor: "",
+              chairDetails: "",
+              chairNo: "",
+            }
+          }
           onClose={() => {
             setIsDrawerOpen(false);
-            fetchChairs(); // Refresh after add
+            fetchChairs();
           }}
         />
       </CustomDrawer>
+
+      {/* Delete Modal */}
       <DeleteChairModal
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
