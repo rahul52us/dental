@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -9,130 +9,145 @@ import moment from "moment";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import AddForm from "../component/AddForm";
 import EditForm from "../component/EditForm";
+import stores from "../../../store/stores";
+
+
+// ⭐ Convert operating hours → FullCalendar businessHours
+const convertOperatingHoursToBusinessHours = (hours: any[]) => {
+  return hours
+    .filter((d) => d.isOpen)
+    .map((d) => {
+      const dayIndex = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(d.day);
+      return d.slots.map((slot) => ({
+        daysOfWeek: [dayIndex],
+        startTime: slot.start,
+        endTime: slot.end
+      }));
+    })
+    .flat();
+};
+
+// ⭐ Compute min/max times for the weekly view UI
+const computeMinMaxTimes = (allowed: any[]) => {
+  let all = allowed.map((s) => s.startTime).concat(allowed.map((s) => s.endTime));
+  all = all.filter(Boolean).sort();
+  return {
+    min: all[0] || "06:00",
+    max: all[all.length - 1] || "23:59"
+  };
+};
 
 const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAllRecords, appointments }: any) => {
+  const {auth : {user}} = stores
   const [selectedDateTime, setSelectedDateTime] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  // ⭐ VIBRANT COLOR PALETTE FOR DIFFERENT APPOINTMENTS
+  // ⭐ Prepare slots
+  const allowedSlots = useMemo(() => convertOperatingHoursToBusinessHours(user?.companyDetails?.operatingHours || []), []);
+  const { min, max } = useMemo(() => computeMinMaxTimes(allowedSlots), [allowedSlots]);
+
+  // ⭐ COLORFUL EVENTS
   const appointmentColors = [
-    { bg: "#3B82F6", border: "#2563EB", text: "#FFFFFF" }, // Blue
-    { bg: "#8B5CF6", border: "#7C3AED", text: "#FFFFFF" }, // Purple
-    { bg: "#EC4899", border: "#DB2777", text: "#FFFFFF" }, // Pink
-    { bg: "#F59E0B", border: "#D97706", text: "#FFFFFF" }, // Amber
-    { bg: "#10B981", border: "#059669", text: "#FFFFFF" }, // Emerald
-    { bg: "#06B6D4", border: "#0891B2", text: "#FFFFFF" }, // Cyan
-    { bg: "#EF4444", border: "#DC2626", text: "#FFFFFF" }, // Red
-    { bg: "#6366F1", border: "#4F46E5", text: "#FFFFFF" }, // Indigo
-    { bg: "#14B8A6", border: "#0D9488", text: "#FFFFFF" }, // Teal
-    { bg: "#F97316", border: "#EA580C", text: "#FFFFFF" }, // Orange
+    { bg: "#3B82F6", border: "#2563EB", text: "#FFFFFF" },
+    { bg: "#8B5CF6", border: "#7C3AED", text: "#FFFFFF" },
+    { bg: "#EC4899", border: "#DB2777", text: "#FFFFFF" },
+    { bg: "#F59E0B", border: "#D97706", text: "#FFFFFF" },
+    { bg: "#10B981", border: "#059669", text: "#FFFFFF" },
+    { bg: "#06B6D4", border: "#0891B2", text: "#FFFFFF" },
+    { bg: "#EF4444", border: "#DC2626", text: "#FFFFFF" },
+    { bg: "#6366F1", border: "#4F46E5", text: "#FFFFFF" },
+    { bg: "#14B8A6", border: "#0D9488", text: "#FFFFFF" },
+    { bg: "#F97316", border: "#EA580C", text: "#FFFFFF" }
   ];
 
-  // ⭐ ASSIGN COLOR BASED ON INDEX (CONSISTENT FOR EACH APPOINTMENT)
-  const getAppointmentColor = (index: number) => {
-    return appointmentColors[index % appointmentColors.length];
-  };
+  const getAppointmentColor = (index: number) => appointmentColors[index % appointmentColors.length];
 
-  // ⭐ COLOR BASED ON STATUS (OPTIONAL - IF YOU WANT STATUS-BASED COLORING)
-  // const getStatusColor = (status: string) => {
-  //   switch (status) {
-  //     case "scheduled": return { bg: "#3182CE", border: "#2C5282", text: "#FFFFFF" };
-  //     case "in-progress": return { bg: "#D69E2E", border: "#B7791F", text: "#FFFFFF" };
-  //     case "completed": return { bg: "#38A169", border: "#2F855A", text: "#FFFFFF" };
-  //     case "cancelled": return { bg: "#E53E3E", border: "#C53030", text: "#FFFFFF" };
-  //     case "rescheduled": return { bg: "#805AD5", border: "#6B46C1", text: "#FFFFFF" };
-  //     case "arrived": return { bg: "#2F855A", border: "#276749", text: "#FFFFFF" };
-  //     default: return { bg: "#A0AEC0", border: "#718096", text: "#FFFFFF" };
-  //   }
-  // };
-
-  const formatDateOnly = (isoDate: string) => {
-    return moment(isoDate).format("YYYY-MM-DD");
-  };
+  const formatDateOnly = (isoDate: string) => moment(isoDate).format("YYYY-MM-DD");
 
   const bookedEvents = appointments?.data?.map((item: any, index: number) => {
     const date = formatDateOnly(item.appointmentDate);
-
-    // Choose color strategy: by index for variety, or by status
-    const colors = getAppointmentColor(index); // Change to getStatusColor(item.status) if preferred
-
+    const colors = getAppointmentColor(index);
     return {
       id: item?._id,
       title: item?.patientName || "Booked",
       start: `${date}T${item?.startTime}`,
       end: `${date}T${item?.endTime}`,
-      backgroundColor: colors.bg,
-      borderColor: colors.border,
+      backgroundColor: item?.chair?.chairColor || colors.bg,
+      borderColor: item?.chair?.chairColor || colors.border,
       textColor: colors.text,
-      display: "block", // Makes event fill the slot completely
-      extendedProps: item,
+      display: "block",
+      extendedProps: item
     };
   }) || [];
 
-  // ⭐ WHEN USER SELECTS A NEW DATE SLOT
-  const handleDateSelect = (info: any) => {
-    setSelectedDateTime({
-      start: info.start,
-      end: info.end,
+  // ⭐ BLOCK selecting outside allowed slots
+  const selectAllow = (selectInfo: any) => {
+    const start = moment(selectInfo.start);
+    const end = moment(selectInfo.end);
+
+    const isInsideSlot = allowedSlots.some((slot) => {
+      return (
+        slot.daysOfWeek.includes(start.day()) &&
+        start.format("HH:mm") >= slot.startTime &&
+        end.format("HH:mm") <= slot.endTime
+      );
     });
+
+    return isInsideSlot && start.isSameOrAfter(moment());
+  };
+
+  // ⭐ Handle selection
+  const handleDateSelect = (info: any) => {
+    setSelectedDateTime({ start: info.start, end: info.end });
     setOpenDrawer(true);
   };
 
-  // ⭐ FULLCALENDAR OPTIONS
-  const calendarOptions = {
+  // ⭐ FullCalendar options
+  const calendarOptions: any = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: "timeGridWeek",
     headerToolbar: {
       left: "prev,next today",
       center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay",
+      right: "dayGridMonth,timeGridWeek,timeGridDay"
     },
-    initialView: "timeGridWeek",
-    selectable: true,
-    select: handleDateSelect,
-    editable: false,
     height: "80vh",
+    selectable: true,
+    editable: false,
+    selectAllow,
+    businessHours: allowedSlots,
+    slotMinTime: min,
+    slotMaxTime: max,
 
-    // Disable all past dates
-    validRange: { start: moment().startOf("day").toDate() },
-
-    // Again prevent past selection
-    selectAllow: (selectInfo: any) => {
-      return moment(selectInfo.start).isSameOrAfter(moment(), "day");
+    visibleRange() {
+      return {
+        start: moment().startOf("day").format("YYYY-MM-DD"),
+        end: moment().add(1, "year").format("YYYY-MM-DD")
+      };
     },
 
-    // ⭐ SHOW EVENTS ON CALENDAR
+    select: handleDateSelect,
+
     events: bookedEvents,
 
-    // ⭐ EVENT STYLING
-    eventClassNames: "custom-event",
-
-    // ⭐ OPEN DRAWER WHEN CLICK ON EVENT
     eventClick: (info: any) => {
       setSelectedDateTime({
         start: info.event.start,
         end: info.event.end,
-        eventData: info.event.extendedProps,
+        eventData: info.event.extendedProps
       });
       setOpenDrawer(true);
     },
 
-    // ⭐ ENHANCED EVENT DISPLAY
-    eventContent: (arg: any) => {
-      return {
-        html: `
-          <div style="
-            padding: 4px 8px;
-            height: 100%;
-            overflow: hidden;
-            font-weight: 600;
-            font-size: 13px;
-            line-height: 1.4;
-          ">
-            ${arg.event.title}
-          </div>
-        `
-      };
-    },
+    eventContent: (arg: any) => ({
+      html: `
+        <div style="
+          padding: 4px 8px;
+          font-size: 10px;
+          font-weight: 600;
+        ">${arg.event.title}</div>
+      `
+    })
   };
 
   const calendarBg = useColorModeValue("gray.50", "gray.800");
@@ -154,15 +169,12 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
       >
         <Flex align="center" gap={3}>
           <Icon as={FaCalendarAlt} color="blue.500" boxSize={5} />
-          <Heading size="md" color="gray.700">
-            Appointment Calendar
-          </Heading>
+          <Heading size="md" color="gray.700">Appointment Calendar</Heading>
         </Flex>
 
         {selectedDateTime && (
           <Text fontSize="sm" color="gray.500">
-            Selected:{" "}
-            <b>{moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}</b>
+            Selected: <b>{moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}</b>
           </Text>
         )}
       </Flex>
@@ -175,30 +187,6 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
         shadow="md"
         borderWidth="1px"
         borderColor={borderColor}
-        _hover={{ shadow: "lg", transition: "0.2s" }}
-        sx={{
-          // ⭐ CUSTOM CSS FOR BETTER EVENT APPEARANCE
-          ".fc-event": {
-            cursor: "pointer",
-            borderRadius: "4px",
-            border: "2px solid",
-            transition: "all 0.2s ease",
-            opacity: "0.95",
-          },
-          ".fc-event:hover": {
-            opacity: "1",
-            transform: "scale(1.02)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          },
-          ".fc-timegrid-event": {
-            borderRadius: "6px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          },
-          ".fc-daygrid-event": {
-            borderRadius: "4px",
-            padding: "2px 4px",
-          },
-        }}
       >
         <FullCalendar {...calendarOptions} />
       </Box>
@@ -210,9 +198,7 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
         close={() => setOpenDrawer(false)}
         title={
           selectedDateTime
-            ? `Selected: ${moment(selectedDateTime.start).format(
-                "DD MMM YYYY, hh:mm A"
-              )}`
+            ? `Selected: ${moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}`
             : "Select a date & time"
         }
       >
@@ -234,4 +220,4 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
   );
 };
 
-export default AttendanceCalendar
+export default AttendanceCalendar;

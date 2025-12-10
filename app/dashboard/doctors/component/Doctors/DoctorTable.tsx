@@ -222,6 +222,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         columns={TherapistTableColumns}
         actions={{
           actionBtn: {
+            resetData:false,
             addKey: {
               showAddButton: true,
               function: () => {
