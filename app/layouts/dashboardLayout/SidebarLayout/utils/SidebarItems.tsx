@@ -1,13 +1,14 @@
+import { BiCalendarEvent } from "react-icons/bi";
 import {
+  FaCalendarCheck,
   FaChartPie,
-  FaUsers,
-  FaUserMd,
-  FaUserTie,
   FaCog,
   FaListAlt,
   FaNotesMedical,
-  FaCalendarCheck,
-  FaUserAstronaut
+  FaUserAstronaut,
+  FaUserMd,
+  FaUsers,
+  FaUserTie
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
@@ -96,6 +97,13 @@ const sidebarDatas: SidebarItem[] = [
     role: ["superAdmin","admin"],
   },
   {
+    id: 11,
+    name: "Daily Report",
+    icon: <BiCalendarEvent />,
+    url: "/dashboard/daily-report",
+    role: ["superAdmin","admin"],
+  },
+  {
     id: 12,
     name: "Work Done",
     icon: <VscWorkspaceTrusted />,
@@ -139,4 +147,5 @@ const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
 };
 
 
-export { sidebarDatas, getSidebarDataByRole };
+export { getSidebarDataByRole, sidebarDatas };
+
