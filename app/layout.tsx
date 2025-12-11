@@ -17,7 +17,7 @@ import { getMetadataForPath, PageMetadata } from './metadata';
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
-  const { companyStore: { getCompanyDetails } } = stores;
+  const { companyStore: { getCompanyDetails } , auth : {user}} = stores;
   const pathname = usePathname();
   const [metadata, setMetadata] = useState<PageMetadata>({
     title: 'Dental',
@@ -26,8 +26,11 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    getCompanyDetails();
-  }, [getCompanyDetails]);
+    if(user)
+    {
+      getCompanyDetails();
+    }
+  }, [getCompanyDetails, user]);
 
   useEffect(() => {
     if (pathname) {

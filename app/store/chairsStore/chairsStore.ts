@@ -64,6 +64,20 @@ getChairs = async (sendData: { limit?: number; page: number; search?: string }) 
     }
   };
 
+  getChairSummary = async (sendData: any) => {
+    try {
+      const { data } = await axios.post(`/chairs/getChairSummary`, {
+        ...sendData,
+        company: authStore.company,
+      });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+
+
   // ------------------------------------------------------------
   // UPDATE CHAIR
   // ------------------------------------------------------------
@@ -104,7 +118,7 @@ updateChair = async (id: string, sendData: any) => {
     }
   };
 
- 
+
   // ------------------------------------------------------------
   // TOGGLE DRAWER
   // ------------------------------------------------------------
@@ -115,7 +129,7 @@ updateChair = async (id: string, sendData: any) => {
   // ------------------------------------------------------------
   // TOGGLE LAYOUT (Table/Grid)
   // ------------------------------------------------------------
-  
+
 }
 
 export const chairsStore = new ChairsStore();

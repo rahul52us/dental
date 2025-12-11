@@ -3,13 +3,14 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Box, Flex, Heading, Text, Icon, useColorModeValue } from "@chakra-ui/react";
-import { FaCalendarAlt } from "react-icons/fa";
+import { Box, Flex, Heading, Text, Icon, useColorModeValue, Tooltip, IconButton } from "@chakra-ui/react";
+import { FaCalendarAlt, FaFileAlt } from "react-icons/fa";
 import moment from "moment";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import AddForm from "../component/AddForm";
 import EditForm from "../component/EditForm";
 import stores from "../../../store/stores";
+import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
 
 
 // ⭐ Convert operating hours → FullCalendar businessHours
@@ -41,7 +42,7 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
   const {auth : {user}} = stores
   const [selectedDateTime, setSelectedDateTime] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
-
+  const [reportDrawer, setReportDrawer] = useState(false)
   // ⭐ Prepare slots
   const allowedSlots = useMemo(() => convertOperatingHoursToBusinessHours(user?.companyDetails?.operatingHours || []), []);
   const { min, max } = useMemo(() => computeMinMaxTimes(allowedSlots), [allowedSlots]);
@@ -172,11 +173,35 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
           <Heading size="md" color="gray.700">Appointment Calendar</Heading>
         </Flex>
 
-        {selectedDateTime && (
+
+
+        <Flex align="center" gap={3}>
+          {selectedDateTime && (
           <Text fontSize="sm" color="gray.500">
             Selected: <b>{moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}</b>
           </Text>
         )}
+  <Tooltip label="Open Report" placement="bottom">
+    <IconButton
+      aria-label="Open Report"
+      icon={<FaFileAlt size="22px" />}
+      size="lg"
+      variant="solid"
+      colorScheme="blue"
+      borderRadius="full"
+      boxShadow="md"
+      _hover={{
+        transform: "scale(1.1)",
+        boxShadow: "lg"
+      }}
+      onClick={() => setReportDrawer(true)}
+    />
+  </Tooltip>
+  <Text fontSize="sm" color="gray.600" fontWeight="medium">
+    Report
+  </Text>
+</Flex>
+
       </Flex>
 
       {/* Calendar */}
@@ -215,6 +240,15 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
             <EditForm />
           )}
         </Box>
+      </CustomDrawer>
+
+      <CustomDrawer
+        width={"88vw"}
+        open={reportDrawer}
+        close={() => setReportDrawer(false)}
+        title="Reports"
+      >
+        <DentistScheduler  />
       </CustomDrawer>
     </>
   );

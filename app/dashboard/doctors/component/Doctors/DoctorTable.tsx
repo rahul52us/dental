@@ -184,18 +184,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Created At",
-      key: "createdAt",
-      type: "component",
-      metaData: {
-        component: (dt: any) => <Box m={1}>{formatDate(dt?.createdAt)}</Box>,
-      },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",

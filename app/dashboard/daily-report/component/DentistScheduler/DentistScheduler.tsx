@@ -1,15 +1,29 @@
 import { RepeatClockIcon } from "@chakra-ui/icons";
 import {
-    Box,
-    Flex,
-    Grid,
-    IconButton,
-    Text,
-    useColorModeValue
+  Box,
+  Flex,
+  Grid,
+  IconButton,
+  Text,
+  useColorModeValue,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
-import { CHAIRS, CLOSING_HOUR, INITIAL_APPOINTMENTS, OPENING_HOUR, SLOT_DURATION } from "../../utils/constant";
+import { useEffect, useMemo, useState } from "react";
+import {
+  CLOSING_HOUR,
+  OPENING_HOUR,
+  SLOT_DURATION,
+} from "../../utils/constant";
+import stores from "../../../../store/stores";
 
+// Helper: Convert "HH:MM" to minutes
+const toMinutes = (time: string) => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+};
+
+// Generate time slots
 const generateTimeSlots = () => {
   const slots: string[] = [];
   const currentTime = new Date();
@@ -31,88 +45,82 @@ const generateTimeSlots = () => {
   return slots;
 };
 
-// --- Subcomponents ---
-
-const AppointmentCard = ({ appointment, chair }: any) => {
+// Appointment Card - Clean & Professional
+const AppointmentCard = ({
+  appointment,
+  chairColor,
+  overlapIndex = 0,
+  totalOverlaps = 1,
+}: {
+  appointment: any;
+  chairColor: string;
+  overlapIndex?: number;
+  totalOverlaps?: number;
+}) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
-  const heightStyle = {
-    height: `calc(${heightMultiplier * 100}% + ${heightMultiplier - 1}px)`,
-    zIndex: 10,
-  };
+  const heightStyle = `calc(${heightMultiplier * 100}% + ${heightMultiplier - 1}px)`;
 
-//   const statusColors: Record<string, { bg: string; color: string }> = {
-//     Scheduled: { bg: "blue.100", color: "blue.800" },
-//     "In Progress": { bg: "green.100", color: "green.800" },
-//     Completed: { bg: "gray.100", color: "gray.600" },
-//     Cancelled: { bg: "red.100", color: "red.800" },
-//   };
+  const widthPercent = totalOverlaps > 1 ? 92 / totalOverlaps : 96;
+  const leftOffset = overlapIndex * (96 / totalOverlaps);
 
-//   const status = appointment.status || "Scheduled";
-//   const statusColor = statusColors[status] || statusColors["Scheduled"];
+  const bg = `${chairColor}22`;
+  const hoverBg = `${chairColor}44`;
 
   return (
     <Box
       position="absolute"
       top={0}
-      left={0}
-      right={0}
-      m={1}
-      p={3}
-      borderLeftWidth="4px"
+      left={`${leftOffset}%`}
+      width={`${widthPercent}%`}
+      height={heightStyle}
+      m="3px"
+      p={2.5}
+      borderLeftWidth="6px"
       borderRadius="lg"
-      boxShadow="sm"
+      boxShadow="md"
       cursor="pointer"
       overflow="hidden"
-      transition="all 0.2s"
-      _hover={{ boxShadow: "md" }}
-      bg={chair.bg}
-      borderColor={chair.border}
-      style={heightStyle}
+      bg={bg}
+      borderColor={chairColor}
+      zIndex={10 + overlapIndex}
+      transition="all 0.25s ease"
+      _hover={{
+        bg: hoverBg,
+        boxShadow: "xl",
+        transform: "translateY(-2px)",
+        zIndex: 50,
+      }}
     >
-      <Flex justify="space-between" align="flex-start">
-        <Box>
-          <Text fontWeight="bold" fontSize="sm" color="gray.800" noOfLines={1}>
-            {appointment.patientName}
+      <Text fontWeight="bold" fontSize="sm" color="gray.800" noOfLines={1}>
+        {appointment.patientName}
+        {appointment.primaryDoctor && appointment.primaryDoctor !== "Unknown" && (
+          <Text as="span" fontWeight="medium" color="gray.600" fontSize="xs" ml={1}>
+            ({appointment.primaryDoctor})
           </Text>
-          <Text
-            fontSize="xs"
-            fontWeight="medium"
-            mt={1}
-            color={chair.text}
-            noOfLines={1}
-          >
-            {appointment.treatment}
-          </Text>
-        </Box>
-        {/* <Box
-          as="span"
-          fontSize="9px"
-          px={2}
-          py={0.5}
-          borderRadius="full"
-          fontWeight="bold"
-          textTransform="uppercase"
-          letterSpacing="wide"
-          bg={statusColor.bg}
-          color={statusColor.color}
-        >
-          {status === "In Progress" ? "Active" : status}
-        </Box> */}
-      </Flex>
+        )}
+      </Text>
+
+      <Text fontSize="xs" color="gray.700" fontWeight="medium" noOfLines={1} mt={1}>
+        {appointment.treatment || "Consultation"}
+      </Text>
 
       {appointment.duration >= 60 && (
-        <Box mt={2} fontSize="xs" color="gray.500" noOfLines={3}>
-          <Flex align="center" gap={1} mb={1}>
-            <RepeatClockIcon  />
-            <Text as="span">{appointment.duration} min</Text>
-          </Flex>
+        <Flex align="center" gap={1} mt={1.5} fontSize="xs" color="gray.600">
+          <RepeatClockIcon boxSize={3.5} />
+          <Text fontWeight="medium">{appointment.duration} min</Text>
+        </Flex>
+      )}
+
+      {appointment.notes && (
+        <Text fontSize="xs" color="gray.600" mt={1} noOfLines={2} opacity={0.9}>
           {appointment.notes}
-        </Box>
+        </Text>
       )}
     </Box>
   );
 };
 
+// Main Grid - Beautiful Header Design
 const ScheduleGrid = ({
   timeSlots,
   chairs,
@@ -122,129 +130,130 @@ const ScheduleGrid = ({
   chairs: any[];
   appointments: any[];
 }) => {
-  const tableBg = useColorModeValue("white", "gray.900");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const headerBg = useColorModeValue("white", "gray.900");
-  const timeColBg = useColorModeValue("gray.50", "gray.800");
+  const bg = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("gray.50", "gray.900");
+  const timeHeaderBg = useColorModeValue("gray.100", "gray.700");
+  const borderColor = useColorModeValue("gray.300", "gray.600");
 
-  const getAppointmentStartingAt = (time: string, chairId: string) => {
-    return appointments.find(
+  const getAppointmentsStartingAt = (time: string, chairId: string) => {
+    return appointments.filter(
       (apt) => apt.startTime === time && apt.chairId === chairId
     );
   };
 
   const isSlotOccupied = (time: string, chairId: string) => {
-    const [h, m] = time.split(":").map(Number);
-    const slotMinutes = h * 60 + m;
-
+    const slotMinutes = toMinutes(time);
     return appointments.some((apt) => {
       if (apt.chairId !== chairId) return false;
-      const [ah, am] = apt.startTime.split(":").map(Number);
-      const aptStartMinutes = ah * 60 + am;
-      const aptEndMinutes = aptStartMinutes + apt.duration;
-
-      return slotMinutes > aptStartMinutes && slotMinutes < aptEndMinutes;
+      const start = toMinutes(apt.startTime);
+      const end = start + apt.duration;
+      return slotMinutes >= start && slotMinutes < end;
     });
   };
 
   return (
-    <Box flex="1"  px={6} pb={6}>
+    <Box flex="1" px={6} pb={6} overflowX="auto">
       <Box
-        bg={tableBg}
-        borderRadius="xl"
-        boxShadow="sm"
+        bg={bg}
+        borderRadius="2xl"
+        boxShadow="2xl"
         borderWidth="1px"
         borderColor={borderColor}
-        minW="800px"
+        overflow="hidden"
       >
-        {/* Header row - Chairs */}
+        {/* Header Row - Chair Names with Color Indicators */}
         <Grid
-          templateColumns="80px repeat(4, 1fr)"
-          borderBottomWidth="1px"
+          templateColumns={`100px repeat(${chairs.length}, 1fr)`}
+          bg={headerBg}
+          borderBottomWidth="2px"
           borderColor={borderColor}
           position="sticky"
           top={0}
-          zIndex={20}
-          bg={headerBg}
+          zIndex={30}
         >
-          <Flex
-            p={4}
-            borderRightWidth="1px"
-            borderColor="gray.100"
-            bg={timeColBg}
-            align="center"
-            justify="center"
+          {/* Time Header Corner */}
+          <Box
+            p={5}
+            bg={timeHeaderBg}
+            borderRightWidth="2px"
+            borderColor={borderColor}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
           >
-            <RepeatClockIcon  color="#9ca3af" />
-          </Flex>
+            <RepeatClockIcon boxSize={6} color="gray.500" />
+          </Box>
 
+          {/* Chair Headers */}
           {chairs.map((chair) => (
             <Box
               key={chair.id}
               p={4}
+              textAlign="center"
               borderRightWidth="1px"
-              borderColor="gray.100"
+              borderColor={borderColor}
               _last={{ borderRightWidth: 0 }}
             >
-              <Flex align="center" gap={2} mb={1}>
-                {/* <Box as="span" fontSize="xl">
-                  {chair.icon}
-                </Box> */}
-                <Text fontWeight="bold" color="gray.800">
+              <Flex direction="column" align="center" gap={2}>
+                <Box
+                  w={12}
+                  h={12}
+                  borderRadius="full"
+                  bg={chair.color}
+                  borderWidth="3px"
+                  borderColor={chair.color}
+                />
+                <Text fontWeight="extrabold" fontSize="lg" color="gray.800">
                   {chair.name}
                 </Text>
+                <Text fontSize="sm" color="gray.600" fontWeight="medium">
+                  Chair {chair.chairNo}
+                </Text>
               </Flex>
-         
             </Box>
           ))}
         </Grid>
 
-        {/* Body rows - Time slots */}
-        <Box position="relative">
+        {/* Time Rows */}
+        <Box>
           {timeSlots.map((time) => (
             <Grid
               key={time}
-              templateColumns="80px repeat(4, 1fr)"
-              role="row"
+              templateColumns={`100px repeat(${chairs.length}, 1fr)`}
+              _hover={{ bg: useColorModeValue("gray.50", "gray.700") }}
+              transition="background 0.2s"
             >
-              {/* Time Column */}
+              {/* Time Label */}
               <Box
                 py={4}
-                borderRightWidth="1px"
-                borderColor="gray.100"
+                px={3}
+                borderRightWidth="2px"
+                borderBottomWidth="1px"
+                borderColor={borderColor}
                 textAlign="center"
-                fontSize="xs"
-                fontWeight="semibold"
-                color="gray.500"
+                fontWeight="bold"
+                fontSize="md"
+                color="gray.700"
+                bg={timeHeaderBg}
                 position="relative"
-                bg={timeColBg}
               >
-                <Box
-                  position="relative"
-                  top="-12px"
-                  display="inline-block"
-                  bg={headerBg}
-                  px={1}
-                  zIndex={10}
-                  borderRadius="sm"
+                <Text
+                  bg={bg}
+                  px={3}
+                  py={1}
+                  borderRadius="full"
+                  boxShadow="sm"
+                  minW="60px"
                 >
                   {time}
-                </Box>
-                <Box
-                  position="absolute"
-                  top={0}
-                  right={0}
-                  w="100%"
-                  h="1px"
-                  bg="gray.100"
-                  transform="translateY(-50%)"
-                />
+                </Text>
               </Box>
 
-              {/* Chair Columns for this time */}
+              {/* Chair Cells */}
               {chairs.map((chair) => {
-                const appointment = getAppointmentStartingAt(time, chair.id);
+                const startingAppointments = getAppointmentsStartingAt(time, chair.id);
                 const occupied = isSlotOccupied(time, chair.id);
+                const hasConflict = startingAppointments.length > 1;
 
                 return (
                   <Box
@@ -252,45 +261,72 @@ const ScheduleGrid = ({
                     position="relative"
                     borderRightWidth="1px"
                     borderBottomWidth="1px"
-                    borderColor="gray.100"
-                    minH="60px"
+                    borderColor={borderColor}
+                    minH="70px"
                     _last={{ borderRightWidth: 0 }}
                     role="group"
-                    _hover={
-                      !appointment && !occupied
-                        ? { bg: "gray.50" }
-                        : undefined
-                    }
+                    bg={hasConflict ? "red.50" : undefined}
                   >
-                    {/* Appointment starting in this slot */}
-                    {appointment && (
-                      <AppointmentCard
-                        appointment={appointment}
-                        chair={chair}
-                      />
+                    {/* Conflict Warning on Hover */}
+                    {hasConflict && (
+                      <Box
+                        position="absolute"
+                        inset={0}
+                        bg="red.600"
+                        opacity={0}
+                        _groupHover={{ opacity: 0.9 }}
+                        transition="opacity 0.3s"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        zIndex={40}
+                        borderRadius="lg"
+                        m={2}
+                        pointerEvents="none"
+                      >
+                        <Text
+                          fontWeight="bold"
+                          color="white"
+                          fontSize="md"
+                          textShadow="0 1px 4px rgba(0,0,0,0.6)"
+                        >
+                          ⚠️ CONFLICT ({startingAppointments.length})
+                        </Text>
+                      </Box>
                     )}
 
-                    {/* Add button for empty slot */}
-                    {!appointment && !occupied && (
+                    {/* Appointments */}
+                    {startingAppointments.map((apt: any, index: number) => (
+                      <AppointmentCard
+                        key={apt.id}
+                        appointment={apt}
+                        chairColor={chair.color}
+                        overlapIndex={index}
+                        totalOverlaps={startingAppointments.length}
+                      />
+                    ))}
+
+                    {/* Add Button */}
+                    {!occupied && (
                       <Flex
                         position="absolute"
                         inset={0}
-                        opacity={0}
                         align="center"
                         justify="center"
-                        transition="opacity 0.2s"
+                        opacity={0}
                         _groupHover={{ opacity: 1 }}
-                        zIndex={0}
+                        transition="opacity 0.3s"
+                        zIndex={5}
                       >
                         <IconButton
-                          aria-label="Add booking"
-                        //   icon={<Plus size={16} />}
-                          size="sm"
+                          aria-label="Add appointment"
+                          size="lg"
                           borderRadius="full"
-                          bg="blue.50"
-                          color="blue.600"
-                          _hover={{ bg: "blue.600", color: "white" }}
-                          boxShadow="sm"
+                          bg="blue.500"
+                          color="white"
+                          icon={<Text fontSize="2xl">+</Text>}
+                          _hover={{ bg: "blue.600", transform: "scale(1.1)" }}
+                          boxShadow="lg"
                         />
                       </Flex>
                     )}
@@ -305,11 +341,69 @@ const ScheduleGrid = ({
   );
 };
 
-// --- Main Component ---
-
+// Main Component (unchanged logic)
 export default function DentistScheduler() {
+  const { chairsStore: { getChairSummary } } = stores;
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [chairs, setChairs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const res = await getChairSummary({});
+
+        if (res?.status === "success" && res?.data) {
+          const allAppointments: any[] = [];
+          const chairList: any[] = [];
+
+          res.data.forEach((chair: any) => {
+            chairList.push({
+              id: chair._id,
+              name: chair.chairName,
+              chairNo: chair.chairNo,
+              color: chair.chairColor,
+            });
+
+            chair.appointments.forEach((apt: any) => {
+              const duration = toMinutes(apt.endTime) - toMinutes(apt.startTime);
+
+              allAppointments.push({
+                id: apt._id,
+                patientName: apt.patient?.name || "Unknown",
+                primaryDoctor: apt.primaryDoctor?.name || "Unknown",
+                treatment: apt.title || "",
+                startTime: apt.startTime,
+                duration,
+                chairId: chair._id,
+                notes: apt.description || "",
+              });
+            });
+          });
+
+          setChairs(chairList);
+          setAppointments(allAppointments);
+        }
+      } catch (err) {
+        console.error("Error fetching appointments", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, [getChairSummary]);
+
+  if (loading) {
+    return (
+      <Center h="100vh" bg="gray.50">
+        <Spinner size="xl" color="blue.500" thickness="4px" />
+      </Center>
+    );
+  }
 
   return (
     <Box
@@ -320,19 +414,11 @@ export default function DentistScheduler() {
       fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
       color="gray.800"
     >
-      {/* <SchedulerHeader
-        formattedDate={formattedDate}
-        onPrevDay={handlePrevDay}
-        onNextDay={handleNextDay}
-      /> */}
-
-      <Box as="main" flex="1"  display="flex" flexDir="column">
-        {/* <KPISection /> */}
-
+      <Box as="main" flex="1" display="flex" flexDir="column">
         <ScheduleGrid
           timeSlots={timeSlots}
-          chairs={CHAIRS}
-          appointments={INITIAL_APPOINTMENTS}
+          chairs={chairs}
+          appointments={appointments}
         />
       </Box>
     </Box>
