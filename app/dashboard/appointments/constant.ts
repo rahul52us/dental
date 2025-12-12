@@ -1,9 +1,9 @@
 export const appointStatus = [
   { label: "Scheduled", value: "scheduled" },
-  { label: "In Progress", value: "in-progress" },
-  { label: "Completed", value: "completed" },
   { label: "Cancelled", value: "cancelled" },
-  { label: "Rescheduled", value: "rescheduled" },
-  { label: "No Show", value: "no-show" },
+  { label: "Completed", value: "completed" },
   { label: "Arrived", value: "arrived" },
+  { label: "In Progress", value: "in-progress" },
+  { label: "No Show", value: "no-show" },
+  { label: "Rescheduled", value: "rescheduled" },
 ];

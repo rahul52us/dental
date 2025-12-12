@@ -276,7 +276,6 @@ const AddAppointmentForm = observer(
       label: item.chairName,
     }));
 
-
     // console.log('chairsData----------',chairsData)
 
     return (
