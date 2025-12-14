@@ -10,11 +10,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  CLOSING_HOUR,
-  OPENING_HOUR,
-  SLOT_DURATION,
-} from "../../utils/constant";
+import { SLOT_DURATION } from "../../utils/constant";
 import stores from "../../../../store/stores";
 
 // Helper: Convert "HH:MM" to minutes
@@ -24,22 +20,36 @@ const toMinutes = (time: string) => {
 };
 
 // Generate time slots
-const generateTimeSlots = () => {
-  const slots: string[] = [];
-  const currentTime = new Date();
-  currentTime.setHours(OPENING_HOUR, 0, 0, 0);
+const generateTimeSlots = (appointments: any[]) => {
+  let startMinutes = 0;
+  let endMinutes = 24 * 60;
 
-  const endTime = new Date();
-  endTime.setHours(CLOSING_HOUR, 0, 0, 0);
+  if (appointments.length) {
+    let min = Infinity;
+    let max = -Infinity;
 
-  while (currentTime < endTime) {
-    const timeString = currentTime.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
+    appointments.forEach((apt) => {
+      const start = toMinutes(apt.startTime);
+      const end = start + apt.duration;
+      min = Math.min(min, start);
+      max = Math.max(max, end);
     });
-    slots.push(timeString);
-    currentTime.setMinutes(currentTime.getMinutes() + SLOT_DURATION);
+
+    // buffer of 1 hour
+    startMinutes = Math.max(0, min - 60);
+    endMinutes = Math.min(24 * 60, max + 60);
+  }
+
+  const slots: string[] = [];
+  let current = startMinutes;
+
+  while (current < endMinutes) {
+    const h = Math.floor(current / 60);
+    const m = current % 60;
+
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+
+    current += SLOT_DURATION;
   }
 
   return slots;
@@ -51,14 +61,18 @@ const AppointmentCard = ({
   chairColor,
   overlapIndex = 0,
   totalOverlaps = 1,
+  handleTimeSlots,
 }: {
   appointment: any;
   chairColor: string;
   overlapIndex?: number;
   totalOverlaps?: number;
+  handleTimeSlots?: any;
 }) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
-  const heightStyle = `calc(${heightMultiplier * 100}% + ${heightMultiplier - 1}px)`;
+  const heightStyle = `calc(${heightMultiplier * 100}% + ${
+    heightMultiplier - 1
+  }px)`;
 
   const widthPercent = totalOverlaps > 1 ? 92 / totalOverlaps : 96;
   const leftOffset = overlapIndex * (96 / totalOverlaps);
@@ -93,14 +107,27 @@ const AppointmentCard = ({
     >
       <Text fontWeight="bold" fontSize="sm" color="gray.800" noOfLines={1}>
         {appointment.patientName}
-        {appointment.primaryDoctor && appointment.primaryDoctor !== "Unknown" && (
-          <Text as="span" fontWeight="medium" color="gray.600" fontSize="xs" ml={1}>
-            ({appointment.primaryDoctor})
-          </Text>
-        )}
+        {appointment.primaryDoctor &&
+          appointment.primaryDoctor !== "Unknown" && (
+            <Text
+              as="span"
+              fontWeight="medium"
+              color="gray.600"
+              fontSize="xs"
+              ml={1}
+            >
+              ({appointment.primaryDoctor})
+            </Text>
+          )}
       </Text>
 
-      <Text fontSize="xs" color="gray.700" fontWeight="medium" noOfLines={1} mt={1}>
+      <Text
+        fontSize="xs"
+        color="gray.700"
+        fontWeight="medium"
+        noOfLines={1}
+        mt={1}
+      >
         {appointment.treatment || "Consultation"}
       </Text>
 
@@ -125,10 +152,12 @@ const ScheduleGrid = ({
   timeSlots,
   chairs,
   appointments,
+  handleTimeSlots,
 }: {
   timeSlots: string[];
   chairs: any[];
   appointments: any[];
+  handleTimeSlots?: any;
 }) => {
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
@@ -251,7 +280,10 @@ const ScheduleGrid = ({
 
               {/* Chair Cells */}
               {chairs.map((chair) => {
-                const startingAppointments = getAppointmentsStartingAt(time, chair.id);
+                const startingAppointments = getAppointmentsStartingAt(
+                  time,
+                  chair.id
+                );
                 const occupied = isSlotOccupied(time, chair.id);
                 const hasConflict = startingAppointments.length > 1;
 
@@ -303,6 +335,7 @@ const ScheduleGrid = ({
                         chairColor={chair.color}
                         overlapIndex={index}
                         totalOverlaps={startingAppointments.length}
+                        handleTimeSlots={handleTimeSlots}
                       />
                     ))}
 
@@ -327,6 +360,15 @@ const ScheduleGrid = ({
                           icon={<Text fontSize="2xl">+</Text>}
                           _hover={{ bg: "blue.600", transform: "scale(1.1)" }}
                           boxShadow="lg"
+                          onClick={() => {
+                            if (handleTimeSlots) {
+                              handleTimeSlots({
+                                open: true,
+                                time: time,
+                                chair: chair,
+                              });
+                            }
+                          }}
                         />
                       </Flex>
                     )}
@@ -342,13 +384,15 @@ const ScheduleGrid = ({
 };
 
 // Main Component (unchanged logic)
-export default function DentistScheduler() {
-  const { chairsStore: { getChairSummary } } = stores;
+export default function DentistScheduler({ handleTimeSlots }: any) {
+  const {
+    chairsStore: { getChairSummary },
+  } = stores;
   const [appointments, setAppointments] = useState<any[]>([]);
   const [chairs, setChairs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const timeSlots = useMemo(() => generateTimeSlots(), []);
+  const timeSlots = useMemo(() => generateTimeSlots(appointments), []);
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -369,7 +413,8 @@ export default function DentistScheduler() {
             });
 
             chair.appointments.forEach((apt: any) => {
-              const duration = toMinutes(apt.endTime) - toMinutes(apt.startTime);
+              const duration =
+                toMinutes(apt.endTime) - toMinutes(apt.startTime);
 
               allAppointments.push({
                 id: apt._id,
@@ -418,6 +463,7 @@ export default function DentistScheduler() {
         <ScheduleGrid
           timeSlots={timeSlots}
           chairs={chairs}
+          handleTimeSlots={handleTimeSlots}
           appointments={appointments}
         />
       </Box>

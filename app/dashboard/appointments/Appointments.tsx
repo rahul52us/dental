@@ -5,9 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
-import {
-  formatDate
-} from "../../component/config/utils/dateUtils";
+import { formatDate } from "../../component/config/utils/dateUtils";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import stores from "../../store/stores";
 import AttendanceCalendar from "./element/AppointmentCalender";
@@ -19,7 +17,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     DoctorAppointment: { getDoctorAppointment, appointments },
     auth: { openNotification, userType },
   } = stores;
-
 
   const [openChangeStatus, setOpenChangeStatus] = useState({
     open: false,
@@ -55,11 +52,11 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
       }
 
       if (isPatient && patientDetails) {
-        query.patientId = patientDetails?._id
+        query.patientId = patientDetails?._id;
       }
 
       getDoctorAppointment(query)
-        .then(() => { })
+        .then(() => {})
         .catch((err) => {
           openNotification({
             type: "error",
@@ -287,7 +284,14 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         close={() => setOpenDrawer({ open: false, data: null, type: "add" })}
         title="Appointment Lists"
       >
-        <AttendanceCalendar isPatient={isPatient} patientDetails={patientDetails} applyGetAllRecords={applyGetAllRecords} close={() => setOpenDrawer({ open: false, data: null, type: "add" })} type={openDrawer.type} appointments={appointments} />
+        <AttendanceCalendar
+          isPatient={isPatient}
+          patientDetails={patientDetails}
+          applyGetAllRecords={applyGetAllRecords}
+          close={() => setOpenDrawer({ open: false, data: null, type: "add" })}
+          type={openDrawer.type}
+          appointments={appointments}
+        />
       </CustomDrawer>
 
       {/* Change Status Modal */}

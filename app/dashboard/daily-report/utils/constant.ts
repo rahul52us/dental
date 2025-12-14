@@ -40,7 +40,7 @@ export const CHAIRS = [
     border: "purple.500",
     text: "purple.700",
   },
- 
+
 ];
 
 // Mock Appointments for "Today"

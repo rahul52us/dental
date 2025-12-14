@@ -156,6 +156,7 @@ const AddAppointmentForm = observer(
         created_At: new Date().toISOString(),
         updated_At: new Date().toISOString(),
         doctorNote: data.doctorNote,
+        chair : data?.chair?.value
       };
 
       createDoctorAppointment(replaceLabelValueObjects(formattedData))
@@ -261,7 +262,7 @@ const AddAppointmentForm = observer(
     const fetchChairs = async () => {
       const resposne = await getChairs({
         page: 1,
-        limit: 1000,
+        limit: 200,
         // search: debouncedSearch,
       });
       setChairsData(resposne.data);
@@ -277,6 +278,8 @@ const AddAppointmentForm = observer(
     }));
 
     // console.log('chairsData----------',chairsData)
+
+    console.log(selectedDateAndTime)
 
     return (
       <>
@@ -302,7 +305,7 @@ const AddAppointmentForm = observer(
               referenceAppointmentId: "",
             },
             doctorNote: "",
-            chair: "",
+            chair: selectedDateAndTime?.chair || undefined,
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) =>
@@ -405,9 +408,9 @@ const AddAppointmentForm = observer(
                       type="select"
                       label="Chair"
                       options={chairsOptions}
-                      value={values.chair.label}
+                      value={values?.chair}
                       onChange={(val: any) => {
-                        setFieldValue("chair", val.value);
+                        setFieldValue("chair", val);
                       }}
                     />
                   </Box>

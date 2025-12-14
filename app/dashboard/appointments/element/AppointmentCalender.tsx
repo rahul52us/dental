@@ -3,7 +3,16 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Box, Flex, Heading, Text, Icon, useColorModeValue, Tooltip, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Icon,
+  useColorModeValue,
+  Tooltip,
+  IconButton,
+} from "@chakra-ui/react";
 import { FaCalendarAlt, FaFileAlt } from "react-icons/fa";
 import moment from "moment";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
@@ -11,18 +20,26 @@ import AddForm from "../component/AddForm";
 import EditForm from "../component/EditForm";
 import stores from "../../../store/stores";
 import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
-
+import { SLOT_DURATION } from "../../daily-report/utils/constant";
 
 // ⭐ Convert operating hours → FullCalendar businessHours
 const convertOperatingHoursToBusinessHours = (hours: any[]) => {
   return hours
     .filter((d) => d.isOpen)
     .map((d) => {
-      const dayIndex = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(d.day);
+      const dayIndex = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ].indexOf(d.day);
       return d.slots.map((slot) => ({
         daysOfWeek: [dayIndex],
         startTime: slot.start,
-        endTime: slot.end
+        endTime: slot.end,
       }));
     })
     .flat();
@@ -30,22 +47,42 @@ const convertOperatingHoursToBusinessHours = (hours: any[]) => {
 
 // ⭐ Compute min/max times for the weekly view UI
 const computeMinMaxTimes = (allowed: any[]) => {
-  let all = allowed.map((s) => s.startTime).concat(allowed.map((s) => s.endTime));
+  let all = allowed
+    .map((s) => s.startTime)
+    .concat(allowed.map((s) => s.endTime));
   all = all.filter(Boolean).sort();
   return {
     min: all[0] || "06:00",
-    max: all[all.length - 1] || "23:59"
+    max: all[all.length - 1] || "23:59",
   };
 };
 
-const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAllRecords, appointments }: any) => {
-  const {auth : {user}} = stores
+const AttendanceCalendar = ({
+  isPatient,
+  patientDetails,
+  type,
+  close,
+  applyGetAllRecords,
+  appointments,
+}: any) => {
+  const {
+    auth: { user },
+  } = stores;
   const [selectedDateTime, setSelectedDateTime] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [reportDrawer, setReportDrawer] = useState(false)
+  const [reportDrawer, setReportDrawer] = useState(false);
   // ⭐ Prepare slots
-  const allowedSlots = useMemo(() => convertOperatingHoursToBusinessHours(user?.companyDetails?.operatingHours || []), []);
-  const { min, max } = useMemo(() => computeMinMaxTimes(allowedSlots), [allowedSlots]);
+  const allowedSlots = useMemo(
+    () =>
+      convertOperatingHoursToBusinessHours(
+        user?.companyDetails?.operatingHours || []
+      ),
+    []
+  );
+  const { min, max } = useMemo(
+    () => computeMinMaxTimes(allowedSlots),
+    [allowedSlots]
+  );
 
   // ⭐ COLORFUL EVENTS
   const appointmentColors = [
@@ -58,28 +95,31 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
     { bg: "#EF4444", border: "#DC2626", text: "#FFFFFF" },
     { bg: "#6366F1", border: "#4F46E5", text: "#FFFFFF" },
     { bg: "#14B8A6", border: "#0D9488", text: "#FFFFFF" },
-    { bg: "#F97316", border: "#EA580C", text: "#FFFFFF" }
+    { bg: "#F97316", border: "#EA580C", text: "#FFFFFF" },
   ];
 
-  const getAppointmentColor = (index: number) => appointmentColors[index % appointmentColors.length];
+  const getAppointmentColor = (index: number) =>
+    appointmentColors[index % appointmentColors.length];
 
-  const formatDateOnly = (isoDate: string) => moment(isoDate).format("YYYY-MM-DD");
+  const formatDateOnly = (isoDate: string) =>
+    moment(isoDate).format("YYYY-MM-DD");
 
-  const bookedEvents = appointments?.data?.map((item: any, index: number) => {
-    const date = formatDateOnly(item.appointmentDate);
-    const colors = getAppointmentColor(index);
-    return {
-      id: item?._id,
-      title: item?.patientName || "Booked",
-      start: `${date}T${item?.startTime}`,
-      end: `${date}T${item?.endTime}`,
-      backgroundColor: item?.chair?.chairColor || colors.bg,
-      borderColor: item?.chair?.chairColor || colors.border,
-      textColor: colors.text,
-      display: "block",
-      extendedProps: item
-    };
-  }) || [];
+  const bookedEvents =
+    appointments?.data?.map((item: any, index: number) => {
+      const date = formatDateOnly(item.appointmentDate);
+      const colors = getAppointmentColor(index);
+      return {
+        id: item?._id,
+        title: item?.patientName || "Booked",
+        start: `${date}T${item?.startTime}`,
+        end: `${date}T${item?.endTime}`,
+        backgroundColor: item?.chair?.chairColor || colors.bg,
+        borderColor: item?.chair?.chairColor || colors.border,
+        textColor: colors.text,
+        display: "block",
+        extendedProps: item,
+      };
+    }) || [];
 
   // ⭐ BLOCK selecting outside allowed slots
   const selectAllow = (selectInfo: any) => {
@@ -110,7 +150,7 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
     headerToolbar: {
       left: "prev,next today",
       center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay"
+      right: "dayGridMonth,timeGridWeek,timeGridDay",
     },
     height: "80vh",
     selectable: true,
@@ -123,7 +163,7 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
     visibleRange() {
       return {
         start: moment().startOf("day").format("YYYY-MM-DD"),
-        end: moment().add(1, "year").format("YYYY-MM-DD")
+        end: moment().add(1, "year").format("YYYY-MM-DD"),
       };
     },
 
@@ -135,7 +175,7 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
       setSelectedDateTime({
         start: info.event.start,
         end: info.event.end,
-        eventData: info.event.extendedProps
+        eventData: info.event.extendedProps,
       });
       setOpenDrawer(true);
     },
@@ -147,12 +187,32 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
           font-size: 10px;
           font-weight: 600;
         ">${arg.event.title}</div>
-      `
-    })
+      `,
+    }),
   };
 
   const calendarBg = useColorModeValue("gray.50", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  const handleOpenAddDrawer = (data: any) => {
+  console.log("the data are", data);
+
+  const selectedDate = moment().format("YYYY-MM-DD"); // today
+
+  const start = moment(`${selectedDate}T${data.time}`);
+  const end = start.clone().add(SLOT_DURATION, "minutes");
+
+  setSelectedDateTime({
+    start: start.toDate(),
+    end: end.toDate(),
+    time: data.time,
+    chairId: data.chair?.id,
+    chair: {label : data?.chair?.name, value : data?.chair?.id},
+  });
+
+  setOpenDrawer(true);
+};
+
 
   return (
     <>
@@ -170,38 +230,40 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
       >
         <Flex align="center" gap={3}>
           <Icon as={FaCalendarAlt} color="blue.500" boxSize={5} />
-          <Heading size="md" color="gray.700">Appointment Calendar</Heading>
+          <Heading size="md" color="gray.700">
+            Appointment Calendar
+          </Heading>
         </Flex>
-
-
 
         <Flex align="center" gap={3}>
           {selectedDateTime && (
-          <Text fontSize="sm" color="gray.500">
-            Selected: <b>{moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}</b>
+            <Text fontSize="sm" color="gray.500">
+              Selected:{" "}
+              <b>
+                {moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}
+              </b>
+            </Text>
+          )}
+          <Tooltip label="Open Report" placement="bottom">
+            <IconButton
+              aria-label="Open Report"
+              icon={<FaFileAlt size="22px" />}
+              size="lg"
+              variant="solid"
+              colorScheme="blue"
+              borderRadius="full"
+              boxShadow="md"
+              _hover={{
+                transform: "scale(1.1)",
+                boxShadow: "lg",
+              }}
+              onClick={() => setReportDrawer(true)}
+            />
+          </Tooltip>
+          <Text fontSize="sm" color="gray.600" fontWeight="medium">
+            Report
           </Text>
-        )}
-  <Tooltip label="Open Report" placement="bottom">
-    <IconButton
-      aria-label="Open Report"
-      icon={<FaFileAlt size="22px" />}
-      size="lg"
-      variant="solid"
-      colorScheme="blue"
-      borderRadius="full"
-      boxShadow="md"
-      _hover={{
-        transform: "scale(1.1)",
-        boxShadow: "lg"
-      }}
-      onClick={() => setReportDrawer(true)}
-    />
-  </Tooltip>
-  <Text fontSize="sm" color="gray.600" fontWeight="medium">
-    Report
-  </Text>
-</Flex>
-
+        </Flex>
       </Flex>
 
       {/* Calendar */}
@@ -223,7 +285,9 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
         close={() => setOpenDrawer(false)}
         title={
           selectedDateTime
-            ? `Selected: ${moment(selectedDateTime.start).format("DD MMM YYYY, hh:mm A")}`
+            ? `Selected: ${moment(selectedDateTime.start).format(
+                "DD MMM YYYY, hh:mm A"
+              )}`
             : "Select a date & time"
         }
       >
@@ -243,12 +307,15 @@ const AttendanceCalendar = ({ isPatient, patientDetails, type, close, applyGetAl
       </CustomDrawer>
 
       <CustomDrawer
-        width={"88vw"}
+        width="88vw"
         open={reportDrawer}
         close={() => setReportDrawer(false)}
         title="Reports"
       >
-        <DentistScheduler  />
+        <DentistScheduler
+          selectedDate={selectedDateTime || new Date()}
+          handleTimeSlots={handleOpenAddDrawer}
+        />
       </CustomDrawer>
     </>
   );
