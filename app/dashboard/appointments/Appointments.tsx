@@ -88,12 +88,12 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   // Define table columns
   const ContactTableColumn = [
     {
-      headerName: "Patient",
-      key: "patientName",
+      headerName: "Appointment",
+      key: "title",
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
-            <Text>{dt?.patientName || "--"}</Text>
+            <Text>{dt?.title || "--"}</Text>
           </Box>
         ),
       },
@@ -240,6 +240,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     <>
       <CustomTable
         title="Appointments"
+        subTitle={patientDetails?.name}
         data={appointments?.data || []}
         columns={ContactTableColumn}
         actions={{

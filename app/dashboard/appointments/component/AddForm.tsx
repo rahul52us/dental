@@ -472,9 +472,9 @@ const AddAppointmentForm = observer(
 
                     <CustomInput
                       name="description"
-                      label="Description"
+                      label="Cause"
                       type="textarea"
-                      placeholder="Enter appointment description"
+                      placeholder="Enter Cause"
                       value={values.description}
                       onChange={(e: any) =>
                         setFieldValue("description", e.target.value)
@@ -484,11 +484,11 @@ const AddAppointmentForm = observer(
                 </SectionCard>
 
                 {/* === Mode & Location === */}
-                <SectionCard title="Mode & Location">
+                <SectionCard title="Online & Offline">
                   <VStack spacing={4}>
                     <CustomInput
                       name="mode"
-                      label="Appointment Mode"
+                      label="Online & Offline"
                       type="select"
                       options={[
                         { label: "Offline", value: "offline" },

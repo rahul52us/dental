@@ -20,6 +20,7 @@ import {
   MenuItem,
   Input,
   useColorModeValue,
+  Text,
 } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import TableLoader from "./TableLoader";
@@ -65,6 +66,7 @@ interface CustomTableProps {
   actions?: any;
   cells?: boolean;
   tableProps?: any;
+  subTitle?:any
 }
 
 interface TableActionsProps {
@@ -288,6 +290,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   data,
   serial,
   loading,
+  subTitle,
   actions,
   cells = false,
   tableProps = {},
@@ -321,11 +324,29 @@ const CustomTable: React.FC<CustomTableProps> = ({
         alignItems="center"
         p={title ? 3 : 0}
       >
-        {title ? (
-          <Heading color={titleColor} fontSize={isMobile ? "sm" : "xl"}>
-            {title || ""}
-          </Heading>
-        ) : null}
+        {(title || subTitle) && (
+  <Flex direction="column" gap={1}>
+    {title && (
+      <Heading
+        color={titleColor}
+        fontSize={isMobile ? "sm" : "xl"}
+        lineHeight="short"
+      >
+        {title}
+      </Heading>
+    )}
+
+    {subTitle && (
+      <Text
+        fontSize={isMobile ? "xs" : "sm"}
+        color="gray.500"
+        noOfLines={2}
+      >
+        {subTitle}
+      </Text>
+    )}
+  </Flex>
+)}
 
         <Flex alignItems="center" columnGap={2} ml="auto">
           {!isMobile && actions?.search && actions?.search?.show && (
