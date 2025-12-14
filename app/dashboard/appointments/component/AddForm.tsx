@@ -264,11 +264,6 @@ const AddAppointmentForm = observer(
       label: item.chairName,
     }));
 
-    // console.log('chairsData----------',chairsData)
-
-    console.log(patientDetails);
-    console.log(isPatient);
-
     return (
       <>
         <Formik
@@ -593,7 +588,6 @@ const AddAppointmentForm = observer(
                       )}
                     </VStack>
                   </SectionCard>
-
                   {/* === Doctor Notes === */}
                   <SectionCard title="Additional Notes">
                     <CustomInput
@@ -623,7 +617,7 @@ const AddAppointmentForm = observer(
                   </Button>
                 </VStack>
               </Form>
-            );
+            )
           }}
         </Formik>
         <AddPatientDrawer
