@@ -16,6 +16,7 @@ import {
   VStack,
   Divider,
   useBreakpointValue,
+  Select,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -34,21 +35,24 @@ const Login = observer(() => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    loginType: "username",
+    loginType: "code", // username | email | code
   });
+
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // NEW: toggle state
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const headingSize = useBreakpointValue({ base: "lg", md: "xl" });
   const cardPadding = useBreakpointValue({ base: 2, md: 3 });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleTogglePassword = () => setShowPassword(!showPassword); // NEW
+  const handleTogglePassword = () => setShowPassword(!showPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +60,7 @@ const Login = observer(() => {
 
     try {
       const response: any = await login(formData);
+
       openNotification({
         title: "Login Successful",
         message: `${response.message}!`,
@@ -63,9 +68,9 @@ const Login = observer(() => {
         duration: 3000,
       });
 
-      if(response?.data?.userType === "superAdmin"){
+      if (response?.data?.userType === "superAdmin") {
         router.push("/dashboard/admins");
-      }else{
+      } else {
         router.push("/dashboard");
       }
     } catch (error: any) {
@@ -96,14 +101,33 @@ const Login = observer(() => {
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <VStack spacing={4} align="stretch">
+              {/* LOGIN TYPE + USERNAME */}
               <FormControl id="username">
                 <FormLabel fontSize="sm" fontWeight="500">
-                  Username
+                  Login Using
                 </FormLabel>
+
+                <Select
+                  name="loginType"
+                  value={formData.loginType}
+                  onChange={handleInputChange}
+                  size="lg"
+                  mb={2}
+                >
+                  <option value="email">Email</option>
+                  <option value="code">User Code</option>
+                </Select>
+
                 <Input
                   type="text"
                   name="username"
-                  placeholder="Enter your username"
+                  placeholder={
+                    formData.loginType === "email"
+                      ? "Enter your email"
+                      : formData.loginType === "code"
+                      ? "Enter your user code"
+                      : "Enter your username"
+                  }
                   value={formData.username}
                   onChange={handleInputChange}
                   focusBorderColor="teal.500"
@@ -112,7 +136,7 @@ const Login = observer(() => {
                 />
               </FormControl>
 
-              {/* Password with toggle */}
+              {/* Password */}
               <FormControl id="password">
                 <FormLabel fontSize="sm" fontWeight="500">
                   Password
@@ -128,8 +152,16 @@ const Login = observer(() => {
                     size="lg"
                     required
                   />
-                  <InputRightElement mt={1} cursor="pointer" onClick={handleTogglePassword}>
-                    {showPassword ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}
+                  <InputRightElement
+                    mt={1}
+                    cursor="pointer"
+                    onClick={handleTogglePassword}
+                  >
+                    {showPassword ? (
+                      <RiEyeOffLine size={20} />
+                    ) : (
+                      <RiEyeLine size={20} />
+                    )}
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
@@ -156,9 +188,15 @@ const Login = observer(() => {
                 type="submit"
                 mt={2}
                 borderRadius="full"
-                isDisabled={!formData.username || !formData.password || isLoading}
+                isDisabled={
+                  !formData.username || !formData.password || isLoading
+                }
               >
-                {isLoading ? <Spinner size="sm" color="white" /> : "Sign in"}
+                {isLoading ? (
+                  <Spinner size="sm" color="white" />
+                ) : (
+                  "Sign in"
+                )}
               </CustomButton>
 
               {/* OR divider */}
