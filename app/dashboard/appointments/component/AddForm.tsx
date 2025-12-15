@@ -448,9 +448,9 @@ const AddAppointmentForm = observer(
 
                       <CustomInput
                         name="title"
-                        label="Appointment Title"
+                        label="Appointment Reason"
                         type="text"
-                        placeholder="Enter appointment title"
+                        placeholder="Enter appointment Reason"
                         required
                         value={values.title}
                         onChange={(e: any) =>
