@@ -30,13 +30,14 @@ import { readFileAsBase64 } from "../../../config/utils/utils";
 import stores from "../../../store/stores";
 import AddPatientDrawer from "../../patients/component/patient/component/AddPatientDrawer";
 import { appointStatus } from "../constant";
+import { appointmentReason } from "../utils/constant";
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
   patient: Yup.mixed().required("Patient is required"),
   appointmentDate: Yup.string().required("Appointment date is required"),
   startTime: Yup.string().required("Start time is required"),
-  title: Yup.string().required("Title is required"),
+  title: Yup.mixed().required("Title is Required"),
   mode: Yup.string().required("Mode is required"),
   meetingLink: Yup.string().when("mode", {
     is: "online",
@@ -445,21 +446,17 @@ const AddAppointmentForm = observer(
                           }
                         />
                       </SimpleGrid>
-
                       <CustomInput
                         name="title"
                         label="Appointment Reason"
-                        type="text"
-                        placeholder="Enter appointment Reason"
+                        type="select"
                         required
                         value={values.title}
-                        onChange={(e: any) =>
-                          setFieldValue("title", e.target.value)
-                        }
-                        error={errors.title as string}
+                        onChange={(e: any) => setFieldValue("title", e)}
+                        options={appointmentReason}
+                        error={errors.title}
                         showError={touched.title}
                       />
-
                       <CustomInput
                         name="description"
                         label="Cause"
@@ -617,7 +614,7 @@ const AddAppointmentForm = observer(
                   </Button>
                 </VStack>
               </Form>
-            )
+            );
           }}
         </Formik>
         <AddPatientDrawer

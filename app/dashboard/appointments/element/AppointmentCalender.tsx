@@ -140,7 +140,7 @@ const AttendanceCalendar = ({
   // ⭐ Handle selection
   const handleDateSelect = (info: any) => {
     setSelectedDateTime({ start: info.start, end: info.end });
-    setOpenDrawer(true);
+    setReportDrawer(true);
   };
 
   // ⭐ FullCalendar options
@@ -177,7 +177,7 @@ const AttendanceCalendar = ({
         end: info.event.end,
         eventData: info.event.extendedProps,
       });
-      setOpenDrawer(true);
+      setReportDrawer(true);
     },
 
     eventContent: (arg: any) => ({
@@ -195,24 +195,23 @@ const AttendanceCalendar = ({
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const handleOpenAddDrawer = (data: any) => {
-  console.log("the data are", data);
+    console.log("the data are", data);
 
-  const selectedDate = moment().format("YYYY-MM-DD"); // today
+    const selectedDate = moment().format("YYYY-MM-DD"); // today
 
-  const start = moment(`${selectedDate}T${data.time}`);
-  const end = start.clone().add(SLOT_DURATION, "minutes");
+    const start = moment(`${selectedDate}T${data.time}`);
+    const end = start.clone().add(SLOT_DURATION, "minutes");
 
-  setSelectedDateTime({
-    start: start.toDate(),
-    end: end.toDate(),
-    time: data.time,
-    chairId: data.chair?.id,
-    chair: {label : data?.chair?.name, value : data?.chair?.id},
-  });
+    setSelectedDateTime({
+      start: start.toDate(),
+      end: end.toDate(),
+      time: data.time,
+      chairId: data.chair?.id,
+      chair: { label: data?.chair?.name, value: data?.chair?.id },
+    });
 
-  setOpenDrawer(true);
-};
-
+    setOpenDrawer(true);
+  };
 
   return (
     <>
@@ -310,7 +309,9 @@ const AttendanceCalendar = ({
         width="88vw"
         open={reportDrawer}
         close={() => setReportDrawer(false)}
-        title="Reports"
+        title={`Reports → Selected: ${moment(selectedDateTime?.start).format(
+          "DD MMM YYYY"
+        )}`}
       >
         <DentistScheduler
           selectedDate={selectedDateTime || new Date()}

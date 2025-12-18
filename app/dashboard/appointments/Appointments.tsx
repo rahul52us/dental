@@ -265,13 +265,19 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     },
   ];
 
-  const subTitle = `${patientDetails?.name} • Appointment Summary — Cancelled: ${patientStatus?.cancelled ?? 0} | Rescheduled: ${patientStatus?.rescheduled ?? 0} | No-show: ${patientStatus?.["no-show"] ?? 0}`;
+  const subTitle = `${
+    patientDetails?.name
+  } • Appointment Summary — Cancelled: ${
+    patientStatus?.cancelled ?? 0
+  } | Rescheduled: ${patientStatus?.rescheduled ?? 0} | No-show: ${
+    patientStatus?.["no-show"] ?? 0
+  }`;
 
   return (
     <>
       <CustomTable
         title="Appointments"
-        subTitle={subTitle}
+        subTitle={patientDetails ? subTitle : undefined}
         data={appointments?.data || []}
         columns={ContactTableColumn}
         actions={{

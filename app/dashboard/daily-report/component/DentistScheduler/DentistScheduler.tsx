@@ -13,10 +13,20 @@ import { useEffect, useMemo, useState } from "react";
 import { SLOT_DURATION } from "../../utils/constant";
 import stores from "../../../../store/stores";
 
-// Helper: Convert "HH:MM" to minutes
+/* ---------------------- HELPERS ---------------------- */
+
+// Convert "HH:MM" → minutes
 const toMinutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
+};
+
+// Convert HEX → RGBA (for light column background)
+const hexToRGBA = (hex: string, alpha = 0.2) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
 // Generate time slots
@@ -35,7 +45,6 @@ const generateTimeSlots = (appointments: any[]) => {
       max = Math.max(max, end);
     });
 
-    // buffer of 1 hour
     startMinutes = Math.max(0, min - 60);
     endMinutes = Math.min(24 * 60, max + 60);
   }
@@ -48,27 +57,20 @@ const generateTimeSlots = (appointments: any[]) => {
     const m = current % 60;
 
     slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-
     current += SLOT_DURATION;
   }
 
   return slots;
 };
 
-// Appointment Card - Clean & Professional
+/* ---------------------- APPOINTMENT CARD ---------------------- */
+
 const AppointmentCard = ({
   appointment,
   chairColor,
   overlapIndex = 0,
   totalOverlaps = 1,
-  handleTimeSlots,
-}: {
-  appointment: any;
-  chairColor: string;
-  overlapIndex?: number;
-  totalOverlaps?: number;
-  handleTimeSlots?: any;
-}) => {
+}: any) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
   const heightStyle = `calc(${heightMultiplier * 100}% + ${
     heightMultiplier - 1
@@ -76,9 +78,6 @@ const AppointmentCard = ({
 
   const widthPercent = totalOverlaps > 1 ? 92 / totalOverlaps : 96;
   const leftOffset = overlapIndex * (96 / totalOverlaps);
-
-  const bg = `${chairColor}22`;
-  const hoverBg = `${chairColor}44`;
 
   return (
     <Box
@@ -94,52 +93,34 @@ const AppointmentCard = ({
       boxShadow="md"
       cursor="pointer"
       overflow="hidden"
-      bg={bg}
+      bg={`${chairColor}22`}
       borderColor={chairColor}
       zIndex={10 + overlapIndex}
       transition="all 0.25s ease"
       _hover={{
-        bg: hoverBg,
+        bg: `${chairColor}44`,
         boxShadow: "xl",
         transform: "translateY(-2px)",
         zIndex: 50,
       }}
     >
-      <Text fontWeight="bold" fontSize="sm" color="gray.800" noOfLines={1}>
+      <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
         {appointment.patientName}
-        {appointment.primaryDoctor &&
-          appointment.primaryDoctor !== "Unknown" && (
-            <Text
-              as="span"
-              fontWeight="medium"
-              color="gray.600"
-              fontSize="xs"
-              ml={1}
-            >
-              ({appointment.primaryDoctor})
-            </Text>
-          )}
       </Text>
 
-      <Text
-        fontSize="xs"
-        color="gray.700"
-        fontWeight="medium"
-        noOfLines={1}
-        mt={1}
-      >
+      <Text fontSize="xs" fontWeight="medium" mt={1} noOfLines={1}>
         {appointment.treatment || "Consultation"}
       </Text>
 
       {appointment.duration >= 60 && (
-        <Flex align="center" gap={1} mt={1.5} fontSize="xs" color="gray.600">
+        <Flex align="center" gap={1} mt={1.5} fontSize="xs">
           <RepeatClockIcon boxSize={3.5} />
           <Text fontWeight="medium">{appointment.duration} min</Text>
         </Flex>
       )}
 
       {appointment.notes && (
-        <Text fontSize="xs" color="gray.600" mt={1} noOfLines={2} opacity={0.9}>
+        <Text fontSize="xs" mt={1} noOfLines={2} opacity={0.9}>
           {appointment.notes}
         </Text>
       )}
@@ -147,32 +128,27 @@ const AppointmentCard = ({
   );
 };
 
-// Main Grid - Beautiful Header Design
+/* ---------------------- GRID ---------------------- */
+
 const ScheduleGrid = ({
   timeSlots,
   chairs,
   appointments,
   handleTimeSlots,
-}: {
-  timeSlots: string[];
-  chairs: any[];
-  appointments: any[];
-  handleTimeSlots?: any;
-}) => {
+}: any) => {
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
   const timeHeaderBg = useColorModeValue("gray.100", "gray.700");
   const borderColor = useColorModeValue("gray.300", "gray.600");
 
-  const getAppointmentsStartingAt = (time: string, chairId: string) => {
-    return appointments.filter(
-      (apt) => apt.startTime === time && apt.chairId === chairId
+  const getAppointmentsStartingAt = (time: string, chairId: string) =>
+    appointments.filter(
+      (apt: any) => apt.startTime === time && apt.chairId === chairId
     );
-  };
 
   const isSlotOccupied = (time: string, chairId: string) => {
     const slotMinutes = toMinutes(time);
-    return appointments.some((apt) => {
+    return appointments.some((apt: any) => {
       if (apt.chairId !== chairId) return false;
       const start = toMinutes(apt.startTime);
       const end = start + apt.duration;
@@ -182,261 +158,168 @@ const ScheduleGrid = ({
 
   return (
     <Box flex="1" px={6} pb={6} overflowX="auto">
-      <Box
-        bg={bg}
-        borderRadius="2xl"
-        boxShadow="2xl"
-        borderWidth="1px"
-        borderColor={borderColor}
-        overflow="hidden"
-      >
-        {/* Header Row - Chair Names with Color Indicators */}
+      <Box bg={bg} borderRadius="2xl" boxShadow="2xl" borderWidth="1px">
+        {/* HEADER */}
         <Grid
           templateColumns={`100px repeat(${chairs.length}, 1fr)`}
           bg={headerBg}
           borderBottomWidth="2px"
-          borderColor={borderColor}
           position="sticky"
           top={0}
           zIndex={30}
         >
-          {/* Time Header Corner */}
-          <Box
-            p={5}
-            bg={timeHeaderBg}
-            borderRightWidth="2px"
-            borderColor={borderColor}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <RepeatClockIcon boxSize={6} color="gray.500" />
-          </Box>
+          <Box p={5} bg={timeHeaderBg} borderRightWidth="2px" />
 
-          {/* Chair Headers */}
-          {chairs.map((chair) => (
-            <Box
-              key={chair.id}
-              p={4}
-              textAlign="center"
-              borderRightWidth="1px"
-              borderColor={borderColor}
-              _last={{ borderRightWidth: 0 }}
-            >
+          {chairs.map((chair: any) => (
+            <Box key={chair.id} p={4} textAlign="center">
               <Flex direction="column" align="center" gap={2}>
-                <Box
-                  w={12}
-                  h={12}
-                  borderRadius="full"
-                  bg={chair.color}
-                  borderWidth="3px"
-                  borderColor={chair.color}
-                />
-                <Text fontWeight="extrabold" fontSize="lg" color="gray.800">
-                  {chair.name}
-                </Text>
-                <Text fontSize="sm" color="gray.600" fontWeight="medium">
-                  Chair {chair.chairNo}
-                </Text>
+                <Box w={12} h={12} borderRadius="full" bg={chair.color} />
+                <Text fontWeight="extrabold">{chair.name}</Text>
+                <Text fontSize="sm">Chair {chair.chairNo}</Text>
               </Flex>
             </Box>
           ))}
         </Grid>
 
-        {/* Time Rows */}
-        <Box>
-          {timeSlots.map((time) => (
-            <Grid
-              key={time}
-              templateColumns={`100px repeat(${chairs.length}, 1fr)`}
-              _hover={{ bg: useColorModeValue("gray.50", "gray.700") }}
-              transition="background 0.2s"
+        {/* BODY */}
+        {timeSlots.map((time: string) => (
+          <Grid
+            key={time}
+            templateColumns={`100px repeat(${chairs.length}, 1fr)`}
+          >
+            {/* TIME */}
+            <Box
+              py={4}
+              px={3}
+              bg={timeHeaderBg}
+              borderRightWidth="2px"
+              textAlign="center"
+              fontWeight="bold"
             >
-              {/* Time Label */}
-              <Box
-                py={4}
-                px={3}
-                borderRightWidth="2px"
-                borderBottomWidth="1px"
-                borderColor={borderColor}
-                textAlign="center"
-                fontWeight="bold"
-                fontSize="md"
-                color="gray.700"
-                bg={timeHeaderBg}
-                position="relative"
-              >
-                <Text
-                  bg={bg}
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  boxShadow="sm"
-                  minW="60px"
+              {time}
+            </Box>
+
+            {/* CHAIRS */}
+            {chairs.map((chair: any) => {
+              const startingAppointments = getAppointmentsStartingAt(
+                time,
+                chair.id
+              );
+              const occupied = isSlotOccupied(time, chair.id);
+              const hasConflict = startingAppointments.length > 1;
+
+              const columnBg = hexToRGBA(chair.color, 0.07);
+              const columnHoverBg = hexToRGBA(chair.color, 0.1);
+
+              return (
+                <Box
+                  key={`${chair.id}-${time}`}
+                  position="relative"
+                  minH="70px"
+                  borderRightWidth="1px"
+                  borderBottomWidth="1px"
+                  bg={hasConflict ? "red.50" : columnBg}
+                  _hover={{
+                    bg: hasConflict ? "red.100" : columnHoverBg,
+                  }}
+                  role="group"
                 >
-                  {time}
-                </Text>
-              </Box>
+                  {startingAppointments.map((apt: any, index: number) => (
+                    <AppointmentCard
+                      key={apt.id}
+                      appointment={apt}
+                      chairColor={chair.color}
+                      overlapIndex={index}
+                      totalOverlaps={startingAppointments.length}
+                    />
+                  ))}
 
-              {/* Chair Cells */}
-              {chairs.map((chair) => {
-                const startingAppointments = getAppointmentsStartingAt(
-                  time,
-                  chair.id
-                );
-                const occupied = isSlotOccupied(time, chair.id);
-                const hasConflict = startingAppointments.length > 1;
-
-                return (
-                  <Box
-                    key={`${chair.id}-${time}`}
-                    position="relative"
-                    borderRightWidth="1px"
-                    borderBottomWidth="1px"
-                    borderColor={borderColor}
-                    minH="70px"
-                    _last={{ borderRightWidth: 0 }}
-                    role="group"
-                    bg={hasConflict ? "red.50" : undefined}
-                  >
-                    {/* Conflict Warning on Hover */}
-                    {hasConflict && (
-                      <Box
-                        position="absolute"
-                        inset={0}
-                        bg="red.600"
-                        opacity={0}
-                        _groupHover={{ opacity: 0.9 }}
-                        transition="opacity 0.3s"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        zIndex={40}
-                        borderRadius="lg"
-                        m={2}
-                        pointerEvents="none"
-                      >
-                        <Text
-                          fontWeight="bold"
-                          color="white"
-                          fontSize="md"
-                          textShadow="0 1px 4px rgba(0,0,0,0.6)"
-                        >
-                          ⚠️ CONFLICT ({startingAppointments.length})
-                        </Text>
-                      </Box>
-                    )}
-
-                    {/* Appointments */}
-                    {startingAppointments.map((apt: any, index: number) => (
-                      <AppointmentCard
-                        key={apt.id}
-                        appointment={apt}
-                        chairColor={chair.color}
-                        overlapIndex={index}
-                        totalOverlaps={startingAppointments.length}
-                        handleTimeSlots={handleTimeSlots}
+                  {!occupied && (
+                    <Flex
+                      position="absolute"
+                      inset={0}
+                      align="center"
+                      justify="center"
+                      opacity={0}
+                      _groupHover={{ opacity: 1 }}
+                    >
+                      <IconButton
+                        aria-label="Add appointment"
+                        size="lg"
+                        borderRadius="full"
+                        bg="blue.500"
+                        color="white"
+                        icon={<Text fontSize="2xl">+</Text>}
+                        onClick={() =>
+                          handleTimeSlots?.({
+                            open: true,
+                            time,
+                            chair,
+                          })
+                        }
                       />
-                    ))}
-
-                    {/* Add Button */}
-                    {!occupied && (
-                      <Flex
-                        position="absolute"
-                        inset={0}
-                        align="center"
-                        justify="center"
-                        opacity={0}
-                        _groupHover={{ opacity: 1 }}
-                        transition="opacity 0.3s"
-                        zIndex={5}
-                      >
-                        <IconButton
-                          aria-label="Add appointment"
-                          size="lg"
-                          borderRadius="full"
-                          bg="blue.500"
-                          color="white"
-                          icon={<Text fontSize="2xl">+</Text>}
-                          _hover={{ bg: "blue.600", transform: "scale(1.1)" }}
-                          boxShadow="lg"
-                          onClick={() => {
-                            if (handleTimeSlots) {
-                              handleTimeSlots({
-                                open: true,
-                                time: time,
-                                chair: chair,
-                              });
-                            }
-                          }}
-                        />
-                      </Flex>
-                    )}
-                  </Box>
-                );
-              })}
-            </Grid>
-          ))}
-        </Box>
+                    </Flex>
+                  )}
+                </Box>
+              );
+            })}
+          </Grid>
+        ))}
       </Box>
     </Box>
   );
 };
 
-// Main Component (unchanged logic)
+/* ---------------------- MAIN ---------------------- */
+
 export default function DentistScheduler({ handleTimeSlots }: any) {
   const {
     chairsStore: { getChairSummary },
   } = stores;
+
   const [appointments, setAppointments] = useState<any[]>([]);
   const [chairs, setChairs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const timeSlots = useMemo(() => generateTimeSlots(appointments), []);
+  const timeSlots = useMemo(
+    () => generateTimeSlots(appointments),
+    [appointments]
+  );
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        const res = await getChairSummary({});
+      setLoading(true);
+      const res = await getChairSummary({});
 
-        if (res?.status === "success" && res?.data) {
-          const allAppointments: any[] = [];
-          const chairList: any[] = [];
+      if (res?.status === "success") {
+        const allAppointments: any[] = [];
+        const chairList: any[] = [];
 
-          res.data.forEach((chair: any) => {
-            chairList.push({
-              id: chair._id,
-              name: chair.chairName,
-              chairNo: chair.chairNo,
-              color: chair.chairColor,
-            });
-
-            chair.appointments.forEach((apt: any) => {
-              const duration =
-                toMinutes(apt.endTime) - toMinutes(apt.startTime);
-
-              allAppointments.push({
-                id: apt._id,
-                patientName: apt.patient?.name || "Unknown",
-                primaryDoctor: apt.primaryDoctor?.name || "Unknown",
-                treatment: apt.title || "",
-                startTime: apt.startTime,
-                duration,
-                chairId: chair._id,
-                notes: apt.description || "",
-              });
-            });
+        res.data.forEach((chair: any) => {
+          chairList.push({
+            id: chair._id,
+            name: chair.chairName,
+            chairNo: chair.chairNo,
+            color: chair.chairColor,
           });
 
-          setChairs(chairList);
-          setAppointments(allAppointments);
-        }
-      } catch (err) {
-        console.error("Error fetching appointments", err);
-      } finally {
-        setLoading(false);
+          chair.appointments.forEach((apt: any) => {
+            allAppointments.push({
+              id: apt._id,
+              patientName: apt.patient?.name || "Unknown",
+              treatment: apt.title,
+              startTime: apt.startTime,
+              duration: toMinutes(apt.endTime) - toMinutes(apt.startTime),
+              chairId: chair._id,
+              notes: apt.description,
+            });
+          });
+        });
+
+        setChairs(chairList);
+        setAppointments(allAppointments);
       }
+      setLoading(false);
     };
 
     fetchAppointments();
@@ -444,29 +327,18 @@ export default function DentistScheduler({ handleTimeSlots }: any) {
 
   if (loading) {
     return (
-      <Center h="100vh" bg="gray.50">
-        <Spinner size="xl" color="blue.500" thickness="4px" />
+      <Center h="100vh">
+        <Spinner size="xl" />
       </Center>
     );
   }
 
   return (
-    <Box
-      display="flex"
-      flexDir="column"
-      h="100vh"
-      bg="gray.50"
-      fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-      color="gray.800"
-    >
-      <Box as="main" flex="1" display="flex" flexDir="column">
-        <ScheduleGrid
-          timeSlots={timeSlots}
-          chairs={chairs}
-          handleTimeSlots={handleTimeSlots}
-          appointments={appointments}
-        />
-      </Box>
-    </Box>
+    <ScheduleGrid
+      timeSlots={timeSlots}
+      chairs={chairs}
+      appointments={appointments}
+      handleTimeSlots={handleTimeSlots}
+    />
   );
 }
