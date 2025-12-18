@@ -14,9 +14,41 @@ import AppointChangeStatus from "./element/AppointmentStatusChange";
 
 const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
-    DoctorAppointment: { getDoctorAppointment, appointments },
+    DoctorAppointment: {
+      getDoctorAppointment,
+      appointments,
+      getPatientAppointmentStatusCount,
+    },
     auth: { openNotification, userType },
   } = stores;
+  const [patientStatus, setPatientStatus] = useState({
+    rescheduled: 0,
+    cancelled: 0,
+    "no-show": 0,
+  });
+
+  const fetchPatientStatus = async () => {
+    try {
+      const response = await getPatientAppointmentStatusCount({
+        patient: patientDetails?._id,
+      });
+      if (response?.status === "success") {
+        setPatientStatus(response?.data);
+      }
+    } catch (err: any) {
+      openNotification({
+        type: "error",
+        title: "Failed to Fetch Appointments Status",
+        message: err?.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isPatient && patientDetails) {
+      fetchPatientStatus();
+    }
+  }, [patientDetails]);
 
   const [openChangeStatus, setOpenChangeStatus] = useState({
     open: false,
@@ -233,11 +265,13 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     },
   ];
 
+  const subTitle = `${patientDetails?.name} • Appointment Summary — Cancelled: ${patientStatus?.cancelled ?? 0} | Rescheduled: ${patientStatus?.rescheduled ?? 0} | No-show: ${patientStatus?.["no-show"] ?? 0}`;
+
   return (
     <>
       <CustomTable
         title="Appointments"
-        subTitle={patientDetails?.name}
+        subTitle={subTitle}
         data={appointments?.data || []}
         columns={ContactTableColumn}
         actions={{

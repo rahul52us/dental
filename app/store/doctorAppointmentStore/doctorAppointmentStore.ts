@@ -58,6 +58,16 @@ class DoctorAppointment {
     }
   };
 
+  getPatientAppointmentStatusCount = async (sendData: any) => {
+    try {
+      const { data } = await axios.post(`/doctor/appointment/patients/status/count`, {...sendData,company : authStore.company});
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+
 }
 
 export const doctorAppointment = new DoctorAppointment();

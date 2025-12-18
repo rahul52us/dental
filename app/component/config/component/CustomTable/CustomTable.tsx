@@ -337,14 +337,21 @@ const CustomTable: React.FC<CustomTableProps> = ({
     )}
 
     {subTitle && (
-      <Text
-        fontSize={isMobile ? "xs" : "sm"}
-        color="gray.500"
-        noOfLines={2}
-      >
-        {subTitle}
-      </Text>
-    )}
+  <Text
+    fontSize={isMobile ? "xs" : "sm"}
+    color="blue.700"
+    noOfLines={2}
+    bg="blue.100"
+    px={2}
+    py={1}
+    border="1px solid"
+    borderColor="blue.200"
+    borderRadius="md"
+  >
+    {subTitle}
+  </Text>
+)}
+
   </Flex>
 )}
 
