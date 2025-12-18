@@ -31,6 +31,7 @@ import stores from "../../../store/stores";
 import AddPatientDrawer from "../../patients/component/patient/component/AddPatientDrawer";
 import { appointStatus } from "../constant";
 import { appointmentReason } from "../utils/constant";
+import ScrollToFormikError from "../../../component/common/ScrollToFormikError/ScrollToFormikError";
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
@@ -302,6 +303,8 @@ const AddAppointmentForm = observer(
         >
           {({ values, errors, touched, setFieldValue, isSubmitting }: any) => {
             return (
+              <>
+              <ScrollToFormikError />
               <Form>
                 <VStack spacing={2} align="stretch">
                   {/* === Patient & Doctors === */}
@@ -614,6 +617,7 @@ const AddAppointmentForm = observer(
                   </Button>
                 </VStack>
               </Form>
+              </>
             );
           }}
         </Formik>
