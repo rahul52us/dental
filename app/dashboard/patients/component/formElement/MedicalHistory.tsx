@@ -1296,7 +1296,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
           transition="all 0.2s ease-in-out"
         >
           <Text fontWeight="semibold" fontSize="md" mb={3} color="gray.800">
-            Are you taking any medication for the following medical issues?
+            Are you taking any medication for the following?
           </Text>
 
           {/* ✅ Checkbox List */}
