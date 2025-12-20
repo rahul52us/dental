@@ -137,151 +137,149 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   };
 
   const patientColumn = {
-  headerName: "Patient",
-  key: "patientName",
-  metaData: {
-    component: (dt: any) => (
-      <Box m={1}>
-        <Text>{dt?.patientName || "--"}</Text>
-      </Box>
-    ),
-  },
-  props: { row: { textAlign: "center" } },
-};
-
+    headerName: "Patient",
+    key: "patientName",
+    metaData: {
+      component: (dt: any) => (
+        <Box m={1}>
+          <Text>{dt?.patientName || "--"}</Text>
+        </Box>
+      ),
+    },
+    props: { row: { textAlign: "center" } },
+  };
 
   // Define table columns
   const ContactTableColumn = [
-  {
-    headerName: "Appointment",
-    key: "title",
-    metaData: {
-      component: (dt: any) => (
-        <Box m={1}>
-          <Text>{dt?.title || "--"}</Text>
-        </Box>
-      ),
-    },
-    props: { row: { textAlign: "center" } },
-  },
-  ...(!isPatient ? [patientColumn] : []),
-  {
-    headerName: "Doctor",
-    key: "doctorName",
-    metaData: {
-      component: (dt: any) => (
-        <Box m={1}>
-          <Text>{dt?.doctorName || "--"}</Text>
-        </Box>
-      ),
-    },
-    props: { row: { textAlign: "center" } },
-  },
-
-  {
-    headerName: "Status",
-    key: "status",
-    type: "component",
-    metaData: {
-      component: (dt: any) => {
-        const getStatusColor = (status: string) => {
-          switch (status) {
-            case "scheduled":
-              return "blue";
-            case "in-progress":
-              return "yellow";
-            case "completed":
-              return "green";
-            case "cancelled":
-              return "red";
-            case "rescheduled":
-              return "purple";
-            case "no-show":
-              return "gray";
-            case "arrived":
-              return "green";
-            default:
-              return "gray";
-          }
-        };
-
-        return (
-          <Box
-            as="button"
-            px={3}
-            py={1}
-            borderRadius="full"
-            fontSize="sm"
-            fontWeight="semibold"
-            textTransform="capitalize"
-            bg={`${getStatusColor(dt.status)}.100`}
-            color={`${getStatusColor(dt.status)}.700`}
-          >
-            {dt.status?.replace("-", " ") || "—"}
+    {
+      headerName: "Appointment",
+      key: "title",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>
+            <Text>{dt?.title || "--"}</Text>
           </Box>
-        );
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    ...(!isPatient ? [patientColumn] : []),
+    {
+      headerName: "Doctor",
+      key: "doctorName",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>
+            <Text>{dt?.doctorName || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+
+    {
+      headerName: "Status",
+      key: "status",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const getStatusColor = (status: string) => {
+            switch (status) {
+              case "scheduled":
+                return "blue";
+              case "in-progress":
+                return "yellow";
+              case "completed":
+                return "green";
+              case "cancelled":
+                return "red";
+              case "rescheduled":
+                return "purple";
+              case "no-show":
+                return "gray";
+              case "arrived":
+                return "green";
+              default:
+                return "gray";
+            }
+          };
+
+          return (
+            <Box
+              as="button"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontSize="sm"
+              fontWeight="semibold"
+              textTransform="capitalize"
+              bg={`${getStatusColor(dt.status)}.100`}
+              color={`${getStatusColor(dt.status)}.700`}
+            >
+              {dt.status?.replace("-", " ") || "—"}
+            </Box>
+          );
+        },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
       },
     },
-    props: {
-      row: { minW: 120, textAlign: "center" },
-      column: { textAlign: "center" },
-    },
-  },
 
-  {
-    headerName: "Appointment Date",
-    key: "appointmentDate",
-    type: "component",
-    metaData: {
-      component: (dt: any) => (
-        <Box m={1}>{formatDate(dt?.appointmentDate)}</Box>
-      ),
+    {
+      headerName: "Appointment Date",
+      key: "appointmentDate",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{formatDate(dt?.appointmentDate)}</Box>
+        ),
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-    props: {
-      row: { minW: 120, textAlign: "center" },
-      column: { textAlign: "center" },
-    },
-  },
 
-  {
-    headerName: "Start & End Time",
-    key: "startTime",
-    type: "component",
-    metaData: {
-      component: (dt: any) => (
-        <Box m={1}>{`${dt.startTime || "--"} - ${dt?.endTime || "--"}`}</Box>
-      ),
+    {
+      headerName: "Start & End Time",
+      key: "startTime",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{`${dt.startTime || "--"} - ${dt?.endTime || "--"}`}</Box>
+        ),
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-    props: {
-      row: { minW: 120, textAlign: "center" },
-      column: { textAlign: "center" },
-    },
-  },
 
-  {
-    headerName: "Created By",
-    key: "actionBy",
-    type: "component",
-    metaData: {
-      component: (dt: any) => <Box m={1}>{dt?.actionBy || "--"}</Box>,
+    {
+      headerName: "Created By",
+      key: "actionBy",
+      type: "component",
+      metaData: {
+        component: (dt: any) => <Box m={1}>{dt?.actionBy || "--"}</Box>,
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-    props: {
-      row: { minW: 120, textAlign: "center" },
-      column: { textAlign: "center" },
-    },
-  },
 
-  {
-    headerName: "Actions",
-    key: "table-actions",
-    type: "table-actions",
-    props: {
-      row: { minW: 180, textAlign: "center" },
-      column: { textAlign: "center" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-  },
-];
-
+  ];
 
   const subTitle = `${
     patientDetails?.name
@@ -298,7 +296,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     const end = start.clone().add(SLOT_DURATION, "minutes");
 
     setSelectedDateTime({
-      selectedDate:data?.selectedDate || new Date(),
+      selectedDate: data?.selectedDate || new Date(),
       start: start.toDate(),
       end: end.toDate(),
       time: data.time,
@@ -371,9 +369,9 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         }
         title={
           selectedDate
-            ? `Appointment -> Selected: ${moment(
-                selectedDate
-              ).format("DD MMM YYYY, hh:mm A")}`
+            ? `Appointment -> Selected: ${moment(selectedDate).format(
+                "DD MMM YYYY, hh:mm A"
+              )}`
             : "Select a date & time"
         }
       >
@@ -387,7 +385,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
           }}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
-
         />
       </CustomDrawer>
 
@@ -436,15 +433,15 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               isPatient={isPatient}
               applyGetAllRecords={applyGetAllRecords}
               close={() =>
-          setSelectedDateTime({
-            open: false,
-            time: undefined,
-            start: undefined,
-            end: undefined,
-            data: null,
-            type: "add",
-          })
-        }
+                setSelectedDateTime({
+                  open: false,
+                  time: undefined,
+                  start: undefined,
+                  end: undefined,
+                  data: null,
+                  type: "add",
+                })
+              }
               selectedDateAndTime={selectedDateAndTime}
             />
           ) : (

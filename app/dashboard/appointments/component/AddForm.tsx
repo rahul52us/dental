@@ -315,43 +315,48 @@ const AddAppointmentForm = observer(
                         gap={4}
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
                       >
-                        <Flex align={"end"} gap={2}>
-                          <CustomInput
-                            name="patient"
-                            placeholder="Search Patient"
-                            type="real-time-user-search"
-                            label="Patient"
-                            required
-                            value={values.patient}
-                            onChange={(val: any) =>
-                              setFieldValue("patient", val)
-                            }
-                            options={
-                              isPatient
-                                ? [
-                                    {
-                                      label: `${patientDetails?.name} (${patientDetails?.code})`,
-                                      value: patientDetails?._id,
-                                    },
-                                  ]
-                                : values?.patient
-                                ? [values?.patient]
-                                : []
-                            }
-                            error={errors.patient as string}
-                            showError={touched.patient}
-                            query={{ type: "patient" }}
-                          />
-                          {!isPatient && (
-                            <IconButton
-                              aria-label="add"
-                              variant={"ghost"}
-                              icon={<AddIcon />}
-                              colorScheme="blue"
-                              onClick={() => setIsDrawerOpen({ isOpen: true })}
-                            />
-                          )}
-                        </Flex>
+                        <Flex align="end" gap={3} alignItems="center">
+  <CustomInput
+    name="patient"
+    placeholder="Search Patient"
+    type="real-time-user-search"
+    label="Patient"
+    required
+    value={values.patient}
+    onChange={(val: any) => setFieldValue("patient", val)}
+    options={
+      isPatient
+        ? [
+            {
+              label: `${patientDetails?.name} (${patientDetails?.code})`,
+              value: patientDetails?._id,
+            },
+          ]
+        : values?.patient
+        ? [values?.patient]
+        : []
+    }
+    error={errors.patient as string}
+    showError={touched.patient}
+    query={{ type: "patient" }}
+  />
+
+  {!isPatient && (
+    <Text
+      as="button"
+      fontSize="sm"
+      fontWeight="medium"
+      color="blue.600"
+      _hover={{ color: "blue.700", textDecoration: "underline" }}
+      onClick={() => setIsDrawerOpen({ isOpen: true })}
+      whiteSpace="nowrap"
+      mt={4}
+    >
+      + Add new
+    </Text>
+  )}
+</Flex>
+
                         <CustomInput
                           name="primaryDoctor"
                           placeholder="Search Doctor"
