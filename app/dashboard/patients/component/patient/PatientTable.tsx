@@ -28,7 +28,7 @@ import LineItems from "../../LineItems/LineItems";
 import AppointmentList from "../../../appointments/Appointments";
 import { CalendarIcon } from "@chakra-ui/icons";
 
-const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
+const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
     userStore: { getAllUsers, user },
     auth: { openNotification },
@@ -194,36 +194,48 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         column: { textAlign: "center" },
       },
     },
-    {
-      headerName: "Appointments",
-      key: "appointment",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Badge
-            as="button"
-            px={3}
-            py={1.5}
-            borderRadius="md"
-            display="flex"
-            alignItems="center"
-            gap={2}
-            colorScheme="blue"
-            cursor="pointer"
-            _hover={{ bg: "blue.500", color: "white" }}
-            _active={{ transform: "scale(0.95)" }}
-            onClick={() => setOpenAppointmentDetails({ open: true, data: dt })}
-          >
-            <CalendarIcon />
-            Details
-          </Badge>
-        ),
-      },
-      props: {
-        row: { minW: 10, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
+   {
+  headerName: "Appointments",
+  key: "appointment",
+  type: "component",
+  metaData: {
+    component: (dt: any) => (
+      <Badge
+        as="button"
+        px={4}
+        py={2}
+        borderRadius="lg"
+        display="inline-flex"
+        alignItems="center"
+        gap={2}
+        fontWeight="600"
+        fontSize="sm"
+        colorScheme="blue"
+        cursor="pointer"
+        transition="all 0.2s ease"
+        _hover={{
+          bg: "blue.600",
+          transform: "translateY(-1px)",
+        }}
+        _active={{
+          bg: "blue.700",
+          transform: "scale(0.96)",
+        }}
+        onClick={() =>
+          setOpenAppointmentDetails({ open: true, data: dt })
+        }
+      >
+        <CalendarIcon boxSize={4} />
+        Appointment
+      </Badge>
+    ),
+  },
+  props: {
+    row: { minW: 12, textAlign: "center" },
+    column: { textAlign: "center" },
+  },
+},
+
     // {
     //   headerName: "Orders",
     //   key: "orders",
@@ -361,4 +373,4 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   );
 });
 
-export default DoctorTable;
+export default PatientTable;

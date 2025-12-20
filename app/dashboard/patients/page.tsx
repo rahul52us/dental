@@ -5,7 +5,7 @@ import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
 import { titles } from "./component/utils/constant";
 import DeleteData from "./component/patient/component/DeleteUser";
-import DoctorsTable from "./component/patient/PatientTable";
+import PatientTable from "./component/patient/PatientTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import AddPatientDrawer from "./component/patient/component/AddPatientDrawer";
@@ -150,7 +150,7 @@ const PatientPage = () => {
 
   return (
     <Box>
-      <DoctorsTable
+      <PatientTable
         onDelete={(ft: any) => {
           setIsDrawerOpen({ open: true, type: "delete", data: ft });
         }}
