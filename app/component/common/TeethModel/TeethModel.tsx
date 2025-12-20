@@ -1,10 +1,11 @@
 "use client"
-import DentalArchChart from './component/DentalArchChart'
+import Index from './DentalChartComponent'
 
 const TeethModel = () => {
   return (
     <>
-        <DentalArchChart />
+        {/* <DentalArchChart /> */}
+        <Index />
     </>
   )
 }

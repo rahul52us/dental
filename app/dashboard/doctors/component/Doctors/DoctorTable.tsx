@@ -1,5 +1,3 @@
-import { observer } from "mobx-react-lite";
-import { useEffect, useState, useCallback } from "react";
 import {
   Avatar,
   Badge,
@@ -14,15 +12,16 @@ import {
   Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
 import { GiPsychicWaves } from "react-icons/gi";
-import stores from "../../../../store/stores";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
-import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
-import { formatDate } from "../../../../component/config/utils/dateUtils";
-import ViewDoctor from "./ViewDoctor";
+import { tablePageLimit } from "../../../../component/config/utils/variable";
 import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
+import stores from "../../../../store/stores";
+import ViewDoctor from "./ViewDoctor";
 
 const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {

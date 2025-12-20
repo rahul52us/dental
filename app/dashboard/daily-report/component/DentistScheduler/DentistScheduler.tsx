@@ -1,17 +1,17 @@
 import { RepeatClockIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Center,
   Flex,
   Grid,
   IconButton,
+  Spinner,
   Text,
   useColorModeValue,
-  Spinner,
-  Center,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { SLOT_DURATION } from "../../utils/constant";
 import stores from "../../../../store/stores";
+import { SLOT_DURATION } from "../../utils/constant";
 
 /* ---------------------- HELPERS ---------------------- */
 
@@ -139,7 +139,7 @@ const ScheduleGrid = ({
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
   const timeHeaderBg = useColorModeValue("gray.100", "gray.700");
-  const borderColor = useColorModeValue("gray.300", "gray.600");
+  // const borderColor = useColorModeValue("gray.300", "gray.600");
 
   const getAppointmentsStartingAt = (time: string, chairId: string) =>
     appointments.filter(
