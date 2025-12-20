@@ -49,6 +49,17 @@ class DoctorAppointment {
     }
   };
 
+  updateAppointment = async (sendData: any) => {
+    try {
+      const { data } = await axios.put(`/doctor/appointment/update/${sendData?._id}`, {...sendData,company : authStore.company});
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+
+
   updateAppointmentStatus = async (sendData: any) => {
     try {
       const { data } = await axios.put(`/doctor/appointment/status/${sendData.id}`, {...sendData,company : authStore.company});

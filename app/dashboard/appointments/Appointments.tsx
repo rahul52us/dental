@@ -13,8 +13,8 @@ import AppointChangeStatus from "./element/AppointmentStatusChange";
 import DentistScheduler from "../daily-report/component/DentistScheduler/DentistScheduler";
 import moment from "moment";
 import { SLOT_DURATION } from "../daily-report/utils/constant";
-import EditForm from "./component/EditForm";
 import AddAppointmentForm from "./component/AddForm";
+import EditAppointmentForm from "./component/EditForm";
 
 const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
@@ -29,7 +29,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
-    type: "add",
+    type: "add"
   });
 
   const [selectedDateAndTime, setSelectedDateTime] = useState<any>({
@@ -75,12 +75,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const [openChangeStatus, setOpenChangeStatus] = useState({
     open: false,
     data: null,
-  });
-
-  const [openDrawer, setOpenDrawer] = useState({
-    open: false,
-    data: null,
-    type: "add",
   });
 
   const [openView, setOpenView] = useState({
@@ -176,7 +170,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
       props: { row: { textAlign: "center" } },
     },
-
     {
       headerName: "Status",
       key: "status",
@@ -226,7 +219,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
-
     {
       headerName: "Appointment Date",
       key: "appointmentDate",
@@ -241,7 +233,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
-
     {
       headerName: "Start & End Time",
       key: "startTime",
@@ -256,7 +247,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
-
     {
       headerName: "Created By",
       key: "actionBy",
@@ -327,6 +317,21 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
                 setOpenReportModal({
                   open: true,
                   type: "add",
+                });
+              },
+            },
+            editKey: {
+              showEditButton: ["admin", "superAdmin"].includes(userType)
+                ? true
+                : false,
+              function: (dt: any) => {
+                setSelectedDateTime({
+                  open: true,
+                  time: undefined,
+                  start: undefined,
+                  end: undefined,
+                  data: dt,
+                  type: "edit",
                 });
               },
             },
@@ -445,7 +450,22 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               selectedDateAndTime={selectedDateAndTime}
             />
           ) : (
-            <EditForm />
+            <EditAppointmentForm
+              patientDetails={patientDetails}
+              isPatient={isPatient}
+              applyGetAllRecords={applyGetAllRecords}
+              close={() =>
+                setSelectedDateTime({
+                  open: false,
+                  time: undefined,
+                  start: undefined,
+                  end: undefined,
+                  data: null,
+                  type: "add",
+                })
+              }
+              selectedDateAndTime={selectedDateAndTime}
+            />
           )}
         </Box>
       </CustomDrawer>
