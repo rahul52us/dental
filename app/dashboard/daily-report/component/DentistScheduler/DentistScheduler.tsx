@@ -12,7 +12,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import stores from "../../../../store/stores";
 import { SLOT_DURATION } from "../../utils/constant";
-import stores from "../../../../store/stores";
 import { format } from "date-fns";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 
