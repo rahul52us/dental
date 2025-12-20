@@ -435,7 +435,16 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               patientDetails={patientDetails}
               isPatient={isPatient}
               applyGetAllRecords={applyGetAllRecords}
-              close={close}
+              close={() =>
+          setSelectedDateTime({
+            open: false,
+            time: undefined,
+            start: undefined,
+            end: undefined,
+            data: null,
+            type: "add",
+          })
+        }
               selectedDateAndTime={selectedDateAndTime}
             />
           ) : (
