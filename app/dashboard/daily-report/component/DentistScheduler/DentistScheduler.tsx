@@ -1,15 +1,16 @@
 import { RepeatClockIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Center,
   Flex,
   Grid,
   IconButton,
+  Spinner,
   Text,
   useColorModeValue,
-  Spinner,
-  Center,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
+import stores from "../../../../store/stores";
 import { SLOT_DURATION } from "../../utils/constant";
 import stores from "../../../../store/stores";
 import { format } from "date-fns";
