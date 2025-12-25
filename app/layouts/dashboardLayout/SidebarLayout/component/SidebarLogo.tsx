@@ -32,6 +32,7 @@ const SidebarLogo: React.FC = observer(() => {
       transition="all 0.3s ease-in-out"
       borderBottom="1px solid"
       borderColor={useColorModeValue("gray.200", "gray.700")}
+      zIndex={99999999}
     >
       <Box
         cursor="pointer"

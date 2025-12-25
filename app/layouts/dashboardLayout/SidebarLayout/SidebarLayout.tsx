@@ -541,7 +541,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             minH={"100vh"}
             transition="width 0.3s"
             color="gray.700"
-            zIndex={50000}
+            zIndex={20}
             bg={colorMode === "dark" ? "gray.800" : "white"}
             borderRight="1px"
             boxShadow="rgb(0 0 0 / 20%) 0px 0px 11px"
