@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
-import { GiPsychicWaves } from "react-icons/gi";
+import { GiPsychicWaves, GiMedicalDrip } from "react-icons/gi";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
@@ -26,29 +26,31 @@ import stores from "../../../../store/stores";
 import AppointmentList from "../../../appointments/Appointments";
 import LineItems from "../../LineItems/LineItems";
 import ViewDoctor from "./ViewPatient";
+import Index from "../../../../component/common/TeethModel/DentalChartComponent";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
     userStore: { getAllUsers, user },
     auth: { openNotification },
   } = stores;
-  const [openAppointDetails, setOpenAppointmentDetails] = useState({
+
+  const [openAppointmentDetails, setOpenAppointmentDetails] = useState({
     open: false,
-    data: null,
+    data: null as any,
   });
+
+  const [openTreatmentDetails, setOpenTreatmentDetails] = useState({
+    open: false,
+    data: null as any,
+  });
+
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedUser, setSelectedTherapist] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
-  // for lineItems drawer
-  const [lineItemDrawer, setLineItemDrawer] = useState({
-    isOpen: false,
-    data: null,
-  });
-
-  const applyGetAllTherapists = useCallback(
+  const applyGetAllPatients = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false }) => {
       const query: any = { page, limit, type: "patient" };
 
@@ -57,15 +59,14 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       }
 
       if (reset) {
-        query.page = 1;
-        query.limit = tablePageLimit;
+        setCurrentPage(1);
       }
 
       getAllUsers(query).catch((err) => {
         openNotification({
           type: "error",
-          title: "Failed to get patient",
-          message: err?.message,
+          title: "Failed to fetch patients",
+          message: err?.message || "Something went wrong",
         });
       });
     },
@@ -73,8 +74,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   );
 
   useEffect(() => {
-    applyGetAllTherapists({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, applyGetAllTherapists]);
+    applyGetAllPatients({ page: currentPage });
+  }, [currentPage, debouncedSearchQuery, applyGetAllPatients]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -83,15 +84,15 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
-    applyGetAllTherapists({ reset: true });
+    applyGetAllPatients({ reset: true });
   };
 
   const handleRowClick = (user: any) => {
-    setSelectedTherapist(user);
+    setSelectedUser(user);
     onOpen();
   };
 
-  const TherapistTableColumns = [
+  const PatientTableColumns = [
     {
       headerName: "S.No.",
       key: "sno",
@@ -104,14 +105,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
-            <Avatar src={dt.pic?.url} name={dt.pic?.name} size="sm" />
+            <Avatar src={dt.pic?.url} name={dt.name} size="sm" />
           </Box>
         ),
       },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
+      props: { row: { minW: 100, textAlign: "center" } },
     },
     {
       headerName: "Name",
@@ -130,38 +128,28 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       metaData: {
         component: (dt: any) => {
           const genderLabel =
-            genderOptions.find((option: any) => option.value === dt?.gender)
-              ?.label || "--";
+            genderOptions.find((opt: any) => opt.value === dt?.gender)?.label ||
+            "--";
 
           const colorScheme =
-            genderLabel === "Male"
-              ? "blue"
-              : genderLabel === "Female"
-              ? "pink"
-              : "gray";
+            genderLabel === "Male" ? "blue" : genderLabel === "Female" ? "pink" : "gray";
 
           return (
-            <Box m={1} textAlign="center" minW="120px">
-              <Badge
-                colorScheme={colorScheme}
-                variant="solid"
-                px={4}
-                py={1.5}
-                borderRadius="full"
-                fontSize="xs"
-                fontWeight="semibold"
-                boxShadow="sm"
-              >
-                {genderLabel}
-              </Badge>
-            </Box>
+            <Badge
+              colorScheme={colorScheme}
+              variant="solid"
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              fontSize="sm"
+              fontWeight="semibold"
+            >
+              {genderLabel}
+            </Badge>
           );
         },
       },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
+      props: { row: { minW: 120, textAlign: "center" } },
     },
     {
       headerName: "Mobile No.",
@@ -169,104 +157,91 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => {
-          const number =
-            dt.phones?.find((it: any) => it.primary)?.number || "--";
-          const displayNumber =
-            number !== "--" ? `•••${number.slice(-4)}` : "--";
+          const primaryPhone = dt.phones?.find((p: any) => p.primary);
+          const number = primaryPhone?.number || "--";
+          const masked = number !== "--" ? `••••${number.slice(-4)}` : "--";
 
           return (
-            <Tooltip label={`Click to copy: ${number}`} hasArrow>
+            <Tooltip label={number !== "--" ? `Copy: ${number}` : ""} hasArrow>
               <Box
-                m={1}
-                textAlign="center"
                 cursor={number !== "--" ? "pointer" : "default"}
-                onClick={() => copyToClipboard(number)}
+                onClick={() => number !== "--" && copyToClipboard(number)}
+                color={number !== "--" ? "blue.600" : "gray.500"}
+                fontWeight="medium"
               >
-                {displayNumber}
+                {masked}
               </Box>
             </Tooltip>
           );
         },
       },
-      props: {
-        row: { minW: 10, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
+      props: { row: { minW: 140, textAlign: "center" } },
     },
-   {
-  headerName: "Appointments",
-  key: "appointment",
-  type: "component",
-  metaData: {
-    component: (dt: any) => (
-      <Badge
-        as="button"
-        px={4}
-        py={2}
-        borderRadius="lg"
-        display="inline-flex"
-        alignItems="center"
-        gap={2}
-        fontWeight="600"
-        fontSize="sm"
-        colorScheme="blue"
-        cursor="pointer"
-        transition="all 0.2s ease"
-        _hover={{
-          bg: "blue.600",
-          transform: "translateY(-1px)",
-        }}
-        _active={{
-          bg: "blue.700",
-          transform: "scale(0.96)",
-        }}
-        onClick={() =>
-          setOpenAppointmentDetails({ open: true, data: dt })
-        }
-      >
-        <CalendarIcon boxSize={4} />
-        Appointment
-      </Badge>
-    ),
-  },
-  props: {
-    row: { minW: 12, textAlign: "center" },
-    column: { textAlign: "center" },
-  },
-},
-
-    // {
-    //   headerName: "Orders",
-    //   key: "orders",
-    //   type: "component",
-    //   metaData: {
-    //     component: (dt: any) => (
-    //       <Badge
-    //         as="button"
-    //         px={3}
-    //         py={1}
-    //         borderRadius="md"
-    //         colorScheme="blue"
-    //         cursor="pointer"
-    //         onClick={() => setLineItemDrawer({ isOpen: true, data: dt })}
-    //       >
-    //         View
-    //       </Badge>
-    //     ),
-    //   },
-    //   props: {
-    //     row: { minW: 10, textAlign: "center" },
-    //     column: { textAlign: "center" },
-    //   },
-    // },
+    {
+      headerName: "Appointments",
+      key: "appointments",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Badge
+            as="button"
+            px={3}
+            py={1}
+            borderRadius="md"
+            colorScheme="teal"
+            variant="solid"
+            cursor="pointer"
+            fontWeight="600"
+            fontSize="xs"
+            display="flex"
+            alignItems="center"
+            gap={1}
+            _hover={{ bg: "teal.600", shadow: "sm" }}
+            transition="all 0.2s"
+            onClick={() => setOpenAppointmentDetails({ open: true, data: dt })}
+          >
+            <CalendarIcon boxSize={3} />
+            Appointments
+          </Badge>
+        ),
+      },
+      props: { row: { minW: 130, textAlign: "center" } },
+    },
+    {
+      headerName: "Treatment",
+      key: "treatment",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Badge
+            as="button"
+            px={3}
+            py={1}
+            borderRadius="md"
+            colorScheme="purple"
+            variant="solid"
+            cursor="pointer"
+            fontWeight="600"
+            fontSize="xs"
+            display="flex"
+            alignItems="center"
+            gap={1}
+            _hover={{ bg: "purple.600", shadow: "sm" }}
+            transition="all 0.2s"
+            onClick={() => setOpenTreatmentDetails({ open: true, data: dt })}
+          >
+            <GiMedicalDrip size={14} />
+            Treatment
+          </Badge>
+        ),
+      },
+      props: { row: { minW: 120, textAlign: "center" } },
+    },
     {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
-      props: {
-        row: { minW: 180, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
+      props: { row: { minW: 180, textAlign: "center" } },
     },
   ];
 
@@ -274,18 +249,15 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     <>
       <Box p={4}>
         <CustomTable
-          title="Patient"
+          title="Patients"
           data={
-            user.data?.map((t: any, index: number) => {
-              return {
-                ...t,
-                ...t.profileDetails?.personalInfo,
-                refrenceBy: t.refrenceBy,
-                sno: index + 1,
-              };
-            }) || []
+            user.data?.map((patient: any, index: number) => ({
+              ...patient,
+              ...patient.profileDetails?.personalInfo,
+              sno: index + 1 + (currentPage - 1) * tablePageLimit,
+            })) || []
           }
-          columns={TherapistTableColumns}
+          columns={PatientTableColumns}
           actions={{
             actionBtn: {
               addKey: { showAddButton: true, function: onAdd },
@@ -300,74 +272,70 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             },
             resetData: {
               show: false,
-              text: "Reset Data",
               function: resetTableData,
             },
             pagination: {
               show: true,
               onClick: handleChangePage,
-              currentPage: currentPage,
+              currentPage,
               totalPages: user.totalPages || 1,
             },
           }}
           loading={user.loading}
         />
 
-        {/* Profile Drawer */}
-        <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+        {/* Patient Profile Drawer */}
+        <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
           <DrawerOverlay />
-          <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
+          <DrawerContent>
             <DrawerCloseButton />
-            <DrawerHeader
-              bgGradient="linear(to-r, blue.400, purple.400)"
-              color="white"
-            >
+            <DrawerHeader bgGradient="linear(to-r, teal.500, blue.500)" color="white">
               <Flex align="center" gap={3}>
-                <GiPsychicWaves size="24px" />
-                User Profile
+                <GiPsychicWaves size={28} />
+                Patient Profile
               </Flex>
             </DrawerHeader>
-
-            {selectedUser && (
-              <DrawerBody>
+            <DrawerBody>
+              {selectedUser && (
                 <ViewDoctor
                   user={{
-                    ...selectedUser.profileDetails?.personalInfo,
                     ...selectedUser,
+                    ...selectedUser.profileDetails?.personalInfo,
                   }}
                 />
-              </DrawerBody>
-            )}
+              )}
+            </DrawerBody>
           </DrawerContent>
         </Drawer>
+
+        {/* Appointments Drawer */}
+        {openAppointmentDetails.open && (
+          <CustomDrawer
+            width="92%"
+            title="Patient Appointments"
+            open={openAppointmentDetails.open}
+            close={() => setOpenAppointmentDetails({ open: false, data: null })}
+          >
+            <AppointmentList
+              isPatient={true}
+              patientDetails={openAppointmentDetails.data}
+            />
+          </CustomDrawer>
+        )}
+
+        {/* Treatment Drawer */}
+        {openTreatmentDetails.open && (
+          <CustomDrawer
+            width="92%"
+            title="Treatment History"
+            open={openTreatmentDetails.open}
+            close={() => setOpenTreatmentDetails({ open: false, data: null })}
+          >
+            <Index
+            />
+          </CustomDrawer>
+        )}
       </Box>
-
-      {/* LineItems Drawer */}
-      {lineItemDrawer.isOpen && (
-        <CustomDrawer
-          loading={false}
-          open={lineItemDrawer.isOpen}
-          width={"85vw"}
-          close={() => setLineItemDrawer({ isOpen: false, data: null })}
-          title={"Orders"}
-        >
-          <LineItems data={lineItemDrawer.data} />
-        </CustomDrawer>
-      )}
-
-      {openAppointDetails.open && (
-        <CustomDrawer
-          width="92%"
-          title="Appointments"
-          open={openAppointDetails.open}
-          close={() => setOpenAppointmentDetails({ open: false, data: null })}
-        >
-          <AppointmentList
-            isPatient={true}
-            patientDetails={openAppointDetails?.data}
-          />
-        </CustomDrawer>
-      )}
     </>
   );
 });

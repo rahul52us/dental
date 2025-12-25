@@ -4,8 +4,7 @@ import Index from './DentalChartComponent'
 const TeethModel = () => {
   return (
     <>
-        {/* <DentalArchChart /> */}
-        <Index />
+      <Index />
     </>
   )
 }
