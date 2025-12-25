@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import {
   Box,
@@ -16,8 +18,9 @@ import { TeethChart } from "./component/TeethChart";
 import { ToothFormDialog } from "./component/ToothFormDialog";
 import { ToothInfoCard } from "./component/ToothInfoCard";
 import { DentitionType, ToothData } from "./utils/teethData";
+import { observer } from "mobx-react-lite";
 
-const Index = () => {
+const Index = observer(({} : any) => {
   const [dentitionType, setDentitionType] =
     useState<DentitionType>("adult");
   const [selectedTooth, setSelectedTooth] =
@@ -114,6 +117,6 @@ const Index = () => {
       />
     </Box>
   );
-};
+});
 
 export default Index;

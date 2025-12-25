@@ -1,5 +1,4 @@
 "use client"; // Add this directive since this is a client component
-
 import React, { useState, useEffect } from "react";
 import {
   Accordion,
@@ -27,12 +26,12 @@ import {
   DrawerOverlay,
   useBreakpointValue,
   useColorMode,
-  Tooltip,
+  Tooltip
 } from "@chakra-ui/react";
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 import { observer } from "mobx-react-lite";
-import { useRouter } from "next/navigation"; // Replace useNavigate with Next.js useRouter
+import { useRouter } from "next/navigation";
 import SidebarLogo from "./component/SidebarLogo";
 import stores from "../../../store/stores";
 import {
@@ -541,7 +540,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             minH={"100vh"}
             transition="width 0.3s"
             color="gray.700"
-            zIndex={20}
+            zIndex={1000}
             bg={colorMode === "dark" ? "gray.800" : "white"}
             borderRight="1px"
             boxShadow="rgb(0 0 0 / 20%) 0px 0px 11px"
@@ -551,7 +550,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             <Box
               position="sticky"
               top={0}
-              zIndex={11}
+              zIndex={200}
               bg={"white"}
               borderBottom={"1px solid"}
               borderBottomColor={headerBgColor}

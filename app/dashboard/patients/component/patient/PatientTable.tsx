@@ -24,9 +24,8 @@ import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
 import stores from "../../../../store/stores";
 import AppointmentList from "../../../appointments/Appointments";
-import LineItems from "../../LineItems/LineItems";
 import ViewDoctor from "./ViewPatient";
-import Index from "../../../../component/common/TeethModel/DentalChartComponent";
+import Treatment from "../../../treatment/page";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -132,7 +131,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             "--";
 
           const colorScheme =
-            genderLabel === "Male" ? "blue" : genderLabel === "Female" ? "pink" : "gray";
+            genderLabel === "Male"
+              ? "blue"
+              : genderLabel === "Female"
+              ? "pink"
+              : "gray";
 
           return (
             <Badge
@@ -289,7 +292,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <DrawerOverlay />
           <DrawerContent>
             <DrawerCloseButton />
-            <DrawerHeader bgGradient="linear(to-r, teal.500, blue.500)" color="white">
+            <DrawerHeader
+              bgGradient="linear(to-r, teal.500, blue.500)"
+              color="white"
+            >
               <Flex align="center" gap={3}>
                 <GiPsychicWaves size={28} />
                 Patient Profile
@@ -331,7 +337,9 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             open={openTreatmentDetails.open}
             close={() => setOpenTreatmentDetails({ open: false, data: null })}
           >
-            <Index
+            <Treatment
+              isPatient={true}
+              patientDetails={openTreatmentDetails.data}
             />
           </CustomDrawer>
         )}
