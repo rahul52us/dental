@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Heading,
@@ -11,7 +13,11 @@ import {
   CardBody,
   Link,
   Icon,
+  Skeleton,
+  SkeletonText,
+  SkeletonCircle,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
   FaCalendarAlt,
   FaClock,
@@ -23,6 +29,8 @@ import {
   FaHistory,
   FaVideo,
 } from "react-icons/fa";
+import stores from "../../../store/stores";
+import { observer } from "mobx-react-lite";
 
 const statusColors: Record<string, string> = {
   scheduled: "blue",
@@ -33,233 +41,265 @@ const statusColors: Record<string, string> = {
   "no-show": "gray",
 };
 
-export default function AppointmentDetailsView({ data }: { data: any }) {
-  if (!data) return <Text>No appointment found.</Text>;
+interface AppointmentDetailsViewProps {
+  data: any;
+}
 
-  const {
-    title,
-    description,
-    appointmentDate,
-    startTime,
-    endTime,
-    mode,
-    meetingLink,
-    location,
-    status,
-    primaryDoctor,
-    additionalDoctors,
-    patient,
-    notes,
-    history,
-    createdBy,
-  } = data;
+const AppointmentDetailsView = observer(
+  ({ data }: AppointmentDetailsViewProps) => {
+    const [appointment, setAppointment] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const color = statusColors[status] || "gray";
+    console.log("the appointment data are", data)
 
-  return (
-    <Box p={6} mx="auto" bg="white" shadow="lg" borderRadius="xl">
-      {/* Header Section */}
-      <HStack justify="space-between" align="start" mb={6}>
-        <Box>
-          <Heading size="lg" color="gray.800">
-            {title}
-          </Heading>
-          <Text fontSize="sm" color="gray.500" mt={1}>
-            {description || "No description provided."}
-          </Text>
+    const {
+      DoctorAppointment: { getAppointmentById },
+      auth: { openNotification },
+    } = stores;
+
+    const fetchAppointmentView = async () => {
+      if (!data?._id) return;
+
+      setIsLoading(true);
+      try {
+        const response = await getAppointmentById({
+          appointmentId: data._id,
+        });
+
+        if (response?.status === "success") {
+          setAppointment(response?.data?.data);
+        }
+      } catch (err: any) {
+        openNotification({
+          type: "error",
+          title: "Failed to get Appointment",
+          message: err?.message || "Something went wrong",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      if (data?._id) {
+        fetchAppointmentView();
+      }
+    }, [data?._id]);
+
+    /* ---------------- Skeleton Loader ---------------- */
+    if (isLoading) {
+      return (
+        <Box p={6} bg="white" shadow="lg" borderRadius="xl">
+          <HStack justify="space-between" mb={6}>
+            <Box flex={1}>
+              <Skeleton height="28px" width="60%" mb={2} />
+              <SkeletonText noOfLines={2} spacing={2} />
+            </Box>
+            <Skeleton height="28px" width="100px" borderRadius="full" />
+          </HStack>
+
+          {[1, 2, 3].map((_, i) => (
+            <Card key={i} mb={6}>
+              <CardHeader>
+                <Skeleton height="20px" width="200px" />
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <VStack align="start" spacing={4}>
+                  <HStack>
+                    <SkeletonCircle size="6" />
+                    <Skeleton height="14px" width="220px" />
+                  </HStack>
+                  <HStack>
+                    <SkeletonCircle size="6" />
+                    <Skeleton height="14px" width="180px" />
+                  </HStack>
+                </VStack>
+              </CardBody>
+            </Card>
+          ))}
         </Box>
-        <Badge
-          colorScheme={color}
-          px={4}
-          py={2}
-          borderRadius="full"
-          fontSize="sm"
-          textTransform="capitalize"
-        >
-          {status.replace("-", " ")}
-        </Badge>
-      </HStack>
+      );
+    }
 
-      {/* Appointment Info */}
-      <Card mb={6} shadow="sm" borderRadius="lg">
-        <CardHeader pb={2}>
-          <Heading size="md">Appointment Details</Heading>
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          <VStack align="start" spacing={3}>
-            <HStack>
-              <Icon as={FaCalendarAlt} color="blue.500" />
-              <Text>
-                <b>Date:</b>{" "}
-                {new Date(appointmentDate).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </Text>
-            </HStack>
+    /* ---------------- Empty State ---------------- */
+    if (!appointment) {
+      return <Text>No appointment found.</Text>;
+    }
 
-            <HStack>
-              <Icon as={FaClock} color="blue.500" />
-              <Text>
-                <b>Time:</b> {startTime} – {endTime}
-              </Text>
-            </HStack>
+    const {
+      title,
+      description,
+      appointmentDate,
+      startTime,
+      endTime,
+      mode,
+      meetingLink,
+      location,
+      status,
+      primaryDoctor,
+      additionalDoctors,
+      patient,
+      notes,
+      history,
+      createdBy,
+    } = appointment;
 
-            <HStack>
-              {mode === "online" ? (
-                <>
-                  <Icon as={FaVideo} color="blue.500" />
-                  <Text>
-                    <b>Mode:</b> Online
-                  </Text>
-                  <Link
-                    href={meetingLink}
-                    color="blue.500"
-                    isExternal
-                    ml={2}
-                    fontSize="sm"
-                  >
-                    <Icon as={FaLink} mr={1} />
-                    Join Meeting
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Icon as={FaMapMarkerAlt} color="blue.500" />
-                  <Text>
-                    <b>Location:</b> {location || "Not provided"}
-                  </Text>
-                </>
-              )}
-            </HStack>
-          </VStack>
-        </CardBody>
-      </Card>
+    const color = statusColors[status] || "gray";
 
-      {/* Doctors Section */}
-      <Card mb={6}>
-        <CardHeader pb={2}>
-          <Heading size="md">Doctors</Heading>
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          <VStack align="start" spacing={3}>
-            <HStack>
-              <Icon as={FaUserMd} color="teal.500" />
-              <Text>
-                <b>Primary Doctor:</b> {primaryDoctor?.name} (
-                {primaryDoctor?.code})
-              </Text>
-            </HStack>
-            {additionalDoctors?.length > 0 && (
-              <HStack align="start">
-                <Icon as={FaUserMd} color="teal.400" />
+    const formattedDate = appointmentDate
+      ? new Date(appointmentDate).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "N/A";
+
+    return (
+      <Box p={6} mx="auto" bg="white" shadow="lg" borderRadius="xl">
+        {/* Header */}
+        <HStack justify="space-between" align="start" mb={6}>
+          <Box>
+            <Heading size="lg" color="gray.800">
+              {title}
+            </Heading>
+            <Text fontSize="sm" color="gray.500" mt={1}>
+              {description || "No description provided."}
+            </Text>
+          </Box>
+
+          {status && (
+            <Badge
+              colorScheme={color}
+              px={4}
+              py={2}
+              borderRadius="full"
+              fontSize="sm"
+              textTransform="capitalize"
+            >
+              {status.replace(/-/g, " ")}
+            </Badge>
+          )}
+        </HStack>
+
+        {/* Appointment Details */}
+        <Card mb={6}>
+          <CardHeader pb={2}>
+            <Heading size="md">Appointment Details</Heading>
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            <VStack align="start" spacing={3}>
+              <HStack>
+                <Icon as={FaCalendarAlt} color="blue.500" />
                 <Text>
-                  <b>Assisted By:</b>{" "}
-                  {additionalDoctors.map((doc: any) => doc.name).join(", ")}
+                  <b>Date:</b> {formattedDate}
+                </Text>
+              </HStack>
+
+              <HStack>
+                <Icon as={FaClock} color="blue.500" />
+                <Text>
+                  <b>Time:</b> {startTime || "N/A"} – {endTime || "N/A"}
+                </Text>
+              </HStack>
+
+              <HStack>
+                {mode === "online" ? (
+                  <>
+                    <Icon as={FaVideo} color="blue.500" />
+                    <Text>
+                      <b>Mode:</b> Online
+                    </Text>
+                    {meetingLink && (
+                      <Link
+                        href={meetingLink}
+                        color="blue.500"
+                        isExternal
+                        ml={2}
+                      >
+                        <Icon as={FaLink} mr={1} />
+                        Join Meeting
+                      </Link>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Icon as={FaMapMarkerAlt} color="blue.500" />
+                    <Text>
+                      <b>Location:</b> {location || "Not provided"}
+                    </Text>
+                  </>
+                )}
+              </HStack>
+            </VStack>
+          </CardBody>
+        </Card>
+
+        {/* Doctors */}
+        <Card mb={6}>
+          <CardHeader pb={2}>
+            <Heading size="md">Doctors</Heading>
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            <VStack align="start" spacing={3}>
+              {primaryDoctor && (
+                <HStack>
+                  <Icon as={FaUserMd} color="teal.500" />
+                  <Text>
+                    <b>Primary Doctor:</b> {primaryDoctor.name} (
+                    {primaryDoctor.code})
+                  </Text>
+                </HStack>
+              )}
+
+              {additionalDoctors?.length > 0 && (
+                <HStack>
+                  <Icon as={FaUserMd} color="teal.400" />
+                  <Text>
+                    <b>Assisted By:</b>{" "}
+                    {additionalDoctors
+                      .map((d: any) => d?.name)
+                      .filter(Boolean)
+                      .join(", ")}
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
+          </CardBody>
+        </Card>
+
+        {/* Patient */}
+        <Card mb={6}>
+          <CardHeader pb={2}>
+            <Heading size="md">Patient Information</Heading>
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            {patient && (
+              <HStack>
+                <Icon as={FaUser} color="purple.500" />
+                <Text>
+                  <b>Name:</b> {patient.name} ({patient.code})
                 </Text>
               </HStack>
             )}
-          </VStack>
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
 
-      {/* Patient Section */}
-      <Card mb={6}>
-        <CardHeader pb={2}>
-          <Heading size="md">Patient Information</Heading>
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          <HStack>
-            <Icon as={FaUser} color="purple.500" />
-            <Text>
-              <b>Name:</b> {patient?.name} ({patient?.code})
+        {/* Footer */}
+        {createdBy && (
+          <>
+            <Divider />
+            <Text fontSize="sm" color="gray.500" mt={3} textAlign="right">
+              Created by <b>{createdBy.name}</b> ({createdBy.code})
             </Text>
-          </HStack>
-        </CardBody>
-      </Card>
+          </>
+        )}
+      </Box>
+    );
+  }
+);
 
-      {/* Notes Section */}
-      {notes?.length > 0 && (
-        <Card mb={6}>
-          <CardHeader pb={2}>
-            <Heading size="md">
-              <Icon as={FaStickyNote} color="orange.400" mr={2} />
-              Doctor Notes
-            </Heading>
-          </CardHeader>
-          <Divider />
-          <CardBody>
-            <VStack align="start" spacing={3}>
-              {notes.map((n: any, idx: number) => (
-                <Box
-                  key={idx}
-                  p={3}
-                  bg="gray.50"
-                  borderRadius="md"
-                  borderWidth="1px"
-                  w="full"
-                >
-                  <Text fontSize="sm" color="gray.700">
-                    {n.text}
-                  </Text>
-                  <Text fontSize="xs" color="gray.500">
-                    {new Date(n.createdAt).toLocaleString()}
-                  </Text>
-                </Box>
-              ))}
-            </VStack>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* History Section */}
-      {history?.length > 0 && (
-        <Card mb={6}>
-          <CardHeader pb={2}>
-            <Heading size="md">
-              <Icon as={FaHistory} color="blue.400" mr={2} />
-              Status History
-            </Heading>
-          </CardHeader>
-          <Divider />
-          <CardBody>
-            <VStack align="start" spacing={3}>
-              {history.map((h: any, idx: number) => (
-                <Box
-                  key={idx}
-                  p={3}
-                  bg="gray.50"
-                  borderRadius="md"
-                  borderWidth="1px"
-                  w="full"
-                >
-                  <Text fontSize="sm">
-                    <b>Action:</b> {h.action}
-                  </Text>
-                  {h.remarks && (
-                    <Text fontSize="sm" color="gray.600">
-                      <b>Remarks:</b> {h.remarks}
-                    </Text>
-                  )}
-                  <Text fontSize="xs" color="gray.500">
-                    {new Date(h.timestamp).toLocaleString()}
-                  </Text>
-                </Box>
-              ))}
-            </VStack>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Created By */}
-      <Divider />
-      <Text fontSize="sm" color="gray.500" mt={3} textAlign="right">
-        Created by <b>{createdBy?.name}</b> ({createdBy?.code})
-      </Text>
-    </Box>
-  );
-}
+export default AppointmentDetailsView;

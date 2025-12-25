@@ -8,12 +8,16 @@ import {
   Spinner,
   Text,
   useColorModeValue,
+  Tooltip,
+  Divider,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import stores from "../../../../store/stores";
 import { SLOT_DURATION } from "../../utils/constant";
 import { format } from "date-fns";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import AppointmentDetailsView from "../../../appointments/element/AppointmentDetailsView";
+import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 
 /* ---------------------- HELPERS ---------------------- */
 
@@ -29,7 +33,6 @@ const hexToRGBA = (hex: string, alpha = 0.2) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-/* ✅ FULL 24 HOURS */
 const generateTimeSlots = () => {
   const slots: string[] = [];
   let current = 0;
@@ -51,6 +54,7 @@ const AppointmentCard = ({
   chairColor,
   overlapIndex = 0,
   totalOverlaps = 1,
+  onOpenDetails,
 }: any) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
   const heightStyle = `calc(${heightMultiplier * 100}% + ${
@@ -61,36 +65,84 @@ const AppointmentCard = ({
   const leftOffset = overlapIndex * (96 / totalOverlaps);
 
   return (
-    <Box
-      position="absolute"
-      top={0}
-      left={`${leftOffset}%`}
-      width={`${widthPercent}%`}
-      height={heightStyle}
-      m="3px"
-      p={2.5}
-      borderLeftWidth="6px"
-      borderRadius="lg"
-      boxShadow="md"
-      bg={`${chairColor}22`}
-      borderColor={chairColor}
-      zIndex={10 + overlapIndex}
-    >
-      <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
+    <Tooltip
+  hasArrow
+  placement="right"
+  openDelay={300}
+  bg="gray.800"
+  color="white"
+  borderRadius="md"
+  px={3}
+  py={2}
+  pointerEvents="auto"
+  label={
+    <Box>
+      <Text fontWeight="bold" fontSize="sm">
         {appointment.patientName}
       </Text>
 
-      <Text fontSize="xs" mt={1} noOfLines={1}>
-        {appointment.treatment || "Consultation"}
+      <Text fontSize="xs" opacity={0.85}>
+        👨‍⚕️ {appointment.doctorName || "—"}
       </Text>
 
-      {appointment.duration >= 60 && (
-        <Flex align="center" gap={1} mt={1} fontSize="xs">
-          <RepeatClockIcon boxSize={3.5} />
-          <Text>{appointment.duration} min</Text>
-        </Flex>
-      )}
+      <Divider my={1} borderColor="gray.600" />
+
+      <Text fontSize="xs">
+        🩺 {appointment.treatment || "Consultation"}
+      </Text>
+
+      <Text fontSize="xs">
+        ⏰ {appointment.startTime} • {appointment.duration} min
+      </Text>
     </Box>
+  }
+>
+  <Box
+  position="absolute"
+  top={0}
+  left={`${leftOffset}%`}
+  width={`${widthPercent}%`}
+  height={heightStyle}
+  m="1x"
+  p={1.5}
+  borderLeftWidth="6px"
+  borderRadius="lg"
+  boxShadow="md"
+  bg={`${chairColor}22`}
+  borderColor={chairColor}
+  zIndex={10 + overlapIndex}
+  cursor="pointer"
+  onClick={(e) => {
+    e.stopPropagation();
+    onOpenDetails(appointment);
+  }}
+>
+  {/* Patient name (primary) */}
+  <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
+    {appointment.patientName}
+  </Text>
+
+  {/* Doctor name (secondary) */}
+  <Text fontSize="xs" color="gray.600" noOfLines={1}>
+    Dr. {appointment.doctorName || "—"}
+  </Text>
+
+  {/* Treatment */}
+  <Text fontSize="xs" mt={1} noOfLines={1}>
+    {appointment.treatment || "Consultation"}
+  </Text>
+
+  {/* Duration */}
+  {appointment.duration >= 60 && (
+    <Flex align="center" gap={1} mt={1} fontSize="xs" color="gray.600">
+      <RepeatClockIcon boxSize={3.5} />
+      <Text>{appointment.duration} min</Text>
+    </Flex>
+  )}
+</Box>
+
+</Tooltip>
+
   );
 };
 
@@ -104,6 +156,7 @@ const ScheduleGrid = ({
   selectedDate,
   setSelectedDate,
   allowedSlots,
+  onOpenDetails,
 }: any) => {
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
@@ -111,7 +164,6 @@ const ScheduleGrid = ({
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
   const isPastDate = selectedDate < today;
 
   const getAppointmentsStartingAt = (time: string, chairId: string) =>
@@ -129,7 +181,6 @@ const ScheduleGrid = ({
     });
   };
 
-  /* ✅ SLOT AVAILABILITY (working hours + future date only) */
   const isSlotAllowed = (time: string) => {
     if (isPastDate) return false;
 
@@ -142,42 +193,15 @@ const ScheduleGrid = ({
       const start = toMinutes(slot.startTime);
       const end = toMinutes(slot.endTime);
 
-      // overnight support
-      if (end < start) {
-        return slotMinutes >= start || slotMinutes < end;
-      }
-
-      return slotMinutes >= start && slotMinutes < end;
+      return end < start
+        ? slotMinutes >= start || slotMinutes < end
+        : slotMinutes >= start && slotMinutes < end;
     });
   };
-
-  /* ✅ WORKING HOURS TEXT */
-  const workingHoursText = useMemo(() => {
-    if (isPastDate) return "Working hours: Not available (past date)";
-
-    const dayIndex = selectedDate.getDay();
-    const todaySlots = allowedSlots.filter((s: any) =>
-      s.daysOfWeek.includes(dayIndex)
-    );
-
-    if (!todaySlots.length) return "Working hours: Closed today";
-
-    return `Working hours: ${todaySlots
-      .map((s: any) => `${s.startTime} – ${s.endTime}`)
-      .join(", ")}`;
-  }, [allowedSlots, selectedDate, isPastDate]);
 
   return (
     <Box flex="1" px={1} pb={1} overflowX="auto">
       <Box bg={bg} borderRadius="2xl" boxShadow="2xl" borderWidth="1px">
-        {/* WORKING HOURS */}
-        <Flex justify="space-between" align="center" px={4} py={2}>
-          <Text fontSize="sm" fontWeight="medium" color="gray.600">
-            {workingHoursText}
-          </Text>
-        </Flex>
-
-        {/* HEADER */}
         <Grid
           templateColumns={`100px repeat(${chairs.length}, 1fr)`}
           bg={headerBg}
@@ -193,7 +217,6 @@ const ScheduleGrid = ({
             <CustomInput
               type="date"
               name="date"
-              // min={format(new Date(), "yyyy-MM-dd")} // ✅ BLOCK PAST DAYS
               value={selectedDate}
               onChange={(e: any) => {
                 const [y, m, d] = e.target.value.split("-").map(Number);
@@ -213,7 +236,6 @@ const ScheduleGrid = ({
           ))}
         </Grid>
 
-        {/* BODY */}
         {timeSlots.map((time: string) => (
           <Grid
             key={time}
@@ -240,69 +262,74 @@ const ScheduleGrid = ({
 
               return (
                 <Box
-                  key={`${chair.id}-${time}`}
-                  position="relative"
-                  minH="70px"
-                  borderRightWidth="2px"
-                  borderBottomWidth="2px"
-                  borderColor="gray.400"
-                  bg={allowed ? hexToRGBA(chair.color, 0.07) : "gray.100"}
-                  opacity={allowed ? 1 : 0.45}
-                  pointerEvents={allowed ? "auto" : "none"}
-                  cursor={allowed ? "pointer" : "not-allowed"}
-                >
-                  {startingAppointments.map((apt: any, index: number) => (
-                    <AppointmentCard
-                      key={apt.id}
-                      appointment={apt}
-                      chairColor={chair.color}
-                      overlapIndex={index}
-                      totalOverlaps={startingAppointments.length}
-                    />
-                  ))}
+  key={`${chair.id}-${time}`}
+  position="relative"
+  minH="70px"
+  borderRightWidth="2px"
+  borderBottomWidth="2px"
+  borderColor="gray.400"
+  bg={allowed ? hexToRGBA(chair.color, 0.07) : "gray.100"}
+  opacity={allowed ? 1 : 0.45}
+>
+  {/* 🔹 Existing Appointments (ALWAYS clickable) */}
+  {startingAppointments.map((apt: any, index: number) => (
+    <AppointmentCard
+      key={apt.id}
+      appointment={apt}
+      chairColor={chair.color}
+      overlapIndex={index}
+      totalOverlaps={startingAppointments.length}
+      onOpenDetails={onOpenDetails}
+    />
+  ))}
 
-                  {!allowed && (
-                    <Text
-                      position="absolute"
-                      top="50%"
-                      left="50%"
-                      transform="translate(-50%, -50%)"
-                      fontSize="xs"
-                      color="gray.600"
-                      fontWeight="semibold"
-                    >
-                      {"Closed"}
-                    </Text>
-                  )}
+  {/* 🔒 Closed Slot Label (does NOT block appointments) */}
+  {!allowed && startingAppointments.length === 0 && (
+    <Text
+      position="absolute"
+      top="50%"
+      left="50%"
+      transform="translate(-50%, -50%)"
+      fontSize="xs"
+      color="gray.600"
+      fontWeight="semibold"
+      zIndex={1} // behind appointment cards
+      pointerEvents="none"
+    >
+      Closed
+    </Text>
+  )}
 
-                  {!occupied && allowed && (
-                    <Flex
-                      position="absolute"
-                      inset={0}
-                      align="center"
-                      justify="center"
-                      opacity={0}
-                      _hover={{ opacity: 1 }}
-                    >
-                      <IconButton
-                        aria-label="Add appointment"
-                        size="lg"
-                        borderRadius="full"
-                        bg="blue.500"
-                        color="white"
-                        icon={<Text fontSize="2xl">+</Text>}
-                        onClick={() =>
-                          handleTimeSlots({
-                            open: true,
-                            time,
-                            chair,
-                            selectedDate,
-                          })
-                        }
-                      />
-                    </Flex>
-                  )}
-                </Box>
+  {/* ➕ Add Appointment (ONLY if slot is allowed & empty) */}
+  {!occupied && allowed && (
+    <Flex
+      position="absolute"
+      inset={0}
+      align="center"
+      justify="center"
+      opacity={0}
+      _hover={{ opacity: 1 }}
+    >
+      <IconButton
+        aria-label="Add appointment"
+        size="lg"
+        borderRadius="full"
+        bg="blue.500"
+        color="white"
+        icon={<Text fontSize="2xl">+</Text>}
+        onClick={() =>
+          handleTimeSlots({
+            open: true,
+            time,
+            chair,
+            selectedDate,
+          })
+        }
+      />
+    </Flex>
+  )}
+</Box>
+
               );
             })}
           </Grid>
@@ -314,27 +341,11 @@ const ScheduleGrid = ({
 
 /* ---------------------- MAIN ---------------------- */
 
-const convertOperatingHoursToBusinessHours = (hours: any[]) =>
-  hours
-    .filter((d) => d.isOpen)
-    .flatMap((d) => {
-      const dayIndex = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ].indexOf(d.day);
-      return d.slots.map((slot) => ({
-        daysOfWeek: [dayIndex],
-        startTime: slot.start,
-        endTime: slot.end,
-      }));
-    });
-
-export default function DentistScheduler({ handleTimeSlots ,selectedDate, setSelectedDate}: any) {
+export default function DentistScheduler({
+  handleTimeSlots,
+  selectedDate,
+  setSelectedDate,
+}: any) {
   const {
     chairsStore: { getChairSummary },
     auth: { user },
@@ -344,12 +355,33 @@ export default function DentistScheduler({ handleTimeSlots ,selectedDate, setSel
   const [chairs, setChairs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ ONLY NEW STATE
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [openDrawer, setOpenDrawer] = useState<any>(false);
+
   const allowedSlots = useMemo(
     () =>
-      convertOperatingHoursToBusinessHours(
-        user?.companyDetails?.operatingHours || []
-      ),
-    []
+      user?.companyDetails?.operatingHours
+        ? user.companyDetails.operatingHours
+            .filter((d: any) => d.isOpen)
+            .flatMap((d: any) => {
+              const dayIndex = [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+              ].indexOf(d.day);
+              return d.slots.map((slot: any) => ({
+                daysOfWeek: [dayIndex],
+                startTime: slot.start,
+                endTime: slot.end,
+              }));
+            })
+        : [],
+    [user]
   );
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
@@ -378,6 +410,7 @@ export default function DentistScheduler({ handleTimeSlots ,selectedDate, setSel
               id: apt._id,
               patientName: apt.patient?.name || "Unknown",
               treatment: apt.title,
+              doctorName: apt.primaryDoctor?.name || "--",
               startTime: apt.startTime,
               duration: toMinutes(apt.endTime) - toMinutes(apt.startTime),
               chairId: chair._id,
@@ -403,14 +436,30 @@ export default function DentistScheduler({ handleTimeSlots ,selectedDate, setSel
   }
 
   return (
-    <ScheduleGrid
-      timeSlots={timeSlots}
-      chairs={chairs}
-      appointments={appointments}
-      handleTimeSlots={handleTimeSlots}
-      selectedDate={selectedDate}
-      setSelectedDate={setSelectedDate}
-      allowedSlots={allowedSlots}
-    />
+    <>
+      <ScheduleGrid
+        timeSlots={timeSlots}
+        chairs={chairs}
+        appointments={appointments}
+        handleTimeSlots={handleTimeSlots}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+        allowedSlots={allowedSlots}
+        onOpenDetails={(apt: any) => {
+          setSelectedAppointment(apt);
+          setOpenDrawer(true);
+        }}
+      />
+
+      {/* ✅ ONLY NEW UI */}
+      <CustomDrawer
+        width={"80vw"}
+        open={openDrawer}
+        close={() => setOpenDrawer(false)}
+        title="Appointment Details"
+      >
+              <AppointmentDetailsView data={{...selectedAppointment, _id : selectedAppointment?.id}} />
+      </CustomDrawer>
+    </>
   );
 }

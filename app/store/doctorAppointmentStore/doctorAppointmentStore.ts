@@ -39,6 +39,19 @@ class DoctorAppointment {
     }
   };
 
+  getAppointmentById = async (sendData: any) => {
+    try {
+      const { data } = await axios.post(
+        `/doctor/appointment/AppointmentById`,
+        {...sendData, appointmentId : sendData?.appointmentId ,company :authStore.company}
+      );
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+    }
+  };
+
   // Create Testimonial
   createDoctorAppointment = async (sendData: any) => {
     try {
