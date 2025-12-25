@@ -32,6 +32,7 @@ import DegreeInfo from "./formElement/DegreeInfo";
 import { AddIcon } from "@chakra-ui/icons";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import MasterDataForm from "../../masters/page";
+import { calculateAgeSafe } from "../../../config/utils/function";
 
 const Form = observer(
   ({
@@ -182,6 +183,14 @@ const Form = observer(
                             onChange={handleChange}
                             error={errors?.dob}
                             showError={errors?.dob}
+                          />
+                          <CustomInput
+                            label="Age"
+                            name="age"
+                            type="number"
+                            value={calculateAgeSafe(values?.dob) ?? ""}
+                            disabled={true}
+                            placeholder="Auto calculated"
                           />
                           <CustomInput
                             label="Gender"

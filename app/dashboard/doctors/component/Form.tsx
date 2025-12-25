@@ -30,6 +30,7 @@ import PhoneNumbersInput from "./formElement/PhoneNumbersInputSection";
 import VaccinationHistorySection from "./formElement/VaccinationHistory";
 import { generateIntialValues } from "./utils/function";
 import { createValidationSchema, updateValidationSchema } from "./utils/validation";
+import { calculateAgeSafe } from "../../../config/utils/function";
 
 const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
   const {dashboardStore : {getMasterOptions,getMasterData}} = stores
@@ -168,6 +169,14 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                         error={errors?.dob}
                         showError={errors?.dob}
                       />
+                      <CustomInput
+                            label="Age"
+                            name="age"
+                            type="number"
+                            value={calculateAgeSafe(values?.dob) ?? ""}
+                            disabled={true}
+                            placeholder="Auto calculated"
+                          />
                       <CustomInput
                         label="Gender"
                         name="gender"

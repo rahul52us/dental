@@ -47,3 +47,25 @@ export function replaceLabelValueObjects(obj: any): any {
 
     return obj; // Return primitive value as-is
   }
+
+export const calculateAgeSafe = (dob?: string) => {
+  if (!dob || typeof dob !== "string") return null;
+
+  const birthDate = new Date(dob + "T00:00:00"); // timezone-safe
+  if (Number.isNaN(birthDate.getTime())) return null;
+
+  const today = new Date();
+
+  if (birthDate > today) return null;
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  if (age < 0 || age > 150) return null;
+
+  return age; // 👈 can be 0
+};
