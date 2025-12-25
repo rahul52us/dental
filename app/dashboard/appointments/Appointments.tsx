@@ -208,6 +208,9 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               textTransform="capitalize"
               bg={`${getStatusColor(dt.status)}.100`}
               color={`${getStatusColor(dt.status)}.700`}
+              onClick={() => {
+                setOpenChangeStatus({open : true, data : dt})
+              }}
             >
               {dt.status?.replace("-", " ") || "—"}
             </Box>
