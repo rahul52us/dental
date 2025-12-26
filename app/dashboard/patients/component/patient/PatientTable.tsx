@@ -25,7 +25,7 @@ import { copyToClipboard } from "../../../../config/utils/function";
 import stores from "../../../../store/stores";
 import AppointmentList from "../../../appointments/Appointments";
 import ViewDoctor from "./ViewPatient";
-import Treatment from "../../../treatment/page";
+import Treatment from "../../../toothTreatment/page";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {

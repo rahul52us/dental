@@ -8,63 +8,22 @@ import CustomTable from "../../component/config/component/CustomTable/CustomTabl
 import { formatDate } from "../../component/config/utils/dateUtils";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import stores from "../../store/stores";
-import moment from "moment";
-import { SLOT_DURATION } from "../daily-report/utils/constant";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
+import AppointmentDetailsView from "./element/AppointmentDetailsView";
 
 const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
-    DoctorAppointment: {
-      getDoctorAppointment,
-      appointments,
-      getPatientAppointmentStatusCount,
+    toothTreatmentStore: {
+      getToothTreatments,
+      toothTreatment,
     },
     auth: { openNotification, userType },
   } = stores;
-
+  const [openView, setOpenView] = useState({open : false, data : null})
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
-    type: "add"
-  });
-
-  const [patientStatus, setPatientStatus] = useState({
-    rescheduled: 0,
-    cancelled: 0,
-    "no-show": 0,
-  });
-
-  const fetchPatientStatus = async () => {
-    try {
-      const response = await getPatientAppointmentStatusCount({
-        patient: patientDetails?._id,
-      });
-      if (response?.status === "success") {
-        setPatientStatus(response?.data);
-      }
-    } catch (err: any) {
-      openNotification({
-        type: "error",
-        title: "Failed to Fetch Appointments Status",
-        message: err?.message,
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (isPatient && patientDetails) {
-      fetchPatientStatus();
-    }
-  }, [patientDetails]);
-
-  const [openChangeStatus, setOpenChangeStatus] = useState({
-    open: false,
-    data: null,
-  });
-
-  const [openView, setOpenView] = useState({
-    open: false,
-    data: null,
+    type: "add",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -88,17 +47,15 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         query.patientId = patientDetails?._id;
       }
 
-      getDoctorAppointment(query)
-        .then(() => {})
-        .catch((err) => {
-          openNotification({
-            type: "error",
-            title: "Failed to get Appointments",
-            message: err?.message,
-          });
+      getToothTreatments(query).catch((err) => {
+        openNotification({
+          type: "error",
+          title: "Failed to get treatment",
+          message: err?.message,
         });
+      });
     },
-    [debouncedSearchQuery, getDoctorAppointment, openNotification, currentPage]
+    [debouncedSearchQuery, getToothTreatments, openNotification, currentPage, isPatient, patientDetails]
   );
 
   useEffect(() => {
@@ -115,46 +72,50 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     applyGetAllRecords({ page: 1, reset: true });
   };
 
+  /* ---------------- Patient Column ---------------- */
   const patientColumn = {
     headerName: "Patient",
     key: "patientName",
     metaData: {
       component: (dt: any) => (
-        <Box m={1}>
-          <Text>{dt?.patientName || "--"}</Text>
+        <Box>
+          <Text fontWeight="medium">{dt?.patientName || "--"}</Text>
         </Box>
       ),
     },
     props: { row: { textAlign: "center" } },
   };
 
-  // Define table columns
+  /* ---------------- Table Columns ---------------- */
   const ContactTableColumn = [
     {
-      headerName: "Appointment",
-      key: "title",
+      headerName: "Tooth",
+      key: "toothName",
       metaData: {
         component: (dt: any) => (
-          <Box m={1}>
-            <Text>{dt?.title || "--"}</Text>
+          <Box>
+            <Text fontSize="sm">{dt?.toothName || "--"}</Text>
           </Box>
         ),
       },
       props: { row: { textAlign: "center" } },
     },
+
     ...(!isPatient ? [patientColumn] : []),
+
     {
       headerName: "Doctor",
       key: "doctorName",
       metaData: {
         component: (dt: any) => (
-          <Box m={1}>
+          <Box>
             <Text>{dt?.doctorName || "--"}</Text>
           </Box>
         ),
       },
       props: { row: { textAlign: "center" } },
     },
+
     {
       headerName: "Status",
       key: "status",
@@ -184,7 +145,6 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
           return (
             <Box
-              as="button"
               px={3}
               py={1}
               borderRadius="full"
@@ -193,6 +153,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               textTransform="capitalize"
               bg={`${getStatusColor(dt.status)}.100`}
               color={`${getStatusColor(dt.status)}.700`}
+              display="inline-block"
             >
               {dt.status?.replace("-", " ") || "—"}
             </Box>
@@ -204,13 +165,14 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
+
     {
-      headerName: "Appointment Date",
-      key: "appointmentDate",
+      headerName: "Treatment Date",
+      key: "treatmentDate",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box m={1}>{formatDate(dt?.appointmentDate)}</Box>
+          <Box>{formatDate(dt?.treatmentDate)}</Box>
         ),
       },
       props: {
@@ -218,26 +180,20 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
-    {
-      headerName: "Start & End Time",
-      key: "startTime",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Box m={1}>{`${dt.startTime || "--"} - ${dt?.endTime || "--"}`}</Box>
-        ),
-      },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
+
     {
       headerName: "Created By",
-      key: "actionBy",
+      key: "createdBy",
       type: "component",
       metaData: {
-        component: (dt: any) => <Box m={1}>{dt?.actionBy || "--"}</Box>,
+        component: (dt: any) => (
+          <Box>
+            <Text>{dt?.createdBy?.name || "--"}</Text>
+            <Text fontSize="xs" color="gray.500">
+              {dt?.createdBy?.code || ""}
+            </Text>
+          </Box>
+        ),
       },
       props: {
         row: { minW: 120, textAlign: "center" },
@@ -256,42 +212,31 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     },
   ];
 
-  const subTitle = `${
-    patientDetails?.name
-  }`;
+  const subTitle = patientDetails?.name;
 
   return (
     <>
       <CustomTable
         title="Treatment"
         subTitle={patientDetails ? subTitle : undefined}
-        data={appointments?.data || []}
+        data={toothTreatment?.data || []}
         columns={ContactTableColumn}
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: ["admin", "superAdmin"].includes(userType)
-                ? true
-                : false,
+              showAddButton: ["admin", "superAdmin"].includes(userType),
               function: () => {
-                setOpenReportModal({
-                  open: true,
-                  type: "add",
-                });
+                setOpenReportModal({ open: true, type: "add" });
               },
             },
             editKey: {
-              showEditButton: ["admin", "superAdmin"].includes(userType)
-                ? true
-                : false,
-              function: (dt: any) => {
-
-              },
+              showEditButton: ["admin", "superAdmin"].includes(userType),
+              function: (dt: any) => {},
             },
             viewKey: {
               showViewButton: true,
-              function: (dt: any) => {
-                setOpenView({ open: true, data: dt });
+              function: (dt : any) => {
+                setOpenView({open : true, data : dt})
               },
             },
           },
@@ -308,27 +253,30 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           pagination: {
             show: true,
             onClick: handleChangePage,
-            currentPage: currentPage,
-            totalPages: appointments.totalPages,
+            currentPage,
+            totalPages: toothTreatment?.totalPages,
           },
         }}
-        loading={appointments.loading}
+        loading={toothTreatment?.loading}
       />
 
-      {/* Add / Calendar Drawer */}
       <CustomDrawer
-        width={"90vw"}
+        width={"80vw"}
+        open={openView.open}
+        close={() => setOpenView({ open: false, data: null })}
+        title="Appointment Details"
+      >
+        <AppointmentDetailsView data={openView.data} />
+      </CustomDrawer>
+      {/* Drawer */}
+      <CustomDrawer
+        width="90vw"
         open={openReportModal.open}
-        close={() =>
-          setOpenReportModal({
-            open: false,
-            type: "add",
-          })
-        }
-        title={"Treatment"}
+        close={() => setOpenReportModal({ open: false, type: "add" })}
+        title="Treatment"
       >
         <Index
-          appointments={appointments}
+          appointments={toothTreatment}
           isPatient={isPatient}
           patientDetails={patientDetails}
           applyGetAllRecords={applyGetAllRecords}

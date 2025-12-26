@@ -20,7 +20,7 @@ import { ToothInfoCard } from "./component/ToothInfoCard";
 import { DentitionType, ToothData } from "./utils/teethData";
 import { observer } from "mobx-react-lite";
 
-const Index = observer(({} : any) => {
+const Index = observer(({isPatient, patientDetails} : any) => {
   const [dentitionType, setDentitionType] =
     useState<DentitionType>("adult");
   const [selectedTooth, setSelectedTooth] =
@@ -111,6 +111,8 @@ const Index = observer(({} : any) => {
 
       {/* Treatment Form Dialog */}
       <ToothFormDialog
+        isPatient={isPatient}
+        patientDetails={patientDetails}
         tooth={selectedTooth}
         open={dialogOpen}
         onOpenChange={setDialogOpen}

@@ -1,285 +1,352 @@
-import { useState } from "react";
-// import { ToothData } from "@/data/teethData";
+import { useEffect, useState } from "react";
 import {
-    Badge,
-    Box,
-    Button,
-    FormControl,
-    FormLabel,
-    HStack,
-    Heading,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalHeader,
-    ModalOverlay,
-    Select,
-    SimpleGrid,
-    Textarea,
-    VStack,
-    useToast
+  Badge,
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Grid,
+  HStack,
+  Heading,
+  SimpleGrid,
+  VStack,
+  useToast,
 } from "@chakra-ui/react";
-
+import { Formik, Form as FormikForm } from "formik";
 import {
-    FiCalendar,
-    FiFileText,
-    FiMessageSquare,
-    FiUser,
+  FiCalendar,
+  FiFileText,
+  FiMessageSquare,
+  FiUser,
 } from "react-icons/fi";
-import { LuStethoscope } from "react-icons/lu";
+
 import { ToothData } from "../utils/teethData";
+import CustomInput from "../../../../config/component/customInput/CustomInput";
+import FormModel from "../../../FormModel/FormModel";
+import { replaceLabelValueObjects } from "../../../../../config/utils/function";
+import { observer } from "mobx-react-lite";
+import stores from "../../../../../store/stores";
 
 interface ToothFormDialogProps {
   tooth: ToothData | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isPatient: boolean;
+  patientDetails: any;
 }
 
 interface TreatmentFormData {
-  patientName: string;
-  doctorName: string;
   treatmentPlan: string;
   treatmentDate: string;
-  status: string;
+  status: "pending" | "in-progress" | "completed" | "cancelled";
   notes: string;
+  patient?: any;
+  doctor?: any; // Added doctor field
 }
 
 const initialFormData: TreatmentFormData = {
-  patientName: "",
-  doctorName: "",
   treatmentPlan: "",
   treatmentDate: "",
   status: "pending",
   notes: "",
+  patient: undefined,
+  doctor: undefined,
 };
 
 const treatmentOptions = [
-  "Extraction",
-  "Root Canal Treatment",
-  "Filling",
-  "Crown",
-  "Bridge",
-  "Cleaning",
-  "Whitening",
-  "Orthodontic Treatment",
-  "Implant",
-  "Denture",
-  "Gum Treatment",
-  "Other",
+  { label: "Extraction", value: "Extraction" },
+  { label: "Root Canal Treatment", value: "Root Canal Treatment" },
+  { label: "Filling", value: "Filling" },
+  { label: "Crown", value: "Crown" },
+  { label: "Bridge", value: "Bridge" },
+  { label: "Cleaning", value: "Cleaning" },
+  { label: "Whitening", value: "Whitening" },
+  { label: "Orthodontic Treatment", value: "Orthodontic Treatment" },
+  { label: "Implant", value: "Implant" },
+  { label: "Denture", value: "Denture" },
+  { label: "Gum Treatment", value: "Gum Treatment" },
+  { label: "Other", value: "Other" },
 ];
 
-export const ToothFormDialog = ({
-  tooth,
-  open,
-  onOpenChange,
-}: ToothFormDialogProps) => {
-  const [formData, setFormData] =
-    useState<TreatmentFormData>(initialFormData);
+const statusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "In Progress", value: "in-progress" },
+  { label: "Completed", value: "completed" },
+  { label: "Cancelled", value: "cancelled" },
+];
 
-  const toast = useToast();
+export const ToothFormDialog = observer(
+  ({
+    tooth,
+    open,
+    onOpenChange,
+    isPatient,
+    patientDetails,
+  }: ToothFormDialogProps) => {
+    const toast = useToast();
+    const [formLoading, setFormLoading] = useState(false);
+    const {
+      toothTreatmentStore: { createToothTreatment },
+    } = stores;
+    if (!tooth) return null;
+    const handleSubmit = async (formData: any) => {
+      try {
+        setFormLoading(true);
+        const values = { ...formData };
 
-  if (!tooth) return null;
+        createToothTreatment({
+          ...values,
+          ...(replaceLabelValueObjects(values) || {}),
+          tooth,
+        })
+          .then(() => {
+            setFormLoading(false);
+            toast({
+              title: "Patient Added.",
+              description: `Record has been successfully added.`,
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+            });
+            if(onOpenChange){
+              onOpenChange(false)
+            }
+          })
+          .catch((err: any) => {
+            setFormLoading(false);
+            toast({
+              title: "failed to create",
+              description: `${err?.message}`,
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            });
+          });
+      } catch (err: any) {
+        setFormLoading(false);
+        toast({
+          title: "failed to create",
+          description: `${err?.message}`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    };
 
-  const handleChange = (
-    field: keyof TreatmentFormData,
-    value: string
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    const modalTitle = (
+      <HStack spacing={3}>
+        <Box
+          w="40px"
+          h="40px"
+          rounded="full"
+          bg="blue.50"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          fontWeight="bold"
+          color="blue.600"
+        >
+          {tooth.fdi}
+        </Box>
+        <Heading size="md">Tooth Treatment</Heading>
+      </HStack>
+    );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (
-      !formData.patientName ||
-      !formData.doctorName ||
-      !formData.treatmentPlan
-    ) {
-      toast({
-        title: "Missing required fields",
-        description: "Please fill all required fields",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    toast({
-      title: `Treatment saved for tooth ${tooth.fdi}`,
-      description: `${formData.treatmentPlan} scheduled for ${formData.patientName}`,
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
-
-    setFormData(initialFormData);
-    onOpenChange(false);
-  };
-
-  return (
-    <Modal
-      isOpen={open}
-      onClose={() => onOpenChange(false)}
-      isCentered
-      size="lg"
-    >
-      <ModalOverlay />
-      <ModalContent bg="white" borderRadius="xl">
-        <ModalHeader>
-          <HStack spacing={3}>
-            <Box
-              w="40px"
-              h="40px"
-              rounded="full"
-              bg="blue.50"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              fontWeight="bold"
-              color="blue.600"
-            >
-              {tooth.fdi}
-            </Box>
-            <Heading size="md">Tooth Treatment Form</Heading>
-          </HStack>
-        </ModalHeader>
-
-        <ModalCloseButton />
-
-        <ModalBody pb={6}>
+    return (
+      <FormModel
+        open={open}
+        close={() => onOpenChange(false)}
+        isCentered
+        title={modalTitle}
+        size="xl"
+      >
+        <VStack spacing={6} align="stretch" p={4}>
           {/* Tooth Info */}
-          <HStack spacing={2} wrap="wrap" mb={6}>
+          <HStack spacing={2} wrap="wrap">
             <Badge colorScheme="gray">{tooth.name}</Badge>
             <Badge variant="outline">FDI: {tooth.fdi}</Badge>
-            <Badge variant="outline">
-              Universal: {tooth.universal}
-            </Badge>
-            <Badge variant="outline">
-              Palmer: {tooth.palmer}
-            </Badge>
+            <Badge variant="outline">Universal: {tooth.universal}</Badge>
+            <Badge variant="outline">Palmer: {tooth.palmer}</Badge>
           </HStack>
 
-          <form onSubmit={handleSubmit}>
-            <VStack spacing={5} align="stretch">
-              {/* Patient Name */}
-              <FormControl isRequired>
-                <FormLabel display="flex" gap={2}>
-                  <FiUser /> Patient Name
-                </FormLabel>
-                <Input
-                  placeholder="Enter patient name"
-                  value={formData.patientName}
-                  onChange={(e) =>
-                    handleChange("patientName", e.target.value)
-                  }
-                />
-              </FormControl>
-
-              {/* Doctor Name */}
-              <FormControl isRequired>
-                <FormLabel display="flex" gap={2}>
-                  <LuStethoscope /> Doctor Name
-                </FormLabel>
-                <Input
-                  placeholder="Enter doctor name"
-                  value={formData.doctorName}
-                  onChange={(e) =>
-                    handleChange("doctorName", e.target.value)
-                  }
-                />
-              </FormControl>
-
-              {/* Treatment Plan */}
-              <FormControl isRequired>
-                <FormLabel display="flex" gap={2}>
-                  <FiFileText /> Treatment Plan
-                </FormLabel>
-                <Select
-                  placeholder="Select treatment plan"
-                  value={formData.treatmentPlan}
-                  onChange={(e) =>
-                    handleChange("treatmentPlan", e.target.value)
-                  }
-                >
-                  {treatmentOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Date & Status */}
-              <SimpleGrid columns={2} spacing={4}>
-                <FormControl>
-                  <FormLabel display="flex" gap={2}>
-                    <FiCalendar /> Treatment Date
-                  </FormLabel>
-                  <Input
-                    type="date"
-                    value={formData.treatmentDate}
-                    onChange={(e) =>
-                      handleChange("treatmentDate", e.target.value)
-                    }
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    value={formData.status}
-                    onChange={(e) =>
-                      handleChange("status", e.target.value)
-                    }
+          <Formik
+            initialValues={{
+              ...initialFormData,
+              patient: {
+                label: `${patientDetails?.name}`,
+                value: patientDetails?._id,
+              },
+            }}
+            enableReinitialize={true}
+            validate={(values) => {
+              const errors: Partial<TreatmentFormData> = {};
+              if (!values.treatmentPlan) {
+                errors.treatmentPlan = "Treatment plan is required";
+              }
+              // Optional: require doctor if not pre-filled
+              // if (!values.doctor) errors.doctor = "Doctor is required";
+              return errors;
+            }}
+            onSubmit={handleSubmit}
+          >
+            {({
+              values,
+              setFieldValue,
+              errors,
+              touched,
+              handleSubmit,
+            }: any) => (
+              <FormikForm onSubmit={handleSubmit}>
+                <VStack spacing={5} align="stretch">
+                  {/* Patient Search */}
+                  <Grid
+                    gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                    gap={4}
                   >
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </Select>
-                </FormControl>
-              </SimpleGrid>
+                    <CustomInput
+                      name="patient"
+                      placeholder="Search Patient"
+                      type="real-time-user-search"
+                      label="Patient"
+                      required
+                      value={values.patient}
+                      onChange={(val: any) => setFieldValue("patient", val)}
+                      options={
+                        isPatient
+                          ? [
+                              {
+                                label: `${patientDetails?.name} (${patientDetails?.code})`,
+                                value: patientDetails?._id,
+                              },
+                            ]
+                          : values?.patient
+                          ? [values?.patient]
+                          : []
+                      }
+                      error={errors.patient as string}
+                      query={{ type: "patient" }}
+                    />
 
-              {/* Notes */}
-              <FormControl>
-                <FormLabel display="flex" gap={2}>
-                  <FiMessageSquare /> Additional Notes
-                </FormLabel>
-                <Textarea
-                  placeholder="Enter any additional notes..."
-                  minH="80px"
-                  resize="none"
-                  value={formData.notes}
-                  onChange={(e) =>
-                    handleChange("notes", e.target.value)
-                  }
-                />
-              </FormControl>
+                    {/* Doctor Search */}
+                    <CustomInput
+                      name="doctor"
+                      placeholder="Search Doctor"
+                      type="real-time-user-search"
+                      label="Doctor"
+                      required // Change to false if optional
+                      value={values.doctor}
+                      onChange={(val: any) => {
+                        setFieldValue("doctor", val);
+                      }}
+                      options={
+                        patientDetails?.primaryDoctor
+                          ? [
+                              {
+                                label: patientDetails.primaryDoctor.name,
+                                value: patientDetails.primaryDoctor._id,
+                              },
+                            ]
+                          : values?.doctor
+                          ? [values?.doctor]
+                          : []
+                      }
+                      error={errors.doctor as string}
+                      query={{ type: "doctor" }} // Assuming your backend supports this
+                    />
+                  </Grid>
+                  {/* Treatment Plan */}
+                  <FormControl isRequired>
+                    <FormLabel display="flex" gap={2}>
+                      <FiFileText /> Treatment Plan
+                    </FormLabel>
+                    <CustomInput
+                      name="treatmentPlan"
+                      type="select"
+                      placeholder="Select treatment"
+                      options={treatmentOptions}
+                      value={values.treatmentPlan}
+                      onChange={(value: string) =>
+                        setFieldValue("treatmentPlan", value)
+                      }
+                      error={
+                        touched.treatmentPlan ? errors.treatmentPlan : undefined
+                      }
+                      showError={
+                        touched.treatmentPlan && !!errors.treatmentPlan
+                      }
+                    />
+                  </FormControl>
 
-              {/* Actions */}
-              <HStack spacing={3} pt={4}>
-                <Button
-                  variant="outline"
-                  flex={1}
-                  onClick={() => onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  colorScheme="blue"
-                  flex={1}
-                  type="submit"
-                >
-                  Save Treatment
-                </Button>
-              </HStack>
-            </VStack>
-          </form>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
-  );
-};
+                  {/* Date & Status */}
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                    <FormControl>
+                      <FormLabel display="flex" gap={2}>
+                        <FiCalendar /> Treatment Date
+                      </FormLabel>
+                      <CustomInput
+                        name="treatmentDate"
+                        type="date"
+                        value={values.treatmentDate}
+                        onChange={(e: any) =>
+                          setFieldValue("treatmentDate", e.target.value)
+                        }
+                      />
+                    </FormControl>
+
+                    <FormControl>
+                      <FormLabel>Status</FormLabel>
+                      <CustomInput
+                        name="status"
+                        type="select"
+                        options={statusOptions}
+                        value={values.status}
+                        onChange={(value: string) =>
+                          setFieldValue("status", value)
+                        }
+                      />
+                    </FormControl>
+                  </SimpleGrid>
+
+                  {/* Notes */}
+                  <FormControl>
+                    <FormLabel display="flex" gap={2}>
+                      <FiMessageSquare /> Notes
+                    </FormLabel>
+                    <CustomInput
+                      name="notes"
+                      type="textarea"
+                      placeholder="Additional notes..."
+                      value={values.notes}
+                      onChange={(e: any) =>
+                        setFieldValue("notes", e.target.value)
+                      }
+                      style={{ minHeight: "80px", resize: "none" }}
+                    />
+                  </FormControl>
+
+                  {/* Footer Buttons */}
+                  <HStack spacing={3} pt={4} justify="flex-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => onOpenChange(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      type="submit"
+                      isLoading={formLoading}
+                    >
+                      Save Treatment
+                    </Button>
+                  </HStack>
+                </VStack>
+              </FormikForm>
+            )}
+          </Formik>
+        </VStack>
+      </FormModel>
+    );
+  }
+);
