@@ -14,7 +14,6 @@ import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import stores from "../../../../store/stores";
-import ChairColorPicker from "../ChairColorPicker/ChairColorPicker";
 // -------------------------------------------------
 // Validation Schema
 // -------------------------------------------------
@@ -131,10 +130,6 @@ const ChairsForm = observer(
                 </SimpleGrid>
               </GridItem>
               <GridItem colSpan={2}>
-                <ChairColorPicker
-                  value={values.chairColor}
-                  onChange={(col: string) => setFieldValue("chairColor", col)}
-                />
 
                 {errors.chairColor && touched.chairColor && (
                   <p style={{ color: "red", fontSize: "12px" }}>

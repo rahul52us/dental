@@ -30,7 +30,7 @@ getChairs = async (sendData: { limit?: number; page: number; search?: string }) 
     const searchQuery = search ? `&search=${encodeURIComponent(search)}` : "";
 
     const { data } = await axios.get(
-      `/chairs/get?page=${page}&limit=${limit}${searchQuery}`
+      `/chairs/get?page=${page}&limit=${limit}${searchQuery}&company=${authStore.company}`
     );
 
     // 🔥 FIX HERE

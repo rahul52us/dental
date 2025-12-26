@@ -29,7 +29,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
-    type: "add"
+    type: "add",
   });
 
   const [selectedDateAndTime, setSelectedDateTime] = useState<any>({
@@ -209,7 +209,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               bg={`${getStatusColor(dt.status)}.100`}
               color={`${getStatusColor(dt.status)}.700`}
               onClick={() => {
-                setOpenChangeStatus({open : true, data : dt})
+                setOpenChangeStatus({ open: true, data: dt });
               }}
             >
               {dt.status?.replace("-", " ") || "—"}

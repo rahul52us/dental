@@ -8,11 +8,12 @@ import {
   FaUserAstronaut,
   FaUserMd,
   FaUsers,
-  FaUserTie
+  FaUserTie,
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
 import { GiOfficeChair } from "react-icons/gi";
+import { MdEventRepeat } from "react-icons/md";
 import { RiToothLine } from "react-icons/ri";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 
@@ -69,58 +70,45 @@ const sidebarDatas: SidebarItem[] = [
     role: ["patient", "doctor", "admin"],
   },
   {
-    id: 12,
+    id: 9,
+    name: "Recall Appointment",
+    icon: <MdEventRepeat  />,
+    url: "/dashboard/recall-appointment",
+    role: ["admin"],
+  },
+  {
+    id: 10,
     name: "Orders",
     icon: <FaNotesMedical />,
     url: "/dashboard/orders",
     role: ["admin", "patient"],
   },
   {
-    id: 6,
+    id: 11,
     name: "Masters",
     icon: <FaListAlt />,
     url: "/dashboard/masters",
     role: ["admin"],
   },
   {
-    id: 10,
+    id: 12,
     name: "Admins",
     icon: <FaUserAstronaut />,
     url: "/dashboard/admins",
     role: ["superAdmin"],
   },
   {
-    id: 11,
+    id: 13,
     name: "Chairs",
     icon: <GiOfficeChair />,
     url: "/dashboard/chairs",
-    role: ["superAdmin","admin"],
+    role: ["superAdmin", "admin"],
   },
   {
-    id: 11,
-    name: "Daily Report",
-    icon: <BiCalendarEvent />,
-    url: "/dashboard/daily-report",
-    role: ["superAdmin","admin"],
-  },
-  {
-    id: 12,
+    id: 14,
     name: "Work Done",
     icon: <VscWorkspaceTrusted />,
-    url: "work-done",
-    children: [
-      {
-        id: 13,
-        name: "Treatment",
-        icon: <RiToothLine />,
-        url: "/dashboard/work-done/treatment",
-        role: ["superAdmin","admin"],
-      },
-    ]
-    // url: "/dashboard/work-done",
-
-    // url: "/dashboard/chairs",
-    // role: ["superAdmin","admin"],
+    url: "/dashboard/work-done",
   },
 ];
 
@@ -146,6 +134,4 @@ const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
   return filterByRole(sidebarDatas);
 };
 
-
 export { getSidebarDataByRole, sidebarDatas };
-
