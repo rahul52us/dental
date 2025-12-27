@@ -14,64 +14,109 @@ import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import stores from "../../../../store/stores";
-// -------------------------------------------------
-// Validation Schema
-// -------------------------------------------------
-const ChairSchema = Yup.object().shape({
-  chairName: Yup.string().required("Chair Name is required"),
-  chairColor: Yup.string().required("Chair Color is required"),
-  chairDetails: Yup.string().required("Chair Details are required"),
-  chairNo: Yup.string().required("Chair Number is required"),
+import { status } from "../utils/constant";
+import { replaceLabelValueObjects } from "../../../../config/utils/function";
+
+/* -------------------------------------------------
+   Validation
+------------------------------------------------- */
+const RecallAppointmentValidation = Yup.object().shape({
+  patient: Yup.object().required("Patient is required"),
+  doctor: Yup.object().nullable(),
+  appointment: Yup.object().nullable(),
+  recallDate: Yup.date().nullable(),
+  reason: Yup.string().required("Reason is required"),
+  status: Yup.mixed(),
 });
 
-const ChairsForm = observer(
-  ({ isOpen, onClose, initialValues, isEdit }: any) => {
-    if (!isOpen) return null;
-    const { chairsStore } = stores;
+const RecallAppointmentForm = observer(
+  ({
+    isPatient,
+    patientDetails,
+    onClose,
+    initialValues,
+    isEdit = false,
+    applyGetAllRecords,
+    data,
+  }: any) => {
+    const {
+      recallAppointmentStore: {
+        createRecallAppointment,
+        updateRecallAppointment,
+      },
+      auth: { openNotification },
+    } = stores;
     const [loading, setLoading] = useState(false);
 
     return (
       <Formik
         enableReinitialize
         initialValues={initialValues}
-        // initialValues={initialValues}
-        validationSchema={ChairSchema}
+        validationSchema={RecallAppointmentValidation}
         onSubmit={async (values, { resetForm }) => {
           try {
             setLoading(true);
-
-            // const res: any = await chairsStore.createChair(values);
-            const res: any = isEdit
-              ? await chairsStore.updateChair(values._id, values)
-              : await chairsStore.createChair(values);
-
-            if (res.status === "success") {
-              stores.auth?.openNotification?.({
-                type: "success",
-                title: isEdit ? "Chair Updated" : "Chair Added",
-                message: isEdit
-                  ? "Chair updated successfully!"
-                  : "Chair created successfully!",
-                // title: "Chair Added",
-                // message: "Chair created successfully!",
-              });
-              resetForm();
-              onClose();
+            if (isEdit) {
+              let dts = values
+              delete dts.createdBy
+              delete dts.company
+              updateRecallAppointment(
+                replaceLabelValueObjects({ ...dts, _id: initialValues?._id })
+              )
+                .then(() => {
+                  setLoading(false);
+                  openNotification({
+                    type: "success",
+                    title: "Update SUCCESSFULLY",
+                    message: "Recall Appointment has been updated Successfully",
+                  });
+                  if (onClose && applyGetAllRecords) {
+                    applyGetAllRecords({});
+                    resetForm();
+                    onClose();
+                  }
+                })
+                .catch((err) => {
+                  setLoading(false);
+                  openNotification({
+                    type: "error",
+                    title: "Failed to update Recall Appointment",
+                    message: err?.message,
+                  });
+                })
+                .finally(() => {});
             } else {
-              stores.auth?.openNotification?.({
-                type: "error",
-                title: "Failed",
-                message: res?.message || "Something went wrong",
-              });
+              createRecallAppointment(replaceLabelValueObjects(values))
+                .then(() => {
+                  setLoading(false);
+
+                  openNotification({
+                    type: "success",
+                    title: "CREATED SUCCESSFULLY",
+                    message: "Appointment has been Created Successfully",
+                  });
+                  if (onClose && applyGetAllRecords) {
+                    applyGetAllRecords({});
+                    resetForm();
+                    onClose();
+                  }
+                })
+                .catch((err) => {
+                  setLoading(false);
+                  openNotification({
+                    type: "error",
+                    title: "Failed to Create Appointment",
+                    message: err?.message,
+                  });
+                })
+                .finally(() => {});
             }
           } catch (err: any) {
-            stores.auth?.openNotification?.({
+            openNotification?.({
               type: "error",
               title: "Failed",
               message: err?.message || "Something went wrong",
             });
-          } finally {
-            setLoading(false); // 👉 Always stop loading
           }
         }}
       >
@@ -82,89 +127,130 @@ const ChairsForm = observer(
           handleChange,
           handleSubmit,
           setFieldValue,
-        }: any) => (
-          <FormikForm onSubmit={handleSubmit}>
-            <Grid
-              templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-              gap={6}
-              mb={6}
-              p={4}
-              alignItems="center"
-            >
-              <GridItem colSpan={2}>
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                  <CustomInput
-                    label="Chair Name"
-                    name="chairName"
-                    placeholder="Enter Chair Name"
-                    value={values.chairName}
-                    onChange={handleChange}
-                    required
-                    error={errors.chairName}
-                    showError={touched.chairName}
-                  />
-                  <CustomInput
-                    label="Chair Number"
-                    name="chairNo"
-                    placeholder="Enter Chair Number"
-                    value={values.chairNo}
-                    onChange={handleChange}
-                    required
-                    error={errors.chairNo}
-                    showError={touched.chairNo}
-                  />
-
-                  <Box gridColumn="span 2">
+        }: any) => {
+          console.log(errors);
+          return (
+            <FormikForm onSubmit={handleSubmit}>
+              <Grid
+                templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                gap={6}
+                mb={6}
+                p={4}
+              >
+                <GridItem colSpan={2}>
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                    {/* 👤 Patient */}
                     <CustomInput
-                      label="Chair Details"
-                      name="chairDetails"
-                      type="textarea"
-                      placeholder="Enter Chair Description"
-                      value={values.chairDetails}
-                      onChange={handleChange}
+                      name="patient"
+                      label="Patient"
+                      type="real-time-user-search"
+                      placeholder="Search Patient"
                       required
-                      error={errors.chairDetails}
-                      showError={touched.chairDetails}
+                      value={values.patient}
+                      onChange={(val: any) => setFieldValue("patient", val)}
+                      options={
+                        isPatient
+                          ? [
+                              {
+                                label: `${patientDetails?.name} (${patientDetails?.code})`,
+                                value: patientDetails?._id,
+                              },
+                            ]
+                          : values?.patient
+                          ? [values.patient]
+                          : []
+                      }
+                      error={errors.patient}
+                      showError={touched.patient}
+                      query={{ type: "patient" }}
                     />
-                  </Box>
-                </SimpleGrid>
-              </GridItem>
-              <GridItem colSpan={2}>
 
-                {errors.chairColor && touched.chairColor && (
-                  <p style={{ color: "red", fontSize: "12px" }}>
-                    {errors.chairColor}
-                  </p>
-                )}
-              </GridItem>
-            </Grid>
+                    <CustomInput
+                      name="doctor"
+                      label="Doctor"
+                      type="real-time-user-search"
+                      placeholder="Assign Doctor"
+                      value={values.doctor}
+                      options={values?.doctor ? [values.doctor] : []}
+                      onChange={(val: any) => setFieldValue("doctor", val)}
+                      error={errors.doctor}
+                      showError={touched.doctor}
+                      query={{ type: "doctor" }}
+                    />
 
-            <Flex justifyContent="flex-end" mt={4}>
-              <Flex gap={4} align={"end"}>
-                <Button
-                  colorScheme="red"
-                  bgColor="red"
-                  onClick={onClose}
-                  _hover={{ bg: "red.500" }}
-                >
-                  Close
-                </Button>
+                    {/* 📅 Recall Date */}
+                    <CustomInput
+                      name="recallDate"
+                      label="Recall Date"
+                      type="date"
+                      value={values.recallDate}
+                      onChange={handleChange}
+                      error={errors.recallDate}
+                      showError={touched.recallDate}
+                    />
 
-                <Button
-                  type="submit"
-                  colorScheme="teal"
-                  isLoading={loading}
-                  _hover={{ bg: "teal.500" }}
-                >
-                  Save
-                </Button>
+                    {/* 📎 Appointment (Optional) */}
+                    <CustomInput
+                      name="appointment"
+                      label="Related Appointment"
+                      type="text"
+                      placeholder="Link Appointment"
+                      value={values.appointment}
+                      onChange={(val: any) => setFieldValue("appointment", val)}
+                      parentStyle={{ display: "none" }}
+                      error={errors.appointment}
+                      showError={touched.appointment}
+                    />
+
+                    {/* 🔄 Status (Edit only) */}
+                    <CustomInput
+                      name="status"
+                      label="Status"
+                      type="select"
+                      options={status}
+                      value={values.status}
+                      onChange={(val: any) => setFieldValue("status", val)}
+                    />
+
+                    {/* 📝 Reason */}
+                    <Box gridColumn="span 2">
+                      <CustomInput
+                        label="Reason"
+                        name="reason"
+                        type="textarea"
+                        placeholder="Enter recall reason"
+                        required
+                        value={values.reason}
+                        onChange={handleChange}
+                        error={errors.reason}
+                        showError={touched.reason}
+                      />
+                    </Box>
+                  </SimpleGrid>
+                </GridItem>
+              </Grid>
+
+              {/* 🔘 Actions */}
+              <Flex justifyContent="flex-end" mt={4}>
+                <Flex gap={4}>
+                  <Button
+                    style={{ backgroundColor: "red" }}
+                    colorScheme="red"
+                    onClick={onClose}
+                  >
+                    Close
+                  </Button>
+                  <Button type="submit" colorScheme="teal" isLoading={loading}>
+                    Save
+                  </Button>
+                </Flex>
               </Flex>
-            </Flex>
-          </FormikForm>
-        )}
+            </FormikForm>
+          );
+        }}
       </Formik>
     );
   }
 );
 
-export default ChairsForm;
+export default RecallAppointmentForm;

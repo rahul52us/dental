@@ -1,95 +1,216 @@
 "use client";
-
-import { Badge, Box, Flex, Tooltip } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
-import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
-import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
-import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
-import { tablePageLimit } from "../../../../component/config/utils/variable";
+import moment from "moment";
 import stores from "../../../../store/stores";
-import ChairsForm from "../RecallAppointmentForm/RecallAppointmentForm";
-import DeleteChairModal from "./DeleteRecallModal";
+import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
+import { tablePageLimit } from "../../../../component/config/utils/variable";
+import { formatDate } from "../../../../component/config/utils/dateUtils";
+import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
+import RecallAppointmentForm from "../RecallAppointmentForm/RecallAppointmentForm";
+import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
+import FormModel from "../../../../component/common/FormModel/FormModel";
+import { status } from "../utils/constant";
+import RecallViewAppointment from "../RecallAppointmentForm/RecallViewAppointment";
 
-const RecallAppointment = observer(() => {
-  const { chairsStore } = stores;
+const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
+  const {
+    recallAppointmentStore: { getRecallAppointments, recallAppointment },
+    auth: { openNotification, userType },
+  } = stores;
+
+  const [formModal, setFormModal] = useState<any>({
+    open: false,
+    data: null,
+    type: "add",
+  });
+
+  const [openView, setOpenView] = useState({
+    open: false,
+    data: null,
+  });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 700);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState<false | "add" | "edit">(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedChair, setSelectedChair] = useState<any>(null);
+  const applyGetAllRecords = useCallback(
+    ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
+      const query: any = { page, limit };
 
-  const fetchChairs = useCallback(async () => {
-    await chairsStore.getChairs({
-      page: currentPage,
-      limit: tablePageLimit,
-      search: debouncedSearch,
-    });
-  }, [currentPage, debouncedSearch, chairsStore]);
+      if (debouncedSearchQuery?.trim()) {
+        query.search = debouncedSearchQuery.trim();
+      }
+
+      if (reset) {
+        query.page = 1;
+        query.limit = tablePageLimit;
+      }
+
+      if (isPatient && patientDetails) {
+        query.patientId = patientDetails?._id;
+      }
+
+      getRecallAppointments(query)
+        .then(() => {})
+        .catch((err) => {
+          openNotification({
+            type: "error",
+            title: "Failed to get Appointments",
+            message: err?.message,
+          });
+        });
+    },
+    [debouncedSearchQuery, getRecallAppointments, openNotification, currentPage]
+  );
 
   useEffect(() => {
-    fetchChairs();
-  }, [fetchChairs]);
+    applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
+  }, [currentPage, debouncedSearchQuery, applyGetAllRecords]);
 
-  const resetTable = () => {
-    setSearch("");
-    setCurrentPage(1);
+  const handleChangePage = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const chairsData = chairsStore.chairs.data || [];
-  const totalPages = chairsStore.chairs.totalPages || 1;
+  const resetTableData = () => {
+    setCurrentPage(1);
+    setSearchQuery("");
+    applyGetAllRecords({ page: 1, reset: true });
+  };
 
-  // --------------------------------------------
-  // Columns
-  // --------------------------------------------
-  const ChairColumns = [
+  const patientColumn = [
     {
-      headerName: "Chair No",
-      key: "chairNo",
-      type: "component",
+      headerName: "Patient Name",
+      key: "patientName",
       metaData: {
         component: (dt: any) => (
-          <Badge colorScheme="cyan" size="lg" px={2} py={1} rounded="full">
-            {dt?.chairNo}
-          </Badge>
+          <Box m={1}>
+            <Text>{dt?.patientName || "--"}</Text>
+          </Box>
         ),
       },
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Chair Name",
-      key: "chairName",
-      props: { row: { textAlign: "center" } },
-    },
-    {
-      headerName: "Chair Color",
-      key: "chairColor",
-      type: "component",
+      headerName: "Patient Mobile Number",
+      key: "patientMobileNumber",
       metaData: {
         component: (dt: any) => (
-          <Flex justify="center">
-            <Box bg={dt?.chairColor} boxSize={5} rounded="full" />
-          </Flex>
+          <Box m={1}>
+            <Text>{dt?.patientMobileNumber || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+  ];
+
+  // Define table columns
+  const ContactTableColumn = [
+    ,
+    ...(!isPatient ? patientColumn : []),
+    {
+      headerName: "Doctor",
+      key: "doctorName",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>
+            <Text>{dt?.doctorName || "--"}</Text>
+          </Box>
         ),
       },
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Details",
-      key: "chairDetails",
+      headerName: "Status",
+      key: "status",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const getStatusColor = (status: string) => {
+            switch (status) {
+              case "scheduled":
+                return "blue";
+              case "in-progress":
+                return "yellow";
+              case "completed":
+                return "green";
+              case "cancelled":
+                return "red";
+              case "rescheduled":
+                return "purple";
+              case "no-show":
+                return "gray";
+              case "arrived":
+                return "green";
+              default:
+                return "gray";
+            }
+          };
+
+          return (
+            <Box
+              as="button"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontSize="sm"
+              fontWeight="semibold"
+              textTransform="capitalize"
+              bg={`${getStatusColor(dt.status)}.100`}
+              color={`${getStatusColor(dt.status)}.700`}
+              onClick={() => {
+                // setOpenChangeStatus({ open: true, data: dt });
+              }}
+            >
+              {dt.status?.replace("-", " ") || "—"}
+            </Box>
+          );
+        },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Reason",
+      key: "reason",
       type: "tooltip",
-      function: (c: any) =>
-        c?.chairDetails ? (
-          <Tooltip label={c?.chairDetails} hasArrow zIndex={9999}>
-            <span>{c?.chairDetails.slice(0, 40)}...</span>
-          </Tooltip>
-        ) : (
-          "-"
+      metaData: {
+        component: (dt: any) => <Box m={1}>{dt?.reason}</Box>,
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Created By",
+      key: "createdBy",
+      type: "component",
+      metaData: {
+        component: (dt: any) => <Box m={1}>{dt?.createdBy || "--"}</Box>,
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Created At",
+      key: "createdAt",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box m={1}>{formatDate(dt?.created_At) || "--"}</Box>
         ),
-      props: { row: { textAlign: "center" } },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
     {
       headerName: "Actions",
@@ -102,94 +223,165 @@ const RecallAppointment = observer(() => {
     },
   ];
 
+  const subTitle = `${patientDetails?.name} `;
+
   return (
     <>
       <CustomTable
-        title="Recall Appointments"
-        data={chairsData}
-        columns={ChairColumns}
+        title="Recall Appointment"
+        subTitle={patientDetails ? subTitle : undefined}
+        data={recallAppointment?.data || []}
+        columns={ContactTableColumn}
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: ["admin", "superAdmin"].includes(userType)
+                ? true
+                : false,
               function: () => {
-                setSelectedChair(null);
-                setIsDrawerOpen("add");
+                setFormModal({
+                  open: true,
+                  type: "add",
+                });
               },
             },
-
             editKey: {
-              showEditButton: true,
-              function: (c: any) => {
-                setSelectedChair(c);
-                setIsDrawerOpen("edit");
+              showEditButton: ["admin", "superAdmin"].includes(userType)
+                ? true
+                : false,
+              function: (dt: any) => {
+                setFormModal({
+                  open: true,
+                  data: dt,
+                  type: "edit",
+                });
               },
             },
-
-            deleteKey: {
-              showDeleteButton: true,
-              function: (c: any) => {
-                setSelectedChair(c);
-                setIsDeleteOpen(true);
+            viewKey: {
+              showViewButton: true,
+              function: (dt: any) => {
+                setOpenView({ open: true, data: dt });
               },
             },
           },
-
           search: {
-            show: false,
-            searchValue: search,
-            onSearchChange: (e: any) => setSearch(e.target.value),
-          },
-
-          resetData: {
             show: true,
-            text: "Reset Data",
-            function: resetTable,
+            searchValue: searchQuery,
+            onSearchChange: (e: any) => setSearchQuery(e.target.value),
           },
-
+          resetData: {
+            show: false,
+            text: "Reset Data",
+            function: resetTableData,
+          },
           pagination: {
             show: true,
-            currentPage,
-            totalPages,
-            onClick: (p: number) => setCurrentPage(p),
+            onClick: handleChangePage,
+            currentPage: currentPage,
+            totalPages: recallAppointment.totalPages,
           },
         }}
-        loading={chairsStore.chairs.loading}
+        loading={recallAppointment.loading}
       />
 
-      {/* Drawer */}
-      <CustomDrawer
-        open={!!isDrawerOpen}
-        close={() => setIsDrawerOpen(false)}
-        title={selectedChair ? "Update Chair" : "Add Chair"}
+      {/* View Appointment Details Drawer */}
+      <FormModel
+        width={"80vw"}
+        open={openView.open}
+        close={() => setOpenView({ open: false, data: null })}
+        title="Recall Appointment Summary"
+        isCentered
       >
-        <ChairsForm
-          isOpen={!!isDrawerOpen}
-          isEdit={!!selectedChair}
-          initialValues={
-            selectedChair || {
-              chairName: "",
-              chairColor: "",
-              chairDetails: "",
-              chairNo: "",
-            }
+        <RecallViewAppointment data={openView.data} />
+      </FormModel>
+      {formModal?.open && (
+        <FormModel
+          width="80vw"
+          open={formModal.open}
+          close={() =>
+            setFormModal({
+              open: false,
+              data: null,
+              type: "add",
+            })
           }
-          onClose={() => {
-            setIsDrawerOpen(false);
-            fetchChairs();
-          }}
-        />
-      </CustomDrawer>
+          title={
+            formModal.type === "add"
+              ? "Create Recall Appointment"
+              : "Edit Recall Appointment"
+          }
+          isCentered
+        >
+          <Box p={2}>
+            {formModal.type === "add" ? (
+              <RecallAppointmentForm
+                patientDetails={patientDetails}
+                isPatient={isPatient}
+                applyGetAllRecords={applyGetAllRecords}
+                onClose={() =>
+                  setFormModal({
+                    open: false,
+                    data: null,
+                    type: "add",
+                  })
+                }
+                initialValues={{
+                  patient: undefined,
+                  doctor: undefined,
+                  reason: undefined,
+                  status: status[0],
+                  recallDate: undefined,
+                }}
+                formModal={formModal}
+              />
+            ) : (
+              <RecallAppointmentForm
+                patientDetails={patientDetails}
+                isPatient={false}
+                isEdit={true}
+                initialValues={
+                  formModal?.data
+                    ? {
+                        ...formModal.data,
 
-      {/* Delete Modal */}
-      <DeleteChairModal
-        isOpen={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
-        data={selectedChair}
-        refresh={fetchChairs}
-      />
+                        status:
+                          status.find(
+                            (it: any) => it.value === formModal.data.status
+                          ) || status[0],
+
+                        patient: {
+                          label: formModal.data.patient?.name,
+                          value: formModal.data.patient?._id,
+                        },
+                        recallDate: formatDate(
+                          formModal?.data?.recallDate,
+                          "YYYY-MM-DD"
+                        ),
+                        doctor: formModal.data.doctor
+                          ? {
+                              label: formModal.data.doctor.name,
+                              value: formModal.data.doctor._id,
+                            }
+                          : null,
+                      }
+                    : {}
+                }
+                applyGetAllRecords={applyGetAllRecords}
+                onClose={() =>
+                  setFormModal({
+                    open: false,
+                    data: null,
+                    type: "add",
+                  })
+                }
+                formModal={formModal}
+              />
+            )}
+          </Box>
+        </FormModel>
+      )}
     </>
   );
 });
 
-export default RecallAppointment;
+export default RecallAppointmentList;

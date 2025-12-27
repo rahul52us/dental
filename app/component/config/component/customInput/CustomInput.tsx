@@ -86,6 +86,7 @@ interface CustomInputProps {
   isPortal?: boolean;
   params?: any;
   query?: any;
+  parentStyle?:any
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -115,6 +116,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   maxDate,
   params,
   query = {},
+  parentStyle = {},
   ...rest
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -790,7 +792,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   };
 
   return (
-    <FormControl id={name} isInvalid={!!error && showError}>
+    <FormControl id={name} isInvalid={!!error && showError} style={parentStyle}>
       <FormLabel color={labelcolor}>
         {label} {required && <span style={{ color: "red" }}>*</span>}
       </FormLabel>

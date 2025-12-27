@@ -26,7 +26,7 @@ import {
   DrawerOverlay,
   useBreakpointValue,
   useColorMode,
-  Tooltip
+  Tooltip,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";

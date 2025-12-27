@@ -16,6 +16,7 @@ import { labStore } from "./labStore/labStore";
 import {doctorAppointment} from './doctorAppointmentStore/doctorAppointmentStore'
 import { chairsStore } from "./chairsStore/chairsStore";
 import {toothTreatmentStore} from './toothTreatmentStore/toothTreatmentStore'
+import { recallAppointmentStore } from "./recallAppointment/recallAppointmentStore";
 const stores = {
   auth : authStore,
   dashboardStore : dashboardStore,
@@ -33,7 +34,8 @@ const stores = {
   EventStore:EventStore,
   DoctorAppointment:doctorAppointment,
   chairsStore:chairsStore,
-  toothTreatmentStore:toothTreatmentStore
+  toothTreatmentStore:toothTreatmentStore,
+  recallAppointmentStore:recallAppointmentStore
 };
 
 export default stores;
