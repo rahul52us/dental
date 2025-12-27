@@ -264,7 +264,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         width={"80vw"}
         open={openView.open}
         close={() => setOpenView({ open: false, data: null })}
-        title="Appointment Details"
+        title="Treatment Details"
       >
         <AppointmentDetailsView data={openView.data} />
       </CustomDrawer>
