@@ -13,13 +13,10 @@ import AppointmentDetailsView from "./element/AppointmentDetailsView";
 
 const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
-    toothTreatmentStore: {
-      getToothTreatments,
-      toothTreatment,
-    },
+    toothTreatmentStore: { getToothTreatments, toothTreatment },
     auth: { openNotification, userType },
   } = stores;
-  const [openView, setOpenView] = useState({open : false, data : null})
+  const [openView, setOpenView] = useState({ open: false, data: null });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
@@ -55,7 +52,14 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         });
       });
     },
-    [debouncedSearchQuery, getToothTreatments, openNotification, currentPage, isPatient, patientDetails]
+    [
+      debouncedSearchQuery,
+      getToothTreatments,
+      openNotification,
+      currentPage,
+      isPatient,
+      patientDetails,
+    ]
   );
 
   useEffect(() => {
@@ -171,9 +175,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       key: "treatmentDate",
       type: "component",
       metaData: {
-        component: (dt: any) => (
-          <Box>{formatDate(dt?.treatmentDate)}</Box>
-        ),
+        component: (dt: any) => <Box>{formatDate(dt?.treatmentDate)}</Box>,
       },
       props: {
         row: { minW: 120, textAlign: "center" },
@@ -235,8 +237,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             },
             viewKey: {
               showViewButton: true,
-              function: (dt : any) => {
-                setOpenView({open : true, data : dt})
+              function: (dt: any) => {
+                setOpenView({ open: true, data: dt });
               },
             },
           },
