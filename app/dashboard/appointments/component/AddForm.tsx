@@ -316,46 +316,51 @@ const AddAppointmentForm = observer(
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
                       >
                         <Flex align="end" gap={3} alignItems="center">
-  <CustomInput
-    name="patient"
-    placeholder="Search Patient"
-    type="real-time-user-search"
-    label="Patient"
-    required
-    value={values.patient}
-    onChange={(val: any) => setFieldValue("patient", val)}
-    options={
-      isPatient
-        ? [
-            {
-              label: `${patientDetails?.name} (${patientDetails?.code})`,
-              value: patientDetails?._id,
-            },
-          ]
-        : values?.patient
-        ? [values?.patient]
-        : []
-    }
-    error={errors.patient as string}
-    showError={touched.patient}
-    query={{ type: "patient" }}
-  />
+                          <CustomInput
+                            name="patient"
+                            placeholder="Search Patient"
+                            type="real-time-user-search"
+                            label="Patient"
+                            required
+                            value={values.patient}
+                            onChange={(val: any) =>
+                              setFieldValue("patient", val)
+                            }
+                            options={
+                              isPatient
+                                ? [
+                                    {
+                                      label: `${patientDetails?.name} (${patientDetails?.code})`,
+                                      value: patientDetails?._id,
+                                    },
+                                  ]
+                                : values?.patient
+                                ? [values?.patient]
+                                : []
+                            }
+                            error={errors.patient as string}
+                            showError={touched.patient}
+                            query={{ type: "patient" }}
+                          />
 
-  {!isPatient && (
-    <Text
-      as="button"
-      fontSize="sm"
-      fontWeight="medium"
-      color="blue.600"
-      _hover={{ color: "blue.700", textDecoration: "underline" }}
-      onClick={() => setIsDrawerOpen({ isOpen: true })}
-      whiteSpace="nowrap"
-      mt={4}
-    >
-      + Add new
-    </Text>
-  )}
-</Flex>
+                          {!isPatient && (
+                            <Text
+                              as="button"
+                              fontSize="sm"
+                              fontWeight="medium"
+                              color="blue.600"
+                              _hover={{
+                                color: "blue.700",
+                                textDecoration: "underline",
+                              }}
+                              onClick={() => setIsDrawerOpen({ isOpen: true })}
+                              whiteSpace="nowrap"
+                              mt={4}
+                            >
+                              + Add new
+                            </Text>
+                          )}
+                        </Flex>
 
                         <CustomInput
                           name="primaryDoctor"

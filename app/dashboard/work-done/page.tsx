@@ -43,35 +43,33 @@ const REPORT_TABS: {
   { label: "Patient", value: "patient", colorScheme: "teal", icon: RiUser3Line },
   { label: "Doctor", value: "doctor", colorScheme: "blue", icon: RiStethoscopeLine },
   { label: "Staff", value: "staff", colorScheme: "green", icon: RiTeamLine },
-  {
-    label: "Appointment",
-    value: "appointment",
-    colorScheme: "purple",
-    icon: RiCalendarTodoLine,
-  },
+  { label: "Appointment", value: "appointment", colorScheme: "purple", icon: RiCalendarTodoLine },
   { label: "Recall", value: "recall", colorScheme: "orange", icon: RiNotification4Line },
 ];
 
 const ReportsPage = observer(() => {
-  const {reportStore : {getReportDownload}} = stores
+  const { reportStore: { getReportDownload } } = stores;
   const [activeTab, setActiveTab] = useState<ReportTab>("patient");
-  const [filters, setFilters] = useState<any>({
-    patient: {},
-    doctor: {},
-    appointment: {},
-    recall: {},
-    staff: {}
-  });
-  const [isDownloading, setIsDownloading] = useState(false);
 
+  // Searchable entities
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+
+  const [filters, setFilters] = useState<any>({
+    patient: { category: "all" },
+    doctor: { mode: "list" },
+    appointment: { status: "" },
+    recall: { status: "" },
+    staff: { role: "all" },
+  });
+
+  const [isDownloading, setIsDownloading] = useState(false);
   const toast = useToast();
 
+  // Persist active tab
   useEffect(() => {
     const saved = localStorage.getItem("activeReportTab");
-    if (
-      saved &&
-      ["patient", "doctor", "appointment", "recall", "staff"].includes(saved)
-    ) {
+    if (saved && ["patient", "doctor", "appointment", "recall", "staff"].includes(saved)) {
       setActiveTab(saved as ReportTab);
     }
   }, []);
@@ -79,6 +77,14 @@ const ReportsPage = observer(() => {
   useEffect(() => {
     localStorage.setItem("activeReportTab", activeTab);
   }, [activeTab]);
+
+  // Reset filters and selections when tab changes
+  const handleTabChange = (tab: ReportTab) => {
+    setActiveTab(tab);
+    setSelectedPatient(null);
+    setSelectedDoctor(null);
+    // Optional: reset tab-specific filters if needed
+  };
 
   const handleChange = (section: ReportTab, name: string, value: any) => {
     setFilters((prev: any) => ({
@@ -108,66 +114,67 @@ const ReportsPage = observer(() => {
     return false;
   };
 
-  // ← Real API call to download Excel report
   const handleDownload = async () => {
-  if (isDownloadDisabled()) return;
+    if (isDownloadDisabled()) return;
 
-  setIsDownloading(true);
+    setIsDownloading(true);
 
-  try {
-    const response = await getReportDownload({
-      reportType: activeTab,
-      filters: filters[activeTab],
-    });
+    try {
+      const payloadFilters = {
+        ...filters[activeTab],
+        ...(selectedPatient ? { patientId: selectedPatient.id || selectedPatient.value } : {}),
+        ...(selectedDoctor ? { doctorId: selectedDoctor.id || selectedDoctor.value } : {}),
+      };
 
-    // Check API response
-    if (response?.status === "success" && response.data) {
-      const { fileName, fileData } = response.data;
-
-      // Convert base64 to Blob
-      const byteCharacters = atob(fileData);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      const response = await getReportDownload({
+        reportType: activeTab,
+        filters: payloadFilters,
       });
 
-      // Trigger download
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName || `${activeTab}-report-${new Date().toISOString().split("T")[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (response?.status === "success" && response.data) {
+        const { fileName, fileData } = response.data;
 
+        const byteCharacters = atob(fileData);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName || `${activeTab}-report-${new Date().toISOString().split("T")[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        toast({
+          title: "Success",
+          description: "Report downloaded successfully!",
+          status: "success",
+          duration: 4000,
+          isClosable: true,
+        });
+      } else {
+        throw new Error(response?.message || "Failed to generate report");
+      }
+    } catch (err: any) {
       toast({
-        title: "Success",
-        description: "Report downloaded successfully!",
-        status: "success",
-        duration: 4000,
+        title: "Error",
+        description: err.message || "Failed to download report. Please try again.",
+        status: "error",
+        duration: 6000,
         isClosable: true,
       });
-    } else {
-      // API returned error
-      throw new Error(response?.message || "Failed to generate report");
+    } finally {
+      setIsDownloading(false);
     }
-  } catch (err: any) {
-    toast({
-      title: "Error",
-      description: err.message || "Failed to download report. Please try again.",
-      status: "error",
-      duration: 6000,
-      isClosable: true,
-    });
-  } finally {
-    setIsDownloading(false);
-  }
-};
+  };
 
   const activeTabConfig = REPORT_TABS.find((t) => t.value === activeTab)!;
   const bgPage = useColorModeValue("gray.50", "gray.900");
@@ -176,16 +183,16 @@ const ReportsPage = observer(() => {
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
-    <Box>
-      <Box mx="auto" p={5}>
-        {/* Hero Header */}
-        <VStack align="start" spacing={4} mb={4}>
+    <Box bg={bgPage} minH="100vh">
+      <Box maxW="1400px" mx="auto" p={5}>
+        {/* Header */}
+        <VStack align="start" spacing={4} mb={8}>
           <Text
-            fontSize={{ base: "2xl", md: "2xl" }}
+            fontSize={{ base: "2xl", md: "3xl" }}
             fontWeight="extrabold"
             bgGradient="linear(to-r, gray.700, gray.900)"
             bgClip="text"
-            _dark={{ bgGradient: "linear(to-r, gray.100, gray.300)", bgClip: "text" }}
+            _dark={{ bgGradient: "linear(to-r, gray.100, gray.300)" }}
           >
             Reports Dashboard
           </Text>
@@ -206,18 +213,17 @@ const ReportsPage = observer(() => {
                 p={10}
                 textAlign="center"
                 cursor="pointer"
-                border={`3px solid ${true ? `var(--chakra-colors-${tab.colorScheme}-400)` : 'transparent'}`}
-                boxShadow={true ? "0 20px 40px rgba(0,0,0,0.08)" : "0 8px 24px rgba(0,0,0,0.05)"}
+                border={`3px solid ${isActive ? `var(--chakra-colors-${tab.colorScheme}-400)` : "transparent"}`}
+                boxShadow={isActive ? "0 20px 40px rgba(0,0,0,0.08)" : "0 8px 24px rgba(0,0,0,0.05)"}
                 transition="all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1)"
                 _hover={{
                   transform: "translateY(-16px) scale(1.02)",
                   boxShadow: "0 32px 64px rgba(0,0,0,0.12)",
                 }}
-                onClick={() => setActiveTab(tab.value)}
+                onClick={() => handleTabChange(tab.value)}
                 overflow="hidden"
               >
-                {/* Active Top Glow Bar */}
-                {true && (
+                {isActive && (
                   <Box
                     position="absolute"
                     top={0}
@@ -226,11 +232,9 @@ const ReportsPage = observer(() => {
                     h="8px"
                     bgGradient={`linear(to-r, ${tab.colorScheme}.400, ${tab.colorScheme}.600)`}
                     borderTopRadius="3xl"
-                    boxShadow={`0 4px 20px var(--chakra-colors-${tab.colorScheme}-400)`}
                   />
                 )}
 
-                {/* Icon Circle with Ring */}
                 <Box
                   position="relative"
                   w={24}
@@ -243,10 +247,10 @@ const ReportsPage = observer(() => {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  transition="all 0.4s ease"
                   transform={isActive ? "scale(1.2)" : "scale(1)"}
+                  transition="transform 0.4s ease"
                 >
-                  {true && (
+                  {isActive && (
                     <Box
                       position="absolute"
                       inset={-2}
@@ -256,10 +260,7 @@ const ReportsPage = observer(() => {
                       animation="pulse 2s infinite"
                     />
                   )}
-                  <IconComponent
-                    size={48}
-                    color={`var(--chakra-colors-${tab.colorScheme}-600)`}
-                  />
+                  <IconComponent size={48} color={`var(--chakra-colors-${tab.colorScheme}-600)`} />
                 </Box>
 
                 <Text
@@ -273,14 +274,7 @@ const ReportsPage = observer(() => {
                 </Text>
 
                 {isActive && (
-                  <Tag
-                    size="lg"
-                    colorScheme={tab.colorScheme}
-                    mt={4}
-                    fontWeight="extrabold"
-                    borderRadius="full"
-                    px={6}
-                  >
+                  <Tag size="lg" colorScheme={tab.colorScheme} mt={4} fontWeight="extrabold" borderRadius="full" px={6}>
                     ACTIVE
                   </Tag>
                 )}
@@ -289,68 +283,48 @@ const ReportsPage = observer(() => {
           })}
         </SimpleGrid>
 
-        {/* Main Report Configuration Card */}
-        <Box
-          bg={bgCard}
-          borderRadius="3xl"
-          overflow="hidden"
-          boxShadow="0 25px 50px rgba(0,0,0,0.1)"
-          border={`1px solid ${borderColor}`}
-        >
-          {/* Premium Gradient Header */}
+        {/* Main Report Card */}
+        <Box bg={bgCard} borderRadius="3xl" overflow="hidden" boxShadow="xl" border={`1px solid ${borderColor}`}>
+          {/* Header */}
           <Box
             bgGradient={`linear(to-r, ${activeTabConfig.colorScheme}.500, ${activeTabConfig.colorScheme}.700)`}
             px={{ base: 8, md: 12 }}
             py={10}
-            position="relative"
-            overflow="hidden"
           >
-            <Box
-              position="absolute"
-              inset={0}
-              bg="blackAlpha.100"
-              backdropFilter="blur(10px)"
-            />
-            <Flex align="center" gap={6} position="relative" zIndex={1}>
-              <Box
-                bg="whiteAlpha.200"
-                backdropFilter="blur(20px)"
-                p={5}
-                borderRadius="2xl"
-                boxShadow="xl"
-              >
-                <activeTabConfig.icon size={56} color="white" />
+            <Flex align="center" gap={6} color="white">
+              <Box bg="whiteAlpha.200" p={5} borderRadius="2xl">
+                <activeTabConfig.icon size={56} />
               </Box>
-              <Box color="white">
+              <Box>
                 <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="extrabold">
                   {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Report
                 </Text>
                 <Text fontSize="lg" opacity={0.95} mt={2}>
-                  Fine-tune your data with advanced filters below
+                  Customize filters to generate detailed reports
                 </Text>
               </Box>
             </Flex>
           </Box>
 
-          {/* Stats Preview */}
+          {/* Stats Placeholder */}
           <Box px={{ base: 8, md: 12 }} py={8} bg={useColorModeValue("gray.50", "gray.700")}>
-            <StatGroup gap={8}>
+            <StatGroup gap={8} justifyContent="center">
               <Stat textAlign="center">
                 <StatLabel fontSize="lg" color={textSecondary}>Total Records</StatLabel>
                 <StatNumber fontSize="3xl" fontWeight="bold" color={`${activeTabConfig.colorScheme}.600`}>
-                  1,248
+                  —
                 </StatNumber>
               </Stat>
               <Stat textAlign="center">
                 <StatLabel fontSize="lg" color={textSecondary}>This Month</StatLabel>
                 <StatNumber fontSize="3xl" fontWeight="bold" color={`${activeTabConfig.colorScheme}.600`}>
-                  156
+                  —
                 </StatNumber>
               </Stat>
               <Stat textAlign="center">
                 <StatLabel fontSize="lg" color={textSecondary}>Daily Average</StatLabel>
                 <StatNumber fontSize="3xl" fontWeight="bold" color={`${activeTabConfig.colorScheme}.600`}>
-                  42
+                  —
                 </StatNumber>
               </Stat>
             </StatGroup>
@@ -358,8 +332,9 @@ const ReportsPage = observer(() => {
 
           <Divider />
 
-          {/* Filters */}
+          {/* Filters Section */}
           <Box p={{ base: 8, md: 12 }} pb={10}>
+            {/* Quick Date Buttons */}
             <HStack mb={10} spacing={5} flexWrap="wrap" gap={4}>
               <Button
                 leftIcon={<RiCalendar2Line size={20} />}
@@ -370,8 +345,6 @@ const ReportsPage = observer(() => {
                 color={`${activeTabConfig.colorScheme}.700`}
                 _hover={{ bg: `${activeTabConfig.colorScheme}.200` }}
                 borderRadius="full"
-                fontWeight="semibold"
-                px={8}
                 onClick={() => applyQuickDate("today")}
               >
                 Today
@@ -385,15 +358,13 @@ const ReportsPage = observer(() => {
                 color={`${activeTabConfig.colorScheme}.700`}
                 _hover={{ bg: `${activeTabConfig.colorScheme}.200` }}
                 borderRadius="full"
-                fontWeight="semibold"
-                px={8}
                 onClick={() => applyQuickDate("month")}
               >
                 This Month
               </Button>
             </HStack>
 
-            {/* Premium Glass Filter Panel */}
+            {/* Filter Panel */}
             <Box
               bg="whiteAlpha.900"
               _dark={{ bg: "blackAlpha.400" }}
@@ -401,13 +372,14 @@ const ReportsPage = observer(() => {
               borderRadius="3xl"
               p={10}
               border={`1px solid ${useColorModeValue("whiteAlpha.600", "whiteAlpha.300")}`}
-              boxShadow="0 20px 40px rgba(0,0,0,0.08)"
+              boxShadow="lg"
             >
-              <Text fontSize="2xl" fontWeight="bold" mb={8} color="gray.800" _dark={{ color: "white" }}>
+              <Text fontSize="2xl" fontWeight="bold" mb={8}>
                 Filter Configuration
               </Text>
 
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
+                {/* Common Date Filters */}
                 <CustomInput
                   name="fromDate"
                   type="date"
@@ -424,6 +396,7 @@ const ReportsPage = observer(() => {
                   onChange={(e: any) => handleChange(activeTab, "toDate", e.target.value)}
                 />
 
+                {/* Tab-Specific Filters */}
                 {activeTab === "patient" && (
                   <CustomInput
                     name="category"
@@ -435,58 +408,107 @@ const ReportsPage = observer(() => {
                       { label: "With Appointments", value: "withAppointments" },
                       { label: "With Recalls", value: "withRecalls" },
                     ]}
-                    value={filters.patient.category || ""}
-                    onChange={(val: any) => handleChange("patient", "category", val?.value)}
+                    value={filters.patient.category || "all"}
+                    onChange={(val: any) => handleChange("patient", "category", val?.value || "all")}
                   />
                 )}
 
                 {activeTab === "doctor" && (
-                  <CustomInput
-                    name="mode"
-                    type="select"
-                    label="Report Type"
-                    placeholder="Select type"
-                    options={[
-                      { label: "Doctor List", value: "list" },
-                      { label: "Doctor-wise Appointments", value: "appointments" },
-                    ]}
-                    value={filters.doctor.mode || ""}
-                    onChange={(val: any) => handleChange("doctor", "mode", val?.value)}
-                  />
+                  <>
+                    <CustomInput
+                      name="mode"
+                      type="select"
+                      label="Report Type"
+                      placeholder="Select type"
+                      options={[
+                        { label: "Doctor List", value: "list" },
+                        { label: "Appointments", value: "appointments" },
+                        { label: "Patients Treated", value: "patients" },
+                      ]}
+                      value={filters.doctor.mode || "list"}
+                      onChange={(val: any) => handleChange("doctor", "mode", val?.value || "list")}
+                    />
+
+                    <CustomInput
+                      name="patient"
+                      placeholder="Search Patient"
+                      type="real-time-user-search"
+                      label="Filter by Patient"
+                      value={selectedPatient}
+                      onChange={(val: any) => setSelectedPatient(val)}
+                      query={{ type: "patient" }}
+                    />
+                  </>
                 )}
 
                 {activeTab === "appointment" && (
-                  <CustomInput
-                    name="status"
-                    type="select"
-                    label="Status"
-                    placeholder="All statuses"
-                    options={[
-                      { label: "All", value: "" },
-                      { label: "Scheduled", value: "scheduled" },
-                      { label: "Completed", value: "completed" },
-                      { label: "Cancelled", value: "cancelled" },
-                    ]}
-                    value={filters.appointment.status || ""}
-                    onChange={(val: any) => handleChange("appointment", "status", val?.value)}
-                  />
+                  <>
+                    <CustomInput
+                      name="patient"
+                      placeholder="Search Patient"
+                      type="real-time-user-search"
+                      label="Patient"
+                      value={selectedPatient}
+                      onChange={(val: any) => setSelectedPatient(val)}
+                      query={{ type: "patient" }}
+                    />
+
+                    <CustomInput
+                      name="doctor"
+                      placeholder="Search Doctor"
+                      type="real-time-user-search"
+                      label="Doctor"
+                      value={selectedDoctor}
+                      onChange={(val: any) => setSelectedDoctor(val)}
+                      query={{ type: "doctor" }}
+                    />
+
+                    <CustomInput
+                      name="status"
+                      type="select"
+                      label="Appointment Status"
+                      placeholder="All appointments"
+                      options={[
+                        { label: "All", value: "" },
+                        { label: "Upcoming", value: "upcoming" },
+                        { label: "Completed", value: "completed" },
+                        { label: "Cancelled", value: "cancelled" },
+                        { label: "No-Show", value: "no-show" },
+                      ]}
+                      value={filters.appointment.status || ""}
+                      onChange={(val: any) => handleChange("appointment", "status", val?.value || "")}
+                    />
+                  </>
                 )}
 
                 {activeTab === "recall" && (
-                  <CustomInput
-                    name="status"
-                    type="select"
-                    label="Recall Status"
-                    placeholder="All recalls"
-                    options={[
-                      { label: "Pending", value: "pending" },
-                      { label: "Scheduled", value: "scheduled" },
-                      { label: "Completed", value: "completed" },
-                      { label: "Cancelled", value: "cancelled" },
-                    ]}
-                    value={filters.recall.status || ""}
-                    onChange={(val: any) => handleChange("recall", "status", val?.value)}
-                  />
+                  <>
+                    <CustomInput
+                      name="status"
+                      type="select"
+                      label="Recall Status"
+                      placeholder="All recalls"
+                      options={[
+                        { label: "All", value: "" },
+                        { label: "Pending", value: "pending" },
+                        { label: "Scheduled", value: "scheduled" },
+                        { label: "Completed", value: "completed" },
+                        { label: "Cancelled", value: "cancelled" },
+                      ]}
+                      value={filters.recall.status || ""}
+                      onChange={(val: any) => handleChange("recall", "status", val?.value || "")}
+                    />
+
+                    <CustomInput
+                      name="patient"
+                      placeholder="Search Patient"
+                      type="real-time-user-search"
+                      label="Patient"
+                      value={selectedPatient}
+                      onChange={(val: any) => setSelectedPatient(val)}
+                      query={{ type: "patient" }}
+                    />
+                  </>
                 )}
 
                 {activeTab === "staff" && (
@@ -502,24 +524,21 @@ const ReportsPage = observer(() => {
                       { label: "Admin", value: "admin" },
                       { label: "Technician", value: "technician" },
                     ]}
-                    value={filters.staff.role || ""}
-                    onChange={(val: any) => handleChange("staff", "role", val?.value)}
+                    value={filters.staff.role || "all"}
+                    onChange={(val: any) => handleChange("staff", "role", val?.value || "all")}
                   />
                 )}
               </SimpleGrid>
             </Box>
           </Box>
 
-          {/* Download Footer */}
-          <Box
-            px={{ base: 8, md: 12 }}
-            py={8}
-            bg={useColorModeValue("gray.50", "gray.800")}
-            borderTop={`1px solid ${borderColor}`}
-          >
-            <Flex justify="space-between" align="center" flexDirection={{ base: "column", md: "row" }} gap={6}>
+          {/* Download Button */}
+          <Box px={{ base: 8, md: 12 }} py={8} bg={useColorModeValue("gray.50", "gray.800")} borderTop={`1px solid ${borderColor}`}>
+            <Flex justify="space-between" align="center" direction={{ base: "column", md: "row" }} gap={6}>
               <Text fontSize="lg" color={textSecondary} textAlign={{ base: "center", md: "left" }}>
-                Your <Text as="span" fontWeight="bold" color={`${activeTabConfig.colorScheme}.600`}>{activeTab} report</Text> is prepared and ready
+                Your <Text as="span" fontWeight="bold" color={`${activeTabConfig.colorScheme}.600`}>
+                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                </Text> report is ready
               </Text>
 
               <Button
@@ -532,16 +551,11 @@ const ReportsPage = observer(() => {
                 fontWeight="extrabold"
                 borderRadius="full"
                 boxShadow="0 20px 40px rgba(0,0,0,0.15)"
-                _hover={{
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 30px 60px rgba(0,0,0,0.2)",
-                }}
-                _active={{ transform: "translateY(-2px)" }}
+                _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
                 isDisabled={isDownloadDisabled()}
                 isLoading={isDownloading}
                 loadingText="Generating..."
                 onClick={handleDownload}
-                animation={!isDownloadDisabled() && !isDownloading ? "pulse 2s infinite" : "none"}
               >
                 Download Excel Report
               </Button>
