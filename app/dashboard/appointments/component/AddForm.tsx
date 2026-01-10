@@ -55,7 +55,7 @@ const validationSchema = Yup.object().shape({
         "in-progress",
         "completed",
         "cancelled",
-        "rescheduled",
+        "shift",
         "no-show",
       ],
       "Invalid status"

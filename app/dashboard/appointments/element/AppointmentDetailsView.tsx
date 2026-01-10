@@ -37,7 +37,7 @@ const statusColors: Record<string, string> = {
   "in-progress": "yellow",
   completed: "green",
   cancelled: "red",
-  rescheduled: "purple",
+  shift: "purple",
   "no-show": "gray",
 };
 

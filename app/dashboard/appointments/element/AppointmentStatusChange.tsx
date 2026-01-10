@@ -3,6 +3,7 @@ import {
   VStack,
   Button,
   Box,
+  Flex,
 } from "@chakra-ui/react";
 import FormModel from "../../../component/common/FormModel/FormModel";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
@@ -14,10 +15,11 @@ const AppointChangeStatus = ({
   open,
   close,
   appointmentData,
-  applyGetAllRecords
+  applyGetAllRecords,
+  setOpenShiftModal
 }: any) => {
   const {auth :  {openNotification}, DoctorAppointment : {updateAppointmentStatus}} = stores
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     status: "",
     remarks: "",
   });
@@ -26,7 +28,7 @@ const AppointChangeStatus = ({
   useEffect(() => {
     if (appointmentData) {
       setFormData({
-        status: appointmentData.status || "Pending",
+        status: appointStatus.find((it : any) => it.value === appointmentData?.status) || appointStatus[0],
         remarks: appointmentData.remarks || "",
       });
     }
@@ -71,15 +73,34 @@ const AppointChangeStatus = ({
       footer={false}
     >
       <VStack spacing={4} p={3} align="stretch">
-        <CustomInput
-          label="Status"
-          type="select"
-          value={formData.status}
-          options={appointStatus}
-          name="status"
-          isPortal
-          onChange={(e: any) => setFormData({ ...formData, status: e })}
-        />
+                  <Flex gap={3} align="center">
+            <Box flex={1}>
+              <CustomInput
+                label="Status"
+                type="select"
+                value={formData.status}
+                options={appointStatus}
+                name="status"
+                isPortal
+                onChange={(e: any) =>
+                  setFormData({ ...formData, status: e })
+                }
+              />
+            </Box>
+
+            {formData.status?.value === "shift" && (
+              <Button
+                mt={6}
+                variant="outline"
+                colorScheme="orange"
+                size="sm"
+                onClick={() => setOpenShiftModal(appointmentData)}
+              >
+                Open Shift
+              </Button>
+            )}
+          </Flex>
+
         <CustomInput
           name="remarks"
           onChange={handleChange}

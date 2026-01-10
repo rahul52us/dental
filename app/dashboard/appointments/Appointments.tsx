@@ -25,7 +25,10 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     },
     auth: { openNotification, userType },
   } = stores;
-
+  const [openShiftModal, setOpenShiftModal] = useState({
+    open: false,
+    data: null,
+  });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
@@ -44,7 +47,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   });
 
   const [patientStatus, setPatientStatus] = useState({
-    rescheduled: 0,
+    shift: 0,
     cancelled: 0,
     "no-show": 0,
   });
@@ -186,7 +189,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
                 return "green";
               case "cancelled":
                 return "red";
-              case "rescheduled":
+              case "shift":
                 return "purple";
               case "no-show":
                 return "gray";
@@ -278,7 +281,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     patientDetails?.name
   } • Appointment Summary — Cancelled: ${
     patientStatus?.cancelled ?? 0
-  } | Rescheduled: ${patientStatus?.rescheduled ?? 0} | No-show: ${
+  } | Shift: ${patientStatus?.shift ?? 0} | No-show: ${
     patientStatus?.["no-show"] ?? 0
   }`;
 
@@ -402,6 +405,16 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         appointmentData={openChangeStatus.data}
         applyGetAllRecords={applyGetAllRecords}
         close={() => setOpenChangeStatus({ open: false, data: null })}
+        setOpenShiftModal={(dt: any) => {
+          setSelectedDateTime({
+            open: true,
+            time: undefined,
+            start: undefined,
+            end: undefined,
+            data: dt,
+            type: "edit",
+          });
+        }}
       />
 
       {/* View Appointment Details Drawer */}
@@ -447,7 +460,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   start: undefined,
                   end: undefined,
                   data: null,
-                  type: "add",
+                  type: "add"
                 })
               }
               selectedDateAndTime={selectedDateAndTime}

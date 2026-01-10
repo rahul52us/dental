@@ -10,14 +10,15 @@ import {
   useColorModeValue,
   Tooltip,
   Divider,
+  Input,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import stores from "../../../../store/stores";
 import { SLOT_DURATION } from "../../utils/constant";
 import { format } from "date-fns";
-import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import AppointmentDetailsView from "../../../appointments/element/AppointmentDetailsView";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
+import { toJS } from "mobx";
 
 /* ---------------------- HELPERS ---------------------- */
 
@@ -33,19 +34,54 @@ const hexToRGBA = (hex: string, alpha = 0.2) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-const generateTimeSlots = () => {
-  const slots: string[] = [];
-  let current = 0;
+const generateTimeSlots = (allowedSlots: any[]) => {
+  const timeSet = new Set<string>();
 
-  while (current < 24 * 60) {
-    const h = Math.floor(current / 60);
-    const m = current % 60;
-    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-    current += SLOT_DURATION;
-  }
+  // 🔑 find the latest endTime that is still on the same day
+  const sameDayEnds = allowedSlots
+    .map((s) => toMinutes(s.endTime))
+    .filter((end) => end > 0 && end <= 24 * 60);
 
-  return slots;
+  const maxSameDayEnd = sameDayEnds.length
+    ? Math.max(...sameDayEnds)
+    : 24 * 60;
+
+  allowedSlots.forEach((slot) => {
+    const start = toMinutes(slot.startTime);
+    const end = toMinutes(slot.endTime);
+
+    // ✅ Normal same-day slot
+    if (end > start) {
+      let current = start;
+      while (current < end) {
+        timeSet.add(
+          `${String(Math.floor(current / 60)).padStart(2, "0")}:${String(
+            current % 60
+          ).padStart(2, "0")}`
+        );
+        current += SLOT_DURATION;
+      }
+    }
+
+    // ✅ Overnight slot → clamp to last valid same-day end
+    else {
+      let current = start;
+      while (current < maxSameDayEnd) {
+        timeSet.add(
+          `${String(Math.floor(current / 60)).padStart(2, "0")}:${String(
+            current % 60
+          ).padStart(2, "0")}`
+        );
+        current += SLOT_DURATION;
+      }
+    }
+  });
+
+  return Array.from(timeSet).sort(
+    (a, b) => toMinutes(a) - toMinutes(b)
+  );
 };
+
 
 /* ---------------------- APPOINTMENT CARD ---------------------- */
 
@@ -66,83 +102,81 @@ const AppointmentCard = ({
 
   return (
     <Tooltip
-  hasArrow
-  placement="right"
-  openDelay={300}
-  bg="gray.800"
-  color="white"
-  borderRadius="md"
-  px={3}
-  py={2}
-  pointerEvents="auto"
-  label={
-    <Box>
-      <Text fontWeight="bold" fontSize="sm">
-        {appointment.patientName}
-      </Text>
+      hasArrow
+      placement="right"
+      openDelay={300}
+      bg="gray.800"
+      color="white"
+      borderRadius="md"
+      px={3}
+      py={2}
+      pointerEvents="auto"
+      label={
+        <Box>
+          <Text fontWeight="bold" fontSize="sm">
+            {appointment.patientName}
+          </Text>
 
-      <Text fontSize="xs" opacity={0.85}>
-        👨‍⚕️ {appointment.doctorName || "—"}
-      </Text>
+          <Text fontSize="xs" opacity={0.85}>
+            👨‍⚕️ {appointment.doctorName || "—"}
+          </Text>
 
-      <Divider my={1} borderColor="gray.600" />
+          <Divider my={1} borderColor="gray.600" />
 
-      <Text fontSize="xs">
-        🩺 {appointment.treatment || "Consultation"}
-      </Text>
+          <Text fontSize="xs">
+            🩺 {appointment.treatment || "Consultation"}
+          </Text>
 
-      <Text fontSize="xs">
-        ⏰ {appointment.startTime} • {appointment.duration} min
-      </Text>
-    </Box>
-  }
->
-  <Box
-  position="absolute"
-  top={0}
-  left={`${leftOffset}%`}
-  width={`${widthPercent}%`}
-  height={heightStyle}
-  m="1x"
-  p={1.5}
-  borderLeftWidth="6px"
-  borderRadius="lg"
-  boxShadow="md"
-  bg={`${chairColor}22`}
-  borderColor={chairColor}
-  zIndex={10 + overlapIndex}
-  cursor="pointer"
-  onClick={(e) => {
-    e.stopPropagation();
-    onOpenDetails(appointment);
-  }}
->
-  {/* Patient name (primary) */}
-  <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
-    {appointment.patientName}
-  </Text>
+          <Text fontSize="xs">
+            ⏰ {appointment.startTime} • {appointment.duration} min
+          </Text>
+        </Box>
+      }
+    >
+      <Box
+        position="absolute"
+        top={0}
+        left={`${leftOffset}%`}
+        width={`${widthPercent}%`}
+        height={heightStyle}
+        m="1x"
+        p={1.5}
+        borderLeftWidth="6px"
+        borderRadius="lg"
+        boxShadow="md"
+        bg={`${chairColor}22`}
+        borderColor={chairColor}
+        zIndex={10 + overlapIndex}
+        cursor="pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenDetails(appointment);
+        }}
+      >
+        {/* Patient name (primary) */}
+        <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
+          {appointment.patientName}
+        </Text>
 
-  {/* Doctor name (secondary) */}
-  <Text fontSize="xs" color="gray.600" noOfLines={1}>
-    Dr. {appointment.doctorName || "—"}
-  </Text>
+        {/* Doctor name (secondary) */}
+        <Text fontSize="xs" color="gray.600" noOfLines={1}>
+          Dr. {appointment.doctorName || "—"}
+        </Text>
 
-  {/* Treatment */}
-  <Text fontSize="xs" mt={1} noOfLines={1}>
-    {appointment.treatment || "Consultation"}
-  </Text>
+        {/* Treatment */}
+        <Text fontSize="xs" mt={1} noOfLines={1}>
+          {appointment.treatment || "Consultation"}
+        </Text>
 
-  {/* Duration */}
-  {appointment.duration >= 60 && (
-    <Flex align="center" gap={1} mt={1} fontSize="xs" color="gray.600">
-      <RepeatClockIcon boxSize={3.5} />
-      <Text>{appointment.duration} min</Text>
-    </Flex>
-  )}
-</Box>
-
-</Tooltip>
-
+        {/* Duration */}
+        {appointment.duration >= 60 && (
+          <Flex align="center" gap={1} mt={1} fontSize="xs" color="gray.600">
+            <RepeatClockIcon boxSize={3.5} />
+            <Text>{appointment.duration} min</Text>
+          </Flex>
+        )}
+      </Box>
+    </Tooltip>
   );
 };
 
@@ -161,6 +195,8 @@ const ScheduleGrid = ({
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
   const timeHeaderBg = useColorModeValue("gray.100", "gray.700");
+
+  console.log("the refrence are", allowedSlots);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -181,22 +217,34 @@ const ScheduleGrid = ({
     });
   };
 
-  const isSlotAllowed = (time: string) => {
-    if (isPastDate) return false;
+const isSlotAllowed = (time: string) => {
+  if (isPastDate) return false;
 
-    const dayIndex = selectedDate.getDay();
-    const slotMinutes = toMinutes(time);
+  const slotMinutes = toMinutes(time);
 
-    return allowedSlots.some((slot: any) => {
-      if (!slot.daysOfWeek.includes(dayIndex)) return false;
+  return allowedSlots.some((slot: any) => {
+    const start = toMinutes(slot.startTime);
+    const end = toMinutes(slot.endTime);
 
-      const start = toMinutes(slot.startTime);
-      const end = toMinutes(slot.endTime);
+    // normal
+    if (end > start) {
+      return slotMinutes >= start && slotMinutes < end;
+    }
 
-      return end < start
-        ? slotMinutes >= start || slotMinutes < end
-        : slotMinutes >= start && slotMinutes < end;
-    });
+    // overnight → only if within declared same-day range
+    return slotMinutes >= start && slotMinutes < 24 * 60;
+  });
+};
+
+
+
+  const formatDateForInput = (date: Date | null) => {
+    if (!date) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -209,20 +257,42 @@ const ScheduleGrid = ({
         >
           <Flex
             p={5}
+            w={"100%"}
             bg={timeHeaderBg}
             align="center"
             justify="center"
             borderRightWidth="2px"
           >
-            <CustomInput
-              type="date"
-              name="date"
-              value={selectedDate}
-              onChange={(e: any) => {
-                const [y, m, d] = e.target.value.split("-").map(Number);
-                setSelectedDate(new Date(y, m - 1, d));
-              }}
-            />
+            <Flex>
+              <Input
+                type="date"
+                name="date"
+                value={formatDateForInput(selectedDate)}
+                onChange={(e: any) => {
+                  const [y, m, d] = e.target.value.split("-").map(Number);
+                  setSelectedDate(new Date(y, m - 1, d));
+                }}
+                sx={{
+                  width: "80px",
+                  height: "100px",
+                  padding: "0",
+                  textIndent: "-9999px",
+                  cursor: "pointer",
+
+                  "&::-webkit-datetime-edit": {
+                    display: "none",
+                  },
+
+                  "&::-webkit-calendar-picker-indicator": {
+                    position: "absolute",
+                    right: "8px",
+                    width: "60px",
+                    height: "60px",
+                    cursor: "pointer",
+                  },
+                }}
+              />
+            </Flex>
           </Flex>
 
           {chairs.map((chair: any) => (
@@ -262,74 +332,73 @@ const ScheduleGrid = ({
 
               return (
                 <Box
-  key={`${chair.id}-${time}`}
-  position="relative"
-  minH="70px"
-  borderRightWidth="2px"
-  borderBottomWidth="2px"
-  borderColor="gray.400"
-  bg={allowed ? hexToRGBA(chair.color, 0.07) : "gray.100"}
-  opacity={allowed ? 1 : 0.45}
->
-  {/* 🔹 Existing Appointments (ALWAYS clickable) */}
-  {startingAppointments.map((apt: any, index: number) => (
-    <AppointmentCard
-      key={apt.id}
-      appointment={apt}
-      chairColor={chair.color}
-      overlapIndex={index}
-      totalOverlaps={startingAppointments.length}
-      onOpenDetails={onOpenDetails}
-    />
-  ))}
+                  key={`${chair.id}-${time}`}
+                  position="relative"
+                  minH="70px"
+                  borderRightWidth="2px"
+                  borderBottomWidth="2px"
+                  borderColor="gray.400"
+                  bg={allowed ? hexToRGBA(chair.color, 0.07) : "gray.100"}
+                  opacity={allowed ? 1 : 0.45}
+                >
+                  {/* 🔹 Existing Appointments (ALWAYS clickable) */}
+                  {startingAppointments.map((apt: any, index: number) => (
+                    <AppointmentCard
+                      key={apt.id}
+                      appointment={apt}
+                      chairColor={chair.color}
+                      overlapIndex={index}
+                      totalOverlaps={startingAppointments.length}
+                      onOpenDetails={onOpenDetails}
+                    />
+                  ))}
 
-  {/* 🔒 Closed Slot Label (does NOT block appointments) */}
-  {!allowed && startingAppointments.length === 0 && (
-    <Text
-      position="absolute"
-      top="50%"
-      left="50%"
-      transform="translate(-50%, -50%)"
-      fontSize="xs"
-      color="gray.600"
-      fontWeight="semibold"
-      zIndex={1} // behind appointment cards
-      pointerEvents="none"
-    >
-      Closed
-    </Text>
-  )}
+                  {/* 🔒 Closed Slot Label (does NOT block appointments) */}
+                  {!allowed && startingAppointments.length === 0 && (
+                    <Text
+                      position="absolute"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                      fontSize="xs"
+                      color="gray.600"
+                      fontWeight="semibold"
+                      zIndex={1} // behind appointment cards
+                      pointerEvents="none"
+                    >
+                      Closed
+                    </Text>
+                  )}
 
-  {/* ➕ Add Appointment (ONLY if slot is allowed & empty) */}
-  {!occupied && allowed && (
-    <Flex
-      position="absolute"
-      inset={0}
-      align="center"
-      justify="center"
-      opacity={0}
-      _hover={{ opacity: 1 }}
-    >
-      <IconButton
-        aria-label="Add appointment"
-        size="lg"
-        borderRadius="full"
-        bg="blue.500"
-        color="white"
-        icon={<Text fontSize="2xl">+</Text>}
-        onClick={() =>
-          handleTimeSlots({
-            open: true,
-            time,
-            chair,
-            selectedDate,
-          })
-        }
-      />
-    </Flex>
-  )}
-</Box>
-
+                  {/* ➕ Add Appointment (ONLY if slot is allowed & empty) */}
+                  {!occupied && allowed && (
+                    <Flex
+                      position="absolute"
+                      inset={0}
+                      align="center"
+                      justify="center"
+                      opacity={0}
+                      _hover={{ opacity: 1 }}
+                    >
+                      <IconButton
+                        aria-label="Add appointment"
+                        size="lg"
+                        borderRadius="full"
+                        bg="blue.500"
+                        color="white"
+                        icon={<Text fontSize="2xl">+</Text>}
+                        onClick={() =>
+                          handleTimeSlots({
+                            open: true,
+                            time,
+                            chair,
+                            selectedDate,
+                          })
+                        }
+                      />
+                    </Flex>
+                  )}
+                </Box>
               );
             })}
           </Grid>
@@ -359,32 +428,49 @@ export default function DentistScheduler({
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState<any>(false);
 
-  const allowedSlots = useMemo(
-    () =>
-      user?.companyDetails?.operatingHours
-        ? user.companyDetails.operatingHours
-            .filter((d: any) => d.isOpen)
-            .flatMap((d: any) => {
-              const dayIndex = [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-              ].indexOf(d.day);
-              return d.slots.map((slot: any) => ({
-                daysOfWeek: [dayIndex],
-                startTime: slot.start,
-                endTime: slot.end,
-              }));
-            })
-        : [],
-    [user]
+  console.log(toJS(user?.companyDetails?.operatingHours))
+
+  console.log('the selected dates are', selectedDate)
+  console.log("the selected date is", selectedDate);
+
+const allowedSlots = useMemo(() => {
+  if (!user?.companyDetails?.operatingHours) return [];
+
+  const dayNames = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const selectedDayName = dayNames[selectedDate.getDay()];
+
+  const dayConfig = user.companyDetails.operatingHours.find(
+    (d: any) => d.day === selectedDayName && d.isOpen
   );
 
-  const timeSlots = useMemo(() => generateTimeSlots(), []);
+  if (!dayConfig) return [];
+
+  return dayConfig.slots.map((slot: any) => ({
+    startTime: slot.start,
+    endTime: slot.end,
+  }));
+}, [user, selectedDate]);
+
+
+  console.log('the allowed slots are', allowedSlots)
+
+  console.log(toJS(user?.companyDetails?.operatingHours))
+
+  const timeSlots = useMemo(
+    () => generateTimeSlots(allowedSlots),
+    [allowedSlots]
+  );
+
+  console.log('the time slots are', timeSlots)
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -458,7 +544,9 @@ export default function DentistScheduler({
         close={() => setOpenDrawer(false)}
         title="Appointment Details"
       >
-              <AppointmentDetailsView data={{...selectedAppointment, _id : selectedAppointment?.id}} />
+        <AppointmentDetailsView
+          data={{ ...selectedAppointment, _id: selectedAppointment?.id }}
+        />
       </CustomDrawer>
     </>
   );

@@ -138,7 +138,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                 return "green";
               case "cancelled":
                 return "red";
-              case "rescheduled":
+              case "shift":
                 return "purple";
               case "no-show":
                 return "gray";
