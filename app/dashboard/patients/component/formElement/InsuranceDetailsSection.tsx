@@ -12,7 +12,6 @@ import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { FiPlus } from "react-icons/fi";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
-import { insuranceTypeOptions } from "../../../../config/constant";
 
 const InsuranceDetailsSection = ({
   values,
@@ -53,15 +52,9 @@ const InsuranceDetailsSection = ({
                         <CustomInput
                           label="Type"
                           name={`insurances[${index}].type`}
-                          type="select"
-                          options={insuranceTypeOptions}
+                          type="text"
                           value={insurance.type || ""}
-                          onChange={(e: any) =>
-                            setFieldValue(
-                              `insurances[${index}].type`,
-                              e.target ? e.target.value : e
-                            )
-                          }
+                          onChange={handleChange}
                           error={errors?.insurances?.[index]?.type}
                           showError={errors?.insurances?.[index]?.type}
                         />

@@ -28,10 +28,7 @@ export const generateIntialValues = (initialData: any = {}) => {
       : [],
     insurances: Array.isArray(initialData?.insurances)
       ? initialData.insurances.map((it: any) => ({
-          ...it,
-          type:
-            insuranceTypeOptions.find((opt: any) => opt.value === it?.type) ||
-            null,
+          ...it
         }))
       : [],
     title:
