@@ -274,7 +274,7 @@ const AddAppointmentForm = observer(
             primaryDoctor: "",
             additionalDoctors: [],
             additionalStaff: [],
-            showCompleteData: true,
+            showCompleteData: false,
             patient: isPatient
               ? {
                   label: `${patientDetails?.name} (${patientDetails?.code})`,

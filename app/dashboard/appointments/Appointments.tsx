@@ -25,10 +25,6 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     },
     auth: { openNotification, userType },
   } = stores;
-  const [openShiftModal, setOpenShiftModal] = useState({
-    open: false,
-    data: null,
-  });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
@@ -381,9 +377,9 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         title={
           selectedDate
             ? `Appointment -> Selected: ${moment(selectedDate).format(
-                "DD MMM YYYY, hh:mm A"
+                "DD MMM YYYY"
               )}`
-            : "Select a date & time"
+            : "Select date"
         }
       >
         <DentistScheduler
@@ -442,9 +438,9 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         title={
           selectedDateAndTime
             ? `Selected: ${moment(selectedDateAndTime.start).format(
-                "DD MMM YYYY, hh:mm A"
+                "DD MMM YYYY"
               )}`
-            : "Select a date & time"
+            : "Select a date"
         }
       >
         <Box p={2}>

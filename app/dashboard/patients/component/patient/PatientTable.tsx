@@ -318,7 +318,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         {openAppointmentDetails.open && (
           <CustomDrawer
             width="92%"
-            title="Patient Appointments"
+            title="Patient -> Appointments"
             open={openAppointmentDetails.open}
             close={() => setOpenAppointmentDetails({ open: false, data: null })}
           >

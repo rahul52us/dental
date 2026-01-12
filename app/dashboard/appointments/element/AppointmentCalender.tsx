@@ -285,9 +285,9 @@ const AttendanceCalendar = ({
         title={
           selectedDateTime
             ? `Selected: ${moment(selectedDateTime.start).format(
-                "DD MMM YYYY, hh:mm A"
+                "DD MMM YYYY"
               )}`
-            : "Select a date & time"
+            : "Select a date"
         }
       >
         <Box p={2}>

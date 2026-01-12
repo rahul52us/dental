@@ -112,26 +112,35 @@ const AppointmentCard = ({
       py={2}
       pointerEvents="auto"
       label={
-        <Box>
-          <Text fontWeight="bold" fontSize="sm">
-            {appointment.patientName}
-          </Text>
+  <Box>
+    <Text fontWeight="bold" fontSize="sm">
+      {appointment.patientName}
+    </Text>
 
-          <Text fontSize="xs" opacity={0.85}>
-            👨‍⚕️ {appointment.doctorName || "—"}
-          </Text>
+    <Text fontSize="xs" opacity={0.85}>
+      👨‍⚕️ {appointment.doctorName || "—"}
+    </Text>
 
-          <Divider my={1} borderColor="gray.600" />
+    <Divider my={1} borderColor="gray.600" />
 
-          <Text fontSize="xs">
-            🩺 {appointment.treatment || "Consultation"}
-          </Text>
+    <Text fontSize="xs">
+      🩺 {appointment.treatment || "Consultation"}
+    </Text>
 
-          <Text fontSize="xs">
-            ⏰ {appointment.startTime} • {appointment.duration} min
-          </Text>
-        </Box>
-      }
+    <Text fontSize="xs">
+      ⏰ {appointment.startTime} • {appointment.duration} min
+    </Text>
+
+    {/* Full Description */}
+    {appointment.description && (
+      <Text fontSize="xs" mt={1} opacity={0.85} whiteSpace="pre-wrap">
+        📝 {appointment.description}
+      </Text>
+    )}
+  </Box>
+}
+
+
     >
       <Box
         position="absolute"
@@ -154,9 +163,31 @@ const AppointmentCard = ({
         }}
       >
         {/* Patient name (primary) */}
-        <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
-          {appointment.patientName}
-        </Text>
+        <Flex align="center" maxW="100%">
+  <Text
+    fontWeight="600"
+    fontSize="sm"
+    color="gray.800"
+    noOfLines={1}
+    title={appointment.patientName}
+  >
+    {appointment.patientName}
+  </Text>
+
+  <Text
+    fontSize="xs"
+    color="gray.600"
+    // bg="gray.100"
+    px={2}
+    py="2px"
+    borderRadius="full"
+    fontWeight="500"
+    whiteSpace="nowrap"
+  >
+    ( {appointment?.patientMobileNumber} )
+  </Text>
+</Flex>
+
 
         {/* Doctor name (secondary) */}
         <Text fontSize="xs" color="gray.600" noOfLines={1}>
@@ -164,9 +195,12 @@ const AppointmentCard = ({
         </Text>
 
         {/* Treatment */}
-        <Text fontSize="xs" mt={1} noOfLines={1}>
-          {appointment.treatment || "Consultation"}
-        </Text>
+        <Text fontSize="xs" mt={1}>
+  {(appointment.description || "Consultation").length > 15
+    ? (appointment.description || "Consultation").slice(0, 15) + "..."
+    : appointment.description || "Consultation"}
+</Text>
+
 
         {/* Duration */}
         {appointment.duration >= 60 && (
@@ -195,8 +229,6 @@ const ScheduleGrid = ({
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
   const timeHeaderBg = useColorModeValue("gray.100", "gray.700");
-
-  console.log("the refrence are", allowedSlots);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -428,10 +460,6 @@ export default function DentistScheduler({
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [openDrawer, setOpenDrawer] = useState<any>(false);
 
-  console.log(toJS(user?.companyDetails?.operatingHours))
-
-  console.log('the selected dates are', selectedDate)
-  console.log("the selected date is", selectedDate);
 
 const allowedSlots = useMemo(() => {
   if (!user?.companyDetails?.operatingHours) return [];
@@ -461,16 +489,10 @@ const allowedSlots = useMemo(() => {
 }, [user, selectedDate]);
 
 
-  console.log('the allowed slots are', allowedSlots)
-
-  console.log(toJS(user?.companyDetails?.operatingHours))
-
   const timeSlots = useMemo(
     () => generateTimeSlots(allowedSlots),
     [allowedSlots]
   );
-
-  console.log('the time slots are', timeSlots)
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -495,8 +517,11 @@ const allowedSlots = useMemo(() => {
             allAppointments.push({
               id: apt._id,
               patientName: apt.patient?.name || "Unknown",
+              patientMobileNumber:apt.patient?.mobileNumber || "Unknown",
               treatment: apt.title,
+              description:apt.description,
               doctorName: apt.primaryDoctor?.name || "--",
+              doctorMobileNumber: apt.primaryDoctor?.mobileNumber || "--",
               startTime: apt.startTime,
               duration: toMinutes(apt.endTime) - toMinutes(apt.startTime),
               chairId: chair._id,
