@@ -26,6 +26,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     auth: { openNotification, userType },
   } = stores;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [createdAppointmentByCalender, setCreatedAppointmentByCalender] = useState(false)
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
     type: "add",
@@ -390,6 +391,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
           handleTimeSlots={(e: any) => {
             handleOpenAddDrawer(e);
           }}
+          createdAppointmentByCalender={createdAppointmentByCalender}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
         />
@@ -449,15 +451,17 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               patientDetails={patientDetails}
               isPatient={isPatient}
               applyGetAllRecords={applyGetAllRecords}
-              close={() =>
+              close={() => {
+                setCreatedAppointmentByCalender(!createdAppointmentByCalender)
                 setSelectedDateTime({
                   open: false,
                   time: undefined,
                   start: undefined,
                   end: undefined,
                   data: null,
-                  type: "add"
+                  type: "add",
                 })
+              }
               }
               selectedDateAndTime={selectedDateAndTime}
             />

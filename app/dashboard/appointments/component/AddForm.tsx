@@ -39,7 +39,7 @@ const validationSchema = Yup.object().shape({
   patient: Yup.mixed().required("Patient is required"),
   appointmentDate: Yup.string().required("Appointment date is required"),
   startTime: Yup.string().required("Start time is required"),
-  title: Yup.mixed().required("Title is Required"),
+  title: Yup.mixed(),
   mode: Yup.string().required("Mode is required"),
   meetingLink: Yup.string().when("mode", {
     is: "online",
@@ -477,7 +477,6 @@ const AddAppointmentForm = observer(
                           name="title"
                           label="Treatment Head"
                           type="select"
-                          required
                           value={values.title}
                           onChange={(e: any) => setFieldValue("title", e)}
                           options={appointmentReason}

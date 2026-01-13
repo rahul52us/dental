@@ -446,6 +446,7 @@ export default function DentistScheduler({
   handleTimeSlots,
   selectedDate,
   setSelectedDate,
+  createdAppointmentByCalender
 }: any) {
   const {
     chairsStore: { getChairSummary },
@@ -494,8 +495,7 @@ const allowedSlots = useMemo(() => {
     [allowedSlots]
   );
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
+  const fetchAppointments = async () => {
       setLoading(true);
       const res = await getChairSummary({
         date: format(selectedDate, "yyyy-MM-dd"),
@@ -535,8 +535,9 @@ const allowedSlots = useMemo(() => {
       setLoading(false);
     };
 
+  useEffect(() => {
     fetchAppointments();
-  }, [selectedDate, getChairSummary]);
+  }, [selectedDate, getChairSummary,createdAppointmentByCalender]);
 
   if (loading) {
     return (
