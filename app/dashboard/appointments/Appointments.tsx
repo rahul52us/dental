@@ -27,7 +27,8 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     auth: { openNotification, userType },
   } = stores;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [createdAppointmentByCalender, setCreatedAppointmentByCalender] = useState(false)
+  const [createdAppointmentByCalender, setCreatedAppointmentByCalender] =
+    useState(false);
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
     type: "add",
@@ -50,7 +51,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     "no-show": 0,
   });
 
-  console.log(toJS(appointments))
+  console.log(toJS(appointments));
 
   const fetchPatientStatus = async () => {
     try {
@@ -151,7 +152,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Cause",
       key: "description",
-      type:"tooltip",
+      type: "tooltip",
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
@@ -307,7 +308,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     });
   };
 
-  console.log('the selected date are', selectedDate)
+  console.log("the selected date are", selectedDate);
 
   return (
     <>
@@ -410,11 +411,11 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         applyGetAllRecords={applyGetAllRecords}
         close={() => setOpenChangeStatus({ open: false, data: null })}
         setOpenShiftModal={(dt: any) => {
-           setSelectedDate(new Date(dt?.appointmentDate));
-           setOpenReportModal({
+          setSelectedDate(new Date(dt?.appointmentDate));
+          setOpenReportModal({
             open: true,
-            type: "add"
-          })
+            type: "add",
+          });
         }}
       />
 
@@ -455,17 +456,16 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               isPatient={isPatient}
               applyGetAllRecords={applyGetAllRecords}
               close={() => {
-                setCreatedAppointmentByCalender(!createdAppointmentByCalender)
+                setCreatedAppointmentByCalender(!createdAppointmentByCalender);
                 setSelectedDateTime({
                   open: false,
                   time: undefined,
                   start: undefined,
                   end: undefined,
                   data: null,
-                  type: "add",
-                })
-              }
-              }
+                  type: "add"
+                });
+              }}
               selectedDateAndTime={selectedDateAndTime}
             />
           ) : (

@@ -1,19 +1,17 @@
 "use client";
-import { AddIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { ChevronUpIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Card,
   CardBody,
   CardHeader,
-  Checkbox,
   Divider,
   Flex,
   FormControl,
   FormLabel,
   Grid,
   HStack,
-  IconButton,
   SimpleGrid,
   Switch,
   Text,
@@ -347,6 +345,7 @@ const AddAppointmentForm = observer(
                           {!isPatient && (
                             <Text
                               as="button"
+                              type="button"
                               fontSize="sm"
                               fontWeight="medium"
                               color="blue.600"
@@ -591,7 +590,6 @@ const AddAppointmentForm = observer(
                           )}
                         </VStack>
                       </SectionCard>
-
                       {/* === Status & Follow-up === */}
                       <SectionCard title="Status & Follow-up">
                         <VStack spacing={4}>

@@ -48,7 +48,6 @@ const Form = observer(
       dashboardStore: { getMasterOptions },
     } = stores;
     const [formData, setFormData] = useState<any>(null);
-
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const handleCloseDrawer = async () => {

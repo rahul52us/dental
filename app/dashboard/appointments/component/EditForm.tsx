@@ -388,6 +388,7 @@ const EditAppointmentForm = observer(
                           {!isPatient && (
                             <Text
                               as="button"
+                              type="button"
                               fontSize="sm"
                               fontWeight="medium"
                               color="blue.600"
