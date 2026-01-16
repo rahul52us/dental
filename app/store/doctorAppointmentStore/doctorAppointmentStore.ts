@@ -30,7 +30,7 @@ class DoctorAppointment {
         {...sendData, page:sendData.page,limit:tablePageLimit,searchQuery,company :authStore.company}
       );
       this.appointments.data = Array.isArray(data?.data?.data) ? data?.data?.data?.map((it : any) => ({...it, actionBy : it?.createdBy?.name || '--' , doctorName : it?.primaryDoctor?.name, patientName : it?.patient?.name})) : [];
-      this.appointments.totalPages = data?.totalPages || 0;
+      this.appointments.totalPages = data?.data?.totalPages || 0;
       return data.data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

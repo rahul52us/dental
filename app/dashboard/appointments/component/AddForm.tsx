@@ -1,5 +1,5 @@
 "use client";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ import AddPatientDrawer from "../../patients/component/patient/component/AddPati
 import { appointStatus } from "../constant";
 import { appointmentReason } from "../utils/constant";
 import ScrollToFormikError from "../../../component/common/ScrollToFormikError/ScrollToFormikError";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
@@ -498,15 +499,41 @@ const AddAppointmentForm = observer(
                         Show Other Appointment Details
                       </Text>
 
-                      <Switch
-                        colorScheme="teal"
-                        size="md"
-                        isChecked={values.showCompleteData}
-                        onChange={(e) =>
-                          setFieldValue("showCompleteData", e.target.checked)
-                        }
-                      />
+                      {/* Arrow + Switch */}
+                      <Flex align="center" gap={2}>
+                        {/* Arrow */}
+                        <Flex
+                          w="32px"
+                          h="32px"
+                          align="center"
+                          justify="center"
+                          cursor="pointer"
+                          onClick={() =>
+                            setFieldValue(
+                              "showCompleteData",
+                              !values.showCompleteData
+                            )
+                          }
+                        >
+                          {values.showCompleteData ? (
+                            <ChevronUpIcon boxSize={8} color="gray.700" />
+                          ) : (
+                            <ChevronDownIcon boxSize={8} color="gray.700" />
+                          )}
+                        </Flex>
+
+                        {/* Switch */}
+                        <Switch
+                          colorScheme="teal"
+                          size="md"
+                          isChecked={values.showCompleteData}
+                          onChange={(e) =>
+                            setFieldValue("showCompleteData", e.target.checked)
+                          }
+                        />
+                      </Flex>
                     </Flex>
+
                     <Flex
                       flexDirection="column"
                       gap={4}

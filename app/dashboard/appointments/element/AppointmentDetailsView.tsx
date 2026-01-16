@@ -161,11 +161,8 @@ const AppointmentDetailsView = observer(
         <HStack justify="space-between" align="start" mb={6}>
           <Box>
             <Heading size="lg" color="gray.800">
-              {title}
+              {description}
             </Heading>
-            <Text fontSize="sm" color="gray.500" mt={1}>
-              {description || "No description provided."}
-            </Text>
           </Box>
 
           {status && (

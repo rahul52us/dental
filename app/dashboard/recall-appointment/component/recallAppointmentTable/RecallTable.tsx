@@ -199,12 +199,12 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
     },
     {
-      headerName: "Created At",
-      key: "createdAt",
+      headerName: "Recall Date",
+      key: "recallDate",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box m={1}>{formatDate(dt?.created_At) || "--"}</Box>
+          <Box m={1}>{formatDate(dt?.recallDate) || "--"}</Box>
         ),
       },
       props: {

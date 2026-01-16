@@ -15,6 +15,7 @@ import moment from "moment";
 import { SLOT_DURATION } from "../daily-report/utils/constant";
 import AddAppointmentForm from "./component/AddForm";
 import EditAppointmentForm from "./component/EditForm";
+import { toJS } from "mobx";
 
 const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
@@ -48,6 +49,8 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     cancelled: 0,
     "no-show": 0,
   });
+
+  console.log(toJS(appointments))
 
   const fetchPatientStatus = async () => {
     try {
@@ -146,8 +149,9 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   // Define table columns
   const ContactTableColumn = [
     {
-      headerName: "Appointment",
-      key: "title",
+      headerName: "Cause",
+      key: "description",
+      type:"tooltip",
       metaData: {
         component: (dt: any) => (
           <Box m={1}>
@@ -303,6 +307,8 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
     });
   };
 
+  console.log('the selected date are', selectedDate)
+
   return (
     <>
       <CustomTable
@@ -404,14 +410,11 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         applyGetAllRecords={applyGetAllRecords}
         close={() => setOpenChangeStatus({ open: false, data: null })}
         setOpenShiftModal={(dt: any) => {
-          setSelectedDateTime({
+           setSelectedDate(new Date(dt?.appointmentDate));
+           setOpenReportModal({
             open: true,
-            time: undefined,
-            start: undefined,
-            end: undefined,
-            data: dt,
-            type: "edit",
-          });
+            type: "add"
+          })
         }}
       />
 
@@ -434,7 +437,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
             start: undefined,
             end: undefined,
             data: null,
-            type: "add",
+            type: "add"
           })
         }
         title={
