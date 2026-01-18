@@ -158,7 +158,7 @@ const AddAppointmentForm = observer(
         created_At: new Date().toISOString(),
         updated_At: new Date().toISOString(),
         doctorNote: data.doctorNote,
-        chair: data?.chair?.value,
+        chair: data?.chair?.value
       };
 
       createDoctorAppointment(replaceLabelValueObjects(formattedData))

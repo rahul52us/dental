@@ -1,4 +1,4 @@
-import { RepeatClockIcon } from "@chakra-ui/icons";
+import { RepeatClockIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
   Center,
@@ -26,6 +26,17 @@ const toMinutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
+
+const canEditAppointment = (selectedDate: Date, startTime: string) => {
+  const now = new Date();
+  const [h, m] = startTime.split(":").map(Number);
+
+  const aptDate = new Date(selectedDate);
+  aptDate.setHours(h, m, 0, 0);
+
+  return aptDate >= now;
+};
+
 
 const hexToRGBA = (hex: string, alpha = 0.2) => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -90,6 +101,9 @@ const AppointmentCard = ({
   chairColor,
   overlapIndex = 0,
   totalOverlaps = 1,
+  selectedDate,
+  chair,
+  handleTimeSlots,
   onOpenDetails,
 }: any) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
@@ -99,6 +113,11 @@ const AppointmentCard = ({
 
   const widthPercent = totalOverlaps > 1 ? 92 / totalOverlaps : 96;
   const leftOffset = overlapIndex * (96 / totalOverlaps);
+
+  const editable = canEditAppointment(selectedDate, appointment.startTime);
+
+  console.log(selectedDate)
+  console.log(appointment.starTime)
 
   return (
     <Tooltip
@@ -187,6 +206,28 @@ const AppointmentCard = ({
     ( {appointment?.patientMobileNumber} )
   </Text>
 </Flex>
+{editable && (
+  <IconButton
+    aria-label="Edit appointment"
+    icon={<EditIcon />}
+    size="xs"
+    position="absolute"
+    top="4px"
+    right="4px"
+    variant="ghost"
+    zIndex={20}
+    onClick={(e) => {
+      e.stopPropagation();
+      handleTimeSlots({
+        open: true,
+        mode: "edit",
+        appointment,
+        chair,
+        selectedDate,
+      });
+    }}
+  />
+)}
 
 
         {/* Doctor name (secondary) */}
@@ -268,6 +309,16 @@ const isSlotAllowed = (time: string) => {
   });
 };
 
+
+const canEditAppointment = (selectedDate: Date, startTime: string) => {
+  const now = new Date();
+  const [h, m] = startTime.split(":").map(Number);
+
+  const aptDate = new Date(selectedDate);
+  aptDate.setHours(h, m, 0, 0);
+
+  return aptDate >= now;
+};
 
 
   const formatDateForInput = (date: Date | null) => {
@@ -378,6 +429,8 @@ const isSlotAllowed = (time: string) => {
                     <AppointmentCard
                       key={apt.id}
                       appointment={apt}
+                      selectedDate={selectedDate}
+                      handleTimeSlots={handleTimeSlots}
                       chairColor={chair.color}
                       overlapIndex={index}
                       totalOverlaps={startingAppointments.length}
@@ -515,6 +568,7 @@ const allowedSlots = useMemo(() => {
 
           chair.appointments.forEach((apt: any) => {
             allAppointments.push({
+              _id: apt._id,
               id: apt._id,
               patientName: apt.patient?.name || "Unknown",
               patientMobileNumber:apt.patient?.mobileNumber || "Unknown",

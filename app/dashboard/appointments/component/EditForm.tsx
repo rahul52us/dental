@@ -30,8 +30,8 @@ import AddPatientDrawer from "../../patients/component/patient/component/AddPati
 import { appointStatus } from "../constant";
 import { appointmentReason } from "../utils/constant";
 import ScrollToFormikError from "../../../component/common/ScrollToFormikError/ScrollToFormikError";
-import { toJS } from "mobx";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import Loader from "../../../component/common/Loader/Loader";
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
@@ -57,7 +57,7 @@ const validationSchema = Yup.object().shape({
         "shift",
         "no-show",
       ],
-      "Invalid status"
+      "Invalid status",
     )
     .required("Status is required"),
   followUp: Yup.object().shape({
@@ -88,7 +88,7 @@ const toUtcISOString = (date: string, time: string) => {
   if (!date || !time) return null;
   const localDateTime = new Date(`${date}T${time}`);
   return new Date(
-    localDateTime.getTime() + localDateTime.getTimezoneOffset() * 60000
+    localDateTime.getTime() + localDateTime.getTimezoneOffset() * 60000,
   ).toISOString();
 };
 
@@ -120,13 +120,13 @@ const EditAppointmentForm = observer(
     applyGetAllRecords,
   }: any) => {
     const {
-      DoctorAppointment: { createDoctorAppointment, updateAppointment },
+      DoctorAppointment: { getAppointmentById, updateAppointment },
       auth: { openNotification },
       userStore: { getAllUsers },
       chairsStore: { getChairs },
     } = stores;
 
-    const [appointment, setAppointment] = useState(selectedDateAndTime?.data);
+    const [appointment, setAppointment] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
       isOpen: false,
       type: "add",
@@ -137,6 +137,37 @@ const EditAppointmentForm = observer(
     const toast = useToast();
     const [formLoading, setFormLoading] = useState(false);
     const [chairsData, setChairsData] = useState<any>([]);
+
+    const getAppointDetailsData = async () => {
+      try {
+        let dts = await getAppointmentById({
+          appointmentId: selectedDateAndTime.data?._id,
+        });
+
+        console.log(dts.data?.data);
+        if (dts.status === "success") {
+          setAppointment(dts?.data?.data);
+        } else {
+          openNotification({
+            type: "error",
+            title: "Error",
+            message: "No Such Appointment Exists",
+          });
+        }
+      } catch (err: any) {
+        openNotification({
+          type: "error",
+          title: "Error",
+          message: err?.message,
+        });
+      }
+    };
+
+    useEffect(() => {
+      if (selectedDateAndTime?.data?._id) {
+        getAppointDetailsData();
+      }
+    }, [selectedDateAndTime?.data]);
 
     const parsedDateAndTime = useMemo(() => {
       if (!selectedDateAndTime?.start) return {};
@@ -166,13 +197,13 @@ const EditAppointmentForm = observer(
         replaceLabelValueObjects({
           ...formattedData,
           _id: selectedDateAndTime?.data?._id,
-        })
+        }),
       )
         .then(() => {
           openNotification({
             type: "success",
-            title: "CREATED SUCCESSFULLY",
-            message: "Appointment has been Created Successfully",
+            title: "Updated Successfully",
+            message: "Appointment has been Updated Successfully",
           });
           if (close && applyGetAllRecords) {
             applyGetAllRecords({});
@@ -182,7 +213,7 @@ const EditAppointmentForm = observer(
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to Create Appointment",
+            title: "Failed to Update Appointment",
             message: err?.message,
           });
         })
@@ -272,6 +303,10 @@ const EditAppointmentForm = observer(
       value: item._id,
       label: item.chairName,
     }));
+
+    if (!appointment) {
+      return <Loader fullPage message="Loading Appointment Details" />;
+    }
 
     return (
       <>
@@ -377,8 +412,8 @@ const EditAppointmentForm = observer(
                                     },
                                   ]
                                 : values?.patient
-                                ? [values?.patient]
-                                : []
+                                  ? [values?.patient]
+                                  : []
                             }
                             error={errors.patient as string}
                             showError={touched.patient}
@@ -553,7 +588,7 @@ const EditAppointmentForm = observer(
                           onClick={() =>
                             setFieldValue(
                               "showCompleteData",
-                              !values.showCompleteData
+                              !values.showCompleteData,
                             )
                           }
                         >
@@ -666,7 +701,7 @@ const EditAppointmentForm = observer(
                                 onChange={(e) =>
                                   setFieldValue(
                                     "followUp.isFollowUp",
-                                    e.target.checked
+                                    e.target.checked,
                                   )
                                 }
                               />
@@ -683,7 +718,7 @@ const EditAppointmentForm = observer(
                               onChange={(val: any) =>
                                 setFieldValue(
                                   "followUp.referenceAppointmentId",
-                                  val?._id || val
+                                  val?._id || val,
                                 )
                               }
                               error={
@@ -740,7 +775,7 @@ const EditAppointmentForm = observer(
         />
       </>
     );
-  }
+  },
 );
 
 export default EditAppointmentForm;

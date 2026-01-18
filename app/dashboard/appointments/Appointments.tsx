@@ -117,7 +117,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
           });
         });
     },
-    [debouncedSearchQuery, getDoctorAppointment, openNotification, currentPage]
+    [debouncedSearchQuery, getDoctorAppointment, openNotification, currentPage],
   );
 
   useEffect(() => {
@@ -303,12 +303,11 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         label: data?.chair?.name,
         value: data?.chair?.id,
       },
+      data: data?.appointment,
       open: true,
-      type: "add",
+      type: data?.mode === "edit" ? "edit" : "add",
     });
   };
-
-  console.log("the selected date are", selectedDate);
 
   return (
     <>
@@ -385,7 +384,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         title={
           selectedDate
             ? `Appointment -> Selected: ${moment(selectedDate).format(
-                "DD MMM YYYY"
+                "DD MMM YYYY",
               )}`
             : "Select date"
         }
@@ -438,13 +437,13 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
             start: undefined,
             end: undefined,
             data: null,
-            type: "add"
+            type: "add",
           })
         }
         title={
           selectedDateAndTime
             ? `Selected: ${moment(selectedDateAndTime.start).format(
-                "DD MMM YYYY"
+                "DD MMM YYYY",
               )}`
             : "Select a date"
         }
@@ -463,7 +462,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   start: undefined,
                   end: undefined,
                   data: null,
-                  type: "add"
+                  type: "add",
                 });
               }}
               selectedDateAndTime={selectedDateAndTime}
