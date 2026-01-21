@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Flex, Grid, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Stack, Text } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
@@ -267,7 +267,94 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         column: { textAlign: "center" },
       },
     },
+    {
+  headerName: "History",
+  key: "history",
+  type: "component",
+  metaData: {
+    component: (dt: any) => {
+      const history = dt.history || [];
 
+      if (!history.length) {
+        return (
+          <Text fontSize="sm" color="gray.400">
+            —
+          </Text>
+        );
+      }
+
+      return (
+        <Popover placement="left-start" closeOnBlur>
+  <PopoverTrigger>
+    <Button size="xs" variant="link" colorScheme="blue">
+      View
+    </Button>
+  </PopoverTrigger>
+
+  <PopoverContent w="420px" boxShadow="xl">
+  <PopoverArrow />
+  <PopoverCloseButton />
+
+  <PopoverHeader fontSize="sm" fontWeight="600">
+    Audit History
+  </PopoverHeader>
+
+  <PopoverBody p={0} maxH="320px" overflowY="auto">
+    <Box fontSize="xs">
+      {/* Header Row */}
+      <Grid
+        templateColumns="90px 1fr 120px"
+        px={3}
+        py={2}
+        bg="gray.100"
+        fontWeight="600"
+        borderBottom="1px solid"
+        borderColor="gray.200"
+      >
+        <Text>Action</Text>
+        <Text>Remarks</Text>
+        <Text>Date</Text>
+      </Grid>
+
+      {/* Rows */}
+      {history.map((item: any, index: number) => (
+        <Grid
+          key={item._id || index}
+          templateColumns="90px 1fr 120px"
+          px={3}
+          py={2}
+          borderBottom="1px solid"
+          borderColor="gray.100"
+          _hover={{ bg: "gray.50" }}
+        >
+          <Text fontWeight="500" textTransform="capitalize">
+            {item.action}
+          </Text>
+
+          <Text color="gray.600" noOfLines={2}>
+            {item.remarks || "—"}
+          </Text>
+
+          <Text color="gray.500">
+            {new Date(item.timestamp).toLocaleDateString()}
+          </Text>
+        </Grid>
+      ))}
+    </Box>
+  </PopoverBody>
+</PopoverContent>
+</Popover>
+
+
+      );
+    },
+  },
+  props: {
+    row: { minW: 120, textAlign: "center" },
+    column: { textAlign: "center" },
+  },
+}
+,
     {
       headerName: "Actions",
       key: "table-actions",
