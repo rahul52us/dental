@@ -151,6 +151,7 @@ const AddAppointmentForm = observer(
       const startUTC = toUtcISOString(data.appointmentDate, data.startTime);
       const endUTC = toUtcISOString(data.appointmentDate, data.endTime);
 
+      console.log('the data are', data)
       const formattedData = {
         ...data,
         startTimeUTC: startUTC,

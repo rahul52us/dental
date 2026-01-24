@@ -143,8 +143,6 @@ const EditAppointmentForm = observer(
         let dts = await getAppointmentById({
           appointmentId: selectedDateAndTime.data?._id,
         });
-
-        console.log(dts.data?.data);
         if (dts.status === "success") {
           setAppointment(dts?.data?.data);
         } else {
@@ -169,19 +167,12 @@ const EditAppointmentForm = observer(
       }
     }, [selectedDateAndTime?.data]);
 
-    const parsedDateAndTime = useMemo(() => {
-      if (!selectedDateAndTime?.start) return {};
-      const { start, end } = selectedDateAndTime;
-      return {
-        appointmentDate: toLocalDate(start),
-        startTime: toLocalTime(start),
-        endTime: toLocalTime(end),
-      };
-    }, [selectedDateAndTime]);
 
     const onSubmit = (data: any, setSubmitting: any) => {
       const startUTC = toUtcISOString(data.appointmentDate, data.startTime);
       const endUTC = toUtcISOString(data.appointmentDate, data.endTime);
+
+      console.log('the data are', data)
 
       const formattedData = {
         ...data,
@@ -308,6 +299,8 @@ const EditAppointmentForm = observer(
       return <Loader fullPage message="Loading Appointment Details" />;
     }
 
+    console.log('the appointment are', appointment)
+
     return (
       <>
         <Formik
@@ -319,11 +312,11 @@ const EditAppointmentForm = observer(
                 }
               : null,
 
-            additionalDoctors: appointment?.additionalDoctors || [],
+            additionalDoctors: Array.isArray(appointment?.additionalDoctors) ? appointment?.additionalDoctors?.map((it : any) => ({label : it.name, value : it._id})) :  [],
 
             additionalStaff: [],
 
-            showCompleteData: true,
+            showCompleteData: appointment?.showCompleteData,
 
             patient: appointment?.patient
               ? {
