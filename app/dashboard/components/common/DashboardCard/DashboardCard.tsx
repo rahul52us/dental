@@ -19,13 +19,14 @@ const DashboardCard = ({ label, value, icon, color, href }: any) => {
   const cardVariants = {
     initial: { opacity: 0, y: 15 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+    hover: {
+      y: -8,
+      boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+      borderColor: accentColor,
+      transition: { duration: 0.2, ease: 'easeInOut' }
+    },
   };
 
-  // Overlay animation
-  const overlayVariants = {
-    initial: { x: '-100%' },
-    hover: { x: 0, transition: { duration: 0.4, ease: 'easeInOut' } },
-  };
 
   return (
     <MotionBox
@@ -37,20 +38,25 @@ const DashboardCard = ({ label, value, icon, color, href }: any) => {
       borderRadius="xl"
       position="relative"
       overflow="hidden"
-      boxShadow="0px 6px 20px rgba(0, 0, 0, 0.1)"
+      boxShadow="lg"
+      borderTopWidth="4px"
+      borderTopColor={accentColor}
       cursor="pointer"
       onClick={() => router.push(href)}
+      transition={{ duration: 0.2 }}
     >
-      {/* Sliding Overlay */}
-      <MotionBox
-        variants={overlayVariants}
+      {/* Background Gradient Blob for visual interest */}
+      <Box
         position="absolute"
-        top={0}
-        left={0}
-        w="100%"
-        h="100%"
+        top="-20%"
+        right="-10%"
+        w="150px"
+        h="150px"
         bg={overlayColor}
-        zIndex={1}
+        borderRadius="full"
+        opacity={0.4}
+        filter="blur(30px)"
+        zIndex={0}
       />
 
       {/* Content */}
@@ -59,74 +65,59 @@ const DashboardCard = ({ label, value, icon, color, href }: any) => {
         align="center"
         justify="space-between"
         h="100%"
-        p={5}
+        p={6}
         position="relative"
         zIndex={2}
       >
         {/* Left: Icon and Value */}
         <Flex direction="column" justify="center">
-          <MotionBox
-            whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-            mb={2}
+          <Flex
+            align="center"
+            justify="center"
+            w={14}
+            h={14}
+            borderRadius="lg"
+            bg={overlayColor}
+            color={accentColor}
+            mb={3}
+            boxShadow="md"
           >
-            <Icon as={icon} w={8} h={8} color={accentColor} />
-          </MotionBox>
+             <Icon as={icon} w={7} h={7} />
+          </Flex>
           <Text
-            fontSize={{ base: '2xl', md: '3xl' }}
-            fontWeight="bold"
+            fontSize="3xl"
+            fontWeight="800"
             color={textColor}
             lineHeight="1.2"
+            letterSpacing="tight"
           >
             {value.toLocaleString()}
           </Text>
-        </Flex>
-
-        {/* Right: Label */}
-        <Flex
-          direction="column"
-          justify="center"
-          align="flex-end"
-          maxW="50%"
-        >
           <Text
-            fontSize={{ base: 'sm', md: 'md' }}
-            fontWeight="medium"
-            color={useColorModeValue('gray.600', 'gray.300')}
+            fontSize="sm"
+            fontWeight="semibold"
+            color="gray.500"
+            mt={1}
             textTransform="uppercase"
             letterSpacing="wide"
-            textAlign="right"
           >
             {label}
           </Text>
         </Flex>
-      </Flex>
 
-      {/* Bottom Accent Line */}
-      <Box
-        position="absolute"
-        bottom={0}
-        left={0}
-        w="100%"
-        h="4px"
-        bg={accentColor}
-        transform="scaleX(0)"
-        transformOrigin="left"
-        transition="transform 0.4s ease-in-out"
-        _groupHover={{ transform: 'scaleX(1)' }}
-      />
-      <MotionBox
-        position="absolute"
-        bottom={0}
-        left={0}
-        w="100%"
-        h="4px"
-        bg={accentColor}
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 0.3, transition: { duration: 0.4, ease: 'easeOut' } }}
-        whileHover={{ scaleX: 1, transition: { duration: 0.4, ease: 'easeInOut' } }}
-        transformOrigin="left"
-        zIndex={2}
-      />
+        {/* Right: Decorative Icon Watermark */}
+        <Icon
+          as={icon}
+          w={24}
+          h={24}
+          position="absolute"
+          right={-4}
+          bottom={-6}
+          color={accentColor}
+          opacity={0.05}
+          transform="rotate(-10deg)"
+        />
+      </Flex>
     </MotionBox>
   );
 };

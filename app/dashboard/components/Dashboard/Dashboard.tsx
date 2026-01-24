@@ -1,7 +1,6 @@
 "use client";
 import {
   Box,
-  ChakraProvider,
   extendTheme,
   Grid,
   Heading,
@@ -70,41 +69,121 @@ const chartColors = [
 
 const barChartOptions: any = {
   responsive: true,
-  maintainAspectRatio: true,
+  maintainAspectRatio: false,
   plugins: {
-    legend: { position: "top" },
+    legend: { display: false },
     title: { display: false },
+    tooltip: {
+      backgroundColor: '#1A202C',
+      titleFont: { family: "'Inter', sans-serif", size: 13 },
+      bodyFont: { family: "'Inter', sans-serif", size: 13 },
+      padding: 10,
+      cornerRadius: 8,
+      displayColors: false,
+    }
   },
   scales: {
-    y: { beginAtZero: true },
-    x: { ticks: { autoSkip: true, maxTicksLimit: 12 } },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: '#E2E8F0',
+        borderDash: [5, 5],
+        drawBorder: false,
+      },
+      ticks: {
+        font: { family: "'Inter', sans-serif", size: 11 },
+        color: '#718096',
+        padding: 10
+      },
+      border: { display: false }
+    },
+    x: {
+      grid: { display: false },
+      ticks: {
+        font: { family: "'Inter', sans-serif", size: 11 },
+        color: '#718096'
+      },
+      border: { display: false }
+    },
   },
-  layout: { padding: 8 },
+  layout: { padding: 0 },
+  elements: {
+    bar: {
+      borderRadius: 6,
+      borderSkipped: false,
+    },
+  },
 };
 
 const lineChartOptions: any = {
   responsive: true,
-  maintainAspectRatio: true,
+  maintainAspectRatio: false,
   plugins: {
-    legend: { position: "top" },
+    legend: { display: false },
     title: { display: false },
+    tooltip: {
+      backgroundColor: '#1A202C',
+      titleFont: { family: "'Inter', sans-serif", size: 13 },
+      bodyFont: { family: "'Inter', sans-serif", size: 13 },
+      padding: 10,
+      cornerRadius: 8,
+      displayColors: false,
+      intersect: false,
+      mode: 'index',
+    }
   },
   scales: {
-    y: { beginAtZero: false },
-    x: { ticks: { autoSkip: true, maxTicksLimit: 12 } },
+    y: {
+      beginAtZero: false,
+      grid: {
+        color: '#E2E8F0',
+        borderDash: [5, 5],
+        drawBorder: false,
+      },
+      ticks: {
+        font: { family: "'Inter', sans-serif", size: 11 },
+        color: '#718096',
+        padding: 10
+      },
+      border: { display: false }
+    },
+    x: {
+      grid: { display: false },
+      ticks: {
+        font: { family: "'Inter', sans-serif", size: 11 },
+        color: '#718096'
+      },
+      border: { display: false }
+    },
   },
-  layout: { padding: 8 },
+  elements: {
+    line: {
+      tension: 0.4,
+      borderWidth: 3,
+    },
+    point: {
+      radius: 0,
+      hoverRadius: 6,
+      hoverBorderWidth: 4,
+      hoverBorderColor: '#fff',
+    },
+  },
 };
 
 const lineChartData: any = {
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
   datasets: [
     {
-      label: "Patient Growth",
+      label: "Growth",
       data: dummyData.patientGrowth,
-      borderColor: "rgba(153, 102, 255, 1)",
-      backgroundColor: "rgba(153, 102, 255, 0.15)",
-      borderWidth: 2,
+      borderColor: "#805AD5", // Purple 500
+      backgroundColor: (context: any) => {
+        const ctx = context.chart.ctx;
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, "rgba(128, 90, 213, 0.4)");
+        gradient.addColorStop(1, "rgba(128, 90, 213, 0.0)");
+        return gradient;
+      },
       fill: true,
     },
   ],
@@ -150,86 +229,91 @@ const dashboardData = [
     labels: dashboardData.map((d) => d.label),
     datasets: [
       {
-        label: "Users Growth",
+        label: "Count",
         data: dashboardData.map((d) => d.value),
-        backgroundColor: dashboardData.map(
-          (_, i) => chartColors[i % chartColors.length].bg
-        ),
-        borderColor: dashboardData.map(
-          (_, i) => chartColors[i % chartColors.length].border
-        ),
-        hoverBackgroundColor: dashboardData.map(
-          (_, i) => `${chartColors[i % chartColors.length].bg}cc`
-        ),
-        borderWidth: 2,
+        backgroundColor: [
+          "rgba(49, 130, 206, 0.8)", // Blue
+          "rgba(56, 161, 105, 0.8)", // Green
+          "rgba(128, 90, 213, 0.8)", // Purple
+        ],
+        hoverBackgroundColor: [
+          "rgba(49, 130, 206, 1)",
+          "rgba(56, 161, 105, 1)",
+          "rgba(128, 90, 213, 1)",
+        ],
+        borderRadius: 8,
+        barThickness: 45,
+        borderWidth: 0,
       },
     ],
   };
 
   return (
-    <ChakraProvider theme={theme}>
-      <Box p={5}>
-        <Heading mb={5} size={"lg"} color={"teal.600"}>
-          Dashboard
-        </Heading>
+      <Box p={5} minH="100vh">
+        <Box mx="auto">
+          <Heading mb={8} size="lg" color="blue.800" letterSpacing="tight">
+            Dashboard
+          </Heading>
 
-        {/* Cards Section */}
-        <Box mb={4}>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-            {dashboardData.map((item, index) => (
-              <Skeleton
-                isLoaded={!count?.loading}
-                key={index}
-                borderRadius="lg"
-              >
-                <DashboardCard
-                  label={item.label}
-                  href={item.href}
-                  value={item.value}
-                  icon={item.icon}
-                  color={item.color}
-                />
-              </Skeleton>
-            ))}
-          </SimpleGrid>
+          {/* Cards Section */}
+          <Box mb={10}>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+              {dashboardData.map((item, index) => (
+                <Skeleton
+                  isLoaded={!count?.loading}
+                  key={index}
+                  borderRadius="xl"
+                >
+                  <DashboardCard
+                    label={item.label}
+                    href={item.href}
+                    value={item.value}
+                    icon={item.icon}
+                    color={item.color}
+                  />
+                </Skeleton>
+              ))}
+            </SimpleGrid>
+          </Box>
+
+          {/* Charts Section */}
+          <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} mb={10}>
+            {/* Bar Chart */}
+            <Box
+              bg="white"
+              p={6}
+              borderRadius="xl"
+              boxShadow="lg"
+              border="1px solid"
+              borderColor="gray.100"
+            >
+              <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
+                Users Overview
+              </Text>
+              <AspectRatio ratio={16 / 9} width="100%">
+                <Bar data={userChartData} options={barChartOptions} />
+              </AspectRatio>
+            </Box>
+
+            {/* Line Chart */}
+            <Box
+              bg="white"
+              p={6}
+              borderRadius="xl"
+              boxShadow="lg"
+              border="1px solid"
+              borderColor="gray.100"
+            >
+              <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
+                Patient Growth
+              </Text>
+              <AspectRatio ratio={16 / 9} width="100%">
+                <Line data={lineChartData} options={lineChartOptions} />
+              </AspectRatio>
+            </Box>
+          </Grid>
         </Box>
-
-        {/* Charts Section */}
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} mb={10}>
-          {/* Bar Chart */}
-          <Box
-            bg="white"
-            p={5}
-            borderRadius="lg"
-            boxShadow="md"
-            overflow="hidden"
-          >
-            <Text fontSize="lg" fontWeight="bold" mb={4}>
-              Users Growth
-            </Text>
-            <AspectRatio ratio={16 / 9} width="100%">
-              <Bar data={userChartData} options={barChartOptions} />
-            </AspectRatio>
-          </Box>
-
-          {/* Line Chart */}
-          <Box
-            bg="white"
-            p={5}
-            borderRadius="lg"
-            boxShadow="md"
-            overflow="hidden"
-          >
-            <Text fontSize="lg" fontWeight="bold" mb={4}>
-              Patient Growth
-            </Text>
-            <AspectRatio ratio={16 / 9} width="100%">
-              <Line data={lineChartData} options={lineChartOptions} />
-            </AspectRatio>
-          </Box>
-        </Grid>
       </Box>
-    </ChakraProvider>
   );
 });
 
