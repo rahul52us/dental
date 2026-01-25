@@ -491,11 +491,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         title={
           selectedDate ? (
             <Flex align="center" gap={3}>
-              <Button
-                size="md"
-                onClick={goToPreviousDate}
-                p={1}
-              >
+              <Button size="md" onClick={goToPreviousDate} p={1}>
                 <ChevronLeftIcon color="white" fontSize={32} />
               </Button>
 
@@ -595,7 +591,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
               patientDetails={patientDetails}
               isPatient={isPatient}
               applyGetAllRecords={applyGetAllRecords}
-              close={() =>
+              close={() => {
                 setSelectedDateTime({
                   open: false,
                   time: undefined,
@@ -603,8 +599,9 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   end: undefined,
                   data: null,
                   type: "add",
-                })
-              }
+                });
+                setCreatedAppointmentByCalender(!createdAppointmentByCalender);
+              }}
               selectedDateAndTime={selectedDateAndTime}
             />
           )}

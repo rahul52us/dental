@@ -18,7 +18,6 @@ import { SLOT_DURATION } from "../../utils/constant";
 import { format } from "date-fns";
 import AppointmentDetailsView from "../../../appointments/element/AppointmentDetailsView";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
-import { toJS } from "mobx";
 
 /* ---------------------- HELPERS ---------------------- */
 
@@ -28,13 +27,14 @@ const toMinutes = (time: string) => {
 };
 
 const canEditAppointment = (selectedDate: Date, startTime: string) => {
-  const now = new Date();
-  const [h, m] = startTime.split(":").map(Number);
+  // const now = new Date();
+  // const [h, m] = startTime.split(":").map(Number);
 
-  const aptDate = new Date(selectedDate);
-  aptDate.setHours(h, m, 0, 0);
+  // const aptDate = new Date(selectedDate);
+  // aptDate.setHours(h, m, 0, 0);
 
-  return aptDate >= now;
+  // return aptDate >= now;
+  return true
 };
 
 

@@ -261,8 +261,6 @@ const AddAppointmentForm = observer(
       }
     };
 
-    console.log("the have current profile are", haveCreateProfile);
-
     const fetchChairs = async () => {
       const resposne = await getChairs({
         page: 1,
@@ -280,6 +278,8 @@ const AddAppointmentForm = observer(
       value: item._id,
       label: item.chairName,
     }));
+
+    console.log('the have patient details are', patientDetails)
 
     return (
       <>

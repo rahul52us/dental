@@ -10,6 +10,7 @@ import CustomInput from "../../../component/config/component/customInput/CustomI
 import { appointStatus } from "../constant";
 import { replaceLabelValueObjects } from "../../../config/utils/function";
 import stores from "../../../store/stores";
+import moment from "moment";
 
 const AppointChangeStatus = ({
   open,
@@ -18,50 +19,74 @@ const AppointChangeStatus = ({
   applyGetAllRecords,
   setOpenShiftModal
 }: any) => {
-  const {auth :  {openNotification}, DoctorAppointment : {updateAppointmentStatus}} = stores
+  const { auth: { openNotification }, DoctorAppointment: { updateAppointmentStatus } } = stores;
+
   const [formData, setFormData] = useState<any>({
     status: "",
     remarks: "",
   });
-  const [loading,setLoading] = useState(false)
+
+  const [shiftDate, setShiftDate] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (appointmentData) {
       setFormData({
-        status: appointStatus.find((it : any) => it.value === appointmentData?.status) || appointStatus[0],
+        status:
+          appointStatus.find(
+            (it: any) => it.value === appointmentData?.status
+          ) || appointStatus[0],
         remarks: appointmentData.remarks || "",
       });
+      setShiftDate("");
     }
   }, [appointmentData]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const handleShiftDateSelect = (date: string) => {
+    setShiftDate(date);
+
+    setTimeout(() => {
+      setOpenShiftModal({
+        ...appointmentData,
+        appointmentDate: date,
+      });
+    }, 200);
   };
 
   const onSubmit = () => {
-      setLoading(true)
-      updateAppointmentStatus(replaceLabelValueObjects({...formData, id : appointmentData?._id}))
-        .then(() => {
-          applyGetAllRecords({})
-          openNotification({
-            type: "success",
-            title: "Status Updated",
-            message: "Appointment has been Created Successfully",
-          });
-          close()
-        })
-        .catch((err) => {
-          openNotification({
-            type: "error",
-            title: "Failed to Update Status",
-            message: err?.message,
-          });
-        })
-        .finally(() => {
-          setLoading(false);
+    setLoading(true);
+
+    updateAppointmentStatus(
+      replaceLabelValueObjects({
+        ...formData,
+        id: appointmentData?._id,
+      })
+    )
+      .then(() => {
+        applyGetAllRecords({});
+        openNotification({
+          type: "success",
+          title: "Status Updated",
+          message: "Appointment status updated successfully",
         });
-    };
+        close();
+      })
+      .catch((err) => {
+        openNotification({
+          type: "error",
+          title: "Failed to Update Status",
+          message: err?.message,
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   return (
     <FormModel
@@ -73,33 +98,32 @@ const AppointChangeStatus = ({
       footer={false}
     >
       <VStack spacing={4} p={3} align="stretch">
-                  <Flex gap={3} align="center">
-            <Box flex={1}>
-              <CustomInput
-                label="Status"
-                type="select"
-                value={formData.status}
-                options={appointStatus}
-                name="status"
-                isPortal
-                onChange={(e: any) =>
-                  setFormData({ ...formData, status: e })
-                }
-              />
-            </Box>
+        <Flex gap={3} align="center">
+          <Box flex={1}>
+            <CustomInput
+              label="Status"
+              type="select"
+              value={formData.status}
+              options={appointStatus}
+              name="status"
+              isPortal
+              onChange={(e: any) =>
+                setFormData({ ...formData, status: e })
+              }
+            />
+          </Box>
+        </Flex>
 
-            {formData.status?.value === "shift" && (
-              <Button
-                mt={6}
-                variant="outline"
-                colorScheme="orange"
-                size="sm"
-                onClick={() => setOpenShiftModal(appointmentData)}
-              >
-                Open Shift
-              </Button>
-            )}
-          </Flex>
+        {/* ---- Shift Date Picker (only when status = shift) ---- */}
+        {formData.status?.value === "shift" && (
+          <CustomInput
+            label="Shift To Date"
+            type="date"
+            name="date"
+            value={shiftDate}
+            onChange={(e: any) => handleShiftDateSelect(e.target.value)}
+          />
+        )}
 
         <CustomInput
           name="remarks"
@@ -108,8 +132,13 @@ const AppointChangeStatus = ({
           type="textarea"
           placeholder="Add any remarks..."
         />
+
         <Box textAlign="right">
-          <Button colorScheme="blue" onClick={onSubmit} isLoading={loading}>
+          <Button
+            colorScheme="blue"
+            onClick={onSubmit}
+            isLoading={loading}
+          >
             Update Status
           </Button>
         </Box>

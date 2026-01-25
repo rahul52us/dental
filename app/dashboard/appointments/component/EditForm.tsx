@@ -171,8 +171,6 @@ const EditAppointmentForm = observer(
       const startUTC = toUtcISOString(data.appointmentDate, data.startTime);
       const endUTC = toUtcISOString(data.appointmentDate, data.endTime);
 
-      console.log("the data are", data);
-
       const formattedData = {
         ...data,
         startTimeUTC: startUTC,
@@ -297,8 +295,6 @@ const EditAppointmentForm = observer(
     if (!appointment) {
       return <Loader fullPage message="Loading Appointment Details" />;
     }
-
-    console.log("the appointment are", appointment);
 
     return (
       <>
