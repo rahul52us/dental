@@ -1,4 +1,5 @@
 import {
+  Box,
   Divider,
   Drawer,
   DrawerBody,
@@ -17,7 +18,7 @@ import stores from "../../../store/stores";
 
 interface CustomDrawerProps {
   open: boolean;
-  title?: string;
+  title?: any;
   close: any;
   children: any;
   size?: string;
@@ -45,7 +46,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
 
   const headerBgColor = useColorModeValue(
     themeConfig.colors.custom.light.primary,
-    themeConfig.colors.custom.dark.primary
+    themeConfig.colors.custom.dark.primary,
   );
   const headerTextColor = colorMode === "dark" ? "white" : "white";
   const handleCloseDrawer = () => {
@@ -72,7 +73,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           ...props,
         }}
       >
-        {title && (
+        {title === "string" ? (
           <Flex
             justify="space-between"
             alignItems="center"
@@ -81,7 +82,9 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             color={headerTextColor}
             fontWeight="bold"
           >
-            <Text fontSize="xl" cursor="pointer">{title}</Text>
+            <Text fontSize="xl" cursor="pointer">
+              {title}
+            </Text>
             <DrawerCloseButton
               color={headerTextColor}
               bg="red.500"
@@ -90,6 +93,19 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
               mt={1}
             />
           </Flex>
+        ) : (
+          title && (
+            <Flex
+              justify="space-between"
+              alignItems="center"
+              p={4}
+              bg={headerBgColor}
+              color={headerTextColor}
+              fontWeight="bold"
+            >
+              <Box>{title}</Box>
+            </Flex>
+          )
         )}
         <Divider />
         <DrawerBody

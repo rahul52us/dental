@@ -1,5 +1,19 @@
 "use client";
-import { Box, Button, Grid, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
@@ -16,6 +30,7 @@ import { SLOT_DURATION } from "../daily-report/utils/constant";
 import AddAppointmentForm from "./component/AddForm";
 import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
@@ -268,93 +283,90 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
     },
     {
-  headerName: "History",
-  key: "history",
-  type: "component",
-  metaData: {
-    component: (dt: any) => {
-      const history = dt.history || [];
+      headerName: "History",
+      key: "history",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const history = dt.history || [];
 
-      if (!history.length) {
-        return (
-          <Text fontSize="sm" color="gray.400">
-            —
-          </Text>
-        );
-      }
+          if (!history.length) {
+            return (
+              <Text fontSize="sm" color="gray.400">
+                —
+              </Text>
+            );
+          }
 
-      return (
-        <Popover placement="left-start" closeOnBlur>
-  <PopoverTrigger>
-    <Button size="xs" variant="link" colorScheme="blue">
-      View
-    </Button>
-  </PopoverTrigger>
+          return (
+            <Popover placement="left-start" closeOnBlur>
+              <PopoverTrigger>
+                <Button size="xs" variant="link" colorScheme="blue">
+                  View
+                </Button>
+              </PopoverTrigger>
 
-  <PopoverContent w="420px" boxShadow="xl">
-  <PopoverArrow />
-  <PopoverCloseButton />
+              <PopoverContent w="420px" boxShadow="xl">
+                <PopoverArrow />
+                <PopoverCloseButton />
 
-  <PopoverHeader fontSize="sm" fontWeight="600">
-    Audit History
-  </PopoverHeader>
+                <PopoverHeader fontSize="sm" fontWeight="600">
+                  Audit History
+                </PopoverHeader>
 
-  <PopoverBody p={0} maxH="320px" overflowY="auto">
-    <Box fontSize="xs">
-      {/* Header Row */}
-      <Grid
-        templateColumns="90px 1fr 120px"
-        px={3}
-        py={2}
-        bg="gray.100"
-        fontWeight="600"
-        borderBottom="1px solid"
-        borderColor="gray.200"
-      >
-        <Text>Action</Text>
-        <Text>Remarks</Text>
-        <Text>Date</Text>
-      </Grid>
+                <PopoverBody p={0} maxH="320px" overflowY="auto">
+                  <Box fontSize="xs">
+                    {/* Header Row */}
+                    <Grid
+                      templateColumns="90px 1fr 120px"
+                      px={3}
+                      py={2}
+                      bg="gray.100"
+                      fontWeight="600"
+                      borderBottom="1px solid"
+                      borderColor="gray.200"
+                    >
+                      <Text>Action</Text>
+                      <Text>Remarks</Text>
+                      <Text>Date</Text>
+                    </Grid>
 
-      {/* Rows */}
-      {history.map((item: any, index: number) => (
-        <Grid
-          key={item._id || index}
-          templateColumns="90px 1fr 120px"
-          px={3}
-          py={2}
-          borderBottom="1px solid"
-          borderColor="gray.100"
-          _hover={{ bg: "gray.50" }}
-        >
-          <Text fontWeight="500" textTransform="capitalize">
-            {item.action}
-          </Text>
+                    {/* Rows */}
+                    {history.map((item: any, index: number) => (
+                      <Grid
+                        key={item._id || index}
+                        templateColumns="90px 1fr 120px"
+                        px={3}
+                        py={2}
+                        borderBottom="1px solid"
+                        borderColor="gray.100"
+                        _hover={{ bg: "gray.50" }}
+                      >
+                        <Text fontWeight="500" textTransform="capitalize">
+                          {item.action}
+                        </Text>
 
-          <Text color="gray.600" noOfLines={2}>
-            {item.remarks || "—"}
-          </Text>
+                        <Text color="gray.600" noOfLines={2}>
+                          {item.remarks || "—"}
+                        </Text>
 
-          <Text color="gray.500">
-            {new Date(item.timestamp).toLocaleDateString()}
-          </Text>
-        </Grid>
-      ))}
-    </Box>
-  </PopoverBody>
-</PopoverContent>
-</Popover>
-
-
-      );
+                        <Text color="gray.500">
+                          {new Date(item.timestamp).toLocaleDateString()}
+                        </Text>
+                      </Grid>
+                    ))}
+                  </Box>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          );
+        },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-  },
-  props: {
-    row: { minW: 120, textAlign: "center" },
-    column: { textAlign: "center" },
-  },
-}
-,
     {
       headerName: "Actions",
       key: "table-actions",
@@ -394,6 +406,14 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
       open: true,
       type: data?.mode === "edit" ? "edit" : "add",
     });
+  };
+
+  const goToPreviousDate = () => {
+    setSelectedDate((prev: any) => moment(prev).subtract(1, "day").toDate());
+  };
+
+  const goToNextDate = () => {
+    setSelectedDate((prev: any) => moment(prev).add(1, "day").toDate());
   };
 
   return (
@@ -469,11 +489,27 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
           })
         }
         title={
-          selectedDate
-            ? `Appointment -> Selected: ${moment(selectedDate).format(
-                "DD MMM YYYY",
-              )}`
-            : "Select date"
+          selectedDate ? (
+            <Flex align="center" gap={3}>
+              <Button
+                size="md"
+                onClick={goToPreviousDate}
+                p={1}
+              >
+                <ChevronLeftIcon color="white" fontSize={32} />
+              </Button>
+
+              <Text fontWeight="600" fontSize="md">
+                Appointment → {moment(selectedDate).format("DD MMM YYYY")}
+              </Text>
+
+              <Button size="md" onClick={goToNextDate} p={1}>
+                <ChevronRightIcon color="white" fontSize={32} />
+              </Button>
+            </Flex>
+          ) : (
+            "Select date"
+          )
         }
       >
         <DentistScheduler
