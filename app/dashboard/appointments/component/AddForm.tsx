@@ -57,7 +57,7 @@ const validationSchema = Yup.object().shape({
         "shift",
         "no-show",
       ],
-      "Invalid status"
+      "Invalid status",
     )
     .required("Status is required"),
   followUp: Yup.object().shape({
@@ -88,7 +88,7 @@ const toUtcISOString = (date: string, time: string) => {
   if (!date || !time) return null;
   const localDateTime = new Date(`${date}T${time}`);
   return new Date(
-    localDateTime.getTime() + localDateTime.getTimezoneOffset() * 60000
+    localDateTime.getTime() + localDateTime.getTimezoneOffset() * 60000,
   ).toISOString();
 };
 
@@ -118,6 +118,7 @@ const AddAppointmentForm = observer(
     close,
     selectedDateAndTime,
     applyGetAllRecords,
+    setHaveAppointmentDetails,
   }: any) => {
     const {
       DoctorAppointment: { createDoctorAppointment },
@@ -132,6 +133,7 @@ const AddAppointmentForm = observer(
       data: null,
     });
 
+    const [haveCreateProfile, setHaveCreateProfile] = useState<any>(null);
     const [thumbnail, setThumbnail] = useState([]);
     const toast = useToast();
     const [formLoading, setFormLoading] = useState(false);
@@ -151,7 +153,6 @@ const AddAppointmentForm = observer(
       const startUTC = toUtcISOString(data.appointmentDate, data.startTime);
       const endUTC = toUtcISOString(data.appointmentDate, data.endTime);
 
-      console.log('the data are', data)
       const formattedData = {
         ...data,
         startTimeUTC: startUTC,
@@ -159,11 +160,14 @@ const AddAppointmentForm = observer(
         created_At: new Date().toISOString(),
         updated_At: new Date().toISOString(),
         doctorNote: data.doctorNote,
-        chair: data?.chair?.value
+        chair: data?.chair?.value,
       };
 
       createDoctorAppointment(replaceLabelValueObjects(formattedData))
-        .then(() => {
+        .then((dt: any) => {
+          if (setHaveAppointmentDetails) {
+            setHaveAppointmentDetails(dt?.data);
+          }
           openNotification({
             type: "success",
             title: "CREATED SUCCESSFULLY",
@@ -215,7 +219,15 @@ const AddAppointmentForm = observer(
           gender: formData?.gender?.value || 1,
           type: "patient",
         })
-          .then(() => {
+          .then((dt: any) => {
+            setHaveCreateProfile(
+              dt?.data?.success === true
+                ? {
+                    label: `${dt?.data?.data?.name}-${dt?.data?.data?.code}`,
+                    value: dt?.data?.data?._id,
+                  }
+                : null,
+            );
             getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
             setFormLoading(false);
             setIsDrawerOpen({ isOpen: false, type: "add", data: null });
@@ -249,6 +261,8 @@ const AddAppointmentForm = observer(
       }
     };
 
+    console.log("the have current profile are", haveCreateProfile);
+
     const fetchChairs = async () => {
       const resposne = await getChairs({
         page: 1,
@@ -277,7 +291,9 @@ const AddAppointmentForm = observer(
             showCompleteData: false,
             patient: isPatient
               ? {
-                  label: `${patientDetails?.name} (${patientDetails?.code})`,
+                  label: `${patientDetails?.name}${
+                    patientDetails?.code ? ` (${patientDetails.code})` : ""
+                  }`,
                   value: patientDetails?._id,
                 }
               : "",
@@ -304,6 +320,13 @@ const AddAppointmentForm = observer(
           enableReinitialize
         >
           {({ values, errors, touched, setFieldValue, isSubmitting }: any) => {
+            useEffect(() => {
+              if (haveCreateProfile && !values.patient) {
+                setFieldValue("patient", haveCreateProfile);
+                setHaveCreateProfile(null); // Reset after setting
+              }
+            }, [haveCreateProfile, setFieldValue, values.patient]);
+
             return (
               <>
                 <ScrollToFormikError />
@@ -330,14 +353,21 @@ const AddAppointmentForm = observer(
                               isPatient
                                 ? [
                                     {
-                                      label: `${patientDetails?.name} (${patientDetails?.code})`,
+                                      label: `${patientDetails?.name}${
+                                        patientDetails?.code
+                                          ? ` (${patientDetails.code})`
+                                          : ""
+                                      }`,
                                       value: patientDetails?._id,
                                     },
                                   ]
-                                : values?.patient
-                                ? [values?.patient]
-                                : []
+                                : haveCreateProfile
+                                  ? [haveCreateProfile]
+                                  : values?.patient
+                                    ? [values?.patient]
+                                    : []
                             }
+                            shouldUpdateSelectWithValue={true}
                             error={errors.patient as string}
                             showError={touched.patient}
                             query={{ type: "patient" }}
@@ -511,7 +541,7 @@ const AddAppointmentForm = observer(
                           onClick={() =>
                             setFieldValue(
                               "showCompleteData",
-                              !values.showCompleteData
+                              !values.showCompleteData,
                             )
                           }
                         >
@@ -624,7 +654,7 @@ const AddAppointmentForm = observer(
                                 onChange={(e) =>
                                   setFieldValue(
                                     "followUp.isFollowUp",
-                                    e.target.checked
+                                    e.target.checked,
                                   )
                                 }
                               />
@@ -641,7 +671,7 @@ const AddAppointmentForm = observer(
                               onChange={(val: any) =>
                                 setFieldValue(
                                   "followUp.referenceAppointmentId",
-                                  val?._id || val
+                                  val?._id || val,
                                 )
                               }
                               error={
@@ -698,7 +728,7 @@ const AddAppointmentForm = observer(
         />
       </>
     );
-  }
+  },
 );
 
 export default AddAppointmentForm;

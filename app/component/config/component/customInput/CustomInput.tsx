@@ -86,7 +86,8 @@ interface CustomInputProps {
   isPortal?: boolean;
   params?: any;
   query?: any;
-  parentStyle?:any
+  parentStyle?:any;
+  shouldUpdateSelectWithValue?:any
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -117,6 +118,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   params,
   query = {},
   parentStyle = {},
+  shouldUpdateSelectWithValue=false,
   ...rest
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -130,6 +132,16 @@ const CustomInput: React.FC<CustomInputProps> = ({
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
+
+
+  useEffect(() => {
+    if(shouldUpdateSelectWithValue){
+      setUserOptions(options)
+    }
+  },[options])
+
+
+  console.log('options are', options)
 
   const fetchSearchUsers = useCallback(
     async (searchValue: string) => {

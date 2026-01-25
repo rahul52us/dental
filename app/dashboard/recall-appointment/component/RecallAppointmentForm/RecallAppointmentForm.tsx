@@ -37,7 +37,8 @@ const RecallAppointmentForm = observer(
     initialValues,
     isEdit = false,
     applyGetAllRecords,
-    data,
+    setOpenReportModal,
+    haveAppointmentDetails
   }: any) => {
     const {
       recallAppointmentStore: {
@@ -61,7 +62,7 @@ const RecallAppointmentForm = observer(
               delete dts.createdBy
               delete dts.company
               updateRecallAppointment(
-                replaceLabelValueObjects({ ...dts, _id: initialValues?._id })
+                replaceLabelValueObjects({ ...dts, _id: initialValues?._id, appointment : haveAppointmentDetails?._id })
               )
                 .then(() => {
                   setLoading(false);
@@ -86,7 +87,7 @@ const RecallAppointmentForm = observer(
                 })
                 .finally(() => {});
             } else {
-              createRecallAppointment(replaceLabelValueObjects(values))
+              createRecallAppointment(replaceLabelValueObjects({...values,appointment : haveAppointmentDetails?._id}))
                 .then(() => {
                   setLoading(false);
 
@@ -128,124 +129,143 @@ const RecallAppointmentForm = observer(
           handleSubmit,
           setFieldValue,
         }: any) => {
-          console.log(errors);
           return (
             <FormikForm onSubmit={handleSubmit}>
-              <Grid
-                templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-                gap={6}
-                mb={6}
-                p={4}
-              >
-                <GridItem colSpan={2}>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    {/* 👤 Patient */}
-                    <CustomInput
-                      name="patient"
-                      label="Patient"
-                      type="real-time-user-search"
-                      placeholder="Search Patient"
-                      required
-                      value={values.patient}
-                      onChange={(val: any) => setFieldValue("patient", val)}
-                      options={
-                        isPatient
-                          ? [
-                              {
-                                label: `${patientDetails?.name} (${patientDetails?.code})`,
-                                value: patientDetails?._id,
-                              },
-                            ]
-                          : values?.patient
-                          ? [values.patient]
-                          : []
-                      }
-                      error={errors.patient}
-                      showError={touched.patient}
-                      query={{ type: "patient" }}
-                    />
+  <Box
+    bg="white"
+    borderRadius="xl"
+    boxShadow="sm"
+    p={{ base: 4, md: 6 }}
+  >
+    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+      {/* -------- Patient & Doctor -------- */}
+      <Box>
+        <CustomInput
+          name="patient"
+          label="Patient"
+          type="real-time-user-search"
+          placeholder="Search Patient"
+          required
+          value={values.patient}
+          onChange={(val: any) => setFieldValue("patient", val)}
+          options={
+            isPatient
+              ? [
+                  {
+                    label: `${patientDetails?.name} (${patientDetails?.code})`,
+                    value: patientDetails?._id,
+                  },
+                ]
+              : values?.patient
+              ? [values.patient]
+              : []
+          }
+          error={errors.patient}
+          showError={touched.patient}
+          query={{ type: "patient" }}
+        />
+      </Box>
 
-                    <CustomInput
-                      name="doctor"
-                      label="Doctor"
-                      type="real-time-user-search"
-                      placeholder="Assign Doctor"
-                      value={values.doctor}
-                      options={values?.doctor ? [values.doctor] : []}
-                      onChange={(val: any) => setFieldValue("doctor", val)}
-                      error={errors.doctor}
-                      showError={touched.doctor}
-                      query={{ type: "doctor" }}
-                    />
+      <Box>
+        <CustomInput
+          name="doctor"
+          label="Doctor"
+          type="real-time-user-search"
+          placeholder="Assign Doctor"
+          value={values.doctor}
+          options={values?.doctor ? [values.doctor] : []}
+          onChange={(val: any) => setFieldValue("doctor", val)}
+          error={errors.doctor}
+          showError={touched.doctor}
+          query={{ type: "doctor" }}
+        />
+      </Box>
 
-                    {/* 📅 Recall Date */}
-                    <CustomInput
-                      name="recallDate"
-                      label="Recall Date"
-                      type="date"
-                      value={values.recallDate}
-                      onChange={handleChange}
-                      error={errors.recallDate}
-                      showError={touched.recallDate}
-                    />
+      {/* -------- Dates -------- */}
+      <Box>
+        <CustomInput
+          name="recallDate"
+          label="Recall Date"
+          type="date"
+          value={values.recallDate}
+          onChange={handleChange}
+          error={errors.recallDate}
+          showError={touched.recallDate}
+        />
+      </Box>
 
-                    {/* 📎 Appointment (Optional) */}
-                    <CustomInput
-                      name="appointment"
-                      label="Related Appointment"
-                      type="text"
-                      placeholder="Link Appointment"
-                      value={values.appointment}
-                      onChange={(val: any) => setFieldValue("appointment", val)}
-                      parentStyle={{ display: "none" }}
-                      error={errors.appointment}
-                      showError={touched.appointment}
-                    />
+      <Box>
+        <CustomInput
+          name="appointmentDate"
+          label="Appointment Date"
+          type="date"
+          placeholder="Appointment Date"
+          value={values.appointmentDate}
+          onChange={handleChange}
+        />
+      </Box>
 
-                    {/* 🔄 Status (Edit only) */}
-                    <CustomInput
-                      name="status"
-                      label="Status"
-                      type="select"
-                      options={status}
-                      value={values.status}
-                      onChange={(val: any) => setFieldValue("status", val)}
-                    />
+      {/* -------- Status -------- */}
+      <Box>
+        <CustomInput
+          name="status"
+          label="Status"
+          type="select"
+          options={status}
+          value={values.status}
+          onChange={(val: any) => setFieldValue("status", val)}
+        />
+      </Box>
 
-                    {/* 📝 Reason */}
-                    <Box gridColumn="span 2">
-                      <CustomInput
-                        label="Reason"
-                        name="reason"
-                        type="textarea"
-                        placeholder="Enter recall reason"
-                        required
-                        value={values.reason}
-                        onChange={handleChange}
-                        error={errors.reason}
-                        showError={touched.reason}
-                      />
-                    </Box>
-                  </SimpleGrid>
-                </GridItem>
-              </Grid>
+      {/* -------- Action Button -------- */}
+      {values.patient && values?.appointmentDate && (
+        <Flex align="flex-end">
+          <Button
+            colorScheme="blue"
+            variant="outline"
+            width="100%"
+            onClick={() => setOpenReportModal(values)}
+          >
+            Show Appointment
+          </Button>
+        </Flex>
+      )}
 
-              {/* 🔘 Actions */}
-              <Flex justifyContent="flex-end" mt={4}>
-                <Flex gap={4}>
-                  <Button
-                    style={{ backgroundColor: "red" }}
-                    colorScheme="red"
-                    onClick={onClose}
-                  >
-                    Close
-                  </Button>
-                  <Button type="submit" colorScheme="teal" isLoading={loading}>
-                    Save
-                  </Button>
-                </Flex>
-              </Flex>
-            </FormikForm>
+      {/* -------- Reason -------- */}
+      <Box gridColumn={{ base: "span 1", md: "span 2" }}>
+        <CustomInput
+          label="Reason"
+          name="reason"
+          type="textarea"
+          placeholder="Enter recall reason"
+          required
+          value={values.reason}
+          onChange={handleChange}
+          error={errors.reason}
+          showError={touched.reason}
+        />
+      </Box>
+    </SimpleGrid>
+
+    {/* -------- Footer Actions -------- */}
+    <Flex
+      justify="flex-end"
+      gap={3}
+      mt={6}
+      pt={4}
+      borderTop="1px solid"
+      borderColor="gray.100"
+    >
+      <Button variant="ghost" onClick={onClose}>
+        Cancel
+      </Button>
+      <Button type="submit" colorScheme="teal" isLoading={loading}>
+        {isEdit ? "Update Recall" : "Create Recall"}
+      </Button>
+    </Flex>
+  </Box>
+</FormikForm>
+
           );
         }}
       </Formik>

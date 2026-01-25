@@ -167,12 +167,11 @@ const EditAppointmentForm = observer(
       }
     }, [selectedDateAndTime?.data]);
 
-
     const onSubmit = (data: any, setSubmitting: any) => {
       const startUTC = toUtcISOString(data.appointmentDate, data.startTime);
       const endUTC = toUtcISOString(data.appointmentDate, data.endTime);
 
-      console.log('the data are', data)
+      console.log("the data are", data);
 
       const formattedData = {
         ...data,
@@ -299,7 +298,7 @@ const EditAppointmentForm = observer(
       return <Loader fullPage message="Loading Appointment Details" />;
     }
 
-    console.log('the appointment are', appointment)
+    console.log("the appointment are", appointment);
 
     return (
       <>
@@ -312,7 +311,12 @@ const EditAppointmentForm = observer(
                 }
               : null,
 
-            additionalDoctors: Array.isArray(appointment?.additionalDoctors) ? appointment?.additionalDoctors?.map((it : any) => ({label : it.name, value : it._id})) :  [],
+            additionalDoctors: Array.isArray(appointment?.additionalDoctors)
+              ? appointment?.additionalDoctors?.map((it: any) => ({
+                  label: it.name,
+                  value: it._id,
+                }))
+              : [],
 
             additionalStaff: [],
 
@@ -400,7 +404,7 @@ const EditAppointmentForm = observer(
                               isPatient
                                 ? [
                                     {
-                                      label: `${patientDetails?.name} (${patientDetails?.code})`,
+                                      label: `${patientDetails?.name}${patientDetails?.code ? ` (${patientDetails.code})` : ""}`,
                                       value: patientDetails?._id,
                                     },
                                   ]

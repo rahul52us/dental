@@ -13,12 +13,20 @@ import CustomTable from "../../../../component/config/component/CustomTable/Cust
 import FormModel from "../../../../component/common/FormModel/FormModel";
 import { status } from "../utils/constant";
 import RecallViewAppointment from "../RecallAppointmentForm/RecallViewAppointment";
+import DentistScheduler from "../../../daily-report/component/DentistScheduler/DentistScheduler";
+import { SLOT_DURATION } from "../../../daily-report/utils/constant";
+import EditAppointmentForm from "../../../appointments/component/EditForm";
+import AddAppointmentForm from "../../../appointments/component/AddForm";
 
 const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
     recallAppointmentStore: { getRecallAppointments, recallAppointment },
     auth: { openNotification, userType },
   } = stores;
+  const [havePatient, setHavePatient] = useState(isPatient);
+  const [havePatientDetails, setHavePatientDetails] = useState(patientDetails);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [formModal, setFormModal] = useState<any>({
     open: false,
@@ -33,7 +41,23 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [openReportModal, setOpenReportModal] = useState({
+    open: false,
+    type: "add",
+  });
+  const [haveAppointmentDetails, setHaveAppointmentDetails] = useState(null);
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+
+  const [selectedDateAndTime, setSelectedDateTime] = useState<any>({
+    open: false,
+    chair: undefined,
+    chairId: "",
+    selectedDate: new Date(),
+    time: "",
+    start: null,
+    end: null,
+    type: "add",
+  });
 
   const applyGetAllRecords = useCallback(
     ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
@@ -62,7 +86,12 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           });
         });
     },
-    [debouncedSearchQuery, getRecallAppointments, openNotification, currentPage]
+    [
+      debouncedSearchQuery,
+      getRecallAppointments,
+      openNotification,
+      currentPage,
+    ],
   );
 
   useEffect(() => {
@@ -225,6 +254,30 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const subTitle = `${patientDetails?.name} `;
 
+  const handleOpenAddDrawer = (data: any) => {
+    const selectedDate = moment(data.selectedDate).format("YYYY-MM-DD");
+
+    const start = moment(`${selectedDate} ${data.time}`, "YYYY-MM-DD HH:mm");
+    const end = start.clone().add(SLOT_DURATION, "minutes");
+
+    setSelectedDateTime({
+      selectedDate: data?.selectedDate || new Date(),
+      start: start.toDate(),
+      end: end.toDate(),
+      time: data.time,
+      chairId: data.chair?.id,
+      chair: {
+        label: data?.chair?.name,
+        value: data?.chair?.id,
+      },
+      data: data?.appointment,
+      open: true,
+      type: data?.mode === "edit" ? "edit" : "add",
+    });
+  };
+
+  console.log("the have appointment details", haveAppointmentDetails);
+
   return (
     <>
       <CustomTable
@@ -315,8 +368,18 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           <Box p={2}>
             {formModal.type === "add" ? (
               <RecallAppointmentForm
-                patientDetails={patientDetails}
-                isPatient={isPatient}
+                patientDetails={havePatientDetails}
+                isPatient={havePatient}
+                haveAppointmentDetails={haveAppointmentDetails}
+                setOpenReportModal={(dt: any) => {
+                  setHavePatient(true);
+                  setHavePatientDetails({
+                    name: dt?.patient?.label,
+                    _id: dt?.patient?.value,
+                  });
+                  setOpenReportModal({ open: true, type: "add" });
+                  setSelectedDate(new Date(dt?.appointmentDate));
+                }}
                 applyGetAllRecords={applyGetAllRecords}
                 onClose={() =>
                   setFormModal({
@@ -331,14 +394,25 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   reason: undefined,
                   status: status[0],
                   recallDate: undefined,
+                  appointmentDate: undefined,
                 }}
                 formModal={formModal}
               />
             ) : (
               <RecallAppointmentForm
-                patientDetails={patientDetails}
-                isPatient={false}
+                patientDetails={havePatientDetails}
+                isPatient={havePatient}
+                haveAppointmentDetails={haveAppointmentDetails}
                 isEdit={true}
+                setOpenReportModal={(dt: any) => {
+                  setHavePatient(true);
+                  setHavePatientDetails({
+                    name: dt?.patient?.label,
+                    _id: dt?.patient?.value,
+                  });
+                  setSelectedDate(new Date(dt?.appointmentDate));
+                  setOpenReportModal({ open: true, type: "add" })
+                }}
                 initialValues={
                   formModal?.data
                     ? {
@@ -346,7 +420,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
 
                         status:
                           status.find(
-                            (it: any) => it.value === formModal.data.status
+                            (it: any) => it.value === formModal.data.status,
                           ) || status[0],
 
                         patient: {
@@ -355,7 +429,11 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                         },
                         recallDate: formatDate(
                           formModal?.data?.recallDate,
-                          "YYYY-MM-DD"
+                          "YYYY-MM-DD",
+                        ),
+                        appointmentDate : formatDate(
+                          formModal?.data?.appointmentDate,
+                          "YYYY-MM-DD",
                         ),
                         doctor: formModal.data.doctor
                           ? {
@@ -380,6 +458,111 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           </Box>
         </FormModel>
       )}
+      <CustomDrawer
+        width={"90vw"}
+        open={openReportModal.open}
+        close={() =>
+          setOpenReportModal({
+            open: false,
+            type: "add",
+          })
+        }
+        title={
+          selectedDate
+            ? `Appointment -> Selected: ${moment(selectedDate).format(
+                "DD MMM YYYY",
+              )}`
+            : "Select date"
+        }
+      >
+        <DentistScheduler
+          isPatient={havePatient}
+          patientDetails={havePatientDetails}
+          applyGetAllRecords={applyGetAllRecords}
+          handleTimeSlots={(e: any) => {
+            handleOpenAddDrawer(e);
+          }}
+          createdAppointmentByCalender={true}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
+      </CustomDrawer>
+
+      <CustomDrawer
+        width="80vw"
+        open={selectedDateAndTime.open}
+        close={() => {
+          setSelectedDateTime({
+            open: false,
+            time: undefined,
+            start: undefined,
+            end: undefined,
+            data: null,
+            type: "add",
+          });
+          setOpenReportModal({
+            open: false,
+            type: "add",
+          });
+        }}
+        title={
+          selectedDateAndTime
+            ? `Selected: ${moment(selectedDateAndTime.start).format(
+                "DD MMM YYYY",
+              )}`
+            : "Select a date"
+        }
+      >
+        <Box p={2}>
+          {selectedDateAndTime.type === "add" ? (
+            <AddAppointmentForm
+              patientDetails={havePatientDetails}
+              setHaveAppointmentDetails={(dt: any) =>
+                setHaveAppointmentDetails(dt)
+              }
+              isPatient={havePatient}
+              applyGetAllRecords={applyGetAllRecords}
+              close={() => {
+                setSelectedDateTime({
+                  open: false,
+                  time: undefined,
+                  start: undefined,
+                  end: undefined,
+                  data: null,
+                  type: "add",
+                });
+                setOpenReportModal({
+                  open: false,
+                  type: "add",
+                });
+              }}
+              selectedDateAndTime={selectedDateAndTime}
+            />
+          ) : (
+            <EditAppointmentForm
+              patientDetails={havePatientDetails}
+              isPatient={havePatient}
+              applyGetAllRecords={applyGetAllRecords}
+              close={() => {
+                setSelectedDateTime({
+                  open: false,
+                  time: undefined,
+                  start: undefined,
+                  end: undefined,
+                  data: null,
+                  type: "add",
+                })
+                setOpenReportModal({
+                  open: false,
+                  type: "add",
+                });
+              }
+              }
+              selectedDateAndTime={selectedDateAndTime}
+            />
+          )}
+        </Box>
+      </CustomDrawer>
     </>
   );
 });
