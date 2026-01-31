@@ -11,8 +11,7 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  Stack,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -547,7 +546,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
         <AppointmentDetailsView data={openView.data} />
       </CustomDrawer>
       <CustomDrawer
-        width="80vw"
+        width="90vw"
         open={selectedDateAndTime.open}
         close={() =>
           setSelectedDateTime({

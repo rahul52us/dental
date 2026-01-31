@@ -105,6 +105,7 @@ const AppointmentCard = ({
   chair,
   handleTimeSlots,
   onOpenDetails,
+  shouldNotEditIcon
 }: any) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
   const heightStyle = `calc(${heightMultiplier * 100}% + ${
@@ -208,6 +209,7 @@ const AppointmentCard = ({
 </Flex>
 {editable && (
   <IconButton
+    display={shouldNotEditIcon ? 'none' : undefined}
     aria-label="Edit appointment"
     icon={<EditIcon />}
     size="xs"
@@ -266,6 +268,7 @@ const ScheduleGrid = ({
   setSelectedDate,
   allowedSlots,
   onOpenDetails,
+  shouldNotEditIcon
 }: any) => {
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
@@ -435,6 +438,7 @@ const canEditAppointment = (selectedDate: Date, startTime: string) => {
                       overlapIndex={index}
                       totalOverlaps={startingAppointments.length}
                       onOpenDetails={onOpenDetails}
+                      shouldNotEditIcon={shouldNotEditIcon}
                     />
                   ))}
 
@@ -499,7 +503,8 @@ export default function DentistScheduler({
   handleTimeSlots,
   selectedDate,
   setSelectedDate,
-  createdAppointmentByCalender
+  createdAppointmentByCalender,
+  shouldNotEditIcon
 }: any) {
   const {
     chairsStore: { getChairSummary },
@@ -615,6 +620,7 @@ const allowedSlots = useMemo(() => {
           setSelectedAppointment(apt);
           setOpenDrawer(true);
         }}
+        shouldNotEditIcon={shouldNotEditIcon}
       />
 
       {/* ✅ ONLY NEW UI */}
