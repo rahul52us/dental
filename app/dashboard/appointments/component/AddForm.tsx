@@ -119,6 +119,7 @@ const AddAppointmentForm = observer(
     selectedDateAndTime,
     applyGetAllRecords,
     setHaveAppointmentDetails,
+    doctorDetails // Accepted optional prop
   }: any) => {
     const {
       DoctorAppointment: { createDoctorAppointment },
@@ -285,7 +286,10 @@ const AddAppointmentForm = observer(
       <>
         <Formik
           initialValues={{
-            primaryDoctor: "",
+            primaryDoctor: doctorDetails ? {
+                label: doctorDetails.name,
+                value: doctorDetails._id
+            } : "",
             additionalDoctors: [],
             additionalStaff: [],
             showCompleteData: false,

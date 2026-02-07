@@ -6,8 +6,10 @@ import {
   DrawerCloseButton,
   DrawerContent,
   DrawerOverlay,
+  DrawerFooter,
   Flex,
   Text,
+  Button,
   useBreakpointValue,
   useColorMode,
   useColorModeValue,
@@ -19,11 +21,11 @@ import stores from "../../../store/stores";
 interface CustomDrawerProps {
   open: boolean;
   title?: any;
-  close: any;
-  children: any;
+  close: () => void;
+  children: React.ReactNode;
   size?: string;
   props?: any;
-  width?: any;
+  width?: string | number;
   loading?: boolean;
 }
 
@@ -40,15 +42,18 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const {
     themeStore: { themeConfig },
   } = stores;
+
   const drawerRef = useRef<HTMLDivElement>(null);
   const { colorMode } = useColorMode();
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
   const headerBgColor = useColorModeValue(
     themeConfig.colors.custom.light.primary,
-    themeConfig.colors.custom.dark.primary,
+    themeConfig.colors.custom.dark.primary
   );
-  const headerTextColor = colorMode === "dark" ? "white" : "white";
+
+  const headerTextColor = "white";
+
   const handleCloseDrawer = () => {
     close();
   };
@@ -63,58 +68,62 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       {...props}
     >
       <DrawerOverlay />
+
       <DrawerContent
-        css={{
-          width: width ? (isDesktop ? width : undefined) : undefined,
-          maxWidth: width ? (isDesktop ? width : undefined) : undefined,
-          transition: "transform 0.1s ease-out",
-          padding: 0,
-          transform: open ? "translateX(0)" : "translateX(100%)",
-          ...props,
-        }}
+        width={width && isDesktop ? width : undefined}
+        maxW={width && isDesktop ? width : undefined}
+        display="flex"
+        flexDirection="column"
       >
-        {title === "string" ? (
+        {/* 🔹 HEADER */}
+        {title && (
           <Flex
             justify="space-between"
-            alignItems="center"
+            align="center"
             p={4}
             bg={headerBgColor}
             color={headerTextColor}
             fontWeight="bold"
           >
-            <Text fontSize="xl" cursor="pointer">
-              {title}
-            </Text>
+            {typeof title === "string" ? (
+              <Text fontSize="xl">{title}</Text>
+            ) : (
+              <Box>{title}</Box>
+            )}
+
+            {/* 🔴 RED CIRCULAR CLOSE BUTTON */}
             <DrawerCloseButton
-              color={headerTextColor}
+              position="relative"
               bg="red.500"
-              _hover={{ color: "#00000" }}
+              color="white"
+              borderRadius="full"
               size="lg"
-              mt={1}
+              _hover={{ bg: "red.600" }}
+              _active={{ bg: "red.700" }}
+              mb={2}
             />
           </Flex>
-        ) : (
-          title && (
-            <Flex
-              justify="space-between"
-              alignItems="center"
-              p={4}
-              bg={headerBgColor}
-              color={headerTextColor}
-              fontWeight="bold"
-            >
-              <Box>{title}</Box>
-            </Flex>
-          )
         )}
+
         <Divider />
+
+        {/* 🔹 BODY */}
         <DrawerBody
-          style={{ overflowY: "auto", padding: isDesktop ? "15px" : "6px" }}
+          flex="1"
+          overflowY="auto"
+          p={isDesktop ? "15px" : "8px"}
         >
           <DrawerLoader loading={loading}>
-            <div style={{ maxHeight: "calc(100vh - 245px)" }}>{children}</div>
+            <Box>{children}</Box>
           </DrawerLoader>
         </DrawerBody>
+
+        {/* 🔹 FOOTER */}
+        <DrawerFooter borderTopWidth="1px" display="none">
+          <Button colorScheme="red" w="full" onClick={handleCloseDrawer}>
+            Close
+          </Button>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

@@ -104,7 +104,7 @@ const AppointChangeStatus = ({
               label="Status"
               type="select"
               value={formData.status}
-              options={appointStatus}
+              options={appointStatus.filter((it : any) => it.value !== "shift")}
               name="status"
               isPortal
               onChange={(e: any) =>
@@ -113,7 +113,7 @@ const AppointChangeStatus = ({
             />
           </Box>
         </Flex>
-
+        <Box display="none">
         {/* ---- Shift Date Picker (only when status = shift) ---- */}
         {formData.status?.value === "shift" && (
           <CustomInput
@@ -124,6 +124,7 @@ const AppointChangeStatus = ({
             onChange={(e: any) => handleShiftDateSelect(e.target.value)}
           />
         )}
+        </Box>
 
         <CustomInput
           name="remarks"

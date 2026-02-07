@@ -12,10 +12,12 @@ import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import * as Yup from "yup";
-import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { format } from "date-fns";
+import { useEffect } from "react";
 import stores from "../../../../store/stores";
 import { status } from "../utils/constant";
 import { replaceLabelValueObjects } from "../../../../config/utils/function";
+import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 
 /* -------------------------------------------------
    Validation
@@ -27,6 +29,8 @@ const RecallAppointmentValidation = Yup.object().shape({
   recallDate: Yup.date().nullable(),
   reason: Yup.string().required("Reason is required"),
   status: Yup.mixed(),
+  startTime: Yup.string().nullable(),
+  endTime: Yup.string().nullable(),
 });
 
 const RecallAppointmentForm = observer(
@@ -38,7 +42,8 @@ const RecallAppointmentForm = observer(
     isEdit = false,
     applyGetAllRecords,
     setOpenReportModal,
-    haveAppointmentDetails
+    haveAppointmentDetails,
+    autofillData
   }: any) => {
     const {
       recallAppointmentStore: {
@@ -129,6 +134,28 @@ const RecallAppointmentForm = observer(
           handleSubmit,
           setFieldValue,
         }: any) => {
+
+          // Listen for autofillData changes
+          useEffect(() => {
+            console.log("Autofill Data Received:", autofillData);
+            if (autofillData) {
+                if(autofillData.appointmentDate) {
+                    setFieldValue("appointmentDate", format(new Date(autofillData.appointmentDate), "yyyy-MM-dd"));
+                }
+                if(autofillData.startTime) {
+                    console.log("Setting startTime:", autofillData.startTime);
+                    setFieldValue("startTime", autofillData.startTime);
+                }
+                if(autofillData.endTime) {
+                    setFieldValue("endTime", autofillData.endTime);
+                }
+                // Optional: set doctor or chair if provided
+                 if(autofillData.doctor) {
+                    // setFieldValue("doctor", autofillData.doctor);
+                 }
+            }
+          }, [autofillData, setFieldValue]);
+
           return (
             <FormikForm onSubmit={handleSubmit}>
   <Box

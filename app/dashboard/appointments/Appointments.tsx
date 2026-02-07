@@ -31,7 +31,7 @@ import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
-const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
+const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: any) => {
   const {
     DoctorAppointment: {
       getDoctorAppointment,
@@ -570,6 +570,7 @@ const AppointmentList = observer(({ isPatient, patientDetails }: any) => {
           {selectedDateAndTime.type === "add" ? (
             <AddAppointmentForm
               patientDetails={patientDetails}
+              doctorDetails={doctorDetails}
               isPatient={isPatient}
               applyGetAllRecords={applyGetAllRecords}
               close={() => {

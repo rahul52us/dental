@@ -59,6 +59,15 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
     type: "add",
   });
 
+  // New state for autofill
+  const [autofillData, setAutofillData] = useState<any>(null);
+
+  // State to hold doctor selected in Recall Form to pass to Add Form
+  const [selectedRecallDoctor, setSelectedRecallDoctor] = useState<any>(null);
+
+  // Selection mode state
+  const [selectionMode, setSelectionMode] = useState<'default' | 'recall'>('default');
+
   const applyGetAllRecords = useCallback(
     ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
       const query: any = { page, limit };
@@ -296,6 +305,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   open: true,
                   type: "add",
                 });
+                setSelectedRecallDoctor(null);
               },
             },
             editKey: {
@@ -308,6 +318,11 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   data: dt,
                   type: "edit",
                 });
+                if(dt.doctor) {
+                     setSelectedRecallDoctor({ name: dt.doctor.name, _id: dt.doctor._id });
+                 } else {
+                     setSelectedRecallDoctor(null);
+                 }
               },
             },
             viewKey: {
@@ -378,7 +393,13 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                     _id: dt?.patient?.value,
                   });
                   setOpenReportModal({ open: true, type: "add" });
+                  setSelectionMode('recall');
                   setSelectedDate(new Date(dt?.appointmentDate));
+                  if (dt?.doctor?.value) {
+                      setSelectedRecallDoctor({ name: dt.doctor.label, _id: dt.doctor.value });
+                  } else {
+                      setSelectedRecallDoctor(null);
+                  }
                 }}
                 applyGetAllRecords={applyGetAllRecords}
                 onClose={() =>
@@ -395,8 +416,11 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   status: status[0],
                   recallDate: undefined,
                   appointmentDate: undefined,
+                  startTime: "",
+                  endTime: "",
                 }}
                 formModal={formModal}
+                autofillData={autofillData}
               />
             ) : (
               <RecallAppointmentForm
@@ -410,9 +434,16 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                     name: dt?.patient?.label,
                     _id: dt?.patient?.value,
                   });
-                  setSelectedDate(new Date(dt?.appointmentDate));
-                  setOpenReportModal({ open: true, type: "add" })
-                }}
+                   console.log('the dt is', dt)
+                   setOpenReportModal({ open: true, type: "add" });
+                   setSelectionMode('recall');
+                   setSelectedDate(new Date(dt?.appointmentDate));
+                   if (dt?.doctor?.value) {
+                        setSelectedRecallDoctor({ name: dt.doctor.label, _id: dt.doctor.value });
+                   } else {
+                        setSelectedRecallDoctor(null);
+                   }
+                 }}
                 initialValues={
                   formModal?.data
                     ? {
@@ -441,6 +472,8 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                               value: formModal.data.doctor._id,
                             }
                           : null,
+                        startTime: formModal.data.startTime || "",
+                        endTime: formModal.data.endTime || "",
                       }
                     : {}
                 }
@@ -452,7 +485,9 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                     type: "add",
                   })
                 }
+
                 formModal={formModal}
+                autofillData={autofillData}
               />
             )}
           </Box>
@@ -461,12 +496,14 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       <CustomDrawer
         width={"90vw"}
         open={openReportModal.open}
-        close={() =>
+        close={() => {
           setOpenReportModal({
             open: false,
             type: "add",
-          })
-        }
+          });
+          setSelectionMode('default');
+          setSelectedRecallDoctor(null);
+        }}
         title={
           selectedDate
             ? `Appointment -> Selected: ${moment(selectedDate).format(
@@ -474,17 +511,22 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
               )}`
             : "Select date"
         }
+        props={{ blockScrollOnMount: false }}
       >
         <DentistScheduler
           isPatient={havePatient}
           patientDetails={havePatientDetails}
           applyGetAllRecords={applyGetAllRecords}
           handleTimeSlots={(e: any) => {
-            handleOpenAddDrawer(e);
+             console.log("DEBUG: handleTimeSlots called", e);
+             console.log("DEBUG: selectionMode:", selectionMode);
+             // Always open the add drawer to create/edit appointment
+             handleOpenAddDrawer(e);
           }}
           createdAppointmentByCalender={true}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
+          shouldNotEditIcon={true}
         />
       </CustomDrawer>
 
@@ -500,10 +542,20 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
             data: null,
             type: "add",
           });
+          // Do NOT close the scheduler modal here if we want to return to it,
+          // or DO close it if we want to return to Recall Form?
+          // User typically wants to return to Recall Form if they just added an appointment for it.
+          // But 'close' is called on Cancel too.
+
+          // If we are in recall mode and cancel, we might want to keep scheduler open?
+          // Current behavior: `setOpenReportModal({ open: false ... })` was here in previous code (view_file line 555-558).
+          // I will keep it consistent or minimal needed change.
+          /*
           setOpenReportModal({
             open: false,
             type: "add",
           });
+          */
         }}
         title={
           selectedDateAndTime
@@ -517,9 +569,26 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           {selectedDateAndTime.type === "add" ? (
             <AddAppointmentForm
               patientDetails={havePatientDetails}
-              setHaveAppointmentDetails={(dt: any) =>
-                setHaveAppointmentDetails(dt)
-              }
+              doctorDetails={selectedRecallDoctor}
+              setHaveAppointmentDetails={(dt: any) => {
+                setHaveAppointmentDetails(dt);
+                if (selectionMode === 'recall' && dt) {
+                     // Autofill logic from the NEWLY created appointment
+                     console.log("DEBUG: New Appointment Created for Recall:", dt);
+                     setAutofillData({
+                        appointmentDate: dt.appointmentDate,
+                        startTime: dt.startTime,
+                        endTime: dt.endTime,
+                        doctor: dt.primaryDoctor || undefined,
+                         // Note: dt structure depends on backend response.
+                         // AddForm calls setHaveAppointmentDetails(dt?.data).
+                     });
+
+                     // Close Scheduler Drawer
+                     setOpenReportModal({ open: false, type: "add" });
+                     setSelectionMode('default');
+                }
+              }}
               isPatient={havePatient}
               applyGetAllRecords={applyGetAllRecords}
               close={() => {
@@ -531,10 +600,17 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   data: null,
                   type: "add",
                 });
-                setOpenReportModal({
-                  open: false,
-                  type: "add",
-                });
+
+                if (selectionMode === 'recall') {
+                     // If we are just closing (e.g. cancel), maybe we keep scheduler open?
+                     // But if we came from success, we handled it.
+                     // Let's assume on Cancel we go back to Scheduler.
+                } else {
+                     setOpenReportModal({
+                       open: false,
+                       type: "add",
+                     });
+                }
               }}
               selectedDateAndTime={selectedDateAndTime}
             />
