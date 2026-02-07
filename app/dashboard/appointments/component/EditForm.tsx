@@ -32,7 +32,13 @@ import AddPatientDrawer from "../../patients/component/patient/component/AddPati
 import { appointStatus } from "../constant";
 import { appointmentReason } from "../utils/constant";
 import ScrollToFormikError from "../../../component/common/ScrollToFormikError/ScrollToFormikError";
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@chakra-ui/icons";
 import { format } from "date-fns";
 import Loader from "../../../component/common/Loader/Loader";
 import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
@@ -130,7 +136,7 @@ const EditAppointmentForm = observer(
       userStore: { getAllUsers },
       chairsStore: { getChairs },
     } = stores;
-    const  [selectedDate, setSelectedDate] = useState(new Date())
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [isSchedulerDrawerOpen, setIsSchedulerDrawerOpen] = useState(false);
     const [appointment, setAppointment] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
@@ -153,7 +159,7 @@ const EditAppointmentForm = observer(
           setAppointment(dts?.data?.data);
           // Initialize selectedDate for the scheduler from the appointment date
           if (dts?.data?.data?.appointmentDate) {
-              setSelectedDate(new Date(dts.data.data.appointmentDate));
+            setSelectedDate(new Date(dts.data.data.appointmentDate));
           }
         } else {
           openNotification({
@@ -487,7 +493,7 @@ const EditAppointmentForm = observer(
                           query={{ type: "staff" }}
                         />
                       </Flex>
-                      <Box w={"50%"} mt={4}>
+                      <Flex gap={4} mt={4}>
                         <CustomInput
                           name="chair"
                           placeholder="Select Chair"
@@ -499,7 +505,26 @@ const EditAppointmentForm = observer(
                             setFieldValue("chair", val);
                           }}
                         />
-                      </Box>
+                        <CustomInput
+                          name="status"
+                          label="Appointment Status"
+                          type="select"
+                          isPortal
+                          required
+                          options={appointStatus}
+                          value={{
+                            label:
+                              values.status.charAt(0).toUpperCase() +
+                              values.status.slice(1).replace("-", " "),
+                            value: values.status,
+                          }}
+                          onChange={(opt: any) =>
+                            setFieldValue("status", opt?.value)
+                          }
+                          error={errors.status as string}
+                          showError={touched.status}
+                        />
+                      </Flex>
                     </SectionCard>
 
                     {/* === Appointment Details === */}
@@ -511,33 +536,36 @@ const EditAppointmentForm = observer(
                           w="full"
                         >
                           <Flex gap={4} alignItems="center">
-                          <CustomInput
-                            name="appointmentDate"
-                            label="Date"
-                            type="date"
-                            required
-                            value={values.appointmentDate}
-                            onChange={(e: any) =>
-                              setFieldValue("appointmentDate", e.target.value)
-                            }
-                            error={errors.appointmentDate as string}
-                            showError={touched.appointmentDate}
-                          />
-                          <Tooltip label="Choose time from scheduler" placement="top">
-                          {values.status === 'shift' && (
-                             <IconButton
-                            aria-label="Open scheduler"
-                            icon={<CalendarIcon />}
-                            colorScheme="teal"
-                            variant="outline"
-                            size="sm"
-                            mb={1}
-                            alignSelf="flex-end"
-                            onClick={() => setIsSchedulerDrawerOpen(true)}
-                          />
-                          )}
-                        </Tooltip>
-                      </Flex>
+                            <CustomInput
+                              name="appointmentDate"
+                              label="Date"
+                              type="date"
+                              required
+                              value={values.appointmentDate}
+                              onChange={(e: any) =>
+                                setFieldValue("appointmentDate", e.target.value)
+                              }
+                              error={errors.appointmentDate as string}
+                              showError={touched.appointmentDate}
+                            />
+                            <Tooltip
+                              label="Choose time from scheduler"
+                              placement="top"
+                            >
+                              {values.status === "shift" && (
+                                <IconButton
+                                  aria-label="Open scheduler"
+                                  icon={<CalendarIcon />}
+                                  colorScheme="teal"
+                                  variant="outline"
+                                  size="sm"
+                                  mb={1}
+                                  alignSelf="flex-end"
+                                  onClick={() => setIsSchedulerDrawerOpen(true)}
+                                />
+                              )}
+                            </Tooltip>
+                          </Flex>
                           <CustomInput
                             name="startTime"
                             label="Start Time"
@@ -580,25 +608,6 @@ const EditAppointmentForm = observer(
                           error={errors.title}
                           showError={touched.title}
                         />
-                          <CustomInput
-                            name="status"
-                            label="Appointment Status"
-                            type="select"
-                            isPortal
-                            required
-                            options={appointStatus}
-                            value={{
-                              label:
-                                values.status.charAt(0).toUpperCase() +
-                                values.status.slice(1).replace("-", " "),
-                              value: values.status,
-                            }}
-                            onChange={(opt: any) =>
-                              setFieldValue("status", opt?.value)
-                            }
-                            error={errors.status as string}
-                            showError={touched.status}
-                          />
                       </VStack>
                     </SectionCard>
                     <Flex
@@ -709,8 +718,6 @@ const EditAppointmentForm = observer(
                       {/* === Status & Follow-up === */}
                       <SectionCard title="Status & Follow-up">
                         <VStack spacing={4}>
-
-
                           <FormControl>
                             <HStack align="center">
                               <FormLabel mb="0" fontWeight="medium">
@@ -782,81 +789,97 @@ const EditAppointmentForm = observer(
                   </VStack>
                 </Form>
                 <CustomDrawer
-              open={isSchedulerDrawerOpen}
-              close={() => setIsSchedulerDrawerOpen(false)}
-              title={
-                <Flex align="center" gap={3} width="100%" justify="space-between">
-                   <Flex align="center" gap={3}>
-                    <CalendarIcon boxSize={6} />
-                    <Text>Select New Appointment Time</Text>
-                  </Flex>
+                  open={isSchedulerDrawerOpen}
+                  close={() => setIsSchedulerDrawerOpen(false)}
+                  title={
+                    <Flex
+                      align="center"
+                      gap={3}
+                      width="100%"
+                      justify="space-between"
+                    >
+                      <Flex align="center" gap={3}>
+                        <CalendarIcon boxSize={6} />
+                        <Text>Select New Appointment Time</Text>
+                      </Flex>
 
-                  {/* Date Navigation Arrows */}
-                  <Flex align="center" gap={4} mr={8}>
-                     <IconButton
-                        aria-label="Previous Day"
-                        icon={<ChevronLeftIcon boxSize={6} />}
-                        onClick={() => {
-                           const prev = new Date(selectedDate);
-                           prev.setDate(prev.getDate() - 1);
-                           setSelectedDate(prev);
-                        }}
-                        size="sm"
-                        variant="ghost"
-                     />
-                     <Text fontWeight="bold" fontSize="md">
-                       {selectedDate.toDateString()}
-                     </Text>
-                     <IconButton
-                        aria-label="Next Day"
-                        icon={<ChevronRightIcon boxSize={6} />}
-                        onClick={() => {
-                           const next = new Date(selectedDate);
-                           next.setDate(next.getDate() + 1);
-                           setSelectedDate(next);
-                        }}
-                        size="sm"
-                        variant="ghost"
-                     />
-                  </Flex>
-                </Flex>
-              }
-              width="80vw"
-            >
-              <DentistScheduler
-                appointments={appointment}
-                isPatient={isPatient}
-                showEditButton={false}
-                patientDetails={patientDetails}
-                shouldNotEditIcon={true}
-                applyGetAllRecords={applyGetAllRecords}
-                handleTimeSlots={(dt : any) => {
-                    // dt = { open: true, time, chair, selectedDate }
-                    setFieldValue('appointmentDate', format(dt.selectedDate, "yyyy-MM-dd"));
-                    setFieldValue('startTime', dt.time);
+                      {/* Date Navigation Arrows */}
+                      <Flex align="center" gap={4} mr={8}>
+                        <IconButton
+                          aria-label="Previous Day"
+                          icon={<ChevronLeftIcon boxSize={6} />}
+                          onClick={() => {
+                            const prev = new Date(selectedDate);
+                            prev.setDate(prev.getDate() - 1);
+                            setSelectedDate(prev);
+                          }}
+                          size="sm"
+                          variant="ghost"
+                        />
+                        <Text fontWeight="bold" fontSize="md">
+                          {selectedDate.toDateString()}
+                        </Text>
+                        <IconButton
+                          aria-label="Next Day"
+                          icon={<ChevronRightIcon boxSize={6} />}
+                          onClick={() => {
+                            const next = new Date(selectedDate);
+                            next.setDate(next.getDate() + 1);
+                            setSelectedDate(next);
+                          }}
+                          size="sm"
+                          variant="ghost"
+                        />
+                      </Flex>
+                    </Flex>
+                  }
+                  width="80vw"
+                >
+                  <DentistScheduler
+                    appointments={appointment}
+                    isPatient={isPatient}
+                    showEditButton={false}
+                    patientDetails={patientDetails}
+                    shouldNotEditIcon={true}
+                    applyGetAllRecords={applyGetAllRecords}
+                    handleTimeSlots={(dt: any) => {
+                      // dt = { open: true, time, chair, selectedDate }
+                      setFieldValue(
+                        "appointmentDate",
+                        format(dt.selectedDate, "yyyy-MM-dd"),
+                      );
+                      setFieldValue("startTime", dt.time);
 
-                    // Calculate endTime (startTime + 30 mins)
-                    if (dt.time) {
-                        const [hours, minutes] = dt.time.split(':').map(Number);
+                      // Calculate endTime (startTime + 30 mins)
+                      if (dt.time) {
+                        const [hours, minutes] = dt.time.split(":").map(Number);
                         const startDate = new Date();
                         startDate.setHours(hours, minutes);
                         startDate.setMinutes(startDate.getMinutes() + 30);
 
-                        const endHours = String(startDate.getHours()).padStart(2, '0');
-                        const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
-                        setFieldValue('endTime', `${endHours}:${endMinutes}`);
-                    }
+                        const endHours = String(startDate.getHours()).padStart(
+                          2,
+                          "0",
+                        );
+                        const endMinutes = String(
+                          startDate.getMinutes(),
+                        ).padStart(2, "0");
+                        setFieldValue("endTime", `${endHours}:${endMinutes}`);
+                      }
 
-                    if(dt.chair){
-                         setFieldValue('chair', { label: dt.chair.name, value: dt.chair.id });
-                    }
-                    setIsSchedulerDrawerOpen(false);
-                }}
-                createdAppointmentByCalender={true}
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-              />
-            </CustomDrawer>
+                      if (dt.chair) {
+                        setFieldValue("chair", {
+                          label: dt.chair.name,
+                          value: dt.chair.id,
+                        });
+                      }
+                      setIsSchedulerDrawerOpen(false);
+                    }}
+                    createdAppointmentByCalender={true}
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                  />
+                </CustomDrawer>
               </>
             );
           }}

@@ -208,28 +208,33 @@ const AppointmentCard = ({
   </Text>
 </Flex>
 {editable && (
-  <IconButton
-    display={shouldNotEditIcon ? 'none' : undefined}
-    aria-label="Edit appointment"
-    icon={<EditIcon />}
-    size="xs"
-    position="absolute"
-    top="4px"
-    right="4px"
-    variant="ghost"
-    zIndex={20}
-    onClick={(e) => {
-      e.stopPropagation();
-      handleTimeSlots({
-        open: true,
-        mode: "edit",
-        appointment,
-        chair,
-        selectedDate,
-      });
-    }}
-  />
+  <Tooltip label="Edit appointment" hasArrow>
+    <IconButton
+      display={shouldNotEditIcon ? "none" : undefined}
+      aria-label="Edit appointment"
+      icon={<EditIcon />}
+      size="xs"
+      position="absolute"
+      top="4px"
+      right="4px"
+      variant="ghost"
+      zIndex={50}
+      onMouseEnter={(e) => e.stopPropagation()}   // ✅ stop parent tooltip
+      onMouseLeave={(e) => e.stopPropagation()}   // ✅ stop parent tooltip
+      onClick={(e) => {
+        e.stopPropagation();
+        handleTimeSlots({
+          open: true,
+          mode: "edit",
+          appointment,
+          chair,
+          selectedDate,
+        });
+      }}
+    />
+  </Tooltip>
 )}
+
 
 
         {/* Doctor name (secondary) */}

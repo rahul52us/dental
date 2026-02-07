@@ -441,7 +441,7 @@ const AddAppointmentForm = observer(
                           query={{ type: "staff" }}
                         />
                       </Flex>
-                      <Box w={"50%"} mt={4}>
+                      <Flex mt={4} gap={4}>
                         <CustomInput
                           name="chair"
                           placeholder="Select Chair"
@@ -453,7 +453,27 @@ const AddAppointmentForm = observer(
                             setFieldValue("chair", val);
                           }}
                         />
-                      </Box>
+                                              <CustomInput
+                            name="status"
+                            label="Appointment Status"
+                            type="select"
+                            isPortal
+                            required
+                            options={appointStatus}
+                            value={{
+                              label:
+                                values.status.charAt(0).toUpperCase() +
+                                values.status.slice(1).replace("-", " "),
+                              value: values.status,
+                            }}
+                            onChange={(opt: any) =>
+                              setFieldValue("status", opt?.value)
+                            }
+                            error={errors.status as string}
+                            showError={touched.status}
+                          />
+
+                      </Flex>
                     </SectionCard>
 
                     {/* === Appointment Details === */}
@@ -628,26 +648,6 @@ const AddAppointmentForm = observer(
                       {/* === Status & Follow-up === */}
                       <SectionCard title="Status & Follow-up">
                         <VStack spacing={4}>
-                          <CustomInput
-                            name="status"
-                            label="Appointment Status"
-                            type="select"
-                            isPortal
-                            required
-                            options={appointStatus}
-                            value={{
-                              label:
-                                values.status.charAt(0).toUpperCase() +
-                                values.status.slice(1).replace("-", " "),
-                              value: values.status,
-                            }}
-                            onChange={(opt: any) =>
-                              setFieldValue("status", opt?.value)
-                            }
-                            error={errors.status as string}
-                            showError={touched.status}
-                          />
-
                           <FormControl>
                             <HStack align="center">
                               <FormLabel mb="0" fontWeight="medium">
