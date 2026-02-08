@@ -57,7 +57,9 @@ const DetailItem = ({ label, value, icon }) => (
 
 const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
   const [schedule, setSchedule] = useState(
-    user.companyDetails.operatingHours || getDefaultSchedule()
+    user?.companyDetails?.operatingHours?.length > 0
+      ? user.companyDetails.operatingHours
+      : getDefaultSchedule()
   );
   const [isSaving, setIsSaving] = useState(false);
   const { companyStore } = stores;
