@@ -515,7 +515,7 @@ const ViewPatient = ({ user }: any) => {
           />
           <InfoItem
             label="Gender"
-            value={personalInfo.gender === 1 ? "Male" : personalInfo.gender === 0 ? "Female" : "N/A"}
+            value={personalInfo.gender === 1 ? "Male" : personalInfo.gender === 2 ? "Female" : "Other"}
             isActive={personalInfo.gender != null}
             activeColor={activeColor}
             bg={bg}

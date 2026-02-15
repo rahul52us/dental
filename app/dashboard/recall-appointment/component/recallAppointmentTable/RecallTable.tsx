@@ -558,12 +558,13 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           */
         }}
         title={
-          selectedDateAndTime
-            ? `Selected: ${moment(selectedDateAndTime.start).format(
-                "DD MMM YYYY",
-              )}`
-            : "Select a date"
-        }
+  selectedDateAndTime
+    ? `Selected: ${moment(selectedDateAndTime.start).format(
+        "dddd, DD MMM YYYY"
+      )}`
+    : "Select a date"
+}
+
       >
         <Box p={2}>
           {selectedDateAndTime.type === "add" ? (

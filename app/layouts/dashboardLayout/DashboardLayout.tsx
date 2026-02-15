@@ -51,7 +51,9 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
   }, [isCallapse, openDashSidebarFun]);
 
   useEffect(() => {
+    if(user){
     getMasterData()
+    }
   },[user , getMasterData])
 
   return user ? (

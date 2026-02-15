@@ -283,12 +283,13 @@ const AttendanceCalendar = ({
         open={openDrawer}
         close={() => setOpenDrawer(false)}
         title={
-          selectedDateTime
-            ? `Selected: ${moment(selectedDateTime.start).format(
-                "DD MMM YYYY, hh:mm A"
-              )}`
-            : "Select a date & time"
-        }
+  selectedDateTime
+    ? `Selected: ${moment(selectedDateTime.start).format(
+        "dddd, DD MMM YYYY, hh:mm A"
+      )}`
+    : "Select a date & time"
+}
+
       >
         <Box p={2}>
           {type === "add" ? (

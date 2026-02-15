@@ -495,7 +495,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
               </Button>
 
               <Text fontWeight="600" fontSize="md">
-                Appointment → {moment(selectedDate).format("DD MMM YYYY")}
+Appointment → {moment(selectedDate).format("dddd, DD MMM YYYY")}
               </Text>
 
               <Button size="md" onClick={goToNextDate} p={1}>
@@ -560,9 +560,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
         }
         title={
           selectedDateAndTime
-            ? `Selected: ${moment(selectedDateAndTime.start).format(
-                "DD MMM YYYY",
-              )}`
+            ? `Selected: ${moment(selectedDateAndTime.start).format("ddd, DD MMM YYYY")}`
             : "Select a date"
         }
       >
