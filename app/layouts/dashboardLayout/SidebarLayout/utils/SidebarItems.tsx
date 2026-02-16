@@ -70,6 +70,13 @@ const sidebarDatas: SidebarItem[] = [
     role: ["patient", "doctor", "admin"],
   },
   {
+    id: 15,
+    name: "Book Appointment",
+    icon: <BiCalendarEvent />,
+    url: "/dashboard/appointments/book",
+    role: ["patient", "doctor", "admin"],
+  },
+  {
     id: 9,
     name: "Recall Appointment",
     icon: <MdEventRepeat />,

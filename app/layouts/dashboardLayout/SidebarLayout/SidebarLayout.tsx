@@ -405,10 +405,9 @@ const SidebarAccordion = observer(
                       cursor="pointer"
                       color={
                         activeItemId === item.id
-                          ? useColorModeValue(
-                            themeConfig.colors.custom.light.primary,
-                            themeConfig.colors.custom.dark.primary
-                          )
+                          ? (colorMode === "light"
+                            ? themeConfig.colors.custom.light.primary
+                            : themeConfig.colors.custom.dark.primary)
                           : "inherit"
                       }
                       fontWeight={activeItemId === item.id ? "600" : "inherit"}
@@ -484,7 +483,9 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const { colorMode } = useColorMode();
 
     useEffect(() => {
-      setSidebarData(getSidebarDataByRole([user.userType]));
+      if (user?.userType) {
+        setSidebarData(getSidebarDataByRole([user.userType]));
+      }
 
       // Sync backend sidebar colors to store if available
       // Check companyDetails for sidebarColors
