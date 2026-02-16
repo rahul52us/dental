@@ -34,6 +34,7 @@ import { useState } from "react";
 import stores from "../../../../store/stores";
 import { getDefaultSchedule } from "../../utils/constant";
 import OperatingHours from "../OperatingHours/OperatingHours";
+import ProfileSettings from "../../ProfileSettings"; // Adjust path if needed
 
 // Helper component for consistent key-value display
 const DetailItem = ({ label, value, icon }) => (
@@ -76,6 +77,7 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
     try {
       const response = await companyStore.updateOperatingHours({
         operatingHours: payload,
+        sidebarColors: stores.themeStore.themeConfig.sidebarColors,
       });
 
       if (response?.data?.success) {
@@ -175,6 +177,7 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
             <TabList px={4} pt={4}>
               <Tab fontWeight="bold">Profile</Tab>
               <Tab fontWeight="bold">Operating Hours</Tab>
+              <Tab fontWeight="bold">Sidebar</Tab>
             </TabList>
 
             <TabPanels>
@@ -216,6 +219,11 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
               {/* TAB 2: Operating Hours (Placeholder) */}
               <TabPanel p={6}>
                 <OperatingHours schedule={schedule} setSchedule={setSchedule} />
+              </TabPanel>
+
+              {/* TAB 3: Sidebar Settings */}
+              <TabPanel p={6}>
+                <ProfileSettings />
               </TabPanel>
             </TabPanels>
           </Tabs>

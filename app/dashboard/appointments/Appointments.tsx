@@ -122,7 +122,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
       }
 
       getDoctorAppointment(query)
-        .then(() => {})
+        .then(() => { })
         .catch((err) => {
           openNotification({
             type: "error",
@@ -377,13 +377,10 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
     },
   ];
 
-  const subTitle = `${
-    patientDetails?.name
-  } • Appointment Summary — Cancelled: ${
-    patientStatus?.cancelled ?? 0
-  } | Shift: ${patientStatus?.shift ?? 0} | No-show: ${
-    patientStatus?.["no-show"] ?? 0
-  }`;
+  const subTitle = `${patientDetails?.name
+    } • Appointment Summary — Cancelled: ${patientStatus?.cancelled ?? 0
+    } | Shift: ${patientStatus?.shift ?? 0} | No-show: ${patientStatus?.["no-show"] ?? 0
+    }`;
 
   const handleOpenAddDrawer = (data: any) => {
     const selectedDate = moment(data.selectedDate).format("YYYY-MM-DD");
@@ -495,7 +492,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
               </Button>
 
               <Text fontWeight="600" fontSize="md">
-Appointment → {moment(selectedDate).format("dddd, DD MMM YYYY")}
+                Appointment → {moment(selectedDate).format("dddd, DD MMM YYYY")}
               </Text>
 
               <Button size="md" onClick={goToNextDate} p={1}>

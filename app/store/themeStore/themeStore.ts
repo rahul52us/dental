@@ -77,6 +77,7 @@ class ThemeStore {
       initialColorMode: "light",
       useSystemColorMode: false,
     },
+    sidebarColors: {} as Record<number, { light: string; dark: string }>,
   };
 
   themeConfig = { ...this.backthemeConfig };
@@ -97,8 +98,13 @@ class ThemeStore {
       );
       if (storedThemeConfig) {
         try {
-          this.themeConfig = JSON.parse(storedThemeConfig);
-        } catch ({}) {
+          const parsedConfig = JSON.parse(storedThemeConfig);
+          // Ensure sidebarColors exists even if loading old config
+          if (!parsedConfig.sidebarColors) {
+            parsedConfig.sidebarColors = {};
+          }
+          this.themeConfig = parsedConfig;
+        } catch ({ }) {
           this.resetTheme();
         }
       }

@@ -159,6 +159,9 @@ const SidebarPopover = observer(
 
     const itemIsActive = isActive(item, activeItemId);
 
+    const userColor = themeConfig.sidebarColors?.[item.name];
+    const customBg = useColorModeValue(userColor?.light, userColor?.dark);
+
     return (
       <Popover
         isOpen={isPopoverOpen}
@@ -201,21 +204,23 @@ const SidebarPopover = observer(
                 cursor="pointer"
                 py={depth === 0 ? 3 : 1}
                 bg={
-                  itemIsActive
+                  customBg ||
+                  (itemIsActive
                     ? useColorModeValue("blue.50", "blue.900")
-                    : "transparent"
+                    : "transparent")
                 }
                 color={
                   itemIsActive
                     ? useColorModeValue(
-                        themeConfig.colors.custom.light.primary,
-                        themeConfig.colors.custom.dark.primary
-                      )
+                      themeConfig.colors.custom.light.primary,
+                      themeConfig.colors.custom.dark.primary
+                    )
                     : "inherit"
                 }
                 fontWeight={itemIsActive ? "600" : "inherit"}
                 _hover={{
-                  bg: useColorModeValue("blue.50", "blue.700"),
+                  bg: customBg || useColorModeValue("blue.50", "blue.700"),
+                  filter: customBg ? "brightness(0.92)" : "none",
                   color: useColorModeValue(
                     themeConfig.colors.custom.light.primary,
                     themeConfig.colors.custom.dark.primary
@@ -361,6 +366,9 @@ const SidebarAccordion = observer(
       >
         {items.map((item) => {
           const itemIsActive = isActive(item);
+          const userColor = themeConfig.sidebarColors?.[item.name];
+          // FIX: Do not use hook inside loop. Use colorMode directly.
+          const customBg = userColor ? (colorMode === "light" ? userColor.light : userColor.dark) : undefined;
           return (
             <AccordionItem key={item.id} border="none" width={"100%"}>
               {() => (
@@ -369,14 +377,15 @@ const SidebarAccordion = observer(
                     my={1.5}
                     px={1}
                     borderRadius={"10px"}
-                    bg={itemIsActive ? activeBg : "transparent"}
+                    bg={customBg || (itemIsActive ? activeBg : "transparent")}
                     color={itemIsActive ? primaryColor : "inherit"}
                     fontWeight={itemIsActive ? "600" : "inherit"}
                     _hover={{
-                      bg: hoverBg,
+                      bg: customBg || hoverBg,
+                      filter: customBg ? "brightness(0.92)" : "none",
                       color: hoverColor,
                       fontWeight: "600",
-                      boxShadow: "rgb(0 0 0 / 10%) 0px 0px 5px",
+                      boxShadow: "rgb(0 0 0 / 10%) 0px 0px 8px",
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -397,9 +406,9 @@ const SidebarAccordion = observer(
                       color={
                         activeItemId === item.id
                           ? useColorModeValue(
-                              themeConfig.colors.custom.light.primary,
-                              themeConfig.colors.custom.dark.primary
-                            )
+                            themeConfig.colors.custom.light.primary,
+                            themeConfig.colors.custom.dark.primary
+                          )
                           : "inherit"
                       }
                       fontWeight={activeItemId === item.id ? "600" : "inherit"}
@@ -457,6 +466,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
   }) => {
     const {
       auth: { user },
+      themeStore: { themeConfig },
     } = stores;
     const router = useRouter(); // Replace useNavigate with useRouter
     const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
@@ -475,7 +485,18 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
 
     useEffect(() => {
       setSidebarData(getSidebarDataByRole([user.userType]));
-    }, [user]);
+
+      // Sync backend sidebar colors to store if available
+      // Check companyDetails for sidebarColors
+      const companyColors = user?.companyDetails?.sidebarColors;
+
+      if (companyColors && Object.keys(companyColors).length > 0) {
+        const currentStoreColors = themeConfig.sidebarColors || {};
+        if (JSON.stringify(companyColors) !== JSON.stringify(currentStoreColors)) {
+          stores.themeStore.setThemeConfig("sidebarColors", companyColors);
+        }
+      }
+    }, [user, themeConfig.sidebarColors]);
 
     useEffect(() => {
       if (activeItemId !== null && typeof window !== "undefined") {
@@ -499,6 +520,8 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
       activeItemId !== null
         ? findPathToActiveItem(sidebarData, activeItemId)
         : [];
+
+    console.log("SidebarLayout Rendered. ThemeConfig:", themeConfig.sidebarColors);
 
     return (
       <>

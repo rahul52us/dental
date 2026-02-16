@@ -5,6 +5,7 @@ import {
   FormControl,
   FormLabel,
   Flex,
+  HStack,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -18,17 +19,36 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { SketchPicker } from "react-color";
-import { FaPalette } from "react-icons/fa"; // Icon for the color picker
+import { FaPalette } from "react-icons/fa";
+import { EditIcon, CheckIcon } from "@chakra-ui/icons";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
+  useDisclosure,
+} from "@chakra-ui/react";
 
 interface ColorPickerProps {
   label: string;
-  color:any;
+  color: any;
   onChangeComplete: any;
 }
 
-const colorPalette = [
-  "#FF5733", "#33FF57", "#3357FF", "#FFD700", "#FF33A1",
-  "#33FFF8", "#C70039", "#581845", "#FFC300", "#900C3F",
+const COLOR_SUGGESTIONS = [
+  { light: "#3182CE", dark: "#2C5282", label: "Dental Blue" }, // Vibrant blue
+  { light: "#38B2AC", dark: "#2C7A7B", label: "Hygienic Teal" }, // Vibrant teal
+  { light: "#48BB78", dark: "#2F855A", label: "Fresh Green" }, // Vibrant green
+  { light: "#667EEA", dark: "#5A67D8", label: "Indigo Trust" }, // Indigo
+  { light: "#ED64A6", dark: "#B83280", label: "Care Pink" },    // Pinkish/Purple
+  { light: "#F6AD55", dark: "#DD6B20", label: "Warm Gold" },    // Warmth
+  { light: "#FC8181", dark: "#E53E3E", label: "Vital Red" },    // Health
+  { light: "#9F7AEA", dark: "#805AD5", label: "Royal Plum" },   // Deep purple
+  { light: "#A0AEC0", dark: "#4A5568", label: "Modern Slate" }, // Gray/Steel
+  { light: "#4FD1C5", dark: "#319795", label: "Aqua Clean" },   // Cyan-Teal
+  { light: "#718096", dark: "#2D3748", label: "Deep Sea" },     // Dark grayish-blue
+  { light: "#4299E1", dark: "#3182CE", label: "Trust Blue" },   // Solid blue
 ];
 
 const ColorBox: React.FC<{ color: string; onClick: () => void; isSelected: boolean }> = ({
@@ -53,195 +73,90 @@ const ColorBox: React.FC<{ color: string; onClick: () => void; isSelected: boole
 );
 
 const ColorPickerComponent: React.FC<ColorPickerProps> = ({
-  label,
   color,
   onChangeComplete,
 }) => {
-  const [isLightOpen, setLightOpen] = useState(false);
-  const [isDarkOpen, setDarkOpen] = useState(false);
-  const [tempColorLight, setTempColorLight] = useState(color.light);
-  const [tempColorDark, setTempColorDark] = useState(color.dark);
-  const modalBg = useColorModeValue("white", "gray.800");
-  const textColor = useColorModeValue("gray.800", "white");
-  const borderColor = useColorModeValue("gray.300", "gray.600");
-
-  const openLightModal = () => {
-    setTempColorLight(color.light);
-    setLightOpen(true);
+  const handleSuggestionClick = (sug: { light: string; dark: string }) => {
+    onChangeComplete(sug);
   };
 
-  const openDarkModal = () => {
-    setTempColorDark(color.dark);
-    setDarkOpen(true);
-  };
-
-  const handleLightConfirm = () => {
-    onChangeComplete({ light: tempColorLight, dark: color.dark });
-    setLightOpen(false);
-  };
-
-  const handleDarkConfirm = () => {
-    onChangeComplete({ light: color.light, dark: tempColorDark });
-    setDarkOpen(false);
-  };
+  const selectedBg = useColorModeValue("blue.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   return (
-    <Box
-      p={6}
-      borderRadius="md"
-      boxShadow="lg"
-      bg={useColorModeValue("gray.50", "gray.900")}
-      borderWidth="1px"
-      transition="0.3s"
-      _hover={{ boxShadow: "xl" }} // Hover effect for the main container
-    >
-      <FormControl>
-        <FormLabel fontSize="lg" fontWeight="bold" color={textColor}>
-          <Icon as={FaPalette} mr={2} />
-          {label}
-        </FormLabel>
-        <Flex align="center" mb={4}>
-          <Box
-            width="80px"
-            height="80px"
-            bg={color.light}
+    <SimpleGrid columns={3} spacing={3} w="100%">
+      {COLOR_SUGGESTIONS.map((sug, index) => {
+        const isSelected = color.light === sug.light && color.dark === sug.dark;
+        return (
+          <VStack
+            key={index}
+            as="button"
+            p={3}
+            borderRadius="xl"
             border="2px solid"
-            borderColor={borderColor}
-            borderRadius="lg"
-            cursor="pointer"
-            boxShadow="md"
-            onClick={openLightModal}
-            transition="all 0.3s"
-            _hover={{ transform: "scale(1.05)", boxShadow: "lg" }} // Enhanced hover effect
-            mr={4}
-          />
-          <Box
-            width="80px"
-            height="80px"
-            bg={color.dark}
-            border="2px solid"
-            borderColor={borderColor}
-            borderRadius="lg"
-            cursor="pointer"
-            boxShadow="md"
-            onClick={openDarkModal}
-            transition="all 0.3s"
-            _hover={{ transform: "scale(1.05)", boxShadow: "lg" }} // Enhanced hover effect
-          />
-        </Flex>
-
-        <Box
-          width="100%"
-          borderRadius="lg"
-          border="1px solid"
-          borderColor={borderColor}
-          boxShadow="sm"
-          color={textColor}
-          fontWeight="bold"
-          mb={4}
-          p={4}
-          bg={useColorModeValue("gray.50", "gray.700")}
-        >
-          <Text fontWeight="bold">Selected Color:</Text>
-          <Text>Light: {color.light}</Text>
-          <Text>Dark: {color.dark}</Text>
-        </Box>
-
-        {/* Light Color Picker Modal */}
-        <Modal isOpen={isLightOpen} onClose={() => setLightOpen(false)} isCentered size="md">
-          <ModalOverlay />
-          <ModalContent p={4} borderRadius="lg" bg={modalBg} boxShadow="xl">
-            <ModalBody>
-              <VStack spacing={4} align="center">
-                <Text fontSize="lg" fontWeight="bold" color={textColor}>
-                  Pick Light Color
-                </Text>
-
-                <SimpleGrid columns={5} spacing={2}>
-                  {colorPalette.map((colorHex) => (
-                    <ColorBox
-                      key={colorHex}
-                      color={colorHex}
-                      onClick={() => setTempColorLight(colorHex)}
-                      isSelected={tempColorLight === colorHex}
-                    />
-                  ))}
-                </SimpleGrid>
-
-                <Text fontWeight="bold" color={textColor}>
-                  Custom Color:
-                </Text>
-                <SketchPicker
-                  color={tempColorLight}
-                  onChangeComplete={(color) => setTempColorLight(color.hex)}
-                  width="100%"
-                />
-
-                <Button
-                  colorScheme="teal"
-                  size="md"
-                  onClick={handleLightConfirm}
-                  width="full"
-                  _hover={{ bg: "teal.600", transform: "translateY(-2px)" }}
-                  boxShadow="md"
-                  transition="0.2s"
-                  _active={{ boxShadow: "lg", transform: "scale(0.95)" }}
+            borderColor={isSelected ? "blue.500" : "transparent"}
+            bg={isSelected ? selectedBg : useColorModeValue("white", "gray.800")}
+            onClick={() => handleSuggestionClick(sug)}
+            spacing={2}
+            _hover={{
+              transform: "translateY(-2px)",
+              shadow: "md",
+              bg: isSelected ? selectedBg : useColorModeValue("gray.50", "gray.700")
+            }}
+            transition="all 0.2s"
+            align="center"
+            position="relative"
+            boxShadow="sm"
+          >
+            <Box
+              w="40px"
+              h="40px"
+              borderRadius="full"
+              bg={sug.light}
+              border="2px solid"
+              borderColor="white"
+              boxShadow="0 0 0 1px #CBD5E0"
+              position="relative"
+              overflow="hidden"
+            >
+              {/* Dark mode wedge indicator */}
+              <Box
+                position="absolute"
+                bottom={0}
+                right={0}
+                w="100%"
+                h="100%"
+                bg={sug.dark}
+                clipPath="polygon(100% 0, 100% 100%, 0 100%)"
+              />
+              {isSelected && (
+                <Flex
+                  position="absolute"
+                  inset={0}
+                  align="center"
+                  justify="center"
+                  bg="blackAlpha.300"
+                  borderRadius="full"
+                  zIndex={2}
                 >
-                  Confirm
-                </Button>
-              </VStack>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-
-        {/* Dark Color Picker Modal */}
-        <Modal isOpen={isDarkOpen} onClose={() => setDarkOpen(false)} isCentered size="md">
-          <ModalOverlay />
-          <ModalContent p={4} borderRadius="lg" bg={modalBg} boxShadow="xl">
-            <ModalBody>
-              <VStack spacing={4} align="center">
-                <Text fontSize="lg" fontWeight="bold" color={textColor}>
-                  Pick Dark Color
-                </Text>
-
-                <SimpleGrid columns={5} spacing={2}>
-                  {colorPalette.map((colorHex) => (
-                    <ColorBox
-                      key={colorHex}
-                      color={colorHex}
-                      onClick={() => setTempColorDark(colorHex)}
-                      isSelected={tempColorDark === colorHex}
-                    />
-                  ))}
-                </SimpleGrid>
-
-                <Text fontWeight="bold" color={textColor}>
-                  Custom Color:
-                </Text>
-                <SketchPicker
-                  color={tempColorDark}
-                  onChangeComplete={(color) => setTempColorDark(color.hex)}
-                  width="100%"
-                />
-
-                <Button
-                  colorScheme="teal"
-                  size="md"
-                  onClick={handleDarkConfirm}
-                  width="full"
-                  _hover={{ bg: "teal.600", transform: "translateY(-2px)" }}
-                  boxShadow="md"
-                  transition="0.2s"
-                  _active={{ boxShadow: "lg", transform: "scale(0.95)" }}
-                >
-                  Confirm
-                </Button>
-              </VStack>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      </FormControl>
-    </Box>
+                  <CheckIcon color="white" boxSize={3} />
+                </Flex>
+              )}
+            </Box>
+            <Text
+              fontSize="10px"
+              fontWeight="bold"
+              color={isSelected ? "blue.600" : useColorModeValue("gray.600", "gray.300")}
+              textAlign="center"
+              lineHeight="1.2"
+              noOfLines={1}
+            >
+              {sug.label}
+            </Text>
+          </VStack>
+        );
+      })}
+    </SimpleGrid>
   );
 };
 

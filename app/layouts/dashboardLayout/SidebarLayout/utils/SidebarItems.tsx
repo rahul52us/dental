@@ -72,7 +72,7 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 9,
     name: "Recall Appointment",
-    icon: <MdEventRepeat  />,
+    icon: <MdEventRepeat />,
     url: "/dashboard/recall-appointment",
     role: ["admin"],
   },
@@ -117,7 +117,7 @@ export const sidebarFooterData: SidebarItem[] = [
     id: 34,
     name: "Settings",
     icon: <FaCog />,
-    url: "/profile",
+    url: "/dashboard/profile",
     role: ["admin", "superAdmin", "patient", "doctor"],
   },
 ];
