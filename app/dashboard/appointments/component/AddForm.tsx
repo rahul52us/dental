@@ -98,8 +98,8 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
     borderRadius="2xl"
     shadow="md"
     p={1}
-    // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-    // transition="all 0.2s ease"
+  // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+  // transition="all 0.2s ease"
   >
     <CardHeader pb={2}>
       <Text fontSize="xl" fontWeight="semibold" color="blue.600">
@@ -224,9 +224,9 @@ const AddAppointmentForm = observer(
             setHaveCreateProfile(
               dt?.data?.success === true
                 ? {
-                    label: `${dt?.data?.data?.name}-${dt?.data?.data?.code}`,
-                    value: dt?.data?.data?._id,
-                  }
+                  label: `${dt?.data?.data?.name}-${dt?.data?.data?.code}`,
+                  value: dt?.data?.data?._id,
+                }
                 : null,
             );
             getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });
@@ -287,19 +287,18 @@ const AddAppointmentForm = observer(
         <Formik
           initialValues={{
             primaryDoctor: doctorDetails ? {
-                label: doctorDetails.name,
-                value: doctorDetails._id
+              label: doctorDetails.name,
+              value: doctorDetails._id
             } : "",
             additionalDoctors: [],
             additionalStaff: [],
             showCompleteData: false,
             patient: isPatient
               ? {
-                  label: `${patientDetails?.name}${
-                    patientDetails?.code ? ` (${patientDetails.code})` : ""
+                label: `${patientDetails?.name}${patientDetails?.code ? ` (${patientDetails.code})` : ""
                   }`,
-                  value: patientDetails?._id,
-                }
+                value: patientDetails?._id,
+              }
               : "",
             appointmentDate: parsedDateAndTime.appointmentDate || "",
             startTime: parsedDateAndTime.startTime || "",
@@ -356,15 +355,14 @@ const AddAppointmentForm = observer(
                             options={
                               isPatient
                                 ? [
-                                    {
-                                      label: `${patientDetails?.name}${
-                                        patientDetails?.code
-                                          ? ` (${patientDetails.code})`
-                                          : ""
+                                  {
+                                    label: `${patientDetails?.name}${patientDetails?.code
+                                      ? ` (${patientDetails.code})`
+                                      : ""
                                       }`,
-                                      value: patientDetails?._id,
-                                    },
-                                  ]
+                                    value: patientDetails?._id,
+                                  },
+                                ]
                                 : haveCreateProfile
                                   ? [haveCreateProfile]
                                   : values?.patient
@@ -453,25 +451,25 @@ const AddAppointmentForm = observer(
                             setFieldValue("chair", val);
                           }}
                         />
-                                              <CustomInput
-                            name="status"
-                            label="Appointment Status"
-                            type="select"
-                            isPortal
-                            required
-                            options={appointStatus}
-                            value={{
-                              label:
-                                values.status.charAt(0).toUpperCase() +
-                                values.status.slice(1).replace("-", " "),
-                              value: values.status,
-                            }}
-                            onChange={(opt: any) =>
-                              setFieldValue("status", opt?.value)
-                            }
-                            error={errors.status as string}
-                            showError={touched.status}
-                          />
+                        <CustomInput
+                          name="status"
+                          label="Appointment Status"
+                          type="select"
+                          isPortal
+                          required
+                          options={appointStatus}
+                          value={{
+                            label:
+                              values.status.charAt(0).toUpperCase() +
+                              values.status.slice(1).replace("-", " "),
+                            value: values.status,
+                          }}
+                          onChange={(opt: any) =>
+                            setFieldValue("status", opt?.value)
+                          }
+                          error={errors.status as string}
+                          showError={touched.status}
+                        />
 
                       </Flex>
                     </SectionCard>

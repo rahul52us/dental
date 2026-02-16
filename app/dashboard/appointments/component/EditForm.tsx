@@ -43,6 +43,17 @@ import { format } from "date-fns";
 import Loader from "../../../component/common/Loader/Loader";
 import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
+import { keyframes } from "@emotion/react";
+
+const breathe = keyframes`
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+`
+
+const ring = keyframes`
+  0%   { box-shadow: 0 0 0 0 rgba(56, 178, 172, 0.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(56, 178, 172, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 178, 172, 0); } `
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
@@ -109,8 +120,8 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
     borderRadius="2xl"
     shadow="md"
     p={1}
-    // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-    // transition="all 0.2s ease"
+  // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+  // transition="all 0.2s ease"
   >
     <CardHeader pb={2}>
       <Text fontSize="xl" fontWeight="semibold" color="blue.600">
@@ -318,16 +329,16 @@ const EditAppointmentForm = observer(
           initialValues={{
             primaryDoctor: appointment?.primaryDoctor
               ? {
-                  label: appointment.primaryDoctor.name,
-                  value: appointment.primaryDoctor._id,
-                }
+                label: appointment.primaryDoctor.name,
+                value: appointment.primaryDoctor._id,
+              }
               : null,
 
             additionalDoctors: Array.isArray(appointment?.additionalDoctors)
               ? appointment?.additionalDoctors?.map((it: any) => ({
-                  label: it.name,
-                  value: it._id,
-                }))
+                label: it.name,
+                value: it._id,
+              }))
               : [],
 
             additionalStaff: [],
@@ -336,9 +347,9 @@ const EditAppointmentForm = observer(
 
             patient: appointment?.patient
               ? {
-                  label: `${appointment.patient.name} (${appointment.patient.code})`,
-                  value: appointment.patient._id,
-                }
+                label: `${appointment.patient.name} (${appointment.patient.code})`,
+                value: appointment.patient._id,
+              }
               : null,
 
             appointmentDate: appointment?.appointmentDate
@@ -378,9 +389,9 @@ const EditAppointmentForm = observer(
 
             chair: appointment?.chair
               ? {
-                  label: appointment.chair.chairName,
-                  value: appointment.chair._id,
-                }
+                label: appointment.chair.chairName,
+                value: appointment.chair._id,
+              }
               : null,
           }}
           validationSchema={validationSchema}
@@ -415,11 +426,11 @@ const EditAppointmentForm = observer(
                             options={
                               isPatient
                                 ? [
-                                    {
-                                      label: `${patientDetails?.name}${patientDetails?.code ? ` (${patientDetails.code})` : ""}`,
-                                      value: patientDetails?._id,
-                                    },
-                                  ]
+                                  {
+                                    label: `${patientDetails?.name}${patientDetails?.code ? ` (${patientDetails.code})` : ""}`,
+                                    value: patientDetails?._id,
+                                  },
+                                ]
                                 : values?.patient
                                   ? [values?.patient]
                                   : []
@@ -493,38 +504,72 @@ const EditAppointmentForm = observer(
                           query={{ type: "staff" }}
                         />
                       </Flex>
-                      <Flex gap={4} mt={4}>
-                        <CustomInput
-                          name="chair"
-                          placeholder="Select Chair"
-                          type="select"
-                          label="Chair"
-                          options={chairsOptions}
-                          value={values?.chair}
-                          onChange={(val: any) => {
-                            setFieldValue("chair", val);
-                          }}
-                        />
-                        <CustomInput
-                          name="status"
-                          label="Appointment Status"
-                          type="select"
-                          isPortal
-                          required
-                          options={appointStatus}
-                          value={{
-                            label:
-                              values.status.charAt(0).toUpperCase() +
-                              values.status.slice(1).replace("-", " "),
-                            value: values.status,
-                          }}
-                          onChange={(opt: any) =>
-                            setFieldValue("status", opt?.value)
-                          }
-                          error={errors.status as string}
-                          showError={touched.status}
-                        />
+                      <Flex gap={4} mt={4} align="flex-end">
+                        {/* Chair */}
+                        <Box flex="1">
+                          <CustomInput
+                            name="chair"
+                            placeholder="Select Chair"
+                            type="select"
+                            label="Chair"
+                            options={chairsOptions}
+                            value={values?.chair}
+                            onChange={(val: any) => setFieldValue("chair", val)}
+                          />
+                        </Box>
+
+                        {/* Status */}
+                        <Box flex="1">
+                          <Flex align="flex-end" gap={2}>
+                            {/* Status Select */}
+                            <Box flex="1">
+                              <CustomInput
+                                name="status"
+                                label="Appointment Status"
+                                type="select"
+                                isPortal
+                                required
+                                options={appointStatus}
+                                value={{
+                                  label:
+                                    values.status.charAt(0).toUpperCase() +
+                                    values.status.slice(1).replace("-", " "),
+                                  value: values.status,
+                                }}
+                                onChange={(opt: any) =>
+                                  setFieldValue("status", opt?.value)
+                                }
+                                error={errors.status as string}
+                                showError={touched.status}
+                              />
+                            </Box>
+
+                            {/* Calendar Button (Separate Element) */}
+                            {values.status === "shift" && (
+                              <Tooltip label="Choose time from scheduler" placement="left">
+                                <IconButton
+                                  aria-label="Open scheduler"
+                                  icon={<CalendarIcon />}
+                                  size="md"
+                                  colorScheme="teal"
+                                  variant="outline"
+                                  onClick={() => setIsSchedulerDrawerOpen(true)}
+                                  alignSelf="flex-end"
+                                  animation={`${breathe} 2.8s ease-in-out infinite, ${ring} 2.2s ease-out infinite`}
+                                  _hover={{
+                                    bg: "teal.50",
+                                    transform: "translateY(-2px) scale(1.1)",
+                                    boxShadow: "0 0 0 12px rgba(56, 178, 172, 0.45)",
+                                  }}
+                                  transition="all 0.3s ease"
+                                />
+                              </Tooltip>
+                            )}
+                          </Flex>
+                        </Box>
+
                       </Flex>
+
                     </SectionCard>
 
                     {/* === Appointment Details === */}
@@ -548,23 +593,6 @@ const EditAppointmentForm = observer(
                               error={errors.appointmentDate as string}
                               showError={touched.appointmentDate}
                             />
-                            <Tooltip
-                              label="Choose time from scheduler"
-                              placement="top"
-                            >
-                              {values.status === "shift" && (
-                                <IconButton
-                                  aria-label="Open scheduler"
-                                  icon={<CalendarIcon />}
-                                  colorScheme="teal"
-                                  variant="outline"
-                                  size="sm"
-                                  mb={1}
-                                  alignSelf="flex-end"
-                                  onClick={() => setIsSchedulerDrawerOpen(true)}
-                                />
-                              )}
-                            </Tooltip>
                           </Flex>
                           <CustomInput
                             name="startTime"
