@@ -315,6 +315,7 @@ const AddAppointmentForm = observer(
             },
             doctorNote: "",
             chair: selectedDateAndTime?.chair || undefined,
+            shiftOrCancelledReason: "",
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) =>
@@ -470,8 +471,23 @@ const AddAppointmentForm = observer(
                           error={errors.status as string}
                           showError={touched.status}
                         />
-
                       </Flex>
+                      <Box mt={3}>
+                        {(values.status === "shift" || values.status === "cancelled") && (
+                          <CustomInput
+                            name="shiftOrCancelledReason"
+                            label={values.status === "shift" ? "Shift Reason" : "Cancellation Reason"}
+                            type="text"
+                            placeholder={values.status === "shift" ? "Enter reason for shift..." : "Enter reason for cancellation..."}
+                            value={values.shiftOrCancelledReason}
+                            onChange={(e: any) =>
+                              setFieldValue("shiftOrCancelledReason", e.target.value)
+                            }
+                            error={errors.shiftOrCancelledReason as string}
+                            showError={touched.shiftOrCancelledReason}
+                          />
+                        )}
+                      </Box>
                     </SectionCard>
 
                     {/* === Appointment Details === */}
