@@ -1,6 +1,6 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Flex, IconButton, useMediaQuery } from "@chakra-ui/react";
+import { Flex, IconButton, useMediaQuery, useColorModeValue } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { observer } from "mobx-react-lite";
 import HeaderProfile from "./HeaderProfile/HeaderProfile";
@@ -37,8 +37,8 @@ const HeaderNavbar = observer(() => {
         <IconButton
           aria-label="Arrow"
           fontSize="xl"
-          _hover={{ color: "blue.500", bg: "gray.700" }}
-          _active={{ bg: "gray.800" }}
+          _hover={{ color: useColorModeValue("brand.500", "brand.200"), bg: useColorModeValue("brand.50", "gray.700") }}
+          _active={{ bg: useColorModeValue("brand.100", "gray.800") }}
           icon={
             <FaBars
               cursor="pointer"

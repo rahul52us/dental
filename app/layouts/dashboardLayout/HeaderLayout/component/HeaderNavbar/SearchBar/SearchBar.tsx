@@ -9,6 +9,7 @@ import {
   ListItem,
   Flex,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa";
 import debounce from "lodash.debounce";
@@ -73,15 +74,15 @@ const SearchBar = () => {
     <Box position="relative" width="300px" ref={dropdownRef}>
       <InputGroup>
         <InputLeftElement>
-          <FaSearch color="gray.400" />
+          <FaSearch color={useColorModeValue("brand.500", "brand.200")} />
         </InputLeftElement>
         <Input
           placeholder="Start typing to search..."
-          bg="white"
+          bg={useColorModeValue("white", "darkBrand.50")}
           border="1px solid"
-          borderColor="gray.300"
-          _focus={{ borderColor: "teal.500", boxShadow: "0 0 4px teal" }}
-          _hover={{ borderColor: "gray.400" }}
+          borderColor={useColorModeValue("brand.200", "darkBrand.200")}
+          _focus={{ borderColor: "brand.500", boxShadow: "0 0 4px brand.500" }}
+          _hover={{ borderColor: "brand.300" }}
           borderRadius="full"
           px={4}
           py={2}
@@ -92,7 +93,7 @@ const SearchBar = () => {
 
       {results.length > 0 && (
         <List
-          bg="white"
+          bg={useColorModeValue("white", "darkBrand.100")}
           mt={2}
           borderRadius="lg"
           boxShadow="xl"
@@ -100,7 +101,7 @@ const SearchBar = () => {
           width="100%"
           zIndex={100}
           border="1px solid"
-          borderColor="gray.200"
+          borderColor={useColorModeValue("brand.200", "darkBrand.200")}
           maxHeight="300px"
           overflowY="auto"
           overflowX="hidden"
@@ -111,13 +112,13 @@ const SearchBar = () => {
               px={4}
               py={3}
               _hover={{
-                bg: "teal.50",
+                bg: useColorModeValue("brand.50", "darkBrand.200"),
                 cursor: "pointer",
                 transform: "scale(1.01)",
                 transition: "transform 0.2s ease-in-out",
               }}
               borderBottom={index < results.length - 1 ? "1px solid" : "none"}
-              borderColor="gray.100"
+              borderColor={useColorModeValue("brand.100", "darkBrand.200")}
             >
               <Link
                 href={result.url}
@@ -127,10 +128,10 @@ const SearchBar = () => {
                 }}
               >
                 <Flex align="center" gap={4}>
-                  <Box fontSize="24px" color="teal.500">
+                  <Box fontSize="24px" color="brand.500">
                     {result.icon}
                   </Box>
-                  <Text fontWeight="semibold" fontSize="md" color="gray.700">
+                  <Text fontWeight="semibold" fontSize="md" color={useColorModeValue("gray.700", "white")}>
                     {highlightText(result.name, searchQuery)}
                   </Text>
                 </Flex>

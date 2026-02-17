@@ -1,6 +1,6 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Box, Flex, IconButton, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Flex, IconButton, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import stores from "../../../../../store/stores";
@@ -22,8 +22,8 @@ const HeaderLogo = observer(() => {
             aria-label="Arrow"
             fontSize="2xl"
             color="white"
-            _hover={{ color: "blue.500", bg: "gray.700" }}
-            _active={{ bg: "gray.800" }}
+            _hover={{ color: useColorModeValue("brand.500", "brand.200"), bg: useColorModeValue("brand.50", "gray.700") }}
+            _active={{ bg: useColorModeValue("brand.100", "gray.800") }}
             icon={
               isCallapse ? (
                 <BiRightArrowAlt fontSize={25} />
