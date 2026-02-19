@@ -34,6 +34,7 @@ import { observer } from "mobx-react-lite";
 import { useRouter } from "next/navigation";
 import SidebarLogo from "./component/SidebarLogo";
 import stores from "../../../store/stores";
+import { FaCircle } from "react-icons/fa"; // Added FaCircle
 import {
   mediumSidebarWidth,
   sidebarWidth,
@@ -60,18 +61,10 @@ const renderIcon = (depth: number, icon: any, colorMode: string) => {
   const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
 
   if (depth === 1) {
-    return (
-      <Text fontSize={"18px"} mr={2} color={iconColor}>
-        -
-      </Text>
-    );
+    return <Icon as={FaCircle} boxSize={2} mr={2} color={iconColor} opacity={0.6} />;
   }
   if (depth > 1) {
-    return (
-      <Text fontSize={"18px"} mr={2} color={iconColor}>
-        ◦
-      </Text>
-    );
+    return <Icon as={FaCircle} boxSize={1.5} mr={2} color={iconColor} opacity={0.4} />;
   }
   return <Icon as={icon.type} boxSize={5} color={iconColor} />;
 };
@@ -170,17 +163,22 @@ const SidebarPopover = observer(
         width={"100%"}
         onMouseEnter={handleMouseEnter}
         onClick={handleItemClick}
+        position="relative" // needed for potential absolute indicators
       >
         <Flex
           align="center"
           justify={depth === 0 ? "center" : "unset"}
           width={"100%"}
           cursor="pointer"
-          py={depth === 0 ? 3 : 1}
+          py={depth === 0 ? 3 : 2} // Increased padding for leaf items slightly
+          px={depth === 0 ? 0 : 4}
           bg={
             customBg ||
             (itemIsActive
-              ? useColorModeValue("brand.50", "darkBrand.200")
+              ? useColorModeValue(
+                "linear-gradient(to right, var(--chakra-colors-brand-50), transparent)",
+                "linear-gradient(to right, var(--chakra-colors-darkBrand-200), transparent)"
+              )
               : "transparent")
           }
           color={
@@ -191,7 +189,8 @@ const SidebarPopover = observer(
               )
               : "inherit"
           }
-          fontWeight={itemIsActive ? "600" : "inherit"}
+          fontWeight={itemIsActive ? "700" : "inherit"}
+          transition="all 0.2s ease" // Smooth transition
           _hover={{
             bg: customBg || useColorModeValue("brand.50", "darkBrand.100"),
             filter: customBg ? "brightness(0.92)" : "none",
@@ -199,9 +198,29 @@ const SidebarPopover = observer(
               themeConfig.colors.custom.light.primary,
               themeConfig.colors.custom.dark.primary
             ),
+            boxShadow: "sm",
           }}
+          borderLeft={itemIsActive && depth > 0 ? "4px solid" : "4px solid transparent"}
+          borderRight={itemIsActive && depth > 0 ? "4px solid" : "4px solid transparent"}
+          borderColor={
+            itemIsActive
+              ? useColorModeValue(themeConfig.colors.custom.light.primary, themeConfig.colors.custom.dark.primary)
+              : "transparent"
+          }
+          boxShadow={itemIsActive ? "md" : "none"} // Soft shadow for active
+          borderRadius={depth > 0 ? "md" : "0"} // Rounded corners for nested items
+          borderRightRadius={depth === 0 ? "md" : "md"} // Rounded right for top level
         >
-          {renderIcon(depth, item.icon, colorMode)}
+          <Box
+            as="span"
+            mr={2}
+            display="flex"
+            alignItems="center"
+            filter={itemIsActive ? "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" : "none"} // Icon glow
+            color={itemIsActive ? useColorModeValue(themeConfig.colors.custom.light.primary, themeConfig.colors.custom.dark.primary) : "currentColor"}
+          >
+            {renderIcon(depth, item.icon, colorMode)}
+          </Box>
           {depth > 0 && (
             <Flex flex={1} align={"center"} justify={"space-between"}>
               <Text ml={2} fontSize={"sm"}>
@@ -211,6 +230,7 @@ const SidebarPopover = observer(
                 <ChevronRightIcon
                   ml={2}
                   color={colorMode === "light" ? "gray.800" : "gray.200"}
+                  transition="transform 0.2s"
                 />
               )}
             </Flex>
@@ -391,19 +411,32 @@ const SidebarAccordion = observer(
               {() => (
                 <>
                   <AccordionButton
-                    my={0.5}
-                    px={1}
-                    borderRadius={"10px"}
-                    bg={customBg || (itemIsActive ? activeBg : "transparent")}
+                    my={1} // Increased spacing slightly
+                    px={3}
+                    borderRadius={"md"} // slightly sharper than 10px
+                    bg={customBg || (itemIsActive ?
+                      useColorModeValue(
+                        "linear-gradient(to right, var(--chakra-colors-brand-50), transparent)",
+                        "linear-gradient(to right, var(--chakra-colors-darkBrand-200), transparent)"
+                      ) : "transparent")}
                     color={itemIsActive ? primaryColor : "inherit"}
-                    fontWeight={itemIsActive ? "600" : "inherit"}
+                    fontWeight={itemIsActive ? "700" : "inherit"}
+                    transition="all 0.2s ease"
+                    position="relative"
+                    _focus={{ boxShadow: "none" }} // Remove default focus outline
                     _hover={{
                       bg: customBg || hoverBg,
                       filter: customBg ? "brightness(0.92)" : "none",
                       color: hoverColor,
-                      fontWeight: "600",
-                      boxShadow: "rgb(0 0 0 / 10%) 0px 0px 8px",
+                      fontWeight: "700",
+                      boxShadow: "sm",
                     }}
+                    borderLeft={itemIsActive ? "4px solid" : "4px solid transparent"}
+                    borderRight={itemIsActive ? "4px solid" : "4px solid transparent"}
+                    borderColor={itemIsActive ? primaryColor : "transparent"}
+                    boxShadow={itemIsActive ? "md" : "none"} // Soft shadow for active
+                    borderRightRadius="md" // Rounded right edge
+                    borderTopLeftRadius={itemIsActive ? "0" : "md"}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!item.children) {
@@ -427,13 +460,20 @@ const SidebarAccordion = observer(
                             : themeConfig.colors.custom.dark.primary)
                           : "inherit"
                       }
-                      fontWeight={activeItemId === item.id ? "600" : "inherit"}
+                      fontWeight={activeItemId === item.id ? "700" : "inherit"}
                     >
                       <Flex align="center">
-                        {renderIcon(depth, item.icon, colorMode)}
+                        <Box
+                          as="span"
+                          display="flex"
+                          alignItems="center"
+                          filter={itemIsActive ? "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" : "none"} // Icon glow
+                        >
+                          {renderIcon(depth, item.icon, colorMode)}
+                        </Box>
                         <Text
                           fontSize="sm"
-                          ml={depth === 0 ? 5 : 2}
+                          ml={depth === 0 ? 3 : 2}
                         >
                           {item.name}
                         </Text>
