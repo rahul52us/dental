@@ -40,12 +40,12 @@ const REPORT_TABS: {
   colorScheme: string;
   icon: React.ElementType;
 }[] = [
-  { label: "Patient", value: "patient", colorScheme: "teal", icon: RiUser3Line },
-  { label: "Doctor", value: "doctor", colorScheme: "blue", icon: RiStethoscopeLine },
-  { label: "Staff", value: "staff", colorScheme: "green", icon: RiTeamLine },
-  { label: "Appointment", value: "appointment", colorScheme: "purple", icon: RiCalendarTodoLine },
-  { label: "Recall", value: "recall", colorScheme: "orange", icon: RiNotification4Line },
-];
+    { label: "Patient", value: "patient", colorScheme: "teal", icon: RiUser3Line },
+    { label: "Doctor", value: "doctor", colorScheme: "blue", icon: RiStethoscopeLine },
+    { label: "Staff", value: "staff", colorScheme: "green", icon: RiTeamLine },
+    { label: "Appointment", value: "appointment", colorScheme: "purple", icon: RiCalendarTodoLine },
+    { label: "Recall", value: "recall", colorScheme: "orange", icon: RiNotification4Line },
+  ];
 
 const ReportsPage = observer(() => {
   const { reportStore: { getReportDownload } } = stores;
@@ -474,6 +474,7 @@ const ReportsPage = observer(() => {
                         { label: "Completed", value: "completed" },
                         { label: "Cancelled", value: "cancelled" },
                         { label: "No-Show", value: "no-show" },
+                        { label: "Arrived", value: "arrived" },
                       ]}
                       value={filters.appointment.status || ""}
                       onChange={(val: any) => handleChange("appointment", "status", val?.value || "")}

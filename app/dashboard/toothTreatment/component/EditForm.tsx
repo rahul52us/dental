@@ -54,6 +54,7 @@ const validationSchema = Yup.object().shape({
         "completed",
         "cancelled",
         "shift",
+        "arrived",
         "no-show",
       ],
       "Invalid status"
@@ -97,8 +98,8 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
     borderRadius="2xl"
     shadow="md"
     p={1}
-    // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-    // transition="all 0.2s ease"
+  // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+  // transition="all 0.2s ease"
   >
     <CardHeader pb={2}>
       <Text fontSize="xl" fontWeight="semibold" color="blue.600">
@@ -161,7 +162,7 @@ const EditAppointmentForm = observer(
         chair: data?.chair?.value,
       };
 
-      updateAppointment(replaceLabelValueObjects({...formattedData,_id : selectedDateAndTime?.data?._id}))
+      updateAppointment(replaceLabelValueObjects({ ...formattedData, _id: selectedDateAndTime?.data?._id }))
         .then(() => {
           openNotification({
             type: "success",
@@ -202,7 +203,7 @@ const EditAppointmentForm = observer(
 
         updateAppointment({
           ...values,
-          _id : selectedDateAndTime?.data?._id,
+          _id: selectedDateAndTime?.data?._id,
           ...(replaceLabelValueObjects(values) || {}),
           pic: formData?.pic || {},
           title: formData?.data,
@@ -274,60 +275,60 @@ const EditAppointmentForm = observer(
         <Formik
 
           initialValues={{
-  primaryDoctor: appointment?.primaryDoctor
-    ? {
-        label: appointment.primaryDoctor.name,
-        value: appointment.primaryDoctor._id,
-      }
-    : null,
+            primaryDoctor: appointment?.primaryDoctor
+              ? {
+                label: appointment.primaryDoctor.name,
+                value: appointment.primaryDoctor._id,
+              }
+              : null,
 
-  additionalDoctors: appointment?.additionalDoctors || [],
+            additionalDoctors: appointment?.additionalDoctors || [],
 
-  additionalStaff: [],
+            additionalStaff: [],
 
-  showCompleteData: true,
+            showCompleteData: true,
 
-  patient: appointment?.patient
-    ? {
-        label: `${appointment.patient.name} (${appointment.patient.code})`,
-        value: appointment.patient._id,
-      }
-    : null,
+            patient: appointment?.patient
+              ? {
+                label: `${appointment.patient.name} (${appointment.patient.code})`,
+                value: appointment.patient._id,
+              }
+              : null,
 
-  appointmentDate: appointment?.appointmentDate
-    ? toLocalDate(appointment.appointmentDate)
-    : "",
+            appointmentDate: appointment?.appointmentDate
+              ? toLocalDate(appointment.appointmentDate)
+              : "",
 
-  startTime: appointment?.startTime || "",
+            startTime: appointment?.startTime || "",
 
-  endTime: appointment?.endTime || "",
+            endTime: appointment?.endTime || "",
 
-  title: appointment?.title ? {label : appointment?.title, value : appointment?.title} : undefined,
+            title: appointment?.title ? { label: appointment?.title, value: appointment?.title } : undefined,
 
-  description: appointment?.description || "",
+            description: appointment?.description || "",
 
-  mode: appointment?.mode || {label : appointment?.mode, value : appointment?.mode},
+            mode: appointment?.mode || { label: appointment?.mode, value: appointment?.mode },
 
-  meetingLink: appointment?.meetingLink || "",
+            meetingLink: appointment?.meetingLink || "",
 
-  location: appointment?.location || "",
+            location: appointment?.location || "",
 
-  status: appointment?.status || {label : appointment?.status, value : appointment?.status},
+            status: appointment?.status || { label: appointment?.status, value: appointment?.status },
 
-  followUp: {
-    isFollowUp: false,
-    referenceAppointmentId: "",
-  },
+            followUp: {
+              isFollowUp: false,
+              referenceAppointmentId: "",
+            },
 
-  doctorNote: appointment?.doctorNotes || undefined,
+            doctorNote: appointment?.doctorNotes || undefined,
 
-  chair: appointment?.chair
-    ? {
-        label: appointment.chair.chairName,
-        value: appointment.chair._id,
-      }
-    : null,
-}}
+            chair: appointment?.chair
+              ? {
+                label: appointment.chair.chairName,
+                value: appointment.chair._id,
+              }
+              : null,
+          }}
 
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) =>
@@ -349,46 +350,46 @@ const EditAppointmentForm = observer(
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
                       >
                         <Flex align="end" gap={3} alignItems="center">
-  <CustomInput
-    name="patient"
-    placeholder="Search Patient"
-    type="real-time-user-search"
-    label="Patient"
-    required
-    value={values.patient}
-    onChange={(val: any) => setFieldValue("patient", val)}
-    options={
-      isPatient
-        ? [
-            {
-              label: `${patientDetails?.name} (${patientDetails?.code})`,
-              value: patientDetails?._id,
-            },
-          ]
-        : values?.patient
-        ? [values?.patient]
-        : []
-    }
-    error={errors.patient as string}
-    showError={touched.patient}
-    query={{ type: "patient" }}
-  />
+                          <CustomInput
+                            name="patient"
+                            placeholder="Search Patient"
+                            type="real-time-user-search"
+                            label="Patient"
+                            required
+                            value={values.patient}
+                            onChange={(val: any) => setFieldValue("patient", val)}
+                            options={
+                              isPatient
+                                ? [
+                                  {
+                                    label: `${patientDetails?.name} (${patientDetails?.code})`,
+                                    value: patientDetails?._id,
+                                  },
+                                ]
+                                : values?.patient
+                                  ? [values?.patient]
+                                  : []
+                            }
+                            error={errors.patient as string}
+                            showError={touched.patient}
+                            query={{ type: "patient" }}
+                          />
 
-  {!isPatient && (
-    <Text
-      as="button"
-      fontSize="sm"
-      fontWeight="medium"
-      color="blue.600"
-      _hover={{ color: "blue.700", textDecoration: "underline" }}
-      onClick={() => setIsDrawerOpen({ isOpen: true })}
-      whiteSpace="nowrap"
-      mt={4}
-    >
-      + Add new
-    </Text>
-  )}
-</Flex>
+                          {!isPatient && (
+                            <Text
+                              as="button"
+                              fontSize="sm"
+                              fontWeight="medium"
+                              color="blue.600"
+                              _hover={{ color: "blue.700", textDecoration: "underline" }}
+                              onClick={() => setIsDrawerOpen({ isOpen: true })}
+                              whiteSpace="nowrap"
+                              mt={4}
+                            >
+                              + Add new
+                            </Text>
+                          )}
+                        </Flex>
 
                         <CustomInput
                           name="primaryDoctor"

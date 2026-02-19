@@ -108,9 +108,8 @@ const AppointmentCard = ({
   shouldNotEditIcon
 }: any) => {
   const heightMultiplier = appointment.duration / SLOT_DURATION;
-  const heightStyle = `calc(${heightMultiplier * 100}% + ${
-    heightMultiplier - 1
-  }px)`;
+  const heightStyle = `calc(${heightMultiplier * 100}% + ${heightMultiplier - 1
+    }px)`;
 
   const widthPercent = totalOverlaps > 1 ? 92 / totalOverlaps : 96;
   const leftOffset = overlapIndex * (96 / totalOverlaps);
@@ -132,33 +131,33 @@ const AppointmentCard = ({
       py={2}
       pointerEvents="auto"
       label={
-  <Box>
-    <Text fontWeight="bold" fontSize="sm">
-      {appointment.patientName}
-    </Text>
+        <Box>
+          <Text fontWeight="bold" fontSize="sm">
+            {appointment.patientName}
+          </Text>
 
-    <Text fontSize="xs" opacity={0.85}>
-      👨‍⚕️ {appointment.doctorName || "—"}
-    </Text>
+          <Text fontSize="xs" opacity={0.85}>
+            👨‍⚕️ {appointment.doctorName || "—"}
+          </Text>
 
-    <Divider my={1} borderColor="gray.600" />
+          <Divider my={1} borderColor="gray.600" />
 
-    <Text fontSize="xs">
-      🩺 {appointment.treatment || "Consultation"}
-    </Text>
+          <Text fontSize="xs">
+            🩺 {appointment.treatment || "Consultation"}
+          </Text>
 
-    <Text fontSize="xs">
-      ⏰ {appointment.startTime} • {appointment.duration} min
-    </Text>
+          <Text fontSize="xs">
+            ⏰ {appointment.startTime} • {appointment.duration} min
+          </Text>
 
-    {/* Full Description */}
-    {appointment.description && (
-      <Text fontSize="xs" mt={1} opacity={0.85} whiteSpace="pre-wrap">
-        📝 {appointment.description}
-      </Text>
-    )}
-  </Box>
-}
+          {/* Full Description */}
+          {appointment.description && (
+            <Text fontSize="xs" mt={1} opacity={0.85} whiteSpace="pre-wrap">
+              📝 {appointment.description}
+            </Text>
+          )}
+        </Box>
+      }
 
 
     >
@@ -184,56 +183,56 @@ const AppointmentCard = ({
       >
         {/* Patient name (primary) */}
         <Flex align="center" maxW="100%">
-  <Text
-    fontWeight="600"
-    fontSize="sm"
-    color="gray.800"
-    noOfLines={1}
-    title={appointment.patientName}
-  >
-    {appointment.patientName}
-  </Text>
+          <Text
+            fontWeight="600"
+            fontSize="sm"
+            color="gray.800"
+            noOfLines={1}
+            title={appointment.patientName}
+          >
+            {appointment.patientName}
+          </Text>
 
-  <Text
-    fontSize="xs"
-    color="gray.600"
-    // bg="gray.100"
-    px={2}
-    py="2px"
-    borderRadius="full"
-    fontWeight="500"
-    whiteSpace="nowrap"
-  >
-    ( {appointment?.patientMobileNumber} )
-  </Text>
-</Flex>
-{editable && (
-  <Tooltip label="Edit appointment" hasArrow>
-    <IconButton
-      display={shouldNotEditIcon ? "none" : undefined}
-      aria-label="Edit appointment"
-      icon={<EditIcon />}
-      size="xs"
-      position="absolute"
-      top="4px"
-      right="4px"
-      variant="ghost"
-      zIndex={50}
-      onMouseEnter={(e) => e.stopPropagation()}   // ✅ stop parent tooltip
-      onMouseLeave={(e) => e.stopPropagation()}   // ✅ stop parent tooltip
-      onClick={(e) => {
-        e.stopPropagation();
-        handleTimeSlots({
-          open: true,
-          mode: "edit",
-          appointment,
-          chair,
-          selectedDate,
-        });
-      }}
-    />
-  </Tooltip>
-)}
+          <Text
+            fontSize="xs"
+            color="gray.600"
+            // bg="gray.100"
+            px={2}
+            py="2px"
+            borderRadius="full"
+            fontWeight="500"
+            whiteSpace="nowrap"
+          >
+            ( {appointment?.patientMobileNumber} )
+          </Text>
+        </Flex>
+        {editable && (
+          <Tooltip label="Edit appointment" hasArrow>
+            <IconButton
+              display={shouldNotEditIcon ? "none" : undefined}
+              aria-label="Edit appointment"
+              icon={<EditIcon />}
+              size="xs"
+              position="absolute"
+              top="4px"
+              right="4px"
+              variant="ghost"
+              zIndex={50}
+              onMouseEnter={(e) => e.stopPropagation()}   // ✅ stop parent tooltip
+              onMouseLeave={(e) => e.stopPropagation()}   // ✅ stop parent tooltip
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTimeSlots({
+                  open: true,
+                  mode: "edit",
+                  appointment,
+                  chair,
+                  selectedDate,
+                });
+              }}
+            />
+          </Tooltip>
+        )}
 
 
 
@@ -244,10 +243,10 @@ const AppointmentCard = ({
 
         {/* Treatment */}
         <Text fontSize="xs" mt={1}>
-  {(appointment.description || "Consultation").length > 15
-    ? (appointment.description || "Consultation").slice(0, 15) + "..."
-    : appointment.description || "Consultation"}
-</Text>
+          {(appointment.description || "Consultation").length > 15
+            ? (appointment.description || "Consultation").slice(0, 15) + "..."
+            : appointment.description || "Consultation"}
+        </Text>
 
 
         {/* Duration */}
@@ -298,35 +297,35 @@ const ScheduleGrid = ({
     });
   };
 
-const isSlotAllowed = (time: string) => {
-  if (isPastDate) return false;
+  const isSlotAllowed = (time: string) => {
+    if (isPastDate) return false;
 
-  const slotMinutes = toMinutes(time);
+    const slotMinutes = toMinutes(time);
 
-  return allowedSlots.some((slot: any) => {
-    const start = toMinutes(slot.startTime);
-    const end = toMinutes(slot.endTime);
+    return allowedSlots.some((slot: any) => {
+      const start = toMinutes(slot.startTime);
+      const end = toMinutes(slot.endTime);
 
-    // normal
-    if (end > start) {
-      return slotMinutes >= start && slotMinutes < end;
-    }
+      // normal
+      if (end > start) {
+        return slotMinutes >= start && slotMinutes < end;
+      }
 
-    // overnight → only if within declared same-day range
-    return slotMinutes >= start && slotMinutes < 24 * 60;
-  });
-};
+      // overnight → only if within declared same-day range
+      return slotMinutes >= start && slotMinutes < 24 * 60;
+    });
+  };
 
 
-const canEditAppointment = (selectedDate: Date, startTime: string) => {
-  const now = new Date();
-  const [h, m] = startTime.split(":").map(Number);
+  const canEditAppointment = (selectedDate: Date, startTime: string) => {
+    const now = new Date();
+    const [h, m] = startTime.split(":").map(Number);
 
-  const aptDate = new Date(selectedDate);
-  aptDate.setHours(h, m, 0, 0);
+    const aptDate = new Date(selectedDate);
+    aptDate.setHours(h, m, 0, 0);
 
-  return aptDate >= now;
-};
+    return aptDate >= now;
+  };
 
 
   const formatDateForInput = (date: Date | null) => {
@@ -525,32 +524,32 @@ export default function DentistScheduler({
   const [openDrawer, setOpenDrawer] = useState<any>(false);
 
 
-const allowedSlots = useMemo(() => {
-  if (!user?.companyDetails?.operatingHours) return [];
+  const allowedSlots = useMemo(() => {
+    if (!user?.companyDetails?.operatingHours) return [];
 
-  const dayNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
-  const selectedDayName = dayNames[selectedDate.getDay()];
+    const selectedDayName = dayNames[selectedDate.getDay()];
 
-  const dayConfig = user.companyDetails.operatingHours.find(
-    (d: any) => d.day === selectedDayName && d.isOpen
-  );
+    const dayConfig = user.companyDetails.operatingHours.find(
+      (d: any) => d.day === selectedDayName && d.isOpen
+    );
 
-  if (!dayConfig) return [];
+    if (!dayConfig) return [];
 
-  return dayConfig.slots.map((slot: any) => ({
-    startTime: slot.start,
-    endTime: slot.end,
-  }));
-}, [user, selectedDate]);
+    return dayConfig.slots.map((slot: any) => ({
+      startTime: slot.start,
+      endTime: slot.end,
+    }));
+  }, [user, selectedDate]);
 
 
   const timeSlots = useMemo(
@@ -559,49 +558,49 @@ const allowedSlots = useMemo(() => {
   );
 
   const fetchAppointments = async () => {
-      setLoading(true);
-      const res = await getChairSummary({
-        date: format(selectedDate, "yyyy-MM-dd"),
-      });
+    setLoading(true);
+    const res = await getChairSummary({
+      date: format(selectedDate, "yyyy-MM-dd"),
+    });
 
-      if (res?.status === "success") {
-        const allAppointments: any[] = [];
-        const chairList: any[] = [];
+    if (res?.status === "success") {
+      const allAppointments: any[] = [];
+      const chairList: any[] = [];
 
-        res.data.forEach((chair: any) => {
-          chairList.push({
-            id: chair._id,
-            name: chair.chairName,
-            chairNo: chair.chairNo,
-            color: chair.chairColor,
-          });
-
-          chair.appointments.forEach((apt: any) => {
-            allAppointments.push({
-              _id: apt._id,
-              id: apt._id,
-              patientName: apt.patient?.name || "Unknown",
-              patientMobileNumber:apt.patient?.mobileNumber || "Unknown",
-              treatment: apt.title,
-              description:apt.description,
-              doctorName: apt.primaryDoctor?.name || "--",
-              doctorMobileNumber: apt.primaryDoctor?.mobileNumber || "--",
-              startTime: apt.startTime,
-              duration: toMinutes(apt.endTime) - toMinutes(apt.startTime),
-              chairId: chair._id,
-            });
-          });
+      res.data.forEach((chair: any) => {
+        chairList.push({
+          id: chair._id,
+          name: chair.chairName,
+          chairNo: chair.chairNo,
+          color: chair.chairColor,
         });
 
-        setChairs(chairList);
-        setAppointments(allAppointments);
-      }
-      setLoading(false);
-    };
+        chair.appointments.forEach((apt: any) => {
+          allAppointments.push({
+            _id: apt._id,
+            id: apt._id,
+            patientName: apt.patient?.name || "Unknown",
+            patientMobileNumber: apt.patient?.mobileNumber || "Unknown",
+            treatment: apt.title,
+            description: apt.description,
+            doctorName: apt.primaryDoctor?.name || "--",
+            doctorMobileNumber: apt.primaryDoctor?.mobileNumber || "--",
+            startTime: apt.startTime,
+            duration: toMinutes(apt.endTime) - toMinutes(apt.startTime),
+            chairId: chair._id,
+          });
+        });
+      });
+
+      setChairs(chairList);
+      setAppointments(allAppointments);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchAppointments();
-  }, [selectedDate, getChairSummary,createdAppointmentByCalender]);
+  }, [selectedDate, getChairSummary, createdAppointmentByCalender]);
 
   if (loading) {
     return (

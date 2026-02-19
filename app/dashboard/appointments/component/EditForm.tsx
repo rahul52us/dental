@@ -78,6 +78,7 @@ const validationSchema = Yup.object().shape({
         "cancelled",
         "shift",
         "no-show",
+        "arrived",
       ],
       "Invalid status",
     )

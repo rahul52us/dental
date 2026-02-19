@@ -9,6 +9,7 @@ import {
   FaUserMd,
   FaUsers,
   FaUserTie,
+  FaUserClock,
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
@@ -36,24 +37,33 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
     id: 2,
-    name: "Patients",
+    name: "Users",
     icon: <FaUsers />,
-    url: "/dashboard/patients",
+    url: "/dashboard/users",
     role: ["admin"],
-  },
-  {
-    id: 3,
-    name: "Doctors",
-    icon: <FaUserMd />,
-    url: "/dashboard/doctors",
-    role: ["admin"],
-  },
-  {
-    id: 4,
-    name: "Staffs",
-    icon: <FaUserTie />,
-    url: "/dashboard/staffs",
-    role: ["admin"],
+    children: [
+      {
+        id: 21,
+        name: "Patients",
+        icon: <FaUsers />,
+        url: "/dashboard/patients",
+        role: ["admin"],
+      },
+      {
+        id: 3,
+        name: "Doctors",
+        icon: <FaUserMd />,
+        url: "/dashboard/doctors",
+        role: ["admin"],
+      },
+      {
+        id: 4,
+        name: "Staffs",
+        icon: <FaUserTie />,
+        url: "/dashboard/staffs",
+        role: ["admin"],
+      },
+    ],
   },
   {
     id: 5,
@@ -74,6 +84,13 @@ const sidebarDatas: SidebarItem[] = [
     name: "Book Appointment",
     icon: <BiCalendarEvent />,
     url: "/dashboard/appointments/book",
+    role: ["patient", "doctor", "admin"],
+  },
+  {
+    id: 16,
+    name: "Waiting Room",
+    icon: <FaUserClock />,
+    url: "/dashboard/appointments/waiting-room",
     role: ["patient", "doctor", "admin"],
   },
   {
