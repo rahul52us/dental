@@ -38,26 +38,26 @@ import stores from "../../../../store/stores";
 
 interface CustomInputProps {
   type?:
-    | "editor"
-    | "password"
-    | "number"
-    | "text"
-    | "radio"
-    | "file"
-    | "switch"
-    | "textarea"
-    | "select"
-    | "date"
-    | "time"
-    | "checkbox"
-    | "url"
-    | "phone"
-    | "dateAndTime"
-    | "file-drag"
-    | "tags"
-    | "real-time-user-search"
-    | "real-time-search"
-    | "timeOnly";
+  | "editor"
+  | "password"
+  | "number"
+  | "text"
+  | "radio"
+  | "file"
+  | "switch"
+  | "textarea"
+  | "select"
+  | "date"
+  | "time"
+  | "checkbox"
+  | "url"
+  | "phone"
+  | "dateAndTime"
+  | "file-drag"
+  | "tags"
+  | "real-time-user-search"
+  | "real-time-search"
+  | "timeOnly";
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -86,8 +86,8 @@ interface CustomInputProps {
   isPortal?: boolean;
   params?: any;
   query?: any;
-  parentStyle?:any;
-  shouldUpdateSelectWithValue?:any
+  parentStyle?: any;
+  shouldUpdateSelectWithValue?: any
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -118,7 +118,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   params,
   query = {},
   parentStyle = {},
-  shouldUpdateSelectWithValue=false,
+  shouldUpdateSelectWithValue = false,
   ...rest
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -135,10 +135,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
 
   useEffect(() => {
-    if(shouldUpdateSelectWithValue){
+    if (shouldUpdateSelectWithValue) {
       setUserOptions(options)
     }
-  },[options])
+  }, [options])
 
 
   console.log('options are', options)
@@ -260,7 +260,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
     }
   };
 
-  const inputBg = useColorModeValue("transparent", "gray.700");
+  const inputBg = useColorModeValue("white", "darkBrand.50");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const focusBorderColor = "brand.500";
+  const hoverBorderColor = "brand.300";
 
   const renderInputComponent = () => {
     switch (type) {
@@ -276,6 +279,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
               isRequired={required}
               disabled={disabled}
               fontSize="sm"
+              bg={inputBg}
+              borderColor={borderColor}
+              _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+              _hover={{ borderColor: hoverBorderColor }}
               {...rest}
             />
             <InputRightElement cursor="pointer" onClick={handleTogglePassword}>
@@ -297,6 +304,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             name={name}
             disabled={disabled}
+            bg={inputBg}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );
@@ -311,13 +322,16 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             name={name}
             disabled={disabled}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );
 
       case "switch":
         return (
-          <Switch name={name} onChange={onChange} isChecked={value} {...rest} />
+          <Switch name={name} onChange={onChange} isChecked={value} colorScheme="brand" {...rest} />
         );
 
       case "checkbox":
@@ -326,6 +340,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
             name={name}
             onChange={onChange}
             isChecked={value}
+            colorScheme="brand"
             {...rest}
           />
         );
@@ -338,8 +353,19 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             placeholder={placeholder}
             inputStyle={{
-              backgroundColor: "transparent",
-              borderColor: "gray.400",
+              backgroundColor: colorMode === "light" ? "white" : "#1b1f2d", // darkBrand.50
+              borderColor: colorMode === "light" ? "#c5c9ff" : "#4a5066", // brand.200 : darkBrand.200
+              color: colorMode === "light" ? "inherit" : "white",
+              width: "100%",
+              height: "40px",
+            }}
+            buttonStyle={{
+              backgroundColor: colorMode === "light" ? "#f7fafc" : "#2f3342", // gray.50 : darkBrand.100
+              borderColor: colorMode === "light" ? "#c5c9ff" : "#4a5066",
+            }}
+            dropdownStyle={{
+              backgroundColor: colorMode === "light" ? "white" : "#2f3342",
+              color: colorMode === "light" ? "black" : "white",
             }}
           />
         );
@@ -356,6 +382,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             name={name}
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );
@@ -370,15 +399,19 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 name={name}
                 disabled={disabled}
                 onKeyDown={handleTagAdd}
+                bg={inputBg}
+                borderColor={borderColor}
+                _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+                _hover={{ borderColor: hoverBorderColor }}
               />
-              <Button onClick={handleTagAdd} colorScheme="blue">
+              <Button onClick={handleTagAdd} colorScheme="brand">
                 Add
               </Button>
             </HStack>
             <Wrap mt={2}>
               {value?.map((tag: string, index: number) => (
                 <WrapItem key={index}>
-                  <Tag size="md" borderRadius="full" colorScheme="blue">
+                  <Tag size="md" borderRadius="full" colorScheme="brand">
                     <TagLabel>{tag}</TagLabel>
                     <TagCloseButton onClick={() => handleTagRemove(tag)} />
                   </Tag>
@@ -392,10 +425,11 @@ const CustomInput: React.FC<CustomInputProps> = ({
         return (
           <div
             style={{
-              border: "2px dashed #ddd",
+              border: `2px dashed ${colorMode === "light" ? "#c5c9ff" : "#4a5066"}`,
               borderRadius: "8px",
               padding: "1rem",
               textAlign: "center",
+              backgroundColor: inputBg,
             }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleFileDrop}
@@ -411,7 +445,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
               accept={accept}
             />
             <Button
-              colorScheme="blue"
+              colorScheme="brand"
               onClick={() =>
                 (
                   document.getElementById(
@@ -436,6 +470,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
             name={name}
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
+            bg={inputBg}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );
@@ -451,8 +489,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             name={name}
             disabled={disabled}
-            _placeholder={{ fontSize: "12px" }}
-            accept={accept}
+            bg={inputBg}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );
@@ -471,6 +511,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             _placeholder={{ fontSize: "12px" }}
             min={minDate}
             max={maxDate}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );
@@ -483,9 +526,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             placeholder={placeholder}
             isClearable={isClear ? true : undefined}
-            className={`chakra-select ${
-              theme ? theme.components.Select.baseStyle : ""
-            }`}
+            className={`chakra-select ${theme ? theme.components.Select.baseStyle : ""
+              }`}
             isMulti={isMulti}
             isSearchable={isSearchable}
             getOptionLabel={getOptionLabel}
@@ -494,60 +536,71 @@ const CustomInput: React.FC<CustomInputProps> = ({
             styles={{
               control: (baseStyles, state) => ({
                 ...baseStyles,
-                borderColor: state.isFocused ? "gray.200" : "gray.300",
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+                borderColor: state.isFocused
+                  ? theme.colors.brand[500]
+                  : colorMode === "light"
+                    ? theme.colors.brand[200]
+                    : theme.colors.darkBrand[200],
+                backgroundColor: colorMode === "light" ? "white" : theme.colors.darkBrand[50], // darkBrand.50
                 fontSize: "14px",
+                boxShadow: state.isFocused ? `0 0 0 1px ${theme.colors.brand[500]}` : "none",
+                ":hover": {
+                  borderColor: theme.colors.brand[300]
+                }
               }),
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
                   colorMode === "light"
                     ? isSelected
-                      ? "#4299e1"
+                      ? theme.colors.brand[100]
                       : isFocused
-                      ? "gray.100"
-                      : "white"
+                        ? theme.colors.brand[50]
+                        : "white"
                     : isSelected
-                    ? "#2b6cb0"
-                    : isFocused
-                    ? "gray.700"
-                    : "#2D3748",
-                color: colorMode === "light" ? "black" : "white",
+                      ? theme.colors.darkBrand[200]
+                      : isFocused
+                        ? theme.colors.darkBrand[100]
+                        : theme.colors.darkBrand[50],
+                color: colorMode === "light"
+                  ? (isSelected ? "brand.900" : "inherit")
+                  : "white",
                 padding: "8px 12px",
                 ":hover": {
                   backgroundColor:
-                    colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+                    colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
                 },
               }),
               menu: (baseStyles) => ({
                 ...baseStyles,
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
+                backgroundColor: colorMode === "light" ? "white" : theme.colors.darkBrand[50],
+                borderColor: colorMode === "light" ? theme.colors.brand[200] : theme.colors.darkBrand[200],
+                zIndex: 9999
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
-                color: colorMode === "light" ? "black" : "white",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
+                color: colorMode === "light" ? theme.colors.brand[700] : "white",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "blue.400" : "blue.200",
+                color: colorMode === "light" ? theme.colors.brand[700] : "white",
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "inherit" : "white",
               }),
               clearIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "inherit" : "white",
               }),
               dropdownIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "inherit" : "white",
               }),
               indicatorSeparator: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[200] : theme.colors.darkBrand[200],
               }),
             }}
             components={{
@@ -572,6 +625,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             name={name}
             disabled={disabled}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             _placeholder={{ fontSize: "12px" }}
             {...rest}
           />
@@ -590,8 +646,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
                   ? value
                   : [] // Ensure value is always an array for multi-select
                 : userOptions.find((opt: any) => opt?.value === value?.value) ||
-                  value ||
-                  null
+                value ||
+                null
             }
             onChange={(selectedOption: any) => {
               if (isMulti) {
@@ -620,60 +676,71 @@ const CustomInput: React.FC<CustomInputProps> = ({
             styles={{
               control: (baseStyles, state) => ({
                 ...baseStyles,
-                borderColor: state.isFocused ? "gray.200" : "gray.300",
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+                borderColor: state.isFocused
+                  ? theme.colors.brand[500]
+                  : colorMode === "light"
+                    ? theme.colors.brand[200]
+                    : theme.colors.darkBrand[200],
+                backgroundColor: colorMode === "light" ? "white" : theme.colors.darkBrand[50], // darkBrand.50
                 fontSize: "14px",
+                boxShadow: state.isFocused ? `0 0 0 1px ${theme.colors.brand[500]}` : "none",
+                ":hover": {
+                  borderColor: theme.colors.brand[300]
+                }
               }),
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
                   colorMode === "light"
                     ? isSelected
-                      ? "#4299e1"
+                      ? theme.colors.brand[100]
                       : isFocused
-                      ? "gray.100"
-                      : "white"
+                        ? theme.colors.brand[50]
+                        : "white"
                     : isSelected
-                    ? "#2b6cb0"
-                    : isFocused
-                    ? "gray.700"
-                    : "#2D3748",
-                color: colorMode === "light" ? "black" : "white",
+                      ? theme.colors.darkBrand[200]
+                      : isFocused
+                        ? theme.colors.darkBrand[100]
+                        : theme.colors.darkBrand[50],
+                color: colorMode === "light"
+                  ? (isSelected ? "brand.900" : "inherit")
+                  : "white",
                 padding: "8px 12px",
                 ":hover": {
                   backgroundColor:
-                    colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+                    colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
                 },
               }),
               menu: (baseStyles) => ({
                 ...baseStyles,
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
+                backgroundColor: colorMode === "light" ? "white" : theme.colors.darkBrand[50],
+                borderColor: colorMode === "light" ? theme.colors.brand[200] : theme.colors.darkBrand[200],
+                zIndex: 9999
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
-                color: colorMode === "light" ? "black" : "white",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
+                color: colorMode === "light" ? theme.colors.brand[700] : "white",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "blue.400" : "blue.200",
+                color: colorMode === "light" ? theme.colors.brand[700] : "white",
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "inherit" : "white",
               }),
               clearIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "inherit" : "white",
               }),
               dropdownIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "inherit" : "white",
               }),
               indicatorSeparator: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[200] : theme.colors.darkBrand[200],
               }),
             }}
             components={{
@@ -722,44 +789,50 @@ const CustomInput: React.FC<CustomInputProps> = ({
             styles={{
               control: (baseStyles, state) => ({
                 ...baseStyles,
-                borderColor: state.isFocused ? "gray.200" : "gray.300",
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+                borderColor: state.isFocused ? "#6269ff" : (colorMode === "light" ? "#c5c9ff" : "#4a5066"), // brand.500 : brand.200/darkBrand.200
+                backgroundColor: colorMode === "light" ? "white" : "#1b1f2d", // darkBrand.50
                 fontSize: "14px",
+                boxShadow: state.isFocused ? "0 0 0 1px #6269ff" : "none",
+                ":hover": {
+                  borderColor: "#a4a9ff" // brand.300
+                }
               }),
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
                   colorMode === "light"
                     ? isSelected
-                      ? "#4299e1"
+                      ? "#045B64" // brand.100
                       : isFocused
-                      ? "gray.100"
-                      : "white"
+                        ? "#f5f7ff" // brand.50
+                        : "white"
                     : isSelected
-                    ? "#2b6cb0"
-                    : isFocused
-                    ? "gray.700"
-                    : "#2D3748",
-                color: colorMode === "light" ? "black" : "white",
+                      ? "#4a5066" // darkBrand.200
+                      : isFocused
+                        ? "#2f3342" // darkBrand.100
+                        : "#1b1f2d",
+                color: colorMode === "light"
+                  ? (isSelected ? "white" : "#171923")
+                  : "white",
                 padding: "8px 12px",
                 ":hover": {
                   backgroundColor:
-                    colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+                    colorMode === "light" ? "#f5f7ff" : "#2f3342",
                 },
               }),
               menu: (baseStyles) => ({
                 ...baseStyles,
-                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
+                backgroundColor: colorMode === "light" ? "white" : "#1b1f2d",
+                borderColor: colorMode === "light" ? "#c5c9ff" : "#4a5066",
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+                backgroundColor: colorMode === "light" ? "#f5f7ff" : "#2f3342",
                 color: colorMode === "light" ? "black" : "white",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "blue.400" : "blue.200",
+                color: colorMode === "light" ? "#045B64" : "#eaf3f9",
               }),
               singleValue: (styles) => ({
                 ...styles,
@@ -775,7 +848,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
               }),
               indicatorSeparator: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
+                backgroundColor: colorMode === "light" ? "#c5c9ff" : "#4a5066",
               }),
             }}
             components={{
@@ -796,7 +869,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
             value={value}
             onChange={onChange}
             name={name}
-            disabled={disabled}
+            bg={inputBg}
+            borderColor={borderColor}
+            _focus={{ borderColor: focusBorderColor, boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+            _hover={{ borderColor: hoverBorderColor }}
             {...rest}
           />
         );

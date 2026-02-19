@@ -48,8 +48,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
   const headerBgColor = useColorModeValue(
-    themeConfig.colors.custom.light.primary,
-    themeConfig.colors.custom.dark.primary
+    "brand.500",
+    "darkBrand.200"
   );
 
   const headerTextColor = "white";
@@ -74,6 +74,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
         maxW={width && isDesktop ? width : undefined}
         display="flex"
         flexDirection="column"
+        bg={useColorModeValue("white", "darkBrand.50")}
       >
         {/* 🔹 HEADER */}
         {title && (

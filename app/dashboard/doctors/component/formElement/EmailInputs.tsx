@@ -9,6 +9,7 @@ import {
   Text,
   Badge,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
@@ -31,6 +32,10 @@ const EmailsInput = ({
   setFieldValue,
   errors
 }: EmailsInputProps) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("gray.200", "darkBrand.200");
+  const textColor = useColorModeValue("black", "white");
+
   const primaryIndex = values.emails.findIndex((e) => e.primary);
 
   const handlePrimaryChange = (val: string) => {
@@ -51,8 +56,8 @@ const EmailsInput = ({
   return (
     <FieldArray name="emails">
       {({ remove, push }) => (
-        <Box bg="white" p={4} borderRadius="md" boxShadow="md">
-          <Text fontWeight="bold" fontSize="lg" mb={4}>
+        <Box bg={bgBox} p={4} borderRadius="md" boxShadow="md">
+          <Text fontWeight="bold" fontSize="lg" mb={4} color={textColor}>
             Email Addresses
           </Text>
 
@@ -72,26 +77,26 @@ const EmailsInput = ({
                     borderRadius="md"
                     p={3}
                     position="relative"
-                    //   bg={email.primary ? "teal.50" : "white"}
+                    borderColor={borderColor}
+                  //   bg={email.primary ? "teal.50" : "white"}
                   >
                     <Flex align="center" mb={2}>
                       <Radio
                         value={index.toString()}
                         mr={2}
-                        aria-label={`Select primary email ${
-                          email.email || index + 1
-                        }`}
+                        aria-label={`Select primary email ${email.email || index + 1
+                          }`}
                       />
                       <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
                         <Flex gap={2}> <Text> email entered </Text>{email.primary && <Text as="span" color="red">
-                                {" "}
-                                *
-                              </Text>}</Flex>
+                          {" "}
+                          *
+                        </Text>}</Flex>
                       </Text>
 
                       {email.primary && (
                         <Badge
-                          colorScheme="teal"
+                          colorScheme="brand"
                           ml={2}
                           fontSize="0.75rem"
                           py={1}
@@ -138,7 +143,7 @@ const EmailsInput = ({
           <Button
             leftIcon={<AddIcon />}
             mt={4}
-            colorScheme="teal"
+            colorScheme="brand"
             onClick={() =>
               push({ email: "", primary: values.emails.length === 0 })
             }

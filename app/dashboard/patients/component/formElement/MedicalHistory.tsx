@@ -12,19 +12,28 @@ import {
   Stack,
   Divider,
   SimpleGrid,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
 const MedicalHistorySection = ({ values, setFieldValue }: any) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const textColor = useColorModeValue("teal.600", "white");
+  const bgActive = useColorModeValue("teal.50", "whiteAlpha.200");
+  const bgInactive = useColorModeValue("gray.50", "darkBrand.200");
+  const borderActive = useColorModeValue("teal.300", "brand.500");
+  const borderInactive = useColorModeValue("gray.200", "gray.600");
+  const borderHover = useColorModeValue("teal.400", "brand.400");
+
   return (
     <Box
       borderWidth={1}
       borderRadius="lg"
       boxShadow="md"
-      bg="white"
+      bg={bgBox}
       mt={6}
       p={6}
     >
-      <Text fontSize="2xl" fontWeight="bold" mb={6} color="teal.600">
+      <Text fontSize="2xl" fontWeight="bold" mb={6} color={textColor}>
         Medical History
       </Text>
 
@@ -42,19 +51,19 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.allergies?.checked ||
-                values.medicalHistory?.allergies?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.allergies?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.allergies?.checked ||
-                values.medicalHistory?.allergies?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.allergies?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Checkbox
-                colorScheme="teal"
+                colorScheme="brand"
                 isChecked={values.medicalHistory?.allergies?.checked || false}
                 onChange={(e) => {
                   setFieldValue(
@@ -92,15 +101,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.bloodPressure?.option ||
-                values.medicalHistory?.bloodPressure?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.bloodPressure?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.bloodPressure?.option ||
-                values.medicalHistory?.bloodPressure?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.bloodPressure?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -113,10 +122,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="high" colorScheme="teal">
+                  <Radio value="high" colorScheme="brand">
                     High
                   </Radio>
-                  <Radio value="low" colorScheme="teal">
+                  <Radio value="low" colorScheme="brand">
                     Low
                   </Radio>
                 </Stack>
@@ -146,19 +155,19 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.heartDisease?.checked ||
-                values.medicalHistory?.heartDisease?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.heartDisease?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.heartDisease?.checked ||
-                values.medicalHistory?.heartDisease?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.heartDisease?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Checkbox
-                colorScheme="teal"
+                colorScheme="brand"
                 isChecked={
                   values.medicalHistory?.heartDisease?.checked || false
                 }
@@ -198,24 +207,24 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.pacemaker?.checked ||
-                values.medicalHistory?.pacemaker?.text
+                  values.medicalHistory?.pacemaker?.text
                   ? "teal.100" // changed from teal.50 for more contrast
-                  : "gray.50"
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.pacemaker?.checked ||
-                values.medicalHistory?.pacemaker?.text
+                  values.medicalHistory?.pacemaker?.text
                   ? "teal.500" // stronger border for active state
-                  : "gray.200"
+                  : borderInactive
               }
               _hover={{
-                borderColor: "teal.400",
-                bg: "teal.50",
+                borderColor: borderHover,
+                bg: bgActive,
                 transition: "all 0.2s ease",
               }}
             >
               <Checkbox
-                colorScheme="teal"
+                colorScheme="brand"
                 size="md"
                 iconColor="white"
                 sx={{
@@ -252,8 +261,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               p={4}
               borderWidth={1}
               borderRadius="md"
-              bg="teal.50" // lighter secondary box background
-              borderColor="teal.300"
+              bg={bgActive} // lighter secondary box background
+              borderColor={borderActive}
               onClick={(e) => e.stopPropagation()}
               boxShadow="sm"
             >
@@ -296,7 +305,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
           fontSize="md"
           fontWeight="semibold"
           mb={4}
-          // color={useColorModeValue("gray.700", "gray.100")}
+        // color={useColorModeValue("gray.700", "gray.100")}
         >
           Are you taking any of the following pacemaker-related medications?{" "}
         </Text>
@@ -310,7 +319,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
           ].map((med) => (
             <Checkbox
               key={med.key}
-              colorScheme="teal"
+              colorScheme="brand"
               size="md"
               fontWeight="medium"
               iconColor="white"
@@ -356,26 +365,26 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.diabetes?.checked ||
-                values.medicalHistory?.diabetes?.insulin ||
-                values.medicalHistory?.diabetes?.text
+                  values.medicalHistory?.diabetes?.insulin ||
+                  values.medicalHistory?.diabetes?.text
                   ? "teal.100" // more contrast for active
-                  : "gray.50"
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.diabetes?.checked ||
-                values.medicalHistory?.diabetes?.insulin ||
-                values.medicalHistory?.diabetes?.text
+                  values.medicalHistory?.diabetes?.insulin ||
+                  values.medicalHistory?.diabetes?.text
                   ? "teal.500" // stronger border for active
-                  : "gray.200"
+                  : borderInactive
               }
               _hover={{
-                borderColor: "teal.400",
-                bg: "teal.50",
+                borderColor: borderHover,
+                bg: bgActive,
                 transition: "all 0.2s ease",
               }}
             >
               <Checkbox
-                colorScheme="teal"
+                colorScheme="brand"
                 size="md"
                 iconColor="white"
                 sx={{
@@ -408,67 +417,67 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
 
           {(values.medicalHistory?.diabetes?.checked ||
             values.medicalHistory?.diabetes?.insulin) && (
-            <Box
-              mt={1}
-              p={4}
-              borderWidth={1}
-              borderRadius="md"
-              bg="teal.50" // lighter sub-box color
-              borderColor="teal.300"
-              onClick={(e) => e.stopPropagation()}
-              boxShadow="sm"
-            >
-              <Input
-                size="sm"
-                mb={4}
-                placeholder="Enter diabetes details (e.g., type, diagnosis date)"
-                value={values.medicalHistory?.diabetes?.text || ""}
-                onChange={(e) => {
-                  setFieldValue("medicalHistory.diabetes.text", e.target.value);
-                }}
-                bg="white"
-                borderColor="teal.400"
-                _focus={{
-                  borderColor: "teal.500",
-                  boxShadow: "0 0 0 1px teal.500",
-                }}
-              />
-              <Checkbox
-                colorScheme="teal"
-                size="sm"
-                sx={{
-                  ".chakra-checkbox__control": {
-                    bg: values.medicalHistory?.diabetes?.insulin
-                      ? "teal.500"
-                      : "white",
-                    borderColor: "teal.400",
-                    _checked: {
-                      bg: "teal.600",
-                      borderColor: "teal.600",
-                    },
-                  },
-                }}
-                isChecked={values.medicalHistory?.diabetes?.insulin || false}
+              <Box
+                mt={1}
+                p={4}
+                borderWidth={1}
+                borderRadius="md"
+                bg={bgActive} // lighter sub-box color
+                borderColor={borderActive}
                 onClick={(e) => e.stopPropagation()}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  setFieldValue(
-                    "medicalHistory.diabetes.insulin",
-                    e.target.checked
-                  );
-                  if (
-                    e.target.checked &&
-                    !values.medicalHistory?.diabetes?.checked
-                  ) {
-                    setFieldValue("medicalHistory.diabetes.checked", true);
-                  }
-                }}
-                fontSize="sm"
+                boxShadow="sm"
               >
-                Taking insulin or other diabetes drug?
-              </Checkbox>
-            </Box>
-          )}
+                <Input
+                  size="sm"
+                  mb={4}
+                  placeholder="Enter diabetes details (e.g., type, diagnosis date)"
+                  value={values.medicalHistory?.diabetes?.text || ""}
+                  onChange={(e) => {
+                    setFieldValue("medicalHistory.diabetes.text", e.target.value);
+                  }}
+                  bg="white"
+                  borderColor="teal.400"
+                  _focus={{
+                    borderColor: "teal.500",
+                    boxShadow: "0 0 0 1px teal.500",
+                  }}
+                />
+                <Checkbox
+                  colorScheme="brand"
+                  size="sm"
+                  sx={{
+                    ".chakra-checkbox__control": {
+                      bg: values.medicalHistory?.diabetes?.insulin
+                        ? "teal.500"
+                        : "white",
+                      borderColor: "teal.400",
+                      _checked: {
+                        bg: "teal.600",
+                        borderColor: "teal.600",
+                      },
+                    },
+                  }}
+                  isChecked={values.medicalHistory?.diabetes?.insulin || false}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setFieldValue(
+                      "medicalHistory.diabetes.insulin",
+                      e.target.checked
+                    );
+                    if (
+                      e.target.checked &&
+                      !values.medicalHistory?.diabetes?.checked
+                    ) {
+                      setFieldValue("medicalHistory.diabetes.checked", true);
+                    }
+                  }}
+                  fontSize="sm"
+                >
+                  Taking insulin or other diabetes drug?
+                </Checkbox>
+              </Box>
+            )}
         </GridItem>
 
         {/* Asthma */}
@@ -480,15 +489,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.asthma?.option ||
-                values.medicalHistory?.asthma?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.asthma?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.asthma?.option ||
-                values.medicalHistory?.asthma?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.asthma?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -501,10 +510,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -533,15 +542,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.artificialJointOrValve?.option ||
-                values.medicalHistory?.artificialJointOrValve?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.artificialJointOrValve?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.artificialJointOrValve?.option ||
-                values.medicalHistory?.artificialJointOrValve?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.artificialJointOrValve?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -559,36 +568,36 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
               </RadioGroup>
               {values.medicalHistory?.artificialJointOrValve?.option ===
                 "yes" && (
-                <Input
-                  size="sm"
-                  mt={3}
-                  placeholder="Enter details"
-                  value={
-                    values.medicalHistory?.artificialJointOrValve?.text || ""
-                  }
-                  onChange={(e) => {
-                    setFieldValue(
-                      "medicalHistory.artificialJointOrValve.text",
-                      e.target.value
-                    );
-                  }}
-                />
-              )}
+                  <Input
+                    size="sm"
+                    mt={3}
+                    placeholder="Enter details"
+                    value={
+                      values.medicalHistory?.artificialJointOrValve?.text || ""
+                    }
+                    onChange={(e) => {
+                      setFieldValue(
+                        "medicalHistory.artificialJointOrValve.text",
+                        e.target.value
+                      );
+                    }}
+                  />
+                )}
             </Box>
           </FormControl>
         </GridItem>
 
-                <GridItem>
+        <GridItem>
           <FormControl id="thyroid">
             <Box
               p={4}
@@ -596,17 +605,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.thyroid?.option ||
-                values.medicalHistory?.thyroid?.type ||
-                values.medicalHistory?.thyroid?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.thyroid?.type ||
+                  values.medicalHistory?.thyroid?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.thyroid?.option ||
-                values.medicalHistory?.thyroid?.type ||
-                values.medicalHistory?.thyroid?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.thyroid?.type ||
+                  values.medicalHistory?.thyroid?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -619,10 +628,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -654,15 +663,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.kidneyDisease?.option ||
-                values.medicalHistory?.kidneyDisease?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.kidneyDisease?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.kidneyDisease?.option ||
-                values.medicalHistory?.kidneyDisease?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.kidneyDisease?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -675,10 +684,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -710,15 +719,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.tuberculosis?.option ||
-                values.medicalHistory?.tuberculosis?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.tuberculosis?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.tuberculosis?.option ||
-                values.medicalHistory?.tuberculosis?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.tuberculosis?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -731,10 +740,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -766,15 +775,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.hepatitis?.option ||
-                values.medicalHistory?.hepatitis?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.hepatitis?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.hepatitis?.option ||
-                values.medicalHistory?.hepatitis?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.hepatitis?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -787,10 +796,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -822,15 +831,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.bloodTransfusion?.option ||
-                values.medicalHistory?.bloodTransfusion?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.bloodTransfusion?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.bloodTransfusion?.option ||
-                values.medicalHistory?.bloodTransfusion?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.bloodTransfusion?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -843,10 +852,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -878,15 +887,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.cancer?.option ||
-                values.medicalHistory?.cancer?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.cancer?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.cancer?.option ||
-                values.medicalHistory?.cancer?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.cancer?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -899,10 +908,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -931,15 +940,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.neurologicCondition?.option ||
-                values.medicalHistory?.neurologicCondition?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.neurologicCondition?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.neurologicCondition?.option ||
-                values.medicalHistory?.neurologicCondition?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.neurologicCondition?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -955,10 +964,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -990,15 +999,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.epilepsy?.option ||
-                values.medicalHistory?.epilepsy?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.epilepsy?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.epilepsy?.option ||
-                values.medicalHistory?.epilepsy?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.epilepsy?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -1011,10 +1020,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1046,15 +1055,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.aids?.option ||
-                values.medicalHistory?.aids?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.aids?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.aids?.option ||
-                values.medicalHistory?.aids?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.aids?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -1067,10 +1076,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1099,15 +1108,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.hiv?.option ||
-                values.medicalHistory?.hiv?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.hiv?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.hiv?.option ||
-                values.medicalHistory?.hiv?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.hiv?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -1120,10 +1129,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1152,15 +1161,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.anaemia?.option ||
-                values.medicalHistory?.anaemia?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.anaemia?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.anaemia?.option ||
-                values.medicalHistory?.anaemia?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.anaemia?.text
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Text fontWeight="medium" mb={2}>
@@ -1173,10 +1182,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1207,15 +1216,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               boxShadow="sm"
               bg={
                 values.medicalHistory?.otherMedicalIssue?.option === "yes" ||
-                values.medicalHistory?.otherMedicalIssue?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  values.medicalHistory?.otherMedicalIssue?.text
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.otherMedicalIssue?.option === "yes" ||
-                values.medicalHistory?.otherMedicalIssue?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  values.medicalHistory?.otherMedicalIssue?.text
+                  ? borderActive
+                  : borderInactive
               }
               transition="all 0.2s ease-in-out"
             >
@@ -1231,10 +1240,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }
               >
                 <Stack direction="row" spacing={6}>
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1283,15 +1292,15 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
             Object.values(values.medicalHistory?.medications || {}).some(
               (val) => val === true || (typeof val === "string" && val)
             )
-              ? "teal.50"
-              : "gray.50"
+              ? bgActive
+              : bgInactive
           }
           borderColor={
             Object.values(values.medicalHistory?.medications || {}).some(
               (val) => val === true || (typeof val === "string" && val)
             )
-              ? "teal.300"
-              : "gray.200"
+              ? borderActive
+              : borderInactive
           }
           transition="all 0.2s ease-in-out"
         >
@@ -1312,7 +1321,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
             ].map((med) => (
               <Checkbox
                 key={med.key}
-                colorScheme="teal"
+                colorScheme="brand"
                 isChecked={
                   values.medicalHistory?.medications?.[med.key] || false
                 }
@@ -1389,13 +1398,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.smoking?.option ||
-                values.medicalHistory?.smoking?.text
+                  values.medicalHistory?.smoking?.text
                   ? "teal.50"
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.smoking?.option ||
-                values.medicalHistory?.smoking?.text
+                  values.medicalHistory?.smoking?.text
                   ? "teal.300"
                   : "gray.200"
               }
@@ -1410,10 +1419,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1445,13 +1454,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.chewingTobacco?.option ||
-                values.medicalHistory?.chewingTobacco?.text
+                  values.medicalHistory?.chewingTobacco?.text
                   ? "teal.50"
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.chewingTobacco?.option ||
-                values.medicalHistory?.chewingTobacco?.text
+                  values.medicalHistory?.chewingTobacco?.text
                   ? "teal.300"
                   : "gray.200"
               }
@@ -1466,10 +1475,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1501,13 +1510,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.alcohol?.option ||
-                values.medicalHistory?.alcohol?.text
+                  values.medicalHistory?.alcohol?.text
                   ? "teal.50"
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.alcohol?.option ||
-                values.medicalHistory?.alcohol?.text
+                  values.medicalHistory?.alcohol?.text
                   ? "teal.300"
                   : "gray.200"
               }
@@ -1522,10 +1531,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="occasional" colorScheme="teal">
+                  <Radio value="occasional" colorScheme="brand">
                     Occasional
                   </Radio>
-                  <Radio value="habitual" colorScheme="teal">
+                  <Radio value="habitual" colorScheme="brand">
                     Habitual
                   </Radio>
                 </Stack>
@@ -1562,19 +1571,19 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.women?.pregnant ||
-                values.medicalHistory?.women?.dueDate
+                  values.medicalHistory?.women?.dueDate
                   ? "teal.50"
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.women?.pregnant ||
-                values.medicalHistory?.women?.dueDate
+                  values.medicalHistory?.women?.dueDate
                   ? "teal.300"
                   : "gray.200"
               }
             >
               <Checkbox
-                colorScheme="teal"
+                colorScheme="brand"
                 isChecked={values.medicalHistory?.women?.pregnant || false}
                 onChange={(e) => {
                   setFieldValue(
@@ -1622,7 +1631,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Checkbox
-                colorScheme="teal"
+                colorScheme="brand"
                 isChecked={values.medicalHistory?.women?.breastFeeding || false}
                 onChange={(e) => {
                   setFieldValue(
@@ -1646,13 +1655,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.women?.pcodPcos?.option ||
-                values.medicalHistory?.women?.pcodPcos?.text
+                  values.medicalHistory?.women?.pcodPcos?.text
                   ? "teal.50"
                   : "gray.50"
               }
               borderColor={
                 values.medicalHistory?.women?.pcodPcos?.option ||
-                values.medicalHistory?.women?.pcodPcos?.text
+                  values.medicalHistory?.women?.pcodPcos?.text
                   ? "teal.300"
                   : "gray.200"
               }
@@ -1667,10 +1676,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="teal">
+                  <Radio value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="teal">
+                  <Radio value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>

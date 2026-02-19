@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, SimpleGrid, Text, useColorModeValue } from "@chakra-ui/react";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 
 interface AddressesInputProps {
@@ -20,16 +20,19 @@ const AddressesInput = ({
   errors,
   handleChange
 }: AddressesInputProps) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const textColor = useColorModeValue("black", "white");
+
   return (
     <Box
       borderWidth={1}
       borderRadius="md"
       boxShadow="sm"
-      bg="white"
+      bg={bgBox}
       mt={3}
       p={4}
     >
-      <Text fontWeight="bold" fontSize="lg" mb={4}>
+      <Text fontWeight="bold" fontSize="lg" mb={4} color={textColor}>
         Addresses
       </Text>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>

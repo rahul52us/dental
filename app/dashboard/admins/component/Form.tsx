@@ -6,6 +6,7 @@ import {
   GridItem,
   Text,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Formik, Form as FormikForm } from "formik";
@@ -18,6 +19,8 @@ import { generateIntialValues } from "./utils/function";
 
 const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
 
   useEffect(() => {
     if (initialData) {
@@ -42,8 +45,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
 
     password: !isEdit
       ? Yup.string()
-          .min(6, "Password must be at least 6 characters")
-          .required("Password is required")
+        .min(6, "Password must be at least 6 characters")
+        .required("Password is required")
       : Yup.string().optional(),
 
     confirmPassword: !isEdit
@@ -134,8 +137,9 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                     borderWidth={1}
                     borderRadius="md"
                     boxShadow="sm"
-                    bg="white"
+                    bg={bgBox}
                     mt={3}
+                    borderColor={borderColor}
                   >
                     <CustomInput
                       label="Title"
@@ -204,8 +208,9 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                     borderWidth={1}
                     borderRadius="md"
                     boxShadow="sm"
-                    bg="white"
+                    bg={bgBox}
                     mt={3}
+                    borderColor={borderColor}
                     p={3}
                   >
                     <CustomInput
@@ -225,8 +230,9 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                     borderWidth={1}
                     borderRadius="md"
                     boxShadow="sm"
-                    bg="white"
+                    bg={bgBox}
                     mt={3}
+                    borderColor={borderColor}
                     p={3}
                   >
                     <CustomInput
@@ -250,10 +256,11 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                   borderWidth={1}
                   borderRadius="md"
                   boxShadow="sm"
-                  bg="white"
+                  bg={bgBox}
                   mt={3}
+                  borderColor={borderColor}
                 >
-                  <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+                  <Text fontSize="lg" fontWeight="bold" mb={4} color="brand.600">
                     Company Information
                   </Text>
 
@@ -299,14 +306,15 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                     borderWidth={1}
                     borderRadius="md"
                     boxShadow="sm"
-                    bg="white"
+                    bg={bgBox}
                     mt={3}
+                    borderColor={borderColor}
                   >
                     <Text
                       fontSize="lg"
                       fontWeight="bold"
                       mb={4}
-                      color="teal.600"
+                      color="brand.600"
                     >
                       Authentication
                     </Text>
@@ -350,7 +358,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                 </Button>
                 <Button
                   type="submit"
-                  colorScheme="teal"
+                  colorScheme="brand"
                   isLoading={isLoading}
                   size="lg"
                 >

@@ -1,4 +1,4 @@
-import { Box, Text, GridItem, SimpleGrid } from "@chakra-ui/react";
+import { Box, Text, GridItem, SimpleGrid, useColorModeValue } from "@chakra-ui/react";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 
 interface AvailabilityAuthProps {
@@ -15,6 +15,10 @@ const AvailabilityAuthSection = ({
   errors,
   isEdit,
 }: AvailabilityAuthProps) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("gray.200", "darkBrand.200");
+  const textColor = useColorModeValue("teal.600", "white");
+
   return (
     <GridItem colSpan={2}>
       <Box
@@ -22,10 +26,11 @@ const AvailabilityAuthSection = ({
         borderWidth={1}
         borderRadius="md"
         boxShadow="sm"
-        bg="white"
+        bg={bgBox}
+        borderColor={borderColor}
         mt={3}
       >
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+        <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
           Availability & Authentication
         </Text>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>

@@ -8,6 +8,7 @@ import {
   Text,
   Flex,
   IconButton,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Formik, Form as FormikForm } from "formik";
@@ -51,6 +52,9 @@ const Form = observer(
     } = stores;
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const bgBox = useColorModeValue("white", "darkBrand.100");
+    const borderColor = useColorModeValue("brand.200", "darkBrand.200");
 
     const handleCloseDrawer = async () => {
       setIsDrawerOpen(false);
@@ -141,8 +145,9 @@ const Form = observer(
                           borderWidth={1}
                           borderRadius="md"
                           boxShadow="sm"
-                          bg="white"
+                          bg={bgBox}
                           mt={3}
+                          borderColor={borderColor}
                         >
                           <Flex align={"end"} gap={2}>
                             <CustomInput
@@ -160,7 +165,7 @@ const Form = observer(
                               aria-label="add"
                               variant={"ghost"}
                               icon={<AddIcon />}
-                              colorScheme="blue"
+                              colorScheme="brand"
                               onClick={() => setIsDrawerOpen(true)}
                             />
                           </Flex>
@@ -233,8 +238,9 @@ const Form = observer(
                           borderWidth={1}
                           borderRadius="md"
                           boxShadow="sm"
-                          bg="white"
+                          bg={bgBox}
                           mt={3}
+                          borderColor={borderColor}
                           p={3}
                         >
                           <CustomInput
@@ -315,11 +321,11 @@ const Form = observer(
                       </Button>
                       <Button
                         type="submit"
-                        colorScheme="teal"
+                        colorScheme="brand"
                         isLoading={loading}
                         loadingText="Submitting"
                         size="lg"
-                        _hover={{ bg: "teal.500" }}
+                        _hover={{ bg: "brand.600" }}
                         width="auto"
                       >
                         {initialData?.username ? "Update" : "Save"}

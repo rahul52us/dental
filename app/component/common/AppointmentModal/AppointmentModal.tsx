@@ -138,7 +138,7 @@ const AppointmentModal = observer(({ isOpen, onClose, pageLink }: any) => {
                 borderRadius="md"
                 p={3}
                 bg="gray.50"
-                _focus={{ borderColor: "blue.500", bg: "white" }}
+                _focus={{ borderColor: "brand.500", bg: "white" }}
                 isInvalid={!fullName.trim() && error.length > 0}
               />
               <Input
@@ -149,7 +149,7 @@ const AppointmentModal = observer(({ isOpen, onClose, pageLink }: any) => {
                 borderRadius="md"
                 p={3}
                 bg="gray.50"
-                _focus={{ borderColor: "blue.500", bg: "white" }}
+                _focus={{ borderColor: "brand.500", bg: "white" }}
                 isInvalid={!phoneNumber.trim() && error.length > 0}
               />
               <ReCAPTCHA
@@ -168,12 +168,12 @@ const AppointmentModal = observer(({ isOpen, onClose, pageLink }: any) => {
         </ModalBody>
         <ModalFooter display="flex" justifyContent="center">
           {isConfirmed ? (
-            <Button onClick={handleClose} colorScheme="blue" borderRadius="md">
+            <Button onClick={handleClose} colorScheme="brand" borderRadius="md">
               Close
             </Button>
           ) : (
             <CustomButton
-              colorScheme="blue"
+              colorScheme="brand"
               size="lg"
               w="full"
               borderRadius="md"

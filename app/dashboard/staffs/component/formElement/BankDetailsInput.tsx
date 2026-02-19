@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
@@ -51,6 +52,11 @@ const BankDetailsInput = ({
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const cancelRef = useRef<any>(null);
 
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const bgInput = useColorModeValue("gray.50", "darkBrand.50");
+  const textColor = useColorModeValue("brand.600", "white");
+
   const handlePrimaryChange = (val: string) => {
     const idx = parseInt(val, 10);
     const updatedBanks = values.bankAccounts.map((b, i) => ({
@@ -65,7 +71,7 @@ const BankDetailsInput = ({
     setIsOpen(true);
   };
 
-  const confirmDelete = (remove : any) => {
+  const confirmDelete = (remove: any) => {
     if (deleteIndex !== null) {
       remove(deleteIndex);
     }
@@ -75,13 +81,15 @@ const BankDetailsInput = ({
 
   return (
     <GridItem colSpan={3}>
-      <Box  p={4}
+      <Box p={4}
         borderWidth={1}
         borderRadius="md"
         boxShadow="sm"
-        bg="white"
-        mt={3}>
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+        bg={bgBox}
+        mt={3}
+        borderColor={borderColor}
+      >
+        <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
           Bank Details
         </Text>
         <FieldArray name="bankAccounts">
@@ -91,8 +99,8 @@ const BankDetailsInput = ({
               borderWidth={1}
               borderRadius="md"
               borderStyle="dashed"
-              borderColor="teal.400"
-              bg="gray.50"
+              borderColor={borderColor}
+              bg={bgInput}
               textAlign="center"
               position="relative"
               mt={6}
@@ -105,7 +113,7 @@ const BankDetailsInput = ({
                   </Text>
                   <Button
                     leftIcon={<AddIcon />}
-                    colorScheme="teal"
+                    colorScheme="brand"
                     mt={4}
                     onClick={() =>
                       push({
@@ -143,9 +151,8 @@ const BankDetailsInput = ({
                             <Flex align="center">
                               <Radio
                                 value={index.toString()}
-                                aria-label={`Select primary bank account ${
-                                  bank.accountNumber || index + 1
-                                }`}
+                                aria-label={`Select primary bank account ${bank.accountNumber || index + 1
+                                  }`}
                                 mr={2}
                               />
                               <Text fontWeight="semibold" noOfLines={1}>
@@ -285,7 +292,7 @@ const BankDetailsInput = ({
                   <Button
                     leftIcon={<AddIcon />}
                     mt={6}
-                    colorScheme="teal"
+                    colorScheme="brand"
                     onClick={() =>
                       push({
                         accountHolder: "",

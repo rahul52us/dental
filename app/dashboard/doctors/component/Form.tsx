@@ -9,6 +9,7 @@ import {
   IconButton,
   SimpleGrid,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
@@ -42,6 +43,9 @@ const Form = observer(
     } = stores;
     const [formData, setFormData] = useState<any>(initialData);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const bgBox = useColorModeValue("white", "darkBrand.100");
+    const borderColor = useColorModeValue("brand.200", "darkBrand.200");
 
     useEffect(() => {
       if (initialData) {
@@ -133,8 +137,9 @@ const Form = observer(
                           borderWidth={1}
                           borderRadius="md"
                           boxShadow="sm"
-                          bg="white"
+                          bg={bgBox}
                           mt={3}
+                          borderColor={borderColor}
                         >
                           <Flex gap={2} align={"end"}>
                             <CustomInput
@@ -152,7 +157,7 @@ const Form = observer(
                               aria-label="add"
                               variant={"ghost"}
                               icon={<AddIcon />}
-                              colorScheme="blue"
+                              colorScheme="brand"
                               onClick={() => setIsDrawerOpen(true)}
                             />
                           </Flex>
@@ -225,8 +230,9 @@ const Form = observer(
                           borderWidth={1}
                           borderRadius="md"
                           boxShadow="sm"
-                          bg="white"
+                          bg={bgBox}
                           mt={3}
+                          borderColor={borderColor}
                           p={3}
                         >
                           <CustomInput
@@ -246,8 +252,9 @@ const Form = observer(
                           borderWidth={1}
                           borderRadius="md"
                           boxShadow="sm"
-                          bg="white"
+                          bg={bgBox}
                           mt={3}
+                          borderColor={borderColor}
                           p={3}
                         >
                           <CustomInput
@@ -328,11 +335,11 @@ const Form = observer(
                       </Button>
                       <Button
                         type="submit"
-                        colorScheme="teal"
+                        colorScheme="brand"
                         isLoading={loading}
                         loadingText="Submitting"
                         size="lg"
-                        _hover={{ bg: "teal.500" }}
+                        _hover={{ bg: "brand.600" }}
                         width="auto"
                       >
                         {initialData?.username ? "Update" : "Save"}

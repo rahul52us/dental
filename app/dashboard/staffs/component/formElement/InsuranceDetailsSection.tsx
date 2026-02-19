@@ -7,6 +7,7 @@ import {
   SimpleGrid,
   IconButton,
   Grid,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -20,6 +21,10 @@ const InsuranceDetailsSection = ({
   setFieldValue,
   errors,
 }: any) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const bgInput = useColorModeValue("gray.50", "darkBrand.50");
+  const textColor = useColorModeValue("brand.600", "white");
   return (
     <GridItem colSpan={2}>
       <Box
@@ -27,10 +32,11 @@ const InsuranceDetailsSection = ({
         borderWidth={1}
         borderRadius="md"
         boxShadow="sm"
-        bg="white"
+        bg={bgBox}
         mt={3}
+        borderColor={borderColor}
       >
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+        <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
           Insurance Details
         </Text>
 
@@ -46,7 +52,8 @@ const InsuranceDetailsSection = ({
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="xs"
-                      bg="gray.50"
+                      bg={bgInput}
+                      borderColor={borderColor}
                     >
                       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                         {/* Insurance Type */}
@@ -148,17 +155,17 @@ const InsuranceDetailsSection = ({
                     borderWidth={1}
                     borderRadius="md"
                     borderStyle="dashed"
-                    borderColor="teal.400"
-                    bg="gray.50"
+                    borderColor={borderColor}
+                    bg={bgInput}
                     textAlign="center"
                     position="relative"
                   >
-                    <Text fontSize="md" color="teal.600" mb={3}>
+                    <Text fontSize="md" color={textColor} mb={3}>
                       No insurance records yet.
                     </Text>
                     <Button
                       leftIcon={<FiPlus />}
-                      colorScheme="teal"
+                      colorScheme="brand"
                       onClick={() =>
                         push({
                           type: "",
@@ -180,7 +187,7 @@ const InsuranceDetailsSection = ({
               {values.insurances && values.insurances.length > 0 && (
                 <Button
                   leftIcon={<FiPlus />}
-                  colorScheme="teal"
+                  colorScheme="brand"
                   mt={4}
                   onClick={() =>
                     push({

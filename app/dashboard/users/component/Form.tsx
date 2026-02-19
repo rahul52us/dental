@@ -9,6 +9,7 @@ import {
   VStack,
   IconButton,
   Divider,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FieldArray, Formik, Form as FormikForm } from "formik";
@@ -26,6 +27,11 @@ import MasterDataForm from "../../masters/page";
 const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const bgInput = useColorModeValue("gray.50", "darkBrand.50");
+  const textColor = useColorModeValue("brand.600", "white");
 
   useEffect(() => {
     if (initialData) {
@@ -193,7 +199,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         borderWidth={1}
                         borderRadius="md"
                         boxShadow="sm"
-                        bg="white"
+                        bg={bgBox}
+                        borderColor={borderColor}
                         mt={3}
                       >
                         <Flex align={'end'} gap={2}>
@@ -279,7 +286,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         borderWidth={1}
                         borderRadius="md"
                         boxShadow="sm"
-                        bg="white"
+                        bg={bgBox}
+                        borderColor={borderColor}
                         mt={3}
                         p={3}
                       >
@@ -299,7 +307,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         borderWidth={1}
                         borderRadius="md"
                         boxShadow="sm"
-                        bg="white"
+                        bg={bgBox}
+                        borderColor={borderColor}
                         mt={3}
                         p={3}
                       >
@@ -324,7 +333,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       fontSize="lg"
                       fontWeight="bold"
                       mb={4}
-                      color="teal.600"
+                      color={textColor}
                     >
                       Professional Information
                     </Text>
@@ -333,7 +342,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="sm"
-                      bg="white"
+                      bg={bgBox}
+                      borderColor={borderColor}
                       mt={3}
                       columns={{ base: 1, md: 2 }}
                       spacing={4}
@@ -426,7 +436,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         borderWidth={1}
                         borderRadius="md"
                         boxShadow="sm"
-                        bg="white"
+                        bg={bgBox}
+                        borderColor={borderColor}
                         mt={3}
                         p={3}
                       >
@@ -459,7 +470,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                           fontSize="lg"
                           fontWeight="bold"
                           mb={4}
-                          color="teal.600"
+                          color={textColor}
                         >
                           Services
                         </Text>
@@ -488,7 +499,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                           fontSize="lg"
                           fontWeight="bold"
                           mb={4}
-                          color="teal.600"
+                          color={textColor}
                         >
                           Conditions
                         </Text>
@@ -511,14 +522,15 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="sm"
-                      bg="white"
+                      bg={bgBox}
+                      borderColor={borderColor}
                       mt={3}
                     >
                       <Text
                         fontSize="lg"
                         fontWeight="bold"
                         mb={4}
-                        color="teal.600"
+                        color={textColor}
                       >
                         Affiliations
                       </Text>
@@ -534,7 +546,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                                 borderWidth={1}
                                 borderRadius="md"
                                 boxShadow="xs"
-                                bg="gray.50"
+                                bg={bgInput}
+                                borderColor={borderColor}
                               >
                                 <CustomInput
                                   label={`Affiliation Title ${index + 1}`}
@@ -601,7 +614,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                                   color: "#FFFFFF",
                                 })
                               }
-                              colorScheme="teal"
+                              colorScheme="brand"
                               size="md"
                             >
                               Add Affiliation
@@ -615,14 +628,15 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="sm"
-                      bg="white"
+                      bg={bgBox}
+                      borderColor={borderColor}
                       mt={3}
                     >
                       <Text
                         fontSize="lg"
                         fontWeight="bold"
                         mb={4}
-                        color="teal.600"
+                        color={textColor}
                       >
                         Statistics
                       </Text>
@@ -640,7 +654,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                                   borderWidth={1}
                                   borderRadius="md"
                                   boxShadow="xs"
-                                  bg="gray.50"
+                                  bg={bgInput}
+                                  borderColor={borderColor}
                                   position="relative"
                                 >
                                   <CustomInput
@@ -649,14 +664,14 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                                     placeholder="Enter Value"
                                     value={stat.value}
                                     onChange={handleChange}
-                                    // error={
-                                    //   errors.stats?.[index]?.value &&
-                                    //   touched.stats?.[index]?.value
-                                    // }
-                                    // showError={
-                                    //   errors.stats?.[index]?.value &&
-                                    //   touched.stats?.[index]?.value
-                                    // }
+                                  // error={
+                                  //   errors.stats?.[index]?.value &&
+                                  //   touched.stats?.[index]?.value
+                                  // }
+                                  // showError={
+                                  //   errors.stats?.[index]?.value &&
+                                  //   touched.stats?.[index]?.value
+                                  // }
                                   />
                                 </Box>
                               ))}
@@ -673,7 +688,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       p={4}
                       borderRadius="lg"
                       boxShadow="lg"
-                      bg="gray.50"
+                      bg={bgBox}
                     >
                       <Text fontSize="xl" fontWeight="bold" mb={2}>
                         Reviews
@@ -691,7 +706,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                                   p={4}
                                   borderRadius="md"
                                   boxShadow="md"
-                                  bg="white"
+                                  bg={bgInput}
+                                  borderColor={borderColor}
                                   position="relative"
                                   gap={4}
                                 >
@@ -788,7 +804,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                             {/* Add Review Button */}
                             <Button
                               leftIcon={<FiPlus />}
-                              colorScheme="blue"
+                              colorScheme="brand"
                               mt={4}
                               onClick={() =>
                                 push({ description: "", rating: "" })
@@ -807,14 +823,15 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="sm"
-                      bg="white"
+                      bg={bgBox}
+                      borderColor={borderColor}
                       mt={3}
                     >
                       <Text
                         fontSize="lg"
                         fontWeight="bold"
                         mb={4}
-                        color="teal.600"
+                        color={textColor}
                       >
                         Availability & Authentication
                       </Text>
@@ -890,7 +907,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                     </Button>
                     <Button
                       type="submit"
-                      colorScheme="teal"
+                      colorScheme="brand"
                       isLoading={isSubmitting}
                       loadingText="Submitting"
                       size="lg"

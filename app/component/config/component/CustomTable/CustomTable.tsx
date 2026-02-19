@@ -305,7 +305,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   // const cellProps = cells ? { border: "1px solid gray" } : {};
-  const headerBg = useColorModeValue("brand.100", "darkBrand.100");
+  const headerBg = useColorModeValue("brand.100", "darkBrand.200");
   // const borderColor = useColorModeValue("gray.300", "gray.600");
 
   const bodyBg = useColorModeValue("white", "darkBrand.50");

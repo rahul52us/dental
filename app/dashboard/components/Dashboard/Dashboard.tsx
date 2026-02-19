@@ -8,6 +8,7 @@ import {
   Skeleton,
   Text,
   AspectRatio,
+  useToken,
 } from "@chakra-ui/react";
 import {
   BarElement,
@@ -41,16 +42,6 @@ ChartJS.register(
 );
 
 // Extend Chakra UI theme
-const theme = extendTheme({
-  colors: {
-    brand: {
-      100: "#f7fafc",
-      500: "#3182ce",
-      900: "#1a365d",
-    },
-  },
-});
-
 const dummyData = {
   visits: 1200,
   patients: 350,
@@ -59,12 +50,6 @@ const dummyData = {
   patientGrowth: [50, 230, 180, 210, 230, 370, 350],
   monthlyVisits: [100, 200, 150, 300, 250, 400, 500],
 };
-
-const chartColors = [
-  { bg: "#2B6CB0", border: "#2C5282" },
-  { bg: "#38A169", border: "#2F855A" },
-  { bg: "#DD6B20", border: "#C05621" }
-];
 
 
 const barChartOptions: any = {
@@ -176,12 +161,12 @@ const lineChartData: any = {
     {
       label: "Growth",
       data: dummyData.patientGrowth,
-      borderColor: "#805AD5", // Purple 500
+      borderColor: "#045B64", // brand.100 equivalent or use token in component
       backgroundColor: (context: any) => {
         const ctx = context.chart.ctx;
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, "rgba(128, 90, 213, 0.4)");
-        gradient.addColorStop(1, "rgba(128, 90, 213, 0.0)");
+        gradient.addColorStop(0, "rgba(4, 91, 100, 0.4)"); // brand.100
+        gradient.addColorStop(1, "rgba(4, 91, 100, 0.0)");
         return gradient;
       },
       fill: true,
@@ -199,30 +184,33 @@ const Dashboard = observer(() => {
   }, [getDashboardCount]);
 
 
-const dashboardData = [
-  {
-    label: "Doctors",
-    value: count?.data?.doctors || 0,
-    icon: FaUserMd,
-    color: "blue",
-    href: "/dashboard/doctors",
-  },
-  {
-    label: "Patients",
-    value: count?.data?.patients || 0,
-    icon: FaUserInjured,
-    color: "green",
-    href: "/dashboard/patients",
-  },
-  {
-    label: "Staff",
-    value: count?.data?.staffs || 0,
-    icon: FaUserTie,
-    color: "purple",
-    href: "/dashboard/staffs",
-  },
-];
+  const dashboardData = [
+    {
+      label: "Doctors",
+      value: count?.data?.doctors || 0,
+      icon: FaUserMd,
+      color: "blue",
+      href: "/dashboard/doctors",
+    },
+    {
+      label: "Patients",
+      value: count?.data?.patients || 0,
+      icon: FaUserInjured,
+      color: "green",
+      href: "/dashboard/patients",
+    },
+    {
+      label: "Staff",
+      value: count?.data?.staffs || 0,
+      icon: FaUserTie,
+      color: "purple",
+      href: "/dashboard/staffs",
+    },
+  ];
 
+
+  // Get brand colors from theme
+  const [brand500, brand600, brand900] = useToken("colors", ["brand.500", "brand.600", "brand.900"]);
 
   // Dynamic color handling for bar chart
   const userChartData = {
@@ -232,14 +220,14 @@ const dashboardData = [
         label: "Count",
         data: dashboardData.map((d) => d.value),
         backgroundColor: [
-          "rgba(49, 130, 206, 0.8)", // Blue
-          "rgba(56, 161, 105, 0.8)", // Green
-          "rgba(128, 90, 213, 0.8)", // Purple
+          brand500, // Brand 500
+          brand600, // Brand 600
+          brand900, // Brand 900
         ],
         hoverBackgroundColor: [
-          "rgba(49, 130, 206, 1)",
-          "rgba(56, 161, 105, 1)",
-          "rgba(128, 90, 213, 1)",
+          brand600,
+          brand900,
+          brand500,
         ],
         borderRadius: 8,
         barThickness: 45,
@@ -249,71 +237,71 @@ const dashboardData = [
   };
 
   return (
-      <Box p={5} minH="100vh">
-        <Box mx="auto">
-          <Heading mb={8} size="lg" color="blue.800" letterSpacing="tight">
-            Dashboard
-          </Heading>
+    <Box p={5} minH="100vh">
+      <Box mx="auto">
+        <Heading mb={8} size="lg" color="blue.800" letterSpacing="tight">
+          Dashboard
+        </Heading>
 
-          {/* Cards Section */}
-          <Box mb={10}>
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-              {dashboardData.map((item, index) => (
-                <Skeleton
-                  isLoaded={!count?.loading}
-                  key={index}
-                  borderRadius="xl"
-                >
-                  <DashboardCard
-                    label={item.label}
-                    href={item.href}
-                    value={item.value}
-                    icon={item.icon}
-                    color={item.color}
-                  />
-                </Skeleton>
-              ))}
-            </SimpleGrid>
+        {/* Cards Section */}
+        <Box mb={10}>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+            {dashboardData.map((item, index) => (
+              <Skeleton
+                isLoaded={!count?.loading}
+                key={index}
+                borderRadius="xl"
+              >
+                <DashboardCard
+                  label={item.label}
+                  href={item.href}
+                  value={item.value}
+                  icon={item.icon}
+                  color={item.color}
+                />
+              </Skeleton>
+            ))}
+          </SimpleGrid>
+        </Box>
+
+        {/* Charts Section */}
+        <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} mb={10}>
+          {/* Bar Chart */}
+          <Box
+            bg="white"
+            p={6}
+            borderRadius="xl"
+            boxShadow="lg"
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
+              Users Overview
+            </Text>
+            <AspectRatio ratio={16 / 9} width="100%">
+              <Bar data={userChartData} options={barChartOptions} />
+            </AspectRatio>
           </Box>
 
-          {/* Charts Section */}
-          <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} mb={10}>
-            {/* Bar Chart */}
-            <Box
-              bg="white"
-              p={6}
-              borderRadius="xl"
-              boxShadow="lg"
-              border="1px solid"
-              borderColor="gray.100"
-            >
-              <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
-                Users Overview
-              </Text>
-              <AspectRatio ratio={16 / 9} width="100%">
-                <Bar data={userChartData} options={barChartOptions} />
-              </AspectRatio>
-            </Box>
-
-            {/* Line Chart */}
-            <Box
-              bg="white"
-              p={6}
-              borderRadius="xl"
-              boxShadow="lg"
-              border="1px solid"
-              borderColor="gray.100"
-            >
-              <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
-                Patient Growth
-              </Text>
-              <AspectRatio ratio={16 / 9} width="100%">
-                <Line data={lineChartData} options={lineChartOptions} />
-              </AspectRatio>
-            </Box>
-          </Grid>
-        </Box>
+          {/* Line Chart */}
+          <Box
+            bg="white"
+            p={6}
+            borderRadius="xl"
+            boxShadow="lg"
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
+              Patient Growth
+            </Text>
+            <AspectRatio ratio={16 / 9} width="100%">
+              <Line data={lineChartData} options={lineChartOptions} />
+            </AspectRatio>
+          </Box>
+        </Grid>
       </Box>
+    </Box>
   );
 });
 

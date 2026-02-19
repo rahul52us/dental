@@ -191,8 +191,8 @@ const AttendanceCalendar = ({
     }),
   };
 
-  const calendarBg = useColorModeValue("gray.50", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const calendarBg = useColorModeValue("white", "darkBrand.50");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
 
   const handleOpenAddDrawer = (data: any) => {
     console.log("the data are", data);
@@ -228,8 +228,8 @@ const AttendanceCalendar = ({
         borderColor={borderColor}
       >
         <Flex align="center" gap={3}>
-          <Icon as={FaCalendarAlt} color="blue.500" boxSize={5} />
-          <Heading size="md" color="gray.700">
+          <Icon as={FaCalendarAlt} color="brand.500" boxSize={5} />
+          <Heading size="md" color={useColorModeValue("brand.600", "white")}>
             Appointment Calendar
           </Heading>
         </Flex>
@@ -249,7 +249,7 @@ const AttendanceCalendar = ({
               icon={<FaFileAlt size="22px" />}
               size="lg"
               variant="solid"
-              colorScheme="blue"
+              colorScheme="brand"
               borderRadius="full"
               boxShadow="md"
               _hover={{
@@ -283,12 +283,12 @@ const AttendanceCalendar = ({
         open={openDrawer}
         close={() => setOpenDrawer(false)}
         title={
-  selectedDateTime
-    ? `Selected: ${moment(selectedDateTime.start).format(
-        "dddd, DD MMM YYYY"
-      )}`
-    : "Select a date"
-}
+          selectedDateTime
+            ? `Selected: ${moment(selectedDateTime.start).format(
+              "dddd, DD MMM YYYY"
+            )}`
+            : "Select a date"
+        }
 
       >
         <Box p={2}>

@@ -206,7 +206,7 @@ const SidebarPopover = observer(
                 bg={
                   customBg ||
                   (itemIsActive
-                    ? useColorModeValue("blue.50", "blue.900")
+                    ? useColorModeValue("brand.50", "darkBrand.200")
                     : "transparent")
                 }
                 color={
@@ -219,7 +219,7 @@ const SidebarPopover = observer(
                 }
                 fontWeight={itemIsActive ? "600" : "inherit"}
                 _hover={{
-                  bg: customBg || useColorModeValue("blue.50", "blue.700"),
+                  bg: customBg || useColorModeValue("brand.50", "darkBrand.100"),
                   filter: customBg ? "brightness(0.92)" : "none",
                   color: useColorModeValue(
                     themeConfig.colors.custom.light.primary,
@@ -254,7 +254,7 @@ const SidebarPopover = observer(
               bg={useColorModeValue("white", "gray.800")}
             >
               <PopoverArrow />
-              <PopoverHeader bg={useColorModeValue("blue.50", "blue.900")}>
+              <PopoverHeader bg={useColorModeValue("brand.50", "darkBrand.200")}>
                 <Flex
                   align="center"
                   justify="space-between"
@@ -335,10 +335,10 @@ const SidebarAccordion = observer(
 
     const activeBg = useColorModeValue(
       themeConfig.colors.custom.light.primary,
-      "blue.900"
+      "darkBrand.200"
     );
-    const hoverBg = useColorModeValue("blue.50", "blue.700");
-    const hoverColor = useColorModeValue("teal.700", "teal.300");
+    const hoverBg = useColorModeValue("brand.50", "darkBrand.100");
+    const hoverColor = useColorModeValue("brand.700", "brand.300");
     const primaryColor = useColorModeValue(
       themeConfig.colors.custom.light.primary,
       themeConfig.colors.custom.dark.primary

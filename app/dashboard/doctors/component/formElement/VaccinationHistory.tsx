@@ -7,6 +7,7 @@ import {
   SimpleGrid,
   IconButton,
   Grid,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -20,6 +21,11 @@ const VaccinationHistorySection = ({
   setFieldValue,
   errors,
 }: any) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("gray.200", "darkBrand.200");
+  const bgInput = useColorModeValue("gray.50", "darkBrand.200");
+  const textColor = useColorModeValue("teal.600", "white");
+
   return (
     <GridItem colSpan={2}>
       <Box
@@ -27,10 +33,11 @@ const VaccinationHistorySection = ({
         borderWidth={1}
         borderRadius="md"
         boxShadow="sm"
-        bg="white"
+        bg={bgBox}
+        borderColor={borderColor}
         mt={3}
       >
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+        <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
           Vaccination History
         </Text>
 
@@ -46,7 +53,8 @@ const VaccinationHistorySection = ({
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="xs"
-                      bg="gray.50"
+                      bg={bgInput}
+                      borderColor={borderColor}
                     >
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         <CustomInput
@@ -131,16 +139,16 @@ const VaccinationHistorySection = ({
                     borderWidth={1}
                     borderRadius="md"
                     borderStyle="dashed"
-                    borderColor="teal.400"
-                    bg="gray.50"
+                    borderColor={borderColor}
+                    bg={bgInput}
                     textAlign="center"
                   >
-                    <Text fontSize="md" color="teal.600" mb={3}>
+                    <Text fontSize="md" color={textColor} mb={3}>
                       No vaccination records yet.
                     </Text>
                     <Button
                       leftIcon={<FiPlus />}
-                      colorScheme="teal"
+                      colorScheme="brand"
                       onClick={() =>
                         push({
                           type: "",
@@ -161,7 +169,7 @@ const VaccinationHistorySection = ({
               {values.vaccinations && values.vaccinations.length > 0 && (
                 <Button
                   leftIcon={<FiPlus />}
-                  colorScheme="teal"
+                  colorScheme="brand"
                   mt={4}
                   onClick={() =>
                     push({

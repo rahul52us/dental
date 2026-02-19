@@ -7,6 +7,7 @@ import {
   Button,
   Divider,
   Center,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import React from "react";
@@ -14,16 +15,23 @@ import CustomInput from "../../../../component/config/component/customInput/Cust
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
 const DegreeInfo = ({ errors, values, handleChange }: any) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("gray.300", "darkBrand.200");
+  const bgInput = useColorModeValue("gray.50", "darkBrand.200");
+  const textColor = useColorModeValue("black", "white");
+
+
   return (
     <Box
       p={4}
       borderWidth={1}
       borderRadius="lg"
       boxShadow="md"
-      bg="white"
+      bg={bgBox}
+      borderColor={borderColor}
       mt={3}
     >
-      <Text fontWeight="bold" fontSize="xl" mb={4}>
+      <Text fontWeight="bold" fontSize="xl" mb={4} color={textColor}>
         Degree Information
       </Text>
 
@@ -37,15 +45,15 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
                 borderWidth={1}
                 borderRadius="md"
                 borderStyle="dashed"
-                borderColor="gray.300"
-                bg="gray.50"
+                borderColor={borderColor}
+                bg={bgInput}
                 mb={4}
               >
                 <Text fontSize="md" color="gray.500">
                   No degree information exists.
                 </Text>
                 <Button
-                  colorScheme="teal"
+                  colorScheme="brand"
                   size="sm"
                   mt={3}
                   leftIcon={<AddIcon />}
@@ -130,7 +138,7 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
                 <Divider my={4} />
 
                 <Button
-                  colorScheme="teal"
+                  colorScheme="brand"
                   leftIcon={<AddIcon />}
                   mt={4}
                   onClick={() =>

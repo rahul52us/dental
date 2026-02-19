@@ -14,6 +14,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -31,7 +32,12 @@ const VaccinationHistorySection = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
-  const confirmDelete = (remove : any) => {
+  const bgBox = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const bgInput = useColorModeValue("gray.50", "darkBrand.50");
+  const textColor = useColorModeValue("brand.600", "white");
+
+  const confirmDelete = (remove: any) => {
     if (deleteIndex !== null) {
       remove(deleteIndex);
       setDeleteIndex(null);
@@ -46,10 +52,11 @@ const VaccinationHistorySection = ({
         borderWidth={1}
         borderRadius="md"
         boxShadow="sm"
-        bg="white"
+        bg={bgBox}
         mt={3}
+        borderColor={borderColor}
       >
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+        <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
           Vaccination History
         </Text>
 
@@ -65,7 +72,8 @@ const VaccinationHistorySection = ({
                       borderWidth={1}
                       borderRadius="md"
                       boxShadow="xs"
-                      bg="gray.50"
+                      bg={bgInput}
+                      borderColor={borderColor}
                     >
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         <CustomInput
@@ -153,36 +161,36 @@ const VaccinationHistorySection = ({
                     borderWidth={1}
                     borderRadius="md"
                     borderStyle="dashed"
-                    borderColor="teal.400"
-                    bg="gray.50"
+                    borderColor={borderColor}
+                    bg={bgInput}
                     textAlign="center"
                     position="relative">
-                  <Text color="gray.500" textAlign="center">
-                    No vaccination records added yet.
-                  </Text>
-                  <Button
-                leftIcon={<FiPlus />}
-                colorScheme="teal"
-                mt={4}
-                onClick={() =>
-                  push({
-                    type: "",
-                    dateAdministered: "",
-                    nextDueDate: "",
-                    reminder: "",
-                    remarks: "",
-                  })
-                }
-              >
-                Add Vaccine
-              </Button>
+                    <Text color="gray.500" textAlign="center">
+                      No vaccination records added yet.
+                    </Text>
+                    <Button
+                      leftIcon={<FiPlus />}
+                      colorScheme="teal"
+                      mt={4}
+                      onClick={() =>
+                        push({
+                          type: "",
+                          dateAdministered: "",
+                          nextDueDate: "",
+                          reminder: "",
+                          remarks: "",
+                        })
+                      }
+                    >
+                      Add Vaccine
+                    </Button>
                   </Box>
                 )}
               </VStack>
 
               <Button
                 leftIcon={<FiPlus />}
-                colorScheme="teal"
+                colorScheme="brand"
                 mt={4}
                 onClick={() =>
                   push({
