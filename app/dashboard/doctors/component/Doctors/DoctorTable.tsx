@@ -49,7 +49,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       }
 
       getAllUsers(query)
-        .then(() => {})
+        .then(() => { })
         .catch((err) => {
           openNotification({
             type: "error",
@@ -82,11 +82,6 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const TherapistTableColumns = [
     {
-      headerName: "S.No.",
-      key: "sno",
-      props: { row: { textAlign: "center" } },
-    },
-    {
       headerName: "Pic",
       key: "user",
       type: "component",
@@ -104,53 +99,42 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     },
     {
       headerName: "Name",
-      key: "name",
-      props: { row: { textAlign: "center" } },
-    },
-    {
-      headerName: "Code",
-      key: "code",
-      props: { row: { textAlign: "center" } },
-    },
-    {
-      headerName: "Gender",
       key: "gender",
       type: "component",
       metaData: {
         component: (dt: any) => {
           const genderLabel =
-            genderOptions.find((option: any) => option.value === dt?.gender)
-              ?.label || "--";
+            genderOptions.find((opt: any) => opt.value === dt?.gender)?.label ||
+            "--";
 
           const colorScheme =
             genderLabel === "Male"
               ? "blue"
               : genderLabel === "Female"
-              ? "pink"
-              : "gray";
+                ? "pink"
+                : "gray";
 
           return (
-            <Box m={1} textAlign="center" minW="120px">
-              <Badge
-                colorScheme={colorScheme}
-                variant="solid"
-                px={4}
-                py={1.5}
-                borderRadius="full"
-                fontSize="xs"
-                fontWeight="semibold"
-                boxShadow="sm"
-              >
-                {genderLabel}
-              </Badge>
-            </Box>
+            <Badge
+              colorScheme={colorScheme}
+              variant="solid"
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              fontSize="sm"
+              fontWeight="semibold"
+            >
+              {dt?.name}
+            </Badge>
           );
         },
       },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
+      props: { row: { minW: 120, textAlign: "center" } },
+    },
+    {
+      headerName: "Code",
+      key: "code",
+      props: { row: { textAlign: "center" } },
     },
     {
       headerName: "Mobile No.",
@@ -209,7 +193,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         columns={TherapistTableColumns}
         actions={{
           actionBtn: {
-            resetData:false,
+            resetData: false,
             addKey: {
               showAddButton: true,
               function: () => {

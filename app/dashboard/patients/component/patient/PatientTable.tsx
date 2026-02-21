@@ -93,11 +93,6 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const PatientTableColumns = [
     {
-      headerName: "S.No.",
-      key: "sno",
-      props: { row: { textAlign: "center" } },
-    },
-    {
       headerName: "Pic",
       key: "user",
       type: "component",
@@ -112,16 +107,6 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     },
     {
       headerName: "Name",
-      key: "name",
-      props: { row: { textAlign: "center" } },
-    },
-    {
-      headerName: "Code",
-      key: "code",
-      props: { row: { textAlign: "center" } },
-    },
-    {
-      headerName: "Gender",
       key: "gender",
       type: "component",
       metaData: {
@@ -134,8 +119,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             genderLabel === "Male"
               ? "blue"
               : genderLabel === "Female"
-              ? "pink"
-              : "gray";
+                ? "pink"
+                : "gray";
 
           return (
             <Badge
@@ -147,12 +132,17 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               fontSize="sm"
               fontWeight="semibold"
             >
-              {genderLabel}
+              {dt?.name}
             </Badge>
           );
         },
       },
       props: { row: { minW: 120, textAlign: "center" } },
+    },
+    {
+      headerName: "Code",
+      key: "code",
+      props: { row: { textAlign: "center" } },
     },
     {
       headerName: "Mobile No.",

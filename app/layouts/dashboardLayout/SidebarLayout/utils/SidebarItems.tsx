@@ -36,19 +36,21 @@ const sidebarDatas: SidebarItem[] = [
     role: ["patient", "doctor", "admin"],
   },
   {
+    id: 21,
+    name: "Patients",
+    icon: <FaUsers />,
+    url: "/dashboard/patients",
+    role: ["admin"],
+  },
+  {
     id: 2,
     name: "Users",
     icon: <FaUsers />,
     url: "/dashboard/users",
     role: ["admin"],
     children: [
-      {
-        id: 21,
-        name: "Patients",
-        icon: <FaUsers />,
-        url: "/dashboard/patients",
-        role: ["admin"],
-      },
+
+
       {
         id: 3,
         name: "Doctors",
@@ -63,22 +65,16 @@ const sidebarDatas: SidebarItem[] = [
         url: "/dashboard/staffs",
         role: ["admin"],
       },
+      {
+        id: 5,
+        name: "Labs",
+        icon: <FaVial />,
+        url: "/dashboard/labs",
+        role: ["admin"],
+      },
     ],
   },
-  {
-    id: 5,
-    name: "Labs",
-    icon: <FaVial />,
-    url: "/dashboard/labs",
-    role: ["admin"],
-  },
-  {
-    id: 8,
-    name: "Appointments",
-    icon: <FaCalendarCheck />,
-    url: "/dashboard/appointments",
-    role: ["patient", "doctor", "admin"],
-  },
+
   {
     id: 15,
     name: "Book Appointment",
@@ -98,6 +94,13 @@ const sidebarDatas: SidebarItem[] = [
     name: "Recall Appointment",
     icon: <MdEventRepeat />,
     url: "/dashboard/recall-appointment",
+    role: ["admin"],
+  },
+  {
+    id: 13,
+    name: "Appointments",
+    icon: <MdEventRepeat />,
+    url: "/dashboard/appointments",
     role: ["admin"],
   },
   {
@@ -130,9 +133,9 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
     id: 14,
-    name: "Work Done",
+    name: "Reports",
     icon: <VscWorkspaceTrusted />,
-    url: "/dashboard/work-done",
+    url: "/dashboard/reports",
   },
 ];
 
