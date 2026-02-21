@@ -2,35 +2,17 @@
 import React, { useState, useCallback } from "react";
 import { Box, Heading, Flex, Button, Text, useColorModeValue } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import WaitingRoomScheduler from "./component/WaitingRoomScheduler";
+import WaitingRoomWhatsApp from "./component/WaitingRoomWhatsApp";
 import moment from "moment";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { tablePageLimit } from "../../../component/config/utils/variable";
-import { SLOT_DURATION } from "../../daily-report/utils/constant";
-import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import stores from "../../../store/stores";
 
-const WaitingRoomPage = observer(() => {
+const WaitingRoomPage = observer((): any => {
     const {
-        auth: { openNotification, userType, user },
+        auth: { userType },
     } = stores;
 
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [createdAppointmentByCalender, setCreatedAppointmentByCalender] = useState(false);
-
-    // We keep state but don't use it for booking since it's disabled
-    const [selectedDateAndTime, setSelectedDateTime] = useState<any>({
-        open: false,
-        chair: undefined,
-        chairId: "",
-        selectedDate: new Date(),
-        time: "",
-        start: null,
-        end: null,
-        type: "add",
-    });
-
-    const isPatient = userType === "patient";
 
     const goToPreviousDate = () => {
         setSelectedDate((prev: any) => moment(prev).subtract(1, "day").toDate());
@@ -60,14 +42,8 @@ const WaitingRoomPage = observer(() => {
             </Flex>
 
             <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2}>
-                <WaitingRoomScheduler
+                <WaitingRoomWhatsApp
                     selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    handleTimeSlots={() => { }} // Disabled function for safety
-                    createdAppointmentByCalender={createdAppointmentByCalender}
-                    filterStatus="arrived" // Only show arrived
-                    disableBooking={true} // Disable adding new appointments
-                    shouldNotEditIcon={true} // Hide edit icon if applicable
                 />
             </Box>
         </Box>
