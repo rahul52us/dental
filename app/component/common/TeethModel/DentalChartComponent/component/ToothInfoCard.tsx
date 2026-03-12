@@ -1,19 +1,13 @@
-// import { ToothData } from "@/data/teethData";
 import {
-    Badge,
-    Box,
-    Center,
-    HStack,
-    SimpleGrid,
-    Text,
-    VStack,
+  Box,
+  HStack,
+  Text,
+  VStack,
+  useColorModeValue,
+  Circle,
+  Icon,
 } from "@chakra-ui/react";
-import { BsGrid3X3 } from "react-icons/bs";
-import {
-    FiHash,
-    FiInfo,
-} from "react-icons/fi";
-import { TbFileDigit } from "react-icons/tb";
+import { FaTooth } from "react-icons/fa";
 import { ToothData } from "../utils/teethData";
 
 interface ToothInfoCardProps {
@@ -21,137 +15,82 @@ interface ToothInfoCardProps {
 }
 
 export const ToothInfoCard = ({ tooth }: ToothInfoCardProps) => {
-  if (!tooth) {
-    return (
-      <Box
-        bg="gray.50"
-        border="1px dashed"
-        borderColor="gray.300"
-        rounded="xl"
-        p={6}
-      >
-        <Center flexDir="column" py={6} textAlign="center">
-          <Center
-            w="48px"
-            h="48px"
-            rounded="full"
-            bg="gray.100"
-            mb={3}
-          >
-            <FiInfo size={24} color="#718096" />
-          </Center>
+  const bg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.100", "gray.700");
 
-          <Text fontSize="sm" color="gray.500">
-            Click on a tooth to view its details
-          </Text>
-        </Center>
-      </Box>
-    );
-  }
+  if (!tooth) return null;
 
   return (
     <Box
-      bg="white"
-      rounded="xl"
-      p={5}
-      boxShadow="sm"
-      animation="scaleIn 0.2s ease-in-out"
+      p={4}
+      bg={bg}
+      borderRadius="2xl"
+      border="1px solid"
+      borderColor={borderColor}
+      transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+      _hover={{
+        transform: "translateX(6px)",
+        borderColor: "blue.200",
+        boxShadow: "xl",
+      }}
+      mb={4}
+      position="relative"
+      overflow="hidden"
     >
-      {/* Header */}
-      <HStack spacing={3} mb={4}>
-        <Center
-          w="40px"
-          h="40px"
-          rounded="full"
+      {/* Minimalist Side Accents */}
+      <Box
+        position="absolute"
+        top="4"
+        left="0"
+        bottom="4"
+        w="3px"
+        bg="blue.500"
+        borderRadius="full"
+      />
+      <Box
+        position="absolute"
+        top="4"
+        right="0"
+        bottom="4"
+        w="3px"
+        bg="blue.500"
+        borderRadius="full"
+      />
+
+      <HStack spacing={4}>
+        <Circle
+          size="48px"
           bg="blue.50"
-          fontWeight="bold"
-          fontSize="lg"
-          color="blue.600"
+          color="blue.500"
+          border="1px solid"
+          borderColor="blue.100"
+          boxShadow="sm"
         >
-          {tooth.fdi}
-        </Center>
+          <Icon as={FaTooth} boxSize={5} />
+        </Circle>
 
-        <Text fontSize="lg" fontWeight="semibold">
-          Selected Tooth
-        </Text>
-      </HStack>
-
-      <VStack align="stretch" spacing={4}>
-        {/* Tooth Name */}
-        <Box>
-          <Text fontSize="sm" color="gray.500" mb={1}>
-            Tooth Name
+        <VStack align="start" spacing={0} flex={1}>
+          <HStack spacing={2} mb={0.5}>
+            <Text fontSize="14px" fontWeight="900" color="gray.800">
+              Tooth {tooth.id}
+            </Text>
+            <Box boxSize="3px" borderRadius="full" bg="blue.400" />
+            <Text fontSize="9px" fontWeight="900" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">
+              Clinical Record
+            </Text>
+          </HStack>
+          <Text fontSize="11px" fontWeight="700" color="gray.400" textTransform="capitalize" letterSpacing="0.02em">
+            {tooth.type} • {tooth.side} {tooth.position}
           </Text>
-          <Text fontWeight="medium">{tooth.name}</Text>
-        </Box>
+        </VStack>
 
-        {/* Numbering Grid */}
-        <SimpleGrid columns={3} spacing={3}>
-          <Box bg="gray.100" rounded="lg" p={3} textAlign="center">
-            <HStack
-              justify="center"
-              spacing={1.5}
-              color="gray.500"
-              mb={1}
-            >
-              <FiHash size={14} />
-              <Text fontSize="xs" fontWeight="medium">
-                FDI
-              </Text>
-            </HStack>
-            <Text fontSize="lg" fontWeight="bold">
-              {tooth.fdi}
-            </Text>
-          </Box>
-
-          <Box bg="gray.100" rounded="lg" p={3} textAlign="center">
-            <HStack
-              justify="center"
-              spacing={1.5}
-              color="gray.500"
-              mb={1}
-            >
-              <BsGrid3X3 size={14} />
-              <Text fontSize="xs" fontWeight="medium">
-                Universal
-              </Text>
-            </HStack>
-            <Text fontSize="lg" fontWeight="bold">
-              {tooth.universal}
-            </Text>
-          </Box>
-
-          <Box bg="gray.100" rounded="lg" p={3} textAlign="center">
-            <HStack
-              justify="center"
-              spacing={1.5}
-              color="gray.500"
-              mb={1}
-            >
-              <TbFileDigit size={14} />
-              <Text fontSize="xs" fontWeight="medium">
-                Palmer
-              </Text>
-            </HStack>
-            <Text fontSize="lg" fontWeight="bold">
-              {tooth.palmer}
-            </Text>
-          </Box>
-        </SimpleGrid>
-
-        {/* Badges */}
-        <HStack wrap="wrap" spacing={2}>
-          <Badge colorScheme="gray" textTransform="capitalize">
-            {tooth.position} Jaw
-          </Badge>
-          <Badge colorScheme="gray" textTransform="capitalize">
-            {tooth.side} Side
-          </Badge>
-          <Badge variant="outline" textTransform="capitalize">
-            {tooth.type}
-          </Badge>
-        </HStack>
-      </VStack>
+        <VStack align="end" spacing={0}>
+          <Text fontSize="8px" fontWeight="900" color="gray.300" letterSpacing="0.2em">REF</Text>
+          <Text fontSize="18px" fontWeight="900" color="gray.800" lineHeight="1">
+            {tooth.id}
+          </Text>
+        </VStack>
+      </HStack>
     </Box>
   );
 };

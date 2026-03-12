@@ -1,34 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Badge,
   Box,
   Button,
-  FormControl,
-  FormLabel,
   Grid,
   HStack,
   Heading,
   SimpleGrid,
   VStack,
+  Text,
   useToast,
+  Icon,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Divider,
+  Center,
+  Tooltip,
+  Wrap,
+  WrapItem,
+  Flex,
+  IconButton,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import {
-  FiCalendar,
   FiFileText,
-  FiMessageSquare,
   FiUser,
+  FiDollarSign,
+  FiCheckCircle,
+  FiChevronRight,
+  FiSearch,
+  FiClock,
+  FiPlusCircle,
+  FiTrash2,
+  FiEdit3,
 } from "react-icons/fi";
+import { FaTooth } from "react-icons/fa";
 
 import { ToothData } from "../utils/teethData";
 import CustomInput from "../../../../config/component/customInput/CustomInput";
-import FormModel from "../../../FormModel/FormModel";
 import { replaceLabelValueObjects } from "../../../../../config/utils/function";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../../store/stores";
+import {
+  TREATMENT_CATEGORIES,
+} from "../../../../../dashboard/toothTreatment/treatmentDataConstant";
+import CustomDrawer from "../../../Drawer/CustomDrawer";
 
 interface ToothFormDialogProps {
-  tooth: ToothData | null;
+  teeth: ToothData[];
+  generalDescription: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isPatient: boolean;
@@ -36,48 +57,35 @@ interface ToothFormDialogProps {
 }
 
 interface TreatmentFormData {
-  treatmentPlan: string;
+  doctor: any;
   treatmentDate: string;
-  status: "pending" | "in-progress" | "completed" | "cancelled";
   notes: string;
+  treatmentCode: string;
+  estimate: number;
+  discount: number;
+  total: number;
   patient?: any;
-  doctor?: any; // Added doctor field
+  status: string;
 }
 
 const initialFormData: TreatmentFormData = {
-  treatmentPlan: "",
-  treatmentDate: "",
-  status: "pending",
-  notes: "",
-  patient: undefined,
   doctor: undefined,
+  treatmentDate: new Date().toISOString().split("T")[0],
+  notes: "",
+  treatmentCode: "",
+  estimate: 0,
+  discount: 0,
+  total: 0,
+  patient: undefined,
+  status: "Planned",
 };
 
-const treatmentOptions = [
-  { label: "Extraction", value: "Extraction" },
-  { label: "Root Canal Treatment", value: "Root Canal Treatment" },
-  { label: "Filling", value: "Filling" },
-  { label: "Crown", value: "Crown" },
-  { label: "Bridge", value: "Bridge" },
-  { label: "Cleaning", value: "Cleaning" },
-  { label: "Whitening", value: "Whitening" },
-  { label: "Orthodontic Treatment", value: "Orthodontic Treatment" },
-  { label: "Implant", value: "Implant" },
-  { label: "Denture", value: "Denture" },
-  { label: "Gum Treatment", value: "Gum Treatment" },
-  { label: "Other", value: "Other" },
-];
-
-const statusOptions = [
-  { label: "Pending", value: "pending" },
-  { label: "In Progress", value: "in-progress" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
-];
+// No symptom icons needed
 
 export const ToothFormDialog = observer(
   ({
-    tooth,
+    teeth = [],
+    generalDescription = "",
     open,
     onOpenChange,
     isPatient,
@@ -87,8 +95,38 @@ export const ToothFormDialog = observer(
     const [formLoading, setFormLoading] = useState(false);
     const {
       toothTreatmentStore: { createToothTreatment },
+      userStore: { getAllUsers },
     } = stores;
-    if (!tooth) return null;
+
+    const [doctors, setDoctors] = useState<any[]>([]);
+    const [doctorsLoading, setDoctorsLoading] = useState(false);
+
+    useEffect(() => {
+      const fetchDoctors = async () => {
+        try {
+          setDoctorsLoading(true);
+          const res: any = await getAllUsers({ type: 'doctor', limit: 100 });
+          if (res?.data?.data?.data) {
+            setDoctors(res.data.data.data);
+          }
+        } catch (err) {
+          console.error("Failed to fetch doctors", err);
+        } finally {
+          setDoctorsLoading(false);
+        }
+      };
+      fetchDoctors();
+    }, [getAllUsers]);
+
+    // Browser State
+    const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(0);
+    const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(0);
+
+    const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
+    const activeSubcategory = (activeCategory && selectedSubIdx !== null)
+      ? activeCategory.subcategories[selectedSubIdx]
+      : null;
+
     const handleSubmit = async (formData: any) => {
       try {
         setFormLoading(true);
@@ -97,25 +135,26 @@ export const ToothFormDialog = observer(
         createToothTreatment({
           ...values,
           ...(replaceLabelValueObjects(values) || {}),
-          tooth,
+          teeth,
+          generalDescription,
         })
           .then(() => {
             setFormLoading(false);
             toast({
-              title: "Patient Added.",
+              title: "Complaint Added.",
               description: `Record has been successfully added.`,
               status: "success",
               duration: 5000,
               isClosable: true,
             });
-            if(onOpenChange){
-              onOpenChange(false)
+            if (onOpenChange) {
+              onOpenChange(false);
             }
           })
           .catch((err: any) => {
             setFormLoading(false);
             toast({
-              title: "failed to create",
+              title: "Failed to create",
               description: `${err?.message}`,
               status: "error",
               duration: 5000,
@@ -125,228 +164,302 @@ export const ToothFormDialog = observer(
       } catch (err: any) {
         setFormLoading(false);
         toast({
-          title: "failed to create",
+          title: "Failed to create",
           description: `${err?.message}`,
-          status: "success",
+          status: "error",
           duration: 5000,
           isClosable: true,
         });
       }
     };
 
-    const modalTitle = (
-      <HStack spacing={3}>
-        <Box
-          w="40px"
-          h="40px"
-          rounded="full"
-          bg="blue.50"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontWeight="bold"
-          color="blue.600"
-        >
-          {tooth.fdi}
+    const drawerTitle = (
+      <HStack spacing={4}>
+        <Box p={2} bg="blue.500" borderRadius="xl" color="white">
+          <FiPlusCircle size={20} />
         </Box>
-        <Heading size="md">Tooth Treatment</Heading>
+        <VStack align="start" spacing={0}>
+          <Heading size="md" color="gray.800" fontWeight="extrabold">New Treatment Record</Heading>
+          <Text fontSize="xs" color="gray.400" fontWeight="bold">PROCEDURE ENTRY FORM</Text>
+        </VStack>
       </HStack>
     );
 
+    const doctorOptions = useMemo(() => {
+      return doctors.map((d) => ({
+        label: d.name,
+        value: d._id,
+      }));
+    }, [doctors]);
+
     return (
-      <FormModel
+      <CustomDrawer
+        width="75vw"
         open={open}
         close={() => onOpenChange(false)}
-        isCentered
-        title={modalTitle}
-        size="xl"
+        title={drawerTitle}
       >
-        <VStack spacing={6} align="stretch" p={4}>
-          {/* Tooth Info */}
-          <HStack spacing={2} wrap="wrap">
-            <Badge colorScheme="gray">{tooth.name}</Badge>
-            <Badge variant="outline">FDI: {tooth.fdi}</Badge>
-            <Badge variant="outline">Universal: {tooth.universal}</Badge>
-            <Badge variant="outline">Palmer: {tooth.palmer}</Badge>
-          </HStack>
+        <Formik
+          initialValues={{
+            ...initialFormData,
+            patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
+            notes: generalDescription,
+            doctor: doctorOptions[0],
+          }}
+          enableReinitialize={true}
+          onSubmit={handleSubmit}
+        >
+          {({ values, setFieldValue, handleSubmit }: any) => {
+            const calculateTotal = (est: number, disc: number) => Math.max(0, est - disc);
 
-          <Formik
-            initialValues={{
-              ...initialFormData,
-              patient: {
-                label: `${patientDetails?.name}`,
-                value: patientDetails?._id,
-              },
-            }}
-            enableReinitialize={true}
-            validate={(values) => {
-              const errors: Partial<TreatmentFormData> = {};
-              if (!values.treatmentPlan) {
-                errors.treatmentPlan = "Treatment plan is required";
-              }
-              // Optional: require doctor if not pre-filled
-              // if (!values.doctor) errors.doctor = "Doctor is required";
-              return errors;
-            }}
-            onSubmit={handleSubmit}
-          >
-            {({
-              values,
-              setFieldValue,
-              errors,
-              touched,
-              handleSubmit,
-            }: any) => (
-              <FormikForm onSubmit={handleSubmit}>
-                <VStack spacing={5} align="stretch">
-                  {/* Patient Search */}
-                  <Grid
-                    gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
-                    gap={4}
-                  >
-                    <CustomInput
-                      name="patient"
-                      placeholder="Search Patient"
-                      type="real-time-user-search"
-                      label="Patient"
-                      required
-                      value={values.patient}
-                      onChange={(val: any) => setFieldValue("patient", val)}
-                      options={
-                        isPatient
-                          ? [
-                              {
-                                label: `${patientDetails?.name} (${patientDetails?.code})`,
-                                value: patientDetails?._id,
-                              },
-                            ]
-                          : values?.patient
-                          ? [values?.patient]
-                          : []
-                      }
-                      error={errors.patient as string}
-                      query={{ type: "patient" }}
-                    />
+            return (
+              <FormikForm onSubmit={handleSubmit} style={{ height: '100%', padding: '20px' }}>
+                <VStack spacing={6} align="stretch">
 
-                    {/* Doctor Search */}
-                    <CustomInput
-                      name="doctor"
-                      placeholder="Search Doctor"
-                      type="real-time-user-search"
-                      label="Doctor"
-                      required // Change to false if optional
-                      value={values.doctor}
-                      onChange={(val: any) => {
-                        setFieldValue("doctor", val);
-                      }}
-                      options={
-                        patientDetails?.primaryDoctor
-                          ? [
-                              {
-                                label: patientDetails.primaryDoctor.name,
-                                value: patientDetails.primaryDoctor._id,
-                              },
-                            ]
-                          : values?.doctor
-                          ? [values?.doctor]
-                          : []
-                      }
-                      error={errors.doctor as string}
-                      query={{ type: "doctor" }} // Assuming your backend supports this
-                    />
-                  </Grid>
-                  {/* Treatment Plan */}
-                  <FormControl isRequired>
-                    <FormLabel display="flex" gap={2}>
-                      <FiFileText /> Treatment Plan
-                    </FormLabel>
-                    <CustomInput
-                      name="treatmentPlan"
-                      type="select"
-                      placeholder="Select treatment"
-                      options={treatmentOptions}
-                      value={values.treatmentPlan}
-                      onChange={(value: string) =>
-                        setFieldValue("treatmentPlan", value)
-                      }
-                      error={
-                        touched.treatmentPlan ? errors.treatmentPlan : undefined
-                      }
-                      showError={
-                        touched.treatmentPlan && !!errors.treatmentPlan
-                      }
-                    />
-                  </FormControl>
-
-                  {/* Date & Status */}
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    <FormControl>
-                      <FormLabel display="flex" gap={2}>
-                        <FiCalendar /> Treatment Date
-                      </FormLabel>
+                  {/* PATIENT & DOCTOR CONTEXT HEADER */}
+                  <SimpleGrid columns={3} spacing={6} bg="gray.50" p={6} borderRadius="2xl" border="1px" borderColor="gray.100">
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">PATIENT NAME</Text>
+                      <Text fontWeight="black" color="gray.700" fontSize="md">{patientDetails?.name || "N/A"}</Text>
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">ASSIGNED DOCTOR</Text>
+                      <Box w="full">
+                        <CustomInput
+                          name="doctor"
+                          type="real-time-user-search"
+                          isSearchable={true}
+                          isClear={true}
+                          query={{ type: 'doctor' }}
+                          options={doctorOptions}
+                          value={values.doctor}
+                          onChange={(val: any) => setFieldValue("doctor", val)}
+                        />
+                      </Box>
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">DATE</Text>
                       <CustomInput
                         name="treatmentDate"
                         type="date"
                         value={values.treatmentDate}
-                        onChange={(e: any) =>
-                          setFieldValue("treatmentDate", e.target.value)
-                        }
+                        onChange={(e: any) => setFieldValue("treatmentDate", e.target.value)}
                       />
-                    </FormControl>
-
-                    <FormControl>
-                      <FormLabel>Status</FormLabel>
-                      <CustomInput
-                        name="status"
-                        type="select"
-                        options={statusOptions}
-                        value={values.status}
-                        onChange={(value: string) =>
-                          setFieldValue("status", value)
-                        }
-                      />
-                    </FormControl>
+                    </VStack>
                   </SimpleGrid>
 
-                  {/* Notes */}
-                  <FormControl>
-                    <FormLabel display="flex" gap={2}>
-                      <FiMessageSquare /> Notes
-                    </FormLabel>
-                    <CustomInput
-                      name="notes"
-                      type="textarea"
-                      placeholder="Additional notes..."
-                      value={values.notes}
-                      onChange={(e: any) =>
-                        setFieldValue("notes", e.target.value)
-                      }
-                      style={{ minHeight: "80px", resize: "none" }}
-                    />
-                  </FormControl>
+                  {/* TREATMENT BROWSER SECTION (As per Image) */}
+                  <Box>
+                    <Text fontSize="sm" fontWeight="bold" color="gray.600" mb={3}>Treatment Code</Text>
 
-                  {/* Footer Buttons */}
-                  <HStack spacing={3} pt={4} justify="flex-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => onOpenChange(false)}
+                    <Box
+                      borderRadius="xl"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      overflow="hidden"
+                      bg="white"
                     >
-                      Cancel
+                      <Grid templateColumns="1fr 1fr 1.2fr" minH="300px" maxH="400px">
+
+                        {/* COLUMN 1: CATEGORY */}
+                        <Box borderRight="1px solid" borderColor="gray.200">
+                          <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                            <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Category</Text>
+                          </Box>
+                          <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
+                            {TREATMENT_CATEGORIES.map((cat, idx) => (
+                              <HStack
+                                key={cat.name}
+                                px={4} py={3}
+                                cursor="pointer"
+                                bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
+                                color={selectedCatIdx === idx ? "blue.600" : "gray.700"}
+                                borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
+                                borderLeftColor="blue.500"
+                                onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
+                                _hover={{ bg: "gray.50" }}
+                                justify="space-between"
+                              >
+                                <Text fontSize="sm" fontWeight={selectedCatIdx === idx ? "bold" : "medium"}>{cat.name}</Text>
+                                <FiChevronRight size={12} opacity={selectedCatIdx === idx ? 1 : 0.3} />
+                              </HStack>
+                            ))}
+                          </VStack>
+                        </Box>
+
+                        {/* COLUMN 2: SUBCATEGORY */}
+                        <Box borderRight="1px solid" borderColor="gray.200">
+                          <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                            <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Subcategory</Text>
+                          </Box>
+                          <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
+                            {activeCategory?.subcategories.map((sub, idx) => (
+                              <HStack
+                                key={sub.name}
+                                px={4} py={3}
+                                cursor="pointer"
+                                bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
+                                color={selectedSubIdx === idx ? "blue.600" : "gray.700"}
+                                onClick={() => setSelectedSubIdx(idx)}
+                                _hover={{ bg: "gray.50" }}
+                                justify="space-between"
+                              >
+                                <Text fontSize="sm" fontWeight={selectedSubIdx === idx ? "bold" : "medium"}>{sub.name}</Text>
+                                <FiChevronRight size={12} opacity={selectedSubIdx === idx ? 1 : 0.3} />
+                              </HStack>
+                            ))}
+                          </VStack>
+                        </Box>
+
+                        {/* COLUMN 3: JOB NAME */}
+                        <Box bg="gray.50/30">
+                          <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                            <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Job Name</Text>
+                          </Box>
+                          <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
+                            {activeSubcategory?.jobs.map((job) => {
+                              const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
+                              const isSelected = values.treatmentCode === fullCode;
+                              return (
+                                <VStack
+                                  key={job.name}
+                                  px={4} py={3}
+                                  align="start"
+                                  spacing={0}
+                                  cursor="pointer"
+                                  bg={isSelected ? "blue.500" : "transparent"}
+                                  color={isSelected ? "white" : "gray.700"}
+                                  onClick={() => {
+                                    setFieldValue("treatmentCode", fullCode);
+                                    setFieldValue("estimate", job.defaultEstimate);
+                                    setFieldValue("total", calculateTotal(job.defaultEstimate, values.discount));
+                                  }}
+                                  _hover={{ bg: isSelected ? "blue.600" : "gray.100" }}
+                                >
+                                  <Text fontSize="sm" fontWeight="bold">{job.name}</Text>
+                                  <Text fontSize="xs" color={isSelected ? "whiteAlpha.800" : "gray.400"}>₹{job.defaultEstimate.toLocaleString()}</Text>
+                                </VStack>
+                              );
+                            })}
+                          </VStack>
+                        </Box>
+                      </Grid>
+                    </Box>
+                  </Box>
+
+                  {/* FINANCIAL INPUTS SECTION */}
+                  <SimpleGrid columns={3} spacing={6}>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="gray.500">Estimated Amount (₹)</Text>
+                      <Input
+                        readOnly
+                        value={values.estimate}
+                        bg="gray.50"
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="gray.500">Discount (₹)</Text>
+                      <Input
+                        type="number"
+                        value={values.discount}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setFieldValue("discount", val);
+                          setFieldValue("total", calculateTotal(values.estimate, val));
+                        }}
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="gray.500">Total (₹)</Text>
+                      <Input
+                        readOnly
+                        value={values.total}
+                        bg="blue.50"
+                        color="blue.700"
+                        borderRadius="xl"
+                        fontWeight="black"
+                        border="2px solid"
+                        borderColor="blue.100"
+                      />
+                    </VStack>
+                  </SimpleGrid>
+
+                  <Divider />
+
+                  {/* DESCRIPTION SECTION (Simplified) */}
+                  <Box>
+                    <HStack spacing={2} mb={3}>
+                      <Icon as={FiFileText} color="blue.500" />
+                      <Text fontSize="sm" fontWeight="bold" color="gray.700">Description</Text>
+                    </HStack>
+
+                    <Box position="relative">
+                      <CustomInput
+                        name="notes"
+                        type="textarea"
+                        placeholder="Enter clinical description, patient concerns, or general notes here..."
+                        value={values.notes}
+                        onChange={(e: any) => setFieldValue("notes", e.target.value)}
+                        style={{
+                          minHeight: "150px",
+                          borderRadius: "xl",
+                          fontSize: "14px"
+                        }}
+                      />
+                      {values.notes && (
+                        <IconButton
+                          aria-label="Clear"
+                          icon={<FiTrash2 />}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="red"
+                          position="absolute"
+                          bottom={4}
+                          right={4}
+                          onClick={() => setFieldValue("notes", "")}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* FORM ACTIONS */}
+                  <HStack spacing={4} pt={4} justify="flex-end">
+                    <Button
+                      variant="ghost"
+                      onClick={() => onOpenChange(false)}
+                      px={8}
+                    >
+                      Discard
                     </Button>
                     <Button
                       colorScheme="blue"
                       type="submit"
                       isLoading={formLoading}
+                      isDisabled={!values.treatmentCode}
+                      px={10}
+                      h="50px"
+                      borderRadius="xl"
+                      leftIcon={<FiCheckCircle />}
                     >
-                      Save Treatment
+                      Save Treatment Record
                     </Button>
                   </HStack>
+
                 </VStack>
               </FormikForm>
-            )}
-          </Formik>
-        </VStack>
-      </FormModel>
+            );
+          }}
+        </Formik>
+      </CustomDrawer>
     );
   }
 );

@@ -1,27 +1,39 @@
 // import { ToothData, DentitionType, getTeethByType } from "@/data/teethData";
 // import { ToothShape } from "./ToothShape";
 import {
-    Box,
-    Flex,
-    HStack,
-    Text,
-    VStack
+  Badge,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Text,
+  VStack
 } from "@chakra-ui/react";
 import { DentitionType, getTeethByType, ToothData } from "../utils/teethData";
 import { ToothShape } from "./ToothShape";
 
 interface TeethChartProps {
   dentitionType: DentitionType;
-  selectedTooth: ToothData | null;
+  selectedTeeth: ToothData[];
   onToothClick: (tooth: ToothData) => void;
+  notationType?: "fdi" | "universal" | "palmer";
+  onNotationChange?: (not: "fdi" | "universal" | "palmer") => void;
 }
 
 export const TeethChart = ({
   dentitionType,
-  selectedTooth,
+  selectedTeeth,
   onToothClick,
+  notationType = "fdi",
+  onNotationChange,
 }: TeethChartProps) => {
   const teeth = getTeethByType(dentitionType);
+
+  const notations: { id: "fdi" | "universal" | "palmer"; label: string }[] = [
+    { id: "fdi", label: "FDI" },
+    { id: "universal", label: "Universal" },
+    { id: "palmer", label: "Palmer" },
+  ];
 
   const upperRightTeeth = teeth.filter(
     (t) => t.position === "upper" && t.side === "right"
@@ -43,8 +55,9 @@ export const TeethChart = ({
       <ToothShape
         key={tooth.id}
         tooth={tooth}
-        isSelected={selectedTooth?.id === tooth.id}
+        isSelected={selectedTeeth.some((t) => t.id === tooth.id)}
         onClick={() => onToothClick(tooth)}
+        notationType={notationType}
         size="md"
       />
     ));
@@ -55,36 +68,23 @@ export const TeethChart = ({
       position="relative"
       bg="white"
       rounded="2xl"
-      p={6}
-      borderWidth={1}
-      boxShadow="md"
+      p={4}
+      h="full"
     >
-      {/* Labels */}
-      <Text
-        position="absolute"
-        top={4}
-        left={4}
-        fontSize="xs"
-        fontWeight="semibold"
-        color="gray.500"
-        textTransform="uppercase"
-        letterSpacing="wider"
-      >
-        Patient&apos;s Right
-      </Text>
+      {/* Chart Layout - Centered with Patients Orientation */}
+      <Flex borderBottom="1px solid" borderColor="gray.50" pb={3} mb={5} justify="space-between" align="center">
+        <Text fontSize="10px" fontWeight="black" color="gray.300" letterSpacing="widest">
+          PATIENT&apos;S RIGHT
+        </Text>
 
-      <Text
-        position="absolute"
-        top={4}
-        right={4}
-        fontSize="xs"
-        fontWeight="semibold"
-        color="gray.500"
-        textTransform="uppercase"
-        letterSpacing="wider"
-      >
-        Patient&apos;s Left
-      </Text>
+        <Badge variant="outline" colorScheme="gray" fontSize="9px" fontWeight="black" borderRadius="md" px={3}>
+          OCCLUSAL VIEW
+        </Badge>
+
+        <Text fontSize="10px" fontWeight="black" color="gray.300" letterSpacing="widest">
+          PATIENT&apos;S LEFT
+        </Text>
+      </Flex>
 
       <VStack spacing={2} pt={8}>
         {/* Upper Jaw */}

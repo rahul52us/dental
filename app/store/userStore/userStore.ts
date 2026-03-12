@@ -111,6 +111,18 @@ class UserStore {
     }
   };
 
+  getUsersList = async (payload: any) => {
+    try {
+      const response : any = await axios.post("/user", {
+        ...payload,
+        company: authStore.company,
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    }
+  };
+
 
   updateUserSettings = async (settings: any) => {
     this.isLoading = true;

@@ -7,6 +7,7 @@ interface ToothShapeProps {
   isSelected: boolean;
   onClick: () => void;
   size?: "sm" | "md" | "lg";
+  notationType?: "fdi" | "universal" | "palmer";
 }
 
 const sizeMap = {
@@ -20,7 +21,21 @@ export const ToothShape = ({
   isSelected,
   onClick,
   size = "md",
+  notationType = "fdi",
 }: ToothShapeProps) => {
+  const getNotationLabel = () => {
+    switch (notationType) {
+      case "universal":
+        return tooth.universal;
+      case "palmer":
+        return tooth.palmer;
+      case "fdi":
+      default:
+        return tooth.fdi;
+    }
+  };
+
+  const notationLabel = getNotationLabel();
   const getToothPath = () => {
     switch (tooth.type) {
       case "molar":
@@ -85,7 +100,7 @@ export const ToothShape = ({
           fill={isSelected ? "#3182CE" : "#4A5568"}
           pointerEvents="none"
         >
-          {tooth.fdi}
+          {notationLabel}
         </text>
       </Box>
 
@@ -95,7 +110,7 @@ export const ToothShape = ({
         color={isSelected ? "blue.600" : "gray.500"}
         transition="color 0.2s"
       >
-        {tooth.fdi}
+        {notationLabel}
       </Text>
     </Box>
   );

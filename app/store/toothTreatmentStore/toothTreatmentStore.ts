@@ -1,7 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import axios from "axios";
 import { authStore } from "../authStore/authStore";
-import { send } from "process";
 
 class ToothTreatment {
 
@@ -63,7 +62,7 @@ this.toothTreatment.data =
       toothName: `FDI ${fdi} | U ${universal} | P ${palmer}`,
     };
   }) || [];
-      this.toothTreatment.totalPages = data?.totalPages || 0;
+      this.toothTreatment.totalPages = data?.data?.totalPages || 0;
       return data.data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -76,6 +75,15 @@ this.toothTreatment.data =
   createToothTreatment = async (sendData: any) => {
     try {
       const { data } = await axios.post("/toothTreatment/create", {...sendData,company : authStore.company});
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  updateToothTreatment = async (sendData: any) => {
+    try {
+      const { data } = await axios.put(`/toothTreatment/${sendData.treatmentId}`, {...sendData,company : authStore.company});
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

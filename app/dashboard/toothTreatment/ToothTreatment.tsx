@@ -18,9 +18,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   } = stores;
   const [openView, setOpenView] = useState({ open: false, data: null });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [openReportModal, setOpenReportModal] = useState({
+  const [openReportModal, setOpenReportModal] = useState<any>({
     open: false,
     type: "add",
+    data: null
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -233,7 +234,9 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             },
             editKey: {
               showEditButton: ["admin", "superAdmin"].includes(userType),
-              function: (dt: any) => {},
+              function: (dt: any) => {
+                setOpenReportModal({ open: true, type: "edit", data: dt });
+              },
             },
             viewKey: {
               showViewButton: true,
@@ -280,10 +283,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         <Index
           appointments={toothTreatment}
           isPatient={isPatient}
-          patientDetails={patientDetails}
-          applyGetAllRecords={applyGetAllRecords}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
+          patientDetails={{ ...patientDetails, editData: openReportModal.data, applyGetAllRecords }}
+          closeWizard={() => setOpenReportModal({ open: false, type: "add", data: null })}
         />
       </CustomDrawer>
     </>
