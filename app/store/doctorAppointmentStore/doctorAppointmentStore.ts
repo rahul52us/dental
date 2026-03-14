@@ -91,6 +91,17 @@ class DoctorAppointment {
     }
   };
 
+  getPatientHistory = async (sendData: { patientId: string; page?: number; limit?: number }) => {
+    try {
+      const { data } = await axios.post(`/doctor/appointment/patients/history/${sendData.patientId}`, {
+        ...sendData,
+        company: authStore.company,
+      });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 
 }
 

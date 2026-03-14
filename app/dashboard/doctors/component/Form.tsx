@@ -10,6 +10,7 @@ import {
   SimpleGrid,
   Text,
   useColorModeValue,
+  HStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
@@ -87,9 +88,51 @@ const Form = observer(
                     mb={6}
                     alignItems="center"
                   >
-                    {/* Section 1: Personal Info */}
+                    {/* Header with Desktop Actions */}
+                    <GridItem colSpan={2} display={{ base: "none", md: "block" }}>
+                      <Flex justify="space-between" align="center" mb={4}>
+                        <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                          {isEdit ? "Edit Doctor" : "New Doctor"}
+                        </Text>
+                        <HStack spacing={3}>
+                          <Button
+                            variant="outline"
+                            colorScheme="red"
+                            onClick={onClose}
+                            size="md"
+                            px={6}
+                            borderRadius="xl"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            colorScheme="brand"
+                            isLoading={loading}
+                            size="md"
+                            px={8}
+                            borderRadius="xl"
+                            shadow="md"
+                            _hover={{
+                              bg: "brand.600",
+                              shadow: "lg",
+                              transform: "translateY(-1px)",
+                            }}
+                          >
+                            {initialData?._id || isEdit ? "Update" : "Save"}
+                          </Button>
+                        </HStack>
+                      </Flex>
+                    </GridItem>
+
+                    {/* Section 1: Personal Info (Mobile Title) */}
                     <GridItem colSpan={2}>
-                      <Text fontSize="lg" fontWeight="semibold" mb={4}>
+                      <Text
+                        fontSize="lg"
+                        fontWeight="semibold"
+                        mb={4}
+                        display={{ base: "block", md: "none" }}
+                      >
                         Personal Information
                       </Text>
 
@@ -321,31 +364,34 @@ const Form = observer(
                     )}
                   </Grid>
 
-                  <Flex justifyContent="flex-end" mt={4}>
-                    <Flex gap={4}>
-                      <Button
-                        colorScheme="red"
-                        size="lg"
-                        bgColor="red"
-                        onClick={onClose}
-                        _hover={{ bg: "red.500" }}
-                        width="auto"
-                      >
-                        Close
-                      </Button>
-                      <Button
-                        type="submit"
-                        colorScheme="brand"
-                        isLoading={loading}
-                        loadingText="Submitting"
-                        size="lg"
-                        _hover={{ bg: "brand.600" }}
-                        width="auto"
-                      >
-                        {initialData?.username ? "Update" : "Save"}
-                      </Button>
-                    </Flex>
-                  </Flex>
+                  {/* Mobile Actions Only */}
+                  <HStack
+                    spacing={3}
+                    mt={6}
+                    display={{ base: "flex", md: "none" }}
+                  >
+                    <Button
+                      variant="outline"
+                      colorScheme="red"
+                      onClick={onClose}
+                      size="lg"
+                      flex={1}
+                      borderRadius="xl"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      colorScheme="brand"
+                      isLoading={loading}
+                      size="lg"
+                      flex={2}
+                      borderRadius="xl"
+                      shadow="md"
+                    >
+                      {initialData?._id || isEdit ? "Update" : "Save"}
+                    </Button>
+                  </HStack>
                 </FormikForm>
               );
             }}

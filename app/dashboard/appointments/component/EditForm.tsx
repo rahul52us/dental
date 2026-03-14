@@ -44,6 +44,9 @@ import Loader from "../../../component/common/Loader/Loader";
 import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import { keyframes } from "@emotion/react";
+import { InfoIcon } from "@chakra-ui/icons";
+import AppointmentHistoryModal from "./AppointmentHistoryModal";
+import { Alert, AlertIcon } from "@chakra-ui/react";
 
 const breathe = keyframes`
   0%, 100% { transform: scale(1); }
@@ -147,6 +150,7 @@ const EditAppointmentForm = observer(
       auth: { openNotification },
       userStore: { getAllUsers },
       chairsStore: { getChairs },
+      DoctorAppointment: { getPatientAppointmentStatusCount },
     } = stores;
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isSchedulerDrawerOpen, setIsSchedulerDrawerOpen] = useState(false);
@@ -161,6 +165,15 @@ const EditAppointmentForm = observer(
     const toast = useToast();
     const [formLoading, setFormLoading] = useState(false);
     const [chairsData, setChairsData] = useState<any>([]);
+    const [historyModal, setHistoryModal] = useState({
+      isOpen: false,
+      patientId: "",
+      patientName: "",
+    });
+    const [patientHistoryCount, setPatientHistoryCount] = useState({
+      shift: 0,
+      cancelled: 0,
+    });
 
     const getAppointDetailsData = async () => {
       try {
@@ -311,9 +324,41 @@ const EditAppointmentForm = observer(
       setChairsData(resposne.data);
     };
 
+    const fetchPatientHistoryCount = async (patientId: string) => {
+      if (!patientId) return;
+      try {
+        const response = await getPatientAppointmentStatusCount({
+          patient: patientId,
+        });
+        if (response?.status === "success" && response?.data) {
+          const shift = response.data.shift || 0;
+          const cancelled = response.data.cancelled || 0;
+          setPatientHistoryCount({ shift, cancelled });
+
+          // Auto-open modal if history exists
+          if (shift > 0 || cancelled > 0) {
+            setHistoryModal({
+              isOpen: true,
+              patientId: patientId,
+              patientName: appointment?.patient?.name || "Patient",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch patient history count:", error);
+      }
+    };
+
     useEffect(() => {
       fetchChairs();
     }, []);
+
+    useEffect(() => {
+      const pId = appointment?.patient?._id || appointment?.patient?.id;
+      if (pId) {
+        fetchPatientHistoryCount(pId);
+      }
+    }, [appointment]);
     // const chairsData = getChairs({ page: 1, limit: 1000 })
     const chairsOptions = chairsData.map((item: any) => ({
       value: item._id,
@@ -409,8 +454,79 @@ const EditAppointmentForm = observer(
                 <ScrollToFormikError />
                 <Form>
                   <VStack spacing={2} align="stretch">
+                    {/* Header with Desktop Save Button */}
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      display={{ base: "none", md: "flex" }}
+                      mb={2}
+                      p={1}
+                    >
+                      <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                        Edit Appointment
+                      </Text>
+                      <HStack spacing={3}>
+                        <Button
+                          variant="outline"
+                          colorScheme="red"
+                          onClick={close}
+                          size="md"
+                          px={6}
+                          borderRadius="xl"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          colorScheme="blue"
+                          type="submit"
+                          isLoading={isSubmitting}
+                          size="md"
+                          px={8}
+                          borderRadius="xl"
+                          shadow="md"
+                          _hover={{ shadow: "lg", transform: "translateY(-1px)" }}
+                        >
+                          Save Appointment
+                        </Button>
+                      </HStack>
+                    </Flex>
+
                     {/* === Patient & Doctors === */}
                     <SectionCard title="Patient & Doctors">
+                      {values.patient && (patientHistoryCount.shift > 0 || patientHistoryCount.cancelled > 0) && (
+                        <Alert
+                          status="warning"
+                          variant="left-accent"
+                          borderRadius="lg"
+                          mb={4}
+                          boxShadow="sm"
+                        >
+                          <AlertIcon />
+                          <Box flex="1">
+                            <Text fontWeight="bold" fontSize="sm">
+                              Appointment History Noted
+                            </Text>
+                            <Text fontSize="xs">
+                              This patient has {patientHistoryCount.shift} shifted and {patientHistoryCount.cancelled} cancelled appointments.
+                            </Text>
+                          </Box>
+                          <Button
+                            size="sm"
+                            colorScheme="orange"
+                            variant="solid"
+                            ml={3}
+                            onClick={() =>
+                              setHistoryModal({
+                                isOpen: true,
+                                patientId: values.patient.value,
+                                patientName: values.patient.label.split("(")[0].trim(),
+                              })
+                            }
+                          >
+                            View Details
+                          </Button>
+                        </Alert>
+                      )}
                       <Grid
                         gap={4}
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
@@ -524,6 +640,28 @@ const EditAppointmentForm = observer(
                         {/* Status */}
                         <Box flex="1">
                           <Flex align="flex-end" gap={2}>
+                            {values.status === "shift" && (
+                              <Tooltip label="Choose time from scheduler" placement="left">
+                                <IconButton
+                                  aria-label="Open scheduler"
+                                  icon={<CalendarIcon />}
+                                  size="md"
+                                  isRound
+                                  colorScheme="teal"
+                                  variant="solid"
+                                  onClick={() => setIsSchedulerDrawerOpen(true)}
+                                  alignSelf="flex-end"
+                                  animation={`${breathe} 2.8s ease-in-out infinite, ${ring} 2.2s ease-out infinite`}
+                                  boxShadow="0 0 0 6px rgba(56,178,172,0.25), 0 0 14px rgba(56,178,172,0.55)"
+                                  _hover={{
+                                    bg: "teal.400",
+                                    transform: "translateY(-2px) scale(1.1)",
+                                    boxShadow: "0 0 0 14px rgba(56,178,172,0.35), 0 0 26px rgba(56,178,172,0.8)",
+                                  }}
+                                  transition="all 0.3s ease"
+                                />
+                              </Tooltip>
+                            )}
                             {/* Status Select */}
                             <Box flex="1">
                               <CustomInput
@@ -548,26 +686,7 @@ const EditAppointmentForm = observer(
                             </Box>
 
                             {/* Calendar Button (Separate Element) */}
-                            {values.status === "shift" && (
-                              <Tooltip label="Choose time from scheduler" placement="left">
-                                <IconButton
-                                  aria-label="Open scheduler"
-                                  icon={<CalendarIcon />}
-                                  size="md"
-                                  colorScheme="teal"
-                                  variant="outline"
-                                  onClick={() => setIsSchedulerDrawerOpen(true)}
-                                  alignSelf="flex-end"
-                                  animation={`${breathe} 2.8s ease-in-out infinite, ${ring} 2.2s ease-out infinite`}
-                                  _hover={{
-                                    bg: "teal.50",
-                                    transform: "translateY(-2px) scale(1.1)",
-                                    boxShadow: "0 0 0 12px rgba(56, 178, 172, 0.45)",
-                                  }}
-                                  transition="all 0.3s ease"
-                                />
-                              </Tooltip>
-                            )}
+
                           </Flex>
                         </Box>
                       </Flex>
@@ -633,26 +752,32 @@ const EditAppointmentForm = observer(
                             }
                           />
                         </SimpleGrid>
-                        <CustomInput
-                          name="description"
-                          label="Cause"
-                          type="textarea"
-                          placeholder="Enter Cause"
-                          value={values.description}
-                          onChange={(e: any) =>
-                            setFieldValue("description", e.target.value)
-                          }
-                        />
-                        <CustomInput
-                          name="title"
-                          label="Treatment Head"
-                          type="select"
-                          value={values.title}
-                          onChange={(e: any) => setFieldValue("title", e)}
-                          options={appointmentReason}
-                          error={errors.title}
-                          showError={touched.title}
-                        />
+                        <SimpleGrid
+                          columns={{ base: 1, md: 2 }}
+                          spacing={4}
+                          w="full"
+                        >
+                          <CustomInput
+                            name="title"
+                            label="Treatment Head"
+                            type="select"
+                            value={values.title}
+                            onChange={(e: any) => setFieldValue("title", e)}
+                            options={appointmentReason}
+                            error={errors.title}
+                            showError={touched.title}
+                          />
+                          <CustomInput
+                            name="description"
+                            label="Cause"
+                            type="text"
+                            placeholder="Enter Cause"
+                            value={values.description}
+                            onChange={(e: any) =>
+                              setFieldValue("description", e.target.value)
+                            }
+                          />
+                        </SimpleGrid>
                       </VStack>
                     </SectionCard>
                     <Flex
@@ -818,19 +943,30 @@ const EditAppointmentForm = observer(
                         />
                       </SectionCard>
                     </Flex>
-                    {/* === Submit === */}
-                    <Button
-                      colorScheme="blue"
-                      type="submit"
-                      isLoading={isSubmitting}
-                      size="lg"
-                      width="full"
-                      mt={2}
-                      borderRadius="xl"
-                      shadow="md"
-                    >
-                      Save Appointment
-                    </Button>
+                    {/* === Submit (Mobile Only) === */}
+                    <HStack spacing={3} mt={2} display={{ base: "flex", md: "none" }}>
+                      <Button
+                        variant="outline"
+                        colorScheme="red"
+                        onClick={close}
+                        size="lg"
+                        flex={1}
+                        borderRadius="xl"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        colorScheme="blue"
+                        type="submit"
+                        isLoading={isSubmitting}
+                        size="lg"
+                        flex={2}
+                        borderRadius="xl"
+                        shadow="md"
+                      >
+                        Save Appointment
+                      </Button>
+                    </HStack>
                   </VStack>
                 </Form>
                 <CustomDrawer
@@ -936,6 +1072,12 @@ const EditAppointmentForm = observer(
           thumbnail={thumbnail}
           setThumbnail={setThumbnail}
           formLoading={formLoading}
+        />
+        <AppointmentHistoryModal
+          isOpen={historyModal.isOpen}
+          onClose={() => setHistoryModal({ ...historyModal, isOpen: false })}
+          patientId={historyModal.patientId}
+          patientName={historyModal.patientName}
         />
       </>
     );

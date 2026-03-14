@@ -15,6 +15,8 @@ import {
   SimpleGrid,
   Switch,
   Text,
+  Alert,
+  AlertIcon,
   useToast,
   VStack,
 } from "@chakra-ui/react";
@@ -31,7 +33,8 @@ import AddPatientDrawer from "../../patients/component/patient/component/AddPati
 import { appointStatus } from "../constant";
 import { appointmentReason } from "../utils/constant";
 import ScrollToFormikError from "../../../component/common/ScrollToFormikError/ScrollToFormikError";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, InfoIcon } from "@chakra-ui/icons";
+import AppointmentHistoryModal from "./AppointmentHistoryModal";
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
@@ -127,6 +130,7 @@ const AddAppointmentForm = observer(
       auth: { openNotification },
       userStore: { createUser, getAllUsers },
       chairsStore: { getChairs },
+      DoctorAppointment: { getPatientAppointmentStatusCount },
     } = stores;
 
     const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
@@ -140,6 +144,15 @@ const AddAppointmentForm = observer(
     const toast = useToast();
     const [formLoading, setFormLoading] = useState(false);
     const [chairsData, setChairsData] = useState<any>([]);
+    const [historyModal, setHistoryModal] = useState({
+      isOpen: false,
+      patientId: "",
+      patientName: "",
+    });
+    const [patientHistoryCount, setPatientHistoryCount] = useState({
+      shift: 0,
+      cancelled: 0,
+    });
 
     const parsedDateAndTime = useMemo(() => {
       if (!selectedDateAndTime?.start) return {};
@@ -272,9 +285,38 @@ const AddAppointmentForm = observer(
       setChairsData(resposne.data);
     };
 
+    const fetchPatientHistoryCount = async (patientId: string) => {
+      if (!patientId) return;
+      try {
+        const response = await getPatientAppointmentStatusCount({
+          patient: patientId,
+        });
+        if (response?.status === "success" && response?.data) {
+          const shift = response.data.shift || 0;
+          const cancelled = response.data.cancelled || 0;
+          setPatientHistoryCount({ shift, cancelled });
+
+          // Auto-open modal if history exists
+          if (shift > 0 || cancelled > 0) {
+            setHistoryModal({
+              isOpen: true,
+              patientId: patientId,
+              patientName: patientDetails?.name || "Patient",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch patient history count:", error);
+      }
+    };
+
     useEffect(() => {
       fetchChairs();
-    }, []);
+      const pId = patientDetails?._id || patientDetails?.id;
+      if (isPatient && pId) {
+        fetchPatientHistoryCount(pId);
+      }
+    }, [isPatient, patientDetails]);
     // const chairsData = getChairs({ page: 1, limit: 1000 })
     const chairsOptions = chairsData.map((item: any) => ({
       value: item._id,
@@ -337,13 +379,84 @@ const AddAppointmentForm = observer(
                 <ScrollToFormikError />
                 <Form>
                   <VStack spacing={2} align="stretch">
+                    {/* Header with Desktop Save Button */}
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      display={{ base: "none", md: "flex" }}
+                      mb={2}
+                      p={1}
+                    >
+                      <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                        New Appointment
+                      </Text>
+                      <HStack spacing={3}>
+                        <Button
+                          variant="outline"
+                          colorScheme="red"
+                          onClick={close}
+                          size="md"
+                          px={6}
+                          borderRadius="xl"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          colorScheme="blue"
+                          type="submit"
+                          isLoading={isSubmitting}
+                          size="md"
+                          px={8}
+                          borderRadius="xl"
+                          shadow="md"
+                          _hover={{ shadow: "lg", transform: "translateY(-1px)" }}
+                        >
+                          Save Appointment
+                        </Button>
+                      </HStack>
+                    </Flex>
+
                     {/* === Patient & Doctors === */}
                     <SectionCard title="Patient & Doctors">
+                      {values.patient && (patientHistoryCount.shift > 0 || patientHistoryCount.cancelled > 0) && (
+                        <Alert
+                          status="warning"
+                          variant="left-accent"
+                          borderRadius="lg"
+                          mb={4}
+                          boxShadow="sm"
+                        >
+                          <AlertIcon />
+                          <Box flex="1">
+                            <Text fontWeight="bold" fontSize="sm">
+                              Appointment History Noted
+                            </Text>
+                            <Text fontSize="xs">
+                              This patient has {patientHistoryCount.shift} shifted and {patientHistoryCount.cancelled} cancelled appointments.
+                            </Text>
+                          </Box>
+                          <Button
+                            size="sm"
+                            colorScheme="orange"
+                            variant="solid"
+                            ml={3}
+                            onClick={() =>
+                              setHistoryModal({
+                                isOpen: true,
+                                patientId: values.patient.value,
+                                patientName: values.patient.label.split("(")[0].trim(),
+                              })
+                            }
+                          >
+                            View Details
+                          </Button>
+                        </Alert>
+                      )}
                       <Grid
                         gap={4}
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
                       >
-                        <Flex align="end" gap={3} alignItems="center">
+                        <Flex align="center" gap={3} alignItems="center">
                           <CustomInput
                             name="patient"
                             placeholder="Search Patient"
@@ -351,9 +464,14 @@ const AddAppointmentForm = observer(
                             label="Patient"
                             required
                             value={values.patient}
-                            onChange={(val: any) =>
-                              setFieldValue("patient", val)
-                            }
+                            onChange={(val: any) => {
+                              setFieldValue("patient", val);
+                              if (val?.value) {
+                                fetchPatientHistoryCount(val.value);
+                              } else {
+                                setPatientHistoryCount({ shift: 0, cancelled: 0 });
+                              }
+                            }}
                             options={
                               isPatient
                                 ? [
@@ -362,7 +480,7 @@ const AddAppointmentForm = observer(
                                       ? ` (${patientDetails.code})`
                                       : ""
                                       }`,
-                                    value: patientDetails?._id,
+                                    value: patientDetails?._id || patientDetails?.id,
                                   },
                                 ]
                                 : haveCreateProfile
@@ -533,26 +651,32 @@ const AddAppointmentForm = observer(
                             }
                           />
                         </SimpleGrid>
-                        <CustomInput
-                          name="description"
-                          label="Cause"
-                          type="textarea"
-                          placeholder="Enter Cause"
-                          value={values.description}
-                          onChange={(e: any) =>
-                            setFieldValue("description", e.target.value)
-                          }
-                        />
-                        <CustomInput
-                          name="title"
-                          label="Treatment Head"
-                          type="select"
-                          value={values.title}
-                          onChange={(e: any) => setFieldValue("title", e)}
-                          options={appointmentReason}
-                          error={errors.title}
-                          showError={touched.title}
-                        />
+                        <SimpleGrid
+                          columns={{ base: 1, md: 2 }}
+                          spacing={4}
+                          w="full"
+                        >
+                          <CustomInput
+                            name="title"
+                            label="Treatment Head"
+                            type="select"
+                            value={values.title}
+                            onChange={(e: any) => setFieldValue("title", e)}
+                            options={appointmentReason}
+                            error={errors.title}
+                            showError={touched.title}
+                          />
+                          <CustomInput
+                            name="description"
+                            label="Cause"
+                            type="text"
+                            placeholder="Enter Cause"
+                            value={values.description}
+                            onChange={(e: any) =>
+                              setFieldValue("description", e.target.value)
+                            }
+                          />
+                        </SimpleGrid>
                       </VStack>
                     </SectionCard>
                     <Flex
@@ -718,19 +842,30 @@ const AddAppointmentForm = observer(
                         />
                       </SectionCard>
                     </Flex>
-                    {/* === Submit === */}
-                    <Button
-                      colorScheme="blue"
-                      type="submit"
-                      isLoading={isSubmitting}
-                      size="lg"
-                      width="full"
-                      mt={2}
-                      borderRadius="xl"
-                      shadow="md"
-                    >
-                      Save Appointment
-                    </Button>
+                    {/* === Submit (Mobile Only) === */}
+                    <HStack spacing={3} mt={2} display={{ base: "flex", md: "none" }}>
+                      <Button
+                        variant="outline"
+                        colorScheme="red"
+                        onClick={close}
+                        size="lg"
+                        flex={1}
+                        borderRadius="xl"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        colorScheme="blue"
+                        type="submit"
+                        isLoading={isSubmitting}
+                        size="lg"
+                        flex={2}
+                        borderRadius="xl"
+                        shadow="md"
+                      >
+                        Save Appointment
+                      </Button>
+                    </HStack>
                   </VStack>
                 </Form>
               </>
@@ -745,6 +880,14 @@ const AddAppointmentForm = observer(
           setThumbnail={setThumbnail}
           formLoading={formLoading}
         />
+        {historyModal.isOpen && (
+          <AppointmentHistoryModal
+            isOpen={historyModal.isOpen}
+            onClose={() => setHistoryModal({ ...historyModal, isOpen: false })}
+            patientId={historyModal.patientId}
+            patientName={historyModal.patientName}
+          />
+        )}
       </>
     );
   },

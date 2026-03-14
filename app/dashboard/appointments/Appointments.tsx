@@ -29,7 +29,8 @@ import { SLOT_DURATION } from "../daily-report/utils/constant";
 import AddAppointmentForm from "./component/AddForm";
 import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
+import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
 
 const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: any) => {
   const {
@@ -65,13 +66,21 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
     "no-show": 0,
   });
 
+  const [historyModal, setHistoryModal] = useState({
+    isOpen: false,
+    patientId: "",
+    patientName: "",
+  });
+
   console.log(toJS(appointments));
 
   const fetchPatientStatus = async () => {
     try {
+      console.log("📡 Fetching status for patient:", patientDetails?._id);
       const response = await getPatientAppointmentStatusCount({
         patient: patientDetails?._id,
       });
+      console.log("✅ Status API Response:", response);
       if (response?.status === "success") {
         setPatientStatus(response?.data);
       }
@@ -94,6 +103,30 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
     open: false,
     data: null,
   });
+
+  // Auto-open history modal when Add / Calendar is opened
+  useEffect(() => {
+    console.log("🔍 Auto-open check:", { open: openReportModal.open, isPatient, patientStatus });
+    if (openReportModal.open && isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0)) {
+      console.log("🚀 Triggering history modal auto-open");
+      setHistoryModal({
+        isOpen: true,
+        patientId: patientDetails?._id || patientDetails?.id,
+        patientName: patientDetails?.name || "Patient",
+      });
+    }
+  }, [openReportModal.open, isPatient, patientStatus, patientDetails]);
+
+  // Also auto-open when a slot is clicked (Add form opens)
+  useEffect(() => {
+    if (selectedDateAndTime.open && selectedDateAndTime.type === "add" && isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0)) {
+      setHistoryModal({
+        isOpen: true,
+        patientId: patientDetails?._id || patientDetails?.id,
+        patientName: patientDetails?.name || "Patient",
+      });
+    }
+  }, [selectedDateAndTime.open, selectedDateAndTime.type, isPatient, patientStatus, patientDetails]);
 
   const [openView, setOpenView] = useState({
     open: false,
@@ -474,6 +507,36 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
         loading={appointments.loading}
       />
 
+      {isPatient && patientDetails && (
+        <AppointmentHistoryModal
+          isOpen={historyModal.isOpen}
+          onClose={() => setHistoryModal({ ...historyModal, isOpen: false })}
+          patientId={historyModal.patientId}
+          patientName={historyModal.patientName}
+        />
+      )}
+
+      {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && (
+        <Box position="fixed" bottom="20px" right="20px" zIndex={1000}>
+          <Button
+            colorScheme="orange"
+            size="lg"
+            borderRadius="full"
+            boxShadow="xl"
+            leftIcon={<InfoIcon />}
+            onClick={() =>
+              setHistoryModal({
+                isOpen: true,
+                patientId: patientDetails?._id || patientDetails?.id,
+                patientName: patientDetails?.name || "Patient",
+              })
+            }
+          >
+            History ({(patientStatus.shift || 0) + (patientStatus.cancelled || 0)})
+          </Button>
+        </Box>
+      )}
+
       {/* Add / Calendar Drawer */}
       <CustomDrawer
         width={"90vw"}
@@ -485,7 +548,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
           })
         }
         title={
-          selectedDate ? (
+          <Flex align="center" justify="space-between" width="100%" pr={10}>
             <Flex align="center" gap={3}>
               <Button size="md" onClick={goToPreviousDate} p={1}>
                 <ChevronLeftIcon color="white" fontSize={32} />
@@ -499,9 +562,42 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
                 <ChevronRightIcon color="white" fontSize={32} />
               </Button>
             </Flex>
-          ) : (
-            "Select date"
-          )
+
+            {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && (
+              <Flex
+                align="center"
+                gap={2}
+                bg="orange.50"
+                px={4}
+                py={2}
+                borderRadius="full"
+                border="1px solid"
+                borderColor="orange.200"
+                boxShadow="sm"
+              >
+                <InfoIcon color="orange.500" />
+                <Text fontSize="sm" fontWeight="bold" color="orange.800">
+                  History: {(patientStatus.shift || 0) + (patientStatus.cancelled || 0)}
+                </Text>
+                <Button
+                  size="xs"
+                  colorScheme="orange"
+                  variant="solid"
+                  borderRadius="full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setHistoryModal({
+                      isOpen: true,
+                      patientId: patientDetails?._id || patientDetails?.id,
+                      patientName: patientDetails?.name || "Patient",
+                    });
+                  }}
+                >
+                  View Details
+                </Button>
+              </Flex>
+            )}
+          </Flex>
         }
       >
         <DentistScheduler
