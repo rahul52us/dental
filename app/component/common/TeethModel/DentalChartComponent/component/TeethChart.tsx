@@ -74,7 +74,7 @@ export const TeethChart = ({
       {/* Chart Layout - Centered with Patients Orientation */}
       <Flex borderBottom="1px solid" borderColor="gray.50" pb={3} mb={5} justify="space-between" align="center">
         <Text fontSize="10px" fontWeight="black" color="gray.300" letterSpacing="widest">
-          PATIENT&apos;S RIGHT
+          RIGHT
         </Text>
 
         <Badge variant="outline" colorScheme="gray" fontSize="9px" fontWeight="black" borderRadius="md" px={3}>
@@ -82,7 +82,7 @@ export const TeethChart = ({
         </Badge>
 
         <Text fontSize="10px" fontWeight="black" color="gray.300" letterSpacing="widest">
-          PATIENT&apos;S LEFT
+          LEFT
         </Text>
       </Flex>
 

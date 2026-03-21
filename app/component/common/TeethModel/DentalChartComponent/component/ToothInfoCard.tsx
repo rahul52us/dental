@@ -6,15 +6,20 @@ import {
   useColorModeValue,
   Circle,
   Icon,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import { FaTooth } from "react-icons/fa";
+import { FiEdit3, FiMessageSquare } from "react-icons/fi";
 import { ToothData } from "../utils/teethData";
 
 interface ToothInfoCardProps {
   tooth: ToothData | null;
+  onEditNote?: (tooth: ToothData) => void;
+  hasNote?: boolean;
 }
 
-export const ToothInfoCard = ({ tooth }: ToothInfoCardProps) => {
+export const ToothInfoCard = ({ tooth, onEditNote, hasNote }: ToothInfoCardProps) => {
   const bg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.100", "gray.700");
 
@@ -84,11 +89,32 @@ export const ToothInfoCard = ({ tooth }: ToothInfoCardProps) => {
           </Text>
         </VStack>
 
-        <VStack align="end" spacing={0}>
-          <Text fontSize="8px" fontWeight="900" color="gray.300" letterSpacing="0.2em">REF</Text>
-          <Text fontSize="18px" fontWeight="900" color="gray.800" lineHeight="1">
-            {tooth.id}
-          </Text>
+        <VStack align="end" spacing={2}>
+          <HStack spacing={2}>
+            {hasNote && (
+              <Tooltip label="Has clinical note">
+                <Icon as={FiMessageSquare} color="blue.500" boxSize={3} />
+              </Tooltip>
+            )}
+            <IconButton
+              aria-label="Edit tooth note"
+              icon={<FiEdit3 />}
+              size="xs"
+              variant="ghost"
+              colorScheme="blue"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (tooth) onEditNote?.(tooth);
+              }}
+              _hover={{ bg: "blue.50" }}
+            />
+          </HStack>
+          <VStack align="end" spacing={0}>
+            <Text fontSize="8px" fontWeight="900" color="gray.300" letterSpacing="0.2em">REF</Text>
+            <Text fontSize="18px" fontWeight="900" color="gray.800" lineHeight="1">
+              {tooth.id}
+            </Text>
+          </VStack>
         </VStack>
       </HStack>
     </Box>

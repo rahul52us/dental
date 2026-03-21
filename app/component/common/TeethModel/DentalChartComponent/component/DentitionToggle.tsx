@@ -41,14 +41,14 @@ export const DentitionToggle = ({
         gap={1}
       >
         <Tab
-          px={4}
-          py={2.5}
+          px={3}
+          py={1.5}
           rounded="lg"
           transition="all 0.2s"
           _selected={{
-            bg: "white",
-            color: "gray.800",
-            boxShadow: "sm",
+            bg: "blue.500",
+            color: "white",
+            boxShadow: "lg",
           }}
           _hover={{
             color: "gray.800",
@@ -56,15 +56,15 @@ export const DentitionToggle = ({
         >
           <HStack spacing={2}>
             <FiUser />
-            <Text fontSize="sm" fontWeight="medium">
+            <Text fontSize="xs" fontWeight="medium">
               Adult (32 Teeth)
             </Text>
           </HStack>
         </Tab>
 
         <Tab
-          px={4}
-          py={2.5}
+          px={3}
+          py={1.5}
           rounded="lg"
           transition="all 0.2s"
           _selected={{
@@ -78,7 +78,7 @@ export const DentitionToggle = ({
         >
           <HStack spacing={2}>
             <LuBaby />
-            <Text fontSize="sm" fontWeight="medium">
+            <Text fontSize="xs" fontWeight="medium">
               Child (20 Teeth)
             </Text>
           </HStack>

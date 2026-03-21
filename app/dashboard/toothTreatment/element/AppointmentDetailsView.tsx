@@ -97,7 +97,7 @@ const ToothTreatmentView = observer(({ data }: TreatviewProps) => {
   const color = statusColors[status] || "gray";
 
   return (
-    <Box p={6} bg="white" shadow="lg" borderRadius="xl">
+    <Box p={6} bg="white" shadow="lg" borderRadius="xl" maxH="80vh" overflowY="auto" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
       {/* Header */}
       <HStack justify="space-between" align="start" mb={6}>
         <Box>
