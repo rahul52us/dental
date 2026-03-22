@@ -763,7 +763,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
                     ? value
                     : null
                   : null
-                : userOptions.find((opt: any) => opt?.value === value?.value)
+                : (userOptions.find((opt: any) => opt?.value === value?.value) || value || null)
             }
             onChange={(selectedOption: any) => {
               if (isMulti) {

@@ -17,6 +17,11 @@ import {
     InputGroup,
     InputLeftElement,
     Avatar,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { Formik, Form as FormikForm } from "formik";
@@ -41,6 +46,7 @@ const MotionVStack = motion(VStack);
 const MotionBox = motion(Box);
 
 import { ToothData } from "../utils/teethData";
+import { ToothInfoCard } from "./ToothInfoCard";
 import CustomInput from "../../../../config/component/customInput/CustomInput";
 import { replaceLabelValueObjects } from "../../../../../config/utils/function";
 import { observer } from "mobx-react-lite";
@@ -92,9 +98,11 @@ interface TreatmentFormData {
     treatmentDate: string;
     notes: string;
     treatmentCode: string;
-    estimate: number;
+    estimateMin: number;
+    estimateMax: number;
     discount: number;
-    total: number;
+    totalMin: number;
+    totalMax: number;
     patient?: any;
     status: string;
 }
@@ -104,9 +112,11 @@ const initialFormData: TreatmentFormData = {
     treatmentDate: new Date().toISOString().split("T")[0],
     notes: "",
     treatmentCode: "",
-    estimate: 0,
+    estimateMin: 0,
+    estimateMax: 0,
     discount: 0,
-    total: 0,
+    totalMin: 0,
+    totalMax: 0,
     patient: undefined,
     status: "Planned",
 };
@@ -124,6 +134,8 @@ export const TreatmentProcedureForm = observer(
         explorerState,
         onExplorerUpdate,
         editData,
+        individualTeethNotes,
+        onEditToothNote,
     }: TreatmentProcedureFormProps) => {
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
@@ -201,6 +213,11 @@ export const TreatmentProcedureForm = observer(
                         notes: values.notes,
                         treatmentPlan: values.treatmentCode, // Map treatmentCode to treatmentPlan
                         status: values.status === "Planned" ? "pending" : values.status, // Map status
+                        estimateMin: values.estimateMin || 0,
+                        estimateMax: values.estimateMax || 0,
+                        totalMin: values.totalMin || 0,
+                        totalMax: values.totalMax || 0,
+                        discount: values.discount || 0,
                         tooth: {
                             fdi: tooth.id,
                             universal: null,
@@ -254,11 +271,12 @@ export const TreatmentProcedureForm = observer(
 
         return (
             <Formik
-                initialValues={hoistedValues || {
+                initialValues={{
                     ...initialFormData,
                     patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
                     notes: generalDescription,
-                    doctor: doctorOptions[0],
+                    ...(hoistedValues || {}),
+                    doctor: hoistedValues?.doctor || doctorOptions[0],
                 }}
                 enableReinitialize={true}
                 onSubmit={handleSubmit}
@@ -287,7 +305,16 @@ export const TreatmentProcedureForm = observer(
                             <Grid templateColumns="1fr 340px" gap={8} minH="700px">
 
                                 {/* CLINICAL EXPLORER - COMPACT 3-TRACK */}
-                                <VStack align="stretch" spacing={5} h="full">
+                                <Box h="full" overflow="hidden" gridColumn={{ base: "span 1", lg: "1" }}>
+                                <Tabs variant="unstyled" colorScheme="blue" h="full" display="flex" flexDirection="column">
+                                    <TabList borderBottom="1px solid" borderColor="gray.100" bg="white" px={1} py={1} mb={3} gap={2}>
+                                        <Tab _selected={{ color: "blue.600", bg: "blue.50", fontWeight: "900" }} borderRadius="xl" px={4} py={2} fontSize="11px" fontWeight="800" color="gray.500" letterSpacing="0.1em">1. PROCEDURES</Tab>
+                                        <Tab _selected={{ color: "blue.600", bg: "blue.50", fontWeight: "900" }} borderRadius="xl" px={4} py={2} fontSize="11px" fontWeight="800" color="gray.500" letterSpacing="0.1em">2. SELECTED TEETH ({teeth.length})</Tab>
+                                    </TabList>
+
+                                    <TabPanels flex={1} overflowY="auto" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                        <TabPanel p={0} h="full">
+                                            <VStack align="stretch" spacing={5} h="full">
                                     <Flex justify="space-between" align="center" px={2}>
                                         <VStack align="start" spacing={0}>
                                             <HStack spacing={2}>
@@ -374,8 +401,11 @@ export const TreatmentProcedureForm = observer(
                                                                 cursor="pointer"
                                                                 onClick={() => {
                                                                     setFieldValue("treatmentCode", fullCode);
-                                                                    setFieldValue("estimate", proc.defaultEstimate);
-                                                                    setFieldValue("total", calculateTotal(proc.defaultEstimate, values.discount));
+                                                                     setFieldValue("notes", "");
+                                                                    setFieldValue("estimateMin", proc.defaultEstimate);
+                                                                    setFieldValue("estimateMax", proc.defaultEstimate);
+                                                                    setFieldValue("totalMin", calculateTotal(proc.defaultEstimate, values.discount));
+                                                                    setFieldValue("totalMax", calculateTotal(proc.defaultEstimate, values.discount));
                                                                 }}
                                                                 _hover={isSelected ? {} : { transform: "translateX(4px)", bg: "blue.50/30" }}
                                                                 transition="all 0.2s"
@@ -492,8 +522,11 @@ export const TreatmentProcedureForm = observer(
                                                                     color={isSelected ? "white" : "gray.600"}
                                                                     onClick={() => {
                                                                         setFieldValue("treatmentCode", fullCode);
-                                                                        setFieldValue("estimate", job.defaultEstimate);
-                                                                        setFieldValue("total", calculateTotal(job.defaultEstimate, values.discount));
+                                                                     setFieldValue("notes", "");
+                                                                        setFieldValue("estimateMin", job.defaultEstimate);
+                                                                        setFieldValue("estimateMax", job.defaultEstimate);
+                                                                        setFieldValue("totalMin", calculateTotal(job.defaultEstimate, values.discount));
+                                                                        setFieldValue("totalMax", calculateTotal(job.defaultEstimate, values.discount));
                                                                     }}
                                                                     _hover={isSelected ? {} : { transform: "translateX(4px)", color: "blue.600", bg: "blue.50/10" }}
                                                                     transition="all 0.2s"
@@ -512,47 +545,72 @@ export const TreatmentProcedureForm = observer(
                                                             );
                                                         })}
                                                     </VStack>
-                                                </Box>
-                                            </Grid>
-                                        )}
-                                    </Box>
+                                                 </Box>
+                                             </Grid>
+                                         )}
+                                         </Box>
 
-                                    {/* FOOTER ACTIONS - RESTORED BACK BUTTON */}
-                                    <Flex justify="start" pt={4} pb={12}>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            leftIcon={<FiChevronRight style={{ transform: 'rotate(180deg)' }} />}
-                                            onClick={onBack}
-                                            fontSize="12px"
-                                            fontWeight="900"
-                                            color="gray.400"
-                                            textTransform="uppercase"
-                                            letterSpacing="0.1em"
-                                            _hover={{ color: "blue.500", bg: "blue.50" }}
-                                            borderRadius="full"
-                                            px={6}
-                                        >
-                                            Go Back
-                                        </Button>
-                                    </Flex>
-                                </VStack>
+                                         <Flex justify="start" pt={4} pb={12}>
+                                             <Button
+                                                 variant="ghost"
+                                                 size="sm"
+                                                 leftIcon={<FiChevronRight style={{ transform: 'rotate(180deg)' }} />}
+                                                 onClick={onBack}
+                                                 fontSize="12px"
+                                                 fontWeight="900"
+                                                 color="gray.400"
+                                                 textTransform="uppercase"
+                                                 letterSpacing="0.1em"
+                                                 _hover={{ color: "blue.500", bg: "blue.50" }}
+                                                 borderRadius="full"
+                                                 px={6}
+                                             >
+                                                 Go Back
+                                             </Button>
+                                         </Flex>
+                                     </VStack>
+                                 </TabPanel>
+                                 <TabPanel p={0} h="full">
+                                     {/* SECOND TAB: SELECTED TEETH LIST */}
+                                     <VStack align="stretch" spacing={4} p={1} overflowY="auto" h="full" maxH="700px">
+                                         <Text fontSize="12px" fontWeight="900" color="gray.400" letterSpacing="0.05em">Review selected candidates for proposed treatments.</Text>
+                                         {teeth.length > 0 ? (
+                                             <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={4}>
+                                                 {teeth.map((tooth) => (
+                                                             <Box key={tooth.id} p={1} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.50" boxShadow="sm">
+                                                                 <ToothInfoCard
+                                                                     key={tooth.id}
+                                                                     tooth={tooth}
+                                                                     onEditNote={onEditToothNote}
+                                                                     hasNote={!!individualTeethNotes?.[tooth.id]}
+                                                                 />
+                                                             </Box>
+                                                         ))}
+                                                     </Grid>
+                                                 ) : (
+                                                     <Text fontSize="13px" color="gray.400">No teeth selected</Text>
+                                                 )}
+                                             </VStack>
+                                        </TabPanel>
+                                    </TabPanels>
+                                </Tabs>
+                                </Box>
 
-                                {/* BILILNG & CASE SUMMARY - ULTRA SLIM SIDEBAR */}
-                                <VStack align="stretch" spacing={0} h="full" pb={12}>
-                                    <VStack
-                                        align="stretch"
-                                        spacing={0}
-                                        p={0}
-                                        bg="rgba(255, 255, 255, 0.4)"
-                                        backdropFilter="blur(25px)"
-                                        borderRadius="2xl"
-                                        border="1px solid"
-                                        borderColor="whiteAlpha.400"
-                                        boxShadow="2xl"
-                                        h="full"
-                                        position="relative"
-                                        overflow="hidden"
+                                 {/* BILILNG & CASE SUMMARY - ULTRA SLIM SIDEBAR */}
+                                 <VStack align="stretch" spacing={0} h="full" maxH="700px" pb={12}>
+                                     <VStack
+                                         align="stretch"
+                                         spacing={0}
+                                         p={0}
+                                         bg="rgba(255, 255, 255, 0.4)"
+                                         backdropFilter="blur(25px)"
+                                         borderRadius="2xl"
+                                         border="1px solid"
+                                         borderColor="whiteAlpha.400"
+                                         boxShadow="2xl"
+                                         h="full"
+                                         position="relative"
+                                         overflow="hidden"
                                     >
                                         {/* Clinical Stamp Watermark */}
                                         <Box position="absolute" top="10" right="-10" opacity={0.03} pointerEvents="none" transform="rotate(-15deg)">
@@ -581,7 +639,7 @@ export const TreatmentProcedureForm = observer(
 
                                         <Box position="absolute" top="10" left="0" bottom="10" w="1px" bg="blue.500" borderRadius="full" opacity={0.1} />
 
-                                        <VStack align="stretch" spacing={4} overflowY="auto" pr={1} px={5} pt={4} pb={5} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                         <VStack flex={1} align="stretch" spacing={4} overflowY="auto" pr={1} px={5} pt={4} pb={12} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
 
                                             {/* Patient Identity Header - Floating Card Style */}
                                             <MotionBox
@@ -646,52 +704,26 @@ export const TreatmentProcedureForm = observer(
                                                     <Badge colorScheme="green" variant="subtle" fontSize="10px" px={2} borderRadius="full">STATUS: ACTIVE</Badge>
                                                     <Text fontSize="10px" fontWeight="800" color="gray.300">REF: DIAG-#{new Date().getFullYear()}</Text>
                                                 </HStack>
-                                            </MotionBox>
-                                            {/* SESSION SUMMARY BOX - QUADRANT AWARE TEETH MATRIX */}
-                                            <MotionBox
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.2 }}
-                                                p={3.5} bg="blue.50/20" borderRadius="xl" border="1px solid" borderColor="blue.100"
-                                            >
-                                                <VStack align="stretch" spacing={3}>
-                                                    <HStack justify="space-between" align="center">
-                                                        <Text fontSize="11px" fontWeight="900" color="blue.600" textTransform="uppercase" letterSpacing="0.1em">Teeth Matrix</Text>
-                                                        <Badge fontSize="10px" colorScheme="blue" variant="solid" borderRadius="full">Q{Object.values(quadrants).filter(q => q.length > 0).length} ACTIVE</Badge>
-                                                    </HStack>
-
-                                                    {teeth.length > 0 ? (
-                                                        <VStack align="stretch" spacing={2.5}>
-                                                            {Object.entries(quadrants).map(([name, items]) => items.length > 0 && (
-                                                                <HStack key={name} spacing={2}>
-                                                                    <Text fontSize="6px" fontWeight="900" color="gray.400" minW="12px">{name}</Text>
-                                                                    <HStack spacing={1} flexWrap="wrap">
-                                                                        {items.map(t => (
-                                                                            <Circle key={t.id} size="22px" bg="blue.600" color="white" fontSize="10px" fontWeight="900" border="1px solid" borderColor="blue.400">
-                                                                                {t.id}
-                                                                            </Circle>
-                                                                        ))}
-                                                                    </HStack>
-                                                                </HStack>
-                                                            ))}
-                                                        </VStack>
-                                                    ) : (
-                                                        <Text fontSize="11px" fontWeight="800" color="gray.400">Awaiting selection...</Text>
-                                                    )}
-
-                                                    <Divider borderColor="blue.100" opacity={0.3} />
-
-                                                    <VStack align="start" spacing={1}>
-                                                        <Text fontSize="10px" fontWeight="900" color="gray.400" textTransform="uppercase" letterSpacing="widest">Clinical Protocol</Text>
-                                                        <Box p={3} bg="white" borderRadius="lg" w="full" border="1px solid" borderColor="blue.50">
-                                                            <Text fontSize="12px" fontWeight="900" color="gray.700" lineHeight="1.3">
-                                                                {values.treatmentCode ? (
-                                                                    <Text as="span" color="blue.600">{values.treatmentCode.split(" → ").pop()}</Text>
-                                                                ) : "Search list..."}
-                                                            </Text>
-                                                        </Box>
-                                                    </VStack>
-                                                </VStack>
+                                                                                         {/* SESSION SUMMARY BOX - CLINICAL PROTOCOL */}
+                                             <MotionBox
+                                                 initial={{ opacity: 0, y: 10 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 transition={{ delay: 0.2 }}
+                                                 p={3.5} bg="blue.50/20" borderRadius="xl" border="1px solid" borderColor="blue.100"
+                                             >
+                                                 <VStack align="stretch" spacing={3}>
+                                                     <VStack align="start" spacing={1}>
+                                                         <Text fontSize="10px" fontWeight="900" color="gray.400" textTransform="uppercase" letterSpacing="widest">Clinical Protocol</Text>
+                                                         <Box p={3} bg="white" borderRadius="lg" w="full" border="1px solid" borderColor="blue.50">
+                                                             <Text fontSize="12px" fontWeight="900" color="gray.700" lineHeight="1.3">
+                                                                 {values.treatmentCode ? (
+                                                                     <Text as="span" color="blue.600">{values.treatmentCode.split(" → ").pop()}</Text>
+                                                                 ) : "Search list..."}
+                                                             </Text>
+                                                         </Box>
+                                                     </VStack>
+                                                 </VStack>
+                                             </MotionBox>
                                             </MotionBox>
 
                                             {/* FINANCIAL DATA SHEET - PREMIUM ESTIMATE */}
@@ -706,49 +738,79 @@ export const TreatmentProcedureForm = observer(
                                                     <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em" textTransform="uppercase">Clinical Financials</Text>
                                                 </HStack>
 
-                                                <VStack spacing={0} align="stretch" bg="white" borderRadius="2xl" p={5} border="1px solid" borderColor="gray.100" boxShadow="lg">
-                                                    <Flex justify="space-between" align="center" mb={3}>
-                                                        <Text fontSize="10px" fontWeight="900" color="gray.400">GROSS ESTIMATE</Text>
-                                                        <Text fontSize="sm" fontWeight="1000" color="gray.800">₹{values.estimate.toLocaleString()}</Text>
-                                                    </Flex>
-                                                    <Flex justify="space-between" align="center" mb={5}>
-                                                        <VStack align="start" spacing={0}>
-                                                            <Text fontSize="12px" fontWeight="900" color="gray.400">CONCESSION</Text>
-                                                            {values.discount > 0 && <Badge colorScheme="green" fontSize="10px" borderRadius="full">SAVING ₹{values.discount}</Badge>}
-                                                        </VStack>
-                                                        <HStack spacing={1.5} maxW="120px">
-                                                            <Input
-                                                                type="number" size="sm" h="32px"
-                                                                value={values.discount}
-                                                                onChange={(e) => {
-                                                                    const val = Number(e.target.value);
-                                                                    setFieldValue("discount", val);
-                                                                    setFieldValue("total", calculateTotal(values.estimate, val));
-                                                                }}
-                                                                borderRadius="lg" fontWeight="900" bg="gray.50"
-                                                                borderColor="blue.50" fontSize="12px" color="blue.600"
-                                                                textAlign="right"
-                                                                _focus={{ borderColor: "blue.300", bg: "white", boxShadow: "0 0 0 1px #EBF8FF" }}
-                                                            />
-                                                        </HStack>
-                                                    </Flex>
-                                                    <Divider borderColor="gray.100" mb={5} />
-                                                    <VStack spacing={1} align="stretch">
-                                                        <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em" textAlign="center">FINAL CLINICAL QUOTE</Text>
-                                                        <Box py={2} bg="blue.50/30" borderRadius="xl">
-                                                            <Text
-                                                                fontSize="28px"
-                                                                fontWeight="1000"
-                                                                color="blue.600"
-                                                                lineHeight="1.1"
-                                                                letterSpacing="tight"
-                                                                textAlign="center"
-                                                            >
-                                                                ₹{values.total.toLocaleString()}
-                                                            </Text>
-                                                        </Box>
-                                                    </VStack>
-                                                </VStack>
+                                                <VStack spacing={4} align="stretch" bg="white" borderRadius="2xl" p={5} border="1px solid" borderColor="gray.100" boxShadow="lg">
+                                                     <VStack align="stretch" spacing={2} mb={1}>
+                                                         <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ESTIMATE RANGE</Text>
+                                                         <HStack spacing={2}>
+                                                             <InputGroup size="sm">
+                                                                 <Input
+                                                                     type="number"
+                                                                     placeholder="Min"
+                                                                     value={values.estimateMin}
+                                                                     onChange={(e) => {
+                                                                         const val = Number(e.target.value);
+                                                                         setFieldValue("estimateMin", val);
+                                                                         setFieldValue("totalMin", calculateTotal(val, values.discount));
+                                                                     }}
+                                                                     borderRadius="lg" fontWeight="700" bg="gray.50"
+                                                                 />
+                                                             </InputGroup>
+                                                             <Text fontSize="xs" color="gray.400">-</Text>
+                                                             <InputGroup size="sm">
+                                                                 <Input
+                                                                     type="number"
+                                                                     placeholder="Max"
+                                                                     value={values.estimateMax}
+                                                                     onChange={(e) => {
+                                                                         const val = Number(e.target.value);
+                                                                         setFieldValue("estimateMax", val);
+                                                                         setFieldValue("totalMax", calculateTotal(val, values.discount));
+                                                                     }}
+                                                                     borderRadius="lg" fontWeight="700" bg="gray.50"
+                                                                 />
+                                                             </InputGroup>
+                                                         </HStack>
+                                                     </VStack>
+
+                                                     <Flex justify="space-between" align="center" mb={1}>
+                                                         <VStack align="start" spacing={0}>
+                                                             <Text fontSize="12px" fontWeight="900" color="gray.400">CONCESSION</Text>
+                                                             {values.discount > 0 && <Badge colorScheme="green" fontSize="10px" borderRadius="full">SAVING ₹{values.discount}</Badge>}
+                                                         </VStack>
+                                                         <HStack spacing={1.5} maxW="120px">
+                                                             <Input
+                                                                 type="number" size="sm" h="32px"
+                                                                 value={values.discount}
+                                                                 onChange={(e) => {
+                                                                     const val = Number(e.target.value);
+                                                                     setFieldValue("discount", val);
+                                                                     setFieldValue("totalMin", calculateTotal(values.estimateMin, val));
+                                                                     setFieldValue("totalMax", calculateTotal(values.estimateMax, val));
+                                                                 }}
+                                                                 borderRadius="lg" fontWeight="900" bg="gray.50"
+                                                                 borderColor="blue.50" fontSize="12px" color="blue.600"
+                                                                 textAlign="right"
+                                                                 _focus={{ borderColor: "blue.300", bg: "white", boxShadow: "0 0 0 1px #EBF8FF" }}
+                                                             />
+                                                         </HStack>
+                                                     </Flex>
+                                                     <Divider borderColor="gray.100" />
+                                                     <VStack spacing={1} align="stretch">
+                                                         <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em" textAlign="center">FINAL CLINICAL QUOTE</Text>
+                                                         <Box py={2} bg="blue.50/30" borderRadius="xl">
+                                                             <Text
+                                                                 fontSize="24px"
+                                                                 fontWeight="1000"
+                                                                 color="blue.600"
+                                                                 lineHeight="1.1"
+                                                                 letterSpacing="tight"
+                                                                 textAlign="center"
+                                                             >
+                                                                 ₹{values.totalMin.toLocaleString()} - ₹{values.totalMax.toLocaleString()}
+                                                             </Text>
+                                                         </Box>
+                                                     </VStack>
+                                                 </VStack>
                                             </MotionBox>
 
                                             <VStack align="stretch" spacing={2} pb={2}>

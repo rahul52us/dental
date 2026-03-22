@@ -86,6 +86,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   const {
     userStore: { getUsersList },
+    toothTreatmentStore: { getToothTreatments, toothTreatment },
   } = stores;
 
   useEffect(() => {
@@ -104,6 +105,18 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     };
     fetchDoctors();
   }, [getUsersList]);
+
+  useEffect(() => {
+    const fetchSavedTreatments = async () => {
+      if (!patientDetails?._id) return;
+      try {
+        await getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
+      } catch (err) {
+        console.error("Failed to fetch saved treatments", err);
+      }
+    };
+    fetchSavedTreatments();
+  }, [patientDetails?._id, getToothTreatments]);
 
   const doctorOptions = useMemo(() => {
     return doctors.map((d) => ({
@@ -144,9 +157,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         treatmentDate: edit.treatmentDate?.split("T")[0] || new Date().toISOString().split("T")[0],
         notes: edit.notes || "",
         treatmentCode: edit.treatmentPlan || "",
-        estimate: edit.estimate || 0,
+        estimateMin: edit.estimateMin || 0,
+        estimateMax: edit.estimateMax || 0,
         discount: edit.discount || 0,
-        total: edit.total || 0,
+        totalMin: edit.totalMin || 0,
+        totalMax: edit.totalMax || 0,
         patient: edit.patient ? (typeof edit.patient === 'object' ? { label: edit.patient.name, value: edit.patient._id } : { label: patientDetails?.name, value: edit.patient }) : { label: patientDetails?.name, value: patientDetails?._id },
         status: edit.status || "Planned",
         treatmentId: edit._id,
@@ -208,6 +223,16 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleStepClick = (idx: number) => {
     if (idx < currentMainIdx) {
       setStep(steps[idx].id as WizardStep);
+      setProcedureFormValues((prev: any) => prev ? { 
+        ...prev, 
+        treatmentCode: "",
+        estimateMin: 0,
+        estimateMax: 0,
+        totalMin: 0,
+        totalMax: 0,
+        discount: 0,
+        notes: "" 
+      } : prev);
     }
   };
 
@@ -220,6 +245,16 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleBack = () => {
     if (step === "PROCEDURE_FORM") {
       setStep("TOOTH_SELECTION");
+      setProcedureFormValues((prev: any) => prev ? { 
+        ...prev, 
+        treatmentCode: "",
+        estimateMin: 0,
+        estimateMax: 0,
+        totalMin: 0,
+        totalMax: 0,
+        discount: 0,
+        notes: "" 
+      } : prev);
     }
   };
 
@@ -232,6 +267,16 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         return [...prev, tooth];
       }
     });
+    setProcedureFormValues((prev: any) => prev ? { 
+      ...prev, 
+      treatmentCode: "",
+      estimateMin: 0,
+      estimateMax: 0,
+      totalMin: 0,
+      totalMax: 0,
+      discount: 0,
+      notes: "" 
+    } : prev);
   };
 
   const renderStep = () => {
@@ -367,11 +412,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 >
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">DIAGNOSTIC QUEUE</Text>
-                    <Heading size="xs" fontWeight="900" color="gray.800" letterSpacing="tight">Review Selections</Heading>
+                    <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL HISTORY</Text>
+                    <Heading size="xs" fontWeight="900" color="gray.800" letterSpacing="tight">Saved Treatments</Heading>
                   </VStack>
                   <Circle size="28px" bg="blue.500" color="white" fontSize="11px" fontWeight="900">
-                    {selectedTeeth.length}
+                    {toothTreatment.data?.length || 0}
                   </Circle>
                 </HStack>
 
@@ -418,24 +463,68 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
                     <Divider borderColor="gray.100" />
 
-                    {selectedTeeth.map((tooth) => (
-                      <ToothInfoCard 
-                        key={tooth.id} 
-                        tooth={tooth} 
-                        onEditNote={handleEditToothNote}
-                        hasNote={!!individualTeethNotes[tooth.id]}
-                      />
-                    ))}
-                    {selectedTeeth.length === 0 && (
+                    {toothTreatment.loading ? (
+                      <VStack py={12} spacing={3} opacity={0.5}>
+                        <Progress size="xs" isIndeterminate w="full" colorScheme="blue" />
+                        <Text fontSize="xs" color="gray.500">Retrieving clinical records...</Text>
+                      </VStack>
+                    ) : toothTreatment.data?.length > 0 ? (
+                      toothTreatment.data.map((item: any) => (
+                        <Box 
+                          key={item._id} 
+                          p={4} 
+                          bg="gray.50" 
+                          borderRadius="2xl" 
+                          border="1px solid" 
+                          borderColor="gray.100"
+                          _hover={{ bg: "white", boxShadow: "sm", borderColor: "blue.50" }}
+                          transition="all 0.2s"
+                        >
+                          <VStack align="stretch" spacing={2}>
+                            <HStack justify="space-between">
+                              <Badge colorScheme={item.status === "completed" ? "green" : "blue"} variant="subtle" borderRadius="full" px={2}>
+                                {item.status?.toUpperCase()}
+                              </Badge>
+                              <Text fontSize="10px" color="gray.400" fontWeight="700">
+                                {item.treatmentDate ? new Date(item.treatmentDate).toLocaleDateString() : "No Date"}
+                              </Text>
+                            </HStack>
+                            <VStack align="start" spacing={0.5}>
+                              <Text fontSize="xs" fontWeight="900" color="gray.800" noOfLines={1}>
+                                {item.treatmentPlan?.split("→").pop()?.trim() || "Item"}
+                              </Text>
+                              <Text fontSize="10px" color="blue.500" fontWeight="700">
+                                TOOTH: FDI {item.tooth?.fdi || "--"}
+                              </Text>
+                            </VStack>
+                            {item.notes && (
+                              <Box p={2} bg="white" borderRadius="lg" border="1px solid" borderColor="gray.50">
+                                <Text fontSize="11px" color="gray.600" noOfLines={2}>
+                                  {item.notes}
+                                </Text>
+                              </Box>
+                            )}
+                            {(item.estimateMin > 0 || item.estimateMax > 0) && (
+                              <HStack justify="space-between" pt={1}>
+                                <Text fontSize="10px" fontWeight="800" color="gray.400">ESTIMATE:</Text>
+                                <Text fontSize="11px" fontWeight="900" color="gray.700">
+                                  ₹{item.estimateMin?.toLocaleString()} - ₹{item.estimateMax?.toLocaleString()}
+                                </Text>
+                              </HStack>
+                            )}
+                          </VStack>
+                        </Box>
+                      ))
+                    ) : (
                       <VStack textAlign="center" py={12} spacing={4} opacity={0.3}>
                         <Circle size="54px" bg="gray.50" border="1px solid" borderColor="gray.100">
-                          <Icon as={FiMousePointer} fontSize="lg" color="gray.300" />
+                          <Icon as={FiActivity} fontSize="lg" color="gray.300" />
                         </Circle>
                         <VStack spacing={1}>
                           <Text fontSize="9px" color="gray.400" fontWeight="900" letterSpacing="0.2em" textTransform="uppercase">
-                            Awaiting Interaction
+                            No History
                           </Text>
-                          <Text fontSize="xs" color="gray.400" fontWeight="500">Pick from clinical map</Text>
+                          <Text fontSize="xs" color="gray.400" fontWeight="500">No previous records found</Text>
                         </VStack>
                       </VStack>
                     )}
@@ -479,7 +568,19 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             complaintType={complaintType}
             onSuccess={() => {
               patientDetails?.applyGetAllRecords?.({});
-              closeWizard?.();
+              setStep("TOOTH_SELECTION");
+              setSelectedTeeth([]);
+              setIndividualTeethNotes({});
+              setProcedureFormValues((prev: any) => prev ? { 
+                ...prev, 
+                treatmentCode: "",
+                estimateMin: 0,
+                estimateMax: 0,
+                totalMin: 0,
+                totalMax: 0,
+                discount: 0,
+                notes: "" 
+              } : prev);
             }}
             onBack={handleBack}
             // Hoisted State Props
