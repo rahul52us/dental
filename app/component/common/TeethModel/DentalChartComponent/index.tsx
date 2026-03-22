@@ -35,7 +35,8 @@ import {
   FiChevronLeft,
   FiX,
   FiSave,
-  FiEdit3
+  FiEdit3,
+  FiTrash2
 } from "react-icons/fi";
 
 import { DentitionToggle } from "./component/DentitionToggle";
@@ -63,6 +64,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const formRef = useRef<any>(null);
   const [selectedTeeth, setSelectedTeeth] = useState<ToothData[]>([]);
   const [toothComplaints, setToothComplaints] = useState<Record<string, string>>({});
+  const [editingTreatment, setEditingTreatment] = useState<any | null>(null);
   const [notation, setNotation] = useState<"fdi" | "universal" | "palmer">("fdi");
   const [generalDescription, setGeneralDescription] = useState("");
   const [isToothFormOpen, setIsToothFormOpen] = useState(false);
@@ -80,6 +82,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [currentNoteDraft, setCurrentNoteDraft] = useState("");
   const { isOpen: isNoteModalOpen, onOpen: onOpenNoteModal, onClose: onCloseNoteModal } = useDisclosure();
   const { isOpen: isGeneralNoteModalOpen, onOpen: onOpenGeneralNoteModal, onClose: onCloseGeneralNoteModal } = useDisclosure();
+  const { isOpen: isDeleteModalOpen, onOpen: onOpenDeleteModal, onClose: onCloseDeleteModal } = useDisclosure();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeletingConfirmLoading, setIsDeletingConfirmLoading] = useState(false);
   const [generalNoteDraft, setGeneralNoteDraft] = useState("");
 
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -87,7 +92,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   const {
     userStore: { getUsersList },
-    toothTreatmentStore: { getToothTreatments, toothTreatment },
+    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
   } = stores;
 
   useEffect(() => {
@@ -288,6 +293,56 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       discount: 0,
       notes: ""
     } : prev);
+  };
+
+  const handleDeleteTreatment = (id: string) => {
+    setDeletingId(id);
+    onOpenDeleteModal();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingId) return;
+    try {
+      setIsDeletingConfirmLoading(true);
+      await deleteToothTreatment(deletingId);
+      if (patientDetails?._id) {
+        getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
+      }
+      onCloseDeleteModal();
+      setDeletingId(null);
+    } catch (err) {
+      console.error("Failed to delete treatment", err);
+    } finally {
+      setIsDeletingConfirmLoading(false);
+    }
+  };
+
+  const handleEditTreatment = (item: any) => {
+    setEditingTreatment(item);
+    
+    // Deconstruct and set values to be hoisted
+    const mappedValues = {
+      doctor: item.doctor?._id ? { label: item.doctor.name, value: item.doctor._id } : item.doctor,
+      notes: item.notes || "",
+      treatmentCode: item.treatmentPlan || "",
+      estimateMin: item.estimateMin || 0,
+      estimateMax: item.estimateMax || 0,
+      totalMin: item.totalMin || 0,
+      totalMax: item.totalMax || 0,
+      discount: item.discount || 0,
+      status: item.status === "pending" ? "Planned" : item.status === "completed" ? "Completed" : item.status,
+    };
+    setProcedureFormValues(mappedValues);
+
+    // Reconstruct Selected Tooth
+    if (item.tooth?.fdi) {
+      const allTeeth = getTeethByType(dentitionType);
+      const matched = allTeeth.find(t => t.id === item.tooth.fdi);
+      if (matched) {
+        setSelectedTeeth([matched]);
+      }
+    }
+    setStep("PROCEDURE_FORM");
   };
 
   const renderStep = () => {
@@ -511,9 +566,27 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                               <Badge colorScheme={item.status === "completed" ? "green" : "blue"} variant="subtle" borderRadius="full" px={2}>
                                 {item.status?.toUpperCase()}
                               </Badge>
-                              <Text fontSize="10px" color="gray.400" fontWeight="700">
-                                {item.treatmentDate ? new Date(item.treatmentDate).toLocaleDateString() : "No Date"}
-                              </Text>
+                              <HStack spacing={1}>
+                                <IconButton
+                                  icon={<FiEdit3 />}
+                                  aria-label="Edit record"
+                                  size="xs"
+                                  variant="ghost"
+                                  colorScheme="blue"
+                                  onClick={() => handleEditTreatment(item)}
+                                />
+                                <IconButton
+                                  icon={<FiTrash2 />}
+                                  aria-label="Delete record"
+                                  size="xs"
+                                  variant="ghost"
+                                  colorScheme="red"
+                                  onClick={() => handleDeleteTreatment(item._id)}
+                                />
+                                <Text fontSize="10px" color="gray.400" fontWeight="700" pl={1}>
+                                  {item.treatmentDate ? new Date(item.treatmentDate).toLocaleDateString() : "No Date"}
+                                </Text>
+                              </HStack>
                             </HStack>
                             <VStack align="start" spacing={0.5}>
                               <Text fontSize="xs" fontWeight="900" color="gray.800" noOfLines={1}>
@@ -589,6 +662,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           <TreatmentProcedureForm
             isPatient={isPatient}
             patientDetails={patientDetails}
+            editData={editingTreatment || patientDetails?.editData}
             teeth={selectedTeeth}
             generalDescription={generalDescription || teethNotes}
             complaintType={complaintType}
@@ -596,6 +670,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               patientDetails?.applyGetAllRecords?.({});
               setStep("TOOTH_SELECTION");
               setSelectedTeeth([]);
+              setEditingTreatment(null);
               setIndividualTeethNotes({});
               setProcedureFormValues((prev: any) => prev ? {
                 ...prev,
@@ -609,12 +684,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               } : prev);
             }}
             onBack={handleBack}
+            onToothClick={handleToothClick}
             // Hoisted State Props
             hoistedValues={procedureFormValues}
             onValuesUpdate={setProcedureFormValues}
             explorerState={explorerState}
             onExplorerUpdate={setExplorerState}
-            editData={patientDetails?.editData}
             individualTeethNotes={individualTeethNotes}
             onEditToothNote={handleEditToothNote}
             onEditGeneralNote={() => {
@@ -743,6 +818,45 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               onClick={saveToothNote}
             >
               Save Note
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteModalOpen} onClose={onCloseDeleteModal} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
+        <ModalContent borderRadius="3xl" p={4} boxShadow="2xl">
+          <ModalHeader>
+            <HStack spacing={3}>
+              <Circle size="36px" bg="red.50" color="red.500">
+                <Icon as={FiTrash2} fontSize="lg" />
+              </Circle>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="md" fontWeight="900" color="gray.800">Confirm Deletion</Text>
+                <Text fontSize="xs" color="gray.400" fontWeight="700">This action cannot be undone</Text>
+              </VStack>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton borderRadius="full" m={4} />
+          <ModalBody>
+            <Text fontSize="sm" color="gray.600">Are you sure you want to delete this clinical record?</Text>
+          </ModalBody>
+          <ModalFooter gap={3}>
+            <Button variant="ghost" onClick={onCloseDeleteModal} borderRadius="xl" fontWeight="900" fontSize="xs" textTransform="uppercase">
+              Cancel
+            </Button>
+            <Button
+              colorScheme="red"
+              isLoading={isDeletingConfirmLoading}
+              onClick={handleConfirmDelete}
+              borderRadius="xl"
+              fontWeight="900"
+              fontSize="xs"
+              textTransform="uppercase"
+              px={6}
+            >
+              Delete
             </Button>
           </ModalFooter>
         </ModalContent>

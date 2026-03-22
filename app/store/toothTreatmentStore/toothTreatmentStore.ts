@@ -90,6 +90,14 @@ this.toothTreatment.data =
     }
   };
 
+  deleteToothTreatment = async (treatmentId: string) => {
+    try {
+      const { data } = await axios.delete(`/toothTreatment/${treatmentId}`);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 
 }
 

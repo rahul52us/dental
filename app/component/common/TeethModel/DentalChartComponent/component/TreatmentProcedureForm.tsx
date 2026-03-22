@@ -89,6 +89,7 @@ interface TreatmentProcedureFormProps {
     individualTeethNotes?: any;
     onEditToothNote?: (note: any) => void;
     onEditGeneralNote?: () => void;
+    onToothClick?: (tooth: ToothData) => void;
     formRef?: any;
     doctorOptions?: any[];
 }
@@ -136,6 +137,7 @@ export const TreatmentProcedureForm = observer(
         editData,
         individualTeethNotes,
         onEditToothNote,
+        onToothClick,
     }: TreatmentProcedureFormProps) => {
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
@@ -582,6 +584,7 @@ export const TreatmentProcedureForm = observer(
                                                                      key={tooth.id}
                                                                      tooth={tooth}
                                                                      onEditNote={onEditToothNote}
+                                                                     onRemove={onToothClick}
                                                                      hasNote={!!individualTeethNotes?.[tooth.id]}
                                                                  />
                                                              </Box>

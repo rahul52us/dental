@@ -10,16 +10,17 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { FaTooth } from "react-icons/fa";
-import { FiEdit3, FiMessageSquare } from "react-icons/fi";
+import { FiEdit3, FiMessageSquare, FiTrash2 } from "react-icons/fi";
 import { ToothData } from "../utils/teethData";
 
 interface ToothInfoCardProps {
   tooth: ToothData | null;
   onEditNote?: (tooth: ToothData) => void;
+  onRemove?: (tooth: ToothData) => void;
   hasNote?: boolean;
 }
 
-export const ToothInfoCard = ({ tooth, onEditNote, hasNote }: ToothInfoCardProps) => {
+export const ToothInfoCard = ({ tooth, onEditNote, onRemove, hasNote }: ToothInfoCardProps) => {
   const bg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.100", "gray.700");
 
@@ -107,6 +108,18 @@ export const ToothInfoCard = ({ tooth, onEditNote, hasNote }: ToothInfoCardProps
                 if (tooth) onEditNote?.(tooth);
               }}
               _hover={{ bg: "blue.50" }}
+            />
+            <IconButton
+              aria-label="Remove tooth"
+              icon={<FiTrash2 />}
+              size="xs"
+              variant="ghost"
+              colorScheme="red"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (tooth) onRemove?.(tooth);
+              }}
+              _hover={{ bg: "red.50" }}
             />
           </HStack>
           <VStack align="end" spacing={0}>
