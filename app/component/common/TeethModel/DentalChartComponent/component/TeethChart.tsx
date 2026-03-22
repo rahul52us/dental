@@ -18,6 +18,7 @@ interface TeethChartProps {
   onToothClick: (tooth: ToothData) => void;
   notationType?: "fdi" | "universal" | "palmer";
   onNotationChange?: (not: "fdi" | "universal" | "palmer") => void;
+  toothComplaints: Record<string, string>;
 }
 
 export const TeethChart = ({
@@ -26,6 +27,7 @@ export const TeethChart = ({
   onToothClick,
   notationType = "fdi",
   onNotationChange,
+  toothComplaints,
 }: TeethChartProps) => {
   const teeth = getTeethByType(dentitionType);
 
@@ -59,6 +61,7 @@ export const TeethChart = ({
         onClick={() => onToothClick(tooth)}
         notationType={notationType}
         size="md"
+        complaintType={toothComplaints[tooth.id]}
       />
     ));
   };

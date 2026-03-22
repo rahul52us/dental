@@ -62,6 +62,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [dentitionType, setDentitionType] = useState<DentitionType>("adult");
   const formRef = useRef<any>(null);
   const [selectedTeeth, setSelectedTeeth] = useState<ToothData[]>([]);
+  const [toothComplaints, setToothComplaints] = useState<Record<string, string>>({});
   const [notation, setNotation] = useState<"fdi" | "universal" | "palmer">("fdi");
   const [generalDescription, setGeneralDescription] = useState("");
   const [isToothFormOpen, setIsToothFormOpen] = useState(false);
@@ -145,7 +146,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   useEffect(() => {
     if (patientDetails?.editData) {
       const edit = patientDetails.editData;
-      
+
       // Reconstruct selected teeth
       const allTeeth = getTeethByType(dentitionType);
       const matchedTooth = allTeeth.find(t => t.id === edit.tooth?.fdi);
@@ -191,7 +192,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             if (subIdx !== -1) {
               const foundSub = foundCat.subcategories[subIdx];
               setExplorerState({ catIdx, subIdx });
-              
+
               if (parts[2]) {
                 const foundJob = foundSub.jobs.find(j => j.name.toLowerCase() === parts[2].toLowerCase());
                 if (foundJob) {
@@ -223,15 +224,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleStepClick = (idx: number) => {
     if (idx < currentMainIdx) {
       setStep(steps[idx].id as WizardStep);
-      setProcedureFormValues((prev: any) => prev ? { 
-        ...prev, 
+      setProcedureFormValues((prev: any) => prev ? {
+        ...prev,
         treatmentCode: "",
         estimateMin: 0,
         estimateMax: 0,
         totalMin: 0,
         totalMax: 0,
         discount: 0,
-        notes: "" 
+        notes: ""
       } : prev);
     }
   };
@@ -245,15 +246,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleBack = () => {
     if (step === "PROCEDURE_FORM") {
       setStep("TOOTH_SELECTION");
-      setProcedureFormValues((prev: any) => prev ? { 
-        ...prev, 
+      setProcedureFormValues((prev: any) => prev ? {
+        ...prev,
         treatmentCode: "",
         estimateMin: 0,
         estimateMax: 0,
         totalMin: 0,
         totalMax: 0,
         discount: 0,
-        notes: "" 
+        notes: ""
       } : prev);
     }
   };
@@ -267,15 +268,25 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         return [...prev, tooth];
       }
     });
-    setProcedureFormValues((prev: any) => prev ? { 
-      ...prev, 
+
+    setToothComplaints((prev) => {
+      const isSelected = selectedTeeth.some((t) => t.id === tooth.id);
+      if (isSelected) {
+        const { [tooth.id]: _, ...rest } = prev;
+        return rest;
+      } else {
+        return { ...prev, [tooth.id]: complaintType };
+      }
+    });
+    setProcedureFormValues((prev: any) => prev ? {
+      ...prev,
       treatmentCode: "",
       estimateMin: 0,
       estimateMax: 0,
       totalMin: 0,
       totalMax: 0,
       discount: 0,
-      notes: "" 
+      notes: ""
     } : prev);
   };
 
@@ -345,23 +356,37 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">COMPLAINT TYPE</Text>
                   </HStack>
                   <HStack bg="gray.50" p={1} borderRadius="xl" border="1px solid" borderColor="gray.100">
-                    {["Chief Complaint", "Other Finding", "Existing Finding"].map((type) => (
-                      <Button
-                        key={type}
-                        size="xs"
-                        variant={complaintType === type ? "solid" : "ghost"}
-                        colorScheme={complaintType === type ? "blue" : "gray"}
-                        onClick={() => setComplaintType(type)}
-                        fontSize="11px"
-                        fontWeight="900"
-                        h="24px"
-                        px={3}
-                        borderRadius="lg"
-                        textTransform="uppercase"
-                      >
-                        {type.split(' ')[0]}
-                      </Button>
-                    ))}
+                    {["Chief Complaint", "Other Finding", "Existing Finding"].map((type) => {
+                      const isActive = complaintType === type;
+                      const getStyles = () => {
+                        switch(type) {
+                          case "Chief Complaint": return { bg: "red.500", color: "white", hover: "red.600" };
+                          case "Other Finding": return { bg: "yellow.400", color: "gray.800", hover: "yellow.500" };
+                          case "Existing Finding": return { bg: "gray.300", color: "gray.800", hover: "gray.400" };
+                          default: return { bg: "transparent", color: "gray.600", hover: "gray.100" };
+                        }
+                      };
+                      const styles = isActive ? getStyles() : { bg: "transparent", color: "gray.500", hover: "gray.100" };
+                      return (
+                        <Button
+                          key={type}
+                          size="xs"
+                          onClick={() => setComplaintType(type)}
+                          bg={styles.bg}
+                          color={styles.color}
+                          _hover={{ bg: styles.hover }}
+                          _active={{ bg: styles.bg }}
+                          fontSize="11px"
+                          fontWeight="900"
+                          h="24px"
+                          px={3}
+                          borderRadius="lg"
+                          textTransform="uppercase"
+                        >
+                          {type.split(' ')[0]}
+                        </Button>
+                      );
+                    })}
                   </HStack>
                 </VStack>
               </HStack>
@@ -379,37 +404,38 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
             {/* Compact Refined Workspace */}
             <Grid templateColumns={{ base: "1fr", lg: "1fr 340px" }} gap={4} flex={1} overflow="hidden">
-                <Box
-                  bg="white"
-                  borderRadius="3xl"
-                  border="1px solid"
-                  borderColor="gray.100"
-                  p={4}
-                  position="relative"
-                  overflow="hidden"
-                  h="full"
-                >
+              <Box
+                bg="white"
+                borderRadius="3xl"
+                border="1px solid"
+                borderColor="gray.100"
+                p={4}
+                position="relative"
+                overflow="hidden"
+                h="full"
+              >
                 <TeethChart
                   dentitionType={dentitionType}
                   selectedTeeth={selectedTeeth}
                   onToothClick={handleToothClick}
                   notationType={notation}
                   onNotationChange={setNotation}
+                  toothComplaints={toothComplaints}
                 />
               </Box>
 
-                <VStack
-                  spacing={4}
-                  align="stretch"
-                  p={6}
-                  bg="white"
-                  border="1px solid"
-                  borderColor="gray.100"
-                  rounded="3xl"
-                  h="full"
-                  boxShadow="xs"
-                  overflow="hidden"
-                >
+              <VStack
+                spacing={4}
+                align="stretch"
+                p={6}
+                bg="white"
+                border="1px solid"
+                borderColor="gray.100"
+                rounded="3xl"
+                h="full"
+                boxShadow="xs"
+                overflow="hidden"
+              >
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
                     <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL HISTORY</Text>
@@ -420,11 +446,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </Circle>
                 </HStack>
 
-                <Box 
-                  flex={1} 
-                  overflowY="auto" 
+                <Box
+                  flex={1}
+                  overflowY="auto"
                   minH={0}
-                  pr={2} 
+                  pr={2}
                   sx={{
                     '&::-webkit-scrollbar': { width: '4px' },
                     '&::-webkit-scrollbar-track': { background: 'transparent' },
@@ -439,10 +465,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                           <Icon as={FiFileText} color="blue.500" />
                           <Text fontSize="11px" fontWeight="900" color="blue.600" letterSpacing="0.2em">CLINICAL FINDINGS</Text>
                         </HStack>
-                        <Button 
-                          size="xs" 
-                          variant="ghost" 
-                          colorScheme="blue" 
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="blue"
                           onClick={() => {
                             setGeneralNoteDraft(teethNotes);
                             onOpenGeneralNoteModal();
@@ -470,12 +496,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       </VStack>
                     ) : toothTreatment.data?.length > 0 ? (
                       toothTreatment.data.map((item: any) => (
-                        <Box 
-                          key={item._id} 
-                          p={4} 
-                          bg="gray.50" 
-                          borderRadius="2xl" 
-                          border="1px solid" 
+                        <Box
+                          key={item._id}
+                          p={4}
+                          bg="gray.50"
+                          borderRadius="2xl"
+                          border="1px solid"
                           borderColor="gray.100"
                           _hover={{ bg: "white", boxShadow: "sm", borderColor: "blue.50" }}
                           transition="all 0.2s"
@@ -571,15 +597,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               setStep("TOOTH_SELECTION");
               setSelectedTeeth([]);
               setIndividualTeethNotes({});
-              setProcedureFormValues((prev: any) => prev ? { 
-                ...prev, 
+              setProcedureFormValues((prev: any) => prev ? {
+                ...prev,
                 treatmentCode: "",
                 estimateMin: 0,
                 estimateMax: 0,
                 totalMin: 0,
                 totalMax: 0,
                 discount: 0,
-                notes: "" 
+                notes: ""
               } : prev);
             }}
             onBack={handleBack}
@@ -648,12 +674,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             <Button variant="ghost" onClick={onCloseGeneralNoteModal} borderRadius="xl" fontWeight="900" fontSize="xs" textTransform="uppercase">
               Cancel
             </Button>
-            <Button 
-              colorScheme="blue" 
-              borderRadius="xl" 
+            <Button
+              colorScheme="blue"
+              borderRadius="xl"
               px={8}
-              fontWeight="900" 
-              fontSize="xs" 
+              fontWeight="900"
+              fontSize="xs"
               textTransform="uppercase"
               onClick={() => {
                 setTeethNotes(generalNoteDraft);
@@ -707,12 +733,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             <Button variant="ghost" onClick={onCloseNoteModal} borderRadius="xl" fontWeight="900" fontSize="xs" textTransform="uppercase">
               Cancel
             </Button>
-            <Button 
-              colorScheme="blue" 
-              borderRadius="xl" 
+            <Button
+              colorScheme="blue"
+              borderRadius="xl"
               px={8}
-              fontWeight="900" 
-              fontSize="xs" 
+              fontWeight="900"
+              fontSize="xs"
               textTransform="uppercase"
               onClick={saveToothNote}
             >
@@ -890,9 +916,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       </Flex>
 
       {/* Main Content Area - Fixed Height */}
-      <Box 
-        h="calc(100vh - 110px)" 
-        px={6} 
+      <Box
+        h="calc(100vh - 110px)"
+        px={6}
         pb={6}
         pt={2}
         overflow="hidden"
