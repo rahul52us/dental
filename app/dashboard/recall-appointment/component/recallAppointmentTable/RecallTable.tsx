@@ -82,7 +82,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       }
 
       if (isPatient && patientDetails) {
-        query.patientId = patientDetails?._id;
+        query.patient = patientDetails?._id;
       }
 
       getRecallAppointments(query)
@@ -410,7 +410,9 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   })
                 }
                 initialValues={{
-                  patient: undefined,
+                  patient: isPatient && patientDetails 
+                    ? { label: patientDetails.name, value: patientDetails._id } 
+                    : undefined,
                   doctor: undefined,
                   reason: undefined,
                   status: status[0],

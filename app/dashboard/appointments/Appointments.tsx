@@ -2,18 +2,26 @@
 import {
   Box,
   Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
-  Grid,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  Text
+  HStack,
+  Text,
+  useColorModeValue,
+  VStack
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
+import { keyframes } from "@emotion/react";
+
+const blink = keyframes`
+  0% { transform: scale(0.9); opacity: 0.4; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.4; }
+`;
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
@@ -131,6 +139,11 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
   const [openView, setOpenView] = useState({
     open: false,
     data: null,
+  });
+
+  const [openAuditDrawer, setOpenAuditDrawer] = useState({
+    isOpen: false,
+    data: [],
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -331,66 +344,14 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
           }
 
           return (
-            <Popover placement="left-start" closeOnBlur>
-              <PopoverTrigger>
-                <Button size="xs" variant="link" colorScheme="blue">
-                  View
-                </Button>
-              </PopoverTrigger>
-
-              <PopoverContent w="420px" boxShadow="xl">
-                <PopoverArrow />
-                <PopoverCloseButton />
-
-                <PopoverHeader fontSize="sm" fontWeight="600">
-                  Audit History
-                </PopoverHeader>
-
-                <PopoverBody p={0} maxH="320px" overflowY="auto">
-                  <Box fontSize="xs">
-                    {/* Header Row */}
-                    <Grid
-                      templateColumns="90px 1fr 120px"
-                      px={3}
-                      py={2}
-                      bg="gray.100"
-                      fontWeight="600"
-                      borderBottom="1px solid"
-                      borderColor="gray.200"
-                    >
-                      <Text>Action</Text>
-                      <Text>Remarks</Text>
-                      <Text>Date</Text>
-                    </Grid>
-
-                    {/* Rows */}
-                    {history.map((item: any, index: number) => (
-                      <Grid
-                        key={item._id || index}
-                        templateColumns="90px 1fr 120px"
-                        px={3}
-                        py={2}
-                        borderBottom="1px solid"
-                        borderColor="gray.100"
-                        _hover={{ bg: "gray.50" }}
-                      >
-                        <Text fontWeight="500" textTransform="capitalize">
-                          {item.action}
-                        </Text>
-
-                        <Text color="gray.600" noOfLines={2}>
-                          {item.remarks || "—"}
-                        </Text>
-
-                        <Text color="gray.500">
-                          {new Date(item.timestamp).toLocaleDateString()}
-                        </Text>
-                      </Grid>
-                    ))}
-                  </Box>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            <Button
+              size="xs"
+              variant="link"
+              colorScheme="blue"
+              onClick={() => setOpenAuditDrawer({ isOpen: true, data: history })}
+            >
+              View
+            </Button>
           );
         },
       },
@@ -554,12 +515,12 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
                 <ChevronLeftIcon color="white" fontSize={32} />
               </Button>
 
-              <Text fontWeight="600" fontSize="md">
-                Appointment → {moment(selectedDate).format("dddd, DD MMM YYYY")}
+              <Text fontWeight="800" fontSize="xl">
+                Appointment {isPatient && patientDetails?.name ? `(${patientDetails.name}) ` : ""}→ {moment(selectedDate).format("dddd, DD MMM YYYY")}
               </Text>
 
               <Button size="md" onClick={goToNextDate} p={1}>
-                <ChevronRightIcon color="white" fontSize={32} />
+                <ChevronRightIcon fontWeight="800" color="white" fontSize={32} />
               </Button>
             </Flex>
 
@@ -653,7 +614,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
         }
         title={
           selectedDateAndTime
-            ? `Selected: ${moment(selectedDateAndTime.start).format("ddd, DD MMM YYYY")}`
+            ? `Selected: ${moment(selectedDateAndTime.start).format("ddd, DD MMM YYYY")} ${isPatient && patientDetails?.name ? `(${patientDetails.name})` : ""}`
             : "Select a date"
         }
       >
@@ -698,6 +659,136 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
           )}
         </Box>
       </CustomDrawer>
+
+      <Drawer
+        isOpen={openAuditDrawer.isOpen}
+        placement="right"
+        onClose={() => setOpenAuditDrawer({ isOpen: false, data: [] })}
+        size="md"
+      >
+        <DrawerOverlay backdropFilter="blur(5px)" bg="blackAlpha.300" />
+        <DrawerContent borderLeftRadius="xl" overflow="hidden">
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px" bg="gray.50" fontSize="md" fontWeight="800">
+            📋 Appointment Audit Trail
+          </DrawerHeader>
+          <DrawerBody p={0} overflowY="auto">
+            <Box p={5}>
+              {(openAuditDrawer.data || []).map((item: any, index: number) => {
+                const isLast = index === openAuditDrawer.data.length - 1;
+
+                const getActionColor = (action: string) => {
+                  switch (action) {
+                    case "scheduled": return "blue";
+                    case "in-progress": return "yellow";
+                    case "completed": return "green";
+                    case "cancelled": return "red";
+                    case "shift": return "purple";
+                    case "no-show": return "gray";
+                    default: return "gray";
+                  }
+                };
+
+                const color = getActionColor(item.action);
+
+                return (
+                  <Flex key={item._id || index} align="stretch" position="relative" mb={isLast ? 0 : 5}>
+                    {/* 💈 Modern Timeline Bullet & Dashed Line */}
+                    <Flex flexDir="column" align="center" mr={4}>
+                      <Box
+                        w="18px"
+                        h="18px"
+                        borderRadius="full"
+                        border="2px solid"
+                        borderColor={`${color}.500`}
+                        bg="white"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        zIndex={2}
+                        mt="2px"
+                        boxShadow="sm"
+                      >
+                        <Box
+                          w="6px"
+                          h="6px"
+                          borderRadius="full"
+                          bg={`${color}.500`}
+                          animation={`${blink} 1.4s infinite`}
+                        />
+                      </Box>
+                      {!isLast && (
+                        <Box
+                          w="0px"
+                          borderLeft="2px dashed"
+                          borderColor="gray.200"
+                          flex={1}
+                          position="absolute"
+                          top="22px"
+                          bottom="-20px"
+                          left="8px"
+                          zIndex={1}
+                        />
+                      )}
+                    </Flex>
+
+                    {/* 📄 Content Box */}
+                    <VStack align="stretch" spacing={1.5} flex={1}>
+                      <Flex justify="space-between" align="center">
+                        <HStack spacing={2}>
+                          <Text
+                            fontWeight="800"
+                            textTransform="capitalize"
+                            fontSize="2xs"
+                            color={`${color}.600`}
+                            bg={`${color}.50`}
+                            px={2.5}
+                            py={0.8}
+                            borderRadius="full"
+                            letterSpacing="0.05em"
+                            boxShadow={`inset 0 0 0 1px ${color}22`}
+                          >
+                            {item.action?.replace("-", " ")}
+                          </Text>
+                        </HStack>
+                        <Text fontSize="10px" color="gray.400" fontWeight="600">
+                          {new Date(item.timestamp).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </Text>
+                      </Flex>
+
+                      {/* 📝 Remarks Bubble */}
+                      {item.remarks ? (
+                        <Box
+                          bg={useColorModeValue("white", "gray.800")}
+                          px={3}
+                          py={2.5}
+                          borderRadius="xl"
+                          borderWidth="1px"
+                          borderColor="gray.100"
+                          boxShadow="0 2px 10px rgba(0,0,0,0.02)"
+                          mt={1}
+                        >
+                          <Text color="gray.700" fontSize="xs" lineHeight="short" whiteSpace="pre-wrap">
+                            {item.remarks}
+                          </Text>
+                        </Box>
+                      ) : (
+                        <Text fontSize="xs" color="gray.300" fontStyle="italic" mt={0.5} ml={1}>
+                          No remarks provided.
+                        </Text>
+                      )}
+                    </VStack>
+                  </Flex>
+                );
+              })}
+            </Box>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 });

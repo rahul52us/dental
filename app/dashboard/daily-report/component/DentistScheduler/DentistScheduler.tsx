@@ -116,9 +116,6 @@ const AppointmentCard = ({
 
   const editable = canEditAppointment(selectedDate, appointment.startTime);
 
-  console.log(selectedDate)
-  console.log(appointment.starTime)
-
   return (
     <Tooltip
       hasArrow
@@ -153,7 +150,7 @@ const AppointmentCard = ({
           {/* Full Description */}
           {appointment.description && (
             <Text fontSize="xs" mt={1} opacity={0.85} whiteSpace="pre-wrap">
-              📝 {appointment.description}
+              📝 {appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description}
             </Text>
           )}
         </Box>
@@ -243,9 +240,9 @@ const AppointmentCard = ({
 
         {/* Treatment */}
         <Text fontSize="xs" mt={1}>
-          {(appointment.description || "Consultation").length > 15
-            ? (appointment.description || "Consultation").slice(0, 15) + "..."
-            : appointment.description || "Consultation"}
+          {(appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description || "Consultation").length > 15
+            ? (appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description || "Consultation").slice(0, 15) + "..."
+            : appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description || "Consultation"}
         </Text>
 
 
@@ -432,19 +429,22 @@ const ScheduleGrid = ({
                   opacity={allowed ? 1 : 0.45}
                 >
                   {/* 🔹 Existing Appointments (ALWAYS clickable) */}
-                  {startingAppointments.map((apt: any, index: number) => (
-                    <AppointmentCard
-                      key={apt.id}
-                      appointment={apt}
-                      selectedDate={selectedDate}
-                      handleTimeSlots={handleTimeSlots}
-                      chairColor={chair.color}
-                      overlapIndex={index}
-                      totalOverlaps={startingAppointments.length}
-                      onOpenDetails={onOpenDetails}
-                      shouldNotEditIcon={shouldNotEditIcon}
-                    />
-                  ))}
+                  {startingAppointments.map((apt: any, index: number) => {
+                    console.log(apt)
+                    return (
+                      <AppointmentCard
+                        key={apt.id}
+                        appointment={apt}
+                        selectedDate={selectedDate}
+                        handleTimeSlots={handleTimeSlots}
+                        chairColor={chair.color}
+                        overlapIndex={index}
+                        totalOverlaps={startingAppointments.length}
+                        onOpenDetails={onOpenDetails}
+                        shouldNotEditIcon={shouldNotEditIcon}
+                      />
+                    )
+                  })}
 
                   {/* 🔒 Closed Slot Label (does NOT block appointments) */}
                   {!allowed && startingAppointments.length === 0 && (
@@ -586,6 +586,8 @@ export default function DentistScheduler({
             doctorName: apt.primaryDoctor?.name || "--",
             doctorMobileNumber: apt.primaryDoctor?.mobileNumber || "--",
             startTime: apt.startTime,
+            status: apt.status,
+            shiftOrCancelledReason: apt.shiftOrCancelledReason,
             duration: toMinutes(apt.endTime) - toMinutes(apt.startTime),
             chairId: chair._id,
           });

@@ -25,7 +25,7 @@ import {
     DrawerOverlay,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
-import { CalendarIcon, EditIcon, ViewIcon, CopyIcon } from "@chakra-ui/icons";
+import { CalendarIcon, CheckIcon, DeleteIcon, EditIcon, InfoIcon, RepeatClockIcon, SearchIcon } from "@chakra-ui/icons";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
@@ -58,6 +58,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openDetails, setOpenDetails] = useState(false);
     const [openHistory, setOpenHistory] = useState({ open: false, data: null as any });
     const [openTreatment, setOpenTreatment] = useState({ open: false, data: null as any });
+    const [openAppointment, setOpenAppointment] = useState({ open: false, data: null as any });
+    const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
 
@@ -127,7 +129,6 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     const chairColor = apt.chairColor || "#3182ce";
                     const personalInfo = patient?.profileDetails?.personalInfo || {};
                     const genderLabel = genderOptions.find((opt: any) => opt.value === personalInfo?.gender)?.label || "--";
-                    const genderColor = genderLabel === "Male" ? "blue" : genderLabel === "Female" ? "pink" : "gray";
                     const primaryPhone = patient?.mobileNumber || "--"
                     const maskedPhone = primaryPhone !== "--" ? `${patient?.mobileNumber.slice(0, 3)}••••${patient?.mobileNumber.slice(-3)}` : "--";
 
@@ -213,7 +214,20 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     </Box>
 
                                     <Box overflow="hidden">
-                                        <Text fontWeight="800" fontSize="lg" color={labelTextColor} noOfLines={1} letterSpacing="-0.03em">
+                                        <Text
+                                            fontWeight="800"
+                                            fontSize="lg"
+                                            color={labelTextColor}
+                                            noOfLines={1}
+                                            letterSpacing="-0.03em"
+                                            cursor="pointer"
+                                            _hover={{ textDecoration: "underline", color: "teal.600" }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedUser(patient);
+                                                setOpenProfile(true);
+                                            }}
+                                        >
                                             {patient?.name || "Unknown"}
                                         </Text>
                                         <HStack spacing={2} mt={1}>
@@ -260,10 +274,26 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             </Tooltip>
                                         )}
 
-                                        <Flex align="center" gap={1.5} mt={2} fontSize="11px" fontWeight="700" color={mutedTextColor}>
-                                            <Text noOfLines={1}>📍 {apt.chairName}</Text>
+                                        <Flex align="center" gap={1.5} mt={3}>
+                                            <Badge
+                                                variant="subtle"
+                                                bg={`${chairColor}15`}
+                                                color={chairColor}
+                                                px={2.5}
+                                                py={0.8}
+                                                borderRadius="md"
+                                                fontSize="10px"
+                                                fontWeight="800"
+                                                display="inline-flex"
+                                                alignItems="center"
+                                                gap={1}
+                                                borderWidth="1px"
+                                                borderColor={`${chairColor}30`}
+                                            >
+                                                🪑 {apt.chairName}
+                                            </Badge>
                                         </Flex>
-                                    </Box>
+                                   </Box>
 
                                     <Text fontSize="11px" color={mutedTextColor} fontWeight="700" ml={1} opacity={0.8}>📞 {maskedPhone}</Text>
                                 </VStack>
@@ -280,40 +310,92 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 gap={3}
                                 zIndex={2}
                             >
-                                <Button
-                                    flex={1}
-                                    variant="ghost"
-                                    leftIcon={<CalendarIcon />}
-                                    size="sm"
-                                    colorScheme="teal"
-                                    borderRadius="xl"
-                                    fontSize="xs"
-                                    fontWeight="800"
-                                    _hover={{ bg: "teal.500", color: "white", transform: "translateY(-2px)", boxShadow: "0 4px 12px rgba(0, 128, 128, 0.3)" }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenHistory({ open: true, data: patient });
-                                    }}
-                                >
-                                    History
-                                </Button>
-                                <Button
-                                    flex={1}
-                                    variant="ghost"
-                                    leftIcon={<GiMedicalDrip />}
-                                    size="sm"
-                                    colorScheme="purple"
-                                    borderRadius="xl"
-                                    fontSize="xs"
-                                    fontWeight="800"
-                                    _hover={{ bg: "purple.500", color: "white", transform: "translateY(-2px)", boxShadow: "0 4px 12px rgba(128, 0, 128, 0.3)" }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenTreatment({ open: true, data: patient });
-                                    }}
-                                >
-                                    Treatments
-                                </Button>
+                                <SimpleGrid columns={2} spacing={3} width="100%" px={4} pb={4} onClick={(e) => e.stopPropagation()}>
+                                    <Button
+                                        bgGradient="linear(to-r, teal.400, teal.600)"
+                                        color="white"
+                                        leftIcon={<RepeatClockIcon />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, teal.500, teal.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenHistory({ open: true, data: patient });
+                                        }}
+                                    >
+                                        History
+                                    </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, purple.400, purple.600)"
+                                        color="white"
+                                        leftIcon={<GiMedicalDrip />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, purple.500, purple.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(128, 0, 128, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenTreatment({ open: true, data: patient });
+                                        }}
+                                    >
+                                        Treatments
+                                    </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, blue.400, blue.600)"
+                                        color="white"
+                                        leftIcon={<CalendarIcon />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, blue.500, blue.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenAppointment({ open: true, data: patient });
+                                        }}
+                                    >
+                                        Appointment
+                                    </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, orange.400, orange.600)"
+                                        color="white"
+                                        leftIcon={<CheckIcon />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(237, 137, 54, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, orange.500, orange.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(237, 137, 54, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenWorkDone({ open: true, data: patient });
+                                        }}
+                                    >
+                                        Work Done
+                                    </Button>
+                                </SimpleGrid>
                             </Flex>
                         </Box>
                     );
@@ -360,26 +442,54 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                 </CustomDrawer>
             )}
 
+            {/* Appointment Drawer */}
+            {openAppointment.open && (
+                <CustomDrawer
+                    width="92%"
+                    title={`Patient Appointments: ${openAppointment.data?.name}`}
+                    open={openAppointment.open}
+                    close={() => setOpenAppointment({ open: false, data: null })}
+                >
+                    <AppointmentList
+                        isPatient={true}
+                        patientDetails={openAppointment.data}
+                    />
+                </CustomDrawer>
+            )}
+
+            {/* Work Done Drawer Placeholder */}
+            {openWorkDone.open && (
+                <CustomDrawer
+                    width="92%"
+                    title={`Work Done: ${openWorkDone.data?.name}`}
+                    open={openWorkDone.open}
+                    close={() => setOpenWorkDone({ open: false, data: null })}
+                >
+                    <Box p={6}>
+                        <Text fontWeight="600" color="gray.500">
+                            📝 Procedure log or Note form placeholder loaded here. Add details inside soon!
+                        </Text>
+                    </Box>
+                </CustomDrawer>
+            )}
+
+
             {/* Profile Drawer */}
-            <Drawer isOpen={openProfile} placement="right" onClose={() => setOpenProfile(false)} size="xl">
-                <DrawerOverlay />
-                <DrawerContent>
-                    <DrawerCloseButton />
-                    <DrawerHeader bgGradient="linear(to-r, teal.500, blue.500)" color="white">
-                        <Flex align="center" gap={3}>
-                            <GiPsychicWaves size={28} />
-                            Patient Profile
-                        </Flex>
-                    </DrawerHeader>
-                    <DrawerBody>
-                        {selectedUser && (
-                            <ViewPatient
-                                user={selectedUser}
-                            />
-                        )}
-                    </DrawerBody>
-                </DrawerContent>
-            </Drawer>
+            <CustomDrawer
+                width="90vw"
+                open={openProfile}
+                close={() => setOpenProfile(false)}
+                title="Patient Profile"
+            >
+                {selectedUser && (
+                    <ViewPatient
+                        user={{
+                            ...selectedUser,
+                            ...selectedUser?.profileDetails?.personalInfo,
+                        }}
+                    />
+                )}
+            </CustomDrawer>
         </Box>
     );
 });

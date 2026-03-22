@@ -79,6 +79,12 @@ interface TreatmentProcedureFormProps {
     explorerState?: { catIdx: number; subIdx: number };
     onExplorerUpdate?: (state: { catIdx: number; subIdx: number }) => void;
     editData?: any;
+    complaintType?: string;
+    individualTeethNotes?: any;
+    onEditToothNote?: (note: any) => void;
+    onEditGeneralNote?: () => void;
+    formRef?: any;
+    doctorOptions?: any[];
 }
 
 interface TreatmentFormData {

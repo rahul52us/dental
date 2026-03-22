@@ -13,8 +13,10 @@ import {
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
-import { GiOfficeChair } from "react-icons/gi";
+import { GiOfficeChair, GiSofa } from "react-icons/gi";
 import { MdEventRepeat } from "react-icons/md";
+import WaitingRoomIcon from "../component/WaitingRoomIcon";
+import AppointmentIcon from "../component/AppointmentIcon";
 import { RiToothLine } from "react-icons/ri";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 
@@ -78,14 +80,14 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 15,
     name: "Book Appointment",
-    icon: <BiCalendarEvent />,
+    icon: <AppointmentIcon />,
     url: "/dashboard/appointments/book",
     role: ["patient", "doctor", "admin"],
   },
   {
     id: 16,
     name: "Waiting Room",
-    icon: <FaUserClock />,
+    icon: <WaitingRoomIcon />,
     url: "/dashboard/appointments/waiting-room",
     role: ["patient", "doctor", "admin"],
   },
@@ -99,7 +101,7 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 13,
     name: "Appointments",
-    icon: <MdEventRepeat />,
+    icon: <AppointmentIcon />,
     url: "/dashboard/appointments",
     role: ["admin"],
   },

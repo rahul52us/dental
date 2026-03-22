@@ -26,6 +26,7 @@ import stores from "../../../../store/stores";
 import AppointmentList from "../../../appointments/Appointments";
 import ViewDoctor from "./ViewPatient";
 import Treatment from "../../../toothTreatment/page";
+import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -39,6 +40,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   const [openTreatmentDetails, setOpenTreatmentDetails] = useState({
+    open: false,
+    data: null as any,
+  });
+
+  const [openRecallDetails, setOpenRecallDetails] = useState({
     open: false,
     data: null as any,
   });
@@ -231,6 +237,36 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
+      headerName: "Recall",
+      key: "recall",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Badge
+            as="button"
+            px={3}
+            py={1}
+            borderRadius="md"
+            colorScheme="orange"
+            variant="solid"
+            cursor="pointer"
+            fontWeight="600"
+            fontSize="xs"
+            display="flex"
+            alignItems="center"
+            gap={1}
+            _hover={{ bg: "orange.600", shadow: "sm" }}
+            transition="all 0.2s"
+            onClick={() => setOpenRecallDetails({ open: true, data: dt })}
+          >
+            <CalendarIcon boxSize={3} />
+            Recall
+          </Badge>
+        ),
+      },
+      props: { row: { minW: 120, textAlign: "center" } },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -308,7 +344,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         {openAppointmentDetails.open && (
           <CustomDrawer
             width="92%"
-            title="Patient -> Appointments"
+            title={`Patient Appointments ${openAppointmentDetails.data?.name ? `(${openAppointmentDetails.data.name})` : ""}`}
             open={openAppointmentDetails.open}
             close={() => setOpenAppointmentDetails({ open: false, data: null })}
           >
@@ -323,13 +359,28 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         {openTreatmentDetails.open && (
           <CustomDrawer
             width="92%"
-            title="Treatment History"
+            title={`Treatment History ${openTreatmentDetails.data?.name ? `(${openTreatmentDetails.data.name})` : ""}`}
             open={openTreatmentDetails.open}
             close={() => setOpenTreatmentDetails({ open: false, data: null })}
           >
             <Treatment
               isPatient={true}
               patientDetails={openTreatmentDetails.data}
+            />
+          </CustomDrawer>
+        )}
+
+        {/* Recall Drawer */}
+        {openRecallDetails.open && (
+          <CustomDrawer
+            width="92%"
+            title={`Recall Appointments ${openRecallDetails.data?.name ? `(${openRecallDetails.data.name})` : ""}`}
+            open={openRecallDetails.open}
+            close={() => setOpenRecallDetails({ open: false, data: null })}
+          >
+            <RecallAppointmentList
+              isPatient={true}
+              patientDetails={openRecallDetails.data}
             />
           </CustomDrawer>
         )}

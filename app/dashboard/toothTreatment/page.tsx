@@ -11,7 +11,7 @@ const Treatment = observer(({isPatient,patientDetails}: any) => {
       <Box display="none">
         <DashPageHeader breadcrumb={[]} />
       </Box>
-      <DashPageTitle title="Treatment" />
+      <DashPageTitle title={`Treatment ${isPatient && patientDetails?.name ? `(${patientDetails.name})` : ""}`} />
       <Box>
         <TreatmentList isPatient={isPatient} patientDetails={patientDetails} />
       </Box>
