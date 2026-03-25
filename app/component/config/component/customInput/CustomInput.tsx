@@ -33,7 +33,8 @@ import Select from "react-select";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import debounce from "lodash/debounce";
+import debounce from "lodash.debounce";
+import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
 
 interface CustomInputProps {
@@ -87,10 +88,11 @@ interface CustomInputProps {
   params?: any;
   query?: any;
   parentStyle?: any;
-  shouldUpdateSelectWithValue?: any
+  shouldUpdateSelectWithValue?: any;
+  labelBg?: string;
 }
 
-const CustomInput: React.FC<CustomInputProps> = ({
+const CustomInput: React.FC<CustomInputProps> = observer(({
   type,
   label,
   placeholder,
@@ -119,8 +121,15 @@ const CustomInput: React.FC<CustomInputProps> = ({
   query = {},
   parentStyle = {},
   shouldUpdateSelectWithValue = false,
+  labelBg,
   ...rest
 }) => {
+  const { themeStore: { themeConfig } } = stores;
+  const defaultLabelBg = useColorModeValue(
+    themeConfig.colors.custom.light.primary, 
+    themeConfig.colors.custom.dark.primary
+  );
+  const finalLabelBg = labelBg || defaultLabelBg;
   const [inputValue, setInputValue] = useState<string>("");
   const theme = useTheme();
   const isMounted = useRef(false);
@@ -881,13 +890,27 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
   return (
     <FormControl id={name} isInvalid={!!error && showError} style={parentStyle}>
-      <FormLabel color={labelcolor}>
-        {label} {required && <span style={{ color: "red" }}>*</span>}
-      </FormLabel>
+      {label && (
+        <FormLabel 
+          color="black" 
+          fontWeight="bold" 
+          bg={finalLabelBg} 
+          px={3} 
+          py={0.5} 
+          borderRadius="full" 
+          mb={2} 
+          width="fit-content"
+          fontSize="xs"
+          textTransform="uppercase"
+          letterSpacing="wider"
+        >
+          {label} {required && <span style={{ color: "red" }}>*</span>}
+        </FormLabel>
+      )}
       {renderInputComponent()}
       {showError && error && <FormErrorMessage>{error}</FormErrorMessage>}
     </FormControl>
   );
-};
+});
 
 export default CustomInput;
