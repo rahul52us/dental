@@ -23,10 +23,19 @@ import {
     DrawerContent,
     DrawerHeader,
     DrawerOverlay,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogContent,
+    AlertDialogOverlay,
+    Icon,
+    Heading,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
-import { CalendarIcon, CheckIcon, DeleteIcon, EditIcon, InfoIcon, RepeatClockIcon, SearchIcon } from "@chakra-ui/icons";
+import { CalendarIcon, CheckIcon, DeleteIcon, EditIcon, InfoIcon, RepeatClockIcon, SearchIcon, SmallCloseIcon, RepeatIcon } from "@chakra-ui/icons";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
+import { MdOutlineAirlineSeatReclineExtra } from "react-icons/md";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
@@ -62,6 +71,35 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
+
+    // Confirmation for "Complete" (Close)
+    const [openConfirm, setOpenConfirm] = useState({ open: false, id: "" });
+    const [isCompleting, setIsCompleting] = useState(false);
+    const cancelRef = React.useRef<any>(null);
+
+    const handleComplete = async () => {
+        setIsCompleting(true);
+        try {
+            const res = await stores.DoctorAppointment.completeAppointment(openConfirm.id);
+            if (res.status === "success") {
+                openNotification({
+                    type: "success",
+                    title: "Status: Completed",
+                    message: "Patient marked as completed successfully."
+                });
+                fetchArrivedAppointments();
+            }
+        } catch (error: any) {
+            openNotification({
+                type: "error",
+                title: "Update Failed",
+                message: error?.message || "Something went wrong"
+            });
+        } finally {
+            setIsCompleting(false);
+            setOpenConfirm({ open: false, id: "" });
+        }
+    };
 
     const fetchArrivedAppointments = async () => {
         setLoading(true);
@@ -114,9 +152,53 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
     if (appointments.length === 0) {
         return (
-            <Center py={20} flexDir="column">
-                <Text fontSize="lg" color={mutedTextColor} fontWeight="700" letterSpacing="tight">Waitlist is empty</Text>
-                <Text fontSize="sm" color="gray.500">Arrived patients will appear here in style.</Text>
+            <Center py={32} flexDir="column" textAlign="center">
+                <Box 
+                    p={8} 
+                    bg={useColorModeValue("blue.50", "whiteAlpha.50")} 
+                    borderRadius="3xl" 
+                    mb={6}
+                    position="relative"
+                    _before={{
+                        content: '""',
+                        position: "absolute",
+                        top: "-4px",
+                        left: "-4px",
+                        right: "-4px",
+                        bottom: "-4px",
+                        border: "1px dashed",
+                        borderColor: "blue.200",
+                        borderRadius: "4xl",
+                        opacity: 0.5
+                    }}
+                >
+                    <Icon 
+                        as={MdOutlineAirlineSeatReclineExtra} 
+                        boxSize={14} 
+                        color="blue.400" 
+                        animation={`${pulse} 3s infinite ease-in-out`}
+                    />
+                </Box>
+                <VStack spacing={2}>
+                    <Heading size="md" color={labelTextColor} fontWeight="900" letterSpacing="tight">
+                        Queue is Empty
+                    </Heading>
+                    <Text fontSize="sm" color="gray.500" maxW="280px" fontWeight="600" lineHeight="tall">
+                        Arrived patients will show up here. Everything is currently up to date!
+                    </Text>
+                    <Button 
+                        mt={6} 
+                        size="sm" 
+                        variant="ghost" 
+                        colorScheme="blue" 
+                        leftIcon={<RepeatIcon />} 
+                        onClick={fetchArrivedAppointments}
+                        borderRadius="xl"
+                        fontWeight="800"
+                    >
+                        Refresh Queue
+                    </Button>
+                </VStack>
             </Center>
         );
     }
@@ -160,6 +242,33 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 setOpenDetails(true);
                             }}
                         >
+                            {/* Premium Complete (Close) Action */}
+                            <Tooltip label="Mark as Completed" hasArrow placement="top">
+                                <IconButton
+                                    aria-label="Complete appointment"
+                                    icon={<SmallCloseIcon boxSize={4} />}
+                                    size="sm"
+                                    bgGradient="linear(to-br, teal.400, teal.600)"
+                                    color="white"
+                                    position="absolute"
+                                    top={4}
+                                    right={4}
+                                    zIndex={10}
+                                    borderRadius="full"
+                                    boxShadow="0 4px 15px rgba(45, 170, 150, 0.4)"
+                                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                                    _hover={{
+                                        transform: "rotate(90deg) scale(1.1)",
+                                        boxShadow: "0 8px 25px rgba(45, 170, 150, 0.6)",
+                                        bg: "teal.500"
+                                    }}
+                                    _active={{ transform: "scale(0.95)" }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenConfirm({ open: true, id: apt._id });
+                                    }}
+                                />
+                            </Tooltip>
                             {/* Refined Atmospheric Radial Glow */}
                             <Box
                                 position="absolute"
@@ -290,7 +399,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                 borderWidth="1px"
                                                 borderColor={`${chairColor}30`}
                                             >
-                                                🪑 {apt.chairName}
+                                                👨‍⚕️ {apt.primaryDoctor?.name || "No Doctor"}
                                             </Badge>
                                         </Flex>
                                    </Box>
@@ -490,6 +599,69 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     />
                 )}
             </CustomDrawer>
+
+            {/* Premium Confirmation Dialog for Completion */}
+            <AlertDialog
+                isOpen={openConfirm.open}
+                leastDestructiveRef={cancelRef}
+                onClose={() => setOpenConfirm({ open: false, id: "" })}
+                isCentered
+            >
+                <AlertDialogOverlay backdropFilter="blur(10px)">
+                    <AlertDialogContent borderRadius="3xl" overflow="hidden" boxShadow="2xl">
+                        <Box bgGradient="linear(to-r, green.500, green.600)" py={6} px={8} color="white">
+                            <AlertDialogHeader fontSize="xl" fontWeight="900" p={0} letterSpacing="tight">
+                                Complete Appointment
+                            </AlertDialogHeader>
+                            <Text fontSize="xs" opacity={0.9} mt={1} fontWeight="600" letterSpacing="widest" textTransform="uppercase">
+                                Confirmation Required
+                            </Text>
+                        </Box>
+
+                        <AlertDialogBody py={8} px={8} fontWeight="700" color="gray.600" bg={useColorModeValue("white", "gray.800")}>
+                            <VStack align="start" spacing={3}>
+                                <Text fontSize="md" color={useColorModeValue("gray.800", "white")}>
+                                    Are you ready to mark this visit as finished?
+                                </Text>
+                                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                                    The patient will be moved from the waiting list to the completed records. This action will be logged in the history.
+                                </Text>
+                            </VStack>
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter px={8} py={6} gap={3} bg={useColorModeValue("gray.50", "gray.900/50")} borderTopWidth="1px" borderColor={borderColor}>
+                            <Button 
+                                ref={cancelRef} 
+                                onClick={() => setOpenConfirm({ open: false, id: "" })} 
+                                borderRadius="2xl" 
+                                fontWeight="800"
+                                variant="ghost"
+                                size="lg"
+                                fontSize="sm"
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                colorScheme="green" 
+                                onClick={handleComplete} 
+                                isLoading={isCompleting}
+                                borderRadius="2xl" 
+                                fontWeight="800"
+                                size="lg"
+                                fontSize="sm"
+                                boxShadow="0 10px 20px -5px rgba(72, 187, 120, 0.4)"
+                                px={8}
+                                _hover={{
+                                    transform: "translateY(-2px)",
+                                    boxShadow: "0 15px 25px -5px rgba(72, 187, 120, 0.5)",
+                                }}
+                            >
+                                Confirm & Complete
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
         </Box>
     );
 });

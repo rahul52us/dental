@@ -92,7 +92,7 @@ const toUtcISOString = (date: string, time: string) => {
   ).toISOString();
 };
 
-const SectionCard = ({ title, children }: { title: string; children: any }) => (
+const SectionCard = ({ title, children }: { title?: string; children: any }) => (
   <Card
     variant="outline"
     borderRadius="2xl"
@@ -101,12 +101,12 @@ const SectionCard = ({ title, children }: { title: string; children: any }) => (
   // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
   // transition="all 0.2s ease"
   >
-    <CardHeader pb={2}>
+    {title && <CardHeader pb={2}>
       <Text fontSize="xl" fontWeight="semibold" color="blue.600">
         {title}
       </Text>
-    </CardHeader>
-    <Divider mb={4} />
+    </CardHeader>}
+    {title && <Divider mb={4} />}
     <CardBody>{children}</CardBody>
   </Card>
 );
@@ -344,7 +344,7 @@ const EditAppointmentForm = observer(
                 <Form>
                   <VStack spacing={2} align="stretch">
                     {/* === Patient & Doctors === */}
-                    <SectionCard title="Patient & Doctors">
+                    <SectionCard>
                       <Grid
                         gap={4}
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
@@ -543,7 +543,7 @@ const EditAppointmentForm = observer(
                       display={values?.showCompleteData ? undefined : "none"}
                     >
                       {/* === Mode & Location === */}
-                      <SectionCard title="Online & Offline">
+                      <SectionCard>
                         <VStack spacing={4}>
                           <CustomInput
                             name="mode"
