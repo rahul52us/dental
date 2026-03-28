@@ -9,6 +9,7 @@ import { formatDate } from "../../component/config/utils/dateUtils";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import stores from "../../store/stores";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
+import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
 import AppointmentDetailsView from "./element/AppointmentDetailsView";
 
 const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
@@ -269,7 +270,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         width={"80vw"}
         open={openView.open}
         close={() => setOpenView({ open: false, data: null })}
-        title="Treatment Details"
+        title={<PatientHeader title="Clinical Procedure Details" patient={openView.data?.patient || patientDetails} />}
       >
         <AppointmentDetailsView data={openView.data} />
       </CustomDrawer>
@@ -278,7 +279,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         width="90vw"
         open={openReportModal.open}
         close={() => setOpenReportModal({ open: false, type: "add" })}
-        title="Treatment"
+        title={<PatientHeader title="Treatment Selection" patient={patientDetails} />}
       >
         <Index
           appointments={toothTreatment}

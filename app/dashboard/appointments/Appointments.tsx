@@ -235,58 +235,58 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
       },
       props: { row: { textAlign: "center" } },
     },
-    // {
-    //   headerName: "Status",
-    //   key: "status",
-    //   type: "component",
-    //   metaData: {
-    //     component: (dt: any) => {
-    //       const getStatusColor = (status: string) => {
-    //         switch (status) {
-    //           case "scheduled":
-    //             return "blue";
-    //           case "in-progress":
-    //             return "yellow";
-    //           case "completed":
-    //             return "green";
-    //           case "cancelled":
-    //             return "red";
-    //           case "shift":
-    //             return "purple";
-    //           case "no-show":
-    //             return "gray";
-    //           case "arrived":
-    //             return "green";
-    //           default:
-    //             return "gray";
-    //         }
-    //       };
+    {
+      headerName: "Status",
+      key: "status",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const getStatusColor = (status: string) => {
+            switch (status) {
+              case "scheduled":
+                return "blue";
+              case "in-progress":
+                return "yellow";
+              case "completed":
+                return "green";
+              case "cancelled":
+                return "red";
+              case "shift":
+                return "purple";
+              case "no-show":
+                return "gray";
+              case "arrived":
+                return "green";
+              default:
+                return "gray";
+            }
+          };
 
-    //       return (
-    //         <Box
-    //           as="button"
-    //           px={3}
-    //           py={1}
-    //           borderRadius="full"
-    //           fontSize="sm"
-    //           fontWeight="semibold"
-    //           textTransform="capitalize"
-    //           bg={`${getStatusColor(dt.status)}.100`}
-    //           color={`${getStatusColor(dt.status)}.700`}
-    //           onClick={() => {
-    //             setOpenChangeStatus({ open: true, data: dt });
-    //           }}
-    //         >
-    //           {dt.status?.replace("-", " ") || "—"}
-    //         </Box>
-    //       );
-    //     },
-    //   },
-    //   props: {
-    //     row: { minW: 120, textAlign: "center" },
-    //     column: { textAlign: "center" },
-    //   },
-    // },
+          return (
+            <Box
+              as="button"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontSize="sm"
+              fontWeight="semibold"
+              textTransform="capitalize"
+              bg={`${getStatusColor(dt.status)}.100`}
+              color={`${getStatusColor(dt.status)}.700`}
+            // onClick={() => {
+            //   setOpenChangeStatus({ open: true, data: dt });
+            // }}
+            >
+              {dt.status?.replace("-", " ") || "—"}
+            </Box>
+          );
+        },
+      },
+      props: {
+        row: { minW: 120, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
     {
       headerName: "Appointment Date",
       key: "appointmentDate",

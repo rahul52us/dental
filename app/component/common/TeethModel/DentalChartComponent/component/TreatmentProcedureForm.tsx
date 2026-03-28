@@ -155,9 +155,11 @@ export const TreatmentProcedureForm = observer(
         isDrawerMode = false,
     }: TreatmentProcedureFormProps) => {
         const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
-        const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure();
+        const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure({ defaultIsOpen: teeth.length > 1 });
         const [searchTerm, setSearchTerm] = useState("");
-        const [activeToothId, setActiveToothId] = useState<string | "bulk" | null>(isDrawerMode && teeth.length > 0 ? teeth[0].id : null);
+        const [activeToothId, setActiveToothId] = useState<string | "bulk" | null>(
+            teeth.length > 1 ? "bulk" : (teeth.length > 0 ? teeth[0].id : null)
+        );
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
         const {

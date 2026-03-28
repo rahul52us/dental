@@ -62,6 +62,7 @@ import { NotationChoice } from "./component/NotationChoice";
 import { SavedTreatmentListItem } from "./component/SavedTreatmentListItem";
 import { ProcedureTemplateList } from "./component/ProcedureTemplateList";
 import CustomDrawer from "../../Drawer/CustomDrawer";
+import { PatientHeader } from "./component/PatientHeader";
 import stores from "../../../../store/stores";
 import { TREATMENT_CATEGORIES } from "../../../../dashboard/toothTreatment/treatmentDataConstant";
 
@@ -252,6 +253,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     } else {
       setSelectedTeeth([tooth]);
       setToothComplaints({ [tooth.id]: complaintType });
+      // Single selection automatically opens the form
+      setStep("PROCEDURE_FORM");
     }
   };
 
@@ -348,6 +351,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     ))}
                   </HStack>
                 </VStack>
+                <VStack align="start" spacing={1}>
+                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">SELECTION</Text>
+                  <HStack bg="gray.50" p={1} borderRadius="xl">
+                    <Button size="xs" leftIcon={<FiMousePointer />} variant={!isMultipleSelection ? "solid" : "ghost"} colorScheme={!isMultipleSelection ? "blue" : "gray"} onClick={() => { setIsMultipleSelection(false); setSelectedTeeth([]); }}>SINGLE</Button>
+                    <Button size="xs" leftIcon={<FiActivity />} variant={isMultipleSelection ? "solid" : "ghost"} colorScheme={isMultipleSelection ? "blue" : "gray"} onClick={() => setIsMultipleSelection(true)}>MULTI</Button>
+                  </HStack>
+                </VStack>
               </HStack>
               <VStack align="end" spacing={0}>
                 <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
@@ -356,7 +366,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             </Flex>
 
             <Grid templateColumns={{ base: "1fr", lg: "1fr 340px" }} gap={4} flex={1} overflow="hidden">
-              <Box bg="white" borderRadius="3xl" border="1px solid" borderColor="gray.100" p={4} overflow="hidden" h="full">
+              <Box bg="white" borderRadius="3xl" border="1px solid" borderColor="gray.100" p={4} overflow="hidden">
                 <TeethChart dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} />
               </Box>
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
@@ -385,9 +395,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                         <Text fontSize="24px" fontWeight="1000" color="blue.600">{toothTreatment.totalItems || 0}</Text>
                       </HStack>
                     </Box>
+                    <Button colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Initialize Record</Button>
+
                   </VStack>
                 </Box>
-                <Button colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Initialize Record</Button>
+
               </VStack>
             </Grid>
           </VStack>
@@ -446,7 +458,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
       <Box h="calc(100vh - 80px)" px={6} pb={6} pt={2} overflow="hidden">{renderStep()}</Box>
 
-      <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title="Edit Clinical Entry" width="70vw">
+      <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
         <TreatmentProcedureForm
           isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment} teeth={editingTreatment?.tooth?.fdi ? [([...adultTeeth, ...childTeeth].find(t => t.fdi === editingTreatment.tooth.fdi) || { id: editingTreatment.tooth.fdi, fdi: editingTreatment.tooth.fdi, name: `Tooth ${editingTreatment.tooth.fdi}`, universal: "", palmer: "", position: "upper", side: "right", type: "molar" }) as ToothData] : []}
           generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
@@ -455,7 +467,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         />
       </CustomDrawer>
 
-      <CustomDrawer open={isHistoryDrawerOpen} close={onHistoryDrawerClose} title="Clinical History" width="85vw">
+      <CustomDrawer open={isHistoryDrawerOpen} close={onHistoryDrawerClose} title={<PatientHeader title="Clinical History" patient={patientDetails} />} width="85vw">
         <Box h="full" bg="white" p={6}>
           <VStack align="stretch" spacing={6} h="full">
             <HStack justify="space-between">
@@ -509,7 +521,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                               <Text fontSize="18px" fontWeight="1000" color="gray.700" lineHeight={1}>{new Date(item.treatmentDate).getDate()}</Text>
                               <Text fontSize="10px" fontWeight="900" color="gray.400">{new Date(item.treatmentDate).getFullYear()}</Text>
                             </VStack>
-                            
+
                             <VStack align="start" spacing={1} flex={1}>
                               <HStack spacing={2} wrap="wrap">
                                 <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={3} textTransform="none" fontSize="xs" fontWeight="800">
@@ -529,11 +541,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                                   </Badge>
                                 )}
                               </HStack>
-                              
+
                               <Text fontSize="md" fontWeight="800" color="gray.700" lineHeight="tight" mt={1}>
                                 {item.treatmentPlan}
                               </Text>
-                              
+
                               {item.notes && (
                                 <Text fontSize="xs" color="gray.500" fontStyle="italic" noOfLines={2}>
                                   "{item.notes}"
@@ -586,7 +598,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             <HStack justify="space-between" pt={4} borderTop="1px solid" borderColor="gray.100">
               <Text fontSize="xs">Page {historyPage} of {toothTreatment.totalPages || 1}</Text>
               <HStack><Button size="sm" onClick={() => setHistoryPage(p => Math.max(1, p - 1))} isDisabled={historyPage === 1}>Prev</Button>
-              <Button size="sm" onClick={() => setHistoryPage(p => p + 1)} isDisabled={historyPage >= (toothTreatment.totalPages || 1)}>Next</Button></HStack>
+                <Button size="sm" onClick={() => setHistoryPage(p => p + 1)} isDisabled={historyPage >= (toothTreatment.totalPages || 1)}>Next</Button></HStack>
             </HStack>
           </VStack>
         </Box>

@@ -22,6 +22,26 @@ class ToothTreatmentStore {
   }
 
   // Common get with search and pagination support
+  getToothTreatmentById = async (sendData: { treatmentId?: string, appointmentId?: string }) => {
+    try {
+      if (sendData.appointmentId) {
+        const { data } = await axios.get("/toothTreatment/get", {
+          params: { company: authStore.company, appointmentId: sendData.appointmentId, limit: 1 }
+        });
+        const rawItems = data?.data?.data || data?.data || [];
+        return { status: "success", data: rawItems[0] || null };
+      }
+
+      const { data } = await axios.get(`/toothTreatment/get/${sendData.treatmentId}`, {
+        params: { company: authStore.company }
+      });
+      return data;
+    } catch (error) {
+      console.error("Error fetching treatment by id:", error);
+      throw error;
+    }
+  };
+
   getToothTreatments = async (sendData: { page: number, search: string, category?: string, patientId?: any }) => {
     console.log("Fetching tooth treatments with params:", sendData);
     this.toothTreatment.loading = true;
