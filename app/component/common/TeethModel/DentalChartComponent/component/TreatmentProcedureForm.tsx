@@ -13,16 +13,25 @@ import {
     Input,
     Divider,
     Flex,
-    Circle,
-    InputGroup,
-    InputLeftElement,
     Avatar,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
+    useDisclosure,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    ModalCloseButton,
+    Circle,
+    InputGroup,
+    InputLeftElement,
 } from "@chakra-ui/react";
+import CustomDrawer from "../../../Drawer/CustomDrawer";
 import { keyframes } from "@emotion/react";
 import { Formik, Form as FormikForm } from "formik";
 import {
@@ -88,10 +97,12 @@ interface TreatmentProcedureFormProps {
     complaintType?: string;
     individualTeethNotes?: any;
     onEditToothNote?: (note: any) => void;
-    onEditGeneralNote?: () => void;
     onToothClick?: (tooth: ToothData) => void;
     formRef?: any;
     doctorOptions?: any[];
+    toothComplaints?: Record<string, string>;
+    isDrawerMode?: boolean;
+    onEditGeneralNote?: () => void;
 }
 
 interface TreatmentFormData {
@@ -106,6 +117,7 @@ interface TreatmentFormData {
     totalMax: number;
     patient?: any;
     status: string;
+    complaintType: string;
 }
 
 const initialFormData: TreatmentFormData = {
@@ -120,6 +132,7 @@ const initialFormData: TreatmentFormData = {
     totalMax: 0,
     patient: undefined,
     status: "Planned",
+    complaintType: "CHIEF COMPLAINT",
 };
 
 export const TreatmentProcedureForm = observer(
@@ -138,7 +151,13 @@ export const TreatmentProcedureForm = observer(
         individualTeethNotes,
         onEditToothNote,
         onToothClick,
+        toothComplaints = {},
+        isDrawerMode = false,
     }: TreatmentProcedureFormProps) => {
+        const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
+        const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure();
+        const [searchTerm, setSearchTerm] = useState("");
+        const [activeToothId, setActiveToothId] = useState<string | "bulk" | null>(isDrawerMode && teeth.length > 0 ? teeth[0].id : null);
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
         const {
@@ -166,13 +185,27 @@ export const TreatmentProcedureForm = observer(
             fetchDoctors();
         }, [getUsersList]);
 
-        const { catIdx: selectedCatIdx, subIdx: selectedSubIdx } = explorerState || { catIdx: 0, subIdx: 0 };
-        const setSelectedCatIdx = (idx: number) => onExplorerUpdate?.({ catIdx: idx, subIdx: 0 });
-        const setSelectedSubIdx = (idx: number) => onExplorerUpdate?.({ catIdx: selectedCatIdx, subIdx: idx });
+        // Sync active tooth ID in drawer mode (edit case)
+        useEffect(() => {
+            if (isDrawerMode && teeth.length > 0) {
+                setActiveToothId(teeth[0].id);
+            }
+        }, [isDrawerMode, teeth]);
 
-        const [searchTerm, setSearchTerm] = useState("");
+        const [localExplorerState, setLocalExplorerState] = useState({ catIdx: 0, subIdx: 0 });
+        const { catIdx: selectedCatIdx, subIdx: selectedSubIdx } = explorerState || localExplorerState;
+        const setSelectedCatIdx = (idx: number) => {
+            const newState = { catIdx: idx, subIdx: 0 };
+            if (onExplorerUpdate) onExplorerUpdate(newState);
+            else setLocalExplorerState(newState);
+        };
+        const setSelectedSubIdx = (idx: number) => {
+            const newState = { catIdx: selectedCatIdx, subIdx: idx };
+            if (onExplorerUpdate) onExplorerUpdate(newState);
+            else setLocalExplorerState(newState);
+        };
 
-        const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
+const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
         const activeSubcategory = (activeCategory && selectedSubIdx !== null)
             ? activeCategory.subcategories[selectedSubIdx]
             : null;
@@ -201,33 +234,35 @@ export const TreatmentProcedureForm = observer(
         const handleSubmit = async (formData: any) => {
             try {
                 setFormLoading(true);
-                const values = replaceLabelValueObjects(formData);
                 const results: any[] = [];
+                const treatments = formData.treatments;
 
-                // Backend repository expects one record per tooth
-                const teethToProcess = teeth.length > 0 ? teeth : [{ id: "--" }]; // Fallback for general notes
+                for (const toothId in treatments) {
+                    const values = replaceLabelValueObjects(treatments[toothId]);
+                    // Only skip if there's absolutely NO clinical content
+                    if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue; 
 
-                for (const tooth of teethToProcess) {
                     const payload: any = {
                         patient: values.patient?.value || values.patient,
                         doctor: values.doctor?.value || values.doctor,
                         treatmentDate: values.treatmentDate,
                         notes: values.notes,
-                        treatmentPlan: values.treatmentCode, // Map treatmentCode to treatmentPlan
-                        status: values.status === "Planned" ? "pending" : values.status, // Map status
+                        treatmentPlan: values.treatmentCode,
+                        status: values.status === "Planned" ? "pending" : values.status,
+                        complaintType: values.complaintType,
                         estimateMin: values.estimateMin || 0,
                         estimateMax: values.estimateMax || 0,
                         totalMin: values.totalMin || 0,
                         totalMax: values.totalMax || 0,
                         discount: values.discount || 0,
                         tooth: {
-                            fdi: tooth.id,
+                            fdi: toothId,
                             universal: null,
                             palmer: null,
                         },
                     };
 
-                    if (editData?._id) {
+                    if (editData?._id && toothId === editData.tooth?.fdi) {
                         payload.treatmentId = editData._id;
                         await updateToothTreatment(payload)
                             .then((res: any) => results.push(res))
@@ -244,6 +279,10 @@ export const TreatmentProcedureForm = observer(
                 }
 
                 setFormLoading(false);
+                if (results.length === 0) {
+                    toast({ title: "No clinical data recorded", status: "info" });
+                    return;
+                }
                 toast({
                     title: "Diagnostic Recorded",
                     description: `Successfully synchronized ${results.length} procedure(s) to clinical record.`,
@@ -271,14 +310,238 @@ export const TreatmentProcedureForm = observer(
 
         const calculateTotal = (est: number, disc: number) => Math.max(0, est - disc);
 
-        return (
-            <Formik
-                initialValues={{
+        const COMPLAINT_STYLES: Record<string, { border: string, bg: string, label: string, iconColor: string }> = {
+            "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
+            "OTHER FINDING": { border: "orange.400", bg: "orange.50", label: "OTHER FINDING", iconColor: "orange.400" },
+            "EXISTING FINDING": { border: "gray.400", bg: "gray.50", label: "EXISTING", iconColor: "gray.400" },
+            "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
+        };
+
+        const renderClinicalFields = (activeId: string | "bulk", values: any, setFieldValue: any) => {
+            const currentToothId = activeId === "bulk" ? teeth[0].id : activeId;
+            const currentValues = values.treatments[currentToothId] || initialFormData;
+
+            return (
+                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={12}>
+                    <VStack align="stretch" spacing={6}>
+                        <VStack align="start" spacing={4}>
+                            <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="widest">PROCEDURE</Text>
+                            <Button
+                                w="full"
+                                h="70px"
+                                variant="outline"
+                                colorScheme="blue"
+                                borderStyle="dashed"
+                                borderRadius="2xl"
+                                onClick={onProcedureOpen}
+                                leftIcon={<FiPlusCircle />}
+                            >
+                                {currentValues.treatmentCode 
+                                    ? "Change Selected Procedure" 
+                                    : "Select Procedure Protocol"}
+                            </Button>
+                            {currentValues.treatmentCode && (
+                                <Box p={4} bg="blue.50" borderRadius="2xl" w="full" borderLeft="4px solid" borderColor="blue.500">
+                                    <Text fontSize="sm" fontWeight="1000" color="blue.700">
+                                        {currentValues.treatmentCode.split(" → ").pop()}
+                                    </Text>
+                                    <Text fontSize="10px" color="blue.400">{currentValues.treatmentCode}</Text>
+                                </Box>
+                            )}
+                        </VStack>
+
+                        <VStack align="start" spacing={1}>
+                            <Text fontSize="10px" fontWeight="1000" color="gray.400">ASSIGN DOCTOR</Text>
+                            <CustomInput
+                                name={activeId === "bulk" ? `bulk.doctor` : `treatments.${activeId}.doctor`}
+                                type="real-time-user-search"
+                                query={{ type: 'doctor' }}
+                                options={doctorOptions}
+                                value={currentValues.doctor}
+                                onChange={(val: any) => {
+                                    if (activeId === "bulk") {
+                                        teeth.forEach(t => setFieldValue(`treatments.${t.id}.doctor`, val));
+                                    } else {
+                                        setFieldValue(`treatments.${activeId}.doctor`, val);
+                                    }
+                                }}
+                                style={{ height: '44px', borderRadius: '14px' }}
+                            />
+                        </VStack>
+
+                        <VStack align="start" spacing={1}>
+                            <Text fontSize="10px" fontWeight="1000" color="gray.400">CLINICAL OBSERVATIONS</Text>
+                            <CustomInput
+                                name={activeId === "bulk" ? `bulk.notes` : `treatments.${activeId}.notes`}
+                                type="textarea"
+                                placeholder="Enter clinical findings..."
+                                value={currentValues.notes}
+                                onChange={(e: any) => {
+                                    const val = e.target.value;
+                                    if (activeId === "bulk") {
+                                        teeth.forEach(t => setFieldValue(`treatments.${t.id}.notes`, val));
+                                    } else {
+                                        setFieldValue(`treatments.${activeId}.notes`, val);
+                                    }
+                                }}
+                                style={{ minHeight: "120px", background: "gray.50", border: 'none', borderRadius: '20px', padding: '15px' }}
+                            />
+                        </VStack>
+
+                        <VStack align="start" spacing={3}>
+                            <Text fontSize="10px" fontWeight="1000" color="gray.400">COMPLAINT CATEGORY</Text>
+                            <HStack bg="gray.50" p={1} borderRadius="xl" w="full">
+                                {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
+                                    const isActive = currentValues.complaintType === type;
+                                    const getStyles = () => {
+                                        switch(type) {
+                                            case "CHIEF COMPLAINT": return { bg: "red.500", color: "white" };
+                                            case "OTHER FINDING": return { bg: "orange.400", color: "white" };
+                                            case "EXISTING FINDING": return { bg: "gray.400", color: "white" };
+                                            default: return { bg: "transparent", color: "gray.600" };
+                                        }
+                                    };
+                                    const styles = isActive ? getStyles() : { bg: "transparent", color: "gray.500" };
+                                    
+                                    return (
+                                        <Button
+                                            key={type}
+                                            flex={1}
+                                            size="sm"
+                                            fontSize="10px"
+                                            fontWeight="900"
+                                            borderRadius="lg"
+                                            bg={styles.bg}
+                                            color={styles.color}
+                                            onClick={() => {
+                                                if (activeId === "bulk") {
+                                                    teeth.forEach(t => setFieldValue(`treatments.${t.id}.complaintType`, type));
+                                                } else {
+                                                    setFieldValue(`treatments.${activeId}.complaintType`, type);
+                                                }
+                                            }}
+                                            _hover={{ opacity: 0.8 }}
+                                        >
+                                            {type.split(' ')[0]}
+                                        </Button>
+                                    );
+                                })}
+                            </HStack>
+                        </VStack>
+                    </VStack>
+
+                    <VStack align="stretch" spacing={6} p={6} bg="blue.50/30" borderRadius="3xl">
+                        <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="widest">FINANCIALS</Text>
+                        <Grid templateColumns="1fr 1fr" gap={4}>
+                            <VStack align="start" spacing={0}>
+                                <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MIN</Text>
+                                <Input 
+                                    type="number" bg="white" borderRadius="xl" fontWeight="900"
+                                    value={currentValues.estimateMin}
+                                    onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        if (activeId === "bulk") {
+                                            teeth.forEach(t => {
+                                                setFieldValue(`treatments.${t.id}.estimateMin`, val);
+                                                setFieldValue(`treatments.${t.id}.totalMin`, calculateTotal(val, values.treatments[t.id].discount));
+                                            });
+                                        } else {
+                                            setFieldValue(`treatments.${activeId}.estimateMin`, val);
+                                            setFieldValue(`treatments.${activeId}.totalMin`, calculateTotal(val, values.treatments[activeId].discount));
+                                        }
+                                    }}
+                                />
+                            </VStack>
+                            <VStack align="start" spacing={0}>
+                                <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MAX</Text>
+                                <Input 
+                                    type="number" bg="white" borderRadius="xl" fontWeight="900"
+                                    value={currentValues.estimateMax}
+                                    onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        if (activeId === "bulk") {
+                                            teeth.forEach(t => {
+                                                setFieldValue(`treatments.${t.id}.estimateMax`, val);
+                                                setFieldValue(`treatments.${t.id}.totalMax`, calculateTotal(val, values.treatments[t.id].discount));
+                                            });
+                                        } else {
+                                            setFieldValue(`treatments.${activeId}.estimateMax`, val);
+                                            setFieldValue(`treatments.${activeId}.totalMax`, calculateTotal(val, values.treatments[activeId].discount));
+                                        }
+                                    }}
+                                />
+                            </VStack>
+                        </Grid>
+
+                        <VStack align="start" spacing={0}>
+                            <Text fontSize="9px" fontWeight="1000" color="green.500">CONCESSION (₹)</Text>
+                            <Input 
+                                type="number" bg="white" borderRadius="xl" fontWeight="900" color="green.600"
+                                value={currentValues.discount}
+                                onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    if (activeId === "bulk") {
+                                        teeth.forEach(t => {
+                                            setFieldValue(`treatments.${t.id}.discount`, val);
+                                            setFieldValue(`treatments.${t.id}.totalMin`, calculateTotal(values.treatments[t.id].estimateMin, val));
+                                            setFieldValue(`treatments.${t.id}.totalMax`, calculateTotal(values.treatments[t.id].estimateMax, val));
+                                        });
+                                    } else {
+                                        setFieldValue(`treatments.${activeId}.discount`, val);
+                                        setFieldValue(`treatments.${activeId}.totalMin`, calculateTotal(values.treatments[activeId].estimateMin, val));
+                                        setFieldValue(`treatments.${activeId}.totalMax`, calculateTotal(values.treatments[activeId].estimateMax, val));
+                                    }
+                                }}
+                            />
+                        </VStack>
+
+                        <Divider borderColor="blue.100" />
+                        
+                        <VStack align="center" py={4} bg="white" borderRadius="2xl" boxShadow="sm">
+                            <Text fontSize="10px" fontWeight="1000" color="blue.500">FINAL QUOTE</Text>
+                            <Heading size="md" color="blue.800" fontWeight="1000">
+                                ₹{currentValues.totalMin?.toLocaleString()} - ₹{currentValues.totalMax?.toLocaleString()}
+                            </Heading>
+                        </VStack>
+                    </VStack>
+                </Grid>
+            );
+        };
+
+        const initialTreatments = useMemo(() => {
+            const trs: Record<string, any> = {};
+            teeth.forEach(t => {
+                trs[t.id] = {
                     ...initialFormData,
                     patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
                     notes: generalDescription,
-                    ...(hoistedValues || {}),
-                    doctor: hoistedValues?.doctor || doctorOptions[0],
+                    doctor: doctorOptions[0],
+                };
+            });
+            // If editing, override the specific tooth
+            if (editData) {
+                const fid = editData.tooth?.fdi;
+                if (fid) {
+                    trs[fid] = {
+                        ...trs[fid],
+                        treatmentCode: editData.treatmentPlan,
+                        notes: editData.notes,
+                        estimateMin: editData.estimateMin,
+                        estimateMax: editData.estimateMax,
+                        discount: editData.discount,
+                        totalMin: editData.totalMin,
+                        totalMax: editData.totalMax,
+                        complaintType: editData.complaintType || "Chief Complaint",
+                    };
+                }
+            }
+            return trs;
+        }, [teeth, patientDetails, generalDescription, doctorOptions, editData]);
+
+        return (
+            <Formik
+                initialValues={{
+                    treatments: initialTreatments,
                 }}
                 enableReinitialize={true}
                 onSubmit={handleSubmit}
@@ -304,569 +567,402 @@ export const TreatmentProcedureForm = observer(
                         <FormikForm onSubmit={handleSubmit} style={{ minHeight: '100%' }}>
                             {/* Hidden synchronization component */}
                             <FormValueSyncer values={values} onValuesUpdate={onValuesUpdate} />
-                            <Grid templateColumns="1fr 340px" gap={8} minH="700px">
+                            
 
-                                {/* CLINICAL EXPLORER - COMPACT 3-TRACK */}
-                                <Box h="full" overflow="hidden" gridColumn={{ base: "span 1", lg: "1" }}>
-                                <Tabs variant="unstyled" colorScheme="blue" h="full" display="flex" flexDirection="column">
-                                    <TabList borderBottom="1px solid" borderColor="gray.100" bg="white" px={1} py={1} mb={3} gap={2}>
-                                        <Tab _selected={{ color: "blue.600", bg: "blue.50", fontWeight: "900" }} borderRadius="xl" px={4} py={2} fontSize="11px" fontWeight="800" color="gray.500" letterSpacing="0.1em">1. PROCEDURES</Tab>
-                                        <Tab _selected={{ color: "blue.600", bg: "blue.50", fontWeight: "900" }} borderRadius="xl" px={4} py={2} fontSize="11px" fontWeight="800" color="gray.500" letterSpacing="0.1em">2. SELECTED TEETH ({teeth.length})</Tab>
-                                    </TabList>
+                            <CustomDrawer
+                                open={isProcedureOpen}
+                                close={onProcedureClose}
+                                title="Clinical Procedure Explorer"
+                                width="70vw"
+                            >
+                                <Box h="full" overflow="hidden" p={6}>
+                                    <VStack align="stretch" spacing={5} h="full">
+                                        <Flex justify="space-between" align="center" px={2}>
+                                            <VStack align="start" spacing={0}>
+                                                <HStack spacing={2}>
+                                                    <Badge colorScheme="blue" variant="solid" borderRadius="full" px={2} fontSize="10px">QW-04</Badge>
+                                                    <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em" textTransform="uppercase">
+                                                        Clinical Protocols
+                                                    </Text>
+                                                </HStack>
+                                                <Heading size="md" fontWeight="900" color="gray.800" letterSpacing="tight">Procedure Explorer</Heading>
+                                            </VStack>
 
-                                    <TabPanels flex={1} overflowY="auto" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                                        <TabPanel p={0} h="full">
-                                            <VStack align="stretch" spacing={5} h="full">
-                                    <Flex justify="space-between" align="center" px={2}>
-                                        <VStack align="start" spacing={0}>
-                                            <HStack spacing={2}>
-                                                <Badge colorScheme="blue" variant="solid" borderRadius="full" px={2} fontSize="10px">QW-04</Badge>
-                                                <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em" textTransform="uppercase">
-                                                    Clinical Protocols
-                                                </Text>
-                                            </HStack>
-                                            <Heading size="md" fontWeight="900" color="gray.800" letterSpacing="tight">Procedure Explorer</Heading>
-                                        </VStack>
-
-                                        <VStack align="end" spacing={2}>
-                                            <InputGroup maxW="240px">
-                                                <InputLeftElement pointerEvents="none">
-                                                    <FiSearch color="gray.300" />
-                                                </InputLeftElement>
-                                                <Input
-                                                    placeholder="Search protocols..."
-                                                    size="sm"
-                                                    borderRadius="full"
-                                                    bg="white"
-                                                    border="1px solid"
-                                                    borderColor="gray.100"
-                                                    fontSize="xs"
-                                                    fontWeight="600"
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    _focus={{ borderColor: "blue.200", boxShadow: "0 0 0 1px #EBF8FF" }}
-                                                />
-                                            </InputGroup>
-                                            <HStack spacing={2}>
-                                                <Text fontSize="10px" fontWeight="900" color="gray.300" letterSpacing="0.1em">QUICK PICK:</Text>
-                                                {["Scaling", "Extraction", "X-Ray"].map(tag => (
-                                                    <Button
-                                                        key={tag}
-                                                        size="xs"
-                                                        variant="ghost"
-                                                        fontSize="10px"
-                                                        fontWeight="900"
-                                                        h="22px"
-                                                        px={3}
+                                            <VStack align="end" spacing={2}>
+                                                <InputGroup maxW="240px">
+                                                    <InputLeftElement pointerEvents="none">
+                                                        <FiSearch color="gray.300" />
+                                                    </InputLeftElement>
+                                                    <Input
+                                                        placeholder="Search protocols..."
+                                                        size="sm"
                                                         borderRadius="full"
-                                                        bg="gray.50"
-                                                        color="gray.500"
-                                                        onClick={() => setSearchTerm(tag)}
-                                                        _hover={{ bg: "blue.50", color: "blue.500" }}
-                                                    >
-                                                        {tag.toUpperCase()}
-                                                    </Button>
-                                                ))}
-                                            </HStack>
-                                        </VStack>
-                                    </Flex>
+                                                        bg="white"
+                                                        border="1px solid"
+                                                        borderColor="gray.100"
+                                                        fontSize="xs"
+                                                        fontWeight="600"
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        _focus={{ borderColor: "blue.200", boxShadow: "0 0 0 1px #EBF8FF" }}
+                                                    />
+                                                </InputGroup>
+                                            </VStack>
+                                        </Flex>
 
-                                    <Box
-                                        borderRadius="xl"
-                                        border="1px solid"
-                                        borderColor="gray.100"
-                                        overflow="hidden"
-                                        bg="rgba(255, 255, 255, 0.7)"
-                                        backdropFilter="blur(10px)"
-                                        boxShadow="sm"
-                                        position="relative"
-                                        h="600px"
-                                    >
-                                        {/* Dual Side Accents for Explorer ... */}
-                                        <Box position="absolute" top="6" left="0" bottom="6" w="2px" bg="blue.500" borderRadius="full" opacity={0.15} />
-                                        <Box position="absolute" top="6" right="0" bottom="6" w="2px" bg="blue.500" borderRadius="full" opacity={0.15} />
-
-                                        {searchTerm.trim() ? (
-                                            // ... Search logic ...
-                                            <Box h="full" overflowY="auto" p={5} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                                                <VStack align="stretch" spacing={2.5}>
-                                                    {filteredProcedures?.map((proc) => {
-                                                        const fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
-                                                        const isSelected = values.treatmentCode === fullCode;
-                                                        return (
-                                                            <HStack
-                                                                key={fullCode}
-                                                                p={4}
-                                                                bg={isSelected ? "blue.600" : "white"}
-                                                                color={isSelected ? "white" : "gray.800"}
-                                                                borderRadius="xl"
-                                                                cursor="pointer"
-                                                                onClick={() => {
-                                                                    setFieldValue("treatmentCode", fullCode);
-                                                                     setFieldValue("notes", "");
-                                                                    setFieldValue("estimateMin", proc.defaultEstimate);
-                                                                    setFieldValue("estimateMax", proc.defaultEstimate);
-                                                                    setFieldValue("totalMin", calculateTotal(proc.defaultEstimate, values.discount));
-                                                                    setFieldValue("totalMax", calculateTotal(proc.defaultEstimate, values.discount));
-                                                                }}
-                                                                _hover={isSelected ? {} : { transform: "translateX(4px)", bg: "blue.50/30" }}
-                                                                transition="all 0.2s"
-                                                                justify="space-between"
-                                                                border="1px solid"
-                                                                borderColor={isSelected ? "blue.600" : "gray.100"}
-                                                            >
-                                                                <VStack align="start" spacing={0}>
-                                                                    <Text fontSize="10px" fontWeight="900" color={isSelected ? "blue.100" : "blue.500"} letterSpacing="0.1em">
-                                                                        {proc.category.toUpperCase()} • {proc.subcategory.toUpperCase()}
-                                                                    </Text>
-                                                                    <Text fontSize="12px" fontWeight="900" letterSpacing="tight">{proc.name}</Text>
-                                                                </VStack>
-                                                                <Badge p={2} borderRadius="md" variant={isSelected ? "solid" : "subtle"} colorScheme={isSelected ? "whiteAlpha" : "blue"} fontSize="12px" fontWeight="900">
-                                                                    ₹{proc.defaultEstimate.toLocaleString()}
-                                                                </Badge>
-                                                            </HStack>
-                                                        );
-                                                    })}
-                                                    {filteredProcedures?.length === 0 && (
-                                                        <VStack py={20} opacity={0.3} spacing={3}>
-                                                            <Icon as={FiSearch} boxSize={8} />
-                                                            <Text fontSize="xs" fontWeight="800">No matching protocols found</Text>
-                                                        </VStack>
-                                                    )}
-                                                </VStack>
-                                            </Box>
-                                        ) : (
-                                            <Grid templateColumns="1fr 1fr 1.4fr" h="full">
-
-                                                {/* TRACK 1: CATEGORIES */}
-                                                <Box borderRight="1px solid" borderColor="gray.100" bg="transparent">
-                                                    <Box px={5} py={3} borderBottom="1px solid" borderColor="gray.50" display="flex" justifyContent="space-between" alignItems="center">
-                                                        <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em" textTransform="uppercase">Category</Text>
-                                                        <Circle size="14px" bg="blue.500" color="white" fontSize="10px" fontWeight="900">01</Circle>
-                                                    </Box>
-                                                    <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 32px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                                                        {TREATMENT_CATEGORIES.map((cat, idx) => (
-                                                            <Box
-                                                                key={cat.name}
-                                                                px={5} py={4}
-                                                                cursor="pointer"
-                                                                bg={selectedCatIdx === idx ? "blue.50/50" : "transparent"}
-                                                                color={selectedCatIdx === idx ? "blue.600" : "gray.500"}
-                                                                onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
-                                                                _hover={{ bg: "blue.50/20" }}
-                                                                transition="all 0.2s"
-                                                                position="relative"
-                                                            >
-                                                                {selectedCatIdx === idx && (
-                                                                    <>
-                                                                        <Box position="absolute" left="0" top="2.5" bottom="2.5" w="3px" bg="blue.500" borderRadius="full" />
-                                                                        <Box position="absolute" right="2" top="50%" transform="translateY(-50%)" p={1} bg="blue.100" borderRadius="full" boxSize={2} />
-                                                                    </>
-                                                                )}
-                                                                <HStack spacing={3}>
-                                                                    <Icon as={CATEGORY_ICONS[cat.name] || FiActivity} boxSize={3} opacity={selectedCatIdx === idx ? 1 : 0.4} />
-                                                                    <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{cat.name.toUpperCase()}</Text>
-                                                                </HStack>
-                                                            </Box>
-                                                        ))}
-                                                    </VStack>
-                                                </Box>
-
-                                                {/* TRACK 2: SUBCATEGORIES */}
-                                                <Box borderRight="1px solid" borderColor="gray.100" bg="transparent">
-                                                    <Box px={5} py={3} borderBottom="1px solid" borderColor="gray.50" display="flex" justifyContent="space-between" alignItems="center">
-                                                        <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em" textTransform="uppercase">Specialization</Text>
-                                                        <Circle size="14px" bg="blue.500" color="white" fontSize="10px" fontWeight="900">02</Circle>
-                                                    </Box>
-                                                    <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 32px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                                                        {activeCategory?.subcategories.map((sub, idx) => (
-                                                            <Box
-                                                                key={sub.name}
-                                                                px={6} py={4}
-                                                                cursor="pointer"
-                                                                bg={selectedSubIdx === idx ? "blue.50/50" : "transparent"}
-                                                                color={selectedSubIdx === idx ? "blue.600" : "gray.500"}
-                                                                onClick={() => setSelectedSubIdx(idx)}
-                                                                _hover={{ bg: "blue.50/20" }}
-                                                                transition="all 0.2s"
-                                                                position="relative"
-                                                            >
-                                                                {selectedSubIdx === idx && (
-                                                                    <>
-                                                                        <Box position="absolute" left="0" top="2.5" bottom="2.5" w="3px" bg="blue.500" borderRadius="full" />
-                                                                        <Box position="absolute" right="2" top="50%" transform="translateY(-50%)" p={1} bg="blue.100" borderRadius="full" boxSize={1.5} />
-                                                                    </>
-                                                                )}
-                                                                <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{sub.name.toUpperCase()}</Text>
-                                                            </Box>
-                                                        ))}
-                                                    </VStack>
-                                                </Box>
-
-                                                {/* TRACK 3: SPECIFIC PROCEDURES ... */}
-                                                <Box bg="transparent">
-                                                    <Box px={5} py={3} borderBottom="1px solid" borderColor="gray.100" bg="blue.600" color="white" position="sticky" top={0} zIndex={1} display="flex" justifyContent="space-between" alignItems="center">
-                                                        <Text fontSize="10px" fontWeight="900" color="blue.100" letterSpacing="0.2em" textTransform="uppercase">Live Selection</Text>
-                                                        <Circle size="14px" bg="white" color="blue.600" fontSize="10px" fontWeight="900">03</Circle>
-                                                    </Box>
-                                                    <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 32px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                                                        {activeSubcategory?.jobs.map((job) => {
-                                                            const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
-                                                            const isSelected = values.treatmentCode === fullCode;
+                                        <Box
+                                            borderRadius="xl"
+                                            border="1px solid"
+                                            borderColor="gray.100"
+                                            overflow="hidden"
+                                            bg="rgba(255, 255, 255, 0.7)"
+                                            backdropFilter="blur(10px)"
+                                            boxShadow="sm"
+                                            position="relative"
+                                            h="600px"
+                                        >
+                                            {searchTerm.trim() ? (
+                                                <Box h="full" overflowY="auto" p={5} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                                    <VStack align="stretch" spacing={2.5}>
+                                                        {filteredProcedures?.map((proc) => {
+                                                            const fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
+                                                            const isSelected = activeToothId === "bulk"
+                                                                ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
+                                                                : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
                                                             return (
-                                                                <VStack
-                                                                    key={job.name}
-                                                                    px={6} py={5}
-                                                                    align="start"
-                                                                    spacing={1.5}
-                                                                    cursor="pointer"
+                                                                <HStack
+                                                                    key={fullCode}
+                                                                    p={4}
                                                                     bg={isSelected ? "blue.600" : "white"}
-                                                                    color={isSelected ? "white" : "gray.600"}
+                                                                    color={isSelected ? "white" : "gray.800"}
+                                                                    borderRadius="xl"
+                                                                    cursor="pointer"
                                                                     onClick={() => {
-                                                                        setFieldValue("treatmentCode", fullCode);
-                                                                     setFieldValue("notes", "");
-                                                                        setFieldValue("estimateMin", job.defaultEstimate);
-                                                                        setFieldValue("estimateMax", job.defaultEstimate);
-                                                                        setFieldValue("totalMin", calculateTotal(job.defaultEstimate, values.discount));
-                                                                        setFieldValue("totalMax", calculateTotal(job.defaultEstimate, values.discount));
+                                                                        if (activeToothId === "bulk") {
+                                                                            teeth.forEach(t => {
+                                                                                setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
+                                                                                setFieldValue(`treatments.${t.id}.estimateMin`, proc.defaultEstimate);
+                                                                                setFieldValue(`treatments.${t.id}.estimateMax`, proc.defaultEstimate);
+                                                                                const disc = values.treatments[t.id]?.discount || 0;
+                                                                                setFieldValue(`treatments.${t.id}.totalMin`, calculateTotal(proc.defaultEstimate, disc));
+                                                                                setFieldValue(`treatments.${t.id}.totalMax`, calculateTotal(proc.defaultEstimate, disc));
+                                                                            });
+                                                                        } else if (activeToothId) {
+                                                                            setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
+                                                                            setFieldValue(`treatments.${activeToothId}.estimateMin`, proc.defaultEstimate);
+                                                                            setFieldValue(`treatments.${activeToothId}.estimateMax`, proc.defaultEstimate);
+                                                                            const disc = values.treatments[activeToothId]?.discount || 0;
+                                                                            setFieldValue(`treatments.${activeToothId}.totalMin`, calculateTotal(proc.defaultEstimate, disc));
+                                                                            setFieldValue(`treatments.${activeToothId}.totalMax`, calculateTotal(proc.defaultEstimate, disc));
+                                                                        }
+                                                                        onProcedureClose();
                                                                     }}
-                                                                    _hover={isSelected ? {} : { transform: "translateX(4px)", color: "blue.600", bg: "blue.50/10" }}
+                                                                    _hover={isSelected ? {} : { transform: "translateX(4px)", bg: "blue.50/30" }}
                                                                     transition="all 0.2s"
-                                                                    position="relative"
-                                                                    borderBottom="1px solid"
-                                                                    borderColor="gray.50"
+                                                                    justify="space-between"
+                                                                    border="1px solid"
+                                                                    borderColor={isSelected ? "blue.600" : "gray.100"}
                                                                 >
-                                                                    <Text fontSize="12px" fontWeight="900" lineHeight="short">{job.name.toUpperCase()}</Text>
-                                                                    <HStack spacing={2}>
-                                                                        <Badge variant={isSelected ? "solid" : "subtle"} colorScheme={isSelected ? "whiteAlpha" : "blue"} fontSize="10px" fontWeight="900" px={2} borderRadius="md">
-                                                                            ₹{job.defaultEstimate.toLocaleString()}
-                                                                        </Badge>
-                                                                        {isSelected && <Icon as={FiActivity} boxSize={2} />}
-                                                                    </HStack>
-                                                                </VStack>
+                                                                    <VStack align="start" spacing={0}>
+                                                                        <Text fontSize="10px" fontWeight="900" color={isSelected ? "blue.100" : "blue.500"} letterSpacing="0.1em">
+                                                                            {proc.category.toUpperCase()} • {proc.subcategory.toUpperCase()}
+                                                                        </Text>
+                                                                        <Text fontSize="12px" fontWeight="900" letterSpacing="tight">{proc.name}</Text>
+                                                                    </VStack>
+                                                                    <Badge p={2} borderRadius="md" variant={isSelected ? "solid" : "subtle"} colorScheme={isSelected ? "whiteAlpha" : "blue"} fontSize="12px" fontWeight="900">
+                                                                        ₹{proc.defaultEstimate.toLocaleString()}
+                                                                    </Badge>
+                                                                </HStack>
                                                             );
                                                         })}
                                                     </VStack>
-                                                 </Box>
-                                             </Grid>
-                                         )}
-                                         </Box>
-
-                                         <Flex justify="start" pt={4} pb={12}>
-                                             <Button
-                                                 variant="ghost"
-                                                 size="sm"
-                                                 leftIcon={<FiChevronRight style={{ transform: 'rotate(180deg)' }} />}
-                                                 onClick={onBack}
-                                                 fontSize="12px"
-                                                 fontWeight="900"
-                                                 color="gray.400"
-                                                 textTransform="uppercase"
-                                                 letterSpacing="0.1em"
-                                                 _hover={{ color: "blue.500", bg: "blue.50" }}
-                                                 borderRadius="full"
-                                                 px={6}
-                                             >
-                                                 Go Back
-                                             </Button>
-                                         </Flex>
-                                     </VStack>
-                                 </TabPanel>
-                                 <TabPanel p={0} h="full">
-                                     {/* SECOND TAB: SELECTED TEETH LIST */}
-                                     <VStack align="stretch" spacing={4} p={1} overflowY="auto" h="full" maxH="700px">
-                                         <Text fontSize="12px" fontWeight="900" color="gray.400" letterSpacing="0.05em">Review selected candidates for proposed treatments.</Text>
-                                         {teeth.length > 0 ? (
-                                             <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={4}>
-                                                 {teeth.map((tooth) => (
-                                                             <Box key={tooth.id} p={1} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.50" boxShadow="sm">
-                                                                 <ToothInfoCard
-                                                                     key={tooth.id}
-                                                                     tooth={tooth}
-                                                                     onEditNote={onEditToothNote}
-                                                                     onRemove={onToothClick}
-                                                                     hasNote={!!individualTeethNotes?.[tooth.id]}
-                                                                 />
-                                                             </Box>
-                                                         ))}
-                                                     </Grid>
-                                                 ) : (
-                                                     <Text fontSize="13px" color="gray.400">No teeth selected</Text>
-                                                 )}
-                                             </VStack>
-                                        </TabPanel>
-                                    </TabPanels>
-                                </Tabs>
-                                </Box>
-
-                                 {/* BILILNG & CASE SUMMARY - ULTRA SLIM SIDEBAR */}
-                                 <VStack align="stretch" spacing={0} h="full" maxH="700px" pb={12}>
-                                     <VStack
-                                         align="stretch"
-                                         spacing={0}
-                                         p={0}
-                                         bg="rgba(255, 255, 255, 0.4)"
-                                         backdropFilter="blur(25px)"
-                                         borderRadius="2xl"
-                                         border="1px solid"
-                                         borderColor="whiteAlpha.400"
-                                         boxShadow="2xl"
-                                         h="full"
-                                         position="relative"
-                                         overflow="hidden"
-                                    >
-                                        {/* Clinical Stamp Watermark */}
-                                        <Box position="absolute" top="10" right="-10" opacity={0.03} pointerEvents="none" transform="rotate(-15deg)">
-                                            <Icon as={FiActivity} boxSize="200px" />
-                                        </Box>
-
-                                        {/* SESSION TIMELINE - ULTRA PREMIUM HEADER */}
-                                        <Box px={5} py={4} bg="white/40" borderBottom="1px solid" borderColor="whiteAlpha.400">
-                                            <HStack justify="space-between" align="center">
-                                                <HStack spacing={4}>
-                                                    {[
-                                                        { label: "SELECT", active: currentStep >= 0 },
-                                                        { label: "PRICE", active: currentStep >= 1 },
-                                                        { label: "SAVE", active: currentStep >= 2 }
-                                                    ].map((step, i) => (
-                                                        <HStack key={step.label} spacing={1.5}>
-                                                            <Circle size="6px" bg={step.active ? "blue.500" : "gray.300"} transition="all 0.3s" />
-                                                            <Text fontSize="10px" fontWeight="900" color={step.active ? "blue.600" : "gray.400"} letterSpacing="wider">{step.label}</Text>
-                                                            {i < 2 && <Box w="12px" h="1px" bg="gray.200" />}
-                                                        </HStack>
-                                                    ))}
-                                                </HStack>
-                                                <Badge variant="solid" colorScheme="blue" fontSize="10px" borderRadius="full" px={2}>LVL-4</Badge>
-                                            </HStack>
-                                        </Box>
-
-                                        <Box position="absolute" top="10" left="0" bottom="10" w="1px" bg="blue.500" borderRadius="full" opacity={0.1} />
-
-                                         <VStack flex={1} align="stretch" spacing={4} overflowY="auto" pr={1} px={5} pt={4} pb={12} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-
-                                            {/* Patient Identity Header - Floating Card Style */}
-                                            <MotionBox
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                p={4} borderRadius="xl" bg="white" boxShadow="sm" border="1px solid" borderColor="gray.50"
-                                            >
-                                                <HStack spacing={3}>
-                                                    <Avatar size="sm" name={patientDetails?.name} bg="blue.600" color="white" border="2px solid" borderColor="blue.50" />
-                                                    <VStack align="start" spacing={0}>
-                                                        <Text fontSize="12px" fontWeight="900" color="gray.800" textTransform="uppercase" letterSpacing="widest">{patientDetails?.name}</Text>
-                                                        <HStack spacing={2}>
-                                                            <Badge variant="subtle" fontSize="10px" colorScheme="blue" borderRadius="full">REF: #{patientDetails?._id?.slice(-8).toUpperCase()}</Badge>
-                                                            <Text fontSize="10px" fontWeight="800" color="green.500">SYSTEM AUTHORIZED</Text>
-                                                        </HStack>
-                                                    </VStack>
-                                                </HStack>
-                                            </MotionBox>
-                                            {/* Session Context Header */}
-                                            <MotionBox
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.1 }}
-                                                p={4} bg="white" borderRadius="xl" border="1px solid" borderColor="blue.50" boxShadow="xs"
-                                            >
-                                                <VStack align="stretch" spacing={4}>
-                                                    <VStack align="start" spacing={1}>
-                                                        <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.1em">DOCTOR</Text>
-                                                        <Box w="full">
-                                                            <CustomInput
-                                                                name="doctor"
-                                                                type="real-time-user-search"
-                                                                isSearchable={true}
-                                                                isClear={true}
-                                                                query={{ type: 'doctor' }}
-                                                                options={doctorOptions}
-                                                                value={values.doctor}
-                                                                onChange={(val: any) => setFieldValue("doctor", val)}
-                                                                style={{ fontSize: '12px', height: '32px' }}
-                                                            />
-                                                        </Box>
-                                                    </VStack>
-                                                    <Divider borderColor="gray.50" />
-                                                    <VStack align="start" spacing={1}>
-                                                        <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.1em">SESSION DATE</Text>
-                                                        <Input
-                                                            type="date"
-                                                            size="sm"
-                                                            h="32px"
-                                                            fontSize="12px"
-                                                            fontWeight="700"
-                                                            value={values.treatmentDate}
-                                                            onChange={(e) => setFieldValue("treatmentDate", e.target.value)}
-                                                            border="none"
-                                                            p={0}
-                                                            _focus={{ boxShadow: 'none' }}
-                                                        />
-                                                    </VStack>
-                                                </VStack>
-                                                <Divider my={3} borderColor="gray.50" />
-                                                <HStack justify="space-between">
-                                                    <Badge colorScheme="green" variant="subtle" fontSize="10px" px={2} borderRadius="full">STATUS: ACTIVE</Badge>
-                                                    <Text fontSize="10px" fontWeight="800" color="gray.300">REF: DIAG-#{new Date().getFullYear()}</Text>
-                                                </HStack>
-                                                                                         {/* SESSION SUMMARY BOX - CLINICAL PROTOCOL */}
-                                             <MotionBox
-                                                 initial={{ opacity: 0, y: 10 }}
-                                                 animate={{ opacity: 1, y: 0 }}
-                                                 transition={{ delay: 0.2 }}
-                                                 p={3.5} bg="blue.50/20" borderRadius="xl" border="1px solid" borderColor="blue.100"
-                                             >
-                                                 <VStack align="stretch" spacing={3}>
-                                                     <VStack align="start" spacing={1}>
-                                                         <Text fontSize="10px" fontWeight="900" color="gray.400" textTransform="uppercase" letterSpacing="widest">Clinical Protocol</Text>
-                                                         <Box p={3} bg="white" borderRadius="lg" w="full" border="1px solid" borderColor="blue.50">
-                                                             <Text fontSize="12px" fontWeight="900" color="gray.700" lineHeight="1.3">
-                                                                 {values.treatmentCode ? (
-                                                                     <Text as="span" color="blue.600">{values.treatmentCode.split(" → ").pop()}</Text>
-                                                                 ) : "Search list..."}
-                                                             </Text>
-                                                         </Box>
-                                                     </VStack>
-                                                 </VStack>
-                                             </MotionBox>
-                                            </MotionBox>
-
-                                            {/* FINANCIAL DATA SHEET - PREMIUM ESTIMATE */}
-                                            <MotionBox
-                                                initial={{ opacity: 0, scale: 0.95 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                transition={{ delay: 0.3 }}
-                                                align="stretch"
-                                            >
-                                                <HStack spacing={2} mb={2}>
-                                                    <Circle size="5px" bg="blue.500" />
-                                                    <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em" textTransform="uppercase">Clinical Financials</Text>
-                                                </HStack>
-
-                                                <VStack spacing={4} align="stretch" bg="white" borderRadius="2xl" p={5} border="1px solid" borderColor="gray.100" boxShadow="lg">
-                                                     <VStack align="stretch" spacing={2} mb={1}>
-                                                         <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ESTIMATE RANGE</Text>
-                                                         <HStack spacing={2}>
-                                                             <InputGroup size="sm">
-                                                                 <Input
-                                                                     type="number"
-                                                                     placeholder="Min"
-                                                                     value={values.estimateMin}
-                                                                     onChange={(e) => {
-                                                                         const val = Number(e.target.value);
-                                                                         setFieldValue("estimateMin", val);
-                                                                         setFieldValue("totalMin", calculateTotal(val, values.discount));
-                                                                     }}
-                                                                     borderRadius="lg" fontWeight="700" bg="gray.50"
-                                                                 />
-                                                             </InputGroup>
-                                                             <Text fontSize="xs" color="gray.400">-</Text>
-                                                             <InputGroup size="sm">
-                                                                 <Input
-                                                                     type="number"
-                                                                     placeholder="Max"
-                                                                     value={values.estimateMax}
-                                                                     onChange={(e) => {
-                                                                         const val = Number(e.target.value);
-                                                                         setFieldValue("estimateMax", val);
-                                                                         setFieldValue("totalMax", calculateTotal(val, values.discount));
-                                                                     }}
-                                                                     borderRadius="lg" fontWeight="700" bg="gray.50"
-                                                                 />
-                                                             </InputGroup>
-                                                         </HStack>
-                                                     </VStack>
-
-                                                     <Flex justify="space-between" align="center" mb={1}>
-                                                         <VStack align="start" spacing={0}>
-                                                             <Text fontSize="12px" fontWeight="900" color="gray.400">CONCESSION</Text>
-                                                             {values.discount > 0 && <Badge colorScheme="green" fontSize="10px" borderRadius="full">SAVING ₹{values.discount}</Badge>}
-                                                         </VStack>
-                                                         <HStack spacing={1.5} maxW="120px">
-                                                             <Input
-                                                                 type="number" size="sm" h="32px"
-                                                                 value={values.discount}
-                                                                 onChange={(e) => {
-                                                                     const val = Number(e.target.value);
-                                                                     setFieldValue("discount", val);
-                                                                     setFieldValue("totalMin", calculateTotal(values.estimateMin, val));
-                                                                     setFieldValue("totalMax", calculateTotal(values.estimateMax, val));
-                                                                 }}
-                                                                 borderRadius="lg" fontWeight="900" bg="gray.50"
-                                                                 borderColor="blue.50" fontSize="12px" color="blue.600"
-                                                                 textAlign="right"
-                                                                 _focus={{ borderColor: "blue.300", bg: "white", boxShadow: "0 0 0 1px #EBF8FF" }}
-                                                             />
-                                                         </HStack>
-                                                     </Flex>
-                                                     <Divider borderColor="gray.100" />
-                                                     <VStack spacing={1} align="stretch">
-                                                         <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em" textAlign="center">FINAL CLINICAL QUOTE</Text>
-                                                         <Box py={2} bg="blue.50/30" borderRadius="xl">
-                                                             <Text
-                                                                 fontSize="24px"
-                                                                 fontWeight="1000"
-                                                                 color="blue.600"
-                                                                 lineHeight="1.1"
-                                                                 letterSpacing="tight"
-                                                                 textAlign="center"
-                                                             >
-                                                                 ₹{values.totalMin.toLocaleString()} - ₹{values.totalMax.toLocaleString()}
-                                                             </Text>
-                                                         </Box>
-                                                     </VStack>
-                                                 </VStack>
-                                            </MotionBox>
-
-                                            <VStack align="stretch" spacing={2} pb={2}>
-                                                <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em" textTransform="uppercase">Clinical Observations</Text>
-                                                <Box bg="white" borderRadius="lg" p={0.5} border="1px solid" borderColor="gray.100">
-                                                    <CustomInput
-                                                        name="notes"
-                                                        type="textarea"
-                                                        placeholder="Clinical findings..."
-                                                        value={values.notes}
-                                                        onChange={(e: any) => setFieldValue("notes", e.target.value)}
-                                                        style={{
-                                                            minHeight: "70px",
-                                                            borderRadius: "lg",
-                                                            fontSize: "12px",
-                                                            border: 'none',
-                                                            background: 'transparent',
-                                                            fontWeight: '600',
-                                                            color: '#4A5568',
-                                                            lineHeight: '1.4'
-                                                        }}
-                                                    />
                                                 </Box>
-                                            </VStack>
-                                        </VStack>
+                                            ) : (
+                                                <Grid templateColumns="1fr 1fr 1.4fr" h="full">
+                                                    <Box borderRight="1px solid" borderColor="gray.100">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full">
+                                                            {TREATMENT_CATEGORIES.map((cat, idx) => (
+                                                                <Box
+                                                                    key={cat.name}
+                                                                    px={5} py={4}
+                                                                    cursor="pointer"
+                                                                    bg={selectedCatIdx === idx ? "blue.50/50" : "transparent"}
+                                                                    color={selectedCatIdx === idx ? "blue.600" : "gray.500"}
+                                                                    onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
+                                                                    _hover={{ bg: "blue.50/20" }}
+                                                                >
+                                                                    <HStack spacing={3}>
+                                                                        <Icon as={CATEGORY_ICONS[cat.name] || FiActivity} boxSize={3} />
+                                                                        <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{cat.name.toUpperCase()}</Text>
+                                                                    </HStack>
+                                                                </Box>
+                                                            ))}
+                                                        </VStack>
+                                                    </Box>
+                                                    <Box borderRight="1px solid" borderColor="gray.100">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full">
+                                                            {activeCategory?.subcategories.map((sub, idx) => (
+                                                                <Box
+                                                                    key={sub.name}
+                                                                    px={6} py={4}
+                                                                    cursor="pointer"
+                                                                    bg={selectedSubIdx === idx ? "blue.50/50" : "transparent"}
+                                                                    color={selectedSubIdx === idx ? "blue.600" : "gray.500"}
+                                                                    onClick={() => setSelectedSubIdx(idx)}
+                                                                >
+                                                                    <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{sub.name.toUpperCase()}</Text>
+                                                                </Box>
+                                                            ))}
+                                                        </VStack>
+                                                    </Box>
+                                                    <Box>
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full">
+                                                            {activeSubcategory?.jobs.map((job) => {
+                                                                const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
+                                                                const isSelected = activeToothId === "bulk" 
+                                                                    ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
+                                                                    : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
+                                                                return (
+                                                                    <VStack
+                                                                        key={job.name}
+                                                                        px={6} py={5}
+                                                                        align="start"
+                                                                        spacing={1.5}
+                                                                        cursor="pointer"
+                                                                        bg={isSelected ? "blue.600" : "white"}
+                                                                        color={isSelected ? "white" : "gray.600"}
+                                                                        onClick={() => {
+                                                                           if (activeToothId === "bulk") {
+                                                                                teeth.forEach(t => {
+                                                                                    setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
+                                                                                    setFieldValue(`treatments.${t.id}.estimateMin`, job.defaultEstimate);
+                                                                                    setFieldValue(`treatments.${t.id}.estimateMax`, job.defaultEstimate);
+                                                                                    const disc = values.treatments[t.id]?.discount || 0;
+                                                                                    setFieldValue(`treatments.${t.id}.totalMin`, calculateTotal(job.defaultEstimate, disc));
+                                                                                    setFieldValue(`treatments.${t.id}.totalMax`, calculateTotal(job.defaultEstimate, disc));
+                                                                                });
+                                                                            } else if (activeToothId) {
+                                                                                setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
+                                                                                setFieldValue(`treatments.${activeToothId}.estimateMin`, job.defaultEstimate);
+                                                                                setFieldValue(`treatments.${activeToothId}.estimateMax`, job.defaultEstimate);
+                                                                                const disc = values.treatments[activeToothId]?.discount || 0;
+                                                                                setFieldValue(`treatments.${activeToothId}.totalMin`, calculateTotal(job.defaultEstimate, disc));
+                                                                                setFieldValue(`treatments.${activeToothId}.totalMax`, calculateTotal(job.defaultEstimate, disc));
+                                                                            }
+                                                                            onProcedureClose();
+                                                                        }}
+                                                                    >
+                                                                        <Text fontSize="12px" fontWeight="900">{job.name.toUpperCase()}</Text>
+                                                                        <Badge variant={isSelected ? "solid" : "subtle"} colorScheme={isSelected ? "whiteAlpha" : "blue"} fontSize="10px">
+                                                                            ₹{job.defaultEstimate.toLocaleString()}
+                                                                        </Badge>
+                                                                    </VStack>
+                                                                );
+                                                            })}
+                                                        </VStack>
+                                                    </Box>
+                                                </Grid>
+                                            )}
+                                        </Box>
+                                        <Button colorScheme="blue" onClick={onProcedureClose} w="full" borderRadius="xl">Close Explorer</Button>
+                                    </VStack>
+                                </Box>
+                            </CustomDrawer>
 
-                                        <Box mt="auto" pt={3} px={1} pb={2} mb={2}>
+
+
+                            <VStack align="stretch" spacing={isDrawerMode ? 4 : 8} minH={isDrawerMode ? "auto" : "700px"} h={isDrawerMode ? "auto" : "calc(100vh - 280px)"}>
+                                {!isDrawerMode && (
+                                    <HStack justify="space-between" align="center">
+                                        <VStack align="start" spacing={0}>
+                                            <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">PHASE 2</Text>
+                                            <Heading size="lg" fontWeight="900" color="gray.800">Selected Teeth Overview</Heading>
+                                        </VStack>
+                                        <HStack spacing={4}>
+                                            {teeth.length > 1 && (
+                                                <Button
+                                                    leftIcon={<FiLayers />}
+                                                    variant="outline"
+                                                    colorScheme="blue"
+                                                    borderRadius="xl"
+                                                    fontWeight="900"
+                                                    onClick={() => { setActiveToothId("bulk"); onDetailOpen(); }}
+                                                >
+                                                    Bulk Edit All
+                                                </Button>
+                                            )}
                                             <Button
                                                 colorScheme="blue"
                                                 type="submit"
                                                 isLoading={formLoading}
-                                                isDisabled={!values.treatmentCode}
-                                                w="full"
-                                                h="44px"
                                                 borderRadius="xl"
-                                                fontSize="12px"
                                                 fontWeight="900"
                                                 leftIcon={<FiSave />}
-                                                textTransform="uppercase"
-                                                letterSpacing="0.2em"
-                                                boxShadow="0 4px 12px rgba(49, 130, 206, 0.1)"
-                                                transition="all 0.2s"
-                                                animation={values.treatmentCode ? `${pulseGlow} 2s infinite ease-in-out` : "none"}
-                                                _hover={{ transform: "translateY(-1.5px)", boxShadow: "0 8px 16px rgba(49, 130, 206, 0.15)" }}
-                                                _active={{ transform: "scale(0.98)" }}
+                                                px={8}
                                             >
-                                                {editData?._id ? "Update Record" : "Confirm & Save"}
+                                                Save All Treatments
                                             </Button>
-                                        </Box>
-                                    </VStack>
-                                </VStack>
+                                            <Button variant="ghost" leftIcon={<FiChevronRight style={{ transform: 'rotate(180deg)' }} />} onClick={onBack} fontWeight="900">Back</Button>
+                                        </HStack>
+                                    </HStack>
+                                )}
 
-                            </Grid>
+                                {isDrawerMode ? (
+                                    <Box p={2}>
+                                        {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
+                                    </Box>
+                                ) : (
+                                    <Box flex="1" overflowY="auto" pr={2} sx={{
+                                        '&::-webkit-scrollbar': { width: '6px' },
+                                        '&::-webkit-scrollbar-track': { background: 'transparent' },
+                                        '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' },
+                                    }}>
+                                        {teeth.length > 1 && (
+                                            <Button
+                                                variant="subtle"
+                                                colorScheme="blue"
+                                                w="full"
+                                                mb={6}
+                                                h="54px"
+                                                borderRadius="2xl"
+                                                leftIcon={<FiLayers />}
+                                                onClick={() => { setActiveToothId("bulk"); onDetailOpen(); }}
+                                                fontSize="xs"
+                                                fontWeight="1000"
+                                                letterSpacing="widest"
+                                            >
+                                                APPLY PROCEDURE TO ALL {teeth.length} SELECTIONS
+                                            </Button>
+                                        )}
+                                        <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)", xl: "repeat(4, 1fr)" }} gap={4}>
+                                        {teeth.map((tooth) => {
+                                            const toothValues = values.treatments[tooth.id] || initialFormData;
+                                            const complaint = toothValues.complaintType || "default";
+                                            const style = COMPLAINT_STYLES[complaint] || COMPLAINT_STYLES.default;
+
+                                            return (
+                                                <Box 
+                                                    key={tooth.id} 
+                                                    p={0} 
+                                                    bg="white" 
+                                                    borderRadius="2xl" 
+                                                    border="1px solid" 
+                                                    borderColor="gray.100" 
+                                                    boxShadow="sm"
+                                                    cursor="pointer"
+                                                    onClick={() => { setActiveToothId(tooth.id); onDetailOpen(); }}
+                                                    _hover={{ transform: "translateY(-4px)", boxShadow: "xl", borderColor: style.border }}
+                                                    transition="all 0.3s ease"
+                                                    position="relative"
+                                                    overflow="hidden"
+                                                >
+                                                    {/* Premium Top Border Indicator */}
+                                                    <Box h="4px" bg={style.border} w="full" position="absolute" top={0} />
+                                                    
+                                                    <VStack align="stretch" spacing={0} p={4}>
+                                                        <HStack justify="space-between" mb={3}>
+                                                            <VStack align="start" spacing={0}>
+                                                                <HStack spacing={2}>
+                                                                    <Text fontSize="20px" fontWeight="1000" color="gray.800" letterSpacing="tight">#{tooth.id}</Text>
+                                                                    <Badge variant="subtle" colorScheme={toothValues.treatmentCode ? "green" : "blue"} borderRadius="full" px={1.5} fontSize="8px" fontWeight="1000">
+                                                                        {toothValues.treatmentCode ? "READY" : "PENDING"}
+                                                                    </Badge>
+                                                                </HStack>
+                                                                <Text fontSize="9px" fontWeight="900" color={style.iconColor} letterSpacing="0.05em">{style.label}</Text>
+                                                            </VStack>
+                                                            <Circle size="32px" bg={style.bg} color={style.iconColor}>
+                                                                <Icon as={FiActivity} boxSize={4} />
+                                                            </Circle>
+                                                        </HStack>
+                                                        
+                                                        {toothValues.treatmentCode ? (
+                                                            <Box p={3} bg={style.bg} borderRadius="xl" border="1px solid" borderColor={`${style.border}20`}>
+                                                                <VStack align="start" spacing={0.5}>
+                                                                    <Text fontSize="10px" fontWeight="1000" color={style.iconColor} noOfLines={1}>{toothValues.treatmentCode.split(" → ")[1]}</Text>
+                                                                    <Text fontSize="11px" fontWeight="1000" color="gray.800" noOfLines={1}>
+                                                                        {toothValues.treatmentCode.split(" → ").pop()}
+                                                                    </Text>
+                                                                    <HStack spacing={2} pt={1}>
+                                                                        <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">
+                                                                            ₹{toothValues.totalMin.toLocaleString()}
+                                                                        </Badge>
+                                                                        <Text fontSize="8px" color="gray.400" fontWeight="700">to</Text>
+                                                                        <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">
+                                                                            ₹{toothValues.totalMax.toLocaleString()}
+                                                                        </Badge>
+                                                                    </HStack>
+                                                                </VStack>
+                                                            </Box>
+                                                        ) : (
+                                                            <VStack p={4} border="2px dashed" borderColor="gray.100" borderRadius="xl" spacing={1} bg="gray.50/30">
+                                                                <Icon as={FiLayers} color="gray.300" boxSize={4} />
+                                                                <Text fontSize="10px" color="gray.400" fontWeight="900">AWAITING</Text>
+                                                            </VStack>
+                                                        )}
+
+                                                        <HStack pt={4} justify="space-between" align="center">
+                                                            <HStack spacing={2}>
+                                                                <Avatar size="xs" name={toothValues.doctor?.label || "?"} bg={style.iconColor} p={0.5} border="1px solid white" />
+                                                                <VStack align="start" spacing={0}>
+                                                                    <Text fontSize="8px" fontWeight="900" color="gray.400">CLINICIAN</Text>
+                                                                    <Text fontSize="10px" fontWeight="1000" color="gray.700" noOfLines={1}>{toothValues.doctor?.label || "Unassigned"}</Text>
+                                                                </VStack>
+                                                            </HStack>
+                                                            <Icon as={FiChevronRight} color="gray.300" boxSize={3} />
+                                                        </HStack>
+                                                    </VStack>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Grid>
+                                    </Box>
+                                )}
+                                {isDrawerMode && (
+                                    <Box borderTop="1px solid" borderColor="gray.100" pt={6} mt={6}>
+                                        <Button
+                                            colorScheme="blue"
+                                            type="submit"
+                                            isLoading={formLoading}
+                                            borderRadius="xl"
+                                            fontWeight="900"
+                                            leftIcon={<FiSave />}
+                                            w="full"
+                                            h="54px"
+                                        >
+                                            Save Changes
+                                        </Button>
+                                    </Box>
+                                )}
+                            </VStack>
+                            
+                            {!isDrawerMode && (
+                                <Modal isOpen={isDetailOpen} onClose={onDetailClose} size="4xl" scrollBehavior="inside">
+                                    <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
+                                    <ModalContent borderRadius="3xl" overflow="hidden">
+                                        <ModalHeader p={6} borderBottom="1px solid" borderColor="gray.100">
+                                            <HStack justify="space-between">
+                                                <VStack align="start" spacing={0}>
+                                                    <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY</Text>
+                                                    <Heading size="md" fontWeight="1000">
+                                                        {activeToothId === "bulk" ? "Multi-Tooth Update" : `Tooth #${activeToothId} Details`}
+                                                    </Heading>
+                                                </VStack>
+                                                <Circle size="40px" bg="blue.50" color="blue.500">
+                                                    <FiActivity />
+                                                </Circle>
+                                            </HStack>
+                                        </ModalHeader>
+                                        <ModalBody p={8}>
+                                            {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
+                                        </ModalBody>
+                                        <ModalFooter borderTop="1px solid" borderColor="gray.50" p={6}>
+                                            <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" onClick={onDetailClose}>
+                                                Confirm Details
+                                            </Button>
+                                        </ModalFooter>
+                                    </ModalContent>
+                                </Modal>
+                            )}
                         </FormikForm>
                     );
                 }}

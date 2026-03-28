@@ -2,79 +2,87 @@ import { makeAutoObservable } from "mobx";
 import axios from "axios";
 import { authStore } from "../authStore/authStore";
 
-class ToothTreatment {
+interface ToothTreatment {
+  data: any[];
+  totalItems: number;
+  totalPages: number;
+  loading: boolean;
+}
 
-  toothTreatment : any = {
+class ToothTreatmentStore {
+  toothTreatment: ToothTreatment = {
     data: [],
-    totalPages: 1,
-    loading : false
-  };
-
-  openTestimonialDrawer = {
-    open: false,
+    totalItems: 0,
+    totalPages: 0,
+    loading: false,
   };
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  // Fetch Testimonials
-
-  getToothTreatmentById = async (sendData: any) => {
-    try {
-      const { data } = await axios.post(
-        `/toothTreatment/${sendData?.appointmentId}`,
-        {...sendData, appointmentId : sendData?.appointmentId ,company :authStore.company}
-      );
-      return data;
-    } catch (err: any) {
-      return Promise.reject(err?.response?.data || err);
-    } finally {
-    }
-  };
-
-  getToothTreatments = async (sendData: { page: number, search: string, patientId?:any }) => {
+  // Common get with search and pagination support
+  getToothTreatments = async (sendData: { page: number, search: string, category?: string, patientId?: any }) => {
+    console.log("Fetching tooth treatments with params:", sendData);
     this.toothTreatment.loading = true;
     try {
-      const searchQuery = sendData.search ? `&search=${encodeURIComponent(sendData.search)}` : '';
-      const { data } = await axios.get(
-        `/toothTreatment/get?page=${sendData.page}&limit=10${searchQuery}&company=${authStore.company}&patientId=${sendData?.patientId}`
-      );
-this.toothTreatment.data =
-  data?.data?.data?.map((it: any) => {
-    const fdi = it?.tooth?.fdi || "--";
-    const universal = it?.tooth?.universal || "--";
-    const palmer = it?.tooth?.palmer || "--";
+      const params: any = {
+        page: sendData.page,
+        limit: 10,
+        company: authStore.company,
+        patientId: sendData.patientId,
+        patient: sendData.patientId,
+      };
 
-    return {
-      ...it,
+      if (sendData.search) params.search = sendData.search;
+      if (sendData.category && sendData.category !== 'all') {
+        params.complaintType = sendData.category;
+      }
 
-      // Names
-      patientName: it?.patient?.name,
-      doctorName: it?.doctor?.name,
+      const { data } = await axios.get("/toothTreatment/get", { params });
 
-      // Keep separate (for future filtering / reports)
-      toothFDI: fdi,
-      toothUniversal: universal,
-      toothPalmer: palmer,
+      // Extract items from data.data.data or data.data depending on backend structure
+      const rawItems = data?.data?.data || data?.data || [];
+      const mappedData = rawItems.map((it: any) => {
+        const fdi = it?.tooth?.fdi || "--";
+        const universal = it?.tooth?.universal || "--";
+        const palmer = it?.tooth?.palmer || "--";
 
-      // 👇 Combined display key (THIS is what table will use)
-      toothName: `FDI ${fdi} | U ${universal} | P ${palmer}`,
-    };
-  }) || [];
-      this.toothTreatment.totalPages = data?.data?.totalPages || 0;
-      return data.data;
+        return {
+          ...it,
+          patientName: it?.patient?.name,
+          doctorName: it?.doctor?.name,
+          toothFDI: fdi,
+          toothUniversal: universal,
+          toothPalmer: palmer,
+          toothName: `FDI ${fdi} | U ${universal} | P ${palmer}`,
+        }
+      });
+
+      this.toothTreatment.data = mappedData;
+
+      // Correct extraction of totalItem count from potentially nested response
+      const totalItems = data?.totalItems || data?.data?.totalItems || rawItems.length || 0;
+      this.toothTreatment.totalItems = totalItems;
+
+      // Manually calculate totalPages based on the limit=10 to ensure consistency with UI
+      this.toothTreatment.totalPages = Math.ceil(totalItems / 10) || 1;
+
+      console.log("Extracted Pagination Metadata:", { totalItems, totalPages: this.toothTreatment.totalPages });
+
+      return data;
     } catch (err: any) {
+      console.error("Error fetching treatments:", err);
       return Promise.reject(err?.response?.data || err);
     } finally {
       this.toothTreatment.loading = false;
     }
   };
 
-  // Create Testimonial
+  // Create Treatment
   createToothTreatment = async (sendData: any) => {
     try {
-      const { data } = await axios.post("/toothTreatment/create", {...sendData,company : authStore.company});
+      const { data } = await axios.post("/toothTreatment/create", { ...sendData, company: authStore.company });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -83,7 +91,7 @@ this.toothTreatment.data =
 
   updateToothTreatment = async (sendData: any) => {
     try {
-      const { data } = await axios.put(`/toothTreatment/${sendData.treatmentId}`, {...sendData,company : authStore.company});
+      const { data } = await axios.put(`/toothTreatment/${sendData.treatmentId}`, { ...sendData, company: authStore.company });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -98,7 +106,7 @@ this.toothTreatment.data =
       return Promise.reject(err?.response?.data || err);
     }
   };
-
 }
 
-export const toothTreatmentStore = new ToothTreatment();
+export const toothTreatmentStore = new ToothTreatmentStore();
+export default toothTreatmentStore;

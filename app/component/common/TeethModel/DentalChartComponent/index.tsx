@@ -25,6 +25,14 @@ import {
   useDisclosure,
   Textarea,
   IconButton,
+  Input,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Select,
 } from "@chakra-ui/react";
 import {
   FiCheck,
@@ -36,13 +44,14 @@ import {
   FiX,
   FiSave,
   FiEdit3,
-  FiTrash2
+  FiTrash2,
+  FiPlus,
 } from "react-icons/fi";
 
 import { DentitionToggle } from "./component/DentitionToggle";
 import { TeethChart } from "./component/TeethChart";
 import { ToothInfoCard } from "./component/ToothInfoCard";
-import { DentitionType, ToothData } from "./utils/teethData";
+import { DentitionType, ToothData, adultTeeth, childTeeth, getTeethByType } from "./utils/teethData";
 import { observer } from "mobx-react-lite";
 
 import { DescriptionEntry } from "./component/DescriptionEntry";
@@ -50,7 +59,9 @@ import { ComplaintSelectionMode } from "./component/ComplaintSelectionMode";
 import { TreatmentProcedureForm } from "./component/TreatmentProcedureForm";
 import { ToothFormDialog } from "./component/ToothFormDialog";
 import { NotationChoice } from "./component/NotationChoice";
-import { getTeethByType } from "./utils/teethData";
+import { SavedTreatmentListItem } from "./component/SavedTreatmentListItem";
+import { ProcedureTemplateList } from "./component/ProcedureTemplateList";
+import CustomDrawer from "../../Drawer/CustomDrawer";
 import stores from "../../../../store/stores";
 import { TREATMENT_CATEGORIES } from "../../../../dashboard/toothTreatment/treatmentDataConstant";
 
@@ -69,14 +80,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [generalDescription, setGeneralDescription] = useState("");
   const [isToothFormOpen, setIsToothFormOpen] = useState(false);
   const [activeTeethForForm, setActiveTeethForForm] = useState<ToothData[]>([]);
-  const [complaintType, setComplaintType] = useState<string>("Chief Complaint");
+  const [complaintType, setComplaintType] = useState<string>("CHIEF COMPLAINT");
   const [teethNotes, setTeethNotes] = useState<string>("");
 
-  // Hoisted State for Phase 4 & Explorer
   const [procedureFormValues, setProcedureFormValues] = useState<any>(null);
   const [explorerState, setExplorerState] = useState({ catIdx: 0, subIdx: 0 });
 
-  // Individual Tooth Notes
   const [individualTeethNotes, setIndividualTeethNotes] = useState<Record<string, string>>({});
   const [editingTooth, setEditingTooth] = useState<ToothData | null>(null);
   const [currentNoteDraft, setCurrentNoteDraft] = useState("");
@@ -87,12 +96,27 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [isDeletingConfirmLoading, setIsDeletingConfirmLoading] = useState(false);
   const [generalNoteDraft, setGeneralNoteDraft] = useState("");
 
+  const [historySearch, setHistorySearch] = useState("");
+  const [historyCategoryFilter, setHistoryCategoryFilter] = useState("all");
+  const [historyDateSort, setHistoryDateSort] = useState("desc");
+  const [historyPage, setHistoryPage] = useState(1);
+
+  const COMPLAINT_STYLES: Record<string, { border: string, bg: string, label: string, iconColor: string }> = {
+    "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
+    "OTHER FINDING": { border: "orange.400", bg: "orange.50", label: "OTHER FINDING", iconColor: "orange.400" },
+    "EXISTING FINDING": { border: "gray.400", bg: "gray.50", label: "EXISTING", iconColor: "gray.400" },
+    "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
+  };
+
   const [doctors, setDoctors] = useState<any[]>([]);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
-
+  const [isMultipleSelection, setIsMultipleSelection] = useState(false);
+  const { isOpen: isEditDrawerOpen, onOpen: onEditDrawerOpen, onClose: onEditDrawerClose } = useDisclosure();
+  const { isOpen: isHistoryDrawerOpen, onOpen: onHistoryDrawerOpen, onClose: onHistoryDrawerClose } = useDisclosure();
+  const { isOpen: isProcedureDrawerOpen, onOpen: onProcedureDrawerOpen, onClose: onProcedureDrawerClose } = useDisclosure();
   const {
     userStore: { getUsersList },
-    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
+    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment, updateToothTreatment },
   } = stores;
 
   useEffect(() => {
@@ -111,18 +135,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     };
     fetchDoctors();
   }, [getUsersList]);
-
-  useEffect(() => {
-    const fetchSavedTreatments = async () => {
-      if (!patientDetails?._id) return;
-      try {
-        await getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
-      } catch (err) {
-        console.error("Failed to fetch saved treatments", err);
-      }
-    };
-    fetchSavedTreatments();
-  }, [patientDetails?._id, getToothTreatments]);
 
   const doctorOptions = useMemo(() => {
     return doctors.map((d) => ({
@@ -147,17 +159,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     onCloseNoteModal();
   };
 
-  // Handle Edit Initialization
   useEffect(() => {
     if (patientDetails?.editData) {
       const edit = patientDetails.editData;
-
-      // Reconstruct selected teeth
       const allTeeth = getTeethByType(dentitionType);
       const matchedTooth = allTeeth.find(t => t.id === edit.tooth?.fdi);
       if (matchedTooth) setSelectedTeeth([matchedTooth]);
 
-      // Reconstruct form values
       setProcedureFormValues({
         doctor: edit.doctor ? (typeof edit.doctor === 'object' ? { label: edit.doctor.name, value: edit.doctor._id } : { label: 'Selected Doctor', value: edit.doctor }) : undefined,
         treatmentDate: edit.treatmentDate?.split("T")[0] || new Date().toISOString().split("T")[0],
@@ -171,22 +179,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         patient: edit.patient ? (typeof edit.patient === 'object' ? { label: edit.patient.name, value: edit.patient._id } : { label: patientDetails?.name, value: edit.patient }) : { label: patientDetails?.name, value: patientDetails?._id },
         status: edit.status || "Planned",
         treatmentId: edit._id,
+        complaintType: edit.complaintType?.toUpperCase() || "CHIEF COMPLAINT",
       });
 
-      // Reconstruct complaint type
-      if (edit.complaintType) {
-        setComplaintType(edit.complaintType);
-      }
-
-      // Reconstruct individual tooth notes
+      if (edit.complaintType) setComplaintType(edit.complaintType.toUpperCase());
       if (edit.toothNote && edit.tooth?.fdi) {
-        setIndividualTeethNotes(prev => ({
-          ...prev,
-          [edit.tooth.fdi]: edit.toothNote
-        }));
+        setIndividualTeethNotes(prev => ({ ...prev, [edit.tooth.fdi]: edit.toothNote }));
       }
 
-      // Reconstruct explorer state and normalize treatmentCode if treatmentPlan exists
       if (edit.treatmentPlan) {
         const parts = edit.treatmentPlan.split(/→|->/).map((p: string) => p.trim());
         if (parts.length >= 2) {
@@ -197,7 +197,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             if (subIdx !== -1) {
               const foundSub = foundCat.subcategories[subIdx];
               setExplorerState({ catIdx, subIdx });
-
               if (parts[2]) {
                 const foundJob = foundSub.jobs.find(j => j.name.toLowerCase() === parts[2].toLowerCase());
                 if (foundJob) {
@@ -209,14 +208,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           }
         }
       }
-
-      // Navigate to the form if editing
       setStep("PROCEDURE_FORM");
     }
   }, [patientDetails?.editData, dentitionType]);
-
-  // Get dynamic steps based on selection
-  const isTeethFlow = step === "TOOTH_SELECTION" || (step === "PROCEDURE_FORM" && selectedTeeth.length > 0);
 
   const steps = [
     { id: "TOOTH_SELECTION", title: "SELECTION", icon: FiMousePointer },
@@ -229,70 +223,36 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleStepClick = (idx: number) => {
     if (idx < currentMainIdx) {
       setStep(steps[idx].id as WizardStep);
-      setProcedureFormValues((prev: any) => prev ? {
-        ...prev,
-        treatmentCode: "",
-        estimateMin: 0,
-        estimateMax: 0,
-        totalMin: 0,
-        totalMax: 0,
-        discount: 0,
-        notes: ""
-      } : prev);
     }
   };
 
   const handleNext = () => {
-    if (step === "TOOTH_SELECTION") {
-      setStep("PROCEDURE_FORM");
-    }
+    if (step === "TOOTH_SELECTION") setStep("PROCEDURE_FORM");
   };
 
   const handleBack = () => {
-    if (step === "PROCEDURE_FORM") {
-      setStep("TOOTH_SELECTION");
-      setProcedureFormValues((prev: any) => prev ? {
-        ...prev,
-        treatmentCode: "",
-        estimateMin: 0,
-        estimateMax: 0,
-        totalMin: 0,
-        totalMax: 0,
-        discount: 0,
-        notes: ""
-      } : prev);
-    }
+    if (step === "PROCEDURE_FORM") setStep("TOOTH_SELECTION");
   };
 
   const handleToothClick = (tooth: ToothData) => {
-    setSelectedTeeth((prev) => {
-      const isSelected = prev.some((t) => t.id === tooth.id);
-      if (isSelected) {
-        return prev.filter((t) => t.id !== tooth.id);
-      } else {
-        return [...prev, tooth];
-      }
-    });
-
-    setToothComplaints((prev) => {
-      const isSelected = selectedTeeth.some((t) => t.id === tooth.id);
-      if (isSelected) {
-        const { [tooth.id]: _, ...rest } = prev;
-        return rest;
-      } else {
-        return { ...prev, [tooth.id]: complaintType };
-      }
-    });
-    setProcedureFormValues((prev: any) => prev ? {
-      ...prev,
-      treatmentCode: "",
-      estimateMin: 0,
-      estimateMax: 0,
-      totalMin: 0,
-      totalMax: 0,
-      discount: 0,
-      notes: ""
-    } : prev);
+    if (isMultipleSelection) {
+      setSelectedTeeth((prev) => {
+        const isSelected = prev.some((t) => t.id === tooth.id);
+        return isSelected ? prev.filter((t) => t.id !== tooth.id) : [...prev, tooth];
+      });
+      setToothComplaints((prev) => {
+        const isSelected = selectedTeeth.some((t) => t.id === tooth.id);
+        if (isSelected) {
+          const { [tooth.id]: _, ...rest } = prev;
+          return rest;
+        } else {
+          return { ...prev, [tooth.id]: complaintType };
+        }
+      });
+    } else {
+      setSelectedTeeth([tooth]);
+      setToothComplaints({ [tooth.id]: complaintType });
+    }
   };
 
   const handleDeleteTreatment = (id: string) => {
@@ -305,23 +265,33 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     try {
       setIsDeletingConfirmLoading(true);
       await deleteToothTreatment(deletingId);
-      if (patientDetails?._id) {
-        getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
-      }
+      if (patientDetails?._id) await getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
       onCloseDeleteModal();
-      setDeletingId(null);
     } catch (err) {
-      console.error("Failed to delete treatment", err);
+      console.error("Delete failed", err);
     } finally {
       setIsDeletingConfirmLoading(false);
     }
   };
 
+  const handleMarkAsComplete = async (id: string) => {
+    try {
+      await updateToothTreatment({ treatmentId: id, status: "completed" });
+      if (patientDetails?._id) await getToothTreatments({ patientId: patientDetails._id, page: 1, search: "", category: historyCategoryFilter });
+    } catch (err) {
+      console.error("Update failed", err);
+    }
+  };
+
+  const handleSelectTemplate = (path: string) => {
+    setProcedureFormValues((prev: any) => ({ ...prev, treatmentCode: path }));
+    onProcedureDrawerClose();
+    setStep("PROCEDURE_FORM");
+  };
+
   const handleEditTreatment = (item: any) => {
     setEditingTreatment(item);
-    
-    // Deconstruct and set values to be hoisted
-    const mappedValues = {
+    setProcedureFormValues({
       doctor: item.doctor?._id ? { label: item.doctor.name, value: item.doctor._id } : item.doctor,
       notes: item.notes || "",
       treatmentCode: item.treatmentPlan || "",
@@ -331,719 +301,296 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       totalMax: item.totalMax || 0,
       discount: item.discount || 0,
       status: item.status === "pending" ? "Planned" : item.status === "completed" ? "Completed" : item.status,
-    };
-    setProcedureFormValues(mappedValues);
-
-    // Reconstruct Selected Tooth
-    if (item.tooth?.fdi) {
-      const allTeeth = getTeethByType(dentitionType);
-      const matched = allTeeth.find(t => t.id === item.tooth.fdi);
-      if (matched) {
-        setSelectedTeeth([matched]);
-      }
-    }
-    setStep("PROCEDURE_FORM");
+      complaintType: item.complaintType || "Chief Complaint",
+    });
+    onEditDrawerOpen();
   };
+
+  useEffect(() => {
+    if (isHistoryDrawerOpen && patientDetails) {
+      getToothTreatments({
+        patientId: patientDetails._id || patientDetails.id,
+        page: historyPage,
+        search: historySearch,
+        category: historyCategoryFilter,
+      });
+    }
+  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, patientDetails?._id]);
+
+  useEffect(() => {
+    setHistoryPage(1);
+  }, [historySearch, historyCategoryFilter]);
 
   const renderStep = () => {
     switch (step) {
       case "TOOTH_SELECTION":
         return (
           <VStack spacing={4} align="stretch" h="full">
-            {/* Contextual Header - Compact Clinical */}
-            <Flex
-              justify="space-between"
-              align="center"
-              bg="white"
-              px={5}
-              py={2}
-              borderRadius="3xl"
-              border="1px solid"
-              borderColor="gray.100"
-              boxShadow="sm"
-            >
+            <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
               <HStack spacing={8}>
                 <VStack align="start" spacing={1}>
-                  <HStack spacing={2}>
-                    <Circle size="5px" bg="blue.500" />
-                    <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">DENTITION</Text>
-                  </HStack>
+                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">DENTITION</Text>
                   <DentitionToggle value={dentitionType} onChange={setDentitionType} />
                 </VStack>
-
-                <Box w="1px" h="24px" bg="gray.100" />
-
                 <VStack align="start" spacing={1}>
-                  <HStack spacing={2}>
-                    <Circle size="5px" bg="blue.500" />
-                    <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">NOTATION</Text>
-                  </HStack>
-                  <HStack bg="gray.50" p={1} borderRadius="xl" border="1px solid" borderColor="gray.100">
-                    {[
-                      { id: "fdi", label: "FDI" },
-                      { id: "universal", label: "UNIV" },
-                      { id: "palmer", label: "PALM" }
-                    ].map((n) => (
-                      <Button
-                        key={n.id}
-                        size="xs"
-                        variant={notation === n.id ? "solid" : "ghost"}
-                        colorScheme={notation === n.id ? "blue" : "gray"}
-                        onClick={() => setNotation(n.id as any)}
-                        fontSize="11px"
-                        fontWeight="900"
-                        h="24px"
-                        px={3}
-                        borderRadius="lg"
-                        textTransform="uppercase"
-                      >
-                        {n.label}
-                      </Button>
+                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">NOTATION</Text>
+                  <HStack bg="gray.50" p={1} borderRadius="xl">
+                    {["fdi", "universal", "palmer"].map(n => (
+                      <Button key={n} size="xs" variant={notation === n ? "solid" : "ghost"} colorScheme={notation === n ? "blue" : "gray"} onClick={() => setNotation(n as any)}>{n.toUpperCase()}</Button>
                     ))}
                   </HStack>
                 </VStack>
-
-                <Box w="1px" h="24px" bg="gray.100" />
-
                 <VStack align="start" spacing={1}>
-                  <HStack spacing={2}>
-                    <Circle size="5px" bg="blue.500" />
-                    <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">COMPLAINT TYPE</Text>
-                  </HStack>
-                  <HStack bg="gray.50" p={1} borderRadius="xl" border="1px solid" borderColor="gray.100">
-                    {["Chief Complaint", "Other Finding", "Existing Finding"].map((type) => {
-                      const isActive = complaintType === type;
-                      const getStyles = () => {
-                        switch(type) {
-                          case "Chief Complaint": return { bg: "red.500", color: "white", hover: "red.600" };
-                          case "Other Finding": return { bg: "yellow.400", color: "gray.800", hover: "yellow.500" };
-                          case "Existing Finding": return { bg: "gray.300", color: "gray.800", hover: "gray.400" };
-                          default: return { bg: "transparent", color: "gray.600", hover: "gray.100" };
-                        }
-                      };
-                      const styles = isActive ? getStyles() : { bg: "transparent", color: "gray.500", hover: "gray.100" };
-                      return (
-                        <Button
-                          key={type}
-                          size="xs"
-                          onClick={() => setComplaintType(type)}
-                          bg={styles.bg}
-                          color={styles.color}
-                          _hover={{ bg: styles.hover }}
-                          _active={{ bg: styles.bg }}
-                          fontSize="11px"
-                          fontWeight="900"
-                          h="24px"
-                          px={3}
-                          borderRadius="lg"
-                          textTransform="uppercase"
-                        >
-                          {type.split(' ')[0]}
-                        </Button>
-                      );
-                    })}
+                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">COMPLAINT</Text>
+                  <HStack bg="gray.50" p={1} borderRadius="xl">
+                    {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => (
+                      <Button key={type} size="xs" colorScheme={complaintType === type ? "blue" : "gray"} variant={complaintType === type ? "solid" : "ghost"} onClick={() => setComplaintType(type)}>{type.split(' ')[0]}</Button>
+                    ))}
                   </HStack>
                 </VStack>
               </HStack>
-
               <VStack align="end" spacing={0}>
-                <Text fontSize="11px" fontWeight="900" color="gray.300" letterSpacing="0.2em">SELECTIONS</Text>
-                <HStack spacing={2}>
-                  <Text fontWeight="900" color="blue.500" fontSize="3xl" lineHeight="1">{selectedTeeth.length}</Text>
-                  <Box p={2} bg="blue.50" borderRadius="lg">
-                    <Icon as={FiMousePointer} boxSize={4} color="blue.500" />
-                  </Box>
-                </HStack>
+                <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
+                <Text fontWeight="900" color="blue.500" fontSize="3xl">{selectedTeeth.length}</Text>
               </VStack>
             </Flex>
 
-            {/* Compact Refined Workspace */}
             <Grid templateColumns={{ base: "1fr", lg: "1fr 340px" }} gap={4} flex={1} overflow="hidden">
-              <Box
-                bg="white"
-                borderRadius="3xl"
-                border="1px solid"
-                borderColor="gray.100"
-                p={4}
-                position="relative"
-                overflow="hidden"
-                h="full"
-              >
-                <TeethChart
-                  dentitionType={dentitionType}
-                  selectedTeeth={selectedTeeth}
-                  onToothClick={handleToothClick}
-                  notationType={notation}
-                  onNotationChange={setNotation}
-                  toothComplaints={toothComplaints}
-                />
+              <Box bg="white" borderRadius="3xl" border="1px solid" borderColor="gray.100" p={4} overflow="hidden" h="full">
+                <TeethChart dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} />
               </Box>
-
-              <VStack
-                spacing={4}
-                align="stretch"
-                p={6}
-                bg="white"
-                border="1px solid"
-                borderColor="gray.100"
-                rounded="3xl"
-                h="full"
-                boxShadow="xs"
-                overflow="hidden"
-              >
+              <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL HISTORY</Text>
-                    <Heading size="xs" fontWeight="900" color="gray.800" letterSpacing="tight">Saved Treatments</Heading>
+                    <Text fontSize="11px" fontWeight="900" color="blue.500">CLINICAL HISTORY</Text>
+                    <Heading size="xs" fontWeight="900">Saved Records</Heading>
                   </VStack>
-                  <Circle size="28px" bg="blue.500" color="white" fontSize="11px" fontWeight="900">
-                    {toothTreatment.data?.length || 0}
-                  </Circle>
+                  <HStack spacing={2}>
+                    <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900">{toothTreatment.totalItems || 0}</Circle>
+                    <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme="blue" borderRadius="full" onClick={onProcedureDrawerOpen} />
+                  </HStack>
                 </HStack>
-
-                <Box
-                  flex={1}
-                  overflowY="auto"
-                  minH={0}
-                  pr={2}
-                  sx={{
-                    '&::-webkit-scrollbar': { width: '4px' },
-                    '&::-webkit-scrollbar-track': { background: 'transparent' },
-                    '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' },
-                  }}
-                >
-                  <VStack align="stretch" spacing={4} pb={4}>
-
-                    <VStack align="start" spacing={3} p={4} bg="blue.50/30" borderRadius="2xl" border="1px dashed" borderColor="blue.100">
+                <Box flex={1} overflowY="auto" pr={2}>
+                  <VStack align="stretch" spacing={4}>
+                    <VStack align="start" spacing={2} p={4} bg="blue.50/30" borderRadius="2xl" border="1px dashed" borderColor="blue.100">
                       <HStack justify="space-between" w="full">
-                        <HStack spacing={2}>
-                          <Icon as={FiFileText} color="blue.500" />
-                          <Text fontSize="11px" fontWeight="900" color="blue.600" letterSpacing="0.2em">CLINICAL FINDINGS</Text>
-                        </HStack>
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          colorScheme="blue"
-                          onClick={() => {
-                            setGeneralNoteDraft(teethNotes);
-                            onOpenGeneralNoteModal();
-                          }}
-                          leftIcon={<FiEdit3 />}
-                          fontSize="10px"
-                          fontWeight="900"
-                        >
-                          EDIT NOTES
-                        </Button>
+                        <Text fontSize="10px" fontWeight="900" color="blue.600">SESSION NOTES</Text>
+                        <IconButton aria-label="Edit" icon={<FiEdit3 />} size="xs" variant="ghost" onClick={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} />
                       </HStack>
-                      <Box w="full" px={1}>
-                        <Text fontSize="12px" color={teethNotes ? "gray.700" : "gray.400"} fontStyle={teethNotes ? "normal" : "italic"} noOfLines={3}>
-                          {teethNotes || "No general clinical findings recorded yet..."}
-                        </Text>
-                      </Box>
+                      <Text fontSize="12px" color={teethNotes ? "gray.700" : "gray.400"}>{teethNotes || "No notes recorded..."}</Text>
                     </VStack>
-
-                    <Divider borderColor="gray.100" />
-
-                    {toothTreatment.loading ? (
-                      <VStack py={12} spacing={3} opacity={0.5}>
-                        <Progress size="xs" isIndeterminate w="full" colorScheme="blue" />
-                        <Text fontSize="xs" color="gray.500">Retrieving clinical records...</Text>
-                      </VStack>
-                    ) : toothTreatment.data?.length > 0 ? (
-                      toothTreatment.data.map((item: any) => (
-                        <Box
-                          key={item._id}
-                          p={4}
-                          bg="gray.50"
-                          borderRadius="2xl"
-                          border="1px solid"
-                          borderColor="gray.100"
-                          _hover={{ bg: "white", boxShadow: "sm", borderColor: "blue.50" }}
-                          transition="all 0.2s"
-                        >
-                          <VStack align="stretch" spacing={2}>
-                            <HStack justify="space-between">
-                              <Badge colorScheme={item.status === "completed" ? "green" : "blue"} variant="subtle" borderRadius="full" px={2}>
-                                {item.status?.toUpperCase()}
-                              </Badge>
-                              <HStack spacing={1}>
-                                <IconButton
-                                  icon={<FiEdit3 />}
-                                  aria-label="Edit record"
-                                  size="xs"
-                                  variant="ghost"
-                                  colorScheme="blue"
-                                  onClick={() => handleEditTreatment(item)}
-                                />
-                                <IconButton
-                                  icon={<FiTrash2 />}
-                                  aria-label="Delete record"
-                                  size="xs"
-                                  variant="ghost"
-                                  colorScheme="red"
-                                  onClick={() => handleDeleteTreatment(item._id)}
-                                />
-                                <Text fontSize="10px" color="gray.400" fontWeight="700" pl={1}>
-                                  {item.treatmentDate ? new Date(item.treatmentDate).toLocaleDateString() : "No Date"}
-                                </Text>
-                              </HStack>
-                            </HStack>
-                            <VStack align="start" spacing={0.5}>
-                              <Text fontSize="xs" fontWeight="900" color="gray.800" noOfLines={1}>
-                                {item.treatmentPlan?.split("→").pop()?.trim() || "Item"}
-                              </Text>
-                              <Text fontSize="10px" color="blue.500" fontWeight="700">
-                                TOOTH: FDI {item.tooth?.fdi || "--"}
-                              </Text>
-                            </VStack>
-                            {item.notes && (
-                              <Box p={2} bg="white" borderRadius="lg" border="1px solid" borderColor="gray.50">
-                                <Text fontSize="11px" color="gray.600" noOfLines={2}>
-                                  {item.notes}
-                                </Text>
-                              </Box>
-                            )}
-                            {(item.estimateMin > 0 || item.estimateMax > 0) && (
-                              <HStack justify="space-between" pt={1}>
-                                <Text fontSize="10px" fontWeight="800" color="gray.400">ESTIMATE:</Text>
-                                <Text fontSize="11px" fontWeight="900" color="gray.700">
-                                  ₹{item.estimateMin?.toLocaleString()} - ₹{item.estimateMax?.toLocaleString()}
-                                </Text>
-                              </HStack>
-                            )}
-                          </VStack>
-                        </Box>
-                      ))
-                    ) : (
-                      <VStack textAlign="center" py={12} spacing={4} opacity={0.3}>
-                        <Circle size="54px" bg="gray.50" border="1px solid" borderColor="gray.100">
-                          <Icon as={FiActivity} fontSize="lg" color="gray.300" />
-                        </Circle>
-                        <VStack spacing={1}>
-                          <Text fontSize="9px" color="gray.400" fontWeight="900" letterSpacing="0.2em" textTransform="uppercase">
-                            No History
-                          </Text>
-                          <Text fontSize="xs" color="gray.400" fontWeight="500">No previous records found</Text>
-                        </VStack>
-                      </VStack>
-                    )}
+                    <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={onHistoryDrawerOpen} _hover={{ transform: "translateY(-2px)" }}>
+                      <HStack justify="space-between">
+                        <VStack align="start" spacing={0}><Text fontSize="10px" fontWeight="1000">PATIENT RECORDS</Text><Heading size="xs">View History</Heading></VStack>
+                        <Text fontSize="24px" fontWeight="1000" color="blue.600">{toothTreatment.totalItems || 0}</Text>
+                      </HStack>
+                    </Box>
                   </VStack>
                 </Box>
-
-                <VStack spacing={3}>
-                  <Button
-                    colorScheme="blue"
-                    rightIcon={<FiChevronRight />}
-                    isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()}
-                    onClick={handleNext}
-                    w="full"
-                    h="54px"
-                    borderRadius="2xl"
-                    fontSize="xs"
-                    fontWeight="900"
-                    textTransform="uppercase"
-                    letterSpacing="0.1em"
-                    boxShadow="0 10px 20px rgba(49, 130, 206, 0.1)"
-                    _hover={{ transform: "translateY(-2px)", boxShadow: "0 15px 30px rgba(49, 130, 206, 0.15)" }}
-                  >
-                    Initialize Record
-                  </Button>
-                  <Text fontSize="9px" color="gray.300" fontWeight="800" textTransform="uppercase" letterSpacing="0.1em">
-                    Clinical Session Secured
-                  </Text>
-                </VStack>
+                <Button colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Initialize Record</Button>
               </VStack>
             </Grid>
           </VStack>
         );
-
       case "PROCEDURE_FORM":
         return (
           <TreatmentProcedureForm
-            isPatient={isPatient}
-            patientDetails={patientDetails}
-            editData={editingTreatment || patientDetails?.editData}
-            teeth={selectedTeeth}
-            generalDescription={generalDescription || teethNotes}
-            complaintType={complaintType}
-            onSuccess={() => {
-              patientDetails?.applyGetAllRecords?.({});
-              setStep("TOOTH_SELECTION");
-              setSelectedTeeth([]);
-              setEditingTreatment(null);
-              setIndividualTeethNotes({});
-              setProcedureFormValues((prev: any) => prev ? {
-                ...prev,
-                treatmentCode: "",
-                estimateMin: 0,
-                estimateMax: 0,
-                totalMin: 0,
-                totalMax: 0,
-                discount: 0,
-                notes: ""
-              } : prev);
-            }}
-            onBack={handleBack}
-            onToothClick={handleToothClick}
-            // Hoisted State Props
-            hoistedValues={procedureFormValues}
-            onValuesUpdate={setProcedureFormValues}
-            explorerState={explorerState}
-            onExplorerUpdate={setExplorerState}
-            individualTeethNotes={individualTeethNotes}
-            onEditToothNote={handleEditToothNote}
-            onEditGeneralNote={() => {
-              setGeneralNoteDraft(teethNotes);
-              onOpenGeneralNoteModal();
-            }}
-            formRef={formRef}
-            doctorOptions={doctorOptions}
+            isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={selectedTeeth}
+            generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
+            onSuccess={() => { patientDetails?.applyGetAllRecords?.({}); setStep("TOOTH_SELECTION"); setSelectedTeeth([]); setEditingTreatment(null); }}
+            onBack={handleBack} onToothClick={handleToothClick} hoistedValues={procedureFormValues} onValuesUpdate={setProcedureFormValues}
+            explorerState={explorerState} onExplorerUpdate={setExplorerState} individualTeethNotes={individualTeethNotes} onEditToothNote={handleEditToothNote}
+            onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} formRef={formRef} doctorOptions={doctorOptions}
           />
         );
-
-      default:
-        return null;
     }
   };
 
   return (
     <Box h="100vh" bg="white" overflow="hidden">
-      {/* General Clinical Note Modal */}
       <Modal isOpen={isGeneralNoteModalOpen} onClose={onCloseGeneralNoteModal} isCentered size="xl">
-        <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
-        <ModalContent borderRadius="3xl" p={4} boxShadow="2xl">
-          <ModalHeader>
-            <HStack spacing={4}>
-              <Circle size="40px" bg="blue.600" color="white">
-                <Icon as={FiEdit3} />
-              </Circle>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="xs" fontWeight="900" color="blue.500" letterSpacing="widest">SESSION NOTES</Text>
-                <Heading size="md" fontWeight="900">General Clinical Findings</Heading>
-              </VStack>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton borderRadius="full" m={4} />
-          <ModalBody pb={6}>
-            <VStack align="stretch" spacing={4}>
-              <Text fontSize="sm" color="gray.500" fontWeight="600">
-                Record overall observations, patient history, or clinical session overview.
-              </Text>
-              <Textarea
-                placeholder="Start typing session-wide findings..."
-                value={generalNoteDraft}
-                onChange={(e) => setGeneralNoteDraft(e.target.value)}
-                minH="250px"
-                borderRadius="2xl"
-                border="1px solid"
-                borderColor="gray.100"
-                bg="gray.50"
-                p={6}
-                fontSize="md"
-                fontWeight="600"
-                _focus={{ borderColor: "blue.300", bg: "white", boxShadow: "0 0 0 1px #EBF8FF" }}
-              />
-            </VStack>
-          </ModalBody>
-          <ModalFooter gap={3}>
-            <Button variant="ghost" onClick={onCloseGeneralNoteModal} borderRadius="xl" fontWeight="900" fontSize="xs" textTransform="uppercase">
-              Cancel
-            </Button>
-            <Button
-              colorScheme="blue"
-              borderRadius="xl"
-              px={8}
-              fontWeight="900"
-              fontSize="xs"
-              textTransform="uppercase"
-              onClick={() => {
-                setTeethNotes(generalNoteDraft);
-                onCloseGeneralNoteModal();
-              }}
-            >
-              Update Findings
-            </Button>
+        <ModalOverlay backdropFilter="blur(10px)" /><ModalContent borderRadius="3xl" p={4}><ModalHeader><Heading size="md">General Notes</Heading></ModalHeader><ModalCloseButton /><ModalBody><Textarea value={generalNoteDraft} onChange={(e) => setGeneralNoteDraft(e.target.value)} minH="250px" borderRadius="2xl" /></ModalBody><ModalFooter><Button onClick={() => { setTeethNotes(generalNoteDraft); onCloseGeneralNoteModal(); }} colorScheme="blue">Update</Button></ModalFooter></ModalContent>
+      </Modal>
+
+      <CustomDrawer open={isProcedureDrawerOpen} close={onProcedureDrawerClose} title="Procedure Templates" width="60vw">
+        <ProcedureTemplateList onSelect={handleSelectTemplate} />
+      </CustomDrawer>
+
+      <Modal isOpen={isDeleteModalOpen} onClose={onCloseDeleteModal} isCentered>
+        <ModalOverlay backdropFilter="blur(5px)" />
+        <ModalContent borderRadius="2xl">
+          <ModalHeader>Confirm Deletion</ModalHeader>
+          <ModalBody>Are you sure you want to permanently delete this clinical record?</ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onCloseDeleteModal}>Cancel</Button>
+            <Button colorScheme="red" isLoading={isDeletingConfirmLoading} onClick={handleConfirmDelete}>Delete Record</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      {/* Note Edit Modal */}
-      <Modal isOpen={isNoteModalOpen} onClose={onCloseNoteModal} isCentered size="xl">
-        <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
-        <ModalContent borderRadius="3xl" p={4} boxShadow="2xl">
-          <ModalHeader>
-            <HStack spacing={4}>
-              <Circle size="40px" bg="blue.500" color="white">
-                <Icon as={FiFileText} />
-              </Circle>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="xs" fontWeight="900" color="blue.500" letterSpacing="widest">CLINICAL NOTE</Text>
-                <Heading size="md" fontWeight="900">Tooth {editingTooth?.id} - {editingTooth?.name}</Heading>
-              </VStack>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton borderRadius="full" m={4} />
-          <ModalBody pb={6}>
-            <VStack align="stretch" spacing={4}>
-              <Text fontSize="sm" color="gray.500" fontWeight="600">
-                Enter specific findings, observations or requirements for this tooth.
-              </Text>
-              <Textarea
-                placeholder="Type your notes here..."
-                value={currentNoteDraft}
-                onChange={(e) => setCurrentNoteDraft(e.target.value)}
-                minH="200px"
-                borderRadius="2xl"
-                border="1px solid"
-                borderColor="gray.100"
-                bg="gray.50"
-                p={6}
-                fontSize="md"
-                fontWeight="600"
-                _focus={{ borderColor: "blue.300", bg: "white", boxShadow: "0 0 0 1px #EBF8FF" }}
-              />
-            </VStack>
-          </ModalBody>
-          <ModalFooter gap={3}>
-            <Button variant="ghost" onClick={onCloseNoteModal} borderRadius="xl" fontWeight="900" fontSize="xs" textTransform="uppercase">
-              Cancel
-            </Button>
-            <Button
-              colorScheme="blue"
-              borderRadius="xl"
-              px={8}
-              fontWeight="900"
-              fontSize="xs"
-              textTransform="uppercase"
-              onClick={saveToothNote}
-            >
-              Save Note
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} onClose={onCloseDeleteModal} isCentered size="md">
-        <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
-        <ModalContent borderRadius="3xl" p={4} boxShadow="2xl">
-          <ModalHeader>
-            <HStack spacing={3}>
-              <Circle size="36px" bg="red.50" color="red.500">
-                <Icon as={FiTrash2} fontSize="lg" />
-              </Circle>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="md" fontWeight="900" color="gray.800">Confirm Deletion</Text>
-                <Text fontSize="xs" color="gray.400" fontWeight="700">This action cannot be undone</Text>
-              </VStack>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton borderRadius="full" m={4} />
-          <ModalBody>
-            <Text fontSize="sm" color="gray.600">Are you sure you want to delete this clinical record?</Text>
-          </ModalBody>
-          <ModalFooter gap={3}>
-            <Button variant="ghost" onClick={onCloseDeleteModal} borderRadius="xl" fontWeight="900" fontSize="xs" textTransform="uppercase">
-              Cancel
-            </Button>
-            <Button
-              colorScheme="red"
-              isLoading={isDeletingConfirmLoading}
-              onClick={handleConfirmDelete}
-              borderRadius="xl"
-              fontWeight="900"
-              fontSize="xs"
-              textTransform="uppercase"
-              px={6}
-            >
-              Delete
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Premium Glassmorphism Header */}
       <Flex direction="column" w="full" position="relative" zIndex={10}>
-        <Flex
-          justify="space-between"
-          align="center"
-          px={8}
-          py={2}
-          bg="rgba(255, 255, 255, 0.8)"
-          backdropFilter="blur(20px)"
-          borderBottom="1px"
-          borderColor="gray.100"
-        >
-          <HStack spacing={8}>
-            <VStack align="start" spacing={0}>
-              <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em" textTransform="uppercase">
-                Advanced Oral Health
-              </Text>
-              <Heading size="md" fontWeight="900" color="gray.800" letterSpacing="tight">
-                DIAGNOSTIC SUITE
-              </Heading>
-            </VStack>
-
-            <Box w="1px" h="24px" bg="gray.200" />
-
-            {/* Premium Interactive Stepper */}
-            <HStack spacing={12}>
-              {steps.map((s, idx) => {
-                const isActive = currentMainIdx === idx;
-                const isCompleted = currentMainIdx > idx;
-                const isClickable = isCompleted || isActive;
-
-                return (
-                  <HStack
-                    key={s.id}
-                    spacing={3}
-                    opacity={isActive || isCompleted ? 1 : 0.3}
-                    cursor={isClickable ? "pointer" : "default"}
-                    onClick={() => handleStepClick(idx)}
-                    position="relative"
-                    role="group"
-                  >
-                    <VStack align="start" spacing={0}>
-                      <Text
-                        fontSize="10px"
-                        fontWeight="900"
-                        color={isActive ? "blue.500" : "gray.400"}
-                        letterSpacing="0.1em"
-                      >
-                        PHASE 0{idx + 1}
-                      </Text>
-                      <Text
-                        fontSize="13px"
-                        fontWeight="900"
-                        color={isActive ? "gray.800" : "gray.500"}
-                        letterSpacing="0.05em"
-                        textTransform="uppercase"
-                      >
-                        {s.title}
-                      </Text>
-                    </VStack>
-
-                    {isActive && (
-                      <Box
-                        position="absolute"
-                        bottom="-18px"
-                        left="0"
-                        right="0"
-                        h="2px"
-                        bg="blue.500"
-                        borderRadius="full"
-                        boxShadow="0 2px 10px rgba(49, 130, 206, 0.4)"
-                      />
-                    )}
-                  </HStack>
-                )
-              })}
+        <Flex justify="space-between" align="center" px={8} py={2} bg="white" borderBottom="1px" borderColor="gray.100">
+          <HStack spacing={8}><VStack align="start" spacing={0}><Text fontSize="11px" fontWeight="900" color="blue.500">DIAGNOSTIC SUITE</Text></VStack>
+            <HStack spacing={8}>
+              {steps.map((s, idx) => (
+                <HStack key={idx} opacity={currentMainIdx === idx ? 1 : 0.4} onClick={() => handleStepClick(idx)} cursor="pointer">
+                  <Text fontWeight="900" color={currentMainIdx === idx ? "blue.500" : "gray.500"}>{s.title}</Text>
+                </HStack>
+              ))}
             </HStack>
           </HStack>
-
-          {/* Unified Action Header */}
-          <Flex justify="space-between" align="center" w="full">
-            <HStack spacing={2} align="center">
-              <Badge colorScheme={patientDetails?.editData ? "orange" : "blue"} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs" fontWeight="bold">
-                {patientDetails?.editData ? "EDITING RECORD" : `PHASE ${currentMainIdx + 1}`}
-              </Badge>
-              <Divider orientation="vertical" h="12px" borderColor="gray.300" />
-              <Text fontSize="xs" fontWeight="800" color="gray.400" letterSpacing="wider">
-                DIAG-TRT-{new Date().getFullYear()}
-              </Text>
-            </HStack>
-
-            <HStack spacing={3}>
-              {step === "PROCEDURE_FORM" && (
-                <Button
-                  variant="ghost"
-                  leftIcon={<FiChevronLeft />}
-                  onClick={handleBack}
-                  size="sm"
-                  fontWeight="900"
-                  fontSize="11px"
-                  color="gray.500"
-                  _hover={{ color: "blue.500", bg: "blue.50" }}
-                  textTransform="uppercase"
-                  letterSpacing="0.05em"
-                >
-                  Go Back
-                </Button>
-              )}
-
-              {step === "PROCEDURE_FORM" && (
-                <Button
-                  colorScheme="blue"
-                  size="sm"
-                  h="32px"
-                  borderRadius="lg"
-                  fontSize="11px"
-                  fontWeight="900"
-                  leftIcon={<FiSave />}
-                  textTransform="uppercase"
-                  letterSpacing="0.05em"
-                  px={4}
-                  onClick={() => formRef.current?.submitForm()}
-                >
-                  Save Record
-                </Button>
-              )}
-
-              {step === "TOOTH_SELECTION" && (
-                <Button
-                  colorScheme="blue"
-                  rightIcon={<FiChevronRight />}
-                  isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()}
-                  onClick={handleNext}
-                  h="32px"
-                  borderRadius="lg"
-                  fontSize="11px"
-                  fontWeight="900"
-                  textTransform="uppercase"
-                  letterSpacing="0.05em"
-                  px={6}
-                >
-                  Next Phase
-                </Button>
-              )}
-
-              <IconButton
-                aria-label="Close"
-                icon={<FiX />}
-                variant="ghost"
-                size="sm"
-                onClick={closeWizard}
-                borderRadius="full"
-                _hover={{ bg: 'red.50', color: 'red.500' }}
-              />
-            </HStack>
-          </Flex>
+          <IconButton aria-label="Close" icon={<FiX />} onClick={closeWizard} variant="ghost" />
         </Flex>
-        <Progress
-          value={progressPercent}
-          size="xs"
-          colorScheme="blue"
-          bg="transparent"
-          h="1px"
-          transition="all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
-        />
+        <Progress value={progressPercent} size="xs" colorScheme="blue" h="1px" />
       </Flex>
 
-      {/* Main Content Area - Fixed Height */}
-      <Box
-        h="calc(100vh - 110px)"
-        px={6}
-        pb={6}
-        pt={2}
-        overflow="hidden"
-        sx={{
-          '&::-webkit-scrollbar': { width: '4px' },
-          '&::-webkit-scrollbar-track': { background: 'transparent' },
-          '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' },
-        }}
-      >
-        {renderStep()}
-      </Box>
+      <Box h="calc(100vh - 80px)" px={6} pb={6} pt={2} overflow="hidden">{renderStep()}</Box>
+
+      <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title="Edit Clinical Entry" width="70vw">
+        <TreatmentProcedureForm
+          isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment} teeth={editingTreatment?.tooth?.fdi ? [([...adultTeeth, ...childTeeth].find(t => t.fdi === editingTreatment.tooth.fdi) || { id: editingTreatment.tooth.fdi, fdi: editingTreatment.tooth.fdi, name: `Tooth ${editingTreatment.tooth.fdi}`, universal: "", palmer: "", position: "upper", side: "right", type: "molar" }) as ToothData] : []}
+          generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
+          onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
+          onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
+        />
+      </CustomDrawer>
+
+      <CustomDrawer open={isHistoryDrawerOpen} close={onHistoryDrawerClose} title="Clinical History" width="85vw">
+        <Box h="full" bg="white" p={6}>
+          <VStack align="stretch" spacing={6} h="full">
+            <HStack justify="space-between">
+              <Heading size="md">Clinical Timeline</Heading>
+              <Badge colorScheme="blue" borderRadius="lg" px={4} py={1.5}>{toothTreatment.totalItems || 0} ITEMS</Badge>
+            </HStack>
+            <HStack spacing={4} bg="gray.50" p={4} borderRadius="2xl">
+              <Input placeholder="Search records..." value={historySearch} onChange={(e) => setHistorySearch(e.target.value)} bg="white" size="sm" maxW="300px" />
+              <Select value={historyCategoryFilter} onChange={(e) => setHistoryCategoryFilter(e.target.value)} bg="white" size="sm" maxW="200px">
+                <option value="all">All Categories</option>
+                {Object.keys(COMPLAINT_STYLES).filter(k => k !== 'default').map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </Select>
+              <Select value={historyDateSort} onChange={(e) => setHistoryDateSort(e.target.value)} bg="white" size="sm" maxW="150px">
+                <option value="desc">Newest First</option><option value="asc">Oldest First</option>
+              </Select>
+            </HStack>
+            <Box flex={1} overflowY="auto" pt={2} className="clinical-history-scroll" sx={{
+              '&::-webkit-scrollbar': { width: '4px' },
+              '&::-webkit-scrollbar-track': { bg: 'transparent' },
+              '&::-webkit-scrollbar-thumb': { bg: 'gray.200', borderRadius: 'full' }
+            }}>
+              {toothTreatment.loading ? (
+                <VStack py={20}><Progress size="xs" isIndeterminate w="200px" borderRadius="full" colorScheme="blue" /></VStack>
+              ) : toothTreatment.totalItems > 0 ? (
+                <VStack spacing={3} align="stretch" pb={4}>
+                  {toothTreatment.data.map((item: any) => {
+                    const style = COMPLAINT_STYLES[item.complaintType?.toUpperCase()] || COMPLAINT_STYLES.default;
+                    const isCompleted = item.status?.toLowerCase() === "completed";
+
+                    return (
+                      <Box
+                        key={item._id}
+                        bg="white"
+                        borderRadius="2xl"
+                        borderLeft="4px solid"
+                        borderLeftColor={style.border}
+                        boxShadow="sm"
+                        p={4}
+                        transition="all 0.2s"
+                        _hover={{ boxShadow: "md", transform: "translateX(4px)" }}
+                        border="1px solid"
+                        borderColor="gray.100"
+                        position="relative"
+                      >
+                        <Flex justify="space-between" align="start">
+                          <HStack spacing={4} align="start" flex={1}>
+                            <VStack align="center" spacing={0} minW="70px" bg="gray.50" p={2} borderRadius="xl">
+                              <Text fontSize="10px" fontWeight="900" color="gray.400">{new Date(item.treatmentDate).toLocaleDateString(undefined, { month: 'short' }).toUpperCase()}</Text>
+                              <Text fontSize="18px" fontWeight="1000" color="gray.700" lineHeight={1}>{new Date(item.treatmentDate).getDate()}</Text>
+                              <Text fontSize="10px" fontWeight="900" color="gray.400">{new Date(item.treatmentDate).getFullYear()}</Text>
+                            </VStack>
+                            
+                            <VStack align="start" spacing={1} flex={1}>
+                              <HStack spacing={2} wrap="wrap">
+                                <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={3} textTransform="none" fontSize="xs" fontWeight="800">
+                                  Tooth {item.tooth?.fdi}
+                                </Badge>
+                                <Badge colorScheme={style.iconColor.split('.')[0]} variant="solid" borderRadius="full" px={3} fontSize="9px" fontWeight="900">
+                                  {item.complaintType}
+                                </Badge>
+                                {isCompleted ? (
+                                  <HStack spacing={1} bg="green.50" px={2} py={0.5} borderRadius="full" border="1px solid" borderColor="green.100">
+                                    <Icon as={FiCheck} color="green.500" boxSize={3} />
+                                    <Text fontSize="9px" fontWeight="900" color="green.600">COMPLETED</Text>
+                                  </HStack>
+                                ) : (
+                                  <Badge colorScheme="orange" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="9px" fontWeight="900">
+                                    PENDING
+                                  </Badge>
+                                )}
+                              </HStack>
+                              
+                              <Text fontSize="md" fontWeight="800" color="gray.700" lineHeight="tight" mt={1}>
+                                {item.treatmentPlan}
+                              </Text>
+                              
+                              {item.notes && (
+                                <Text fontSize="xs" color="gray.500" fontStyle="italic" noOfLines={2}>
+                                  "{item.notes}"
+                                </Text>
+                              )}
+                            </VStack>
+                          </HStack>
+
+                          <HStack spacing={1}>
+                            {!isCompleted && (
+                              <IconButton
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="green"
+                                icon={<FiCheck />}
+                                aria-label="Mark as Complete"
+                                onClick={() => handleMarkAsComplete(item._id)}
+                              />
+                            )}
+                            <IconButton
+                              size="sm"
+                              variant="ghost"
+                              colorScheme="blue"
+                              icon={<FiEdit3 />}
+                              aria-label="Edit"
+                              onClick={() => handleEditTreatment(item)}
+                            />
+                            <IconButton
+                              size="sm"
+                              variant="ghost"
+                              colorScheme="red"
+                              icon={<FiTrash2 />}
+                              aria-label="Delete"
+                              onClick={() => handleDeleteTreatment(item._id)}
+                            />
+                          </HStack>
+                        </Flex>
+                      </Box>
+                    );
+                  })}
+                </VStack>
+              ) : (
+                <VStack py={20} opacity={0.5} spacing={3}>
+                  <Icon as={FiActivity} fontSize="40px" color="gray.300" />
+                  <Text fontWeight="800" color="gray.400">No clinical records found</Text>
+                  <Text fontSize="xs" color="gray.400">Try adjusting your filters or adding a new record</Text>
+                </VStack>
+              )}
+            </Box>
+            <HStack justify="space-between" pt={4} borderTop="1px solid" borderColor="gray.100">
+              <Text fontSize="xs">Page {historyPage} of {toothTreatment.totalPages || 1}</Text>
+              <HStack><Button size="sm" onClick={() => setHistoryPage(p => Math.max(1, p - 1))} isDisabled={historyPage === 1}>Prev</Button>
+              <Button size="sm" onClick={() => setHistoryPage(p => p + 1)} isDisabled={historyPage >= (toothTreatment.totalPages || 1)}>Next</Button></HStack>
+            </HStack>
+          </VStack>
+        </Box>
+      </CustomDrawer>
     </Box>
   );
 });

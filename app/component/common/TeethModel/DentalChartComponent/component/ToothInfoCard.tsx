@@ -18,9 +18,10 @@ interface ToothInfoCardProps {
   onEditNote?: (tooth: ToothData) => void;
   onRemove?: (tooth: ToothData) => void;
   hasNote?: boolean;
+  hideActions?: boolean;
 }
 
-export const ToothInfoCard = ({ tooth, onEditNote, onRemove, hasNote }: ToothInfoCardProps) => {
+export const ToothInfoCard = ({ tooth, onEditNote, onRemove, hasNote, hideActions }: ToothInfoCardProps) => {
   const bg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.100", "gray.700");
 
@@ -90,45 +91,47 @@ export const ToothInfoCard = ({ tooth, onEditNote, onRemove, hasNote }: ToothInf
           </Text>
         </VStack>
 
-        <VStack align="end" spacing={2}>
-          <HStack spacing={2}>
-            {hasNote && (
-              <Tooltip label="Has clinical note">
-                <Icon as={FiMessageSquare} color="blue.500" boxSize={3} />
-              </Tooltip>
-            )}
-            <IconButton
-              aria-label="Edit tooth note"
-              icon={<FiEdit3 />}
-              size="xs"
-              variant="ghost"
-              colorScheme="blue"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (tooth) onEditNote?.(tooth);
-              }}
-              _hover={{ bg: "blue.50" }}
-            />
-            <IconButton
-              aria-label="Remove tooth"
-              icon={<FiTrash2 />}
-              size="xs"
-              variant="ghost"
-              colorScheme="red"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (tooth) onRemove?.(tooth);
-              }}
-              _hover={{ bg: "red.50" }}
-            />
-          </HStack>
-          <VStack align="end" spacing={0}>
-            <Text fontSize="8px" fontWeight="900" color="gray.300" letterSpacing="0.2em">REF</Text>
-            <Text fontSize="18px" fontWeight="900" color="gray.800" lineHeight="1">
-              {tooth.id}
-            </Text>
+        {!hideActions && (
+          <VStack align="end" spacing={2}>
+            <HStack spacing={2}>
+              {hasNote && (
+                <Tooltip label="Has clinical note">
+                  <Icon as={FiMessageSquare} color="blue.500" boxSize={3} />
+                </Tooltip>
+              )}
+              <IconButton
+                aria-label="Edit tooth note"
+                icon={<FiEdit3 />}
+                size="xs"
+                variant="ghost"
+                colorScheme="blue"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (tooth) onEditNote?.(tooth);
+                }}
+                _hover={{ bg: "blue.50" }}
+              />
+              <IconButton
+                aria-label="Remove tooth"
+                icon={<FiTrash2 />}
+                size="xs"
+                variant="ghost"
+                colorScheme="red"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (tooth) onRemove?.(tooth);
+                }}
+                _hover={{ bg: "red.50" }}
+              />
+            </HStack>
+            <VStack align="end" spacing={0}>
+              <Text fontSize="8px" fontWeight="900" color="gray.300" letterSpacing="0.2em">REF</Text>
+              <Text fontSize="18px" fontWeight="900" color="gray.800" lineHeight="1">
+                {tooth.id}
+              </Text>
+            </VStack>
           </VStack>
-        </VStack>
+        )}
       </HStack>
     </Box>
   );

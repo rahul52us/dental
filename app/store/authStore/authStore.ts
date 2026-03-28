@@ -2,7 +2,6 @@
 import { makeAutoObservable } from "mobx";
 import axios from "axios";
 import { AUTH_TOKEN, BACKEND_URL, ENCRYPT_SECRET_KEY, USER_SESSION_DATA } from "../../config/utils/variables";
-import stores from "../stores";
 import CryptoJS from "crypto-js";
 
 interface Notification {
@@ -60,7 +59,7 @@ class AuthStore {
 
   changePassword = async (sendData: any) => {
     try {
-      const { data } = await axios.post("/auth/change-password", {...sendData,company : stores.auth.company});
+      const { data } = await axios.post("/auth/change-password", {...sendData,company : this.company});
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -185,7 +184,7 @@ class AuthStore {
 
   uploadFile = async (sendData: any) => {
     try {
-      const { data } = await axios.post("/file/upload", {...sendData,company : stores.auth.company});
+      const { data } = await axios.post("/file/upload", {...sendData,company : this.company});
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

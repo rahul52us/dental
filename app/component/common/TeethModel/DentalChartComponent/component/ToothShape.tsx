@@ -64,9 +64,9 @@ export const ToothShape = ({
   };
 
   const colorMap: Record<string, { bg: string; fill: string; stroke: string; text: string }> = {
-    "Chief Complaint": { bg: "#FED7D7", fill: "#FC8181", stroke: "#C53030", text: "#822727" },
-    "Other Finding": { bg: "#FEF3C7", fill: "#F6E05E", stroke: "#B7791F", text: "#744210" },
-    "Existing Finding": { bg: "#E2E8F0", fill: "#A0AEC0", stroke: "#4A5568", text: "#2D3748" },
+    "CHIEF COMPLAINT": { bg: "#FED7D7", fill: "#FC8181", stroke: "#C53030", text: "#822727" },
+    "OTHER FINDING": { bg: "#FEF3C7", fill: "#F6E05E", stroke: "#B7791F", text: "#744210" },
+    "EXISTING FINDING": { bg: "#E2E8F0", fill: "#A0AEC0", stroke: "#4A5568", text: "#2D3748" },
     "default": { bg: "#EBF8FF", fill: "#63B3ED", stroke: "#2B6CB0", text: "#1A365D" }
   };
 
