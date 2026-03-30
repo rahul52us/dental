@@ -33,6 +33,7 @@ import {
   Th,
   Td,
   Select,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   FiCheck,
@@ -46,6 +47,11 @@ import {
   FiEdit3,
   FiTrash2,
   FiPlus,
+  FiCreditCard,
+  FiScissors,
+  FiEye,
+  FiGrid,
+  FiList,
 } from "react-icons/fi";
 
 import { DentitionToggle } from "./component/DentitionToggle";
@@ -105,16 +111,20 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const COMPLAINT_STYLES: Record<string, { border: string, bg: string, label: string, iconColor: string }> = {
     "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
     "OTHER FINDING": { border: "orange.400", bg: "orange.50", label: "OTHER FINDING", iconColor: "orange.400" },
-    "EXISTING FINDING": { border: "gray.400", bg: "gray.50", label: "EXISTING", iconColor: "gray.400" },
+    "EXISTING FINDING": { border: "green.500", bg: "green.50", label: "EXISTING", iconColor: "green.500" },
     "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
   };
 
   const [doctors, setDoctors] = useState<any[]>([]);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [isMultipleSelection, setIsMultipleSelection] = useState(false);
+  const [isTableView, setIsTableView] = useState(false);
+  const { isOpen: isViewModalOpen, onOpen: onOpenViewModal, onClose: onCloseViewModal } = useDisclosure();
+  const [viewingRecord, setViewingRecord] = useState<any>(null);
   const { isOpen: isEditDrawerOpen, onOpen: onEditDrawerOpen, onClose: onEditDrawerClose } = useDisclosure();
   const { isOpen: isHistoryDrawerOpen, onOpen: onHistoryDrawerOpen, onClose: onHistoryDrawerClose } = useDisclosure();
   const { isOpen: isProcedureDrawerOpen, onOpen: onProcedureDrawerOpen, onClose: onProcedureDrawerClose } = useDisclosure();
+  const { isOpen: isQuickAddOpen, onOpen: onQuickAddOpen, onClose: onQuickAddClose } = useDisclosure();
   const {
     userStore: { getUsersList },
     toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment, updateToothTreatment },
@@ -325,6 +335,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   }, [historySearch, historyCategoryFilter]);
 
   const renderStep = () => {
+    const activeColor = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" }[complaintType] || "blue";
     switch (step) {
       case "TOOTH_SELECTION":
         return (
@@ -339,45 +350,97 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">NOTATION</Text>
                   <HStack bg="gray.50" p={1} borderRadius="xl">
                     {["fdi", "universal", "palmer"].map(n => (
-                      <Button key={n} size="xs" variant={notation === n ? "solid" : "ghost"} colorScheme={notation === n ? "blue" : "gray"} onClick={() => setNotation(n as any)}>{n.toUpperCase()}</Button>
+                      <Button 
+                        key={n} 
+                        size="xs" 
+                        variant={notation === n ? "solid" : "ghost"} 
+                        bg={notation === n ? `${activeColor}.500` : "transparent"}
+                        color={notation === n ? "white" : "gray.600"}
+                        _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
+                        onClick={() => setNotation(n as any)}
+                        fontWeight="900"
+                      >
+                        {n.toUpperCase()}
+                      </Button>
                     ))}
                   </HStack>
                 </VStack>
                 <VStack align="start" spacing={1}>
                   <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">COMPLAINT</Text>
                   <HStack bg="gray.50" p={1} borderRadius="xl">
-                    {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => (
-                      <Button key={type} size="xs" colorScheme={complaintType === type ? "blue" : "gray"} variant={complaintType === type ? "solid" : "ghost"} onClick={() => setComplaintType(type)}>{type.split(' ')[0]}</Button>
-                    ))}
-                  </HStack>
-                </VStack>
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">SELECTION</Text>
-                  <HStack bg="gray.50" p={1} borderRadius="xl">
-                    <Button size="xs" leftIcon={<FiMousePointer />} variant={!isMultipleSelection ? "solid" : "ghost"} colorScheme={!isMultipleSelection ? "blue" : "gray"} onClick={() => { setIsMultipleSelection(false); setSelectedTeeth([]); }}>SINGLE</Button>
-                    <Button size="xs" leftIcon={<FiActivity />} variant={isMultipleSelection ? "solid" : "ghost"} colorScheme={isMultipleSelection ? "blue" : "gray"} onClick={() => setIsMultipleSelection(true)}>MULTI</Button>
+                    {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
+                      const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
+                      const isActive = complaintType === type;
+                      const c = buttonColorMap[type];
+                      return (
+                        <Button 
+                          key={type} 
+                          size="xs" 
+                          bg={isActive ? `${c}.500` : "transparent"}
+                          color={isActive ? "white" : "gray.600"}
+                          _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
+                          variant={isActive ? "solid" : "ghost"} 
+                          onClick={() => setComplaintType(type)}
+                          fontWeight="900"
+                        >
+                          {type.split(' ')[0]}
+                        </Button>
+                      );
+                    })}
                   </HStack>
                 </VStack>
               </HStack>
               <VStack align="end" spacing={0}>
                 <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
-                <Text fontWeight="900" color="blue.500" fontSize="3xl">{selectedTeeth.length}</Text>
+                <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
               </VStack>
             </Flex>
 
             <Grid templateColumns={{ base: "1fr", lg: "1fr 340px" }} gap={4} flex={1} overflow="hidden">
-              <Box bg="white" borderRadius="3xl" border="1px solid" borderColor="gray.100" p={4} overflow="hidden">
-                <TeethChart dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} />
-              </Box>
+              <VStack bg="white" borderRadius="3xl" border="1px solid" borderColor="gray.100" p={5} overflow="hidden" align="stretch" spacing={4}>
+                <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={3}>
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.2em">CHARTING MODE</Text>
+                    <Heading size="xs" fontWeight="1000">Selection Method</Heading>
+                  </VStack>
+                  <HStack bg="gray.100" p={1} borderRadius="xl">
+                    <Button 
+                      size="xs" leftIcon={<FiMousePointer />} 
+                      bg={!isMultipleSelection ? `${activeColor}.500` : "transparent"}
+                      color={!isMultipleSelection ? "white" : "gray.600"}
+                      _hover={{ bg: !isMultipleSelection ? `${activeColor}.600` : "gray.100" }}
+                      variant={!isMultipleSelection ? "solid" : "ghost"} 
+                      onClick={() => { setIsMultipleSelection(false); setSelectedTeeth([]); }}
+                      fontWeight="900"
+                    >
+                      SINGLE SELECTION
+                    </Button>
+                    <Button 
+                      size="xs" leftIcon={<FiActivity />} 
+                      bg={isMultipleSelection ? `${activeColor}.500` : "transparent"}
+                      color={isMultipleSelection ? "white" : "gray.600"}
+                      _hover={{ bg: isMultipleSelection ? `${activeColor}.600` : "gray.100" }}
+                      variant={isMultipleSelection ? "solid" : "ghost"} 
+                      onClick={() => setIsMultipleSelection(true)}
+                      fontWeight="900"
+                    >
+                      MULTI-TOOTH
+                    </Button>
+                  </HStack>
+                </Flex>
+                <Box flex={1} overflow="hidden">
+                  <TeethChart dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} activeComplaintType={complaintType} />
+                </Box>
+              </VStack>
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="11px" fontWeight="900" color="blue.500">CLINICAL HISTORY</Text>
+                    <Text fontSize="11px" fontWeight="900" color={`${activeColor}.500`}>CLINICAL HISTORY</Text>
                     <Heading size="xs" fontWeight="900">Saved Records</Heading>
                   </VStack>
                   <HStack spacing={2}>
-                    <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900">{toothTreatment.totalItems || 0}</Circle>
-                    <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme="blue" borderRadius="full" onClick={onProcedureDrawerOpen} />
+                    <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{toothTreatment.totalItems || 0}</Circle>
+                    <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
                   </HStack>
                 </HStack>
                 <Box flex={1} overflowY="auto" pr={2}>
@@ -427,6 +490,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       <CustomDrawer open={isProcedureDrawerOpen} close={onProcedureDrawerClose} title="Procedure Templates" width="60vw">
         <ProcedureTemplateList onSelect={handleSelectTemplate} />
       </CustomDrawer>
+      <CustomDrawer open={isQuickAddOpen} close={onQuickAddClose} title={<PatientHeader title="Quick Clinical Entry" patient={patientDetails} />} width="70vw">
+        <TreatmentProcedureForm
+          isPatient={isPatient} patientDetails={patientDetails}
+          teeth={[{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
+          generalDescription={teethNotes}
+          onSuccess={() => { onQuickAddClose(); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
+          onBack={onQuickAddClose} isDrawerMode={true} doctorOptions={doctorOptions}
+        />
+      </CustomDrawer>
 
       <Modal isOpen={isDeleteModalOpen} onClose={onCloseDeleteModal} isCentered>
         <ModalOverlay backdropFilter="blur(5px)" />
@@ -471,7 +543,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         <Box h="full" bg="white" p={6}>
           <VStack align="stretch" spacing={6} h="full">
             <HStack justify="space-between">
-              <Heading size="md">Clinical Timeline</Heading>
+              <HStack spacing={4}>
+                <Heading size="md">Clinical Timeline</Heading>
+                <HStack bg="gray.100" p={1} borderRadius="xl">
+                  <IconButton size="xs" variant={!isTableView ? "solid" : "ghost"} colorScheme={!isTableView ? "blue" : "gray"} icon={<FiGrid />} onClick={() => setIsTableView(false)} aria-label="Card View" />
+                  <IconButton size="xs" variant={isTableView ? "solid" : "ghost"} colorScheme={isTableView ? "blue" : "gray"} icon={<FiList />} onClick={() => setIsTableView(true)} aria-label="Table View" />
+                </HStack>
+              </HStack>
               <Badge colorScheme="blue" borderRadius="lg" px={4} py={1.5}>{toothTreatment.totalItems || 0} ITEMS</Badge>
             </HStack>
             <HStack spacing={4} bg="gray.50" p={4} borderRadius="2xl">
@@ -494,99 +572,96 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               {toothTreatment.loading ? (
                 <VStack py={20}><Progress size="xs" isIndeterminate w="200px" borderRadius="full" colorScheme="blue" /></VStack>
               ) : toothTreatment.totalItems > 0 ? (
-                <VStack spacing={3} align="stretch" pb={4}>
-                  {toothTreatment.data.map((item: any) => {
-                    const style = COMPLAINT_STYLES[item.complaintType?.toUpperCase()] || COMPLAINT_STYLES.default;
-                    const isCompleted = item.status?.toLowerCase() === "completed";
-
-                    return (
-                      <Box
-                        key={item._id}
-                        bg="white"
-                        borderRadius="2xl"
-                        borderLeft="4px solid"
-                        borderLeftColor={style.border}
-                        boxShadow="sm"
-                        p={4}
-                        transition="all 0.2s"
-                        _hover={{ boxShadow: "md", transform: "translateX(4px)" }}
-                        border="1px solid"
-                        borderColor="gray.100"
-                        position="relative"
-                      >
-                        <Flex justify="space-between" align="start">
-                          <HStack spacing={4} align="start" flex={1}>
-                            <VStack align="center" spacing={0} minW="70px" bg="gray.50" p={2} borderRadius="xl">
-                              <Text fontSize="10px" fontWeight="900" color="gray.400">{new Date(item.treatmentDate).toLocaleDateString(undefined, { month: 'short' }).toUpperCase()}</Text>
-                              <Text fontSize="18px" fontWeight="1000" color="gray.700" lineHeight={1}>{new Date(item.treatmentDate).getDate()}</Text>
-                              <Text fontSize="10px" fontWeight="900" color="gray.400">{new Date(item.treatmentDate).getFullYear()}</Text>
-                            </VStack>
-
-                            <VStack align="start" spacing={1} flex={1}>
-                              <HStack spacing={2} wrap="wrap">
-                                <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={3} textTransform="none" fontSize="xs" fontWeight="800">
-                                  Tooth {item.tooth?.fdi}
-                                </Badge>
-                                <Badge colorScheme={style.iconColor.split('.')[0]} variant="solid" borderRadius="full" px={3} fontSize="9px" fontWeight="900">
-                                  {item.complaintType}
-                                </Badge>
-                                {isCompleted ? (
-                                  <HStack spacing={1} bg="green.50" px={2} py={0.5} borderRadius="full" border="1px solid" borderColor="green.100">
-                                    <Icon as={FiCheck} color="green.500" boxSize={3} />
-                                    <Text fontSize="9px" fontWeight="900" color="green.600">COMPLETED</Text>
-                                  </HStack>
-                                ) : (
-                                  <Badge colorScheme="orange" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="9px" fontWeight="900">
-                                    PENDING
+                isTableView ? (
+                  <Table variant="simple" size="sm" bg="white" borderRadius="2xl" overflow="hidden" boxShadow="xs">
+                    <Thead bg="gray.50">
+                      <Tr>
+                        <Th fontSize="10px">Date</Th>
+                        <Th fontSize="10px">Tooth</Th>
+                        <Th fontSize="10px">Category</Th>
+                        <Th fontSize="10px">Procedure</Th>
+                        <Th fontSize="10px">Status</Th>
+                        <Th fontSize="10px" textAlign="right">Actions</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {toothTreatment.data.map((item: any) => (
+                        <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
+                          <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
+                          <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth?.fdi}</Badge></Td>
+                          <Td py={4} fontSize="11px" fontWeight="600" color="gray.500">{item.complaintType}</Td>
+                          <Td py={4} fontSize="12px" fontWeight="800" color="gray.700" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
+                          <Td py={4}>
+                            <Badge colorScheme={item.status === "completed" ? "green" : "orange"} variant="subtle" borderRadius="full" px={2} fontSize="9px">
+                              {item.status?.toUpperCase()}
+                            </Badge>
+                          </Td>
+                          <Td py={4} textAlign="right">
+                            <HStack spacing={1} justify="flex-end">
+                              <IconButton size="xs" icon={<FiEye />} onClick={() => { setViewingRecord(item); onOpenViewModal(); }} variant="ghost" colorScheme="blue" aria-label="View" />
+                              <IconButton size="xs" icon={<FiEdit3 />} onClick={() => handleEditTreatment(item)} variant="ghost" colorScheme="blue" aria-label="Edit" />
+                              <IconButton size="xs" icon={<FiTrash2 />} onClick={() => handleDeleteTreatment(item._id)} variant="ghost" colorScheme="red" aria-label="Delete" />
+                            </HStack>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                ) : (
+                  <VStack spacing={6} align="stretch" pb={10} position="relative">
+                    <Box position="absolute" left="35px" top="0" bottom="0" w="2px" bg="gray.100" zIndex={0} />
+                    {toothTreatment.data.map((item: any) => {
+                      const style = COMPLAINT_STYLES[item.complaintType?.toUpperCase()] || COMPLAINT_STYLES.default;
+                      const isCompleted = item.status?.toLowerCase() === "completed";
+                      const treatmentDate = new Date(item.treatmentDate);
+                      return (
+                        <Box key={item._id} bg="white" borderRadius="3xl" boxShadow="0 4px 20px -4px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.1)" p={5} transition="all 0.3s" _hover={{ transform: "translateY(-2px)" }} border="1px solid" borderColor="gray.100" position="relative" zIndex={1}>
+                          <Flex justify="space-between" align="start">
+                            <HStack spacing={6} align="start" flex={1}>
+                              <VStack align="center" spacing={0} minW="70px" bg="blue.50" p={2.5} borderRadius="2xl" border="1px solid" borderColor="blue.100" boxShadow="sm">
+                                <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="widest">{treatmentDate.toLocaleDateString(undefined, { month: 'short' }).toUpperCase()}</Text>
+                                <Text fontSize="22px" fontWeight="1000" color="blue.700" lineHeight={1} my={0.5}>{treatmentDate.getDate()}</Text>
+                                <Text fontSize="10px" fontWeight="900" color="blue.400">{treatmentDate.getFullYear()}</Text>
+                              </VStack>
+                              <VStack align="start" spacing={3} flex={1}>
+                                <HStack spacing={2} wrap="wrap">
+                                  <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000" letterSpacing="tight">
+                                    {item.tooth?.fdi === "General" ? "GENERAL" : `TOOTH #${item.tooth?.fdi}`}
                                   </Badge>
-                                )}
-                              </HStack>
-
-                              <Text fontSize="md" fontWeight="800" color="gray.700" lineHeight="tight" mt={1}>
-                                {item.treatmentPlan}
-                              </Text>
-
-                              {item.notes && (
-                                <Text fontSize="xs" color="gray.500" fontStyle="italic" noOfLines={2}>
-                                  "{item.notes}"
-                                </Text>
-                              )}
-                            </VStack>
-                          </HStack>
-
-                          <HStack spacing={1}>
-                            {!isCompleted && (
-                              <IconButton
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="green"
-                                icon={<FiCheck />}
-                                aria-label="Mark as Complete"
-                                onClick={() => handleMarkAsComplete(item._id)}
-                              />
-                            )}
-                            <IconButton
-                              size="sm"
-                              variant="ghost"
-                              colorScheme="blue"
-                              icon={<FiEdit3 />}
-                              aria-label="Edit"
-                              onClick={() => handleEditTreatment(item)}
-                            />
-                            <IconButton
-                              size="sm"
-                              variant="ghost"
-                              colorScheme="red"
-                              icon={<FiTrash2 />}
-                              aria-label="Delete"
-                              onClick={() => handleDeleteTreatment(item._id)}
-                            />
-                          </HStack>
-                        </Flex>
-                      </Box>
-                    );
-                  })}
-                </VStack>
+                                  <Badge variant="subtle" colorScheme={style.iconColor.split('.')[0]} borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000">
+                                    {item.complaintType}
+                                  </Badge>
+                                  {isCompleted ? (
+                                    <Badge colorScheme="green" variant="solid" borderRadius="full" px={3} py={0.5} fontSize="9px" fontWeight="1000">COMPLETED</Badge>
+                                  ) : (
+                                    <Badge colorScheme="orange" variant="subtle" borderRadius="full" px={3} py={0.5} fontSize="9px" fontWeight="1000">PENDING</Badge>
+                                  )}
+                                </HStack>
+                                <VStack align="start" spacing={1}>
+                                  <Heading size="sm" fontWeight="1000" color="gray.800" letterSpacing="tight">
+                                    {item.treatmentPlan || "General Observation"}
+                                  </Heading>
+                                  {item.notes && (
+                                    <Box bg="gray.50" p={3} borderRadius="xl" borderLeft="3px solid" borderColor="blue.200" w="full">
+                                      <Text fontSize="xs" color="gray.600" fontStyle="italic" lineHeight="tall">
+                                        {item.notes}
+                                      </Text>
+                                    </Box>
+                                  )}
+                                </VStack>
+                              </VStack>
+                            </HStack>
+                            <HStack spacing={1} bg="white" p={1} borderRadius="xl" border="1px solid" borderColor="gray.50" shadow="xs">
+                              <IconButton size="sm" variant="ghost" colorScheme="blue" icon={<FiEye />} aria-label="View" onClick={() => { setViewingRecord(item); onOpenViewModal(); }} />
+                              <IconButton size="sm" variant="ghost" colorScheme="blue" icon={<FiEdit3 />} aria-label="Edit" onClick={() => handleEditTreatment(item)} />
+                              <IconButton size="sm" variant="ghost" colorScheme="red" icon={<FiTrash2 />} aria-label="Delete" onClick={() => handleDeleteTreatment(item._id)} />
+                            </HStack>
+                          </Flex>
+                        </Box>
+                      );
+                    })}
+                  </VStack>
+                )
               ) : (
                 <VStack py={20} opacity={0.5} spacing={3}>
                   <Icon as={FiActivity} fontSize="40px" color="gray.300" />
@@ -603,6 +678,66 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           </VStack>
         </Box>
       </CustomDrawer>
+      <Modal isOpen={isViewModalOpen} onClose={onCloseViewModal} isCentered size="2xl">
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent borderRadius="3xl" p={2} overflow="hidden">
+          <ModalHeader borderBottom="1px solid" borderColor="gray.50" pb={4}>
+            <HStack justify="space-between" align="center">
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL RECORD DETAILS</Text>
+                <Heading size="md" fontWeight="1000">{viewingRecord?.treatmentPlan || "General Record"}</Heading>
+              </VStack>
+              <Badge colorScheme="blue" variant="solid" borderRadius="full" px={4} py={1}>#{viewingRecord?._id?.slice(-6).toUpperCase()}</Badge>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6}>
+            <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color="gray.400">DATE</Text>
+                <Text fontWeight="800">{new Date(viewingRecord?.treatmentDate).toLocaleDateString(undefined, { dateStyle: 'long' })}</Text>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color="gray.400">TOOTH / REGION</Text>
+                <Badge colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>{viewingRecord?.tooth?.fdi === "General" ? "General Clinical" : `Tooth #${viewingRecord?.tooth?.fdi}`}</Badge>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>
+                <Text fontWeight="800" color="gray.700">{viewingRecord?.complaintType}</Text>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color="gray.400">STATUS</Text>
+                <Badge colorScheme={viewingRecord?.status === "completed" ? "green" : "orange"} borderRadius="full">{viewingRecord?.status?.toUpperCase()}</Badge>
+              </VStack>
+
+              <Box gridColumn="span 2" bg="gray.50" p={4} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
+                <Text fontSize="10px" fontWeight="900" color="gray.400" mb={2}>CLINICAL NOTES</Text>
+                <Text fontSize="sm" fontStyle="italic" color="gray.700">"{viewingRecord?.notes || "No notes provided."}"</Text>
+              </Box>
+
+              <VStack align="start" spacing={1} bg="blue.50/50" p={3} borderRadius="2xl">
+                <Text fontSize="10px" fontWeight="900" color="blue.400">ESTIMATED FEE</Text>
+                <Text fontWeight="1000" color="blue.700">₹{viewingRecord?.estimateMin} - ₹{viewingRecord?.estimateMax}</Text>
+              </VStack>
+              <VStack align="start" spacing={1} bg="orange.50/50" p={3} borderRadius="2xl">
+                <Text fontSize="10px" fontWeight="900" color="orange.400">CONCESSION / DISCOUNT</Text>
+                <Text fontWeight="1000" color="orange.700">₹{viewingRecord?.discount || 0}</Text>
+              </VStack>
+
+              <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
+                <Avatar size="sm" name={viewingRecord?.doctor?.label} bg="blue.100" />
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="10px" fontWeight="900" color="gray.400">ATTENDING CLINICIAN</Text>
+                  <Text fontWeight="900">{viewingRecord?.doctor?.label || "Unassigned"}</Text>
+                </VStack>
+              </HStack>
+            </Grid>
+          </ModalBody>
+          <ModalFooter bg="gray.50" py={4}>
+            <Button w="full" colorScheme="blue" borderRadius="2xl" h="50px" fontWeight="1000" leftIcon={<FiActivity />} onClick={onCloseViewModal}>CLOSE RECORD</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 });

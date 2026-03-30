@@ -207,7 +207,7 @@ export const TreatmentProcedureForm = observer(
             else setLocalExplorerState(newState);
         };
 
-const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
+        const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
         const activeSubcategory = (activeCategory && selectedSubIdx !== null)
             ? activeCategory.subcategories[selectedSubIdx]
             : null;
@@ -242,26 +242,30 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                 for (const toothId in treatments) {
                     const values = replaceLabelValueObjects(treatments[toothId]);
                     // Only skip if there's absolutely NO clinical content
-                    if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue; 
+                    if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue;
 
+                    const currentTooth = teeth.find(t => t.id === toothId);
                     const payload: any = {
                         patient: values.patient?.value || values.patient,
                         doctor: values.doctor?.value || values.doctor,
+                        company: patientDetails?.company?._id || patientDetails?.company,
+                        tooth: {
+                            fdi: toothId,
+                            universal: currentTooth?.universal || null,
+                            palmer: currentTooth?.palmer || null,
+                        },
                         treatmentDate: values.treatmentDate,
                         notes: values.notes,
                         treatmentPlan: values.treatmentCode,
                         status: values.status === "Planned" ? "pending" : values.status,
-                        complaintType: values.complaintType,
                         estimateMin: values.estimateMin || 0,
                         estimateMax: values.estimateMax || 0,
+                        discount: values.discount || 0,
                         totalMin: values.totalMin || 0,
                         totalMax: values.totalMax || 0,
-                        discount: values.discount || 0,
-                        tooth: {
-                            fdi: toothId,
-                            universal: null,
-                            palmer: null,
-                        },
+                        complaintType: values.complaintType,
+                        recordType: toothId === "General" ? "note" : "tooth",
+                        user: stores.auth.user?._id
                     };
 
                     if (editData?._id && toothId === editData.tooth?.fdi) {
@@ -338,8 +342,8 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                 onClick={onProcedureOpen}
                                 leftIcon={<FiPlusCircle />}
                             >
-                                {currentValues.treatmentCode 
-                                    ? "Change Selected Procedure" 
+                                {currentValues.treatmentCode
+                                    ? "Change Selected Procedure"
                                     : "Select Procedure Protocol"}
                             </Button>
                             {currentValues.treatmentCode && (
@@ -396,7 +400,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                 {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
                                     const isActive = currentValues.complaintType === type;
                                     const getStyles = () => {
-                                        switch(type) {
+                                        switch (type) {
                                             case "CHIEF COMPLAINT": return { bg: "red.500", color: "white" };
                                             case "OTHER FINDING": return { bg: "orange.400", color: "white" };
                                             case "EXISTING FINDING": return { bg: "gray.400", color: "white" };
@@ -404,7 +408,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                         }
                                     };
                                     const styles = isActive ? getStyles() : { bg: "transparent", color: "gray.500" };
-                                    
+
                                     return (
                                         <Button
                                             key={type}
@@ -437,7 +441,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                         <Grid templateColumns="1fr 1fr" gap={4}>
                             <VStack align="start" spacing={0}>
                                 <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MIN</Text>
-                                <Input 
+                                <Input
                                     type="number" bg="white" borderRadius="xl" fontWeight="900"
                                     value={currentValues.estimateMin}
                                     onChange={(e) => {
@@ -456,7 +460,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                             </VStack>
                             <VStack align="start" spacing={0}>
                                 <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MAX</Text>
-                                <Input 
+                                <Input
                                     type="number" bg="white" borderRadius="xl" fontWeight="900"
                                     value={currentValues.estimateMax}
                                     onChange={(e) => {
@@ -477,7 +481,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
 
                         <VStack align="start" spacing={0}>
                             <Text fontSize="9px" fontWeight="1000" color="green.500">CONCESSION (₹)</Text>
-                            <Input 
+                            <Input
                                 type="number" bg="white" borderRadius="xl" fontWeight="900" color="green.600"
                                 value={currentValues.discount}
                                 onChange={(e) => {
@@ -498,7 +502,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                         </VStack>
 
                         <Divider borderColor="blue.100" />
-                        
+
                         <VStack align="center" py={4} bg="white" borderRadius="2xl" boxShadow="sm">
                             <Text fontSize="10px" fontWeight="1000" color="blue.500">FINAL QUOTE</Text>
                             <Heading size="md" color="blue.800" fontWeight="1000">
@@ -552,10 +556,11 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                     const currentStep = values.treatmentCode ? 2 : (teeth.length > 0 ? 1 : 0);
 
                     const groupTeethByQuadrant = (selectedTeeth: ToothData[]) => {
-                        const quads: Record<string, ToothData[]> = { "UR": [], "UL": [], "LR": [], "LL": [] };
+                        const quads: Record<string, ToothData[]> = { "UR": [], "UL": [], "LR": [], "LL": [], "General": [] };
                         selectedTeeth.forEach(t => {
                             const id = parseInt(t.id);
-                            if (id >= 11 && id <= 18) quads["UR"].push(t);
+                            if (isNaN(id)) quads["General"].push(t);
+                            else if (id >= 11 && id <= 18) quads["UR"].push(t);
                             else if (id >= 21 && id <= 28) quads["UL"].push(t);
                             else if (id >= 31 && id <= 38) quads["LL"].push(t);
                             else if (id >= 41 && id <= 48) quads["LR"].push(t);
@@ -569,7 +574,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                         <FormikForm onSubmit={handleSubmit} style={{ minHeight: '100%' }}>
                             {/* Hidden synchronization component */}
                             <FormValueSyncer values={values} onValuesUpdate={onValuesUpdate} />
-                            
+
 
                             <CustomDrawer
                                 open={isProcedureOpen}
@@ -721,7 +726,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                                         <VStack spacing={0} align="stretch" overflowY="auto" h="full">
                                                             {activeSubcategory?.jobs.map((job) => {
                                                                 const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
-                                                                const isSelected = activeToothId === "bulk" 
+                                                                const isSelected = activeToothId === "bulk"
                                                                     ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
                                                                     : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
                                                                 return (
@@ -734,7 +739,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                                                         bg={isSelected ? "blue.600" : "white"}
                                                                         color={isSelected ? "white" : "gray.600"}
                                                                         onClick={() => {
-                                                                           if (activeToothId === "bulk") {
+                                                                            if (activeToothId === "bulk") {
                                                                                 teeth.forEach(t => {
                                                                                     setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
                                                                                     setFieldValue(`treatments.${t.id}.estimateMin`, job.defaultEstimate);
@@ -837,86 +842,86 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                             </Button>
                                         )}
                                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)", xl: "repeat(4, 1fr)" }} gap={4}>
-                                        {teeth.map((tooth) => {
-                                            const toothValues = values.treatments[tooth.id] || initialFormData;
-                                            const complaint = toothValues.complaintType || "default";
-                                            const style = COMPLAINT_STYLES[complaint] || COMPLAINT_STYLES.default;
+                                            {teeth.map((tooth) => {
+                                                const toothValues = values.treatments[tooth.id] || initialFormData;
+                                                const complaint = toothValues.complaintType || "default";
+                                                const style = COMPLAINT_STYLES[complaint] || COMPLAINT_STYLES.default;
 
-                                            return (
-                                                <Box 
-                                                    key={tooth.id} 
-                                                    p={0} 
-                                                    bg="white" 
-                                                    borderRadius="2xl" 
-                                                    border="1px solid" 
-                                                    borderColor="gray.100" 
-                                                    boxShadow="sm"
-                                                    cursor="pointer"
-                                                    onClick={() => { setActiveToothId(tooth.id); onDetailOpen(); }}
-                                                    _hover={{ transform: "translateY(-4px)", boxShadow: "xl", borderColor: style.border }}
-                                                    transition="all 0.3s ease"
-                                                    position="relative"
-                                                    overflow="hidden"
-                                                >
-                                                    {/* Premium Top Border Indicator */}
-                                                    <Box h="4px" bg={style.border} w="full" position="absolute" top={0} />
-                                                    
-                                                    <VStack align="stretch" spacing={0} p={4}>
-                                                        <HStack justify="space-between" mb={3}>
-                                                            <VStack align="start" spacing={0}>
-                                                                <HStack spacing={2}>
-                                                                    <Text fontSize="20px" fontWeight="1000" color="gray.800" letterSpacing="tight">#{tooth.id}</Text>
-                                                                    <Badge variant="subtle" colorScheme={toothValues.treatmentCode ? "green" : "blue"} borderRadius="full" px={1.5} fontSize="8px" fontWeight="1000">
-                                                                        {toothValues.treatmentCode ? "READY" : "PENDING"}
-                                                                    </Badge>
-                                                                </HStack>
-                                                                <Text fontSize="9px" fontWeight="900" color={style.iconColor} letterSpacing="0.05em">{style.label}</Text>
-                                                            </VStack>
-                                                            <Circle size="32px" bg={style.bg} color={style.iconColor}>
-                                                                <Icon as={FiActivity} boxSize={4} />
-                                                            </Circle>
-                                                        </HStack>
-                                                        
-                                                        {toothValues.treatmentCode ? (
-                                                            <Box p={3} bg={style.bg} borderRadius="xl" border="1px solid" borderColor={`${style.border}20`}>
-                                                                <VStack align="start" spacing={0.5}>
-                                                                    <Text fontSize="10px" fontWeight="1000" color={style.iconColor} noOfLines={1}>{toothValues.treatmentCode.split(" → ")[1]}</Text>
-                                                                    <Text fontSize="11px" fontWeight="1000" color="gray.800" noOfLines={1}>
-                                                                        {toothValues.treatmentCode.split(" → ").pop()}
-                                                                    </Text>
-                                                                    <HStack spacing={2} pt={1}>
-                                                                        <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">
-                                                                            ₹{toothValues.totalMin.toLocaleString()}
-                                                                        </Badge>
-                                                                        <Text fontSize="8px" color="gray.400" fontWeight="700">to</Text>
-                                                                        <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">
-                                                                            ₹{toothValues.totalMax.toLocaleString()}
+                                                return (
+                                                    <Box
+                                                        key={tooth.id}
+                                                        p={0}
+                                                        bg="white"
+                                                        borderRadius="2xl"
+                                                        border="1px solid"
+                                                        borderColor="gray.100"
+                                                        boxShadow="sm"
+                                                        cursor="pointer"
+                                                        onClick={() => { setActiveToothId(tooth.id); onDetailOpen(); }}
+                                                        _hover={{ transform: "translateY(-4px)", boxShadow: "xl", borderColor: style.border }}
+                                                        transition="all 0.3s ease"
+                                                        position="relative"
+                                                        overflow="hidden"
+                                                    >
+                                                        {/* Premium Top Border Indicator */}
+                                                        <Box h="4px" bg={style.border} w="full" position="absolute" top={0} />
+
+                                                        <VStack align="stretch" spacing={0} p={4}>
+                                                            <HStack justify="space-between" mb={3}>
+                                                                <VStack align="start" spacing={0}>
+                                                                    <HStack spacing={2}>
+                                                                        <Text fontSize="20px" fontWeight="1000" color="gray.800" letterSpacing="tight">{tooth.id === "General" ? "GEN" : `#${tooth.id}`}</Text>
+                                                                        <Badge variant="subtle" colorScheme={toothValues.treatmentCode ? "green" : "blue"} borderRadius="full" px={1.5} fontSize="8px" fontWeight="1000">
+                                                                            {toothValues.treatmentCode ? "READY" : "PENDING"}
                                                                         </Badge>
                                                                     </HStack>
+                                                                    <Text fontSize="9px" fontWeight="900" color={style.iconColor} letterSpacing="0.05em">{style.label}</Text>
                                                                 </VStack>
-                                                            </Box>
-                                                        ) : (
-                                                            <VStack p={4} border="2px dashed" borderColor="gray.100" borderRadius="xl" spacing={1} bg="gray.50/30">
-                                                                <Icon as={FiLayers} color="gray.300" boxSize={4} />
-                                                                <Text fontSize="10px" color="gray.400" fontWeight="900">AWAITING</Text>
-                                                            </VStack>
-                                                        )}
-
-                                                        <HStack pt={4} justify="space-between" align="center">
-                                                            <HStack spacing={2}>
-                                                                <Avatar size="xs" name={toothValues.doctor?.label || "?"} bg={style.iconColor} p={0.5} border="1px solid white" />
-                                                                <VStack align="start" spacing={0}>
-                                                                    <Text fontSize="8px" fontWeight="900" color="gray.400">CLINICIAN</Text>
-                                                                    <Text fontSize="10px" fontWeight="1000" color="gray.700" noOfLines={1}>{toothValues.doctor?.label || "Unassigned"}</Text>
-                                                                </VStack>
+                                                                <Circle size="32px" bg={style.bg} color={style.iconColor}>
+                                                                    <Icon as={FiActivity} boxSize={4} />
+                                                                </Circle>
                                                             </HStack>
-                                                            <Icon as={FiChevronRight} color="gray.300" boxSize={3} />
-                                                        </HStack>
-                                                    </VStack>
-                                                </Box>
-                                            );
-                                        })}
-                                    </Grid>
+
+                                                            {toothValues.treatmentCode ? (
+                                                                <Box p={3} bg={style.bg} borderRadius="xl" border="1px solid" borderColor={`${style.border}20`}>
+                                                                    <VStack align="start" spacing={0.5}>
+                                                                        <Text fontSize="10px" fontWeight="1000" color={style.iconColor} noOfLines={1}>{toothValues.treatmentCode.split(" → ")[1]}</Text>
+                                                                        <Text fontSize="11px" fontWeight="1000" color="gray.800" noOfLines={1}>
+                                                                            {toothValues.treatmentCode.split(" → ").pop()}
+                                                                        </Text>
+                                                                        <HStack spacing={2} pt={1}>
+                                                                            <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">
+                                                                                ₹{toothValues.totalMin.toLocaleString()}
+                                                                            </Badge>
+                                                                            <Text fontSize="8px" color="gray.400" fontWeight="700">to</Text>
+                                                                            <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">
+                                                                                ₹{toothValues.totalMax.toLocaleString()}
+                                                                            </Badge>
+                                                                        </HStack>
+                                                                    </VStack>
+                                                                </Box>
+                                                            ) : (
+                                                                <VStack p={4} border="2px dashed" borderColor="gray.100" borderRadius="xl" spacing={1} bg="gray.50/30">
+                                                                    <Icon as={FiLayers} color="gray.300" boxSize={4} />
+                                                                    <Text fontSize="10px" color="gray.400" fontWeight="900">AWAITING</Text>
+                                                                </VStack>
+                                                            )}
+
+                                                            <HStack pt={4} justify="space-between" align="center">
+                                                                <HStack spacing={2}>
+                                                                    <Avatar size="xs" name={toothValues.doctor?.label || "?"} bg={style.iconColor} p={0.5} border="1px solid white" />
+                                                                    <VStack align="start" spacing={0}>
+                                                                        <Text fontSize="8px" fontWeight="900" color="gray.400">CLINICIAN</Text>
+                                                                        <Text fontSize="10px" fontWeight="1000" color="gray.700" noOfLines={1}>{toothValues.doctor?.label || "Unassigned"}</Text>
+                                                                    </VStack>
+                                                                </HStack>
+                                                                <Icon as={FiChevronRight} color="gray.300" boxSize={3} />
+                                                            </HStack>
+                                                        </VStack>
+                                                    </Box>
+                                                );
+                                            })}
+                                        </Grid>
                                     </Box>
                                 )}
                                 {isDrawerMode && (
@@ -936,7 +941,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                     </Box>
                                 )}
                             </VStack>
-                            
+
                             {!isDrawerMode && (
                                 <Modal isOpen={isDetailOpen} onClose={onDetailClose} size="4xl" scrollBehavior="inside">
                                     <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
@@ -946,7 +951,7 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                                 <VStack align="start" spacing={0}>
                                                     <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY</Text>
                                                     <Heading size="md" fontWeight="1000">
-                                                        {activeToothId === "bulk" ? "Multi-Tooth Update" : `Tooth #${activeToothId} Details`}
+                                                        {activeToothId === "bulk" ? "Multi-Tooth Update" : (activeToothId === "General" ? "General Clinical Record" : `Tooth #${activeToothId} Details`)}
                                                     </Heading>
                                                 </VStack>
                                                 <Circle size="40px" bg="blue.50" color="blue.500">
@@ -958,9 +963,20 @@ const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCa
                                             {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
                                         </ModalBody>
                                         <ModalFooter borderTop="1px solid" borderColor="gray.50" p={6}>
-                                            <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" onClick={onDetailClose}>
-                                                Confirm Details
-                                            </Button>
+                                            <HStack w="full" spacing={4}>
+                                                {activeToothId !== "bulk" && teeth.findIndex(t => t.id === activeToothId) < teeth.length - 1 ? (
+                                                    <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" rightIcon={<FiChevronRight />} onClick={() => {
+                                                        const currentIndex = teeth.findIndex(t => t.id === activeToothId);
+                                                        setActiveToothId(teeth[currentIndex + 1].id);
+                                                    }}>
+                                                        Next Tooth ({teeth[teeth.findIndex(t => t.id === activeToothId) + 1].id})
+                                                    </Button>
+                                                ) : (
+                                                    <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" onClick={onDetailClose}>
+                                                        {activeToothId === "bulk" ? "Proceed to Individual Review" : "Finish Documentation"}
+                                                    </Button>
+                                                )}
+                                            </HStack>
                                         </ModalFooter>
                                     </ModalContent>
                                 </Modal>

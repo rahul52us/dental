@@ -9,6 +9,7 @@ interface ToothShapeProps {
   size?: "sm" | "md" | "lg";
   notationType?: "fdi" | "universal" | "palmer";
   complaintType?: string;
+  activeComplaintType?: string;
 }
 
 const sizeMap = {
@@ -24,6 +25,7 @@ export const ToothShape = ({
   size = "md",
   notationType = "fdi",
   complaintType,
+  activeComplaintType,
 }: ToothShapeProps) => {
   const getNotationLabel = () => {
     switch (notationType) {
@@ -64,15 +66,15 @@ export const ToothShape = ({
   };
 
   const colorMap: Record<string, { bg: string; fill: string; stroke: string; text: string }> = {
-    "CHIEF COMPLAINT": { bg: "#FED7D7", fill: "#FC8181", stroke: "#C53030", text: "#822727" },
-    "OTHER FINDING": { bg: "#FEF3C7", fill: "#F6E05E", stroke: "#B7791F", text: "#744210" },
-    "EXISTING FINDING": { bg: "#E2E8F0", fill: "#A0AEC0", stroke: "#4A5568", text: "#2D3748" },
+    "CHIEF COMPLAINT": { bg: "#FFF5F5", fill: "#FEB2B2", stroke: "#F56565", text: "#742A2A" },
+    "OTHER FINDING": { bg: "#FFFAF0", fill: "#FBD38D", stroke: "#ED8936", text: "#7B341E" },
+    "EXISTING FINDING": { bg: "#F0FFF4", fill: "#9AE6B4", stroke: "#48BB78", text: "#22543D" },
     "default": { bg: "#EBF8FF", fill: "#63B3ED", stroke: "#2B6CB0", text: "#1A365D" }
   };
 
   const activeStyle = isSelected 
-    ? (colorMap[complaintType as string] || colorMap.default) 
-    : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" };
+    ? (colorMap[activeComplaintType as string] || colorMap.default) 
+    : (complaintType ? colorMap[complaintType] : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
 
   return (
     <Box

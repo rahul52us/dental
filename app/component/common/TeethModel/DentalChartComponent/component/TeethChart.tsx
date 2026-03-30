@@ -19,6 +19,7 @@ interface TeethChartProps {
   notationType?: "fdi" | "universal" | "palmer";
   onNotationChange?: (not: "fdi" | "universal" | "palmer") => void;
   toothComplaints: Record<string, string>;
+  activeComplaintType: string;
 }
 
 export const TeethChart = ({
@@ -28,6 +29,7 @@ export const TeethChart = ({
   notationType = "fdi",
   onNotationChange,
   toothComplaints,
+  activeComplaintType,
 }: TeethChartProps) => {
   const teeth = getTeethByType(dentitionType);
 
@@ -61,6 +63,7 @@ export const TeethChart = ({
         onClick={() => onToothClick(tooth)}
         notationType={notationType}
         size="md"
+        activeComplaintType={activeComplaintType}
         complaintType={toothComplaints[tooth.id]}
       />
     ));
@@ -186,11 +189,19 @@ export const TeethChart = ({
               w={3}
               h={3}
               rounded="full"
-              bg="blue.100"
+              bg={
+                activeComplaintType === "CHIEF COMPLAINT" ? "red.100" :
+                activeComplaintType === "OTHER FINDING" ? "orange.100" :
+                activeComplaintType === "EXISTING FINDING" ? "green.100" : "blue.100"
+              }
               border="1px solid"
-              borderColor="blue.500"
+              borderColor={
+                activeComplaintType === "CHIEF COMPLAINT" ? "red.500" :
+                activeComplaintType === "OTHER FINDING" ? "orange.500" :
+                activeComplaintType === "EXISTING FINDING" ? "green.500" : "blue.500"
+              }
             />
-            <Text>Selected</Text>
+            <Text>Selected ({activeComplaintType.split(' ')[0]})</Text>
           </HStack>
         </Flex>
       </Box>
