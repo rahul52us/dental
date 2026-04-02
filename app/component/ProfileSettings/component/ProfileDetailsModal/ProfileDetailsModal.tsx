@@ -35,6 +35,7 @@ import stores from "../../../../store/stores";
 import { getDefaultSchedule } from "../../utils/constant";
 import OperatingHours from "../OperatingHours/OperatingHours";
 import ProfileSettings from "../../ProfileSettings"; // Adjust path if needed
+import ThemeSettings from "../ThemeSettings/ThemeSettings";
 
 // Helper component for consistent key-value display
 const DetailItem = ({ label, value, icon }) => (
@@ -56,15 +57,20 @@ const DetailItem = ({ label, value, icon }) => (
   </Box>
 );
 
-const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
+const ProfileDetailsModal = observer(({ user }: any) => {
   const [schedule, setSchedule] = useState(
     user?.companyDetails?.operatingHours?.length > 0
       ? user.companyDetails.operatingHours
       : getDefaultSchedule()
   );
   const [isSaving, setIsSaving] = useState(false);
-  const { companyStore } = stores;
+  const { themeStore, companyStore } = stores;
+  const { profileModal, setProfileModal } = themeStore;
   const toast = useToast();
+
+  const handleClose = () => {
+    setProfileModal(false, 0);
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -89,7 +95,7 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
           isClosable: true,
           position: "top-right",
         });
-        onClose();
+        handleClose();
       }
     } catch (err) {
       toast({
@@ -122,8 +128,8 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
 
   return (
     <Modal
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={profileModal.isOpen}
+      onClose={handleClose}
       size={"3xl"}
       scrollBehavior="inside"
     >
@@ -131,7 +137,7 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
       <ModalContent borderRadius="xl" overflow="hidden">
         {/* Header Section: Identity */}
         <Box bg="blue.600" p={5} color="white" position="relative">
-          <ModalCloseButton color="white" />
+          <ModalCloseButton color="white" onClick={handleClose} />
           <Flex
             direction={{ base: "column", sm: "row" }}
             align="center"
@@ -173,11 +179,12 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
         </Box>
 
         <ModalBody p={0}>
-          <Tabs isFitted variant="enclosed" colorScheme="blue" defaultIndex={0}>
+          <Tabs isFitted variant="enclosed" colorScheme="blue" index={profileModal.defaultTab} onChange={(index) => setProfileModal(true, index)}>
             <TabList px={4} pt={4}>
               <Tab fontWeight="bold">Profile</Tab>
               <Tab fontWeight="bold">Operating Hours</Tab>
               <Tab fontWeight="bold">Sidebar</Tab>
+              <Tab fontWeight="bold">Theme</Tab>
             </TabList>
 
             <TabPanels>
@@ -221,16 +228,20 @@ const ProfileDetailsModal = observer(({ isOpen, onClose, user }: any) => {
                 <OperatingHours schedule={schedule} setSchedule={setSchedule} />
               </TabPanel>
 
-              {/* TAB 3: Sidebar Settings */}
               <TabPanel p={6}>
                 <ProfileSettings />
+              </TabPanel>
+
+              {/* TAB 4: Theme Settings */}
+              <TabPanel p={0}>
+                <ThemeSettings />
               </TabPanel>
             </TabPanels>
           </Tabs>
         </ModalBody>
 
         <ModalFooter bg="gray.50">
-          <Button variant="ghost" mr={3} onClick={onClose}>
+          <Button variant="ghost" mr={3} onClick={handleClose}>
             Close
           </Button>
 

@@ -8,14 +8,11 @@ import theme from "../../../theme/theme";
 
 const ColorPickerComponent = observer(() => {
   const {
-    themeStore: { setThemeConfig },
+    themeStore: { setThemeConfig, themeConfig },
   } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [color, setColor] = useState("#000000");
 
   const handleColorChange = (newColor: ColorResult) => {
-    setColor(newColor.hex);
-    theme.colors.custom.light.primary = newColor.hex;
     setThemeConfig("colors.custom.light.primary", newColor.hex);
   };
 
@@ -35,16 +32,20 @@ const ColorPickerComponent = observer(() => {
     <>
       <Button
         onClick={isOpen ? onClose : onOpen}
-        colorScheme="teal"
+        bg={themeConfig.colors.custom.light.primary}
+        color="white"
+        _hover={{ opacity: 0.8 }}
         size="sm"
-        fontWeight="normal"
+        fontWeight="bold"
+        boxShadow="sm"
+        leftIcon={<Box w="12px" h="12px" borderRadius="full" border="1px solid white" bg={themeConfig.colors.custom.light.primary} />}
       >
         Custom Color
       </Button>
       {isOpen && (
         <Box position="absolute" zIndex={999}>
           <ChromePicker
-            color={color}
+            color={themeConfig.colors.custom.light.primary}
             onChange={handleColorChange}
             disableAlpha
             styles={pickerStyles}

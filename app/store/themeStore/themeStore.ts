@@ -2,8 +2,9 @@ import { action, makeObservable, observable } from "mobx";
 import _ from "lodash";
 
 class ThemeStore {
-  openThemeDrawer = {
-    open: false,
+  profileModal = {
+    isOpen: false,
+    defaultTab: 0,
   };
 
   backthemeConfig = {
@@ -64,7 +65,7 @@ class ThemeStore {
       },
       custom: {
         light: {
-          primary: "#1E90FF",
+          primary: "#63B3ED",
           secondary: "#ffffff",
         },
         dark: {
@@ -85,8 +86,8 @@ class ThemeStore {
   constructor() {
     makeObservable(this, {
       themeConfig: observable,
-      openThemeDrawer: observable,
-      setOpenThemeDrawer: action,
+      profileModal: observable,
+      setProfileModal: action,
       setThemeConfig: action,
       resetTheme: action,
     });
@@ -121,8 +122,9 @@ class ThemeStore {
     }
   };
 
-  setOpenThemeDrawer = () => {
-    this.openThemeDrawer.open = !this.openThemeDrawer.open;
+  setProfileModal = (isOpen: boolean, defaultTab: number = 0) => {
+    this.profileModal.isOpen = isOpen;
+    this.profileModal.defaultTab = defaultTab;
   };
 
   resetTheme = () => {

@@ -10,8 +10,8 @@ import SidebarLayout from './SidebarLayout/SidebarLayout';
 import HeaderLayout from './HeaderLayout/HeaderLayout';
 // import PermissionDeniedPage from '../../component/common/Loader/PermissionDeniedPage';
 import { contentLargeBodyPadding, contentSmallBodyPadding, headerHeight, mediumSidebarWidth } from '../../component/config/utils/variable';
-import ThemeChangeContainer from '../../component/common/ThemeChangeContainer/ThemeChangeContainer';
 import PageLoader from '../../component/common/Loader/PageLoader';
+import ProfileDetailsModal from '../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal';
 
 
 const DashboardLayout = observer(({ children }: { children: React.ReactNode }) => {
@@ -95,7 +95,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
           </ContentContainer>
         </Container>
       </MainContainer>
-      <ThemeChangeContainer />
+      <ProfileDetailsModal user={user} />
     </Box>
   ) : (
     <PageLoader loading={true}>
