@@ -153,10 +153,10 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     if (appointments.length === 0) {
         return (
             <Center py={32} flexDir="column" textAlign="center">
-                <Box 
-                    p={8} 
-                    bg={useColorModeValue("blue.50", "whiteAlpha.50")} 
-                    borderRadius="3xl" 
+                <Box
+                    p={8}
+                    bg={useColorModeValue("blue.50", "whiteAlpha.50")}
+                    borderRadius="3xl"
                     mb={6}
                     position="relative"
                     _before={{
@@ -172,10 +172,10 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                         opacity: 0.5
                     }}
                 >
-                    <Icon 
-                        as={MdOutlineAirlineSeatReclineExtra} 
-                        boxSize={14} 
-                        color="blue.400" 
+                    <Icon
+                        as={MdOutlineAirlineSeatReclineExtra}
+                        boxSize={14}
+                        color="blue.400"
                         animation={`${pulse} 3s infinite ease-in-out`}
                     />
                 </Box>
@@ -186,12 +186,12 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     <Text fontSize="sm" color="gray.500" maxW="280px" fontWeight="600" lineHeight="tall">
                         Arrived patients will show up here. Everything is currently up to date!
                     </Text>
-                    <Button 
-                        mt={6} 
-                        size="sm" 
-                        variant="ghost" 
-                        colorScheme="blue" 
-                        leftIcon={<RepeatIcon />} 
+                    <Button
+                        mt={6}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="blue"
+                        leftIcon={<RepeatIcon />}
                         onClick={fetchArrivedAppointments}
                         borderRadius="xl"
                         fontWeight="800"
@@ -212,7 +212,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     const personalInfo = patient?.profileDetails?.personalInfo || {};
                     const genderLabel = genderOptions.find((opt: any) => opt.value === personalInfo?.gender)?.label || "--";
                     const primaryPhone = patient?.mobileNumber || "--"
-                    const maskedPhone = primaryPhone !== "--" ? `${patient?.mobileNumber.slice(0, 3)}••••${patient?.mobileNumber.slice(-3)}` : "--";
+                    const displayPhone = primaryPhone;
 
                     // Silk & Chair Color Aesthetics
                     const silkBg = useColorModeValue(`${chairColor}11`, `${chairColor}15`); // Very soft silk tint
@@ -368,43 +368,33 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         borderColor={useColorModeValue("whiteAlpha.500", "whiteAlpha.100")}
                                         boxShadow="sm"
                                     >
-                                        <Text fontSize="10px" color={chairColor} fontWeight="800" letterSpacing="0.1em" mb={1} textTransform="uppercase">
-                                            Consultation
-                                        </Text>
                                         <Text fontWeight="800" fontSize="sm" color={labelTextColor} noOfLines={1} letterSpacing="-0.01em">
-                                            {apt.title || "Standard Checkup"}
+                                            {apt.description}
                                         </Text>
 
-                                        {apt.description && (
-                                            <Tooltip label={apt.description} hasArrow placement="top" borderRadius="md">
-                                                <Text fontSize="xs" mt={2} color={mutedTextColor} noOfLines={2} fontStyle="italic" lineHeight="short">
-                                                    {apt.description}
-                                                </Text>
-                                            </Tooltip>
-                                        )}
+
 
                                         <Flex align="center" gap={1.5} mt={3}>
                                             <Badge
-                                                variant="subtle"
-                                                bg={`${chairColor}15`}
-                                                color={chairColor}
+                                                bg="gray.100"
+                                                color="black"
                                                 px={2.5}
                                                 py={0.8}
                                                 borderRadius="md"
                                                 fontSize="10px"
-                                                fontWeight="800"
+                                                fontWeight="900"
                                                 display="inline-flex"
                                                 alignItems="center"
                                                 gap={1}
                                                 borderWidth="1px"
-                                                borderColor={`${chairColor}30`}
+                                                borderColor="gray.200"
                                             >
                                                 👨‍⚕️ {apt.primaryDoctor?.name || "No Doctor"}
                                             </Badge>
                                         </Flex>
-                                   </Box>
+                                    </Box>
 
-                                    <Text fontSize="11px" color={mutedTextColor} fontWeight="700" ml={1} opacity={0.8}>📞 {maskedPhone}</Text>
+                                    <Text fontSize="11px" color={mutedTextColor} fontWeight="600" ml={1} opacity={0.8}>📞 {displayPhone}</Text>
                                 </VStack>
                             </Box>
 
@@ -630,10 +620,10 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                         </AlertDialogBody>
 
                         <AlertDialogFooter px={8} py={6} gap={3} bg={useColorModeValue("gray.50", "gray.900/50")} borderTopWidth="1px" borderColor={borderColor}>
-                            <Button 
-                                ref={cancelRef} 
-                                onClick={() => setOpenConfirm({ open: false, id: "" })} 
-                                borderRadius="2xl" 
+                            <Button
+                                ref={cancelRef}
+                                onClick={() => setOpenConfirm({ open: false, id: "" })}
+                                borderRadius="2xl"
                                 fontWeight="800"
                                 variant="ghost"
                                 size="lg"
@@ -641,11 +631,11 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             >
                                 Cancel
                             </Button>
-                            <Button 
-                                colorScheme="green" 
-                                onClick={handleComplete} 
+                            <Button
+                                colorScheme="green"
+                                onClick={handleComplete}
                                 isLoading={isCompleting}
-                                borderRadius="2xl" 
+                                borderRadius="2xl"
                                 fontWeight="800"
                                 size="lg"
                                 fontSize="sm"
