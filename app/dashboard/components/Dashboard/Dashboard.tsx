@@ -1,7 +1,6 @@
 "use client";
 import {
   Box,
-  extendTheme,
   Grid,
   Heading,
   SimpleGrid,
@@ -9,6 +8,16 @@ import {
   Text,
   AspectRatio,
   useToken,
+  Flex,
+  Button,
+  VStack,
+  Spacer,
+  Icon,
+  useColorModeValue,
+  Avatar,
+  Badge,
+  HStack,
+  Divider,
 } from "@chakra-ui/react";
 import {
   BarElement,
@@ -23,11 +32,21 @@ import {
   ArcElement,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
-import { FaUserMd, FaUserInjured, FaUserTie } from "react-icons/fa";
+import {
+  FaUserMd,
+  FaUserInjured,
+  FaUserTie,
+  FaStore,
+  FaCalendarAlt,
+  FaPlus,
+  FaClipboardList,
+  FaArrowRight
+} from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import stores from "../../../store/stores";
+import { motion, AnimatePresence } from "framer-motion";
 
 ChartJS.register(
   CategoryScale,
@@ -41,62 +60,29 @@ ChartJS.register(
   ArcElement
 );
 
-// Extend Chakra UI theme
-const dummyData = {
-  visits: 1200,
-  patients: 350,
-  therapists: 25,
-  appointments: 180,
-  patientGrowth: [50, 230, 180, 210, 230, 370, 350],
-  monthlyVisits: [100, 200, 150, 300, 250, 400, 500],
-};
-
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
 
 const barChartOptions: any = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    title: { display: false },
     tooltip: {
       backgroundColor: '#1A202C',
-      titleFont: { family: "'Inter', sans-serif", size: 13 },
-      bodyFont: { family: "'Inter', sans-serif", size: 13 },
-      padding: 10,
-      cornerRadius: 8,
-      displayColors: false,
+      padding: 12,
+      cornerRadius: 12,
+      titleFont: { size: 14, weight: 'bold' },
+      bodyFont: { size: 13 },
     }
   },
   scales: {
     y: {
       beginAtZero: true,
-      grid: {
-        color: '#E2E8F0',
-        borderDash: [5, 5],
-        drawBorder: false,
-      },
-      ticks: {
-        font: { family: "'Inter', sans-serif", size: 11 },
-        color: '#718096',
-        padding: 10
-      },
-      border: { display: false }
+      grid: { color: '#E2E8F0', borderDash: [5, 5], drawBorder: false },
+      ticks: { font: { size: 11 }, color: '#718096' }
     },
-    x: {
-      grid: { display: false },
-      ticks: {
-        font: { family: "'Inter', sans-serif", size: 11 },
-        color: '#718096'
-      },
-      border: { display: false }
-    },
-  },
-  layout: { padding: 0 },
-  elements: {
-    bar: {
-      borderRadius: 6,
-      borderSkipped: false,
-    },
+    x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#718096' } },
   },
 };
 
@@ -105,201 +91,196 @@ const lineChartOptions: any = {
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    title: { display: false },
-    tooltip: {
-      backgroundColor: '#1A202C',
-      titleFont: { family: "'Inter', sans-serif", size: 13 },
-      bodyFont: { family: "'Inter', sans-serif", size: 13 },
-      padding: 10,
-      cornerRadius: 8,
-      displayColors: false,
-      intersect: false,
-      mode: 'index',
-    }
+    tooltip: { backgroundColor: '#1A202C', padding: 12, cornerRadius: 12 },
   },
   scales: {
-    y: {
-      beginAtZero: false,
-      grid: {
-        color: '#E2E8F0',
-        borderDash: [5, 5],
-        drawBorder: false,
-      },
-      ticks: {
-        font: { family: "'Inter', sans-serif", size: 11 },
-        color: '#718096',
-        padding: 10
-      },
-      border: { display: false }
-    },
-    x: {
-      grid: { display: false },
-      ticks: {
-        font: { family: "'Inter', sans-serif", size: 11 },
-        color: '#718096'
-      },
-      border: { display: false }
-    },
+    y: { grid: { color: '#E2E8F0', borderDash: [5, 5] }, ticks: { font: { size: 11 }, color: '#718096' } },
+    x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#718096' } },
   },
   elements: {
-    line: {
-      tension: 0.4,
-      borderWidth: 3,
-    },
-    point: {
-      radius: 0,
-      hoverRadius: 6,
-      hoverBorderWidth: 4,
-      hoverBorderColor: '#fff',
-    },
+    line: { tension: 0.4, borderWidth: 3 },
+    point: { radius: 0, hoverRadius: 6 },
   },
-};
-
-const lineChartData: any = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-  datasets: [
-    {
-      label: "Growth",
-      data: dummyData.patientGrowth,
-      borderColor: "#045B64", // brand.100 equivalent or use token in component
-      backgroundColor: (context: any) => {
-        const ctx = context.chart.ctx;
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, "rgba(4, 91, 100, 0.4)"); // brand.100
-        gradient.addColorStop(1, "rgba(4, 91, 100, 0.0)");
-        return gradient;
-      },
-      fill: true,
-    },
-  ],
 };
 
 const Dashboard = observer(() => {
   const {
     dashboardStore: { getDashboardCount, count },
+    auth: { user }
   } = stores;
 
   useEffect(() => {
     getDashboardCount();
   }, [getDashboardCount]);
 
-
   const dashboardData = [
-    {
-      label: "Doctors",
-      value: count?.data?.doctors || 0,
-      icon: FaUserMd,
-      color: "blue",
-      href: "/dashboard/doctors",
-    },
-    {
-      label: "Patients",
-      value: count?.data?.patients || 0,
-      icon: FaUserInjured,
-      color: "green",
-      href: "/dashboard/patients",
-    },
-    {
-      label: "Staff",
-      value: count?.data?.staffs || 0,
-      icon: FaUserTie,
-      color: "purple",
-      href: "/dashboard/staffs",
-    },
+    { label: "Doctors", value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors" },
+    { label: "Patients", value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients" },
+    { label: "Staff", value: count?.data?.staffs || 0, icon: FaUserTie, color: "purple", href: "/dashboard/staffs" },
+    { label: "Dealers", value: count?.data?.dealers || 0, icon: FaStore, color: "orange", href: "/dashboard/dealers" },
   ];
 
-
-  // Get brand colors from theme
-  const [brand500, brand600, brand900] = useToken("colors", ["brand.500", "brand.600", "brand.900"]);
-
-  // Dynamic color handling for bar chart
-  const userChartData = {
-    labels: dashboardData.map((d) => d.label),
-    datasets: [
-      {
-        label: "Count",
-        data: dashboardData.map((d) => d.value),
-        backgroundColor: [
-          brand500, // Brand 500
-          brand600, // Brand 600
-          brand900, // Brand 900
-        ],
-        hoverBackgroundColor: [
-          brand600,
-          brand900,
-          brand500,
-        ],
+  const weeklyGrowthData = useMemo(() => {
+    const growth = count?.data?.growth || [];
+    return {
+      labels: growth.map((g: any) => {
+        const date = new Date(g._id);
+        return date.toLocaleDateString('en-US', { weekday: 'short' });
+      }),
+      datasets: [{
+        label: "New Users",
+        data: growth.map((g: any) => g.count),
+        backgroundColor: "rgba(49, 130, 206, 0.8)",
         borderRadius: 8,
-        barThickness: 45,
-        borderWidth: 0,
-      },
-    ],
+        barThickness: 30,
+      }]
+    };
+  }, [count?.data?.growth]);
+
+  const lineChartData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    datasets: [{
+      label: "Growth",
+      data: [50, 230, 180, 210, 230, 370, 350],
+      borderColor: "#3182ce",
+      backgroundColor: "rgba(49, 130, 206, 0.1)",
+      fill: true,
+    }]
   };
 
+  const currentDate = useMemo(() => {
+    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+  }, []);
+
   return (
-    <Box p={5} minH="100vh">
-      <Box mx="auto">
-        <Heading mb={8} size="lg" color="blue.800" letterSpacing="tight">
-          Dashboard
-        </Heading>
+    <Box p={8} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
+      {/* Premium Background Glows */}
+      <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="blue.500" filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
+      <Box position="absolute" bottom="0" right="-10%" w="600px" h="600px" bg="purple.500" filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
 
-        {/* Cards Section */}
-        <Box mb={10}>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-            {dashboardData.map((item, index) => (
-              <Skeleton
-                isLoaded={!count?.loading}
-                key={index}
-                borderRadius="xl"
-              >
-                <DashboardCard
-                  label={item.label}
-                  href={item.href}
-                  value={item.value}
-                  icon={item.icon}
-                  color={item.color}
-                />
-              </Skeleton>
-            ))}
-          </SimpleGrid>
-        </Box>
+      <Box mx="auto" position="relative" zIndex={1}>
+        <Flex justify="space-between" align="center" mb={12}>
+          <Box>
+            <Text fontSize="xs" fontWeight="900" color="blue.500" textTransform="uppercase" letterSpacing="widest" mb={1}>{currentDate}</Text>
+            <Heading size="xl" letterSpacing="tight" color={useColorModeValue("gray.900", "white")}>
+              Welcome back, {user?.name?.split(' ')[0] || "Admin"}! 👋
+            </Heading>
+            <Text color="gray.500" fontWeight="600" mt={1}>Here is your clinic analytics overview.</Text>
+          </Box>
+        </Flex>
 
-        {/* Charts Section */}
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8} mb={12}>
+          {dashboardData.map((item, index) => (
+            <Skeleton isLoaded={!count?.loading} key={index} borderRadius="3xl">
+              <DashboardCard {...item} />
+            </Skeleton>
+          ))}
+        </SimpleGrid>
+
         <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} mb={10}>
-          {/* Bar Chart */}
-          <Box
-            bg="white"
-            p={6}
-            borderRadius="xl"
-            boxShadow="lg"
-            border="1px solid"
-            borderColor="gray.100"
-          >
-            <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
-              Users Overview
-            </Text>
+          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+            <Flex justify="space-between" align="center" mb={8}>
+              <Box>
+                <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, blue.400, cyan.400)" bgClip="text">Weekly Growth</Text>
+                <Text fontSize="xs" color="gray.500" fontWeight="700">New arrivals across all categories</Text>
+              </Box>
+              <Box p={2.5} bg="blue.50" color="blue.500" borderRadius="xl">
+                <Icon as={FaClipboardList} boxSize={5} />
+              </Box>
+            </Flex>
             <AspectRatio ratio={16 / 9} width="100%">
-              <Bar data={userChartData} options={barChartOptions} />
+              <Bar data={weeklyGrowthData} options={barChartOptions} />
             </AspectRatio>
           </Box>
 
-          {/* Line Chart */}
-          <Box
-            bg="white"
-            p={6}
-            borderRadius="xl"
-            boxShadow="lg"
-            border="1px solid"
-            borderColor="gray.100"
-          >
-            <Text fontSize="lg" fontWeight="bold" mb={6} color="gray.700">
-              Patient Growth
-            </Text>
+          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+            <Flex justify="space-between" align="center" mb={8}>
+              <Box>
+                <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Patient Retention</Text>
+                <Text fontSize="xs" color="gray.500" fontWeight="700">Clinical performance trend</Text>
+              </Box>
+              <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
+                <Icon as={FaCalendarAlt} boxSize={5} />
+              </Box>
+            </Flex>
             <AspectRatio ratio={16 / 9} width="100%">
               <Line data={lineChartData} options={lineChartOptions} />
             </AspectRatio>
           </Box>
         </Grid>
+
+        <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
+          <Box position="absolute" top="-20px" left="20px" bg="blue.500" color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>
+          <Flex justify="space-between" align="center" mb={12} pt={4}>
+            <Box>
+              <Text fontSize="2xl" fontWeight="900" bgGradient="linear(to-r, blue.400, cyan.400, purple.400)" bgClip="text" mb={1}>Live Clinic Activity</Text>
+              <Text fontSize="sm" color="gray.500" fontWeight="700">Detailed overview of latest user registrations and registrations times.</Text>
+            </Box>
+          </Flex>
+
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+            {count?.data?.recentUsers?.map((u: any, idx: number) => {
+              const regDate = new Date(u.createdAt);
+              const formattedDate = regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+              const formattedTime = regDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              const dayName = regDate.toLocaleDateString('en-GB', { weekday: 'long' });
+              
+              const typeColors: any = {
+                doctor: { bg: "blue.50", color: "blue.600", icon: FaUserMd },
+                patient: { bg: "green.50", color: "green.600", icon: FaUserInjured },
+                staff: { bg: "purple.50", color: "purple.600", icon: FaUserTie },
+                dealer: { bg: "orange.50", color: "orange.600", icon: FaStore },
+              };
+              const style = typeColors[u.userType?.toLowerCase()] || { bg: "gray.50", color: "gray.600", icon: FaArrowRight };
+
+              return (
+                <MotionBox
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    ease: "easeInOut",
+                    delay: idx * 0.1 
+                  }}
+                  p={6}
+                  bg={useColorModeValue("gray.50", "whiteAlpha.50")}
+                  borderRadius="2xl"
+                  borderWidth="1px"
+                  borderColor="transparent"
+                  _hover={{ borderColor: style.color, transform: 'translateY(-4px)', boxShadow: 'xl', bg: useColorModeValue("white", "whiteAlpha.100") }}
+                >
+                  <Flex gap={5} align="start">
+                    <Box position="relative">
+                      <Avatar size="lg" src={u.pic?.url} name={u.name} borderRadius="2xl" border="3px solid" borderColor={style.color} />
+                      <Box position="absolute" bottom="-2px" right="-2px" boxSize={6} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={useColorModeValue("white", "gray.800")}>
+                        <Icon as={style.icon} boxSize={3} />
+                      </Box>
+                    </Box>
+                    <Box flex={1}>
+                      <Flex justify="space-between" align="start">
+                         <Box>
+                            <Text fontSize="lg" fontWeight="900" color={useColorModeValue("gray.800", "white")} mb={1}>{u.name}</Text>
+                            <Badge variant="subtle" colorScheme={style.color.split('.')[0]} fontSize="10px" px={3} py={0.5} borderRadius="full" fontWeight="900" textTransform="uppercase" letterSpacing="1px">{u.userType}</Badge>
+                         </Box>
+                         <VStack align="end" spacing={0}>
+                            <Text fontSize="xs" fontWeight="900" color={style.color}>{dayName}</Text>
+                            <Text fontSize="14px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")}>{formattedTime}</Text>
+                            <Text fontSize="10px" fontWeight="700" color="gray.400">{formattedDate}</Text>
+                         </VStack>
+                      </Flex>
+                      <Divider my={4} opacity={0.3} />
+                      <Flex align="center" gap={1}>
+                        <Box boxSize={1.5} borderRadius="full" bg="green.400" boxShadow="0 0 8px #48BB78" />
+                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Status: Active</Text>
+                      </Flex>
+                    </Box>
+                  </Flex>
+                </MotionBox>
+              );
+            })}
+          </SimpleGrid>
+        </Box>
       </Box>
     </Box>
   );
