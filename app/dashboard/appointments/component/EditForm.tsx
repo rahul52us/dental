@@ -58,6 +58,23 @@ const ring = keyframes`
   70%  { box-shadow: 0 0 0 10px rgba(56, 178, 172, 0); }
   100% { box-shadow: 0 0 0 0 rgba(56, 178, 172, 0); } `
 
+const pulse = keyframes`
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+`;
+
+const PulsingIndicator = () => (
+  <Box
+    w="10px"
+    h="10px"
+    bg="red.500"
+    borderRadius="full"
+    animation={`${pulse} 0.8s infinite steps(10)`}
+    boxShadow="0 0 12px rgba(255, 0, 0, 0.8)"
+  />
+);
+
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
   patient: Yup.mixed().required("Patient is required"),
@@ -703,6 +720,9 @@ const EditAppointmentForm = observer(
                             }
                             error={errors.shiftOrCancelledReason as string}
                             showError={touched.shiftOrCancelledReason}
+                            labelRightElement={<PulsingIndicator />}
+                            required
+                            highAttention
                           />
                         )}
                       </Box>
@@ -782,7 +802,7 @@ const EditAppointmentForm = observer(
                     </SectionCard>
                     <Flex
                       align="center"
-                      justify="space-between"
+                      // justify="space-between"
                       p={3}
                       borderRadius="md"
                       bg="gray.50"
@@ -790,7 +810,7 @@ const EditAppointmentForm = observer(
                       borderColor="gray.200"
                     >
                       <Text fontSize="md" fontWeight="semibold">
-                        Show Other Appointment Details
+                        Online & Offline
                       </Text>
 
                       {/* Arrow + Switch */}

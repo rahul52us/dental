@@ -28,6 +28,7 @@ import {
   Checkbox,
   Button,
   HStack,
+  Text,
 } from "@chakra-ui/react";
 import Select from "react-select";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
@@ -36,6 +37,7 @@ import "react-phone-input-2/lib/style.css";
 import debounce from "lodash.debounce";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
+import { keyframes } from "@emotion/react";
 
 interface CustomInputProps {
   type?:
@@ -90,6 +92,9 @@ interface CustomInputProps {
   parentStyle?: any;
   shouldUpdateSelectWithValue?: any;
   labelBg?: string;
+  labelSx?: any;
+  labelRightElement?: React.ReactNode;
+  highAttention?: boolean;
 }
 
 const CustomInput: React.FC<CustomInputProps> = observer(({
@@ -122,11 +127,14 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
   parentStyle = {},
   shouldUpdateSelectWithValue = false,
   labelBg,
+  labelSx,
+  labelRightElement,
+  highAttention,
   ...rest
 }) => {
   const { themeStore: { themeConfig } } = stores;
   const defaultLabelBg = useColorModeValue(
-    themeConfig.colors.custom.light.primary, 
+    themeConfig.colors.custom.light.primary,
     themeConfig.colors.custom.dark.primary
   );
   const finalLabelBg = labelBg || defaultLabelBg;
@@ -891,20 +899,44 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
   return (
     <FormControl id={name} isInvalid={!!error && showError} style={parentStyle}>
       {label && (
-        <FormLabel 
-          color="black" 
-          fontWeight="bold" 
-          bg={finalLabelBg} 
-          px={3} 
-          py={0.5} 
-          borderRadius="full" 
-          mb={2} 
-          width="fit-content"
-          fontSize="xs"
-          textTransform="uppercase"
-          letterSpacing="wider"
+        <FormLabel
+          display="flex"
+          alignItems="center"
+          gap={2}
+          mb={2}
+          {...labelSx}
         >
-          {label} {required && <span style={{ color: "red" }}>*</span>}
+          <Box position="relative">
+            {required && (
+              <Box
+                position="absolute"
+                top="-9px"
+                right="-10px"
+                zIndex={1}
+              >
+                <Text color="red.500" fontWeight="black" fontSize="md">*</Text>
+              </Box>
+            )}
+            <Box
+              bg={finalLabelBg}
+              px={3}
+              py={0.5}
+              borderRadius="full"
+              width="fit-content"
+            >
+              <Text
+                color="black"
+                fontWeight="bold"
+                fontSize="xs"
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
+                {label}
+              </Text>
+            </Box>
+          </Box>
+
+          {labelRightElement}
         </FormLabel>
       )}
       {renderInputComponent()}

@@ -484,7 +484,7 @@ const AddAppointmentForm = observer(
                     </SectionCard>
                     <Flex
                       align="center"
-                      justify="space-between"
+                      // justify="space-between"
                       p={3}
                       borderRadius="md"
                       bg="gray.50"
@@ -492,7 +492,7 @@ const AddAppointmentForm = observer(
                       borderColor="gray.200"
                     >
                       <Text fontSize="md" fontWeight="semibold">
-                        Show Other Appointment Details
+                        Online & Offline
                       </Text>
 
                       <Switch

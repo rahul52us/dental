@@ -35,6 +35,24 @@ import { appointmentReason } from "../utils/constant";
 import ScrollToFormikError from "../../../component/common/ScrollToFormikError/ScrollToFormikError";
 import { ChevronDownIcon, InfoIcon } from "@chakra-ui/icons";
 import AppointmentHistoryModal from "./AppointmentHistoryModal";
+import { keyframes } from "@emotion/react";
+
+const pulse = keyframes`
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+`;
+
+const PulsingIndicator = () => (
+  <Box
+    w="10px"
+    h="10px"
+    bg="red.500"
+    borderRadius="full"
+    animation={`${pulse} 0.8s infinite steps(10)`}
+    boxShadow="0 0 12px rgba(255, 0, 0, 0.8)"
+  />
+);
 
 const validationSchema = Yup.object().shape({
   primaryDoctor: Yup.mixed().required("Primary doctor is required"),
@@ -604,6 +622,9 @@ const AddAppointmentForm = observer(
                             }
                             error={errors.shiftOrCancelledReason as string}
                             showError={touched.shiftOrCancelledReason}
+                            labelRightElement={<PulsingIndicator />}
+                            required
+                            highAttention
                           />
                         )}
                       </Box>
@@ -681,7 +702,7 @@ const AddAppointmentForm = observer(
                     </SectionCard>
                     <Flex
                       align="center"
-                      justify="space-between"
+                      // justify="space-between"
                       p={3}
                       borderRadius="md"
                       bg="gray.50"
@@ -689,7 +710,7 @@ const AddAppointmentForm = observer(
                       borderColor="gray.200"
                     >
                       <Text fontSize="md" fontWeight="semibold">
-                        Show Other Appointment Details
+                        Online & Offline
                       </Text>
 
                       {/* Arrow + Switch */}
