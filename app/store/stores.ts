@@ -13,6 +13,7 @@ import { appointmentStore } from "./appointmentsStore/appointmentStore";
 import { dashboardStore } from "./dashboardStore/dashboardStore";
 import {EventStore} from './eventStore/eventStore'
 import { labStore } from "./labStore/labStore";
+import { dealerStore } from "./dealerStore/dealerStore";
 import {doctorAppointment} from './doctorAppointmentStore/doctorAppointmentStore'
 import { chairsStore } from "./chairsStore/chairsStore";
 import {toothTreatmentStore} from './toothTreatmentStore/toothTreatmentStore'
@@ -22,7 +23,8 @@ const stores = {
   auth : authStore,
   dashboardStore : dashboardStore,
   userStore : userStore,
-  labStore:labStore,
+  labStore: labStore,
+  dealerStore: dealerStore,
   appointmentStore : appointmentStore,
   bookingStore : bookingStore,
   themeStore : themeStore,

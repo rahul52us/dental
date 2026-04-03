@@ -7,17 +7,14 @@ import {
   Skeleton,
   Text,
   AspectRatio,
-  useToken,
   Flex,
-  Button,
-  VStack,
-  Spacer,
   Icon,
   useColorModeValue,
   Avatar,
   Badge,
   HStack,
   Divider,
+  VStack,
 } from "@chakra-ui/react";
 import {
   BarElement,
@@ -38,7 +35,6 @@ import {
   FaUserTie,
   FaStore,
   FaCalendarAlt,
-  FaPlus,
   FaClipboardList,
   FaArrowRight
 } from "react-icons/fa";
@@ -46,7 +42,7 @@ import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
 import stores from "../../../store/stores";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 ChartJS.register(
   CategoryScale,
@@ -61,7 +57,6 @@ ChartJS.register(
 );
 
 const MotionBox = motion(Box);
-const MotionFlex = motion(Flex);
 
 const barChartOptions: any = {
   responsive: true,
@@ -137,16 +132,28 @@ const Dashboard = observer(() => {
     };
   }, [count?.data?.growth]);
 
-  const lineChartData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-    datasets: [{
-      label: "Growth",
-      data: [50, 230, 180, 210, 230, 370, 350],
-      borderColor: "#3182ce",
-      backgroundColor: "rgba(49, 130, 206, 0.1)",
-      fill: true,
-    }]
-  };
+  const lineChartData = useMemo(() => {
+    const trends = count?.data?.appointmentTrends || [];
+    return {
+      labels: trends.map((t: any) => {
+        const [year, month] = (t._id || "").split("-");
+        const date = new Date(parseInt(year), parseInt(month) - 1);
+        return date.toLocaleDateString("en-US", { month: "short" });
+      }),
+      datasets: [
+        {
+          label: "Completed Appointments",
+          data: trends.map((t: any) => t.count),
+          borderColor: "#2D3748",
+          backgroundColor: "rgba(49, 151, 149, 0.2)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: "#319795",
+        },
+      ],
+    };
+  }, [count?.data?.appointmentTrends]);
 
   const currentDate = useMemo(() => {
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
