@@ -14,6 +14,8 @@ import {
   Icon,
   Portal,
   useDisclosure,
+  Badge,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import {
@@ -61,38 +63,77 @@ const HeaderProfile = observer(() => {
           variant="ghost"
         />
         <Portal>
-          <MenuList minWidth="220px" boxShadow="md" borderRadius="md" zIndex={10} p={2}>
-            <VStack spacing={2}>
-              <Box textAlign="center">
-                <Avatar src={user?.pic?.url || undefined} size="lg" name={user?.name} />
-                <Text mt={2} fontWeight="bold">{user?.name}</Text>
-                <Text mt={0.5} fontWeight="xl" fontSize="sm" cursor="pointer">
-                  {WEBSITE_TITLE?.split('-').join(' ')}
+          <MenuList 
+            minWidth="240px" 
+            boxShadow="0 10px 40px rgba(0,0,0,0.1)" 
+            borderRadius="2xl" 
+            zIndex={10} 
+            p={2}
+            bg={useColorModeValue("rgba(255, 255, 255, 0.95)", "rgba(23, 25, 35, 0.95)")}
+            backdropFilter="blur(15px)"
+            border="1px solid"
+            borderColor={useColorModeValue("gray.100", "whiteAlpha.100")}
+          >
+            <VStack spacing={3} py={1}>
+              <Box textAlign="center" pt={4} pb={2}>
+                <Avatar src={user?.pic?.url || undefined} size="xl" name={user?.name} border="4px solid" borderColor={useColorModeValue("white", "gray.800")} shadow="lg" />
+                <Text mt={3} fontWeight="800" fontSize="lg" color={useColorModeValue("gray.800", "white")}>{user?.name}</Text>
+                <Text mt={0.5} fontWeight="700" fontSize="xs" color="gray.500" letterSpacing="wide">
+                  {WEBSITE_TITLE?.split("-").join(" ")}
                 </Text>
               </Box>
-              <Divider />
-              {user && pathname !== main.home && (
-                <MenuItem onClick={() => router.push(main.home)}>
-                  <FaHome style={{ marginRight: "8px" }} /> Home
+              
+              <Divider borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} />
+              
+              <Box width="100%" px={1}>
+                {user && pathname !== main.home && (
+                  <MenuItem 
+                    icon={<FaHome />} 
+                    onClick={() => router.push(main.home)}
+                    borderRadius="lg"
+                    py={2.5}
+                    _hover={{ bg: useColorModeValue("brand.50", "whiteAlpha.100"), color: "brand.500" }}
+                  >
+                    <Text fontWeight="700">Home</Text>
+                  </MenuItem>
+                )}
+                <MenuItem 
+                  icon={<FaCog />} 
+                  onClick={() => setProfileModal(true, 2)}
+                  borderRadius="lg"
+                  py={2.5}
+                  _hover={{ bg: useColorModeValue("brand.50", "whiteAlpha.100"), color: "brand.500" }}
+                >
+                  <Text fontWeight="700">Profile Settings</Text>
                 </MenuItem>
-              )}
-              <MenuItem
-               onClick={() => setProfileModal(true, 2)}
-              >
-                <FaCog style={{ marginRight: "8px" }} /> Profile Settings
-              </MenuItem>
-              <MenuItem onClick={onOpen}>
-                <FaLock style={{ marginRight: "8px" }} /> Change Password
-              </MenuItem>
-              <Divider />
-              <MenuItem
-                onClick={() => {
-                  doLogout();
-                  router.push(authentication.login);
-                }}
-              >
-                <FaSignOutAlt style={{ marginRight: "8px" }} /> Logout
-              </MenuItem>
+                <MenuItem 
+                  icon={<FaLock />} 
+                  onClick={onOpen}
+                  borderRadius="lg"
+                  py={2.5}
+                  _hover={{ bg: useColorModeValue("brand.50", "whiteAlpha.100"), color: "brand.500" }}
+                >
+                  <Text fontWeight="700">Change Password</Text>
+                </MenuItem>
+              </Box>
+
+              <Divider borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} />
+              
+              <Box width="100%" px={1} pt={1}>
+                <MenuItem
+                  icon={<FaSignOutAlt />}
+                  color="red.500"
+                  borderRadius="lg"
+                  py={2.5}
+                  _hover={{ bg: "red.50" }}
+                  onClick={() => {
+                    doLogout();
+                    router.push(authentication.login);
+                  }}
+                >
+                  <Text fontWeight="800">Logout</Text>
+                </MenuItem>
+              </Box>
             </VStack>
           </MenuList>
         </Portal>
