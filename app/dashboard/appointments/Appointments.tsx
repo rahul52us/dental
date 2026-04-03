@@ -8,8 +8,10 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  Divider,
   Flex,
   HStack,
+  Icon,
   Text,
   useColorModeValue,
   VStack
@@ -39,6 +41,7 @@ import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
 import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
 import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
+import { FaClipboardList } from "react-icons/fa";
 
 const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: any) => {
   const {
@@ -613,9 +616,16 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
           })
         }
         title={
-          selectedDateAndTime
-            ? `Selected: ${moment(selectedDateAndTime.start).format("ddd, DD MMM YYYY")} ${isPatient && patientDetails?.name ? `(${patientDetails.name})` : ""}`
-            : "Select a date"
+          <Flex align="center" gap={3}>
+            <Icon as={FaClipboardList} boxSize={5} />
+            <Text fontSize="xl" fontWeight="900">
+               {selectedDateAndTime?.type === "edit" ? "Edit Appointment" : "Add Appointment"}
+            </Text>
+            <Divider orientation="vertical" h="20px" borderColor="whiteAlpha.400" />
+            <Text fontSize="lg" fontWeight="700" color="whiteAlpha.900" noOfLines={1}>
+               {isPatient ? patientDetails?.name : (selectedDateAndTime?.data?.patientName || "Select Patient")}
+            </Text>
+          </Flex>
         }
       >
         <Box p={2}>

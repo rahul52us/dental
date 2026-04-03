@@ -84,9 +84,6 @@ const HeaderProfile = observer(() => {
               <MenuItem onClick={onOpen}>
                 <FaLock style={{ marginRight: "8px" }} /> Change Password
               </MenuItem>
-              <MenuItem onClick={() => setProfileModal(true, 3)}>
-                <FaPalette style={{ marginRight: "8px" }} /> Customize Theme
-              </MenuItem>
               <Divider />
               <MenuItem
                 onClick={() => {
