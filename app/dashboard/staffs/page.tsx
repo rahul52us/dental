@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
+import { observer } from "mobx-react-lite";
 import Form from "./component/Form";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/staffs/component/DeleteUser";
@@ -19,7 +20,7 @@ import { replaceLabelValueObjects } from "../../config/utils/function";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import StaffTable from "./component/staffs/StaffTable";
 
-const StaffPage = () => {
+const StaffPage = observer(() => {
   const [formLoading, setFormLoading] = useState(false);
   const {
     userStore: { createUser, getAllUsers, updateUser },
@@ -196,12 +197,11 @@ const StaffPage = () => {
             >
               <DrawerCloseButton />
               <DrawerHeader
-                bg="teal.500"
+                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                 color="white"
                 fontSize="lg"
                 fontWeight="bold"
                 textAlign="center"
-                bgGradient="linear(to-r, blue.400, purple.400)"
               >
                 {isDrawerOpen?.type === "edit" ? "Edit staffs" : "Add staffs"}
               </DrawerHeader>
@@ -246,6 +246,6 @@ const StaffPage = () => {
       )}
     </Box>
   );
-};
+});
 
 export default StaffPage;

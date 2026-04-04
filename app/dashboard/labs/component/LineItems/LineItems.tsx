@@ -328,7 +328,7 @@ const LineItems = observer(({ data }: any) => {
         <DrawerOverlay />
         <DrawerContent minW={{ md: "60vw", sm: "100vw" }}>
           <DrawerCloseButton />
-          <DrawerHeader bg="blue.500" color="white">
+          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
               Line Item Details
@@ -455,13 +455,13 @@ const LineItems = observer(({ data }: any) => {
                     p={4}
                     borderWidth="1px"
                     borderRadius="md"
-                    bg="teal.50"
+                    bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"}
                     textAlign="center"
                   >
                     <Text fontSize="sm" color="gray.600">
                       Total
                     </Text>
-                    <Text fontSize="2xl" fontWeight="bold" color="teal.600">
+                    <Text fontSize="2xl" fontWeight="bold" color={stores.themeStore.themeConfig.colors.custom.light.primary}>
                       {values.total || 0}
                     </Text>
                   </Box>
@@ -471,7 +471,9 @@ const LineItems = observer(({ data }: any) => {
                     Cancel
                   </Button>
                   <Button
-                    colorScheme="teal"
+                    bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                    color="white"
+                    _hover={{ filter: "brightness(0.9)" }}
                     type="submit"
                     isLoading={formLoading}
                     loadingText="Saving..."

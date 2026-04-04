@@ -8,8 +8,10 @@ import {
 } from "@chakra-ui/react";
 import { initialValues } from "../../utils/constant";
 import Form from "../../Form";
+import { observer } from "mobx-react-lite";
+import stores from "../../../../../store/stores";
 
-const AddPatientDrawer = ({
+const AddPatientDrawer = observer(({
   isDrawerOpen,
   setIsDrawerOpen,
   handleAddSubmit,
@@ -39,12 +41,11 @@ const AddPatientDrawer = ({
         >
           <DrawerCloseButton />
           <DrawerHeader
-            bg="teal.500"
+            bg={stores.themeStore.themeConfig.colors.custom.light.primary}
             color="white"
             fontSize="lg"
             fontWeight="bold"
             textAlign="center"
-            bgGradient="linear(to-r, blue.400, purple.400)"
           >
             {isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
           </DrawerHeader>
@@ -75,6 +76,6 @@ const AddPatientDrawer = ({
       </DrawerOverlay>
     </Drawer>
   );
-};
+});
 
 export default AddPatientDrawer;

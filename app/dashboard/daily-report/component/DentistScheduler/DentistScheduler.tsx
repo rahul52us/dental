@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import stores from "../../../../store/stores";
+import { observer } from "mobx-react-lite";
 import { SLOT_DURATION } from "../../utils/constant";
 import { format } from "date-fns";
 import AppointmentDetailsView from "../../../appointments/element/AppointmentDetailsView";
@@ -477,7 +478,7 @@ const ScheduleGrid = ({
                         aria-label="Add appointment"
                         size="lg"
                         borderRadius="full"
-                        bg="blue.500"
+                        bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                         color="white"
                         icon={<Text fontSize="2xl">+</Text>}
                         onClick={() =>
@@ -503,7 +504,7 @@ const ScheduleGrid = ({
 
 /* ---------------------- MAIN ---------------------- */
 
-export default function DentistScheduler({
+export default observer(function DentistScheduler({
   handleTimeSlots,
   selectedDate,
   setSelectedDate,
@@ -642,4 +643,4 @@ export default function DentistScheduler({
       </CustomDrawer>
     </>
   );
-}
+});

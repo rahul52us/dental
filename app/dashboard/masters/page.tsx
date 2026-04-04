@@ -181,10 +181,10 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
   };
 
   return (
-    <Flex direction={{ base: 'column', md: 'row' }} h="100%" bgGradient="linear(to-br, blue.100, blue.50)" overflow="hidden" p={4} gap={4}>
+    <Flex direction={{ base: 'column', md: 'row' }} h="100%" bg={stores.themeStore.themeConfig.colors.custom.light.primary + "0D"} overflow="hidden" p={4} gap={4}>
       {/* Sidebar */}
       {showSidebar && (
-      <Box w={{ base: '100%', md: isSidebarOpen ? '280px' : '70px' }} bg="blue.500" color="white" borderRadius="2xl" boxShadow="lg" p={4} transition="all 0.3s ease">
+      <Box w={{ base: '100%', md: isSidebarOpen ? '280px' : '70px' }} bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" borderRadius="2xl" boxShadow="lg" p={4} transition="all 0.3s ease">
         <HStack justify="space-between" mb={4}>
           {isSidebarOpen && <Heading size="md">Categories</Heading>}
           <IconButton aria-label="Toggle sidebar" icon={<HamburgerIcon />} variant="ghost" color="white" onClick={toggleSidebar} />
@@ -197,7 +197,8 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
                 justifyContent="space-between"
                 onClick={() => setSelectedCategory(cat)}
                 colorScheme={selectedCategory === cat ? 'blue' : 'whiteAlpha'}
-                bg={selectedCategory === cat ? 'blue.600' : 'transparent'}
+                bg={selectedCategory === cat ? stores.themeStore.themeConfig.colors.custom.light.primary + "33" : 'transparent'}
+                border={selectedCategory === cat ? "1px solid white" : "none"}
                 borderRadius="lg"
               >
                 {cat}
@@ -215,7 +216,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
               />
               <FormErrorMessage>{errors.category}</FormErrorMessage>
             </FormControl>
-            <Button leftIcon={<AddIcon />} size="sm" mt={2} colorScheme="blue" variant="solid" onClick={handleAddCategory}>
+            <Button leftIcon={<AddIcon />} size="sm" mt={2} bg="white" color={stores.themeStore.themeConfig.colors.custom.light.primary} _hover={{ bg: "gray.100" }} variant="solid" onClick={handleAddCategory}>
               Add
             </Button>
           </VStack>
@@ -235,7 +236,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
         ) : (
           <>
             <HStack justify="space-between" mb={6}>
-              <Heading size="lg" color="blue.700">{selectedCategory}</Heading>
+              <Heading size="lg" color={stores.themeStore.themeConfig.colors.custom.light.primary}>{selectedCategory}</Heading>
               <Tooltip label="Delete category">
                 <IconButton
                   icon={<DeleteIcon />}
@@ -270,7 +271,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
                   </FormControl>
                   <Flex align="end">
                     <HStack>
-                      <Button colorScheme="blue" onClick={handleAddOrUpdate}>{editing ? 'Update' : 'Add'}</Button>
+                      <Button bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" _hover={{ filter: "brightness(0.9)" }} onClick={handleAddOrUpdate}>{editing ? 'Update' : 'Add'}</Button>
                       {editing && (
                         <Button variant="outline" colorScheme="gray" onClick={() => { setEditing(null); setOptionName(''); setCode(''); }}>Cancel</Button>
                       )}
@@ -311,7 +312,9 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
             {/* Save Button */}
             <Flex justify="center" mt={4}>
               <Button
-                colorScheme="blue"
+                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                color="white"
+                _hover={{ filter: "brightness(0.9)" }}
                 size="lg"
                 borderRadius="full"
                 px={10}

@@ -145,7 +145,7 @@ const LineItems = observer(({ data }: any) => {
       key: "total",
       type: "component",
       metaData: {
-        component: (dt: any) => <Text fontWeight="black" color="blue.600">₹{dt.total}</Text>
+        component: (dt: any) => <Text fontWeight="black" color={stores.themeStore.themeConfig.colors.custom.light.primary}>₹{dt.total}</Text>
       }
     },
     {
@@ -294,7 +294,7 @@ const LineItems = observer(({ data }: any) => {
         <DrawerOverlay backdropFilter="blur(4px)" />
         <DrawerContent minW={{ md: "60vw", sm: "100vw" }}>
           <DrawerCloseButton />
-          <DrawerHeader bgGradient="linear(to-r, blue.500, blue.700)" color="white">
+          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
             <Flex align="center" gap={3}>
               <Icon as={GiPsychicWaves} size="24px" />
               Line Item Overview
@@ -365,7 +365,7 @@ const LineItems = observer(({ data }: any) => {
                     </VStack>
                   </Box>
 
-                  <Box p={6} bg="white" borderRadius="2xl" shadow="inner" border="1px dashed" borderColor="blue.100">
+                  <Box p={6} bg="white" borderRadius="2xl" shadow="inner" border="1px dashed" borderColor={stores.themeStore.themeConfig.colors.custom.light.primary + "33"}>
                     <SimpleGrid columns={2} spacing={8}>
                       <CustomInput
                         name="quantity"
@@ -399,7 +399,7 @@ const LineItems = observer(({ data }: any) => {
                       mt={8}
                       p={5}
                       borderRadius="2xl"
-                      bgGradient="linear(to-br, teal.400, teal.600)"
+                      bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                       color="white"
                       textAlign="center"
                       shadow="xl"
@@ -424,14 +424,10 @@ const LineItems = observer(({ data }: any) => {
                         Dismiss
                       </Button>
                       <Button
-                        colorScheme="blue"
+                        bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                        color="white"
+                        _hover={{ filter: "brightness(0.9)", shadow: "lg" }}
                         type="submit"
-                        isLoading={formLoading}
-                        loadingText="Processing..."
-                        px={10}
-                        borderRadius="xl"
-                        bgGradient="linear(to-r, blue.400, blue.600)"
-                        _hover={{ bgGradient: "linear(to-r, blue.500, blue.700)", shadow: "lg" }}
                         shadow="md"
                       >
                         {editData ? "Confirm Update" : "Establish Entry"}

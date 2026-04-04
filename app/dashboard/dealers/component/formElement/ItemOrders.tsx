@@ -16,6 +16,8 @@ import {
   Flex,
   Icon,
 } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import stores from "../../../../store/stores";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import { motion } from "framer-motion";
@@ -40,7 +42,7 @@ interface ItemOrderingInputProps {
   touched?: any;
 }
 
-const ItemOrderingInput = ({
+const ItemOrderingInput = observer(({
   values,
   setFieldValue,
   errors,
@@ -86,7 +88,7 @@ const ItemOrderingInput = ({
           left={0}
           w="100%"
           h="3px"
-          bgGradient="linear(to-r, blue.400, purple.400)"
+          bg={stores.themeStore.themeConfig.colors.custom.light.primary}
         />
         
         <FieldArray name="items">
@@ -171,7 +173,7 @@ const ItemOrderingInput = ({
                           />
                         </Td>
                         <Td isNumeric>
-                          <Text fontWeight="black" color="blue.600">
+                          <Text fontWeight="black" color={stores.themeStore.themeConfig.colors.custom.light.primary}>
                             ₹{item.total || 0}
                           </Text>
                         </Td>
@@ -198,10 +200,10 @@ const ItemOrderingInput = ({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   leftIcon={<AddIcon />}
-                  bgGradient="linear(to-r, blue.400, blue.600)"
+                  bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                   color="white"
                   shadow="md"
-                  _hover={{ shadow: "lg", bgGradient: "linear(to-r, blue.500, blue.700)" }}
+                  _hover={{ shadow: "lg", filter: "brightness(0.9)" }}
                   size="md"
                   borderRadius="xl"
                   px={8}
@@ -221,7 +223,7 @@ const ItemOrderingInput = ({
                 <MotionBox
                   p={4}
                   borderRadius="2xl"
-                  bgGradient="linear(to-br, blue.600, purple.700)"
+                  bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                   color="white"
                   shadow="2xl"
                   minW="220px"
@@ -252,6 +254,6 @@ const ItemOrderingInput = ({
       </Box>
     </GridItem>
   );
-};
+});
 
 export default ItemOrderingInput;

@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { readFileAsBase64 } from "../../config/utils/utils";
 import stores from "../../store/stores";
+import { observer } from "mobx-react-lite";
 import Form from "./component/Form";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/Doctors/component/DeleteUser";
@@ -19,7 +20,7 @@ import DoctorsTable from "./component/Doctors/DoctorTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 import { tablePageLimit } from "../../component/config/utils/variable";
 
-const DoctorsPage = () => {
+const DoctorsPage = observer(() => {
   const [formLoading, setFormLoading] = useState(false);
   const {
     userStore: { createUser, getAllUsers, updateUser },
@@ -188,12 +189,11 @@ const DoctorsPage = () => {
             >
               <DrawerCloseButton />
               <DrawerHeader
-                bg="teal.500"
+                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                 color="white"
                 fontSize="lg"
                 fontWeight="bold"
                 textAlign="center"
-                bgGradient="linear(to-r, blue.400, purple.400)"
               >
                 {isDrawerOpen?.type === "edit" ? "Edit Doctors" : "Add Doctors"}
               </DrawerHeader>
@@ -235,6 +235,6 @@ const DoctorsPage = () => {
       )}
     </Box>
   );
-};
+});
 
 export default DoctorsPage;

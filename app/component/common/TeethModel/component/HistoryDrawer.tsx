@@ -11,12 +11,14 @@ import {
     Text,
     VStack
 } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import stores from "../../../../store/stores";
 
-export default function HistoryDrawer({
+const HistoryDrawer = observer(({
   isOpen,
   onClose,
   tooth,
-}: any) {
+}: any) => {
   if (!tooth) return null;
 
   const history = tooth.history || [];
@@ -26,9 +28,9 @@ export default function HistoryDrawer({
       <DrawerOverlay />
       <DrawerContent>
         <DrawerCloseButton />
-        <DrawerHeader borderBottom="1px solid #EDF2F7">
+        <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" borderBottom="1px solid #EDF2F7">
           Tooth #{tooth.number} — History
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="blue.50">
             {tooth.name}
           </Text>
         </DrawerHeader>
@@ -76,4 +78,4 @@ export default function HistoryDrawer({
       </DrawerContent>
     </Drawer>
   );
-}
+});

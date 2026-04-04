@@ -16,8 +16,9 @@ import Form from "./component/Form";
 import TherapistsTable from "./component/users/UserTable";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/users/component/DeleteUser";
+import { observer } from "mobx-react-lite";
 
-const TherapistPage = () => {
+const TherapistPage = observer(() => {
   const {
     userStore: { createUser, getAllUsers, updateUser },
   } = stores;
@@ -169,12 +170,11 @@ const TherapistPage = () => {
           >
             <DrawerCloseButton />
             <DrawerHeader
-              bg="teal.500"
+              bg={stores.themeStore.themeConfig.colors.custom.light.primary}
               color="white"
               fontSize="lg"
               fontWeight="bold"
               textAlign="center"
-              bgGradient="linear(to-r, blue.400, purple.400)"
             >
               {isDrawerOpen?.type === "edit"
                 ? "Edit Therapist"
@@ -216,6 +216,6 @@ const TherapistPage = () => {
       )}
     </Box>
   );
-};
+});
 
 export default TherapistPage;

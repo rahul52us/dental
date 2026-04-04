@@ -319,7 +319,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <DrawerContent>
             <DrawerCloseButton />
             <DrawerHeader
-              bgGradient="linear(to-r, teal.500, blue.500)"
+              bg={stores.themeStore.themeConfig.colors.custom.light.primary}
               color="white"
             >
               <Flex align="center" gap={3}>

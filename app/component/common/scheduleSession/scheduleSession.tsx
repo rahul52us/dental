@@ -100,11 +100,11 @@ const ScheduleSession: React.FC<ScheduleSessionProps> = ({ isOpen, onClose, data
     <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md", lg: "lg" }}>
       <ModalOverlay />
       <ModalContent maxW={{ base: "320px", md: "600px", lg: "720px" }} borderRadius="lg" boxShadow="lg" p={5}>
-        <ModalHeader textAlign="center" fontSize="xl" fontWeight="bold">
+        <ModalHeader textAlign="center" fontSize="xl" fontWeight="bold" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" p={4}>
           Book Your Appointment
         </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
+        <ModalCloseButton color="white" />
+        <ModalBody mt={4}>
           <VStack spacing={2} align="stretch">
             <FormControl>
               <FormLabel fontWeight="semibold">Full Name*</FormLabel>
@@ -112,7 +112,7 @@ const ScheduleSession: React.FC<ScheduleSessionProps> = ({ isOpen, onClose, data
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                focusBorderColor="blue.500"
+                focusBorderColor={stores.themeStore.themeConfig.colors.custom.light.primary}
                 autoComplete="name"
               />
             </FormControl>
@@ -124,7 +124,7 @@ const ScheduleSession: React.FC<ScheduleSessionProps> = ({ isOpen, onClose, data
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                focusBorderColor="blue.500"
+                focusBorderColor={stores.themeStore.themeConfig.colors.custom.light.primary}
                 autoComplete="tel"
               />
             </FormControl>
@@ -132,7 +132,14 @@ const ScheduleSession: React.FC<ScheduleSessionProps> = ({ isOpen, onClose, data
             {error && <Text color="red.500" fontSize="sm" fontWeight="medium" textAlign="center">{error}</Text>}
 
             <Checkbox
-              colorScheme="blue"
+              colorScheme="brand"
+              iconColor="white"
+              sx={{
+                '[data-checked]': {
+                   backgroundColor: stores.themeStore.themeConfig.colors.custom.light.primary,
+                   borderColor: stores.themeStore.themeConfig.colors.custom.light.primary,
+                }
+              }}
               isChecked={agree}
               onChange={(e) => setAgree(e.target.checked)}
             >
@@ -160,7 +167,7 @@ const ScheduleSession: React.FC<ScheduleSessionProps> = ({ isOpen, onClose, data
 
         <ModalFooter display="flex" justifyContent="center" gap={4}>
           <CustomButton
-            colorScheme="blue"
+            bg={stores.themeStore.themeConfig.colors.custom.light.primary}
             size="lg"
             w="full"
             borderRadius="md"

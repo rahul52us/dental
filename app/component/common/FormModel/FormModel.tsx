@@ -11,8 +11,10 @@ import {
   Divider,
   Box,
 } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import stores from "../../../store/stores";
 
-function FormModel({
+const FormModel = observer(({
   open,
   close,
   isCentered,
@@ -21,9 +23,10 @@ function FormModel({
   children,
   size,
   ...rest
-}: any) {
-  const headerBg = useColorModeValue("linear-gradient(135deg, #f8f9fa, #e9ecef)", "linear-gradient(135deg, #2d3748, #4a5568)");
-  const headerTextColor = useColorModeValue("gray.800", "white");
+}: any) => {
+  const { themeStore: { themeConfig } } = stores;
+  const headerBg = useColorModeValue(themeConfig.colors.custom.light.primary, "darkBrand.200");
+  const headerTextColor = "white";
   const borderColor = useColorModeValue("gray.300", "gray.600")
   return (
     <Modal isCentered={isCentered} size={size || "2xl"} isOpen={open} onClose={close} {...rest}>
@@ -47,9 +50,9 @@ function FormModel({
               <ModalCloseButton
                 size="lg"
                 borderRadius="full"
-                bg="red.500"
+                bg={headerBg}
                 color="white"
-                _hover={{ bg: "red.600", transform: "scale(1.1)" }}
+                _hover={{ filter: "brightness(0.9)", transform: "scale(1.1)" }}
                 _focus={{ boxShadow: "0 0 10px rgba(255, 0, 0, 0.5)" }}
                 transition="all 0.2s ease-in-out"
               />
@@ -73,6 +76,6 @@ function FormModel({
       </ModalContent>
     </Modal>
   );
-}
+});
 
 export default FormModel;

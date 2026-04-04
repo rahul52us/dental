@@ -15,6 +15,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useRef } from "react";
+import { observer } from "mobx-react-lite";
 import DrawerLoader from "../Loader/DrawerLoader";
 import stores from "../../../store/stores";
 
@@ -29,7 +30,7 @@ interface CustomDrawerProps {
   loading?: boolean;
 }
 
-const CustomDrawer: React.FC<CustomDrawerProps> = ({
+const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
   title,
   open,
   close,
@@ -48,8 +49,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
   const headerBgColor = useColorModeValue(
-    "brand.500",
-    "darkBrand.200"
+    themeConfig.colors.custom.light.primary,
+    themeConfig.colors.custom.dark.primary
   );
 
   const headerTextColor = "white";
@@ -95,12 +96,12 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             {/* 🔴 RED CIRCULAR CLOSE BUTTON */}
             <DrawerCloseButton
               position="relative"
-              bg="red.500"
+              bg={headerBgColor}
               color="white"
               borderRadius="full"
               size="lg"
-              _hover={{ bg: "red.600" }}
-              _active={{ bg: "red.700" }}
+              _hover={{ filter: "brightness(0.9)" }}
+              _active={{ filter: "brightness(0.8)" }}
               mb={2}
             />
           </Flex>
@@ -128,6 +129,6 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       </DrawerContent>
     </Drawer>
   );
-};
+});
 
 export default CustomDrawer;

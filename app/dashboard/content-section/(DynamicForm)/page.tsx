@@ -581,13 +581,13 @@ const MultiFormCreator = observer(() => {
             <Button
               onClick={handleSave}
               isLoading={isLoading}
-              colorScheme="blue"
+              bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+              color="white"
+              _hover={{ filter: "brightness(0.9)" }}
               size="lg"
               px={12}
               fontSize="lg"
               fontWeight="semibold"
-              bg="blue.500"
-              _hover={{ bg: "blue.600", transform: "scale(1.02)" }}
               transition="all 0.2s"
             >
               Save All Forms

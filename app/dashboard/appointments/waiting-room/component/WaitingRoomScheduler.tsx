@@ -13,11 +13,11 @@ import {
     Input,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import stores from "../../../../store/stores";
 import { SLOT_DURATION } from "../../../daily-report/utils/constant";
 import { format } from "date-fns";
 import AppointmentDetailsView from "../../element/AppointmentDetailsView";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
+import stores from "../../../../store/stores";
 
 /* ---------------------- HELPERS ---------------------- */
 

@@ -10,6 +10,8 @@ import {
     Text,
     Box,
 } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import stores from "../../../store/stores";
 
 interface FormDrawerProps {
     open: boolean;
@@ -20,16 +22,17 @@ interface FormDrawerProps {
     [key: string]: any;
 }
 
-function FormDrawer({
+const FormDrawer = observer(({
     open,
     close,
     title,
     children,
     size,
     ...rest
-}: FormDrawerProps) {
-    const headerBg = useColorModeValue("white", "gray.800");
-    const headerTextColor = useColorModeValue("gray.800", "white");
+}: FormDrawerProps) => {
+    const { themeStore: { themeConfig } } = stores;
+    const headerBg = useColorModeValue(themeConfig.colors.custom.light.primary, "gray.800");
+    const headerTextColor = "white";
     const borderColor = useColorModeValue("gray.100", "gray.700");
 
     return (
@@ -72,6 +75,6 @@ function FormDrawer({
             </DrawerContent>
         </Drawer>
     );
-}
+});
 
 export default FormDrawer;

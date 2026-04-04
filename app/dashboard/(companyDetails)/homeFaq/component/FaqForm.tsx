@@ -49,14 +49,13 @@ const homeFaq = observer(({ initialData, onSubmit, isOpen, onClose }: any) => {
       <DrawerContent w="70%" maxW="70%" boxShadow="xl" borderRadius="lg">
         <DrawerCloseButton />
         <DrawerHeader
-          bg="teal.500"
+          bg={stores.themeStore.themeConfig.colors.custom.light.primary}
           color="white"
           fontSize="lg"
           fontWeight="bold"
           textAlign="center"
-          bgGradient="linear(to-r, blue.400, purple.400)"
         >
-          {initialData?.username ? "Edit Home FAQ" : "Add Home FAQ"}
+          {initialData?.username ? "Edit FAQ" : "Add FAQ"}
         </DrawerHeader>
 
         <DrawerBody>
@@ -166,12 +165,14 @@ const homeFaq = observer(({ initialData, onSubmit, isOpen, onClose }: any) => {
 
                       {/* Add FAQ Button */}
                       <Button
-                        colorScheme="teal"
+                        bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                        color="white"
+                        _hover={{ filter: "brightness(0.9)" }}
                         onClick={() => push({ title: "", paragraph: "" })}
                         size="sm"
                         variant="solid"
                       >
-                        Add Home FAQ
+                        Add FAQ
                       </Button>
                     </>
                   )}
@@ -188,13 +189,14 @@ const homeFaq = observer(({ initialData, onSubmit, isOpen, onClose }: any) => {
                   </Button>
                   <Button
                     type="submit"
-                    colorScheme="teal"
+                    bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                    color="white"
                     isLoading={isSubmitting}
                     loadingText="Submitting"
                     size="lg"
-                    _hover={{ bg: "teal.500" }}
+                    _hover={{ filter: "brightness(0.9)" }}
                   >
-                    {initialData?.username ? "Update Home FAQ" : "Add Home FAQ"}
+                    {initialData?.username ? "Update FAQ" : "Add FAQ"}
                   </Button>
                 </Flex>
               </FormikForm>

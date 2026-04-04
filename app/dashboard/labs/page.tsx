@@ -165,12 +165,11 @@ const LabPage = observer(() => {
             >
               <DrawerCloseButton />
               <DrawerHeader
-                bg="teal.500"
+                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                 color="white"
                 fontSize="lg"
                 fontWeight="bold"
                 textAlign="center"
-                bgGradient="linear(to-r, blue.400, purple.400)"
               >
                 {isDrawerOpen?.type === "edit" ? "Edit Lab" : "Add Lab"}
               </DrawerHeader>

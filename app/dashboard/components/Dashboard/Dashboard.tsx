@@ -125,7 +125,7 @@ const Dashboard = observer(() => {
       datasets: [{
         label: "New Users",
         data: growth.map((g: any) => g.count),
-        backgroundColor: "rgba(49, 130, 206, 0.8)",
+        backgroundColor: stores.themeStore.themeConfig.colors.custom.light.primary + "CC",
         borderRadius: 8,
         barThickness: 30,
       }]
@@ -162,13 +162,13 @@ const Dashboard = observer(() => {
   return (
     <Box p={8} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
       {/* Premium Background Glows */}
-      <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="blue.500" filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
-      <Box position="absolute" bottom="0" right="-10%" w="600px" h="600px" bg="purple.500" filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
+      <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
+      <Box position="absolute" bottom="0" right="-10%" w="600px" h="600px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
 
       <Box mx="auto" position="relative" zIndex={1}>
         <Flex justify="space-between" align="center" mb={12}>
           <Box>
-            <Text fontSize="xs" fontWeight="900" color="blue.500" textTransform="uppercase" letterSpacing="widest" mb={1}>{currentDate}</Text>
+            <Text fontSize="xs" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} textTransform="uppercase" letterSpacing="widest" mb={1}>{currentDate}</Text>
             <Heading size="xl" letterSpacing="tight" color={useColorModeValue("gray.900", "white")}>
               Welcome back, {user?.name?.split(' ')[0] || "Admin"}! 👋
             </Heading>
@@ -188,10 +188,10 @@ const Dashboard = observer(() => {
           <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
             <Flex justify="space-between" align="center" mb={8}>
               <Box>
-                <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, blue.400, cyan.400)" bgClip="text">Weekly Growth</Text>
+                <Text fontSize="xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary}>Weekly Growth</Text>
                 <Text fontSize="xs" color="gray.500" fontWeight="700">New arrivals across all categories</Text>
               </Box>
-              <Box p={2.5} bg="blue.50" color="blue.500" borderRadius="xl">
+              <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
                 <Icon as={FaClipboardList} boxSize={5} />
               </Box>
             </Flex>
@@ -217,10 +217,10 @@ const Dashboard = observer(() => {
         </Grid>
 
         <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
-          <Box position="absolute" top="-20px" left="20px" bg="blue.500" color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>
+          <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>
           <Flex justify="space-between" align="center" mb={12} pt={4}>
             <Box>
-              <Text fontSize="2xl" fontWeight="900" bgGradient="linear(to-r, blue.400, cyan.400, purple.400)" bgClip="text" mb={1}>Live Clinic Activity</Text>
+              <Text fontSize="2xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>Live Clinic Activity</Text>
               <Text fontSize="sm" color="gray.500" fontWeight="700">Detailed overview of latest user registrations and registrations times.</Text>
             </Box>
           </Flex>

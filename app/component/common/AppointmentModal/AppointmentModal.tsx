@@ -113,8 +113,15 @@ const AppointmentModal = observer(({ isOpen, onClose, pageLink }: any) => {
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered>
       <ModalOverlay />
-      <ModalContent borderRadius="lg" boxShadow="xl" p={4}>
-        <ModalHeader textAlign="center" fontSize="xl" fontWeight="bold">
+      <ModalContent borderRadius="lg" boxShadow="xl" p={0} overflow="hidden">
+        <ModalHeader
+          textAlign="center"
+          fontSize="xl"
+          fontWeight="bold"
+          bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+          color="white"
+          p={4}
+        >
           Book an Appointment
         </ModalHeader>
         <ModalBody>

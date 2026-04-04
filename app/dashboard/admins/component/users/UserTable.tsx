@@ -208,7 +208,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader bgGradient="linear(to-r, blue.400, purple.400)" color="white">
+          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
               User Profile
@@ -230,13 +230,13 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
                   <Grid templateColumns="repeat(2, 1fr)" gap={4} mt={4}>
                     <GridItem>
-                      <Box bg="blue.50" p={3} borderRadius="lg">
+                      <Box bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} p={3} borderRadius="lg">
                         <Text fontSize="sm" color="gray.500">Experience</Text>
                         <Text fontWeight="bold">{selectedTherapist.profileDetails?.personalInfo?.experience} Years</Text>
                       </Box>
                     </GridItem>
                     <GridItem>
-                      <Box bg="blue.50" p={3} borderRadius="lg">
+                      <Box bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} p={3} borderRadius="lg">
                         <Text fontSize="sm" color="gray.500">Session Fee</Text>
                         <Text fontWeight="bold">₹{selectedTherapist.profileDetails?.personalInfo?.charges}</Text>
                       </Box>
@@ -246,11 +246,11 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
                 <Tabs mt={6} variant="soft-rounded" colorScheme="teal">
                   <TabList>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Bio</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Expertise</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Availability</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Contact</Tab>
-                    <Tab _selected={{ color: "white", bg: "blue.400" }}>Link</Tab>
+                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Bio</Tab>
+                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Expertise</Tab>
+                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Availability</Tab>
+                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Contact</Tab>
+                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Link</Tab>
                   </TabList>
 
                   <TabPanels mt={2}>

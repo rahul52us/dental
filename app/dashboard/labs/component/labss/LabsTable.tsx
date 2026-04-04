@@ -203,7 +203,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
         <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
           <DrawerCloseButton />
           <DrawerHeader
-            bgGradient="linear(to-r, blue.400, purple.400)"
+            bg={stores.themeStore.themeConfig.colors.custom.light.primary}
             color="white"
           >
             <Flex align="center" gap={3}>

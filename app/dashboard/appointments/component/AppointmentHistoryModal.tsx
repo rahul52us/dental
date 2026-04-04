@@ -119,7 +119,7 @@ const AppointmentHistoryModal = observer(
         <ModalOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
         <ModalContent borderRadius="3xl" overflow="hidden" boxShadow="2xl">
           {/* Header Section */}
-          <ModalHeader p={6} bg="blue.600">
+          <ModalHeader p={6} bg={stores.themeStore.themeConfig.colors.custom.light.primary}>
             <VStack align="start" spacing={1}>
               <Text fontSize="xl" fontWeight="800" color="white" letterSpacing="tight">
                 PATIENT RELIABILITY HISTORY
@@ -135,9 +135,9 @@ const AppointmentHistoryModal = observer(
             {/* Stats Dashboard */}
             <Box p={6} bg="white" borderBottom="1px solid" borderColor="gray.100" shadow="sm">
               <SimpleGrid columns={1} spacing={4}>
-                <Stat bg="blue.50" p={4} borderRadius="2xl" border="1px solid" borderColor="blue.100">
-                  <StatLabel color="blue.600" fontWeight="bold">Total Incidents Recorded</StatLabel>
-                  <StatNumber color="blue.700" fontSize="2xl">{stats.total}</StatNumber>
+                <Stat bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} p={4} borderRadius="2xl" border="1px solid" borderColor={stores.themeStore.themeConfig.colors.custom.light.primary + "33"}>
+                  <StatLabel color={stores.themeStore.themeConfig.colors.custom.light.primary} fontWeight="bold">Total Incidents Recorded</StatLabel>
+                  <StatNumber color={stores.themeStore.themeConfig.colors.custom.light.primary} fontSize="2xl">{stats.total}</StatNumber>
                 </Stat>
               </SimpleGrid>
 
@@ -151,7 +151,7 @@ const AppointmentHistoryModal = observer(
                   bg="gray.50"
                   border="1px solid"
                   borderColor="gray.200"
-                  _focus={{ bg: "white", borderColor: "blue.400", shadow: "md" }}
+                  _focus={{ bg: "white", borderColor: stores.themeStore.themeConfig.colors.custom.light.primary, shadow: "md" }}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -279,7 +279,9 @@ const AppointmentHistoryModal = observer(
           <ModalFooter bg="white" p={6} borderTop="1px solid" borderColor="gray.100">
             <Button
               variant="solid"
-              colorScheme="blue"
+              bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+              color="white"
+              _hover={{ filter: "brightness(0.9)" }}
               size="lg"
               borderRadius="xl"
               onClick={onClose}

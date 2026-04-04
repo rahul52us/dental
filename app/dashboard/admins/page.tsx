@@ -16,9 +16,10 @@ import Form from "./component/Form";
 import UserTable from "./component/users/UserTable";
 import { initialValues, titles } from "./component/utils/constant";
 import DeleteData from "./component/users/component/DeleteUser";
+import { observer } from "mobx-react-lite";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 
-const AdminPage = () => {
+const AdminPage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const {
     userStore: { createAdmin, getAllUsers, updateUser },
@@ -190,12 +191,11 @@ const AdminPage = () => {
             >
               <DrawerCloseButton />
               <DrawerHeader
-                bg="teal.500"
+                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                 color="white"
                 fontSize="lg"
                 fontWeight="bold"
                 textAlign="center"
-                bgGradient="linear(to-r, blue.400, purple.400)"
               >
                 {isDrawerOpen?.type === "edit" ? "Edit Admin" : "Add Admin"}
               </DrawerHeader>
@@ -237,6 +237,6 @@ const AdminPage = () => {
       )}
     </Box>
   );
-};
+});
 
 export default AdminPage;

@@ -214,10 +214,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
         <DrawerOverlay />
         <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
           <DrawerCloseButton />
-          <DrawerHeader
-            bgGradient="linear(to-r, blue.400, purple.400)"
-            color="white"
-          >
+          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
               Dealer Profile

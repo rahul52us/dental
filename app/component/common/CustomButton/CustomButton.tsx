@@ -1,4 +1,6 @@
 import { Button, Icon, ButtonProps, useBreakpointValue } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import stores from "../../../store/stores";
 import { FC, ReactNode } from "react";
 
 type CustomButtonProps = ButtonProps & {
@@ -10,7 +12,7 @@ type CustomButtonProps = ButtonProps & {
   rounded?: string;
 };
 
-const CustomButton: FC<CustomButtonProps> = ({
+const CustomButton: FC<CustomButtonProps> = observer(({
   children,
   icon,
   mt,
@@ -35,7 +37,7 @@ const CustomButton: FC<CustomButtonProps> = ({
       borderRadius="8px"
       rounded={rounded}
       bg={props.bg}
-      bgGradient={props.bg ? undefined : "linear(to-r, #065F68, #065F68, #2A8A94)"}
+      bgGradient={props.bg ? undefined : `linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary})`}
       color={props.color || "#FFFFFF"}
       fontWeight="400"
       fontSize={fontSizes}
@@ -83,6 +85,6 @@ const CustomButton: FC<CustomButtonProps> = ({
       {icon && <Icon as={icon} boxSize={{ base: 4, md: 5 }} />}
     </Button>
   );
-};
+});
 
 export default CustomButton;
