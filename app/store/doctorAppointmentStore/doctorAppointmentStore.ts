@@ -112,6 +112,18 @@ class DoctorAppointment {
     }
   };
 
+  getPatientAuditTrail = async (sendData: { patientId: string; page?: number; limit?: number }) => {
+    try {
+      const { data } = await axios.post(`/doctor/appointment/patients/audit-trail/${sendData.patientId}`, {
+        ...sendData,
+        company: authStore.company,
+      });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
 }
 
 export const doctorAppointment = new DoctorAppointment();

@@ -43,6 +43,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
 import stores from "../../../store/stores";
 import { motion } from "framer-motion";
+import DarkSkeleton from "../common/DarkSkeleton";
 
 ChartJS.register(
   CategoryScale,
@@ -107,12 +108,12 @@ const Dashboard = observer(() => {
   useEffect(() => {
     getDashboardCount();
   }, [getDashboardCount]);
-
   const dashboardData = [
     { label: "Doctors", value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors" },
     { label: "Patients", value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients" },
-    { label: "Staff", value: count?.data?.staffs || 0, icon: FaUserTie, color: "purple", href: "/dashboard/staffs" },
-    { label: "Dealers", value: count?.data?.dealers || 0, icon: FaStore, color: "orange", href: "/dashboard/dealers" },
+    { label: "Appointments", value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments" },
+    { label: "Staff", value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs" },
+    { label: "Dealers", value: count?.data?.dealers || 0, icon: FaStore, color: "blue", href: "/dashboard/dealers" },
   ];
 
   const weeklyGrowthData = useMemo(() => {
@@ -176,118 +177,124 @@ const Dashboard = observer(() => {
           </Box>
         </Flex>
 
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8} mb={12}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={6} mb={12}>
           {dashboardData.map((item, index) => (
-            <Skeleton isLoaded={!count?.loading} key={index} borderRadius="3xl">
+            <DarkSkeleton isLoaded={!count?.loading} key={index}>
               <DashboardCard {...item} />
-            </Skeleton>
+            </DarkSkeleton>
           ))}
         </SimpleGrid>
 
         <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} mb={10}>
-          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
-            <Flex justify="space-between" align="center" mb={8}>
-              <Box>
-                <Text fontSize="xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary}>Weekly Growth</Text>
-                <Text fontSize="xs" color="gray.500" fontWeight="700">New arrivals across all categories</Text>
-              </Box>
-              <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
-                <Icon as={FaClipboardList} boxSize={5} />
-              </Box>
-            </Flex>
-            <AspectRatio ratio={16 / 9} width="100%">
-              <Bar data={weeklyGrowthData} options={barChartOptions} />
-            </AspectRatio>
-          </Box>
+          <DarkSkeleton isLoaded={!count?.loading}>
+            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+              <Flex justify="space-between" align="center" mb={8}>
+                <Box>
+                  <Text fontSize="xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary}>Weekly Growth</Text>
+                  <Text fontSize="xs" color="gray.500" fontWeight="700">New arrivals across all categories</Text>
+                </Box>
+                <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
+                  <Icon as={FaClipboardList} boxSize={5} />
+                </Box>
+              </Flex>
+              <AspectRatio ratio={16 / 9} width="100%">
+                <Bar data={weeklyGrowthData} options={barChartOptions} />
+              </AspectRatio>
+            </Box>
+          </DarkSkeleton>
 
-          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
-            <Flex justify="space-between" align="center" mb={8}>
-              <Box>
-                <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Patient Retention</Text>
-                <Text fontSize="xs" color="gray.500" fontWeight="700">Clinical performance trend</Text>
-              </Box>
-              <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
-                <Icon as={FaCalendarAlt} boxSize={5} />
-              </Box>
-            </Flex>
-            <AspectRatio ratio={16 / 9} width="100%">
-              <Line data={lineChartData} options={lineChartOptions} />
-            </AspectRatio>
-          </Box>
+          <DarkSkeleton isLoaded={!count?.loading}>
+            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+              <Flex justify="space-between" align="center" mb={8}>
+                <Box>
+                  <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Patient Retention</Text>
+                  <Text fontSize="xs" color="gray.500" fontWeight="700">Clinical performance trend</Text>
+                </Box>
+                <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
+                  <Icon as={FaCalendarAlt} boxSize={5} />
+                </Box>
+              </Flex>
+              <AspectRatio ratio={16 / 9} width="100%">
+                <Line data={lineChartData} options={lineChartOptions} />
+              </AspectRatio>
+            </Box>
+          </DarkSkeleton>
         </Grid>
 
-        <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
-          <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>
-          <Flex justify="space-between" align="center" mb={12} pt={4}>
-            <Box>
-              <Text fontSize="2xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>Live Clinic Activity</Text>
-              <Text fontSize="sm" color="gray.500" fontWeight="700">Detailed overview of latest user registrations and registrations times.</Text>
-            </Box>
-          </Flex>
+        <DarkSkeleton isLoaded={!count?.loading}>
+          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
+            <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>
+            <Flex justify="space-between" align="center" mb={12} pt={4}>
+              <Box>
+                <Text fontSize="2xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>Live Clinic Activity</Text>
+                <Text fontSize="sm" color="gray.500" fontWeight="700">Detailed overview of latest user registrations and registrations times.</Text>
+              </Box>
+            </Flex>
 
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
-            {count?.data?.recentUsers?.map((u: any, idx: number) => {
-              const regDate = new Date(u.createdAt);
-              const formattedDate = regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-              const formattedTime = regDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-              const dayName = regDate.toLocaleDateString('en-GB', { weekday: 'long' });
-              
-              const typeColors: any = {
-                doctor: { bg: "blue.50", color: "blue.600", icon: FaUserMd },
-                patient: { bg: "green.50", color: "green.600", icon: FaUserInjured },
-                staff: { bg: "purple.50", color: "purple.600", icon: FaUserTie },
-                dealer: { bg: "orange.50", color: "orange.600", icon: FaStore },
-              };
-              const style = typeColors[u.userType?.toLowerCase()] || { bg: "gray.50", color: "gray.600", icon: FaArrowRight };
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+              {count?.data?.recentUsers?.map((u: any, idx: number) => {
+                const regDate = new Date(u.createdAt);
+                const formattedDate = regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                const formattedTime = regDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dayName = regDate.toLocaleDateString('en-GB', { weekday: 'long' });
 
-              return (
-                <MotionBox
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.3,
-                    ease: "easeInOut",
-                    delay: idx * 0.1 
-                  }}
-                  p={6}
-                  bg={useColorModeValue("gray.50", "whiteAlpha.50")}
-                  borderRadius="2xl"
-                  borderWidth="1px"
-                  borderColor="transparent"
-                  _hover={{ borderColor: style.color, transform: 'translateY(-4px)', boxShadow: 'xl', bg: useColorModeValue("white", "whiteAlpha.100") }}
-                >
-                  <Flex gap={5} align="start">
-                    <Box position="relative">
-                      <Avatar size="lg" src={u.pic?.url} name={u.name} borderRadius="2xl" border="3px solid" borderColor={style.color} />
-                      <Box position="absolute" bottom="-2px" right="-2px" boxSize={6} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={useColorModeValue("white", "gray.800")}>
-                        <Icon as={style.icon} boxSize={3} />
+                const typeColors: any = {
+                  doctor: { bg: "blue.50", color: "blue.600", icon: FaUserMd },
+                  patient: { bg: "green.50", color: "green.600", icon: FaUserInjured },
+                  staff: { bg: "purple.50", color: "purple.600", icon: FaUserTie },
+                  dealer: { bg: "orange.50", color: "orange.600", icon: FaStore },
+                };
+                const style = typeColors[u.userType?.toLowerCase()] || { bg: "gray.50", color: "gray.600", icon: FaArrowRight };
+
+                return (
+                  <MotionBox
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                      delay: idx * 0.1
+                    }}
+                    p={6}
+                    bg={useColorModeValue("gray.50", "whiteAlpha.50")}
+                    borderRadius="2xl"
+                    borderWidth="1px"
+                    borderColor="transparent"
+                    _hover={{ borderColor: style.color, transform: 'translateY(-4px)', boxShadow: 'xl', bg: useColorModeValue("white", "whiteAlpha.100") }}
+                  >
+                    <Flex gap={5} align="start">
+                      <Box position="relative">
+                        <Avatar size="lg" src={u.pic?.url} name={u.name} borderRadius="2xl" border="3px solid" borderColor={style.color} />
+                        <Box position="absolute" bottom="-2px" right="-2px" boxSize={6} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={useColorModeValue("white", "gray.800")}>
+                          <Icon as={style.icon} boxSize={3} />
+                        </Box>
                       </Box>
-                    </Box>
-                    <Box flex={1}>
-                      <Flex justify="space-between" align="start">
-                         <Box>
+                      <Box flex={1}>
+                        <Flex justify="space-between" align="start">
+                          <Box>
                             <Text fontSize="lg" fontWeight="900" color={useColorModeValue("gray.800", "white")} mb={1}>{u.name}</Text>
                             <Badge variant="subtle" colorScheme={style.color.split('.')[0]} fontSize="10px" px={3} py={0.5} borderRadius="full" fontWeight="900" textTransform="uppercase" letterSpacing="1px">{u.userType}</Badge>
-                         </Box>
-                         <VStack align="end" spacing={0}>
+                          </Box>
+                          <VStack align="end" spacing={0}>
                             <Text fontSize="xs" fontWeight="900" color={style.color}>{dayName}</Text>
                             <Text fontSize="14px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")}>{formattedTime}</Text>
                             <Text fontSize="10px" fontWeight="700" color="gray.400">{formattedDate}</Text>
-                         </VStack>
-                      </Flex>
-                      <Divider my={4} opacity={0.3} />
-                      <Flex align="center" gap={1}>
-                        <Box boxSize={1.5} borderRadius="full" bg="green.400" boxShadow="0 0 8px #48BB78" />
-                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Status: Active</Text>
-                      </Flex>
-                    </Box>
-                  </Flex>
-                </MotionBox>
-              );
-            })}
-          </SimpleGrid>
-        </Box>
+                          </VStack>
+                        </Flex>
+                        <Divider my={4} opacity={0.3} />
+                        <Flex align="center" gap={1}>
+                          <Box boxSize={1.5} borderRadius="full" bg="green.400" boxShadow="0 0 8px #48BB78" />
+                          <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Status: Active</Text>
+                        </Flex>
+                      </Box>
+                    </Flex>
+                  </MotionBox>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
+        </DarkSkeleton>
       </Box>
     </Box>
   );

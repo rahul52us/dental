@@ -336,24 +336,20 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
       type: "component",
       metaData: {
         component: (dt: any) => {
-          const history = dt.history || [];
-
-          if (!history.length) {
-            return (
-              <Text fontSize="sm" color="gray.400">
-                —
-              </Text>
-            );
-          }
-
           return (
             <Button
               size="xs"
-              variant="link"
-              colorScheme="blue"
-              onClick={() => setOpenAuditDrawer({ isOpen: true, data: history })}
+              variant="solid"
+              colorScheme="purple"
+              borderRadius="full"
+              px={4}
+              onClick={() => setHistoryModal({
+                isOpen: true,
+                patientId: dt.patient?._id || dt.patient,
+                patientName: dt.patientName || dt.patient?.name || "Patient"
+              })}
             >
-              View
+              View History
             </Button>
           );
         },
@@ -471,14 +467,12 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
         loading={appointments.loading}
       />
 
-      {isPatient && patientDetails && (
-        <AppointmentHistoryModal
-          isOpen={historyModal.isOpen}
-          onClose={() => setHistoryModal({ ...historyModal, isOpen: false })}
-          patientId={historyModal.patientId}
-          patientName={historyModal.patientName}
-        />
-      )}
+      <AppointmentHistoryModal
+        isOpen={historyModal.isOpen}
+        onClose={() => setHistoryModal({ ...historyModal, isOpen: false })}
+        patientId={historyModal.patientId}
+        patientName={historyModal.patientName}
+      />
 
       {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && (
         <Box position="fixed" bottom="20px" right="20px" zIndex={1000}>

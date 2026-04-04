@@ -16,6 +16,8 @@ import {
   Skeleton,
   SkeletonText,
   SkeletonCircle,
+  Flex,
+  Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -31,6 +33,7 @@ import {
 } from "react-icons/fa";
 import stores from "../../../store/stores";
 import { observer } from "mobx-react-lite";
+import AppointmentHistoryModal from "../component/AppointmentHistoryModal";
 
 const statusColors: Record<string, string> = {
   scheduled: "blue",
@@ -49,6 +52,7 @@ const AppointmentDetailsView = observer(
   ({ data }: AppointmentDetailsViewProps) => {
     const [appointment, setAppointment] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     console.log("the appointment data are", data)
 
@@ -275,12 +279,27 @@ const AppointmentDetailsView = observer(
           <Divider />
           <CardBody>
             {patient && (
-              <HStack>
-                <Icon as={FaUser} color="purple.500" />
-                <Text>
-                  <b>Name:</b> {patient.name} ({patient.code})
-                </Text>
-              </HStack>
+              <Flex justify="space-between" align="center">
+                <HStack>
+                  <Icon as={FaUser} color="purple.500" />
+                  <Text>
+                    <b>Name:</b> {patient.name} ({patient.code})
+                  </Text>
+                </HStack>
+                <Button
+                  leftIcon={<FaHistory />}
+                  size="sm"
+                  variant="outline"
+                  colorScheme="purple"
+                  borderRadius="full"
+                  fontSize="xs"
+                  fontWeight="bold"
+                  onClick={() => setIsHistoryOpen(true)}
+                  _hover={{ bg: "purple.50" }}
+                >
+                  Reliability History
+                </Button>
+              </Flex>
             )}
           </CardBody>
         </Card>
@@ -294,6 +313,13 @@ const AppointmentDetailsView = observer(
             </Text>
           </>
         )}
+
+        <AppointmentHistoryModal
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          patientId={patient?._id}
+          patientName={patient?.name}
+        />
       </Box>
     );
   }
