@@ -170,6 +170,7 @@ const AddAppointmentForm = observer(
     const [patientHistoryCount, setPatientHistoryCount] = useState({
       shift: 0,
       cancelled: 0,
+      noShow: 0,
     });
 
     const parsedDateAndTime = useMemo(() => {
@@ -312,10 +313,11 @@ const AddAppointmentForm = observer(
         if (response?.status === "success" && response?.data) {
           const shift = response.data.shift || 0;
           const cancelled = response.data.cancelled || 0;
-          setPatientHistoryCount({ shift, cancelled });
+          const noShow = response.data["no-show"] || 0;
+          setPatientHistoryCount({ shift, cancelled, noShow });
 
           // Auto-open modal if history exists
-          if (shift > 0 || cancelled > 0) {
+          if (shift > 0 || cancelled > 0 || noShow > 0) {
             setHistoryModal({
               isOpen: true,
               patientId: patientId,
@@ -436,7 +438,7 @@ const AddAppointmentForm = observer(
 
                     {/* === Patient & Doctors === */}
                     <SectionCard>
-                      {values.patient && (patientHistoryCount.shift > 0 || patientHistoryCount.cancelled > 0) && (
+                      {values.patient && (patientHistoryCount.shift > 0 || patientHistoryCount.cancelled > 0 || patientHistoryCount.noShow > 0) && (
                         <Alert
                           status="warning"
                           variant="left-accent"
@@ -450,7 +452,7 @@ const AddAppointmentForm = observer(
                               Appointment History Noted
                             </Text>
                             <Text fontSize="xs">
-                              This patient has {patientHistoryCount.shift} shifted and {patientHistoryCount.cancelled} cancelled appointments.
+                              This patient has {patientHistoryCount.shift} shifted, {patientHistoryCount.cancelled} cancelled, and {patientHistoryCount.noShow} no-show appointments.
                             </Text>
                           </Box>
                           <Button
@@ -487,7 +489,7 @@ const AddAppointmentForm = observer(
                               if (val?.value) {
                                 fetchPatientHistoryCount(val.value);
                               } else {
-                                setPatientHistoryCount({ shift: 0, cancelled: 0 });
+                                setPatientHistoryCount({ shift: 0, cancelled: 0, noShow: 0 });
                               }
                             }}
                             options={

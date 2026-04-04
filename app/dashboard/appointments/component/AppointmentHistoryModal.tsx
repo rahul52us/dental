@@ -52,7 +52,7 @@ const AppointmentHistoryModal = observer(
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalIncidents, setTotalIncidents] = useState(0);
-    const itemsPerPage = 8;
+    const itemsPerPage = 5;
 
     const fetchHistory = async (page: number) => {
       if (!patientId) return;
