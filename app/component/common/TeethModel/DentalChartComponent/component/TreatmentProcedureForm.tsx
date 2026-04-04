@@ -107,6 +107,7 @@ interface TreatmentProcedureFormProps {
 
 interface TreatmentFormData {
     doctor: any;
+    examiningDoctor: any;
     treatmentDate: string;
     notes: string;
     treatmentCode: string;
@@ -122,6 +123,7 @@ interface TreatmentFormData {
 
 const initialFormData: TreatmentFormData = {
     doctor: undefined,
+    examiningDoctor: undefined,
     treatmentDate: new Date().toISOString().split("T")[0],
     notes: "",
     treatmentCode: "",
@@ -163,7 +165,7 @@ export const TreatmentProcedureForm = observer(
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
         const {
-            toothTreatmentStore: { createToothTreatment, updateToothTreatment },
+            toothTreatmentStore: { createToothTreatment, updateToothTreatment, lastExaminingDoctor, setLastExaminingDoctor },
             userStore: { getUsersList },
         } = stores;
 
@@ -248,6 +250,7 @@ export const TreatmentProcedureForm = observer(
                     const payload: any = {
                         patient: values.patient?.value || values.patient,
                         doctor: values.doctor?.value || values.doctor,
+                        examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
                         company: patientDetails?.company?._id || patientDetails?.company,
                         tooth: {
                             fdi: toothId,
@@ -268,6 +271,14 @@ export const TreatmentProcedureForm = observer(
                         user: stores.auth.user?._id
                     };
 
+                    if (!payload.doctor) {
+                        payload.doctor = doctorOptions[0]?.value || stores.auth.user?._id;
+                    }
+
+                    if (!payload.treatmentPlan && payload.recordType === "tooth") {
+                        payload.treatmentPlan = "General Treatment";
+                    }
+
                     if (editData?._id && toothId === editData.tooth?.fdi) {
                         payload.treatmentId = editData._id;
                         await updateToothTreatment(payload)
@@ -282,6 +293,12 @@ export const TreatmentProcedureForm = observer(
                                 throw new Error(err?.message || "Internal mapping error");
                             });
                     }
+                }
+
+                // Update last examining doctor
+                const sampleValues = Object.values(treatments)[0] as any;
+                if (sampleValues?.examiningDoctor) {
+                    setLastExaminingDoctor(sampleValues.examiningDoctor);
                 }
 
                 setFormLoading(false);
@@ -522,6 +539,7 @@ export const TreatmentProcedureForm = observer(
                     patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
                     notes: generalDescription,
                     doctor: doctorOptions[0],
+                    examiningDoctor: lastExaminingDoctor || undefined,
                 };
             });
             // If editing, override the specific tooth
@@ -538,6 +556,7 @@ export const TreatmentProcedureForm = observer(
                         totalMin: editData.totalMin,
                         totalMax: editData.totalMax,
                         complaintType: editData.complaintType || "Chief Complaint",
+                        examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : (lastExaminingDoctor || undefined),
                     };
                 }
             }

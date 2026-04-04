@@ -71,6 +71,7 @@ import CustomDrawer from "../../Drawer/CustomDrawer";
 import { PatientHeader } from "./component/PatientHeader";
 import stores from "../../../../store/stores";
 import { TREATMENT_CATEGORIES } from "../../../../dashboard/toothTreatment/treatmentDataConstant";
+import CustomInput from "../../../config/component/customInput/CustomInput";
 
 type WizardStep =
   | "TOOTH_SELECTION"
@@ -127,7 +128,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const { isOpen: isQuickAddOpen, onOpen: onQuickAddOpen, onClose: onQuickAddClose } = useDisclosure();
   const {
     userStore: { getUsersList },
-    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment, updateToothTreatment },
+    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment, updateToothTreatment, lastExaminingDoctor, setLastExaminingDoctor },
   } = stores;
 
   useEffect(() => {
@@ -350,10 +351,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">NOTATION</Text>
                   <HStack bg="gray.50" p={1} borderRadius="xl">
                     {["fdi", "universal", "palmer"].map(n => (
-                      <Button 
-                        key={n} 
-                        size="xs" 
-                        variant={notation === n ? "solid" : "ghost"} 
+                      <Button
+                        key={n}
+                        size="xs"
+                        variant={notation === n ? "solid" : "ghost"}
                         bg={notation === n ? `${activeColor}.500` : "transparent"}
                         color={notation === n ? "white" : "gray.600"}
                         _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
@@ -373,13 +374,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       const isActive = complaintType === type;
                       const c = buttonColorMap[type];
                       return (
-                        <Button 
-                          key={type} 
-                          size="xs" 
+                        <Button
+                          key={type}
+                          size="xs"
                           bg={isActive ? `${c}.500` : "transparent"}
                           color={isActive ? "white" : "gray.600"}
                           _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
-                          variant={isActive ? "solid" : "ghost"} 
+                          variant={isActive ? "solid" : "ghost"}
                           onClick={() => setComplaintType(type)}
                           fontWeight="900"
                         >
@@ -388,6 +389,19 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       );
                     })}
                   </HStack>
+                </VStack>
+                <VStack align="start" spacing={1} minW="220px">
+                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">EXAMINING DOCTOR</Text>
+                  <CustomInput
+                    name="examiningDoctor"
+                    type="real-time-user-search"
+                    query={{ type: 'doctor' }}
+                    options={doctorOptions}
+                    value={lastExaminingDoctor}
+                    onChange={(val: any) => setLastExaminingDoctor(val)}
+                    style={{ height: '32px', borderRadius: '12px', fontSize: '11px' }}
+                    placeholder="Select Doctor"
+                  />
                 </VStack>
               </HStack>
               <VStack align="end" spacing={0}>
@@ -404,23 +418,23 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     <Heading size="xs" fontWeight="1000">Selection Method</Heading>
                   </VStack>
                   <HStack bg="gray.100" p={1} borderRadius="xl">
-                    <Button 
-                      size="xs" leftIcon={<FiMousePointer />} 
+                    <Button
+                      size="xs" leftIcon={<FiMousePointer />}
                       bg={!isMultipleSelection ? `${activeColor}.500` : "transparent"}
                       color={!isMultipleSelection ? "white" : "gray.600"}
                       _hover={{ bg: !isMultipleSelection ? `${activeColor}.600` : "gray.100" }}
-                      variant={!isMultipleSelection ? "solid" : "ghost"} 
+                      variant={!isMultipleSelection ? "solid" : "ghost"}
                       onClick={() => { setIsMultipleSelection(false); setSelectedTeeth([]); }}
                       fontWeight="900"
                     >
                       SINGLE SELECTION
                     </Button>
-                    <Button 
-                      size="xs" leftIcon={<FiActivity />} 
+                    <Button
+                      size="xs" leftIcon={<FiActivity />}
                       bg={isMultipleSelection ? `${activeColor}.500` : "transparent"}
                       color={isMultipleSelection ? "white" : "gray.600"}
                       _hover={{ bg: isMultipleSelection ? `${activeColor}.600` : "gray.100" }}
-                      variant={isMultipleSelection ? "solid" : "ghost"} 
+                      variant={isMultipleSelection ? "solid" : "ghost"}
                       onClick={() => setIsMultipleSelection(true)}
                       fontWeight="900"
                     >
@@ -729,6 +743,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 <VStack align="start" spacing={0}>
                   <Text fontSize="10px" fontWeight="900" color="gray.400">ATTENDING CLINICIAN</Text>
                   <Text fontWeight="900">{viewingRecord?.doctor?.label || "Unassigned"}</Text>
+                </VStack>
+              </HStack>
+
+              <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
+                <Avatar size="sm" name={viewingRecord?.examiningDoctor?.name || viewingRecord?.examiningDoctorName} bg="teal.100" />
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="10px" fontWeight="900" color="gray.400">EXAMINING DOCTOR</Text>
+                  <Text fontWeight="900">{viewingRecord?.examiningDoctor?.name || viewingRecord?.examiningDoctorName || viewingRecord?.examiningDoctor?.label || "Unassigned"}</Text>
                 </VStack>
               </HStack>
             </Grid>

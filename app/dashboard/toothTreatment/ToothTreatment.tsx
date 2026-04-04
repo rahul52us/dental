@@ -10,7 +10,7 @@ import { tablePageLimit } from "../../component/config/utils/variable";
 import stores from "../../store/stores";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
 import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
-import AppointmentDetailsView from "./element/AppointmentDetailsView";
+import TreatmentDetailsView from "./element/TreatmentDetailsView";
 
 const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
@@ -116,6 +116,18 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         component: (dt: any) => (
           <Box>
             <Text>{dt?.doctorName || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Examining Doctor",
+      key: "examiningDoctorName",
+      metaData: {
+        component: (dt: any) => (
+          <Box>
+            <Text>{dt?.examiningDoctorName || "--"}</Text>
           </Box>
         ),
       },
@@ -272,7 +284,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         close={() => setOpenView({ open: false, data: null })}
         title={<PatientHeader title="Clinical Procedure Details" patient={openView.data?.patient || patientDetails} />}
       >
-        <AppointmentDetailsView data={openView.data} />
+        <TreatmentDetailsView data={openView.data} />
       </CustomDrawer>
       {/* Drawer */}
       <CustomDrawer

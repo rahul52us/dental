@@ -17,9 +17,28 @@ class ToothTreatmentStore {
     loading: false,
   };
 
+  lastExaminingDoctor: any = null;
+
   constructor() {
     makeAutoObservable(this);
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("lastExaminingDoctor");
+      if (saved) {
+        try {
+          this.lastExaminingDoctor = JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse lastExaminingDoctor", e);
+        }
+      }
+    }
   }
+
+  setLastExaminingDoctor = (doctor: any) => {
+    this.lastExaminingDoctor = doctor;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lastExaminingDoctor", JSON.stringify(doctor));
+    }
+  };
 
   // Common get with search and pagination support
   getToothTreatmentById = async (sendData: { treatmentId?: string, appointmentId?: string }) => {
@@ -32,7 +51,7 @@ class ToothTreatmentStore {
         return { status: "success", data: rawItems[0] || null };
       }
 
-      const { data } = await axios.get(`/toothTreatment/get/${sendData.treatmentId}`, {
+      const { data } = await axios.get(`/toothTreatment/${sendData.treatmentId}`, {
         params: { company: authStore.company }
       });
       return data;
@@ -72,6 +91,7 @@ class ToothTreatmentStore {
           ...it,
           patientName: it?.patient?.name,
           doctorName: it?.doctor?.name,
+          examiningDoctorName: it?.examiningDoctor?.name,
           toothFDI: fdi,
           toothUniversal: universal,
           toothPalmer: palmer,
