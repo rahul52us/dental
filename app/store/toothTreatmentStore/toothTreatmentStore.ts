@@ -113,11 +113,11 @@ class ToothTreatmentStore {
 
       this.toothTreatment.data = mappedData;
 
-      // Correct extraction of totalItem count from potentially nested response
-      const totalItems = data?.totalItems || data?.data?.totalItems || rawItems.length || 0;
+      // Extract the total count from the new backend response structure (data.data.totalItems)
+      const totalItems = data?.data?.totalItems || data?.totalItems || data?.count || rawItems.length || 0;
       this.toothTreatment.totalItems = totalItems;
 
-      // Manually calculate totalPages based on the limit=10 to ensure consistency with UI
+      // Ensure totalPages is calculated based on the actual limit (10) used in this request
       this.toothTreatment.totalPages = Math.ceil(totalItems / 10) || 1;
 
       console.log("Extracted Pagination Metadata:", { totalItems, totalPages: this.toothTreatment.totalPages });
