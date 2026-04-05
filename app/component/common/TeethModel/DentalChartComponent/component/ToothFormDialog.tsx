@@ -257,6 +257,7 @@ export const ToothFormDialog = observer(
                       <CustomInput
                         name="doctor"
                         type="real-time-user-search"
+                        query={{ type: 'doctor' }}
                         options={doctorOptions}
                         value={values.doctor}
                         onChange={(val: any) => setFieldValue("doctor", val)}
@@ -268,6 +269,7 @@ export const ToothFormDialog = observer(
                       <CustomInput
                         name="examiningDoctor"
                         type="real-time-user-search"
+                        query={{ type: 'doctor' }}
                         options={doctorOptions}
                         value={values.examiningDoctor}
                         onChange={(val: any) => {
