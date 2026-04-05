@@ -788,10 +788,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               </VStack>
 
               <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
-                <Avatar size="sm" name={viewingRecord?.doctor?.label} bg="blue.100" />
+                <Avatar size="sm" name={viewingRecord?.doctor?.name} bg="blue.100" />
                 <VStack align="start" spacing={0}>
                   <Text fontSize="10px" fontWeight="900" color="gray.400">ATTENDING CLINICIAN</Text>
-                  <Text fontWeight="900">{viewingRecord?.doctor?.label || "Unassigned"}</Text>
+                  <Text fontWeight="900">{viewingRecord?.doctor?.name || "Unassigned"}</Text>
                 </VStack>
               </HStack>
 
