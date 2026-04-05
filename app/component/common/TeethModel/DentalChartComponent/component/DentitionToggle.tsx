@@ -68,12 +68,12 @@ export const DentitionToggle = ({
           rounded="lg"
           transition="all 0.2s"
           _selected={{
-            bg: "white",
-            color: "gray.800",
-            boxShadow: "sm",
+            bg: "blue.500",
+            color: "white",
+            boxShadow: "lg",
           }}
           _hover={{
-            color: "gray.800",
+            bg: "gray.100",
           }}
         >
           <HStack spacing={2}>

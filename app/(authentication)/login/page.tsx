@@ -125,8 +125,8 @@ const Login = observer(() => {
                     formData.loginType === "email"
                       ? "Enter your email"
                       : formData.loginType === "code"
-                      ? "Enter your user code"
-                      : "Enter your username"
+                        ? "Enter your user code"
+                        : "Enter your username"
                   }
                   value={formData.username}
                   onChange={handleInputChange}
@@ -200,7 +200,7 @@ const Login = observer(() => {
               </CustomButton>
 
               {/* OR divider */}
-              <Flex align="center" gap={2}>
+              <Flex align="center" gap={2} display="none">
                 <Divider />
                 <Text fontSize="xs" color="gray.500">
                   OR
@@ -221,6 +221,7 @@ const Login = observer(() => {
                 borderColor="gray.300"
                 borderRadius="full"
                 _hover={{ bg: "gray.50" }}
+                display="none"
               >
                 Sign in with Google
               </Button>

@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, Badge } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
@@ -96,16 +96,33 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const ContactTableColumn = [
     {
       headerName: "Tooth",
-      key: "toothName",
+      key: "toothFDI",
       metaData: {
         component: (dt: any) => (
           <Box>
-            <Text fontSize="sm">{dt?.toothName || "--"}</Text>
+            <Text fontSize="sm" fontWeight="bold">{dt?.toothFDI || "--"}</Text>
           </Box>
         ),
       },
       props: { row: { textAlign: "center" } },
     },
+    {
+        headerName: "System",
+        key: "toothNotation",
+        metaData: {
+          component: (dt: any) => (
+            <Box>
+              <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
+                {(dt?.toothNotation || "FDI").toUpperCase()}
+              </Badge>
+              <Text fontSize="xs" color="gray.500" mt={1}>
+                {dt?.toothName || ""}
+              </Text>
+            </Box>
+          ),
+        },
+        props: { row: { textAlign: "center" } },
+      },
 
     ...(!isPatient ? [patientColumn] : []),
 

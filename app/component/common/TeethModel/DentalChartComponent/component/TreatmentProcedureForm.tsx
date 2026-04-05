@@ -103,6 +103,8 @@ interface TreatmentProcedureFormProps {
     toothComplaints?: Record<string, string>;
     isDrawerMode?: boolean;
     onEditGeneralNote?: () => void;
+    notation?: "fdi" | "universal" | "palmer";
+    dentitionType?: "adult" | "child";
 }
 
 interface TreatmentFormData {
@@ -127,14 +129,14 @@ const initialFormData: TreatmentFormData = {
     treatmentDate: new Date().toISOString().split("T")[0],
     notes: "",
     treatmentCode: "",
-    estimateMin: 0,
-    estimateMax: 0,
-    discount: 0,
-    totalMin: 0,
-    totalMax: 0,
+    estimateMin: "" as any,
+    estimateMax: "" as any,
+    discount: "" as any,
+    totalMin: "" as any,
+    totalMax: "" as any,
     patient: undefined,
     status: "Planned",
-    complaintType: "CHIEF COMPLAINT",
+    complaintType: undefined as any,
 };
 
 export const TreatmentProcedureForm = observer(
@@ -154,7 +156,10 @@ export const TreatmentProcedureForm = observer(
         onEditToothNote,
         onToothClick,
         toothComplaints = {},
+        complaintType,
+        notation = "fdi",
         isDrawerMode = false,
+        dentitionType,
     }: TreatmentProcedureFormProps) => {
         const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
         const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure({ defaultIsOpen: teeth.length > 1 });
@@ -173,21 +178,8 @@ export const TreatmentProcedureForm = observer(
         const [doctorsLoading, setDoctorsLoading] = useState(false);
 
         useEffect(() => {
-            const fetchDoctors = async () => {
-                try {
-                    setDoctorsLoading(true);
-                    const res: any = await getUsersList({ type: 'doctor', limit: 100 });
-                    if (res?.data?.data?.data) {
-                        setDoctors(res.data.data.data);
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch doctors", err);
-                } finally {
-                    setDoctorsLoading(false);
-                }
-            };
-            fetchDoctors();
-        }, [getUsersList]);
+            // Doctors are now fetched on-demand by CustomInput to prevent global state pollution
+        }, []);
 
         // Sync active tooth ID in drawer mode (edit case)
         useEffect(() => {
@@ -246,17 +238,14 @@ export const TreatmentProcedureForm = observer(
                     // Only skip if there's absolutely NO clinical content
                     if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue;
 
-                    const currentTooth = teeth.find(t => t.id === toothId);
                     const payload: any = {
                         patient: values.patient?.value || values.patient,
                         doctor: values.doctor?.value || values.doctor,
                         examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
                         company: patientDetails?.company?._id || patientDetails?.company,
-                        tooth: {
-                            fdi: toothId,
-                            universal: currentTooth?.universal || null,
-                            palmer: currentTooth?.palmer || null,
-                        },
+                        tooth: toothId, // Always use unique FDI ID
+                        toothNotation: notation,
+                        dentitionType: dentitionType || editData?.dentitionType || (parseInt(toothId) >= 51 ? "child" : "adult"),
                         treatmentDate: values.treatmentDate,
                         notes: values.notes,
                         treatmentPlan: values.treatmentCode,
@@ -271,15 +260,22 @@ export const TreatmentProcedureForm = observer(
                         user: stores.auth.user?._id
                     };
 
+                    // If no doctor is selected, do not force the first one.
+                    // Keep it undefined so the backend/UI knows it's unassigned.
                     if (!payload.doctor) {
-                        payload.doctor = doctorOptions[0]?.value || stores.auth.user?._id;
+                        payload.doctor = undefined;
                     }
 
                     if (!payload.treatmentPlan && payload.recordType === "tooth") {
                         payload.treatmentPlan = "General Treatment";
                     }
 
-                    if (editData?._id && toothId === editData.tooth?.fdi) {
+                    const isEditingThisTooth = editData?._id && (
+                        (typeof editData.tooth === 'object' && editData.tooth.fdi === toothId) ||
+                        (typeof editData.tooth === 'string' && editData.tooth === toothId)
+                    );
+
+                    if (isEditingThisTooth) {
                         payload.treatmentId = editData._id;
                         await updateToothTreatment(payload)
                             .then((res: any) => results.push(res))
@@ -331,7 +327,11 @@ export const TreatmentProcedureForm = observer(
             }));
         }, [doctors]);
 
-        const calculateTotal = (est: number, disc: number) => Math.max(0, est - disc);
+        const calculateTotal = (est: any, disc: any) => {
+            const e = Number(est) || 0;
+            const d = Number(disc) || 0;
+            return Math.max(0, e - d);
+        };
 
         const COMPLAINT_STYLES: Record<string, { border: string, bg: string, label: string, iconColor: string }> = {
             "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
@@ -344,8 +344,23 @@ export const TreatmentProcedureForm = observer(
             const currentToothId = activeId === "bulk" ? teeth[0].id : activeId;
             const currentValues = values.treatments[currentToothId] || initialFormData;
 
+            const activeTooth = teeth.find(t => t.id === currentToothId);
+            const notationLabel = !activeTooth ? "" : (notation === 'universal' ? activeTooth.universal : (notation === 'palmer' ? activeTooth.palmer : activeTooth.fdi));
+
             return (
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={12}>
+                    <Box gridColumn="span 2" mb={-8}>
+                        <VStack align="start" spacing={0}>
+                            <Text fontSize="10px" fontWeight="1000" color="blue.500" textTransform="uppercase">
+                                Working on {notation?.toUpperCase() || 'FDI'} Tooth {notationLabel}
+                            </Text>
+                            <Heading size="md" color="gray.800" fontWeight="1000">
+                                {activeTooth?.name || "General Record"}
+                            </Heading>
+                        </VStack>
+                        <Divider mt={4} />
+                    </Box>
+
                     <VStack align="stretch" spacing={6}>
                         <VStack align="start" spacing={4}>
                             <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="widest">PROCEDURE</Text>
@@ -457,12 +472,13 @@ export const TreatmentProcedureForm = observer(
                         <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="widest">FINANCIALS</Text>
                         <Grid templateColumns="1fr 1fr" gap={4}>
                             <VStack align="start" spacing={0}>
-                                <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MIN</Text>
+                                <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MIN (₹)</Text>
                                 <Input
                                     type="number" bg="white" borderRadius="xl" fontWeight="900"
+                                    placeholder="0"
                                     value={currentValues.estimateMin}
                                     onChange={(e) => {
-                                        const val = Number(e.target.value);
+                                        const val = e.target.value;
                                         if (activeId === "bulk") {
                                             teeth.forEach(t => {
                                                 setFieldValue(`treatments.${t.id}.estimateMin`, val);
@@ -476,12 +492,13 @@ export const TreatmentProcedureForm = observer(
                                 />
                             </VStack>
                             <VStack align="start" spacing={0}>
-                                <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MAX</Text>
+                                <Text fontSize="9px" fontWeight="1000" color="blue.500">ESTIMATE MAX (₹)</Text>
                                 <Input
                                     type="number" bg="white" borderRadius="xl" fontWeight="900"
+                                    placeholder="0"
                                     value={currentValues.estimateMax}
                                     onChange={(e) => {
-                                        const val = Number(e.target.value);
+                                        const val = e.target.value;
                                         if (activeId === "bulk") {
                                             teeth.forEach(t => {
                                                 setFieldValue(`treatments.${t.id}.estimateMax`, val);
@@ -500,6 +517,7 @@ export const TreatmentProcedureForm = observer(
                             <Text fontSize="9px" fontWeight="1000" color="green.500">CONCESSION (₹)</Text>
                             <Input
                                 type="number" bg="white" borderRadius="xl" fontWeight="900" color="green.600"
+                                placeholder="0"
                                 value={currentValues.discount}
                                 onChange={(e) => {
                                     const val = Number(e.target.value);
@@ -523,7 +541,7 @@ export const TreatmentProcedureForm = observer(
                         <VStack align="center" py={4} bg="white" borderRadius="2xl" boxShadow="sm">
                             <Text fontSize="10px" fontWeight="1000" color="blue.500">FINAL QUOTE</Text>
                             <Heading size="md" color="blue.800" fontWeight="1000">
-                                ₹{currentValues.totalMin?.toLocaleString()} - ₹{currentValues.totalMax?.toLocaleString()}
+                                ₹{(Number(currentValues.totalMin) || 0).toLocaleString()} - ₹{(Number(currentValues.totalMax) || 0).toLocaleString()}
                             </Heading>
                         </VStack>
                     </VStack>
@@ -538,16 +556,17 @@ export const TreatmentProcedureForm = observer(
                     ...initialFormData,
                     patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
                     notes: generalDescription,
-                    doctor: doctorOptions[0],
+                    doctor: lastExaminingDoctor || undefined,
                     examiningDoctor: lastExaminingDoctor || undefined,
+                    complaintType: toothComplaints[t.id] || complaintType || "CHIEF COMPLAINT",
                 };
             });
             // If editing, override the specific tooth
             if (editData) {
-                const fid = editData.tooth?.fdi;
-                if (fid) {
-                    trs[fid] = {
-                        ...trs[fid],
+                const actualToothId = (typeof editData.tooth === 'object' ? editData.tooth.fdi : editData.tooth);
+                if (actualToothId) {
+                    trs[actualToothId] = {
+                        ...trs[actualToothId],
                         treatmentCode: editData.treatmentPlan,
                         notes: editData.notes,
                         estimateMin: editData.estimateMin,
@@ -555,18 +574,19 @@ export const TreatmentProcedureForm = observer(
                         discount: editData.discount,
                         totalMin: editData.totalMin,
                         totalMax: editData.totalMax,
+                        doctor: editData.doctor ? (typeof editData.doctor === 'object' ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor) : (lastExaminingDoctor || undefined),
                         complaintType: editData.complaintType || "Chief Complaint",
                         examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : (lastExaminingDoctor || undefined),
                     };
                 }
             }
             return trs;
-        }, [teeth, patientDetails, generalDescription, doctorOptions, editData]);
+        }, [teeth, patientDetails, generalDescription, doctorOptions, editData, complaintType, toothComplaints]);
 
         return (
             <Formik
                 initialValues={{
-                    treatments: initialTreatments,
+                    treatments: { ...initialTreatments, ...(hoistedValues?.treatments || {}) },
                 }}
                 enableReinitialize={true}
                 onSubmit={handleSubmit}
@@ -579,10 +599,12 @@ export const TreatmentProcedureForm = observer(
                         selectedTeeth.forEach(t => {
                             const id = parseInt(t.id);
                             if (isNaN(id)) quads["General"].push(t);
-                            else if (id >= 11 && id <= 18) quads["UR"].push(t);
-                            else if (id >= 21 && id <= 28) quads["UL"].push(t);
-                            else if (id >= 31 && id <= 38) quads["LL"].push(t);
-                            else if (id >= 41 && id <= 48) quads["LR"].push(t);
+                            // Adult (11-48) & Child (51-85)
+                            else if ((id >= 11 && id <= 18) || (id >= 51 && id <= 55)) quads["UR"].push(t);
+                            else if ((id >= 21 && id <= 28) || (id >= 61 && id <= 65)) quads["UL"].push(t);
+                            else if ((id >= 31 && id <= 38) || (id >= 71 && id <= 75)) quads["LL"].push(t);
+                            else if ((id >= 41 && id <= 48) || (id >= 81 && id <= 85)) quads["LR"].push(t);
+                            else quads["General"].push(t);
                         });
                         return quads;
                     };
@@ -761,19 +783,11 @@ export const TreatmentProcedureForm = observer(
                                                                             if (activeToothId === "bulk") {
                                                                                 teeth.forEach(t => {
                                                                                     setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                                    setFieldValue(`treatments.${t.id}.estimateMin`, job.defaultEstimate);
-                                                                                    setFieldValue(`treatments.${t.id}.estimateMax`, job.defaultEstimate);
-                                                                                    const disc = values.treatments[t.id]?.discount || 0;
-                                                                                    setFieldValue(`treatments.${t.id}.totalMin`, calculateTotal(job.defaultEstimate, disc));
-                                                                                    setFieldValue(`treatments.${t.id}.totalMax`, calculateTotal(job.defaultEstimate, disc));
+                                                                                    // Financials remain independent
                                                                                 });
                                                                             } else if (activeToothId) {
                                                                                 setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                                setFieldValue(`treatments.${activeToothId}.estimateMin`, job.defaultEstimate);
-                                                                                setFieldValue(`treatments.${activeToothId}.estimateMax`, job.defaultEstimate);
-                                                                                const disc = values.treatments[activeToothId]?.discount || 0;
-                                                                                setFieldValue(`treatments.${activeToothId}.totalMin`, calculateTotal(job.defaultEstimate, disc));
-                                                                                setFieldValue(`treatments.${activeToothId}.totalMax`, calculateTotal(job.defaultEstimate, disc));
+                                                                                // Financials remain independent
                                                                             }
                                                                             onProcedureClose();
                                                                         }}
@@ -889,7 +903,14 @@ export const TreatmentProcedureForm = observer(
                                                             <HStack justify="space-between" mb={3}>
                                                                 <VStack align="start" spacing={0}>
                                                                     <HStack spacing={2}>
-                                                                        <Text fontSize="20px" fontWeight="1000" color="gray.800" letterSpacing="tight">{tooth.id === "General" ? "GEN" : `#${tooth.id}`}</Text>
+                                                                        <VStack align="start" spacing={0}>
+                                                                            <Text fontSize="16px" fontWeight="1000" color="gray.800" letterSpacing="tight" noOfLines={1}>
+                                                                                {tooth.name}
+                                                                            </Text>
+                                                                            <Text fontSize="10px" fontWeight="900" color="blue.500">
+                                                                                {notation === 'universal' ? tooth.universal : (notation === 'palmer' ? tooth.palmer : tooth.fdi)} ({notation?.toUpperCase()})
+                                                                            </Text>
+                                                                        </VStack>
                                                                         <Badge variant="subtle" colorScheme={toothValues.treatmentCode ? "green" : "blue"} borderRadius="full" px={1.5} fontSize="8px" fontWeight="1000">
                                                                             {toothValues.treatmentCode ? "READY" : "PENDING"}
                                                                         </Badge>
@@ -970,7 +991,7 @@ export const TreatmentProcedureForm = observer(
                                                 <VStack align="start" spacing={0}>
                                                     <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY</Text>
                                                     <Heading size="md" fontWeight="1000">
-                                                        {activeToothId === "bulk" ? "Multi-Tooth Update" : (activeToothId === "General" ? "General Clinical Record" : `Tooth #${activeToothId} Details`)}
+                                                        {activeToothId === "bulk" ? "Multi-Tooth Update" : (activeToothId === "General" ? "General Clinical Record" : (teeth.find(t => t.id === activeToothId)?.name || `Tooth #${activeToothId} Details`))}
                                                     </Heading>
                                                 </VStack>
                                                 <Circle size="40px" bg="blue.50" color="blue.500">
@@ -988,7 +1009,7 @@ export const TreatmentProcedureForm = observer(
                                                         const currentIndex = teeth.findIndex(t => t.id === activeToothId);
                                                         setActiveToothId(teeth[currentIndex + 1].id);
                                                     }}>
-                                                        Next Tooth ({teeth[teeth.findIndex(t => t.id === activeToothId) + 1].id})
+                                                        Next: {teeth[teeth.findIndex(t => t.id === activeToothId) + 1].name}
                                                     </Button>
                                                 ) : (
                                                     <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" onClick={onDetailClose}>

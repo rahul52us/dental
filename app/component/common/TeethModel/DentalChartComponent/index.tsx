@@ -73,14 +73,24 @@ import stores from "../../../../store/stores";
 import { TREATMENT_CATEGORIES } from "../../../../dashboard/toothTreatment/treatmentDataConstant";
 import CustomInput from "../../../config/component/customInput/CustomInput";
 
-type WizardStep =
-  | "TOOTH_SELECTION"
-  | "PROCEDURE_FORM";
+const detectIsChild = (tooth: any) => {
+  const toothId = typeof tooth === 'object' ? (tooth.fdi || tooth.id || tooth.tooth?.fdi || tooth.tooth?.id) : String(tooth || "");
+  const tId = String(toothId);
+  if (!tId || tId === "General") return false;
+  return (
+    (parseInt(tId) >= 51 && parseInt(tId) <= 85) || // FDI child range
+    /[a-eA-E]/.test(tId) || // Palmer child range
+    tId.toLowerCase().includes('d') // Universal child indicator
+  );
+};
+
+type WizardStep = "TOOTH_SELECTION" | "PROCEDURE_FORM";
 
 const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [step, setStep] = useState<WizardStep>("TOOTH_SELECTION");
   const [dentitionType, setDentitionType] = useState<DentitionType>("adult");
   const formRef = useRef<any>(null);
+  const lastSyncedEditId = useRef<string | null>(null);
   const [selectedTeeth, setSelectedTeeth] = useState<ToothData[]>([]);
   const [toothComplaints, setToothComplaints] = useState<Record<string, string>>({});
   const [editingTreatment, setEditingTreatment] = useState<any | null>(null);
@@ -132,21 +142,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   } = stores;
 
   useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        setDoctorsLoading(true);
-        const res: any = await getUsersList({ type: 'doctor', limit: 100 });
-        if (res?.data?.data?.data) {
-          setDoctors(res.data.data.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch doctors", err);
-      } finally {
-        setDoctorsLoading(false);
-      }
-    };
-    fetchDoctors();
-  }, [getUsersList]);
+    // Doctors are now fetched on-demand by CustomInput to prevent global state pollution
+  }, []);
 
   const doctorOptions = useMemo(() => {
     return doctors.map((d) => ({
@@ -172,10 +169,28 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   };
 
   useEffect(() => {
-    if (patientDetails?.editData) {
+    if (patientDetails?.editData && patientDetails.editData._id !== lastSyncedEditId.current) {
       const edit = patientDetails.editData;
-      const allTeeth = getTeethByType(dentitionType);
-      const matchedTooth = allTeeth.find(t => t.id === edit.tooth?.fdi);
+      lastSyncedEditId.current = edit._id;
+
+      const notationToSet = edit.toothNotation || "fdi";
+      setNotation(notationToSet as any);
+
+      const rawTId = typeof edit.tooth === 'object' ? (edit.tooth.fdi || edit.tooth.id || edit.tooth.tooth?.fdi || edit.tooth.tooth?.id) : String(edit.tooth || "");
+      const tId = String(rawTId);
+      const isChild = detectIsChild(edit.tooth);
+      const dentToSet = edit.dentitionType || (isChild ? "child" : "adult");
+      setDentitionType(dentToSet as any);
+
+      const primaryPool = getTeethByType(dentToSet as any);
+      const secondaryPool = getTeethByType(dentToSet === "child" ? "adult" : "child");
+
+      let matchedTooth = primaryPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
+      if (!matchedTooth) {
+        matchedTooth = secondaryPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
+        if (matchedTooth) setDentitionType(dentToSet === "child" ? "adult" : "child");
+      }
+
       if (matchedTooth) setSelectedTeeth([matchedTooth]);
 
       setProcedureFormValues({
@@ -195,8 +210,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       });
 
       if (edit.complaintType) setComplaintType(edit.complaintType.toUpperCase());
-      if (edit.toothNote && edit.tooth?.fdi) {
-        setIndividualTeethNotes(prev => ({ ...prev, [edit.tooth.fdi]: edit.toothNote }));
+      if (edit.toothNote && tId) {
+        setIndividualTeethNotes(prev => ({ ...prev, [tId]: edit.toothNote }));
       }
 
       if (edit.treatmentPlan) {
@@ -222,7 +237,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       }
       setStep("PROCEDURE_FORM");
     }
-  }, [patientDetails?.editData, dentitionType]);
+  }, [patientDetails?.editData]);
 
   const steps = [
     { id: "TOOTH_SELECTION", title: "SELECTION", icon: FiMousePointer },
@@ -264,8 +279,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     } else {
       setSelectedTeeth([tooth]);
       setToothComplaints({ [tooth.id]: complaintType });
-      // Single selection automatically opens the form
-      setStep("PROCEDURE_FORM");
+      setActiveTeethForForm([tooth]);
+      setIsToothFormOpen(true);
     }
   };
 
@@ -305,6 +320,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   const handleEditTreatment = (item: any) => {
     setEditingTreatment(item);
+
+    // Sync UI state with the record being edited
+    const isChild = detectIsChild(item.tooth);
+    setDentitionType(isChild ? "child" : "adult");
+    if (item.toothNotation) setNotation(item.toothNotation as any);
+
     setProcedureFormValues({
       doctor: item.doctor?._id ? { label: item.doctor.name, value: item.doctor._id } : item.doctor,
       notes: item.notes || "",
@@ -345,7 +366,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               <HStack spacing={8}>
                 <VStack align="start" spacing={1}>
                   <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">DENTITION</Text>
-                  <DentitionToggle value={dentitionType} onChange={setDentitionType} />
+                  <DentitionToggle value={dentitionType} onChange={(val) => {
+                    setDentitionType(val);
+                    setSelectedTeeth([]);
+                    setToothComplaints({});
+                  }} />
                 </VStack>
                 <VStack align="start" spacing={1}>
                   <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">NOTATION</Text>
@@ -443,7 +468,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </HStack>
                 </Flex>
                 <Box flex={1} overflow="hidden">
-                  <TeethChart dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} activeComplaintType={complaintType} />
+                  <TeethChart key={dentitionType} dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} activeComplaintType={complaintType} />
                 </Box>
               </VStack>
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
@@ -459,7 +484,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 </HStack>
                 <Box flex={1} overflowY="auto" pr={2}>
                   <VStack align="stretch" spacing={4}>
-                    <VStack align="start" spacing={2} p={4} bg="blue.50/30" borderRadius="2xl" border="1px dashed" borderColor="blue.100">
+                    <VStack display="none" align="start" spacing={2} p={4} bg="blue.50/30" borderRadius="2xl" border="1px dashed" borderColor="blue.100">
                       <HStack justify="space-between" w="full">
                         <Text fontSize="10px" fontWeight="900" color="blue.600">SESSION NOTES</Text>
                         <IconButton aria-label="Edit" icon={<FiEdit3 />} size="xs" variant="ghost" onClick={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} />
@@ -485,9 +510,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         return (
           <TreatmentProcedureForm
             isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={selectedTeeth}
+            dentitionType={dentitionType}
             generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
             onSuccess={() => { patientDetails?.applyGetAllRecords?.({}); setStep("TOOTH_SELECTION"); setSelectedTeeth([]); setEditingTreatment(null); }}
-            onBack={handleBack} onToothClick={handleToothClick} hoistedValues={procedureFormValues} onValuesUpdate={setProcedureFormValues}
+            onBack={handleBack} onToothClick={handleToothClick} hoistedValues={procedureFormValues} notation={notation} onValuesUpdate={setProcedureFormValues}
             explorerState={explorerState} onExplorerUpdate={setExplorerState} individualTeethNotes={individualTeethNotes} onEditToothNote={handleEditToothNote}
             onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} formRef={formRef} doctorOptions={doctorOptions}
           />
@@ -511,6 +537,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           generalDescription={teethNotes}
           onSuccess={() => { onQuickAddClose(); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
           onBack={onQuickAddClose} isDrawerMode={true} doctorOptions={doctorOptions}
+          notation={notation}
         />
       </CustomDrawer>
 
@@ -545,12 +572,34 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       <Box h="calc(100vh - 80px)" px={6} pb={6} pt={2} overflow="hidden">{renderStep()}</Box>
 
       <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
-        <TreatmentProcedureForm
-          isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment} teeth={editingTreatment?.tooth?.fdi ? [([...adultTeeth, ...childTeeth].find(t => t.fdi === editingTreatment.tooth.fdi) || { id: editingTreatment.tooth.fdi, fdi: editingTreatment.tooth.fdi, name: `Tooth ${editingTreatment.tooth.fdi}`, universal: "", palmer: "", position: "upper", side: "right", type: "molar" }) as ToothData] : []}
-          generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
-          onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
-          onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
-        />
+        {(() => {
+          const rawTId = typeof editingTreatment?.tooth === 'object' ? (editingTreatment.tooth.fdi || editingTreatment.tooth.id || editingTreatment.tooth.tooth?.fdi || editingTreatment.tooth.tooth?.id) : String(editingTreatment?.tooth || "");
+          const tId = String(rawTId);
+          const isChild = detectIsChild(editingTreatment?.tooth);
+          const pool = isChild ? childTeeth : adultTeeth;
+          const otherPool = isChild ? adultTeeth : childTeeth;
+
+          let toothObj = tId ? (
+            pool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId) ||
+            otherPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId)
+          ) : null;
+
+          if (!toothObj && tId && tId !== "General") {
+            toothObj = { id: tId, fdi: tId, name: `Tooth ${tId}`, universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData;
+          }
+
+          return (
+            <TreatmentProcedureForm
+              isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment}
+              teeth={toothObj ? [toothObj as ToothData] : []}
+              dentitionType={isChild ? "child" : "adult"}
+              generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
+              onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
+              onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
+              notation={notation}
+            />
+          );
+        })()}
       </CustomDrawer>
 
       <CustomDrawer open={isHistoryDrawerOpen} close={onHistoryDrawerClose} title={<PatientHeader title="Clinical History" patient={patientDetails} />} width="85vw">
@@ -760,6 +809,24 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <ToothFormDialog
+        open={isToothFormOpen}
+        onOpenChange={setIsToothFormOpen}
+        teeth={activeTeethForForm}
+        isPatient={isPatient}
+        patientDetails={patientDetails}
+        generalDescription={teethNotes}
+        notation={notation}
+        dentitionType={dentitionType}
+        lastExaminingDoctor={lastExaminingDoctor}
+        setLastExaminingDoctor={setLastExaminingDoctor}
+        doctorOptions={doctorOptions}
+        onSuccess={() => {
+          if (patientDetails?._id) {
+            getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
+          }
+        }}
+      />
     </Box>
   );
 });

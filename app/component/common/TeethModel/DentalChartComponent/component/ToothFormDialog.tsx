@@ -34,6 +34,7 @@ import {
   FiPlusCircle,
   FiTrash2,
   FiEdit3,
+  FiX,
 } from "react-icons/fi";
 import { FaTooth } from "react-icons/fa";
 
@@ -54,10 +55,17 @@ interface ToothFormDialogProps {
   onOpenChange: (open: boolean) => void;
   isPatient: boolean;
   patientDetails: any;
+  notation?: "fdi" | "universal" | "palmer";
+  dentitionType?: "adult" | "child";
+  lastExaminingDoctor?: any;
+  setLastExaminingDoctor?: (doc: any) => void;
+  doctorOptions?: any[];
+  onSuccess?: () => void;
 }
 
 interface TreatmentFormData {
   doctor: any;
+  examiningDoctor: any;
   treatmentDate: string;
   notes: string;
   treatmentCode: string;
@@ -68,14 +76,25 @@ interface TreatmentFormData {
   status: string;
 }
 
+const detectIsChild = (tooth: any) => {
+  const tId = typeof tooth === "object" ? tooth.fdi : String(tooth || "");
+  if (!tId || tId === "General") return false;
+  return (
+    (parseInt(tId) >= 51 && parseInt(tId) <= 85) || // FDI child range
+    /[a-eA-E]/.test(tId) || // Palmer child range
+    tId.toLowerCase().includes("d") // Universal child indicator
+  );
+};
+
 const initialFormData: TreatmentFormData = {
   doctor: undefined,
+  examiningDoctor: undefined,
   treatmentDate: new Date().toISOString().split("T")[0],
   notes: "",
   treatmentCode: "",
-  estimate: 0,
-  discount: 0,
-  total: 0,
+  estimate: "" as any,
+  discount: "" as any,
+  total: "" as any,
   patient: undefined,
   status: "Planned",
 };
@@ -90,8 +109,15 @@ export const ToothFormDialog = observer(
     onOpenChange,
     isPatient,
     patientDetails,
+    notation,
+    dentitionType,
+    lastExaminingDoctor,
+    setLastExaminingDoctor,
+    doctorOptions = [],
+    onSuccess,
   }: ToothFormDialogProps) => {
     const toast = useToast();
+    const [showProcedureExplorer, setShowProcedureExplorer] = useState(false);
     const [formLoading, setFormLoading] = useState(false);
     const {
       toothTreatmentStore: { createToothTreatment },
@@ -102,21 +128,8 @@ export const ToothFormDialog = observer(
     const [doctorsLoading, setDoctorsLoading] = useState(false);
 
     useEffect(() => {
-      const fetchDoctors = async () => {
-        try {
-          setDoctorsLoading(true);
-          const res: any = await getAllUsers({ type: 'doctor', limit: 100 });
-          if (res?.data?.data?.data) {
-            setDoctors(res.data.data.data);
-          }
-        } catch (err) {
-          console.error("Failed to fetch doctors", err);
-        } finally {
-          setDoctorsLoading(false);
-        }
-      };
-      fetchDoctors();
-    }, [getAllUsers]);
+      // Doctors are now fetched on-demand by CustomInput
+    }, []);
 
     // Browser State
     const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(0);
@@ -130,42 +143,51 @@ export const ToothFormDialog = observer(
     const handleSubmit = async (formData: any) => {
       try {
         setFormLoading(true);
-        const values = { ...formData };
+        const values = replaceLabelValueObjects(formData);
+        
+        const promises = teeth.map((t) => {
+          const payload: any = {
+            patient: values.patient?.value || values.patient,
+            doctor: values.doctor?.value || values.doctor,
+            examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
+            company: patientDetails?.company?._id || patientDetails?.company,
+            tooth: t.id, // FDI ID
+            toothNotation: notation || "fdi",
+            dentitionType: dentitionType || (detectIsChild(t) ? "child" : "adult"),
+            treatmentDate: values.treatmentDate,
+            notes: values.notes,
+            treatmentPlan: values.treatmentCode || "General Treatment",
+            status: values.status === "Planned" ? "pending" : values.status,
+            estimateMin: values.estimate || 0,
+            estimateMax: values.estimate || 0,
+            discount: values.discount || 0,
+            totalMin: values.total || 0,
+            totalMax: values.total || 0,
+            recordType: "tooth",
+            user: stores.auth.user?._id
+          };
+          return createToothTreatment(payload);
+        });
 
-        createToothTreatment({
-          ...values,
-          ...(replaceLabelValueObjects(values) || {}),
-          teeth,
-          generalDescription,
-        })
-          .then(() => {
-            setFormLoading(false);
-            toast({
-              title: "Complaint Added.",
-              description: `Record has been successfully added.`,
-              status: "success",
-              duration: 5000,
-              isClosable: true,
-            });
-            if (onOpenChange) {
-              onOpenChange(false);
-            }
-          })
-          .catch((err: any) => {
-            setFormLoading(false);
-            toast({
-              title: "Failed to create",
-              description: `${err?.message}`,
-              status: "error",
-              duration: 5000,
-              isClosable: true,
-            });
-          });
+        await Promise.all(promises);
+        
+        setFormLoading(false);
+        toast({
+          title: "Treatment Records Saved.",
+          description: `${teeth.length} record(s) have been successfully added.`,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        
+        if (onSuccess) onSuccess();
+        if (onOpenChange) onOpenChange(false);
+        
       } catch (err: any) {
         setFormLoading(false);
         toast({
           title: "Failed to create",
-          description: `${err?.message}`,
+          description: `${err?.message || "Internal error"}`,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -179,18 +201,21 @@ export const ToothFormDialog = observer(
           <FiPlusCircle size={20} />
         </Box>
         <VStack align="start" spacing={0}>
-          <Heading size="md" color="gray.800" fontWeight="extrabold">New Treatment Record</Heading>
-          <Text fontSize="xs" color="gray.400" fontWeight="bold">PROCEDURE ENTRY FORM</Text>
+          <Heading size="md" color="gray.800" fontWeight="extrabold">
+            {teeth.length === 1 
+              ? teeth[0].name 
+              : (teeth.length > 1 ? `Multi-Tooth (${teeth.length})` : "General Record")}
+          </Heading>
+          <Text fontSize="xs" color="gray.400" fontWeight="bold">
+            {teeth.length === 1 
+              ? `TOOTH ${notation === 'universal' ? (teeth[0].universal || teeth[0].fdi) : (notation === 'palmer' ? (teeth[0].palmer || teeth[0].fdi) : teeth[0].fdi)}` 
+              : "PROCEDURE ENTRY FORM"}
+          </Text>
         </VStack>
       </HStack>
     );
 
-    const doctorOptions = useMemo(() => {
-      return doctors.map((d) => ({
-        label: d.name,
-        value: d._id,
-      }));
-    }, [doctors]);
+    // Use passed doctorOptions instead of calculating locally
 
     return (
       <CustomDrawer
@@ -204,38 +229,53 @@ export const ToothFormDialog = observer(
             ...initialFormData,
             patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
             notes: generalDescription,
+            examiningDoctor: lastExaminingDoctor,
             doctor: doctorOptions[0],
           }}
           enableReinitialize={true}
           onSubmit={handleSubmit}
         >
           {({ values, setFieldValue, handleSubmit }: any) => {
-            const calculateTotal = (est: number, disc: number) => Math.max(0, est - disc);
+            const calculateTotal = (est: any, disc: any) => {
+              const e = Number(est) || 0;
+              const d = Number(disc) || 0;
+              return Math.max(0, e - d);
+            };
 
             return (
               <FormikForm onSubmit={handleSubmit} style={{ height: '100%', padding: '20px' }}>
                 <VStack spacing={6} align="stretch">
 
                   {/* PATIENT & DOCTOR CONTEXT HEADER */}
-                  <SimpleGrid columns={3} spacing={6} bg="gray.50" p={6} borderRadius="2xl" border="1px" borderColor="gray.100">
+                  <SimpleGrid columns={4} spacing={4} bg="gray.50" p={5} borderRadius="2xl" border="1px" borderColor="gray.100">
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">PATIENT NAME</Text>
-                      <Text fontWeight="black" color="gray.700" fontSize="md">{patientDetails?.name || "N/A"}</Text>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">PATIENT</Text>
+                      <Text fontWeight="black" color="gray.700" fontSize="sm" noOfLines={1}>{patientDetails?.name || "N/A"}</Text>
                     </VStack>
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">ASSIGNED DOCTOR</Text>
-                      <Box w="full">
-                        <CustomInput
-                          name="doctor"
-                          type="real-time-user-search"
-                          isSearchable={true}
-                          isClear={true}
-                          query={{ type: 'doctor' }}
-                          options={doctorOptions}
-                          value={values.doctor}
-                          onChange={(val: any) => setFieldValue("doctor", val)}
-                        />
-                      </Box>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">TREATING DOCTOR</Text>
+                      <CustomInput
+                        name="doctor"
+                        type="real-time-user-search"
+                        options={doctorOptions}
+                        value={values.doctor}
+                        onChange={(val: any) => setFieldValue("doctor", val)}
+                        style={{ height: '32px', fontSize: '12px' }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">EXAMINING DOCTOR</Text>
+                      <CustomInput
+                        name="examiningDoctor"
+                        type="real-time-user-search"
+                        options={doctorOptions}
+                        value={values.examiningDoctor}
+                        onChange={(val: any) => {
+                          setFieldValue("examiningDoctor", val);
+                          if (setLastExaminingDoctor) setLastExaminingDoctor(val);
+                        }}
+                        style={{ height: '32px', fontSize: '12px' }}
+                      />
                     </VStack>
                     <VStack align="start" spacing={1}>
                       <Text fontSize="10px" fontWeight="black" color="gray.400">DATE</Text>
@@ -244,22 +284,36 @@ export const ToothFormDialog = observer(
                         type="date"
                         value={values.treatmentDate}
                         onChange={(e: any) => setFieldValue("treatmentDate", e.target.value)}
+                        style={{ height: '32px', fontSize: '12px' }}
                       />
                     </VStack>
                   </SimpleGrid>
 
                   {/* TREATMENT BROWSER SECTION (As per Image) */}
+                  {/* TREATMENT BROWSER SECTION (Collapsible) */}
                   <Box>
-                    <Text fontSize="sm" fontWeight="bold" color="gray.600" mb={3}>Treatment Code</Text>
+                    <HStack justify="space-between" mb={3}>
+                      <Text fontSize="sm" fontWeight="bold" color="gray.600">Clinical Procedure</Text>
+                      <Button
+                        size="xs"
+                        leftIcon={showProcedureExplorer ? <FiX /> : <FiPlusCircle />}
+                        colorScheme={showProcedureExplorer ? "gray" : "blue"}
+                        variant={showProcedureExplorer ? "ghost" : "solid"}
+                        onClick={() => setShowProcedureExplorer(!showProcedureExplorer)}
+                      >
+                        {showProcedureExplorer ? "Hide Explorer" : "Open Procedure Explorer"}
+                      </Button>
+                    </HStack>
 
-                    <Box
-                      borderRadius="xl"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      overflow="hidden"
-                      bg="white"
-                    >
-                      <Grid templateColumns="1fr 1fr 1.2fr" minH="300px" maxH="400px">
+                    {showProcedureExplorer ? (
+                      <Box
+                        borderRadius="xl"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        overflow="hidden"
+                        bg="white"
+                      >
+                        <Grid templateColumns="1fr 1fr 1.2fr" minH="300px" maxH="400px">
 
                         {/* COLUMN 1: CATEGORY */}
                         <Box borderRight="1px solid" borderColor="gray.200">
@@ -345,6 +399,24 @@ export const ToothFormDialog = observer(
                         </Box>
                       </Grid>
                     </Box>
+                    ) : (
+                      <Box p={4} bg="gray.50/50" borderRadius="xl" border="1px dashed" borderColor="gray.200">
+                        <HStack justify="space-between" align="center">
+                          <Text fontSize="sm" color={values.treatmentCode ? "blue.600" : "gray.400"} fontWeight={values.treatmentCode ? "bold" : "medium"}>
+                            {values.treatmentCode || "No procedure code selected. (Default: General Treatment)"}
+                          </Text>
+                          {values.treatmentCode && (
+                            <IconButton
+                              aria-label="Clear"
+                              icon={<FiX />}
+                              size="xs"
+                              variant="ghost"
+                              onClick={() => setFieldValue("treatmentCode", "")}
+                            />
+                          )}
+                        </HStack>
+                      </Box>
+                    )}
                   </Box>
 
                   {/* FINANCIAL INPUTS SECTION */}
@@ -352,9 +424,15 @@ export const ToothFormDialog = observer(
                     <VStack align="start" spacing={1}>
                       <Text fontSize="xs" fontWeight="bold" color="gray.500">Estimated Amount (₹)</Text>
                       <Input
-                        readOnly
+                        type="number"
+                        placeholder="0.00"
                         value={values.estimate}
-                        bg="gray.50"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("estimate", val);
+                          setFieldValue("total", calculateTotal(val, values.discount));
+                        }}
+                        bg="white"
                         borderRadius="xl"
                         fontWeight="bold"
                         border="1px solid"
@@ -366,9 +444,10 @@ export const ToothFormDialog = observer(
                       <Text fontSize="xs" fontWeight="bold" color="gray.500">Discount (₹)</Text>
                       <Input
                         type="number"
+                        placeholder="0.00"
                         value={values.discount}
                         onChange={(e) => {
-                          const val = Number(e.target.value);
+                          const val = e.target.value;
                           setFieldValue("discount", val);
                           setFieldValue("total", calculateTotal(values.estimate, val));
                         }}
@@ -381,8 +460,10 @@ export const ToothFormDialog = observer(
                     <VStack align="start" spacing={1}>
                       <Text fontSize="xs" fontWeight="bold" color="gray.500">Total (₹)</Text>
                       <Input
-                        readOnly
+                        type="number"
+                        placeholder="0.00"
                         value={values.total}
+                        onChange={(e) => setFieldValue("total", e.target.value)}
                         bg="blue.50"
                         color="blue.700"
                         borderRadius="xl"
@@ -444,7 +525,6 @@ export const ToothFormDialog = observer(
                       colorScheme="blue"
                       type="submit"
                       isLoading={formLoading}
-                      isDisabled={!values.treatmentCode}
                       px={10}
                       h="50px"
                       borderRadius="xl"

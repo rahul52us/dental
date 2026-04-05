@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { FiMoreVertical, FiEdit3, FiTrash2, FiCheckCircle } from "react-icons/fi";
 import { formatDate } from "../../../../config/utils/dateUtils";
+import { adultTeeth, childTeeth } from "../utils/teethData";
 
 interface SavedTreatmentListItemProps {
     item: any;
@@ -44,7 +45,12 @@ export const SavedTreatmentListItem = ({ item, onEdit, onDelete, onComplete }: S
     };
 
     const statusStyle = getStatusStyles(item.status);
-    const toothInfo = item.tooth?.fdi ? `Tooth ${item.tooth.fdi}` : "General";
+    const toothVal = typeof item.tooth === 'object' ? item.tooth.fdi : item.tooth;
+    const isChild = item.dentitionType === "child" || (toothVal && parseInt(toothVal) >= 51 && parseInt(toothVal) <= 85);
+    const toothData = toothVal ? (isChild ? childTeeth : adultTeeth).find(t => t.id === toothVal) : null;
+    
+    const toothInfo = toothVal ? `${(item.toothNotation || "FDI").toUpperCase()} ${toothVal}` : "General";
+    const toothName = toothData?.name || (toothVal === "General" ? "General Clinical" : "");
 
     return (
         <Box
@@ -67,8 +73,11 @@ export const SavedTreatmentListItem = ({ item, onEdit, onDelete, onComplete }: S
                         <Badge size="sm" variant="subtle" colorScheme="blue" borderRadius="full" px={2} fontSize="9px">
                             {toothInfo}
                         </Badge>
+                        <Text fontSize="10px" fontWeight="1000" color="blue.600" noOfLines={1} maxW="150px">
+                            {toothName}
+                        </Text>
                         <Text fontSize="10px" color="gray.400" fontWeight="700">
-                            {formatDate(item.treatmentDate)}
+                            • {formatDate(item.treatmentDate)}
                         </Text>
                     </HStack>
                     

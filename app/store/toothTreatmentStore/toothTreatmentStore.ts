@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import axios from "axios";
 import { authStore } from "../authStore/authStore";
+import { adultTeeth, childTeeth, getTeethByType } from "../../component/common/TeethModel/DentalChartComponent/utils/teethData";
 
 interface ToothTreatment {
   data: any[];
@@ -83,9 +84,20 @@ class ToothTreatmentStore {
       // Extract items from data.data.data or data.data depending on backend structure
       const rawItems = data?.data?.data || data?.data || [];
       const mappedData = rawItems.map((it: any) => {
-        const fdi = it?.tooth?.fdi || "--";
-        const universal = it?.tooth?.universal || "--";
-        const palmer = it?.tooth?.palmer || "--";
+        const fdi = it?.tooth || "--";
+        const notation = it?.toothNotation || "fdi";
+        const dentition = it?.dentitionType || "adult";
+        
+        // Find tooth object for notation mapping
+        const allTeeth = getTeethByType(dentition as any);
+        const toothObj = allTeeth.find(t => t.id === fdi);
+        
+        const toothUniversal = toothObj?.universal || "--";
+        const toothPalmer = toothObj?.palmer || "--";
+
+        let toothLabel = `FDI ${fdi}`;
+        if (notation === "universal") toothLabel = `U ${toothUniversal}`;
+        else if (notation === "palmer") toothLabel = `P ${toothPalmer}`;
 
         return {
           ...it,
@@ -93,9 +105,9 @@ class ToothTreatmentStore {
           doctorName: it?.doctor?.name,
           examiningDoctorName: it?.examiningDoctor?.name,
           toothFDI: fdi,
-          toothUniversal: universal,
-          toothPalmer: palmer,
-          toothName: `FDI ${fdi} | U ${universal} | P ${palmer}`,
+          toothUniversal: toothUniversal,
+          toothPalmer: toothPalmer,
+          toothName: toothLabel,
         }
       });
 

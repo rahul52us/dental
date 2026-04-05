@@ -22,6 +22,7 @@ import { FaUserMd, FaUser, FaTooth, FaCalendarAlt, FaNotesMedical, FaStethoscope
 import stores from "../../../store/stores";
 import { observer } from "mobx-react-lite";
 import { formatDate } from "../../../component/config/utils/dateUtils";
+import { getTeethByType } from "../../../component/common/TeethModel/DentalChartComponent/utils/teethData";
 
 const statusColors: Record<string, string> = {
   pending: "orange",
@@ -44,19 +45,17 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   } = stores;
 
   const fetchTreatment = async () => {
-    if (!data?._id) return;
+    const id = data?._id || data?.id;
+    if (!id) return;
 
     try {
-      console.log("TreatmentDetailsView: Fetching for ID:", data?._id);
+      setIsLoading(true);
       const response = await getToothTreatmentById({
-        treatmentId: data?._id,
+        treatmentId: id,
       });
-      console.log("TreatmentDetailsView: Response received:", response);
 
       if (response?.status === "success" || response?.status === true || response?.success === "success" || response?.success === true) {
         setTreatment(response?.data);
-      } else {
-        console.warn("TreatmentDetailsView: Invalid response:", response);
       }
     } catch (err: any) {
       console.error("TreatmentDetailsView: Fetch error:", err);
@@ -108,14 +107,24 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
     examiningDoctor,
     createdBy,
     createdAt,
+    toothNotation,
+    dentitionType
   } = treatment;
 
   const color = statusColors[status] || "gray";
 
+  // Notation logic
+  const notation = toothNotation || "fdi";
+  const dentition = dentitionType || "adult";
+  const allTeeth = getTeethByType(dentition as any);
+  const toothObj = allTeeth.find(t => t.id === tooth);
+  const toothUniversal = toothObj?.universal || "--";
+  const toothPalmer = toothObj?.palmer || "--";
+
   return (
-    <Box p={6} bg="gray.50" borderRadius="3xl" maxH="85vh" overflowY="auto" sx={{ 
-      '&::-webkit-scrollbar': { width: '6px' }, 
-      '&::-webkit-scrollbar-thumb': { background: 'rgba(0,0,0,0.05)', borderRadius: '10px' } 
+    <Box p={6} bg="gray.50" borderRadius="3xl" maxH="85vh" overflowY="auto" sx={{
+      '&::-webkit-scrollbar': { width: '6px' },
+      '&::-webkit-scrollbar-thumb': { background: 'rgba(0,0,0,0.05)', borderRadius: '10px' }
     }}>
       <VStack spacing={6} align="stretch">
         {/* Header Section */}
@@ -136,7 +145,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   {patient?.name || "Anonymous Patient"}
                 </Heading>
                 <Text fontSize="sm" color="gray.500" fontWeight="600">
-                  Tooth FDI: <Box as="span" color="blue.600" fontWeight="800">{tooth?.fdi || "--"}</Box> | Universal: {tooth?.universal || "--"} | Palmer: {tooth?.palmer || "--"}
+                  {notation.toUpperCase()} ID: <Box as="span" color="blue.600" fontWeight="800">{tooth || "--"}</Box> | Universal: {toothUniversal} | Palmer: {toothPalmer}
                 </Text>
               </VStack>
             </HStack>
@@ -151,92 +160,94 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
         </Card>
 
         <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }} gap={6}>
-          {/* Procedure Detail */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn="span 2">
-            <VStack align="start" spacing={5} w="full">
+          {/* Clinical Context */}
+          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
+            <VStack align="start" spacing={4} w="full">
               <HStack w="full" justify="space-between">
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="wider">PROCEDURE / TREATMENT PLAN</Text>
-                  <Heading size="md" fontWeight="900" color="blue.700">
-                    {treatmentPlan || "General Clinical Procedure"}
-                  </Heading>
-                </VStack>
-                {complaintType && (
-                  <Badge colorScheme="red" variant="subtle" borderRadius="xl" px={4} py={2} fontSize="sm" fontWeight="bold">
-                    <Icon as={FaStethoscope} mr={2} />
-                    {complaintType}
-                  </Badge>
-                )}
+                <HStack>
+                  <Icon as={FaStethoscope} color="blue.500" />
+                  <Heading size="sm" color="gray.700">Clinical Context</Heading>
+                </HStack>
               </HStack>
-              
-              <Divider borderColor="gray.50" />
-              
-              <VStack align="start" spacing={3} w="full">
-                <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="wider">CLINICAL OBSERVATIONS & NOTES</Text>
-                <Box p={5} bg="gray.50" borderRadius="2xl" w="full" borderLeft="6px solid" borderColor="blue.100">
-                  <Text fontSize="md" color="gray.700" lineHeight="1.6" whiteSpace="pre-wrap" fontStyle={notes ? "normal" : "italic"}>
-                    {notes || "No clinical observations recorded for this procedure."}
+              <Divider />
+              <VStack align="stretch" w="full" spacing={4}>
+                <Box>
+                  <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">Complaint Type</Text>
+                  <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="lg" fontSize="xs">
+                    {complaintType || "No Complaint Specified"}
+                  </Badge>
+                </Box>
+                <Box>
+                  <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">Procedure Planned</Text>
+                  <Text fontWeight="800" color="gray.700" fontSize="md">
+                    {treatmentPlan || "General Consultation"}
                   </Text>
                 </Box>
               </VStack>
             </VStack>
           </Card>
 
-          {/* Medical Team Card */}
+          {/* Assigned Staff */}
           <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
-            <VStack align="start" spacing={5}>
-              <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="wider">CLINICAL MEDICAL TEAM</Text>
-              
-              <HStack spacing={4} w="full">
-                <Avatar size="md" name={doctor?.name} bg="teal.50" color="teal.500" border="2px solid" borderColor="teal.100" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="10px" fontWeight="900" color="teal.500" letterSpacing="wider">PERFORMING DOCTOR</Text>
-                  <Text fontWeight="800" fontSize="md" color="gray.800">{doctor?.name || "Not Assigned"}</Text>
-                  <Text fontSize="xs" color="gray.500">{doctor?.code || "No Code"}</Text>
-                </VStack>
+            <VStack align="start" spacing={4} w="full">
+              <HStack>
+                <Icon as={FaUserMd} color="teal.500" />
+                <Heading size="sm" color="gray.700">Medical Team</Heading>
               </HStack>
-
-              <Divider borderColor="gray.50" />
-
-              <HStack spacing={4} w="full">
-                <Avatar size="md" name={examiningDoctor?.name || (typeof examiningDoctor === 'string' ? examiningDoctor : 'Unassigned')} bg="blue.50" color="blue.500" border="2px solid" borderColor="blue.100" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="wider">EXAMINING DOCTOR</Text>
-                  <Text fontWeight="800" fontSize="md" color="gray.800">
-                    {examiningDoctor?.name || (typeof examiningDoctor === 'string' ? examiningDoctor : "Not Assigned")}
-                  </Text>
-                  <Text fontSize="xs" color="gray.500">{examiningDoctor?.code || ""}</Text>
-                </VStack>
-              </HStack>
+              <Divider />
+              <VStack align="stretch" w="full" spacing={4}>
+                <HStack spacing={4}>
+                  <Avatar size="sm" name={doctor?.name} src={doctor?.photo} />
+                  <Box>
+                    <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Performing Doctor</Text>
+                    <Text fontWeight="800" color="gray.700">{doctor?.name || "Unassigned"}</Text>
+                  </Box>
+                </HStack>
+                {examiningDoctor && (
+                  <HStack spacing={4}>
+                    <Avatar size="sm" name={examiningDoctor?.name} src={examiningDoctor?.photo} />
+                    <Box>
+                      <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Examining Doctor</Text>
+                      <Text fontWeight="800" color="gray.700">{examiningDoctor?.name}</Text>
+                    </Box>
+                  </HStack>
+                )}
+              </VStack>
             </VStack>
           </Card>
 
-          {/* Patient Info & Metadata */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
-            <VStack align="start" spacing={5}>
-              <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="wider">RECORD INFORMATION</Text>
-              
-              <HStack spacing={4} w="full">
-                <Avatar size="md" name={patient?.name} bg="purple.50" color="purple.500" border="2px solid" borderColor="purple.100" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="10px" fontWeight="900" color="purple.500" letterSpacing="wider">PATIENT PROFILE</Text>
-                  <Text fontWeight="800" fontSize="md" color="gray.800">{patient?.name}</Text>
-                  <Text fontSize="xs" color="gray.500">ID: {patient?.code || "N/A"}</Text>
-                </VStack>
+          {/* Notes & Clinical Findings */}
+          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+            <VStack align="start" spacing={4} w="full">
+              <HStack>
+                <Icon as={FaNotesMedical} color="orange.500" />
+                <Heading size="sm" color="gray.700">Clinical Findings & Notes</Heading>
               </HStack>
-
-              <Divider borderColor="gray.50" />
-
-              <VStack align="start" spacing={1}>
-                <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="wider">AUDIT LOG</Text>
-                <Text fontSize="xs" color="gray.600" fontWeight="600">
-                  Recorded by <Box as="span" color="gray.800" fontWeight="800">{createdBy?.name || "System Administrator"}</Box>
+              <Divider />
+              <Box w="full" bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
+                <Text color="gray.700" whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
+                  {notes || "No clinical notes provided for this record."}
                 </Text>
-                <Text fontSize="11px" color="gray.400">
-                  Created on {formatDate(createdAt)}
-                </Text>
-              </VStack>
+              </Box>
             </VStack>
+          </Card>
+
+          {/* Administrative Info */}
+          <Card variant="unstyled" bg="gray.800" borderRadius="3xl" boxShadow="xl" p={6} gridColumn={{ lg: "span 2" }}>
+            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={8}>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="xs" fontWeight="900" color="gray.500" textTransform="uppercase">Record Created</Text>
+                <Text color="white" fontWeight="700">{formatDate(createdAt)}</Text>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase" letterSpacing="wider">DENTITION</Text>
+                <Badge colorScheme={dentition === "child" ? "pink" : "blue"} variant="solid" borderRadius="full">{dentition.toUpperCase()}</Badge>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="xs" fontWeight="900" color="gray.500" textTransform="uppercase">Reference ID</Text>
+                <Text color="white" fontWeight="700" fontSize="xs" fontFamily="mono">{treatment._id}</Text>
+              </VStack>
+            </Grid>
           </Card>
         </Grid>
       </VStack>

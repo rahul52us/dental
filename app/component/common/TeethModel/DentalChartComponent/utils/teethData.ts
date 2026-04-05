@@ -53,32 +53,32 @@ export const adultTeeth: ToothData[] = [
 
 export const childTeeth: ToothData[] = [
   // Upper Right (patient's right)
-  { id: '55', name: 'Right Upper Second Molar', fdi: '55', universal: '1d', palmer: 'E', position: 'upper', side: 'right', type: 'molar' },
-  { id: '54', name: 'Right Upper First Molar', fdi: '54', universal: '2d', palmer: 'D', position: 'upper', side: 'right', type: 'molar' },
-  { id: '53', name: 'Right Upper Canine', fdi: '53', universal: '3d', palmer: 'C', position: 'upper', side: 'right', type: 'canine' },
-  { id: '52', name: 'Right Upper Lateral Incisor', fdi: '52', universal: '4d', palmer: 'B', position: 'upper', side: 'right', type: 'incisor' },
-  { id: '51', name: 'Right Upper Central Incisor', fdi: '51', universal: '5d', palmer: 'A', position: 'upper', side: 'right', type: 'incisor' },
+  { id: '55', name: 'Primary Right Upper Second Molar', fdi: '55', universal: '1d', palmer: 'E', position: 'upper', side: 'right', type: 'molar' },
+  { id: '54', name: 'Primary Right Upper First Molar', fdi: '54', universal: '2d', palmer: 'D', position: 'upper', side: 'right', type: 'molar' },
+  { id: '53', name: 'Primary Right Upper Canine', fdi: '53', universal: '3d', palmer: 'C', position: 'upper', side: 'right', type: 'canine' },
+  { id: '52', name: 'Primary Right Upper Lateral Incisor', fdi: '52', universal: '4d', palmer: 'B', position: 'upper', side: 'right', type: 'incisor' },
+  { id: '51', name: 'Primary Right Upper Central Incisor', fdi: '51', universal: '5d', palmer: 'A', position: 'upper', side: 'right', type: 'incisor' },
   
   // Upper Left (patient's left)
-  { id: '61', name: 'Left Upper Central Incisor', fdi: '61', universal: '6d', palmer: 'A', position: 'upper', side: 'left', type: 'incisor' },
-  { id: '62', name: 'Left Upper Lateral Incisor', fdi: '62', universal: '7d', palmer: 'B', position: 'upper', side: 'left', type: 'incisor' },
-  { id: '63', name: 'Left Upper Canine', fdi: '63', universal: '8d', palmer: 'C', position: 'upper', side: 'left', type: 'canine' },
-  { id: '64', name: 'Left Upper First Molar', fdi: '64', universal: '9d', palmer: 'D', position: 'upper', side: 'left', type: 'molar' },
-  { id: '65', name: 'Left Upper Second Molar', fdi: '65', universal: '10d', palmer: 'E', position: 'upper', side: 'left', type: 'molar' },
+  { id: '61', name: 'Primary Left Upper Central Incisor', fdi: '61', universal: '6d', palmer: 'A', position: 'upper', side: 'left', type: 'incisor' },
+  { id: '62', name: 'Primary Left Upper Lateral Incisor', fdi: '62', universal: '7d', palmer: 'B', position: 'upper', side: 'left', type: 'incisor' },
+  { id: '63', name: 'Primary Left Upper Canine', fdi: '63', universal: '8d', palmer: 'C', position: 'upper', side: 'left', type: 'canine' },
+  { id: '64', name: 'Primary Left Upper First Molar', fdi: '64', universal: '9d', palmer: 'D', position: 'upper', side: 'left', type: 'molar' },
+  { id: '65', name: 'Primary Left Upper Second Molar', fdi: '65', universal: '10d', palmer: 'E', position: 'upper', side: 'left', type: 'molar' },
   
   // Lower Left (patient's left)
-  { id: '75', name: 'Left Lower Second Molar', fdi: '75', universal: '11d', palmer: 'E', position: 'lower', side: 'left', type: 'molar' },
-  { id: '74', name: 'Left Lower First Molar', fdi: '74', universal: '12d', palmer: 'D', position: 'lower', side: 'left', type: 'molar' },
-  { id: '73', name: 'Left Lower Canine', fdi: '73', universal: '13d', palmer: 'C', position: 'lower', side: 'left', type: 'canine' },
-  { id: '72', name: 'Left Lower Lateral Incisor', fdi: '72', universal: '14d', palmer: 'B', position: 'lower', side: 'left', type: 'incisor' },
-  { id: '71', name: 'Left Lower Central Incisor', fdi: '71', universal: '15d', palmer: 'A', position: 'lower', side: 'left', type: 'incisor' },
+  { id: '75', name: 'Primary Left Lower Second Molar', fdi: '75', universal: '11d', palmer: 'E', position: 'lower', side: 'left', type: 'molar' },
+  { id: '74', name: 'Primary Left Lower First Molar', fdi: '74', universal: '12d', palmer: 'D', position: 'lower', side: 'left', type: 'molar' },
+  { id: '73', name: 'Primary Left Lower Canine', fdi: '73', universal: '13d', palmer: 'C', position: 'lower', side: 'left', type: 'canine' },
+  { id: '72', name: 'Primary Left Lower Lateral Incisor', fdi: '72', universal: '14d', palmer: 'B', position: 'lower', side: 'left', type: 'incisor' },
+  { id: '71', name: 'Primary Left Lower Central Incisor', fdi: '71', universal: '15d', palmer: 'A', position: 'lower', side: 'left', type: 'incisor' },
   
   // Lower Right (patient's right)
-  { id: '81', name: 'Right Lower Central Incisor', fdi: '81', universal: '16d', palmer: 'A', position: 'lower', side: 'right', type: 'incisor' },
-  { id: '82', name: 'Right Lower Lateral Incisor', fdi: '82', universal: '17d', palmer: 'B', position: 'lower', side: 'right', type: 'incisor' },
-  { id: '83', name: 'Right Lower Canine', fdi: '83', universal: '18d', palmer: 'C', position: 'lower', side: 'right', type: 'canine' },
-  { id: '84', name: 'Right Lower First Molar', fdi: '84', universal: '19d', palmer: 'D', position: 'lower', side: 'right', type: 'molar' },
-  { id: '85', name: 'Right Lower Second Molar', fdi: '85', universal: '20d', palmer: 'E', position: 'lower', side: 'right', type: 'molar' },
+  { id: '81', name: 'Primary Right Lower Central Incisor', fdi: '81', universal: '16d', palmer: 'A', position: 'lower', side: 'right', type: 'incisor' },
+  { id: '82', name: 'Primary Right Lower Lateral Incisor', fdi: '82', universal: '17d', palmer: 'B', position: 'lower', side: 'right', type: 'incisor' },
+  { id: '83', name: 'Primary Right Lower Canine', fdi: '83', universal: '18d', palmer: 'C', position: 'lower', side: 'right', type: 'canine' },
+  { id: '84', name: 'Primary Right Lower First Molar', fdi: '84', universal: '19d', palmer: 'D', position: 'lower', side: 'right', type: 'molar' },
+  { id: '85', name: 'Primary Right Lower Second Molar', fdi: '85', universal: '20d', palmer: 'E', position: 'lower', side: 'right', type: 'molar' },
 ];
 
 export type DentitionType = 'adult' | 'child';
