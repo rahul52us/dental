@@ -568,25 +568,17 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
-                  colorMode === "light"
-                    ? isSelected
-                      ? theme.colors.brand[100]
-                      : isFocused
-                        ? theme.colors.brand[50]
-                        : "white"
-                    : isSelected
-                      ? theme.colors.darkBrand[200]
-                      : isFocused
-                        ? theme.colors.darkBrand[100]
-                        : theme.colors.darkBrand[50],
-                color: colorMode === "light"
-                  ? (isSelected ? "brand.900" : "inherit")
-                  : "white",
-                padding: "8px 12px",
-                ":hover": {
-                  backgroundColor:
-                    colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
-                },
+                  isSelected || isFocused
+                    ? colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500]
+                    : "transparent",
+                color:
+                  isSelected || isFocused
+                    ? "white"
+                    : colorMode === "light" ? "gray.700" : "white",
+                fontWeight: isSelected || isFocused ? "700" : "500",
+                fontSize: "13px",
+                padding: "10px 12px",
+                cursor: "pointer",
               }),
               menu: (baseStyles) => ({
                 ...baseStyles,
@@ -596,16 +588,31 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
-                color: colorMode === "light" ? theme.colors.brand[700] : "white",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                borderRadius: "8px",
+                padding: "2px 4px",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? theme.colors.brand[700] : "white",
+                color: "white",
+                fontWeight: "700",
+                fontSize: "12px",
+              }),
+              multiValueRemove: (styles) => ({
+                ...styles,
+                color: "white",
+                ":hover": { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "inherit" : "white",
+                color: "white",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                borderRadius: "8px",
+                padding: "4px 12px",
+                fontWeight: "700",
+                fontSize: "12px",
+                display: "inline-block",
+                width: "fit-content",
               }),
               clearIndicator: (styles) => ({
                 ...styles,
@@ -708,24 +715,19 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
-                  colorMode === "light"
-                    ? isSelected
-                      ? theme.colors.brand[100]
-                      : isFocused
-                        ? theme.colors.brand[50]
-                        : "white"
-                    : isSelected
-                      ? theme.colors.darkBrand[200]
-                      : isFocused
-                        ? theme.colors.darkBrand[100]
-                        : theme.colors.darkBrand[50],
-                color: colorMode === "light"
-                  ? (isSelected ? "brand.900" : "inherit")
-                  : "white",
-                padding: "8px 12px",
-                ":hover": {
-                  backgroundColor:
-                    colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
+                  isSelected || isFocused
+                    ? colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500]
+                    : "transparent",
+                color:
+                  isSelected || isFocused
+                    ? "white"
+                    : colorMode === "light" ? "gray.700" : "white",
+                fontWeight: isSelected || isFocused ? "700" : "500",
+                fontSize: "13px",
+                padding: "10px 12px",
+                cursor: "pointer",
+                ":active": {
+                  backgroundColor: colorMode === "light" ? theme.colors.brand[200] : theme.colors.darkBrand[400],
                 },
               }),
               menu: (baseStyles) => ({
@@ -736,24 +738,39 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? theme.colors.brand[50] : theme.colors.darkBrand[100],
-                color: colorMode === "light" ? theme.colors.brand[700] : "white",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                borderRadius: "8px",
+                padding: "2px 4px",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? theme.colors.brand[700] : "white",
+                color: "white",
+                fontWeight: "700",
+                fontSize: "12px",
+              }),
+              multiValueRemove: (styles) => ({
+                ...styles,
+                color: "white",
+                ":hover": { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "inherit" : "white",
+                color: "white",
+                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                borderRadius: "8px",
+                padding: "4px 12px",
+                fontWeight: "700",
+                fontSize: "12px",
+                display: "inline-block",
+                width: "fit-content",
               }),
               clearIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "inherit" : "white",
+                color: colorMode === "light" ? theme.colors.brand[500] : "white",
               }),
               dropdownIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "inherit" : "white",
+                color: colorMode === "light" ? theme.colors.brand[500] : "white",
               }),
               indicatorSeparator: (styles) => ({
                 ...styles,
@@ -817,24 +834,19 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
-                  colorMode === "light"
-                    ? isSelected
-                      ? "#045B64" // brand.100
-                      : isFocused
-                        ? "#f5f7ff" // brand.50
-                        : "white"
-                    : isSelected
-                      ? "#4a5066" // darkBrand.200
-                      : isFocused
-                        ? "#2f3342" // darkBrand.100
-                        : "#1b1f2d",
-                color: colorMode === "light"
-                  ? (isSelected ? "white" : "#171923")
-                  : "white",
-                padding: "8px 12px",
-                ":hover": {
-                  backgroundColor:
-                    colorMode === "light" ? "#f5f7ff" : "#2f3342",
+                  isSelected || isFocused
+                    ? colorMode === "light" ? "#6269ff" : "#4a5066" // brand.500/darkBrand.300
+                    : "transparent",
+                color:
+                  isSelected || isFocused
+                    ? "white"
+                    : colorMode === "light" ? "#4A5568" : "white",
+                fontWeight: isSelected || isFocused ? "700" : "500",
+                fontSize: "13px",
+                padding: "10px 12px",
+                cursor: "pointer",
+                ":active": {
+                  backgroundColor: colorMode === "light" ? "#c5c9ff" : "#1b1f2d",
                 },
               }),
               menu: (baseStyles) => ({
@@ -844,24 +856,39 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#f5f7ff" : "#2f3342",
-                color: colorMode === "light" ? "black" : "white",
+                backgroundColor: colorMode === "light" ? "#6269ff" : "#4a5066", // brand.500/darkBrand.200
+                borderRadius: "8px",
+                padding: "2px 4px",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "#045B64" : "#eaf3f9",
+                color: "white",
+                fontWeight: "700",
+                fontSize: "12px",
+              }),
+              multiValueRemove: (styles) => ({
+                ...styles,
+                color: "white",
+                ":hover": { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                backgroundColor: colorMode === "light" ? "#6269ff" : "#4a5066",
+                color: "white",
+                borderRadius: "8px",
+                padding: "4px 12px",
+                fontWeight: "700",
+                fontSize: "12px",
+                display: "inline-block",
+                width: "fit-content",
               }),
               clearIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "#6269ff" : "white", // brand.500
               }),
               dropdownIndicator: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "black" : "white",
+                color: colorMode === "light" ? "#6269ff" : "white",
               }),
               indicatorSeparator: (styles) => ({
                 ...styles,
