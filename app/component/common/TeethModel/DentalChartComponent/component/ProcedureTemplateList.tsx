@@ -22,15 +22,14 @@ export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) 
     const [search, setSearch] = useState("");
 
     const flatProcedures = useMemo(() => {
-        const result: { category: string, subcategory: string, job: string, estimate: number }[] = [];
+        const result: { category: string, subcategory: string, job: string }[] = [];
         TREATMENT_CATEGORIES.forEach(cat => {
             cat.subcategories.forEach(sub => {
                 sub.jobs.forEach(job => {
                     result.push({
                         category: cat.name,
                         subcategory: sub.name,
-                        job: job.name,
-                        estimate: job.defaultEstimate
+                        job: job.name
                     });
                 });
             });
@@ -84,7 +83,6 @@ export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) 
                                         <Text fontSize="xs" fontWeight="900" color="gray.700">{p.job}</Text>
                                         <Text fontSize="10px" color="gray.400">{p.category} • {p.subcategory}</Text>
                                     </VStack>
-                                    <Text fontSize="xs" fontWeight="900" color="blue.500">₹{p.estimate}</Text>
                                 </HStack>
                             </Box>
                         ))}

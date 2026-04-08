@@ -42,7 +42,7 @@ export interface TreatmentCategory {
     name: string;
     subcategories: {
         name: string;
-        jobs: { name: string; defaultEstimate: number }[];
+        jobs: { name: string; }[];
     }[];
 }
 
@@ -52,15 +52,15 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Clinical Oral Evaluations", jobs: [
-                    { name: "Comprehensive Oral Evaluation", defaultEstimate: 200 },
-                    { name: "Periodic Oral Evaluation", defaultEstimate: 100 },
-                    { name: "Limited Oral Evaluation", defaultEstimate: 80 },
+                    { name: "Comprehensive Oral Evaluation" },
+                    { name: "Periodic Oral Evaluation" },
+                    { name: "Limited Oral Evaluation" },
                 ]
             },
             {
                 name: "Diagnostic Tests/Models", jobs: [
-                    { name: "Diagnostic Casts", defaultEstimate: 300 },
-                    { name: "Pulp Vitality Tests", defaultEstimate: 150 },
+                    { name: "Diagnostic Casts" },
+                    { name: "Pulp Vitality Tests" },
                 ]
             },
         ],
@@ -70,13 +70,13 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Dental Prophylaxis", jobs: [
-                    { name: "Adult Prophylaxis", defaultEstimate: 500 },
-                    { name: "Child Prophylaxis", defaultEstimate: 300 },
+                    { name: "Adult Prophylaxis" },
+                    { name: "Child Prophylaxis" },
                 ]
             },
             {
                 name: "Fluoride Treatment", jobs: [
-                    { name: "Topical Fluoride Application", defaultEstimate: 250 },
+                    { name: "Topical Fluoride Application" },
                 ]
             },
         ],
@@ -86,31 +86,31 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Amalgam Restorations", jobs: [
-                    { name: "One Surface", defaultEstimate: 800 },
-                    { name: "Two Surfaces", defaultEstimate: 1200 },
-                    { name: "Three Surfaces", defaultEstimate: 1500 },
+                    { name: "One Surface" },
+                    { name: "Two Surfaces" },
+                    { name: "Three Surfaces" },
                 ]
             },
             {
                 name: "Composite Restorations - Direct", jobs: [
-                    { name: "Anterior - One Surface", defaultEstimate: 1000 },
-                    { name: "Anterior - Two Surfaces", defaultEstimate: 1500 },
-                    { name: "Posterior - One Surface", defaultEstimate: 1200 },
-                    { name: "Posterior - Two Surfaces", defaultEstimate: 1800 },
-                    { name: "Crown Composite", defaultEstimate: 5000 },
+                    { name: "Anterior - One Surface" },
+                    { name: "Anterior - Two Surfaces" },
+                    { name: "Posterior - One Surface" },
+                    { name: "Posterior - Two Surfaces" },
+                    { name: "Crown Composite" },
                 ]
             },
             {
                 name: "Crowns - Single", jobs: [
-                    { name: "Porcelain/Ceramic Crown", defaultEstimate: 8000 },
-                    { name: "Metal Crown", defaultEstimate: 5000 },
-                    { name: "PFM Crown", defaultEstimate: 6000 },
+                    { name: "Porcelain/Ceramic Crown" },
+                    { name: "Metal Crown" },
+                    { name: "PFM Crown" },
                 ]
             },
             {
                 name: "Inlay/Onlay Restorations", jobs: [
-                    { name: "Inlay - One Surface", defaultEstimate: 4000 },
-                    { name: "Onlay - Two Surfaces", defaultEstimate: 5500 },
+                    { name: "Inlay - One Surface" },
+                    { name: "Onlay - Two Surfaces" },
                 ]
             },
         ],
@@ -120,21 +120,21 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Pulpotomy", jobs: [
-                    { name: "Pulpotomy - Removal Of Pulp Coronal", defaultEstimate: 2000 },
+                    { name: "Pulpotomy - Removal Of Pulp Coronal" },
                 ]
             },
             {
                 name: "Root Canal Therapy", jobs: [
-                    { name: "Anterior Root Canal", defaultEstimate: 5000 },
-                    { name: "Premolar Root Canal", defaultEstimate: 6000 },
-                    { name: "Molar Root Canal", defaultEstimate: 8000 },
+                    { name: "Anterior Root Canal" },
+                    { name: "Premolar Root Canal" },
+                    { name: "Molar Root Canal" },
                 ]
             },
             {
                 name: "Endodontic Retreatment", jobs: [
-                    { name: "Anterior Retreatment", defaultEstimate: 6000 },
-                    { name: "Premolar Retreatment", defaultEstimate: 7000 },
-                    { name: "Molar Retreatment", defaultEstimate: 9000 },
+                    { name: "Anterior Retreatment" },
+                    { name: "Premolar Retreatment" },
+                    { name: "Molar Retreatment" },
                 ]
             },
         ],
@@ -144,13 +144,13 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Surgical Services", jobs: [
-                    { name: "Gingivectomy", defaultEstimate: 3000 },
-                    { name: "Flap Surgery", defaultEstimate: 5000 },
+                    { name: "Gingivectomy" },
+                    { name: "Flap Surgery" },
                 ]
             },
             {
                 name: "Non-Surgical Services", jobs: [
-                    { name: "Scaling & Root Planing", defaultEstimate: 2000 },
+                    { name: "Scaling & Root Planing" },
                 ]
             },
         ],
@@ -160,14 +160,14 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Complete Dentures", jobs: [
-                    { name: "Complete Upper Denture", defaultEstimate: 15000 },
-                    { name: "Complete Lower Denture", defaultEstimate: 15000 },
+                    { name: "Complete Upper Denture" },
+                    { name: "Complete Lower Denture" },
                 ]
             },
             {
                 name: "Partial Dentures", jobs: [
-                    { name: "Cast Metal Partial", defaultEstimate: 12000 },
-                    { name: "Flexible Partial", defaultEstimate: 10000 },
+                    { name: "Cast Metal Partial" },
+                    { name: "Flexible Partial" },
                 ]
             },
         ],
@@ -177,9 +177,9 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Extractions", jobs: [
-                    { name: "Simple Extraction", defaultEstimate: 1000 },
-                    { name: "Surgical Extraction", defaultEstimate: 3000 },
-                    { name: "Impacted Tooth Extraction", defaultEstimate: 5000 },
+                    { name: "Simple Extraction" },
+                    { name: "Surgical Extraction" },
+                    { name: "Impacted Tooth Extraction" },
                 ]
             },
         ],
@@ -189,8 +189,8 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Implant Placement", jobs: [
-                    { name: "Endosteal Implant", defaultEstimate: 25000 },
-                    { name: "Implant Abutment", defaultEstimate: 8000 },
+                    { name: "Endosteal Implant" },
+                    { name: "Implant Abutment" },
                 ]
             },
         ],
@@ -200,13 +200,13 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
         subcategories: [
             {
                 name: "Fixed Appliances", jobs: [
-                    { name: "Metal Braces - Full", defaultEstimate: 35000 },
-                    { name: "Ceramic Braces - Full", defaultEstimate: 45000 },
+                    { name: "Metal Braces - Full" },
+                    { name: "Ceramic Braces - Full" },
                 ]
             },
             {
                 name: "Removable Appliances", jobs: [
-                    { name: "Clear Aligners", defaultEstimate: 50000 },
+                    { name: "Clear Aligners" },
                 ]
             },
         ],

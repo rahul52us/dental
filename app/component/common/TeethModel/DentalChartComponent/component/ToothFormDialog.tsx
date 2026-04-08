@@ -144,7 +144,7 @@ export const ToothFormDialog = observer(
       try {
         setFormLoading(true);
         const values = replaceLabelValueObjects(formData);
-        
+
         const promises = teeth.map((t) => {
           const payload: any = {
             patient: values.patient?.value || values.patient,
@@ -170,7 +170,7 @@ export const ToothFormDialog = observer(
         });
 
         await Promise.all(promises);
-        
+
         setFormLoading(false);
         toast({
           title: "Treatment Records Saved.",
@@ -179,10 +179,10 @@ export const ToothFormDialog = observer(
           duration: 3000,
           isClosable: true,
         });
-        
+
         if (onSuccess) onSuccess();
         if (onOpenChange) onOpenChange(false);
-        
+
       } catch (err: any) {
         setFormLoading(false);
         toast({
@@ -202,14 +202,14 @@ export const ToothFormDialog = observer(
         </Box>
         <VStack align="start" spacing={0}>
           <Heading size="md" color="gray.800" fontWeight="extrabold">
-            {teeth.length === 1 
-              ? teeth[0].name 
+            {teeth.length === 1
+              ? teeth[0].name
               : (teeth.length > 1 ? `Multi-Tooth (${teeth.length})` : "General Record")}
           </Heading>
           <Text fontSize="xs" color="gray.400" fontWeight="bold">
-            {teeth.length === 1 
-              ? `TOOTH ${notation === 'universal' ? (teeth[0].universal || teeth[0].fdi) : (notation === 'palmer' ? (teeth[0].palmer || teeth[0].fdi) : teeth[0].fdi)}` 
-              : "PROCEDURE ENTRY FORM"}
+            {teeth.length === 1
+              ? `TOOTH ${notation === 'universal' ? (teeth[0].universal || teeth[0].fdi) : (notation === 'palmer' ? (teeth[0].palmer || teeth[0].fdi) : teeth[0].fdi)}`
+              : "TREATMENT CODE ENTRY FORM"}
           </Text>
         </VStack>
       </HStack>
@@ -253,7 +253,7 @@ export const ToothFormDialog = observer(
                       <Text fontWeight="black" color="gray.700" fontSize="sm" noOfLines={1}>{patientDetails?.name || "N/A"}</Text>
                     </VStack>
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">TREATING DOCTOR</Text>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">ASSIGN DOCTOR</Text>
                       <CustomInput
                         name="doctor"
                         type="real-time-user-search"
@@ -295,7 +295,6 @@ export const ToothFormDialog = observer(
                   {/* TREATMENT BROWSER SECTION (Collapsible) */}
                   <Box>
                     <HStack justify="space-between" mb={3}>
-                      <Text fontSize="sm" fontWeight="bold" color="gray.600">Clinical Procedure</Text>
                       <Button
                         size="xs"
                         leftIcon={showProcedureExplorer ? <FiX /> : <FiPlusCircle />}
@@ -317,90 +316,87 @@ export const ToothFormDialog = observer(
                       >
                         <Grid templateColumns="1fr 1fr 1.2fr" minH="300px" maxH="400px">
 
-                        {/* COLUMN 1: CATEGORY */}
-                        <Box borderRight="1px solid" borderColor="gray.200">
-                          <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                            <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Category</Text>
-                          </Box>
-                          <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
-                            {TREATMENT_CATEGORIES.map((cat, idx) => (
-                              <HStack
-                                key={cat.name}
-                                px={4} py={3}
-                                cursor="pointer"
-                                bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
-                                color={selectedCatIdx === idx ? "blue.600" : "gray.700"}
-                                borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
-                                borderLeftColor="blue.500"
-                                onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
-                                _hover={{ bg: "gray.50" }}
-                                justify="space-between"
-                              >
-                                <Text fontSize="sm" fontWeight={selectedCatIdx === idx ? "bold" : "medium"}>{cat.name}</Text>
-                                <FiChevronRight size={12} opacity={selectedCatIdx === idx ? 1 : 0.3} />
-                              </HStack>
-                            ))}
-                          </VStack>
-                        </Box>
-
-                        {/* COLUMN 2: SUBCATEGORY */}
-                        <Box borderRight="1px solid" borderColor="gray.200">
-                          <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                            <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Subcategory</Text>
-                          </Box>
-                          <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
-                            {activeCategory?.subcategories.map((sub, idx) => (
-                              <HStack
-                                key={sub.name}
-                                px={4} py={3}
-                                cursor="pointer"
-                                bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
-                                color={selectedSubIdx === idx ? "blue.600" : "gray.700"}
-                                onClick={() => setSelectedSubIdx(idx)}
-                                _hover={{ bg: "gray.50" }}
-                                justify="space-between"
-                              >
-                                <Text fontSize="sm" fontWeight={selectedSubIdx === idx ? "bold" : "medium"}>{sub.name}</Text>
-                                <FiChevronRight size={12} opacity={selectedSubIdx === idx ? 1 : 0.3} />
-                              </HStack>
-                            ))}
-                          </VStack>
-                        </Box>
-
-                        {/* COLUMN 3: JOB NAME */}
-                        <Box bg="gray.50/30">
-                          <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                            <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Job Name</Text>
-                          </Box>
-                          <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
-                            {activeSubcategory?.jobs.map((job) => {
-                              const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
-                              const isSelected = values.treatmentCode === fullCode;
-                              return (
-                                <VStack
-                                  key={job.name}
+                          {/* COLUMN 1: CATEGORY */}
+                          <Box borderRight="1px solid" borderColor="gray.200">
+                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Category</Text>
+                            </Box>
+                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
+                              {TREATMENT_CATEGORIES.map((cat, idx) => (
+                                <HStack
+                                  key={cat.name}
                                   px={4} py={3}
-                                  align="start"
-                                  spacing={0}
                                   cursor="pointer"
-                                  bg={isSelected ? "blue.500" : "transparent"}
-                                  color={isSelected ? "white" : "gray.700"}
-                                  onClick={() => {
-                                    setFieldValue("treatmentCode", fullCode);
-                                    setFieldValue("estimate", job.defaultEstimate);
-                                    setFieldValue("total", calculateTotal(job.defaultEstimate, values.discount));
-                                  }}
-                                  _hover={{ bg: isSelected ? "blue.600" : "gray.100" }}
+                                  bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
+                                  color={selectedCatIdx === idx ? "blue.600" : "gray.700"}
+                                  borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
+                                  borderLeftColor="blue.500"
+                                  onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
+                                  _hover={{ bg: "gray.50" }}
+                                  justify="space-between"
                                 >
-                                  <Text fontSize="sm" fontWeight="bold">{job.name}</Text>
-                                  <Text fontSize="xs" color={isSelected ? "whiteAlpha.800" : "gray.400"}>₹{job.defaultEstimate.toLocaleString()}</Text>
-                                </VStack>
-                              );
-                            })}
-                          </VStack>
-                        </Box>
-                      </Grid>
-                    </Box>
+                                  <Text fontSize="sm" fontWeight={selectedCatIdx === idx ? "bold" : "medium"}>{cat.name}</Text>
+                                  <FiChevronRight size={12} opacity={selectedCatIdx === idx ? 1 : 0.3} />
+                                </HStack>
+                              ))}
+                            </VStack>
+                          </Box>
+
+                          {/* COLUMN 2: SUBCATEGORY */}
+                          <Box borderRight="1px solid" borderColor="gray.200">
+                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Subcategory</Text>
+                            </Box>
+                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
+                              {activeCategory?.subcategories.map((sub, idx) => (
+                                <HStack
+                                  key={sub.name}
+                                  px={4} py={3}
+                                  cursor="pointer"
+                                  bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
+                                  color={selectedSubIdx === idx ? "blue.600" : "gray.700"}
+                                  onClick={() => setSelectedSubIdx(idx)}
+                                  _hover={{ bg: "gray.50" }}
+                                  justify="space-between"
+                                >
+                                  <Text fontSize="sm" fontWeight={selectedSubIdx === idx ? "bold" : "medium"}>{sub.name}</Text>
+                                  <FiChevronRight size={12} opacity={selectedSubIdx === idx ? 1 : 0.3} />
+                                </HStack>
+                              ))}
+                            </VStack>
+                          </Box>
+
+                          {/* COLUMN 3: JOB NAME */}
+                          <Box bg="gray.50/30">
+                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Job Name</Text>
+                            </Box>
+                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
+                              {activeSubcategory?.jobs.map((job) => {
+                                const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
+                                const isSelected = values.treatmentCode === fullCode;
+                                return (
+                                  <VStack
+                                    key={job.name}
+                                    px={4} py={3}
+                                    align="start"
+                                    spacing={0}
+                                    cursor="pointer"
+                                    bg={isSelected ? "blue.500" : "transparent"}
+                                    color={isSelected ? "white" : "gray.700"}
+                                    onClick={() => {
+                                      setFieldValue("treatmentCode", fullCode);
+                                    }}
+                                    _hover={{ bg: isSelected ? "blue.600" : "gray.100" }}
+                                  >
+                                    <Text fontSize="sm" fontWeight="bold">{job.name}</Text>
+                                  </VStack>
+                                );
+                              })}
+                            </VStack>
+                          </Box>
+                        </Grid>
+                      </Box>
                     ) : (
                       <Box p={4} bg="gray.50/50" borderRadius="xl" border="1px dashed" borderColor="gray.200">
                         <HStack justify="space-between" align="center">
