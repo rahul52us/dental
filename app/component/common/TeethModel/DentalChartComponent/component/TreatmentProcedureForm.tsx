@@ -686,19 +686,13 @@ export const TreatmentProcedureForm = observer(
                                                                         if (activeToothId === "bulk") {
                                                                             teeth.forEach(t => {
                                                                                 setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                                setFieldValue(`treatments.${t.id}.estimateMin`, proc.defaultEstimate);
-                                                                                setFieldValue(`treatments.${t.id}.estimateMax`, proc.defaultEstimate);
-                                                                                const disc = values.treatments[t.id]?.discount || 0;
-                                                                                setFieldValue(`treatments.${t.id}.totalMin`, calculateTotal(proc.defaultEstimate, disc));
-                                                                                setFieldValue(`treatments.${t.id}.totalMax`, calculateTotal(proc.defaultEstimate, disc));
+                                                                                setFieldValue(`treatments.${t.id}.estimateMin`, "");
+                                                                                setFieldValue(`treatments.${t.id}.estimateMax`, "");
                                                                             });
                                                                         } else if (activeToothId) {
                                                                             setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                            setFieldValue(`treatments.${activeToothId}.estimateMin`, proc.defaultEstimate);
-                                                                            setFieldValue(`treatments.${activeToothId}.estimateMax`, proc.defaultEstimate);
-                                                                            const disc = values.treatments[activeToothId]?.discount || 0;
-                                                                            setFieldValue(`treatments.${activeToothId}.totalMin`, calculateTotal(proc.defaultEstimate, disc));
-                                                                            setFieldValue(`treatments.${activeToothId}.totalMax`, calculateTotal(proc.defaultEstimate, disc));
+                                                                            setFieldValue(`treatments.${activeToothId}.estimateMin`, "");
+                                                                            setFieldValue(`treatments.${activeToothId}.estimateMax`, "");
                                                                         }
                                                                         onProcedureClose();
                                                                     }}
@@ -780,11 +774,15 @@ export const TreatmentProcedureForm = observer(
                                                                             if (activeToothId === "bulk") {
                                                                                 teeth.forEach(t => {
                                                                                     setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                                    // Financials remain independent
+                                                                                    setFieldValue(`treatments.${t.id}.estimateMin`, "");
+                                                                                    setFieldValue(`treatments.${t.id}.estimateMax`, "");
+                                                                                    setFieldValue(`treatments.${t.id}.totalMin`, 0);
+                                                                                    setFieldValue(`treatments.${t.id}.totalMax`, 0);
                                                                                 });
                                                                             } else if (activeToothId) {
                                                                                 setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                                // Financials remain independent
+                                                                                setFieldValue(`treatments.${activeToothId}.estimateMin`, "");
+                                                                                setFieldValue(`treatments.${activeToothId}.estimateMax`, "");
                                                                             }
                                                                             onProcedureClose();
                                                                         }}

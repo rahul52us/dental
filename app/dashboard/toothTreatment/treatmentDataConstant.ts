@@ -42,7 +42,12 @@ export interface TreatmentCategory {
     name: string;
     subcategories: {
         name: string;
-        jobs: { name: string; }[];
+        jobs: {
+            name: string;
+            defaultEstimate?: number;
+            estimateMin?: number;
+            estimateMax?: number;
+        }[];
     }[];
 }
 
@@ -102,9 +107,9 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
             },
             {
                 name: "Crowns - Single", jobs: [
-                    { name: "Porcelain/Ceramic Crown" },
-                    { name: "Metal Crown" },
-                    { name: "PFM Crown" },
+                    { name: "Porcelain/Ceramic Crown", estimateMin: 8000, estimateMax: 12000 },
+                    { name: "Metal Crown", estimateMin: 3000, estimateMax: 5000 },
+                    { name: "PFM Crown", estimateMin: 5000, estimateMax: 8000 },
                 ]
             },
             {
@@ -125,9 +130,9 @@ export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
             },
             {
                 name: "Root Canal Therapy", jobs: [
-                    { name: "Anterior Root Canal" },
-                    { name: "Premolar Root Canal" },
-                    { name: "Molar Root Canal" },
+                    { name: "Anterior Root Canal", estimateMin: 4000, estimateMax: 6000 },
+                    { name: "Premolar Root Canal", estimateMin: 5000, estimateMax: 7000 },
+                    { name: "Molar Root Canal", estimateMin: 6000, estimateMax: 9000 },
                 ]
             },
             {

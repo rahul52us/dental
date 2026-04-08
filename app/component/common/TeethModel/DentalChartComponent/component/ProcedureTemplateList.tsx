@@ -126,7 +126,9 @@ const CategorySection = ({ category, onSelect }: { category: any, onSelect: any 
                                     <Icon as={FiPlus} fontSize="xs" color="gray.300" />
                                     <Text fontSize="xs" fontWeight="700" color="gray.600">{job.name}</Text>
                                     <HStack flex={1} justify="end">
-                                        <Text fontSize="10px" fontWeight="800" color="blue.300">₹{job.defaultEstimate}</Text>
+                                        <Text fontSize="10px" fontWeight="800" color="blue.300">
+                                            {job.estimateMin ? `₹${job.estimateMin} - ₹${job.estimateMax}` : (job.defaultEstimate ? `₹${job.defaultEstimate}` : "")}
+                                        </Text>
                                     </HStack>
                                 </HStack>
                             ))}

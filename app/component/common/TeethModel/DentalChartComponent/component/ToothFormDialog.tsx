@@ -1,42 +1,30 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
   Badge,
   Box,
   Button,
   Grid,
+  GridItem,
   HStack,
   Heading,
-  SimpleGrid,
   VStack,
   Text,
   useToast,
   Icon,
   Input,
-  InputGroup,
-  InputLeftElement,
   Divider,
-  Center,
-  Tooltip,
-  Wrap,
-  WrapItem,
-  Flex,
   IconButton,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import {
   FiFileText,
-  FiUser,
-  FiDollarSign,
   FiCheckCircle,
   FiChevronRight,
-  FiSearch,
-  FiClock,
   FiPlusCircle,
   FiTrash2,
-  FiEdit3,
   FiX,
+  FiActivity,
 } from "react-icons/fi";
-import { FaTooth } from "react-icons/fa";
 
 import { ToothData } from "../utils/teethData";
 import CustomInput from "../../../../config/component/customInput/CustomInput";
@@ -69,9 +57,11 @@ interface TreatmentFormData {
   treatmentDate: string;
   notes: string;
   treatmentCode: string;
-  estimate: number;
+  estimateMin: number;
+  estimateMax: number;
   discount: number;
-  total: number;
+  totalMin: number;
+  totalMax: number;
   patient?: any;
   status: string;
 }
@@ -92,14 +82,14 @@ const initialFormData: TreatmentFormData = {
   treatmentDate: new Date().toISOString().split("T")[0],
   notes: "",
   treatmentCode: "",
-  estimate: "" as any,
+  estimateMin: "" as any,
+  estimateMax: "" as any,
   discount: "" as any,
-  total: "" as any,
+  totalMin: "" as any,
+  totalMax: "" as any,
   patient: undefined,
   status: "Planned",
 };
-
-// No symptom icons needed
 
 export const ToothFormDialog = observer(
   ({
@@ -121,15 +111,7 @@ export const ToothFormDialog = observer(
     const [formLoading, setFormLoading] = useState(false);
     const {
       toothTreatmentStore: { createToothTreatment },
-      userStore: { getAllUsers },
     } = stores;
-
-    const [doctors, setDoctors] = useState<any[]>([]);
-    const [doctorsLoading, setDoctorsLoading] = useState(false);
-
-    useEffect(() => {
-      // Doctors are now fetched on-demand by CustomInput
-    }, []);
 
     // Browser State
     const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(0);
@@ -158,11 +140,11 @@ export const ToothFormDialog = observer(
             notes: values.notes,
             treatmentPlan: values.treatmentCode || "General Treatment",
             status: values.status === "Planned" ? "pending" : values.status,
-            estimateMin: values.estimate || 0,
-            estimateMax: values.estimate || 0,
+            estimateMin: values.estimateMin || 0,
+            estimateMax: values.estimateMax || 0,
             discount: values.discount || 0,
-            totalMin: values.total || 0,
-            totalMax: values.total || 0,
+            totalMin: values.totalMin || 0,
+            totalMax: values.totalMax || 0,
             recordType: "tooth",
             user: stores.auth.user?._id
           };
@@ -195,6 +177,12 @@ export const ToothFormDialog = observer(
       }
     };
 
+    const calculateTotal = (est: any, disc: any) => {
+      const e = Number(est) || 0;
+      const d = Number(disc) || 0;
+      return Math.max(0, e - d);
+    };
+
     const drawerTitle = (
       <HStack spacing={4}>
         <Box p={2} bg="blue.500" borderRadius="xl" color="white">
@@ -215,8 +203,6 @@ export const ToothFormDialog = observer(
       </HStack>
     );
 
-    // Use passed doctorOptions instead of calculating locally
-
     return (
       <CustomDrawer
         width="75vw"
@@ -236,18 +222,12 @@ export const ToothFormDialog = observer(
           onSubmit={handleSubmit}
         >
           {({ values, setFieldValue, handleSubmit }: any) => {
-            const calculateTotal = (est: any, disc: any) => {
-              const e = Number(est) || 0;
-              const d = Number(disc) || 0;
-              return Math.max(0, e - d);
-            };
-
             return (
               <FormikForm onSubmit={handleSubmit} style={{ height: '100%', padding: '20px' }}>
                 <VStack spacing={6} align="stretch">
 
                   {/* PATIENT & DOCTOR CONTEXT HEADER */}
-                  <SimpleGrid columns={4} spacing={4} bg="gray.50" p={5} borderRadius="2xl" border="1px" borderColor="gray.100">
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} bg="gray.50" p={5} borderRadius="2xl" border="1px" borderColor="gray.100">
                     <VStack align="start" spacing={1}>
                       <Text fontSize="10px" fontWeight="black" color="gray.400">PATIENT</Text>
                       <Text fontWeight="black" color="gray.700" fontSize="sm" noOfLines={1}>{patientDetails?.name || "N/A"}</Text>
@@ -289,10 +269,9 @@ export const ToothFormDialog = observer(
                         style={{ height: '32px', fontSize: '12px' }}
                       />
                     </VStack>
-                  </SimpleGrid>
+                  </Grid>
 
-                  {/* TREATMENT BROWSER SECTION (As per Image) */}
-                  {/* TREATMENT BROWSER SECTION (Collapsible) */}
+                  {/* TREATMENT BROWSER SECTION */}
                   <Box>
                     <HStack justify="space-between" mb={3}>
                       <Button
@@ -315,7 +294,6 @@ export const ToothFormDialog = observer(
                         bg="white"
                       >
                         <Grid templateColumns="1fr 1fr 1.2fr" minH="300px" maxH="400px">
-
                           {/* COLUMN 1: CATEGORY */}
                           <Box borderRight="1px solid" borderColor="gray.200">
                             <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
@@ -386,10 +364,15 @@ export const ToothFormDialog = observer(
                                     color={isSelected ? "white" : "gray.700"}
                                     onClick={() => {
                                       setFieldValue("treatmentCode", fullCode);
+                                      // Clear amounts to ensure manual entry (user request)
                                     }}
                                     _hover={{ bg: isSelected ? "blue.600" : "gray.100" }}
                                   >
                                     <Text fontSize="sm" fontWeight="bold">{job.name}</Text>
+                                    <Text fontSize="10px" color={isSelected ? "blue.100" : "blue.500"}>
+                                      {/* @ts-ignore */}
+                                      {job.estimateMin ? `₹${job.estimateMin} - ₹${job.estimateMax}` : (job.defaultEstimate ? `₹${job.defaultEstimate}` : "")}
+                                    </Text>
                                   </VStack>
                                 );
                               })}
@@ -418,36 +401,55 @@ export const ToothFormDialog = observer(
                   </Box>
 
                   {/* FINANCIAL INPUTS SECTION */}
-                  <SimpleGrid columns={3} spacing={6}>
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} p={5} bg="blue.50/30" borderRadius="2xl" border="1px" borderColor="blue.100">
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="gray.500">Estimated Amount (₹)</Text>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.500">MINIMUM (₹)</Text>
                       <Input
                         type="number"
                         placeholder="0.00"
-                        value={values.estimate}
+                        bg="white"
+                        value={values.estimateMin}
                         onChange={(e) => {
                           const val = e.target.value;
-                          setFieldValue("estimate", val);
-                          setFieldValue("total", calculateTotal(val, values.discount));
+                          setFieldValue("estimateMin", val);
+                          setFieldValue("totalMin", calculateTotal(val, values.discount));
                         }}
-                        bg="white"
                         borderRadius="xl"
                         fontWeight="bold"
-                        border="1px solid"
                         borderColor="gray.200"
                         _focus={{ borderColor: "blue.500" }}
                       />
                     </VStack>
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="gray.500">Discount (₹)</Text>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.500">MAXIMUM (₹)</Text>
                       <Input
                         type="number"
                         placeholder="0.00"
+                        bg="white"
+                        value={values.estimateMax}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("estimateMax", val);
+                          setFieldValue("totalMax", calculateTotal(val, values.discount));
+                        }}
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="green.500">DISCOUNT (₹)</Text>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        bg="white"
                         value={values.discount}
                         onChange={(e) => {
                           const val = e.target.value;
                           setFieldValue("discount", val);
-                          setFieldValue("total", calculateTotal(values.estimate, val));
+                          setFieldValue("totalMin", calculateTotal(values.estimateMin, val));
+                          setFieldValue("totalMax", calculateTotal(values.estimateMax, val));
                         }}
                         borderRadius="xl"
                         fontWeight="bold"
@@ -455,26 +457,22 @@ export const ToothFormDialog = observer(
                         _focus={{ borderColor: "blue.500" }}
                       />
                     </VStack>
-                    <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="gray.500">Total (₹)</Text>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={values.total}
-                        onChange={(e) => setFieldValue("total", e.target.value)}
-                        bg="blue.50"
-                        color="blue.700"
-                        borderRadius="xl"
-                        fontWeight="black"
-                        border="2px solid"
-                        borderColor="blue.100"
-                      />
-                    </VStack>
-                  </SimpleGrid>
+                    <GridItem colSpan={{ base: 1, md: 3 }} pt={2}>
+                      <HStack justify="space-between" align="center" w="full">
+                        <VStack align="start" spacing={0}>
+                          <Text fontSize="10px" fontWeight="900" color="blue.400">TOTAL QUOTATION</Text>
+                          <Text fontSize="20px" fontWeight="1000" color="blue.700">
+                            ₹{Math.round(values.totalMin || 0).toLocaleString()} - ₹{Math.round(values.totalMax || 0).toLocaleString()}
+                          </Text>
+                        </VStack>
+                        <Icon as={FiActivity} color="blue.200" boxSize={6} />
+                      </HStack>
+                    </GridItem>
+                  </Grid>
 
                   <Divider />
 
-                  {/* DESCRIPTION SECTION (Simplified) */}
+                  {/* DESCRIPTION SECTION */}
                   <Box>
                     <HStack spacing={2} mb={3}>
                       <Icon as={FiFileText} color="blue.500" />
@@ -489,7 +487,7 @@ export const ToothFormDialog = observer(
                         value={values.notes}
                         onChange={(e: any) => setFieldValue("notes", e.target.value)}
                         style={{
-                          minHeight: "150px",
+                          minHeight: "120px",
                           borderRadius: "xl",
                           fontSize: "14px"
                         }}
