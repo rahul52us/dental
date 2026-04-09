@@ -651,7 +651,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       {toothTreatment.data.map((item: any) => (
                         <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
                           <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
-                          <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth?.fdi}</Badge></Td>
+                          <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth}</Badge></Td>
                           <Td py={4} fontSize="11px" fontWeight="600" color="gray.500">{item.complaintType}</Td>
                           <Td py={4} fontSize="12px" fontWeight="800" color="gray.700" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
                           <Td py={4}>
@@ -689,7 +689,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                               <VStack align="start" spacing={3} flex={1}>
                                 <HStack spacing={2} wrap="wrap">
                                   <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000" letterSpacing="tight">
-                                    {item.tooth?.fdi === "General" ? "GENERAL" : `TOOTH #${item.tooth?.fdi}`}
+                                    {item.tooth?.fdi === "General" ? "GENERAL" : `TOOTH #${item.tooth}`}
                                   </Badge>
                                   <Badge variant="subtle" colorScheme={style.iconColor.split('.')[0]} borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000">
                                     {item.complaintType}
@@ -762,7 +762,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               </VStack>
               <VStack align="start" spacing={1}>
                 <Text fontSize="10px" fontWeight="900" color="gray.400">TOOTH / REGION</Text>
-                <Badge colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>{viewingRecord?.tooth?.fdi === "General" ? "General Clinical" : `Tooth #${viewingRecord?.tooth?.fdi}`}</Badge>
+                <Badge colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>{viewingRecord?.tooth?.fdi === "General" ? "General Clinical" : `Tooth #${viewingRecord?.tooth}`}</Badge>
               </VStack>
               <VStack align="start" spacing={1}>
                 <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>
@@ -826,6 +826,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
           }
         }}
+        complaintType={complaintType}
       />
     </Box>
   );

@@ -199,7 +199,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                 <HStack spacing={4}>
                   <Avatar size="sm" name={doctor?.name} src={doctor?.photo} />
                   <Box>
-                    <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Performing Doctor</Text>
+                    <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Assign Doctor</Text>
                     <Text fontWeight="800" color="gray.700">{doctor?.name || "Unassigned"}</Text>
                   </Box>
                 </HStack>

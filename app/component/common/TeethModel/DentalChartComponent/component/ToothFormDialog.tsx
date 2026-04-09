@@ -49,6 +49,7 @@ interface ToothFormDialogProps {
   setLastExaminingDoctor?: (doc: any) => void;
   doctorOptions?: any[];
   onSuccess?: () => void;
+  complaintType?: string;
 }
 
 interface TreatmentFormData {
@@ -105,6 +106,7 @@ export const ToothFormDialog = observer(
     setLastExaminingDoctor,
     doctorOptions = [],
     onSuccess,
+    complaintType = "CHIEF COMPLAINT",
   }: ToothFormDialogProps) => {
     const toast = useToast();
     const [showProcedureExplorer, setShowProcedureExplorer] = useState(false);
@@ -114,8 +116,8 @@ export const ToothFormDialog = observer(
     } = stores;
 
     // Browser State
-    const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(0);
-    const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(0);
+    const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(null);
+    const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(null);
 
     const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
     const activeSubcategory = (activeCategory && selectedSubIdx !== null)
@@ -138,7 +140,7 @@ export const ToothFormDialog = observer(
             dentitionType: dentitionType || (detectIsChild(t) ? "child" : "adult"),
             treatmentDate: values.treatmentDate,
             notes: values.notes,
-            treatmentPlan: values.treatmentCode || "General Treatment",
+            treatmentPlan: values.treatmentCode || "",
             status: values.status === "Planned" ? "pending" : values.status,
             estimateMin: values.estimateMin || 0,
             estimateMax: values.estimateMax || 0,
@@ -146,6 +148,7 @@ export const ToothFormDialog = observer(
             totalMin: values.totalMin || 0,
             totalMax: values.totalMax || 0,
             recordType: "tooth",
+            complaintType: complaintType,
             user: stores.auth.user?._id
           };
           return createToothTreatment(payload);
@@ -194,11 +197,16 @@ export const ToothFormDialog = observer(
               ? teeth[0].name
               : (teeth.length > 1 ? `Multi-Tooth (${teeth.length})` : "General Record")}
           </Heading>
-          <Text fontSize="xs" color="gray.400" fontWeight="bold">
-            {teeth.length === 1
-              ? `TOOTH ${notation === 'universal' ? (teeth[0].universal || teeth[0].fdi) : (notation === 'palmer' ? (teeth[0].palmer || teeth[0].fdi) : teeth[0].fdi)}`
-              : "TREATMENT CODE ENTRY FORM"}
-          </Text>
+          <HStack spacing={2} align="center">
+            <Text fontSize="xs" color="gray.400" fontWeight="bold">
+              {teeth.length === 1
+                ? `TOOTH ${notation === 'universal' ? (teeth[0].universal || teeth[0].fdi) : (notation === 'palmer' ? (teeth[0].palmer || teeth[0].fdi) : teeth[0].fdi)}`
+                : "TREATMENT CODE ENTRY FORM"}
+            </Text>
+            <Badge size="xs" colorScheme={complaintType === "CHIEF COMPLAINT" ? "red" : complaintType === "OTHER FINDING" ? "orange" : "green"} variant="subtle" borderRadius="full" px={2} fontSize="9px">
+              {complaintType}
+            </Badge>
+          </HStack>
         </VStack>
       </HStack>
     );
@@ -309,7 +317,11 @@ export const ToothFormDialog = observer(
                                   color={selectedCatIdx === idx ? "blue.600" : "gray.700"}
                                   borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
                                   borderLeftColor="blue.500"
-                                  onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
+                                  onClick={() => {
+                                    setSelectedCatIdx(idx);
+                                    setSelectedSubIdx(null);
+                                    setFieldValue("treatmentCode", cat.name);
+                                  }}
                                   _hover={{ bg: "gray.50" }}
                                   justify="space-between"
                                 >
@@ -333,7 +345,12 @@ export const ToothFormDialog = observer(
                                   cursor="pointer"
                                   bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
                                   color={selectedSubIdx === idx ? "blue.600" : "gray.700"}
-                                  onClick={() => setSelectedSubIdx(idx)}
+                                  onClick={() => {
+                                    setSelectedSubIdx(idx);
+                                    if (activeCategory) {
+                                      setFieldValue("treatmentCode", `${activeCategory.name} → ${sub.name}`);
+                                    }
+                                  }}
                                   _hover={{ bg: "gray.50" }}
                                   justify="space-between"
                                 >
@@ -384,7 +401,7 @@ export const ToothFormDialog = observer(
                       <Box p={4} bg="gray.50/50" borderRadius="xl" border="1px dashed" borderColor="gray.200">
                         <HStack justify="space-between" align="center">
                           <Text fontSize="sm" color={values.treatmentCode ? "blue.600" : "gray.400"} fontWeight={values.treatmentCode ? "bold" : "medium"}>
-                            {values.treatmentCode || "No procedure code selected. (Default: General Treatment)"}
+                            {values.treatmentCode || "Please select a procedure from the explorer above"}
                           </Text>
                           {values.treatmentCode && (
                             <IconButton
