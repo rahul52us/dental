@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import {
     Badge,
     Box,
@@ -163,6 +163,7 @@ export const TreatmentProcedureForm = observer(
     }: TreatmentProcedureFormProps) => {
         const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
         const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure({ defaultIsOpen: teeth.length > 1 });
+
         const [searchTerm, setSearchTerm] = useState("");
         const [activeToothId, setActiveToothId] = useState<string | "bulk" | null>(
             teeth.length > 1 ? "bulk" : (teeth.length > 0 ? teeth[0].id : null)
@@ -188,16 +189,58 @@ export const TreatmentProcedureForm = observer(
             }
         }, [isDrawerMode, teeth]);
 
-        const [localExplorerState, setLocalExplorerState] = useState({ catIdx: 0, subIdx: 0 });
-        const { catIdx: selectedCatIdx, subIdx: selectedSubIdx } = explorerState || localExplorerState;
-        const setSelectedCatIdx = (idx: number) => {
-            const newState = { catIdx: idx, subIdx: 0 };
-            if (onExplorerUpdate) onExplorerUpdate(newState);
+        const [localExplorerState, setLocalExplorerState] = useState<{ catIdx: number | null, subIdx: number | null }>({ catIdx: null, subIdx: null });
+
+        const lastSyncedId = useRef<string | null>(null);
+
+        // Auto-expand explorer based on existing treatment code when editing
+        useEffect(() => {
+            const currentId = editData?._id || editData?.id || null;
+
+            // Only sync if the record has actually changed to avoid overriding user interaction
+            if (currentId !== lastSyncedId.current) {
+                lastSyncedId.current = currentId;
+
+                if (editData?.treatmentPlan) {
+                    const parts = editData.treatmentPlan.split(" → ").map(p => p.trim());
+                    let newCatIdx: number | null = null;
+                    let newSubIdx: number | null = null;
+
+                    if (parts.length >= 1) {
+                        const cIdx = TREATMENT_CATEGORIES.findIndex(c =>
+                            c.name.toLowerCase() === parts[0].toLowerCase()
+                        );
+                        if (cIdx !== -1) {
+                            newCatIdx = cIdx;
+                            if (parts.length >= 2) {
+                                const subCats = TREATMENT_CATEGORIES[cIdx].subcategories;
+                                const sIdx = subCats.findIndex(s =>
+                                    s.name.toLowerCase() === parts[1].toLowerCase()
+                                );
+                                if (sIdx !== -1) {
+                                    newSubIdx = sIdx;
+                                }
+                            }
+                        }
+                    }
+                    setLocalExplorerState({ catIdx: newCatIdx, subIdx: newSubIdx });
+                } else {
+                    setLocalExplorerState({ catIdx: null, subIdx: null });
+                }
+            }
+        }, [editData]);
+
+        const selectedCatIdx = (explorerState && explorerState.catIdx !== null) ? explorerState.catIdx : localExplorerState.catIdx;
+        const selectedSubIdx = (explorerState && explorerState.subIdx !== null) ? explorerState.subIdx : localExplorerState.subIdx;
+
+        const setSelectedCatIdx = (idx: number | null) => {
+            const newState = { catIdx: idx, subIdx: null };
+            if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
-        const setSelectedSubIdx = (idx: number) => {
+        const setSelectedSubIdx = (idx: number | null) => {
             const newState = { catIdx: selectedCatIdx, subIdx: idx };
-            if (onExplorerUpdate) onExplorerUpdate(newState);
+            if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
 
@@ -267,7 +310,7 @@ export const TreatmentProcedureForm = observer(
                     }
 
                     if (!payload.treatmentPlan && payload.recordType === "tooth") {
-                        payload.treatmentPlan = "General Treatment";
+                        payload.treatmentPlan = "";
                     }
 
                     const isEditingThisTooth = editData?._id && (
@@ -472,7 +515,7 @@ export const TreatmentProcedureForm = observer(
                         <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.2em">5. FINANCIAL ESTIMATES</Text>
                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
                             <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.500">MINIMUM (₹)</Text>
+                                <Text fontSize="9px" fontWeight="1000" color="gray.500">Minimum Estimate (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                     value={currentValues.estimateMin}
@@ -491,7 +534,7 @@ export const TreatmentProcedureForm = observer(
                                 />
                             </VStack>
                             <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.500">MAXIMUM (₹)</Text>
+                                <Text fontSize="9px" fontWeight="1000" color="gray.500">Maximum Estimate(₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                     value={currentValues.estimateMax}
@@ -590,19 +633,27 @@ export const TreatmentProcedureForm = observer(
                     complaintType: toothComplaints[t.id] || complaintType || "CHIEF COMPLAINT",
                 };
             });
-            // If editing, override the specific tooth
-            if (editData) {
-                const actualToothId = (typeof editData.tooth === 'object' ? editData.tooth.fdi : editData.tooth);
-                if (actualToothId) {
-                    trs[actualToothId] = {
-                        ...trs[actualToothId],
+            
+            // If editing, override with saved data. 
+            // We use the record ID to stabilize this calculation.
+            if (editData?._id) {
+                const dataTooth = editData.tooth;
+                const actualToothId = typeof dataTooth === 'object' ? dataTooth.fdi : dataTooth;
+                
+                // Find matching tooth in current array
+                const targetTooth = teeth.find(t => t.id === actualToothId || t.fdi === actualToothId);
+                const toothKey = targetTooth ? targetTooth.id : actualToothId;
+
+                if (toothKey) {
+                    trs[toothKey] = {
+                        ...(trs[toothKey] || { ...initialFormData }),
                         treatmentCode: editData.treatmentPlan,
                         notes: editData.notes,
-                        estimateMin: editData.estimateMin,
-                        estimateMax: editData.estimateMax,
-                        discount: editData.discount,
-                        totalMin: editData.totalMin,
-                        totalMax: editData.totalMax,
+                        estimateMin: editData.estimateMin || 0,
+                        estimateMax: editData.estimateMax || 0,
+                        discount: editData.discount || 0,
+                        totalMin: editData.totalMin || 0,
+                        totalMax: editData.totalMax || 0,
                         doctor: editData.doctor ? (typeof editData.doctor === 'object' ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor) : (lastExaminingDoctor || undefined),
                         complaintType: editData.complaintType || "Chief Complaint",
                         examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : (lastExaminingDoctor || undefined),
@@ -610,7 +661,7 @@ export const TreatmentProcedureForm = observer(
                 }
             }
             return trs;
-        }, [teeth, patientDetails, generalDescription, doctorOptions, editData, complaintType, toothComplaints]);
+        }, [teeth, patientDetails?._id, editData?._id, lastExaminingDoctor]);
 
         return (
             <Formik
@@ -727,7 +778,14 @@ export const TreatmentProcedureForm = observer(
                                                                     cursor="pointer"
                                                                     bg={selectedCatIdx === idx ? "blue.50/50" : "transparent"}
                                                                     color={selectedCatIdx === idx ? "blue.600" : "gray.500"}
-                                                                    onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
+                                                                    onClick={() => {
+                                                                        setSelectedCatIdx(idx);
+                                                                        if (activeToothId === "bulk") {
+                                                                            teeth.forEach(t => setFieldValue(`treatments.${t.id}.treatmentCode`, cat.name));
+                                                                        } else if (activeToothId) {
+                                                                            setFieldValue(`treatments.${activeToothId}.treatmentCode`, cat.name);
+                                                                        }
+                                                                    }}
                                                                     _hover={{ bg: "blue.50/20" }}
                                                                 >
                                                                     <HStack spacing={3}>
@@ -747,7 +805,15 @@ export const TreatmentProcedureForm = observer(
                                                                     cursor="pointer"
                                                                     bg={selectedSubIdx === idx ? "blue.50/50" : "transparent"}
                                                                     color={selectedSubIdx === idx ? "blue.600" : "gray.500"}
-                                                                    onClick={() => setSelectedSubIdx(idx)}
+                                                                    onClick={() => {
+                                                                        setSelectedSubIdx(idx);
+                                                                        const path = `${activeCategory?.name} → ${sub.name}`;
+                                                                        if (activeToothId === "bulk") {
+                                                                            teeth.forEach(t => setFieldValue(`treatments.${t.id}.treatmentCode`, path));
+                                                                        } else if (activeToothId) {
+                                                                            setFieldValue(`treatments.${activeToothId}.treatmentCode`, path);
+                                                                        }
+                                                                    }}
                                                                 >
                                                                     <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{sub.name.toUpperCase()}</Text>
                                                                 </Box>

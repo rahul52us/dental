@@ -102,7 +102,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [teethNotes, setTeethNotes] = useState<string>("");
 
   const [procedureFormValues, setProcedureFormValues] = useState<any>(null);
-  const [explorerState, setExplorerState] = useState({ catIdx: 0, subIdx: 0 });
+  const [explorerState, setExplorerState] = useState({ catIdx: null, subIdx: null });
 
   const [individualTeethNotes, setIndividualTeethNotes] = useState<Record<string, string>>({});
   const [editingTooth, setEditingTooth] = useState<ToothData | null>(null);
@@ -326,17 +326,24 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     setDentitionType(isChild ? "child" : "adult");
     if (item.toothNotation) setNotation(item.toothNotation as any);
 
+    const toothId = typeof item.tooth === 'object' ? (item.tooth.fdi || item.tooth.id) : String(item.tooth || "");
+
     setProcedureFormValues({
-      doctor: item.doctor?._id ? { label: item.doctor.name, value: item.doctor._id } : item.doctor,
-      notes: item.notes || "",
-      treatmentCode: item.treatmentPlan || "",
-      estimateMin: item.estimateMin || 0,
-      estimateMax: item.estimateMax || 0,
-      totalMin: item.totalMin || 0,
-      totalMax: item.totalMax || 0,
-      discount: item.discount || 0,
-      status: item.status === "pending" ? "Planned" : item.status === "completed" ? "Completed" : item.status,
-      complaintType: item.complaintType || "Chief Complaint",
+      treatments: {
+        [toothId]: {
+          doctor: item.doctor?._id ? { label: item.doctor.name, value: item.doctor._id } : (typeof item.doctor === 'string' ? item.doctor : undefined),
+          notes: item.notes || "",
+          treatmentCode: item.treatmentPlan || "",
+          estimateMin: item.estimateMin || 0,
+          estimateMax: item.estimateMax || 0,
+          totalMin: item.totalMin || 0,
+          totalMax: item.totalMax || 0,
+          discount: item.discount || 0,
+          status: item.status === "pending" ? "Planned" : (item.status === "completed" ? "Completed" : item.status),
+          complaintType: item.complaintType || "Chief Complaint",
+          examiningDoctor: item.examiningDoctor?._id ? { label: item.examiningDoctor.name, value: item.examiningDoctor._id } : (typeof item.examiningDoctor === 'string' ? item.examiningDoctor : undefined),
+        }
+      }
     });
     onEditDrawerOpen();
   };

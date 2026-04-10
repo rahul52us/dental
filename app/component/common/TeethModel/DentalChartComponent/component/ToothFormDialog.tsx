@@ -65,6 +65,7 @@ interface TreatmentFormData {
   totalMax: number;
   patient?: any;
   status: string;
+  complaintType: string;
 }
 
 const detectIsChild = (tooth: any) => {
@@ -90,6 +91,7 @@ const initialFormData: TreatmentFormData = {
   totalMax: "" as any,
   patient: undefined,
   status: "Planned",
+  complaintType: "CHIEF COMPLAINT",
 };
 
 export const ToothFormDialog = observer(
@@ -118,6 +120,14 @@ export const ToothFormDialog = observer(
     // Browser State
     const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(null);
     const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(null);
+
+    // Auto-expand explorer based on existing treatment code when editing
+    useEffect(() => {
+      // Find the treatment code from Formik values (which might be initialized from edit data)
+      // Since Formik values aren't directly accessible here easily without a closure,
+      // we'll rely on the fact that this component is often used for new entries,
+      // but we add this for future-proofing or if editData is ever passed here.
+    }, []);
 
     const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
     const activeSubcategory = (activeCategory && selectedSubIdx !== null)
@@ -148,7 +158,7 @@ export const ToothFormDialog = observer(
             totalMin: values.totalMin || 0,
             totalMax: values.totalMax || 0,
             recordType: "tooth",
-            complaintType: complaintType,
+            complaintType: values.complaintType || complaintType,
             user: stores.auth.user?._id
           };
           return createToothTreatment(payload);
@@ -225,6 +235,7 @@ export const ToothFormDialog = observer(
             notes: generalDescription,
             examiningDoctor: lastExaminingDoctor,
             doctor: doctorOptions[0],
+            complaintType: complaintType,
           }}
           enableReinitialize={true}
           onSubmit={handleSubmit}
@@ -278,6 +289,44 @@ export const ToothFormDialog = observer(
                       />
                     </VStack>
                   </Grid>
+
+                  {/* COMPLAINT TYPE SELECTOR */}
+                  <VStack align="start" spacing={3}>
+                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">COMPLAINT TYPE</Text>
+                    <HStack bg="gray.50" p={1} borderRadius="xl" w="full" spacing={2} border="1px solid" borderColor="gray.100">
+                      {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
+                        const isActive = values.complaintType === type;
+                        const getStyles = () => {
+                          switch (type) {
+                            case "CHIEF COMPLAINT": return { bg: "red.500", color: "white" };
+                            case "OTHER FINDING": return { bg: "orange.400", color: "white" };
+                            case "EXISTING FINDING": return { bg: "gray.400", color: "white" };
+                            default: return { bg: "transparent", color: "gray.600" };
+                          }
+                        };
+                        const styles = isActive ? getStyles() : { bg: "white", color: "gray.500" };
+
+                        return (
+                          <Button
+                            key={type}
+                            flex={1}
+                            size="sm"
+                            h="36px"
+                            fontSize="9px"
+                            fontWeight="1000"
+                            borderRadius="lg"
+                            bg={styles.bg}
+                            color={styles.color}
+                            boxShadow={isActive ? "sm" : "none"}
+                            onClick={() => setFieldValue("complaintType", type)}
+                            _hover={{ opacity: 0.9 }}
+                          >
+                            {type}
+                          </Button>
+                        );
+                      })}
+                    </HStack>
+                  </VStack>
 
                   {/* TREATMENT BROWSER SECTION */}
                   <Box>
@@ -420,7 +469,7 @@ export const ToothFormDialog = observer(
                   {/* FINANCIAL INPUTS SECTION */}
                   <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} p={5} bg="blue.50/30" borderRadius="2xl" border="1px" borderColor="blue.100">
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="blue.500">MINIMUM (₹)</Text>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.500">Minimum Estimate (₹)</Text>
                       <Input
                         type="number"
                         placeholder="0.00"
@@ -438,7 +487,7 @@ export const ToothFormDialog = observer(
                       />
                     </VStack>
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="blue.500">MAXIMUM (₹)</Text>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.500">Maximum Estimate (₹)</Text>
                       <Input
                         type="number"
                         placeholder="0.00"
