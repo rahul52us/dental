@@ -737,13 +737,9 @@ export const TreatmentProcedureForm = observer(
                                                                         if (activeToothId === "bulk") {
                                                                             teeth.forEach(t => {
                                                                                 setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                                setFieldValue(`treatments.${t.id}.estimateMin`, "");
-                                                                                setFieldValue(`treatments.${t.id}.estimateMax`, "");
                                                                             });
                                                                         } else if (activeToothId) {
                                                                             setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                            setFieldValue(`treatments.${activeToothId}.estimateMin`, "");
-                                                                            setFieldValue(`treatments.${activeToothId}.estimateMax`, "");
                                                                         }
                                                                         onProcedureClose();
                                                                     }}
@@ -840,15 +836,9 @@ export const TreatmentProcedureForm = observer(
                                                                             if (activeToothId === "bulk") {
                                                                                 teeth.forEach(t => {
                                                                                     setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                                    setFieldValue(`treatments.${t.id}.estimateMin`, "");
-                                                                                    setFieldValue(`treatments.${t.id}.estimateMax`, "");
-                                                                                    setFieldValue(`treatments.${t.id}.totalMin`, 0);
-                                                                                    setFieldValue(`treatments.${t.id}.totalMax`, 0);
                                                                                 });
                                                                             } else if (activeToothId) {
                                                                                 setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                                setFieldValue(`treatments.${activeToothId}.estimateMin`, "");
-                                                                                setFieldValue(`treatments.${activeToothId}.estimateMax`, "");
                                                                             }
                                                                             onProcedureClose();
                                                                         }}
@@ -1070,7 +1060,7 @@ export const TreatmentProcedureForm = observer(
                                                         Next: {teeth[teeth.findIndex(t => t.id === activeToothId) + 1].name}
                                                     </Button>
                                                 ) : (
-                                                    <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" onClick={onDetailClose}>
+                                                    <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" onClick={() => { onDetailClose(); setTimeout(() => handleSubmit(), 0); }}>
                                                         {activeToothId === "bulk" ? "Proceed to Individual Review" : "Finish Documentation"}
                                                     </Button>
                                                 )}
