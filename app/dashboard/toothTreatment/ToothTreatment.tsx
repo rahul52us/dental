@@ -1,5 +1,6 @@
 "use client";
-import { Box, Text, Badge } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip } from "@chakra-ui/react";
+
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
@@ -11,19 +12,27 @@ import stores from "../../store/stores";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
 import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
 import TreatmentDetailsView from "./element/TreatmentDetailsView";
+import { FiGrid, FiList, FiPlus, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2 } from "react-icons/fi";
+import Pagination from "../../component/config/component/pagination/Pagination";
+
+
+
 
 const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
-    toothTreatmentStore: { getToothTreatments, toothTreatment },
+    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
     auth: { openNotification, userType },
   } = stores;
+
   const [openView, setOpenView] = useState({ open: false, data: null });
+  const [isTableView, setIsTableView] = useState<"table" | "card">("table");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState<any>({
     open: false,
     type: "add",
     data: null
   });
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,6 +87,27 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     applyGetAllRecords({ page: 1, reset: true });
   };
 
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this record?")) {
+      try {
+        await deleteToothTreatment(id);
+        openNotification({
+          type: "success",
+          title: "Record Deleted",
+          message: "Treatment record has been successfully removed."
+        });
+        applyGetAllRecords({ page: currentPage });
+      } catch (err: any) {
+        openNotification({
+          type: "error",
+          title: "Delete Failed",
+          message: err?.message || "Something went wrong"
+        });
+      }
+    }
+  };
+
+
   /* ---------------- Patient Column ---------------- */
   const patientColumn = {
     headerName: "Patient",
@@ -107,22 +137,22 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-        headerName: "System",
-        key: "toothNotation",
-        metaData: {
-          component: (dt: any) => (
-            <Box>
-              <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
-                {(dt?.toothNotation || "FDI").toUpperCase()}
-              </Badge>
-              <Text fontSize="xs" color="gray.500" mt={1}>
-                {dt?.toothName || ""}
-              </Text>
-            </Box>
-          ),
-        },
-        props: { row: { textAlign: "center" } },
+      headerName: "System",
+      key: "toothNotation",
+      metaData: {
+        component: (dt: any) => (
+          <Box>
+            <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
+              {(dt?.toothNotation || "FDI").toUpperCase()}
+            </Badge>
+            <Text fontSize="xs" color="gray.500" mt={1}>
+              {dt?.toothName || ""}
+            </Text>
+          </Box>
+        ),
       },
+      props: { row: { textAlign: "center" } },
+    },
 
     ...(!isPatient ? [patientColumn] : []),
 
@@ -247,53 +277,249 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const subTitle = patientDetails?.name;
 
+  const renderCard = (dt: any) => {
+    const statusColors: any = {
+      scheduled: "blue",
+      "in-progress": "yellow",
+      completed: "green",
+      cancelled: "red",
+      planned: "gray",
+    };
+    const color = statusColors[dt.status?.toLowerCase()] || "gray";
+
+    return (
+      <Box
+        bg="white"
+        p={5}
+        borderRadius="3xl"
+        shadow="sm"
+        border="1px solid"
+        borderColor="gray.100"
+        transition="all 0.2s"
+        position="relative"
+        _hover={{ shadow: "md", transform: "translateY(-2px)", borderColor: "blue.200" }}
+      >
+        <Flex align="start" gap={6}>
+          {/* Left side: Tooth Identifier Box */}
+          <VStack
+            minW="75px"
+            h="75px"
+            bg="blue.50"
+            borderRadius="2xl"
+            border="1px solid"
+            borderColor="blue.100"
+            justify="center"
+            spacing={0}
+          >
+            <Text fontSize="10px" fontWeight="800" color="blue.400" letterSpacing="wider">TOOTH</Text>
+            <Text fontSize="2xl" fontWeight="900" color="blue.700" lineHeight="1">{dt.toothFDI || "??"}</Text>
+          </VStack>
+
+          {/* Middle part: Details */}
+          <VStack align="start" spacing={2} flex={1}>
+            <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="widest" textTransform="uppercase">
+              {formatDate(dt.treatmentDate)}
+            </Text>
+
+            <HStack spacing={2}>
+              {dt.complaintType && (
+                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
+                  {dt.complaintType?.toUpperCase()}
+                </Badge>
+              )}
+              <Badge colorScheme={color} variant="subtle" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
+                {dt.status?.toUpperCase() || "PENDING"}
+              </Badge>
+            </HStack>
+
+            <Text fontSize="lg" fontWeight="800" color="gray.800" noOfLines={2} pt={1}>
+              {dt.treatmentPlan || "General Consultation"}
+            </Text>
+
+            {dt.notes && (
+              <Box
+                bg="blue.50"
+                p={3}
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="blue.100"
+                w="full"
+                mt={1}
+              >
+                <Text fontSize="xs" color="blue.600" fontStyle="italic" noOfLines={2}>
+                  {dt.notes}
+                </Text>
+              </Box>
+            )}
+          </VStack>
+
+          {/* Right side: Floating Actions */}
+          <HStack
+            spacing={1}
+            bg="gray.50"
+            p={2}
+            borderRadius="2xl"
+            border="1px solid"
+            borderColor="gray.100"
+            position="absolute"
+            top={4}
+            right={4}
+          >
+            <Tooltip label="View Details">
+              <IconButton
+                size="sm"
+                variant="ghost"
+                colorScheme="blue"
+                icon={<FiEye />}
+                aria-label="View"
+                onClick={() => setOpenView({ open: true, data: dt })}
+              />
+            </Tooltip>
+            <Tooltip label="Edit Record">
+              <IconButton
+                size="sm"
+                variant="ghost"
+                colorScheme="blue"
+                icon={<FiEdit3 />}
+                aria-label="Edit"
+                onClick={() => setOpenReportModal({ open: true, type: "edit", data: dt })}
+              />
+            </Tooltip>
+            <Tooltip label="Delete Record">
+              <IconButton
+                size="sm"
+                variant="ghost"
+                colorScheme="red"
+                icon={<FiTrash2 />}
+                aria-label="Delete"
+                onClick={() => handleDelete(dt._id)}
+                display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
+              />
+            </Tooltip>
+          </HStack>
+        </Flex>
+      </Box>
+    );
+  };
+
+
   return (
     <>
-      <CustomTable
-        title="Treatment"
-        subTitle={patientDetails ? subTitle : undefined}
-        data={toothTreatment?.data || []}
-        columns={ContactTableColumn}
-        actions={{
-          actionBtn: {
-            addKey: {
-              showAddButton: ["admin", "superAdmin"].includes(userType),
-              function: () => {
-                setOpenReportModal({ open: true, type: "add" });
+      <Box>
+
+        {/* Custom Dashboard Header */}
+        <Flex
+          bg="white"
+          p={4}
+          borderRadius="2xl"
+          shadow="xs"
+          border="1px solid"
+          borderColor="gray.100"
+          mb={4}
+          justify="space-between"
+          align="center"
+          wrap="wrap"
+          gap={4}
+        >
+          <VStack align="start" spacing={0}>
+            <Heading size="md" color="blue.600">Treatment Records</Heading>
+            {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
+          </VStack>
+
+          <HStack spacing={4} flex={1} maxW="600px" justify="flex-end">
+            <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1}>
+              <Icon as={FiSearch} color="gray.400" />
+              <Input
+                placeholder="Search clinical records..."
+                variant="unstyled"
+                py={2}
+                fontSize="sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </HStack>
+
+            <HStack bg="gray.100" p={1} borderRadius="xl">
+              <IconButton
+                size="sm"
+                variant={isTableView === "card" ? "solid" : "ghost"}
+                colorScheme={isTableView === "card" ? "blue" : "gray"}
+                icon={<FiGrid />}
+                onClick={() => setIsTableView("card")}
+                aria-label="Grid View"
+              />
+              <IconButton
+                size="sm"
+                variant={isTableView === "table" ? "solid" : "ghost"}
+                colorScheme={isTableView === "table" ? "blue" : "gray"}
+                icon={<FiList />}
+                onClick={() => setIsTableView("table")}
+                aria-label="List View"
+              />
+            </HStack>
+
+            <Button
+              colorScheme="blue"
+              leftIcon={<FiPlus />}
+              borderRadius="xl"
+              size="sm"
+              onClick={() => setOpenReportModal({ open: true, type: "add" })}
+              display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
+            >
+              Add Record
+            </Button>
+          </HStack>
+        </Flex>
+
+        {isTableView === "table" ? (
+          <CustomTable
+            data={toothTreatment?.data || []}
+            columns={ContactTableColumn}
+            loading={toothTreatment?.loading}
+            actions={{
+              actionBtn: {
+                editKey: {
+                  showEditButton: ["admin", "superAdmin"].includes(userType),
+                  function: (dt: any) => setOpenReportModal({ open: true, type: "edit", data: dt }),
+                },
+                viewKey: {
+                  showViewButton: true,
+                  function: (dt: any) => setOpenView({ open: true, data: dt }),
+                },
               },
-            },
-            editKey: {
-              showEditButton: ["admin", "superAdmin"].includes(userType),
-              function: (dt: any) => {
-                setOpenReportModal({ open: true, type: "edit", data: dt });
-              },
-            },
-            viewKey: {
-              showViewButton: true,
-              function: (dt: any) => {
-                setOpenView({ open: true, data: dt });
-              },
-            },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
-          resetData: {
-            show: false,
-            text: "Reset Data",
-            function: resetTableData,
-          },
-          pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage,
-            totalPages: toothTreatment?.totalPages,
-          },
-        }}
-        loading={toothTreatment?.loading}
-      />
+              pagination: {
+                show: true,
+                onClick: handleChangePage,
+                currentPage,
+                totalPages: toothTreatment?.totalPages,
+              }
+            }}
+          />
+        ) : (
+          <VStack align="stretch" spacing={6}>
+            <SimpleGrid columns={{ base: 1, md: 1, lg: 1 }} spacing={6}>
+              {toothTreatment?.data?.map((dt: any) => renderCard(dt))}
+            </SimpleGrid>
+
+            {toothTreatment?.totalPages > 1 && (
+              <Flex justify="center" pt={4}>
+                <Pagination
+                  currentPage={currentPage}
+                  onPageChange={handleChangePage}
+                  totalPages={toothTreatment?.totalPages}
+                />
+              </Flex>
+            )}
+
+            {!toothTreatment?.loading && toothTreatment?.data?.length === 0 && (
+              <VStack py={20} bg="white" borderRadius="3xl" border="1px dashed" borderColor="gray.200">
+                <Icon as={FiActivity} fontSize="40px" color="gray.200" />
+                <Text fontWeight="bold" color="gray.400">No matching records found</Text>
+              </VStack>
+            )}
+          </VStack>
+        )}
+      </Box>
 
       <CustomDrawer
         width={"80vw"}
@@ -320,5 +546,6 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     </>
   );
 });
+
 
 export default TreatmentList;
