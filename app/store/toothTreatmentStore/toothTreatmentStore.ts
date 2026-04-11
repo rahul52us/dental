@@ -18,6 +18,13 @@ class ToothTreatmentStore {
     loading: false,
   };
 
+  todayToothTreatment: ToothTreatment = {
+    data: [],
+    totalItems: 0,
+    totalPages: 0,
+    loading: false,
+  };
+
   lastExaminingDoctor: any = null;
 
   constructor() {
@@ -62,6 +69,35 @@ class ToothTreatmentStore {
     }
   };
 
+  _mapTreatmentData = (rawItems: any[]) => {
+    return rawItems.map((it: any) => {
+      const fdi = it?.tooth || "--";
+      const notation = it?.toothNotation || "fdi";
+      const dentition = it?.dentitionType || "adult";
+      
+      const allTeeth = getTeethByType(dentition as any);
+      const toothObj = allTeeth.find(t => t.id === fdi);
+      
+      const toothUniversal = toothObj?.universal || "--";
+      const toothPalmer = toothObj?.palmer || "--";
+
+      let toothLabel = `FDI ${fdi}`;
+      if (notation === "universal") toothLabel = `U ${toothUniversal}`;
+      else if (notation === "palmer") toothLabel = `P ${toothPalmer}`;
+
+      return {
+        ...it,
+        patientName: it?.patient?.name,
+        doctorName: it?.doctor?.name,
+        examiningDoctorName: it?.examiningDoctor?.name,
+        toothFDI: fdi,
+        toothUniversal: toothUniversal,
+        toothPalmer: toothPalmer,
+        toothName: toothLabel,
+      };
+    });
+  };
+
   getToothTreatments = async (sendData: { page: number, search: string, category?: string, patientId?: any }) => {
     console.log("Fetching tooth treatments with params:", sendData);
     this.toothTreatment.loading = true;
@@ -80,47 +116,12 @@ class ToothTreatmentStore {
       }
 
       const { data } = await axios.get("/toothTreatment/get", { params });
-
-      // Extract items from data.data.data or data.data depending on backend structure
       const rawItems = data?.data?.data || data?.data || [];
-      const mappedData = rawItems.map((it: any) => {
-        const fdi = it?.tooth || "--";
-        const notation = it?.toothNotation || "fdi";
-        const dentition = it?.dentitionType || "adult";
-        
-        // Find tooth object for notation mapping
-        const allTeeth = getTeethByType(dentition as any);
-        const toothObj = allTeeth.find(t => t.id === fdi);
-        
-        const toothUniversal = toothObj?.universal || "--";
-        const toothPalmer = toothObj?.palmer || "--";
+      this.toothTreatment.data = this._mapTreatmentData(rawItems);
 
-        let toothLabel = `FDI ${fdi}`;
-        if (notation === "universal") toothLabel = `U ${toothUniversal}`;
-        else if (notation === "palmer") toothLabel = `P ${toothPalmer}`;
-
-        return {
-          ...it,
-          patientName: it?.patient?.name,
-          doctorName: it?.doctor?.name,
-          examiningDoctorName: it?.examiningDoctor?.name,
-          toothFDI: fdi,
-          toothUniversal: toothUniversal,
-          toothPalmer: toothPalmer,
-          toothName: toothLabel,
-        }
-      });
-
-      this.toothTreatment.data = mappedData;
-
-      // Extract the total count from the new backend response structure (data.data.totalItems)
       const totalItems = data?.data?.totalItems || data?.totalItems || data?.count || rawItems.length || 0;
       this.toothTreatment.totalItems = totalItems;
-
-      // Ensure totalPages is calculated based on the actual limit (10) used in this request
       this.toothTreatment.totalPages = Math.ceil(totalItems / 10) || 1;
-
-      console.log("Extracted Pagination Metadata:", { totalItems, totalPages: this.toothTreatment.totalPages });
 
       return data;
     } catch (err: any) {
@@ -128,6 +129,52 @@ class ToothTreatmentStore {
       return Promise.reject(err?.response?.data || err);
     } finally {
       this.toothTreatment.loading = false;
+    }
+  };
+
+  getTodayCount = async (sendData: { patientId: any }) => {
+    console.log("Fetching today's tooth count for patient:", sendData.patientId);
+    try {
+      const params: any = {
+        company: authStore.company,
+        patientId: sendData.patientId,
+        patient: sendData.patientId,
+      };
+
+      const { data } = await axios.get("/toothTreatment/today-count", { params });
+      const totalItems = data?.data?.totalItems || 0;
+      this.todayToothTreatment.totalItems = totalItems;
+      return totalItems;
+    } catch (err: any) {
+      console.error("Error fetching today's count:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  getTodayToothTreatments = async (sendData: { patientId: any }) => {
+    console.log("Fetching today's tooth treatments for patient:", sendData.patientId);
+    this.todayToothTreatment.loading = true;
+    try {
+      const params: any = {
+        company: authStore.company,
+        patientId: sendData.patientId,
+        patient: sendData.patientId,
+      };
+
+      const { data } = await axios.get("/toothTreatment/today", { params });
+      const rawItems = data?.data?.data || data?.data || [];
+      this.todayToothTreatment.data = this._mapTreatmentData(rawItems);
+
+      const totalItems = data?.data?.totalItems || data?.totalItems || data?.count || rawItems.length || 0;
+      this.todayToothTreatment.totalItems = totalItems;
+      this.todayToothTreatment.totalPages = 1;
+
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching today's treatments:", err);
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+      this.todayToothTreatment.loading = false;
     }
   };
 

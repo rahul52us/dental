@@ -138,12 +138,24 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const { isOpen: isQuickAddOpen, onOpen: onQuickAddOpen, onClose: onQuickAddClose } = useDisclosure();
   const {
     userStore: { getUsersList },
-    toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment, updateToothTreatment, lastExaminingDoctor, setLastExaminingDoctor },
+    toothTreatmentStore: {
+      getToothTreatments,
+      toothTreatment,
+      getTodayToothTreatments,
+      getTodayCount,
+      todayToothTreatment,
+      deleteToothTreatment,
+      updateToothTreatment,
+      lastExaminingDoctor,
+      setLastExaminingDoctor
+    },
   } = stores;
 
   useEffect(() => {
-    // Doctors are now fetched on-demand by CustomInput to prevent global state pollution
-  }, []);
+    if (patientDetails?._id) {
+      getTodayCount({ patientId: patientDetails._id });
+    }
+  }, [patientDetails?._id]);
 
   const doctorOptions = useMemo(() => {
     return doctors.map((d) => ({
@@ -294,7 +306,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     try {
       setIsDeletingConfirmLoading(true);
       await deleteToothTreatment(deletingId);
-      if (patientDetails?._id) await getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
+      if (patientDetails?._id) await getTodayCount({ patientId: patientDetails._id });
       onCloseDeleteModal();
     } catch (err) {
       console.error("Delete failed", err);
@@ -485,7 +497,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     <Heading size="xs" fontWeight="900">Saved Records</Heading>
                   </VStack>
                   <HStack spacing={2}>
-                    <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{toothTreatment.totalItems || 0}</Circle>
+                    <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{todayToothTreatment.totalItems || 0}</Circle>
                     <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
                   </HStack>
                 </HStack>
@@ -498,10 +510,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       </HStack>
                       <Text fontSize="12px" color={teethNotes ? "gray.700" : "gray.400"}>{teethNotes || "No notes recorded..."}</Text>
                     </VStack>
-                    <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={onHistoryDrawerOpen} _hover={{ transform: "translateY(-2px)" }}>
+                    <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={() => { if (patientDetails?._id) getTodayToothTreatments({ patientId: patientDetails._id }); onHistoryDrawerOpen(); }} _hover={{ transform: "translateY(-2px)" }}>
                       <HStack justify="space-between">
                         <VStack align="start" spacing={0}><Text fontSize="10px" fontWeight="1000">PATIENT RECORDS</Text><Heading size="xs">View History</Heading></VStack>
-                        <Text fontSize="24px" fontWeight="1000" color="blue.600">{toothTreatment.totalItems || 0}</Text>
+                        <Text fontSize="24px" fontWeight="1000" color="blue.600">{todayToothTreatment.totalItems || 0}</Text>
                       </HStack>
                     </Box>
                     <Button colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Initialize Record</Button>
@@ -571,6 +583,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <Text fontWeight="900" color={currentMainIdx === idx ? "blue.500" : "gray.500"}>{s.title}</Text>
                 </HStack>
               ))}
+              <Badge variant="subtle" colorScheme="blue" borderRadius="full" px={3} py={1} fontSize="xs" fontWeight="900">
+                {todayToothTreatment.totalItems || 0} ITEMS TODAY
+              </Badge>
             </HStack>
           </HStack>
           <IconButton aria-label="Close" icon={<FiX />} onClick={closeWizard} variant="ghost" />
@@ -609,7 +624,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               teeth={toothObj ? [toothObj as ToothData] : []}
               dentitionType={isChild ? "child" : "adult"}
               generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
-              onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
+              onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getTodayCount({ patientId: patientDetails._id }); }}
               onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
               notation={notation}
             />
@@ -628,9 +643,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <IconButton size="xs" variant={isTableView ? "solid" : "ghost"} colorScheme={isTableView ? "blue" : "gray"} icon={<FiList />} onClick={() => setIsTableView(true)} aria-label="Table View" />
                 </HStack>
               </HStack>
-              <Badge colorScheme="blue" borderRadius="lg" px={4} py={1.5}>{toothTreatment.totalItems || 0} ITEMS</Badge>
+              <Badge colorScheme="blue" borderRadius="lg" px={4} py={1.5}>
+                {todayToothTreatment.totalItems || 0} ITEMS TODAY
+              </Badge>
             </HStack>
-            <HStack spacing={4} bg="gray.50" p={4} borderRadius="2xl">
+            <HStack spacing={4} bg="gray.50" p={4} borderRadius="2xl" display="none">
               <Input placeholder="Search records..." value={historySearch} onChange={(e) => setHistorySearch(e.target.value)} bg="white" size="sm" maxW="300px" />
               <Select value={historyCategoryFilter} onChange={(e) => setHistoryCategoryFilter(e.target.value)} bg="white" size="sm" maxW="200px">
                 <option value="all">All Categories</option>
@@ -647,9 +664,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               '&::-webkit-scrollbar-track': { bg: 'transparent' },
               '&::-webkit-scrollbar-thumb': { bg: 'gray.200', borderRadius: 'full' }
             }}>
-              {toothTreatment.loading ? (
+              {todayToothTreatment.loading ? (
                 <VStack py={20}><Progress size="xs" isIndeterminate w="200px" borderRadius="full" colorScheme="blue" /></VStack>
-              ) : toothTreatment.totalItems > 0 ? (
+              ) : todayToothTreatment.totalItems > 0 ? (
                 isTableView ? (
                   <Table variant="simple" size="sm" bg="white" borderRadius="2xl" overflow="hidden" boxShadow="xs">
                     <Thead bg="gray.50">
@@ -663,7 +680,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {toothTreatment.data.map((item: any) => (
+                      {todayToothTreatment.data.map((item: any) => (
                         <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
                           <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
                           <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth}</Badge></Td>
@@ -688,7 +705,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 ) : (
                   <VStack spacing={6} align="stretch" pb={10} position="relative">
                     <Box position="absolute" left="35px" top="0" bottom="0" w="2px" bg="gray.100" zIndex={0} />
-                    {toothTreatment.data.map((item: any) => {
+                    {todayToothTreatment.data.map((item: any) => {
                       const style = COMPLAINT_STYLES[item.complaintType?.toUpperCase()] || COMPLAINT_STYLES.default;
                       const isCompleted = item.status?.toLowerCase() === "completed";
                       const treatmentDate = new Date(item.treatmentDate);
@@ -750,9 +767,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               )}
             </Box>
             <HStack justify="space-between" pt={4} borderTop="1px solid" borderColor="gray.100">
-              <Text fontSize="xs">Page {historyPage} of {toothTreatment.totalPages || 1}</Text>
-              <HStack><Button size="sm" onClick={() => setHistoryPage(p => Math.max(1, p - 1))} isDisabled={historyPage === 1}>Prev</Button>
-                <Button size="sm" onClick={() => setHistoryPage(p => p + 1)} isDisabled={historyPage >= (toothTreatment.totalPages || 1)}>Next</Button></HStack>
+              <Text fontSize="xs">Showing session records only</Text>
             </HStack>
           </VStack>
         </Box>
@@ -839,7 +854,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         doctorOptions={doctorOptions}
         onSuccess={() => {
           if (patientDetails?._id) {
-            getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" });
+            getTodayCount({ patientId: patientDetails._id });
           }
         }}
         complaintType={complaintType}
