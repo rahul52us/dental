@@ -153,7 +153,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   useEffect(() => {
     if (patientDetails?._id) {
-      getTodayCount({ patientId: patientDetails._id });
+      getTodayToothTreatments({ patientId: patientDetails._id });
     }
   }, [patientDetails?._id]);
 
@@ -306,7 +306,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     try {
       setIsDeletingConfirmLoading(true);
       await deleteToothTreatment(deletingId);
-      if (patientDetails?._id) await getTodayCount({ patientId: patientDetails._id });
+      if (patientDetails?._id) await getTodayToothTreatments({ patientId: patientDetails._id });
       onCloseDeleteModal();
     } catch (err) {
       console.error("Delete failed", err);
@@ -487,7 +487,16 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </HStack>
                 </Flex>
                 <Box flex={1} overflow="hidden">
-                  <TeethChart key={dentitionType} dentitionType={dentitionType} selectedTeeth={selectedTeeth} onToothClick={handleToothClick} notationType={notation} toothComplaints={toothComplaints} activeComplaintType={complaintType} />
+                  <TeethChart 
+                    key={dentitionType} 
+                    dentitionType={dentitionType} 
+                    selectedTeeth={selectedTeeth} 
+                    onToothClick={handleToothClick} 
+                    notationType={notation} 
+                    toothComplaints={toothComplaints} 
+                    activeComplaintType={complaintType}
+                    todayTreatments={todayToothTreatment.data}
+                  />
                 </Box>
               </VStack>
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
@@ -624,7 +633,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               teeth={toothObj ? [toothObj as ToothData] : []}
               dentitionType={isChild ? "child" : "adult"}
               generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
-              onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getTodayCount({ patientId: patientDetails._id }); }}
+              onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getTodayToothTreatments({ patientId: patientDetails._id }); }}
               onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
               notation={notation}
             />
@@ -854,7 +863,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         doctorOptions={doctorOptions}
         onSuccess={() => {
           if (patientDetails?._id) {
-            getTodayCount({ patientId: patientDetails._id });
+            getTodayToothTreatments({ patientId: patientDetails._id });
           }
         }}
         complaintType={complaintType}

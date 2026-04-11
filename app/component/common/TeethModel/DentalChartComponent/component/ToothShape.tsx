@@ -1,5 +1,4 @@
-// import { ToothData } from "@/data/teethData";
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, Tooltip, VStack, Divider } from "@chakra-ui/react";
 import { ToothData } from "../utils/teethData";
 
 interface ToothShapeProps {
@@ -10,6 +9,7 @@ interface ToothShapeProps {
   notationType?: "fdi" | "universal" | "palmer";
   complaintType?: string;
   activeComplaintType?: string;
+  todayRecord?: any;
 }
 
 const sizeMap = {
@@ -26,6 +26,7 @@ export const ToothShape = ({
   notationType = "fdi",
   complaintType,
   activeComplaintType,
+  todayRecord,
 }: ToothShapeProps) => {
   const getNotationLabel = () => {
     switch (notationType) {
@@ -69,64 +70,93 @@ export const ToothShape = ({
     "CHIEF COMPLAINT": { bg: "#FFF5F5", fill: "#FEB2B2", stroke: "#F56565", text: "#742A2A" },
     "OTHER FINDING": { bg: "#FFFAF0", fill: "#FBD38D", stroke: "#ED8936", text: "#7B341E" },
     "EXISTING FINDING": { bg: "#F0FFF4", fill: "#9AE6B4", stroke: "#48BB78", text: "#22543D" },
-    "default": { bg: "#EBF8FF", fill: "#63B3ED", stroke: "#2B6CB0", text: "#1A365D" }
+    "default": { bg: "#EBF8FF", fill: "#63B3ED", stroke: "#2B6CB0", text: "#1A365D" },
+    "today": { bg: "#EBF8FF", fill: "#63B3ED", stroke: "#3182CE", text: "#2C5282" }
   };
 
-  const activeStyle = isSelected 
-    ? (colorMap[activeComplaintType as string] || colorMap.default) 
-    : (complaintType ? colorMap[complaintType] : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
+  const todayComplaintType = todayRecord?.complaintType?.toUpperCase();
+  const activeStyle = isSelected
+    ? (colorMap[activeComplaintType as string] || colorMap.default)
+    : (complaintType ? colorMap[complaintType] : (todayComplaintType && colorMap[todayComplaintType]) ? colorMap[todayComplaintType] : todayRecord ? colorMap.today : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
+
+  const tooltipContent = todayRecord ? (
+    <VStack align="start" spacing={1} p={1}>
+      <Text fontSize="10px" fontWeight="900" color="blue.200">TODAY'S WORK</Text>
+      <Text fontWeight="1000" fontSize="xs">{todayRecord.treatmentPlan || "General Record"}</Text>
+      <Divider borderColor="blue.400" />
+      <Text fontSize="10px" opacity={0.8}>{todayRecord.complaintType}</Text>
+      {todayRecord.notes && (
+        <Text fontSize="10px" fontStyle="italic" color="whiteAlpha.800">
+          "{todayRecord.notes}"
+        </Text>
+      )}
+    </VStack>
+  ) : null;
 
   return (
-    <Box
-      as="button"
-      onClick={onClick}
-      display="flex"
-      flexDir="column"
-      alignItems="center"
-      gap={1}
-      p={1}
-      rounded="lg"
-      transition="all 0.2s"
-      bg={activeStyle.bg}
-      _hover={{ bg: "gray.100" }}
+    <Tooltip 
+      label={tooltipContent} 
+      hasArrow 
+      p={3} 
+      bg="blue.700" 
+      color="white" 
+      borderRadius="xl" 
+      isDisabled={!todayRecord}
+      placement="top"
     >
       <Box
-        as="svg"
-        viewBox="0 0 28 30"
-        width={sizeMap[size].w}
-        height={sizeMap[size].h}
+        as="button"
+        onClick={onClick}
+        display="flex"
+        flexDir="column"
+        alignItems="center"
+        gap={1}
+        p={1}
+        rounded="lg"
         transition="all 0.2s"
+        bg={activeStyle.bg}
+        _hover={{ bg: isSelected ? activeStyle.bg : "gray.100" }}
+        border={todayRecord && !isSelected ? "1px dashed" : "1px solid"}
+        borderColor={todayRecord && !isSelected ? "blue.300" : "transparent"}
       >
-        <path
-          d={getToothPath()}
-          fill={activeStyle.fill}
-          stroke={activeStyle.stroke}
-          strokeWidth={isSelected ? 2 : 1}
-          style={{ transition: "all 0.2s" }}
-        />
+        <Box
+          as="svg"
+          viewBox="0 0 28 30"
+          width={sizeMap[size].w}
+          height={sizeMap[size].h}
+          transition="all 0.2s"
+        >
+          <path
+            d={getToothPath()}
+            fill={activeStyle.fill}
+            stroke={activeStyle.stroke}
+            strokeWidth={isSelected || todayRecord ? 2 : 1}
+            style={{ transition: "all 0.2s" }}
+          />
 
-        <text
-          x="14"
-          y="16"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize="8"
-          fontWeight="600"
-          fill={activeStyle.text}
-          pointerEvents="none"
+          <text
+            x="14"
+            y="16"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="8"
+            fontWeight="600"
+            fill={activeStyle.text}
+            pointerEvents="none"
+          >
+            {notationLabel}
+          </text>
+        </Box>
+
+        <Text
+          fontSize="10px"
+          fontWeight="900"
+          color={activeStyle.text}
+          transition="color 0.2s"
         >
           {notationLabel}
-        </text>
+        </Text>
       </Box>
-
-      <Text
-        fontSize="10px"
-        fontWeight="medium"
-        color={activeStyle.text}
-        transition="color 0.2s"
-      >
-        {notationLabel}
-      </Text>
-    </Box>
+    </Tooltip>
   );
 };
