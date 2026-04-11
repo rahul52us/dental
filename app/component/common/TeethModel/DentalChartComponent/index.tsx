@@ -36,19 +36,14 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import {
-  FiCheck,
   FiMousePointer,
   FiFileText,
   FiActivity,
   FiChevronRight,
-  FiChevronLeft,
   FiX,
-  FiSave,
   FiEdit3,
   FiTrash2,
   FiPlus,
-  FiCreditCard,
-  FiScissors,
   FiEye,
   FiGrid,
   FiList,
@@ -56,16 +51,10 @@ import {
 
 import { DentitionToggle } from "./component/DentitionToggle";
 import { TeethChart } from "./component/TeethChart";
-import { ToothInfoCard } from "./component/ToothInfoCard";
 import { DentitionType, ToothData, adultTeeth, childTeeth, getTeethByType } from "./utils/teethData";
 import { observer } from "mobx-react-lite";
-
-import { DescriptionEntry } from "./component/DescriptionEntry";
-import { ComplaintSelectionMode } from "./component/ComplaintSelectionMode";
 import { TreatmentProcedureForm } from "./component/TreatmentProcedureForm";
 import { ToothFormDialog } from "./component/ToothFormDialog";
-import { NotationChoice } from "./component/NotationChoice";
-import { SavedTreatmentListItem } from "./component/SavedTreatmentListItem";
 import { ProcedureTemplateList } from "./component/ProcedureTemplateList";
 import CustomDrawer from "../../Drawer/CustomDrawer";
 import { PatientHeader } from "./component/PatientHeader";
@@ -113,6 +102,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeletingConfirmLoading, setIsDeletingConfirmLoading] = useState(false);
   const [generalNoteDraft, setGeneralNoteDraft] = useState("");
+  const [sessionDate, setSessionDate] = useState<string>(new Date().toISOString().split("T")[0]);
+
 
   const [historySearch, setHistorySearch] = useState("");
   const [historyCategoryFilter, setHistoryCategoryFilter] = useState("all");
@@ -153,9 +144,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   useEffect(() => {
     if (patientDetails?._id) {
-      getTodayToothTreatments({ patientId: patientDetails._id });
+      getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+      getTodayCount({ patientId: patientDetails._id, date: sessionDate });
     }
-  }, [patientDetails?._id]);
+  }, [patientDetails?._id, sessionDate]);
+
+
 
   const doctorOptions = useMemo(() => {
     return doctors.map((d) => ({
@@ -306,8 +300,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     try {
       setIsDeletingConfirmLoading(true);
       await deleteToothTreatment(deletingId);
-      if (patientDetails?._id) await getTodayToothTreatments({ patientId: patientDetails._id });
+      if (patientDetails?._id) {
+        await getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+        await getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+      }
       onCloseDeleteModal();
+
+
     } catch (err) {
       console.error("Delete failed", err);
     } finally {
@@ -487,13 +486,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </HStack>
                 </Flex>
                 <Box flex={1} overflow="hidden">
-                  <TeethChart 
-                    key={dentitionType} 
-                    dentitionType={dentitionType} 
-                    selectedTeeth={selectedTeeth} 
-                    onToothClick={handleToothClick} 
-                    notationType={notation} 
-                    toothComplaints={toothComplaints} 
+                  <TeethChart
+                    key={dentitionType}
+                    dentitionType={dentitionType}
+                    selectedTeeth={selectedTeeth}
+                    onToothClick={handleToothClick}
+                    notationType={notation}
+                    toothComplaints={toothComplaints}
                     activeComplaintType={complaintType}
                     todayTreatments={todayToothTreatment.data}
                   />
@@ -512,14 +511,24 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 </HStack>
                 <Box flex={1} overflowY="auto" pr={2}>
                   <VStack align="stretch" spacing={4}>
-                    <VStack display="none" align="start" spacing={2} p={4} bg="blue.50/30" borderRadius="2xl" border="1px dashed" borderColor="blue.100">
-                      <HStack justify="space-between" w="full">
-                        <Text fontSize="10px" fontWeight="900" color="blue.600">SESSION NOTES</Text>
-                        <IconButton aria-label="Edit" icon={<FiEdit3 />} size="xs" variant="ghost" onClick={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} />
+                    <VStack align="stretch" spacing={2}>
+                      <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.1em">SESSION CONTEXT</Text>
+                      <HStack bg="blue.50" p={2} borderRadius="xl" border="1px solid" borderColor="blue.100" justify="space-between">
+                        <Input
+                          type="date"
+                          value={sessionDate}
+                          onChange={(e) => setSessionDate(e.target.value)}
+                          size="sm"
+                          variant="unstyled"
+                          fontWeight="1000"
+                          color="blue.700"
+                          p={0}
+                        />
                       </HStack>
-                      <Text fontSize="12px" color={teethNotes ? "gray.700" : "gray.400"}>{teethNotes || "No notes recorded..."}</Text>
                     </VStack>
-                    <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={() => { if (patientDetails?._id) getTodayToothTreatments({ patientId: patientDetails._id }); onHistoryDrawerOpen(); }} _hover={{ transform: "translateY(-2px)" }}>
+
+                    <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={() => { if (patientDetails?._id) { getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate }); getTodayCount({ patientId: patientDetails._id, date: sessionDate }); } onHistoryDrawerOpen(); }} _hover={{ transform: "translateY(-2px)" }}>
+
                       <HStack justify="space-between">
                         <VStack align="start" spacing={0}><Text fontSize="10px" fontWeight="1000">PATIENT RECORDS</Text><Heading size="xs">View History</Heading></VStack>
                         <Text fontSize="24px" fontWeight="1000" color="blue.600">{todayToothTreatment.totalItems || 0}</Text>
@@ -542,7 +551,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={activeTeethForStep}
             dentitionType={dentitionType}
             generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
-            onSuccess={() => { patientDetails?.applyGetAllRecords?.({}); setStep("TOOTH_SELECTION"); setSelectedTeeth([]); setEditingTreatment(null); }}
+            onSuccess={() => {
+              patientDetails?.applyGetAllRecords?.({});
+              setStep("TOOTH_SELECTION");
+              setSelectedTeeth([]);
+              setEditingTreatment(null);
+              if (patientDetails?._id) {
+                getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+                getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+              }
+            }}
+
             onBack={handleBack} onToothClick={handleToothClick} hoistedValues={procedureFormValues} notation={notation} onValuesUpdate={setProcedureFormValues}
             explorerState={explorerState} onExplorerUpdate={setExplorerState} individualTeethNotes={individualTeethNotes} onEditToothNote={handleEditToothNote}
             onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} formRef={formRef} doctorOptions={doctorOptions}
@@ -593,8 +612,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 </HStack>
               ))}
               <Badge variant="subtle" colorScheme="blue" borderRadius="full" px={3} py={1} fontSize="xs" fontWeight="900">
-                {todayToothTreatment.totalItems || 0} ITEMS TODAY
+                {todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString().toUpperCase()}
               </Badge>
+
             </HStack>
           </HStack>
           <IconButton aria-label="Close" icon={<FiX />} onClick={closeWizard} variant="ghost" />
@@ -633,7 +653,16 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               teeth={toothObj ? [toothObj as ToothData] : []}
               dentitionType={isChild ? "child" : "adult"}
               generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
-              onSuccess={() => { onEditDrawerClose(); patientDetails?.applyGetAllRecords?.({}); if (patientDetails?._id) getTodayToothTreatments({ patientId: patientDetails._id }); }}
+              onSuccess={() => {
+                onEditDrawerClose();
+                patientDetails?.applyGetAllRecords?.({});
+                if (patientDetails?._id) {
+                  getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+                  getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+                }
+              }}
+
+
               onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
               notation={notation}
             />
@@ -652,9 +681,26 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <IconButton size="xs" variant={isTableView ? "solid" : "ghost"} colorScheme={isTableView ? "blue" : "gray"} icon={<FiList />} onClick={() => setIsTableView(true)} aria-label="Table View" />
                 </HStack>
               </HStack>
-              <Badge colorScheme="blue" borderRadius="lg" px={4} py={1.5}>
-                {todayToothTreatment.totalItems || 0} ITEMS TODAY
-              </Badge>
+              <HStack spacing={4}>
+                <VStack align="start" spacing={1}>
+                  <Text fontSize="10px" fontWeight="900" color="gray.400">SESSION DATE</Text>
+                  <Input
+                    type="date"
+                    value={sessionDate}
+                    onChange={(e) => setSessionDate(e.target.value)}
+                    size="sm"
+                    borderRadius="xl"
+                    bg="blue.50"
+                    border="none"
+                    fontWeight="800"
+                    color="blue.700"
+                  />
+                </VStack>
+                <Badge colorScheme="blue" borderRadius="lg" px={4} py={3}>
+                  {todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString().toUpperCase()}
+                </Badge>
+              </HStack>
+
             </HStack>
             <HStack spacing={4} bg="gray.50" p={4} borderRadius="2xl" display="none">
               <Input placeholder="Search records..." value={historySearch} onChange={(e) => setHistorySearch(e.target.value)} bg="white" size="sm" maxW="300px" />

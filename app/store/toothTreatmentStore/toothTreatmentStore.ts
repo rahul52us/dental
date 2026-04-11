@@ -132,13 +132,14 @@ class ToothTreatmentStore {
     }
   };
 
-  getTodayCount = async (sendData: { patientId: any }) => {
-    console.log("Fetching today's tooth count for patient:", sendData.patientId);
+  getTodayCount = async (sendData: { patientId: any, date?: string }) => {
+    console.log("Fetching tooth count for patient:", sendData.patientId, "on date:", sendData.date || "Today");
     try {
       const params: any = {
         company: authStore.company,
         patientId: sendData.patientId,
         patient: sendData.patientId,
+        date: sendData.date,
       };
 
       const { data } = await axios.get("/toothTreatment/today-count", { params });
@@ -151,14 +152,15 @@ class ToothTreatmentStore {
     }
   };
 
-  getTodayToothTreatments = async (sendData: { patientId: any }) => {
-    console.log("Fetching today's tooth treatments for patient:", sendData.patientId);
+  getTodayToothTreatments = async (sendData: { patientId: any, date?: string }) => {
+    console.log("Fetching tooth treatments for patient:", sendData.patientId, "on date:", sendData.date || "Today");
     this.todayToothTreatment.loading = true;
     try {
       const params: any = {
         company: authStore.company,
         patientId: sendData.patientId,
         patient: sendData.patientId,
+        date: sendData.date,
       };
 
       const { data } = await axios.get("/toothTreatment/today", { params });
