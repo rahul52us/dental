@@ -129,7 +129,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [isMultipleSelection, setIsMultipleSelection] = useState(false);
-  const [isTableView, setIsTableView] = useState(false);
+  const [isTableView, setIsTableView] = useState(true);
   const { isOpen: isViewModalOpen, onOpen: onOpenViewModal, onClose: onCloseViewModal } = useDisclosure();
   const [viewingRecord, setViewingRecord] = useState<any>(null);
   const { isOpen: isEditDrawerOpen, onOpen: onEditDrawerOpen, onClose: onEditDrawerClose } = useDisclosure();
@@ -514,9 +514,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           </VStack>
         );
       case "PROCEDURE_FORM":
+        // Fallback to General Tooth if no teeth are selected (as per user requirement)
+        const activeTeethForStep = selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData];
         return (
           <TreatmentProcedureForm
-            isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={selectedTeeth}
+            isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={activeTeethForStep}
             dentitionType={dentitionType}
             generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
             onSuccess={() => { patientDetails?.applyGetAllRecords?.({}); setStep("TOOTH_SELECTION"); setSelectedTeeth([]); setEditingTreatment(null); }}
@@ -591,8 +593,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             otherPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId)
           ) : null;
 
-          if (!toothObj && tId && tId !== "General") {
-            toothObj = { id: tId, fdi: tId, name: `Tooth ${tId}`, universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData;
+          // Aggressive tooth resolution for editing existing records
+          if (!toothObj || tId.toLowerCase() === "general" || !tId || tId === "undefined" || tId === "null") {
+            if (!tId || tId.toLowerCase() === "general" || tId === "undefined" || tId === "null") {
+              toothObj = { id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData;
+            } else if (!toothObj) {
+              // Fallback for custom IDs not in the standard chart pools
+              toothObj = { id: tId, fdi: tId, name: `Tooth ${tId}`, universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData;
+            }
           }
 
           return (
@@ -688,16 +696,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                         <Box key={item._id} bg="white" borderRadius="3xl" boxShadow="0 4px 20px -4px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.1)" p={5} transition="all 0.3s" _hover={{ transform: "translateY(-2px)" }} border="1px solid" borderColor="gray.100" position="relative" zIndex={1}>
                           <Flex justify="space-between" align="start">
                             <HStack spacing={6} align="start" flex={1}>
-                              <VStack align="center" spacing={0} minW="70px" bg="blue.50" p={2.5} borderRadius="2xl" border="1px solid" borderColor="blue.100" boxShadow="sm">
-                                <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="widest">{treatmentDate.toLocaleDateString(undefined, { month: 'short' }).toUpperCase()}</Text>
-                                <Text fontSize="22px" fontWeight="1000" color="blue.700" lineHeight={1} my={0.5}>{treatmentDate.getDate()}</Text>
-                                <Text fontSize="10px" fontWeight="900" color="blue.400">{treatmentDate.getFullYear()}</Text>
+                              <VStack align="center" justify="center" spacing={0} minW="70px" h="70px" bg="blue.50" borderRadius="2xl" border="2px solid" borderColor="blue.100" shadow="sm">
+                                <Text fontSize="10px" fontWeight="1000" color="blue.400" mt={1}>TOOTH</Text>
+                                <Text fontSize="24px" fontWeight="1000" color="blue.700" lineHeight={1} mb={1}>
+                                  {item.tooth === "General" ? "GEN" : (item.tooth || "??")}
+                                </Text>
                               </VStack>
-                              <VStack align="start" spacing={3} flex={1}>
+                              <VStack align="start" spacing={2} flex={1}>
+                                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">
+                                  {treatmentDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}
+                                </Text>
                                 <HStack spacing={2} wrap="wrap">
-                                  <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000" letterSpacing="tight">
-                                    {item.tooth?.fdi === "General" ? "GENERAL" : `TOOTH #${item.tooth}`}
-                                  </Badge>
                                   <Badge variant="subtle" colorScheme={style.iconColor.split('.')[0]} borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000">
                                     {item.complaintType}
                                   </Badge>

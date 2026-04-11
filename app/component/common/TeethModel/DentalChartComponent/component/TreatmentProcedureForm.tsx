@@ -395,10 +395,10 @@ export const TreatmentProcedureForm = observer(
                     <Box mb={-4}>
                         <VStack align="start" spacing={0}>
                             <Text fontSize="10px" fontWeight="1000" color="blue.500" textTransform="uppercase">
-                                Working on {notation?.toUpperCase() || 'FDI'} Tooth {notationLabel}
+                                {currentToothId === "General" ? "Clinical Record Type" : `Working on ${notation?.toUpperCase() || 'FDI'} Tooth ${notationLabel}`}
                             </Text>
                             <Heading size="md" color="gray.800" fontWeight="1000">
-                                {activeTooth?.name || "General Record"}
+                                {activeTooth?.name || "General Clinical Record"}
                             </Heading>
                         </VStack>
                         <Divider mt={4} />
@@ -633,13 +633,13 @@ export const TreatmentProcedureForm = observer(
                     complaintType: toothComplaints[t.id] || complaintType || "CHIEF COMPLAINT",
                 };
             });
-            
-            // If editing, override with saved data. 
+
+            // If editing, override with saved data.
             // We use the record ID to stabilize this calculation.
             if (editData?._id) {
                 const dataTooth = editData.tooth;
                 const actualToothId = typeof dataTooth === 'object' ? dataTooth.fdi : dataTooth;
-                
+
                 // Find matching tooth in current array
                 const targetTooth = teeth.find(t => t.id === actualToothId || t.fdi === actualToothId);
                 const toothKey = targetTooth ? targetTooth.id : actualToothId;
