@@ -329,6 +329,115 @@ export const ToothFormDialog = observer(
                   </VStack>
 
                   {/* TREATMENT BROWSER SECTION */}
+
+                  {/* FINANCIAL INPUTS SECTION */}
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} p={5} bg="blue.50/30" borderRadius="2xl" border="1px" borderColor="blue.100">
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.500">Minimum Estimate (₹)</Text>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        bg="white"
+                        value={values.estimateMin}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("estimateMin", val);
+                          setFieldValue("totalMin", calculateTotal(val, values.discount));
+                        }}
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.500">Maximum Estimate (₹)</Text>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        bg="white"
+                        value={values.estimateMax}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("estimateMax", val);
+                          setFieldValue("totalMax", calculateTotal(val, values.discount));
+                        }}
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="xs" fontWeight="bold" color="green.500">DISCOUNT (₹)</Text>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        bg="white"
+                        value={values.discount}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("discount", val);
+                          setFieldValue("totalMin", calculateTotal(values.estimateMin, val));
+                          setFieldValue("totalMax", calculateTotal(values.estimateMax, val));
+                        }}
+                        borderRadius="xl"
+                        fontWeight="bold"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                    </VStack>
+                    <GridItem colSpan={{ base: 1, md: 3 }} pt={2}>
+                      <HStack justify="space-between" align="center" w="full">
+                        <VStack align="start" spacing={0}>
+                          <Text fontSize="10px" fontWeight="900" color="blue.400">TOTAL QUOTATION</Text>
+                          <Text fontSize="20px" fontWeight="1000" color="blue.700">
+                            ₹{Math.round(values.totalMin || 0).toLocaleString()} - ₹{Math.round(values.totalMax || 0).toLocaleString()}
+                          </Text>
+                        </VStack>
+                        <Icon as={FiActivity} color="blue.200" boxSize={6} />
+                      </HStack>
+                    </GridItem>
+                  </Grid>
+
+                  <Divider />
+
+                  {/* DESCRIPTION SECTION */}
+                  <Box>
+                    <HStack spacing={2} mb={3}>
+                      <Icon as={FiFileText} color="blue.500" />
+                      <Text fontSize="sm" fontWeight="bold" color="gray.700">Description</Text>
+                    </HStack>
+
+                    <Box position="relative">
+                      <CustomInput
+                        name="notes"
+                        type="textarea"
+                        placeholder="Enter clinical description, patient concerns, or general notes here..."
+                        value={values.notes}
+                        onChange={(e: any) => setFieldValue("notes", e.target.value)}
+                        style={{
+                          minHeight: "120px",
+                          borderRadius: "xl",
+                          fontSize: "14px"
+                        }}
+                      />
+                      {values.notes && (
+                        <IconButton
+                          aria-label="Clear"
+                          icon={<FiTrash2 />}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="red"
+                          position="absolute"
+                          bottom={4}
+                          right={4}
+                          onClick={() => setFieldValue("notes", "")}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+
                   <Box>
                     <HStack justify="space-between" mb={3}>
                       <Button
@@ -465,115 +574,6 @@ export const ToothFormDialog = observer(
                       </Box>
                     )}
                   </Box>
-
-                  {/* FINANCIAL INPUTS SECTION */}
-                  <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} p={5} bg="blue.50/30" borderRadius="2xl" border="1px" borderColor="blue.100">
-                    <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="blue.500">Minimum Estimate (₹)</Text>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        bg="white"
-                        value={values.estimateMin}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFieldValue("estimateMin", val);
-                          setFieldValue("totalMin", calculateTotal(val, values.discount));
-                        }}
-                        borderRadius="xl"
-                        fontWeight="bold"
-                        borderColor="gray.200"
-                        _focus={{ borderColor: "blue.500" }}
-                      />
-                    </VStack>
-                    <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="blue.500">Maximum Estimate (₹)</Text>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        bg="white"
-                        value={values.estimateMax}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFieldValue("estimateMax", val);
-                          setFieldValue("totalMax", calculateTotal(val, values.discount));
-                        }}
-                        borderRadius="xl"
-                        fontWeight="bold"
-                        borderColor="gray.200"
-                        _focus={{ borderColor: "blue.500" }}
-                      />
-                    </VStack>
-                    <VStack align="start" spacing={1}>
-                      <Text fontSize="xs" fontWeight="bold" color="green.500">DISCOUNT (₹)</Text>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        bg="white"
-                        value={values.discount}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFieldValue("discount", val);
-                          setFieldValue("totalMin", calculateTotal(values.estimateMin, val));
-                          setFieldValue("totalMax", calculateTotal(values.estimateMax, val));
-                        }}
-                        borderRadius="xl"
-                        fontWeight="bold"
-                        borderColor="gray.200"
-                        _focus={{ borderColor: "blue.500" }}
-                      />
-                    </VStack>
-                    <GridItem colSpan={{ base: 1, md: 3 }} pt={2}>
-                      <HStack justify="space-between" align="center" w="full">
-                        <VStack align="start" spacing={0}>
-                          <Text fontSize="10px" fontWeight="900" color="blue.400">TOTAL QUOTATION</Text>
-                          <Text fontSize="20px" fontWeight="1000" color="blue.700">
-                            ₹{Math.round(values.totalMin || 0).toLocaleString()} - ₹{Math.round(values.totalMax || 0).toLocaleString()}
-                          </Text>
-                        </VStack>
-                        <Icon as={FiActivity} color="blue.200" boxSize={6} />
-                      </HStack>
-                    </GridItem>
-                  </Grid>
-
-                  <Divider />
-
-                  {/* DESCRIPTION SECTION */}
-                  <Box>
-                    <HStack spacing={2} mb={3}>
-                      <Icon as={FiFileText} color="blue.500" />
-                      <Text fontSize="sm" fontWeight="bold" color="gray.700">Description</Text>
-                    </HStack>
-
-                    <Box position="relative">
-                      <CustomInput
-                        name="notes"
-                        type="textarea"
-                        placeholder="Enter clinical description, patient concerns, or general notes here..."
-                        value={values.notes}
-                        onChange={(e: any) => setFieldValue("notes", e.target.value)}
-                        style={{
-                          minHeight: "120px",
-                          borderRadius: "xl",
-                          fontSize: "14px"
-                        }}
-                      />
-                      {values.notes && (
-                        <IconButton
-                          aria-label="Clear"
-                          icon={<FiTrash2 />}
-                          size="sm"
-                          variant="ghost"
-                          colorScheme="red"
-                          position="absolute"
-                          bottom={4}
-                          right={4}
-                          onClick={() => setFieldValue("notes", "")}
-                        />
-                      )}
-                    </Box>
-                  </Box>
-
                   {/* FORM ACTIONS */}
                   <HStack spacing={4} pt={4} justify="flex-end">
                     <Button

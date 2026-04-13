@@ -843,12 +843,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           <ModalBody py={6}>
             <Grid templateColumns="repeat(2, 1fr)" gap={6}>
               <VStack align="start" spacing={1}>
-                <Text fontSize="10px" fontWeight="900" color="gray.400">DATE</Text>
-                <Text fontWeight="800">{new Date(viewingRecord?.treatmentDate).toLocaleDateString(undefined, { dateStyle: 'long' })}</Text>
+                <Text fontSize="20px" fontWeight="900">{new Date(viewingRecord?.treatmentDate).toLocaleDateString(undefined, { dateStyle: 'long' })}</Text>
               </VStack>
               <VStack align="start" spacing={1}>
-                <Text fontSize="10px" fontWeight="900" color="gray.400">TOOTH / REGION</Text>
-                <Badge colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>{viewingRecord?.tooth?.fdi === "General" ? "General Clinical" : `Tooth #${viewingRecord?.tooth}`}</Badge>
+                <Badge fontSize="20px" fontWeight="900" colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>{viewingRecord?.tooth?.fdi === "General" ? "General Clinical" : `Tooth #${viewingRecord?.tooth}`}</Badge>
               </VStack>
               <VStack align="start" spacing={1}>
                 <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>
