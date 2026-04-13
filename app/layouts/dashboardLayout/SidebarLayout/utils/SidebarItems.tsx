@@ -81,6 +81,13 @@ const sidebarDatas: SidebarItem[] = [
         url: "/dashboard/dealers",
         role: ["admin"],
       },
+      {
+        id: 31,
+        name: "Lab Doctors",
+        icon: <FaUserMd />,
+        url: "/dashboard/labDoctors",
+        role: ["admin"],
+      },
     ],
   },
 
