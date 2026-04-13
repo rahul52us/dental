@@ -68,17 +68,26 @@ const sidebarDatas: SidebarItem[] = [
         role: ["admin"],
       },
       {
-        id: 5,
-        name: "Labs",
-        icon: <FaVial />,
-        url: "/dashboard/labs",
-        role: ["admin"],
-      },
-      {
         id: 30,
         name: "Dealers",
         icon: <FaUserClock />,
         url: "/dashboard/dealers",
+        role: ["admin"],
+      },
+    ],
+  },
+  {
+    id: 32,
+    name: "Lab",
+    icon: <FaVial />,
+    url: "/dashboard/lab",
+    role: ["admin"],
+    children: [
+      {
+        id: 5,
+        name: "Labs",
+        icon: <FaVial />,
+        url: "/dashboard/labs",
         role: ["admin"],
       },
       {
