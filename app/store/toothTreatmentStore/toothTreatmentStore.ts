@@ -98,7 +98,8 @@ class ToothTreatmentStore {
     });
   };
 
-  getToothTreatments = async (sendData: { page: number, search: string, category?: string, patientId?: any }) => {
+  getToothTreatments = async (sendData: { page: number, search: string, category?: string, patientId?: any, fdi?: string }) => {
+
     console.log("Fetching tooth treatments with params:", sendData);
     this.toothTreatment.loading = true;
     try {
@@ -109,6 +110,9 @@ class ToothTreatmentStore {
         patientId: sendData.patientId,
         patient: sendData.patientId,
       };
+      
+      if (sendData.fdi) params.fdi = sendData.fdi;
+
 
       if (sendData.search) params.search = sendData.search;
       if (sendData.category && sendData.category !== 'all') {

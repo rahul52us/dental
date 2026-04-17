@@ -19,6 +19,7 @@ interface TeethChartProps {
   toothComplaints: Record<string, string>;
   activeComplaintType: string;
   todayTreatments?: any[];
+  historyTeeth?: string[];
 }
 
 export const TeethChart = ({
@@ -30,7 +31,9 @@ export const TeethChart = ({
   toothComplaints,
   activeComplaintType,
   todayTreatments = [],
+  historyTeeth = [],
 }: TeethChartProps) => {
+
   const teeth = getTeethByType(dentitionType);
 
   const upperRightTeeth = teeth.filter(
@@ -93,7 +96,9 @@ export const TeethChart = ({
           activeComplaintType={activeComplaintType}
           complaintType={toothComplaints[tooth.id]}
           todayRecord={todayRecord}
+          hasHistory={historyTeeth.includes(String(tooth.id)) || historyTeeth.includes(String(tooth.fdi))}
         />
+
       );
     });
   };

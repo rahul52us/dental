@@ -42,7 +42,7 @@ const LabDoctorPage = observer(() => {
       await createLabDoctor({
         ...values,
         gender: values.gender?.value || 1,
-        languages: values.languages?.map((l: any) => l.value) || [],
+        languages: values.languages?.map((l: any) => l.value || l) || [],
       });
       getLabDoctors({ page: 1, limit: tablePageLimit });
       setIsDrawerOpen({ isOpen: false, type: "add", data: null });

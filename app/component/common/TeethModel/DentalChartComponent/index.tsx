@@ -47,7 +47,9 @@ import {
   FiEye,
   FiGrid,
   FiList,
+  FiSearch,
 } from "react-icons/fi";
+
 
 import { DentitionToggle } from "./component/DentitionToggle";
 import { TeethChart } from "./component/TeethChart";
@@ -109,6 +111,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [historyCategoryFilter, setHistoryCategoryFilter] = useState("all");
   const [historyDateSort, setHistoryDateSort] = useState("desc");
   const [historyPage, setHistoryPage] = useState(1);
+  const [treatedToothIds, setTreatedToothIds] = useState<string[]>([]);
+  const [historyFilterTooth, setHistoryFilterTooth] = useState<string | null>(null);
+  const [selectionMode, setSelectionMode] = useState<'single' | 'multi' | 'history'>('single');
+
 
   const COMPLAINT_STYLES: Record<string, { border: string, bg: string, label: string, iconColor: string }> = {
     "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
@@ -146,8 +152,19 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     if (patientDetails?._id) {
       getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
       getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+
+      // Fetch history summary to highlight treated teeth on chart
+      getToothTreatments({ patientId: patientDetails._id, page: 1, limit: 100 } as any)
+        .then((res: any) => {
+          const raw = res?.data?.data || res?.data || [];
+          const ids = Array.from(new Set(raw.map((it: any) => String(it.tooth || "")))) as string[];
+          setTreatedToothIds(ids.filter(Boolean));
+
+        })
+        .catch(err => console.error("History fetch failed", err));
     }
   }, [patientDetails?._id, sessionDate]);
+
 
 
 
@@ -268,7 +285,29 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   };
 
   const handleToothClick = (tooth: ToothData) => {
-    if (isMultipleSelection) {
+    const toothId = String(tooth.fdi || tooth.id);
+
+    if (selectionMode === 'history') {
+      setHistoryFilterTooth(toothId);
+
+      // Auto-open most recent record in detail view if it exists
+      const historyRecords = toothTreatment.data || [];
+      const mostRecent = historyRecords.find((rec: any) => {
+        const recTooth = String(rec.toothFDI || rec.tooth || "");
+        return recTooth.split(',').map(s => s.trim()).includes(toothId);
+      });
+
+      if (mostRecent) {
+        setViewingRecord(mostRecent);
+        onOpenViewModal();
+      }
+
+      onHistoryDrawerOpen();
+      return;
+    }
+
+
+    if (selectionMode === 'multi') {
       setSelectedTeeth((prev) => {
         const isSelected = prev.some((t) => t.id === tooth.id);
         return isSelected ? prev.filter((t) => t.id !== tooth.id) : [...prev, tooth];
@@ -289,6 +328,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       setIsToothFormOpen(true);
     }
   };
+
 
   const handleDeleteTreatment = (id: string) => {
     setDeletingId(id);
@@ -366,9 +406,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         page: historyPage,
         search: historySearch,
         category: historyCategoryFilter,
+        fdi: historyFilterTooth || undefined
       });
     }
-  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, patientDetails?._id]);
+  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, historyFilterTooth, patientDetails?._id]);
+
 
   useEffect(() => {
     setHistoryPage(1);
@@ -463,27 +505,28 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <HStack bg="gray.100" p={1} borderRadius="xl">
                     <Button
                       size="xs" leftIcon={<FiMousePointer />}
-                      bg={!isMultipleSelection ? `${activeColor}.500` : "transparent"}
-                      color={!isMultipleSelection ? "white" : "gray.600"}
-                      _hover={{ bg: !isMultipleSelection ? `${activeColor}.600` : "gray.100" }}
-                      variant={!isMultipleSelection ? "solid" : "ghost"}
-                      onClick={() => { setIsMultipleSelection(false); setSelectedTeeth([]); }}
+                      bg={selectionMode === 'single' ? `${activeColor}.500` : "transparent"}
+                      color={selectionMode === 'single' ? "white" : "gray.600"}
+                      _hover={{ bg: selectionMode === 'single' ? `${activeColor}.600` : "gray.100" }}
+                      variant={selectionMode === 'single' ? "solid" : "ghost"}
+                      onClick={() => { setSelectionMode('single'); setIsMultipleSelection(false); setSelectedTeeth([]); }}
                       fontWeight="900"
                     >
                       SINGLE SELECTION
                     </Button>
                     <Button
                       size="xs" leftIcon={<FiActivity />}
-                      bg={isMultipleSelection ? `${activeColor}.500` : "transparent"}
-                      color={isMultipleSelection ? "white" : "gray.600"}
-                      _hover={{ bg: isMultipleSelection ? `${activeColor}.600` : "gray.100" }}
-                      variant={isMultipleSelection ? "solid" : "ghost"}
-                      onClick={() => setIsMultipleSelection(true)}
+                      bg={selectionMode === 'multi' ? `${activeColor}.500` : "transparent"}
+                      color={selectionMode === 'multi' ? "white" : "gray.600"}
+                      _hover={{ bg: selectionMode === 'multi' ? `${activeColor}.600` : "gray.100" }}
+                      variant={selectionMode === 'multi' ? "solid" : "ghost"}
+                      onClick={() => { setSelectionMode('multi'); setIsMultipleSelection(true); }}
                       fontWeight="900"
                     >
                       MULTI-TOOTH
                     </Button>
                   </HStack>
+
                 </Flex>
                 <Box flex={1} overflow="hidden">
                   <TeethChart
@@ -495,7 +538,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     toothComplaints={toothComplaints}
                     activeComplaintType={complaintType}
                     todayTreatments={todayToothTreatment.data}
+                    historyTeeth={treatedToothIds}
                   />
+
                 </Box>
               </VStack>
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
@@ -683,7 +728,26 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               </HStack>
               <HStack spacing={4}>
                 <VStack align="start" spacing={1}>
+                  <Text fontSize="10px" fontWeight="900" color="gray.400">TOOTH FILTER</Text>
+                  <HStack bg={historyFilterTooth ? "blue.50" : "gray.50"} px={3} py={1} borderRadius="xl" border="1px" borderColor={historyFilterTooth ? "blue.200" : "gray.200"}>
+                    <Text fontSize="xs" fontWeight="800" color={historyFilterTooth ? "blue.700" : "gray.500"}>
+                      {historyFilterTooth ? `TOOTH #${historyFilterTooth}` : "ALL TEETH"}
+                    </Text>
+                    {historyFilterTooth && (
+                      <IconButton
+                        aria-label="Clear Filter"
+                        icon={<FiX />}
+                        size="xs"
+                        variant="ghost"
+                        colorScheme="blue"
+                        onClick={() => setHistoryFilterTooth(null)}
+                      />
+                    )}
+                  </HStack>
+                </VStack>
+                <VStack align="start" spacing={1}>
                   <Text fontSize="10px" fontWeight="900" color="gray.400">SESSION DATE</Text>
+
                   <Input
                     type="date"
                     value={sessionDate}
@@ -789,16 +853,16 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                                   )}
                                 </HStack>
                                 <VStack align="start" spacing={1}>
-                                  <Heading size="sm" fontWeight="1000" color="gray.800" letterSpacing="tight">
-                                    {item.treatmentPlan || "General Observation"}
-                                  </Heading>
                                   {item.notes && (
-                                    <Box bg="gray.50" p={3} borderRadius="xl" borderLeft="3px solid" borderColor="blue.200" w="full">
-                                      <Text fontSize="xs" color="gray.600" fontStyle="italic" lineHeight="tall">
+                                    <Box bg="gray.50" p={3} mt={1} borderRadius="xl" borderLeft="3px solid" borderColor="blue.200" w="full">
+                                      <Text fontSize="lg" color="gray.800" fontWeight="600" lineHeight="tall">
                                         {item.notes}
                                       </Text>
                                     </Box>
                                   )}
+                                  <Heading mt={2} size="sm" fontWeight="1000" color="gray.800" letterSpacing="tight">
+                                    {item.treatmentPlan || "General Observation"}
+                                  </Heading>
                                 </VStack>
                               </VStack>
                             </HStack>

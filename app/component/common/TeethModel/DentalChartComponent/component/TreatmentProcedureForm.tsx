@@ -379,7 +379,7 @@ export const TreatmentProcedureForm = observer(
         const COMPLAINT_STYLES: Record<string, { border: string, bg: string, label: string, iconColor: string }> = {
             "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
             "OTHER FINDING": { border: "orange.400", bg: "orange.50", label: "OTHER FINDING", iconColor: "orange.400" },
-            "EXISTING FINDING": { border: "gray.400", bg: "gray.50", label: "EXISTING", iconColor: "gray.400" },
+            "EXISTING FINDING": { border: "green.400", bg: "green.50", label: "EXISTING", iconColor: "green.400" },
             "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
         };
 
@@ -414,7 +414,7 @@ export const TreatmentProcedureForm = observer(
                                     switch (type) {
                                         case "CHIEF COMPLAINT": return { bg: "red.500", color: "white" };
                                         case "OTHER FINDING": return { bg: "orange.400", color: "white" };
-                                        case "EXISTING FINDING": return { bg: "gray.400", color: "white" };
+                                        case "EXISTING FINDING": return { bg: "green.500", color: "white" };
                                         default: return { bg: "transparent", color: "gray.600" };
                                     }
                                 };
@@ -518,7 +518,7 @@ export const TreatmentProcedureForm = observer(
                                 <Text fontSize="9px" fontWeight="1000" color="gray.500">Minimum Estimate (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
-                                    value={currentValues.estimateMin}
+                                    value={currentValues.estimateMin || 0}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         if (activeId === "bulk") {
@@ -537,7 +537,7 @@ export const TreatmentProcedureForm = observer(
                                 <Text fontSize="9px" fontWeight="1000" color="gray.500">Maximum Estimate(₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
-                                    value={currentValues.estimateMax}
+                                    value={currentValues.estimateMax || 0}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         if (activeId === "bulk") {
@@ -556,7 +556,7 @@ export const TreatmentProcedureForm = observer(
                                 <Text fontSize="9px" fontWeight="1000" color="green.500">DISCOUNT (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="green.600"
-                                    value={currentValues.discount}
+                                    value={currentValues.discount || 0}
                                     onChange={(e) => {
                                         const val = Number(e.target.value);
                                         if (activeId === "bulk") {

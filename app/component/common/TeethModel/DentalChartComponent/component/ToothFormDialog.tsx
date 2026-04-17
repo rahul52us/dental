@@ -300,7 +300,7 @@ export const ToothFormDialog = observer(
                           switch (type) {
                             case "CHIEF COMPLAINT": return { bg: "red.500", color: "white" };
                             case "OTHER FINDING": return { bg: "orange.400", color: "white" };
-                            case "EXISTING FINDING": return { bg: "gray.400", color: "white" };
+                            case "EXISTING FINDING": return { bg: "green.500", color: "white" };
                             default: return { bg: "transparent", color: "gray.600" };
                           }
                         };

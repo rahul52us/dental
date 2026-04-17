@@ -6,6 +6,7 @@ export const initialValues = {
   address: "",
   mobileNumber: "",
   email: "",
+  staffDetails: [],
   pic: {
     name: "",
     url: "",

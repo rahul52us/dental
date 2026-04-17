@@ -9,8 +9,11 @@ import {
   Text,
   useColorModeValue,
   HStack,
+  IconButton,
+  VStack,
 } from "@chakra-ui/react";
-import { Formik, Form as FormikForm } from "formik";
+import { Formik, Form as FormikForm, FieldArray } from "formik";
+import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
@@ -27,10 +30,12 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
     address: "",
     mobileNumber: "",
     email: "",
+    staffDetails: [],
   });
 
   const bgBox = useColorModeValue("white", "darkBrand.100");
   const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const staffBoxBg = useColorModeValue("gray.50", "whiteAlpha.50");
 
   useEffect(() => {
     if (initialData) {
@@ -39,6 +44,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
         gender: genderOptions.find((g: any) => g.value === initialData.gender) || "",
         languages: initialData.languages?.map((l: string) => ({ label: l, value: l })) || [],
         dob: initialData.dob ? new Date(initialData.dob).toISOString().split("T")[0] : "",
+        staffDetails: initialData.staffDetails || [],
       });
     } else {
       setFormData({
@@ -49,6 +55,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
         address: "",
         mobileNumber: "",
         email: "",
+        staffDetails: [],
       });
     }
   }, [initialData, isOpen]);
@@ -188,6 +195,89 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                       />
                     </GridItem>
                   </SimpleGrid>
+                </GridItem>
+
+                <GridItem>
+                  <Box p={5} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor} boxShadow="sm">
+                    <FieldArray name="staffDetails">
+                      {({ push, remove }) => (
+                        <Box>
+                          <Flex justify="space-between" align="center" mb={4}>
+                            <Text fontSize="lg" fontWeight="bold">
+                              Staff Details
+                            </Text>
+                            <Button
+                              leftIcon={<AddIcon />}
+                              colorScheme="brand"
+                              size="sm"
+                              onClick={() => push({ name: "", email: "", address: "", phone: "" })}
+                            >
+                              Add Staff
+                            </Button>
+                          </Flex>
+                          <VStack spacing={4} align="stretch">
+                            {values.staffDetails?.map((staff: any, index: number) => (
+                              <Box
+                                key={index}
+                                p={4}
+                                borderWidth={1}
+                                borderRadius="lg"
+                                position="relative"
+                                bg={staffBoxBg}
+                              >
+                                <IconButton
+                                  aria-label="Remove Staff"
+                                  icon={<DeleteIcon />}
+                                  size="sm"
+                                  colorScheme="red"
+                                  position="absolute"
+                                  top={2}
+                                  right={2}
+                                  onClick={() => remove(index)}
+                                  variant="ghost"
+                                />
+                                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
+                                  <CustomInput
+                                    label="Staff Name"
+                                    name={`staffDetails[${index}].name`}
+                                    value={staff.name}
+                                    onChange={handleChange}
+                                    placeholder="Enter Name"
+                                  />
+                                  <CustomInput
+                                    label="Email"
+                                    name={`staffDetails[${index}].email`}
+                                    value={staff.email}
+                                    onChange={handleChange}
+                                    placeholder="Enter Email"
+                                  />
+                                  <CustomInput
+                                    label="Phone"
+                                    name={`staffDetails[${index}].phone`}
+                                    value={staff.phone}
+                                    onChange={handleChange}
+                                    placeholder="Enter Phone"
+                                  />
+                                  <CustomInput
+                                    label="Address"
+                                    name={`staffDetails[${index}].address`}
+                                    value={staff.address}
+                                    onChange={handleChange}
+                                    placeholder="Enter Address"
+                                  />
+                                </SimpleGrid>
+                              </Box>
+                            ))}
+                            {(!values.staffDetails || values.staffDetails.length === 0) && (
+                              <Text color="gray.500" fontStyle="italic" textAlign="center">
+                                No staff details added yet.
+                              </Text>
+                            )}
+                          </VStack>
+                        </Box>
+                      )}
+                    </FieldArray>
+                  </Box>
                 </GridItem>
               </Grid>
             </FormikForm>

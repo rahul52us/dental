@@ -10,7 +10,9 @@ interface ToothShapeProps {
   complaintType?: string;
   activeComplaintType?: string;
   todayRecord?: any;
+  hasHistory?: boolean;
 }
+
 
 const sizeMap = {
   sm: { w: "32px", h: "48px" },
@@ -27,7 +29,9 @@ export const ToothShape = ({
   complaintType,
   activeComplaintType,
   todayRecord,
+  hasHistory,
 }: ToothShapeProps) => {
+
   const getNotationLabel = () => {
     switch (notationType) {
       case "universal":
@@ -75,9 +79,11 @@ export const ToothShape = ({
   };
 
   const todayComplaintType = todayRecord?.complaintType?.toUpperCase();
+  const historyStyle = { bg: "#EBF8FF", fill: "#90CDF4", stroke: "#4299E1", text: "#2C5282" };
   const activeStyle = isSelected
     ? (colorMap[activeComplaintType as string] || colorMap.default)
-    : (complaintType ? colorMap[complaintType] : (todayComplaintType && colorMap[todayComplaintType]) ? colorMap[todayComplaintType] : todayRecord ? colorMap.today : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
+    : (complaintType ? colorMap[complaintType] : (todayComplaintType && colorMap[todayComplaintType]) ? colorMap[todayComplaintType] : todayRecord ? colorMap.today : hasHistory ? historyStyle : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
+
 
   const tooltipContent = todayRecord ? (
     <VStack align="start" spacing={1} p={1}>
@@ -116,8 +122,11 @@ export const ToothShape = ({
         transition="all 0.2s"
         bg={activeStyle.bg}
         _hover={{ bg: isSelected ? activeStyle.bg : "gray.100" }}
+        boxShadow={hasHistory && !isSelected ? "0 0 8px rgba(66, 153, 225, 0.3)" : "none"}
+
         border={todayRecord && !isSelected ? "1px dashed" : "1px solid"}
         borderColor={todayRecord && !isSelected ? "blue.300" : "transparent"}
+
       >
         <Box
           as="svg"

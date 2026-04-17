@@ -332,9 +332,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               </Badge>
             </HStack>
 
-            <Text fontSize="lg" fontWeight="800" color="gray.800" noOfLines={2} pt={1}>
-              {dt.treatmentPlan || "General Consultation"}
-            </Text>
+
 
             {dt.notes && (
               <Box
@@ -346,11 +344,15 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 w="full"
                 mt={1}
               >
-                <Text fontSize="xs" color="blue.600" fontStyle="italic" noOfLines={2}>
+                <Text fontSize="lg" fontWeight="bold" color="gray.800" fontStyle="italic" noOfLines={2}>
                   {dt.notes}
                 </Text>
               </Box>
             )}
+
+            <Text fontSize="lg" fontWeight="800" color="gray.800" noOfLines={2} pt={1}>
+              {dt.treatmentPlan || "General Consultation"}
+            </Text>
           </VStack>
 
           {/* Right side: Floating Actions */}
