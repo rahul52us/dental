@@ -36,6 +36,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [complaintTypeFilter, setComplaintTypeFilter] = useState("all");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllRecords = useCallback(
@@ -55,6 +56,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         query.patientId = patientDetails?._id;
       }
 
+      if (complaintTypeFilter !== "all") {
+        query.complaintType = complaintTypeFilter;
+      }
+
       getToothTreatments(query).catch((err) => {
         openNotification({
           type: "error",
@@ -68,14 +73,14 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       getToothTreatments,
       openNotification,
       currentPage,
-      isPatient,
       patientDetails,
+      complaintTypeFilter,
     ]
   );
 
   useEffect(() => {
     applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, applyGetAllRecords]);
+  }, [currentPage, debouncedSearchQuery, complaintTypeFilter, applyGetAllRecords]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -84,6 +89,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
+    setComplaintTypeFilter("all");
     applyGetAllRecords({ page: 1, reset: true });
   };
 
@@ -175,6 +181,29 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         component: (dt: any) => (
           <Box>
             <Text>{dt?.examiningDoctorName || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Complaint Type",
+      key: "complaintType",
+      metaData: {
+        component: (dt: any) => (
+          <Box>
+            <Badge
+              colorScheme={
+                dt?.complaintType?.toUpperCase() === "CHIEF COMPLAINT" ? "red" :
+                dt?.complaintType?.toUpperCase() === "OTHER FINDING" ? "orange" :
+                dt?.complaintType?.toUpperCase() === "EXISTING FINDING" ? "green" : "gray"
+              }
+              variant="subtle"
+              borderRadius="full"
+              px={2}
+            >
+              {dt?.complaintType || "--"}
+            </Badge>
           </Box>
         ),
       },
@@ -428,7 +457,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
           </VStack>
 
-          <HStack spacing={4} flex={1} maxW="600px" justify="flex-end">
+          <HStack spacing={4} flex={1} maxW="850px" justify="flex-end">
             <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1}>
               <Icon as={FiSearch} color="gray.400" />
               <Input
@@ -440,6 +469,31 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </HStack>
+
+            <Box w="220px">
+              <select
+                value={complaintTypeFilter}
+                onChange={(e) => setComplaintTypeFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  borderRadius: '16px',
+                  padding: '0 12px',
+                  fontSize: '14px',
+                  border: '1px solid #E2E8F0',
+                  background: 'white',
+                  fontWeight: '700',
+                  color: '#4A5568',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">All Complaints</option>
+                <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
+                <option value="OTHER FINDING">OTHER FINDING</option>
+                <option value="EXISTING FINDING">EXISTING FINDING</option>
+              </select>
+            </Box>
 
             <HStack bg="gray.100" p={1} borderRadius="xl">
               <IconButton

@@ -221,7 +221,7 @@ const Dashboard = observer(() => {
             </Box>
           </DarkSkeleton>
         </Grid>
-        <VideoUploader />
+        {/* <VideoUploader /> */}
         <DarkSkeleton isLoaded={!count?.loading}>
           <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
             <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>

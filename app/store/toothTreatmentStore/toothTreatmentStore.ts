@@ -98,8 +98,14 @@ class ToothTreatmentStore {
     });
   };
 
-  getToothTreatments = async (sendData: { page: number, search: string, category?: string, patientId?: any, fdi?: string }) => {
-
+  getToothTreatments = async (sendData: {
+    page: number;
+    search: string;
+    category?: string;
+    patientId?: any;
+    fdi?: string;
+    complaintType?: string;
+  }) => {
     console.log("Fetching tooth treatments with params:", sendData);
     this.toothTreatment.loading = true;
     try {
@@ -110,14 +116,16 @@ class ToothTreatmentStore {
         patientId: sendData.patientId,
         patient: sendData.patientId,
       };
-      
+
       if (sendData.fdi) params.fdi = sendData.fdi;
-
-
       if (sendData.search) params.search = sendData.search;
-      if (sendData.category && sendData.category !== 'all') {
-        params.complaintType = sendData.category;
+
+      const cType = sendData.complaintType || sendData.category;
+      if (cType && cType !== 'all') {
+        params.complaintType = cType;
       }
+
+      console.log("FINAL API PARAMS (getToothTreatments):", params);
 
       const { data } = await axios.get("/toothTreatment/get", { params });
       const rawItems = data?.data?.data || data?.data || [];
@@ -136,7 +144,7 @@ class ToothTreatmentStore {
     }
   };
 
-  getTodayCount = async (sendData: { patientId: any, date?: string }) => {
+  getTodayCount = async (sendData: { patientId: any, date?: string, complaintType?: string, search?: string }) => {
     console.log("Fetching tooth count for patient:", sendData.patientId, "on date:", sendData.date || "Today");
     try {
       const params: any = {
@@ -145,6 +153,11 @@ class ToothTreatmentStore {
         patient: sendData.patientId,
         date: sendData.date,
       };
+
+      if (sendData.complaintType && sendData.complaintType !== 'all') params.complaintType = sendData.complaintType;
+      if (sendData.search) params.search = sendData.search;
+
+      console.log("FINAL API PARAMS (getTodayCount):", params);
 
       const { data } = await axios.get("/toothTreatment/today-count", { params });
       const totalItems = data?.data?.totalItems || 0;
@@ -156,7 +169,7 @@ class ToothTreatmentStore {
     }
   };
 
-  getTodayToothTreatments = async (sendData: { patientId: any, date?: string }) => {
+  getTodayToothTreatments = async (sendData: { patientId: any, date?: string, complaintType?: string, search?: string }) => {
     console.log("Fetching tooth treatments for patient:", sendData.patientId, "on date:", sendData.date || "Today");
     this.todayToothTreatment.loading = true;
     try {
@@ -166,6 +179,11 @@ class ToothTreatmentStore {
         patient: sendData.patientId,
         date: sendData.date,
       };
+
+      if (sendData.complaintType && sendData.complaintType !== 'all') params.complaintType = sendData.complaintType;
+      if (sendData.search) params.search = sendData.search;
+
+      console.log("FINAL API PARAMS (getTodayToothTreatments):", params);
 
       const { data } = await axios.get("/toothTreatment/today", { params });
       const rawItems = data?.data?.data || data?.data || [];

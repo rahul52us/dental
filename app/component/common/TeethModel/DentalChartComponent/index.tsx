@@ -401,15 +401,20 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   useEffect(() => {
     if (isHistoryDrawerOpen && patientDetails) {
-      getToothTreatments({
+      getTodayToothTreatments({
         patientId: patientDetails._id || patientDetails.id,
-        page: historyPage,
-        search: historySearch,
-        category: historyCategoryFilter,
-        fdi: historyFilterTooth || undefined
+        date: sessionDate,
+        complaintType: historyCategoryFilter === "all" ? undefined : historyCategoryFilter,
+        search: historySearch
+      });
+      getTodayCount({
+        patientId: patientDetails._id || patientDetails.id,
+        date: sessionDate,
+        complaintType: historyCategoryFilter === "all" ? undefined : historyCategoryFilter,
+        search: historySearch
       });
     }
-  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, historyFilterTooth, patientDetails?._id]);
+  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, historyFilterTooth, patientDetails?._id, sessionDate]);
 
 
   useEffect(() => {
@@ -766,17 +771,42 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               </HStack>
 
             </HStack>
-            <HStack spacing={4} bg="gray.50" p={4} borderRadius="2xl" display="none">
-              <Input placeholder="Search records..." value={historySearch} onChange={(e) => setHistorySearch(e.target.value)} bg="white" size="sm" maxW="300px" />
-              <Select value={historyCategoryFilter} onChange={(e) => setHistoryCategoryFilter(e.target.value)} bg="white" size="sm" maxW="200px">
-                <option value="all">All Categories</option>
-                {Object.keys(COMPLAINT_STYLES).filter(k => k !== 'default').map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </Select>
-              <Select value={historyDateSort} onChange={(e) => setHistoryDateSort(e.target.value)} bg="white" size="sm" maxW="150px">
-                <option value="desc">Newest First</option><option value="asc">Oldest First</option>
-              </Select>
+            <HStack spacing={4} bg="gray.100" p={2} borderRadius="2xl" display="flex" mb={4}>
+              <HStack bg="white" px={3} borderRadius="xl" border="1px solid" borderColor="gray.200" flex={1}>
+                <Icon as={FiSearch} color="gray.400" />
+                <Input
+                  placeholder="Search in history..."
+                  variant="unstyled"
+                  py={2}
+                  fontSize="sm"
+                  value={historySearch}
+                  onChange={(e) => setHistorySearch(e.target.value)}
+                />
+              </HStack>
+              <Box w="220px">
+                <select
+                  value={historyCategoryFilter}
+                  onChange={(e) => setHistoryCategoryFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    borderRadius: '12px',
+                    padding: '0 12px',
+                    fontSize: '13px',
+                    border: '1px solid #E2E8F0',
+                    background: 'white',
+                    fontWeight: '700',
+                    color: '#4A5568',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="all">All Complaints</option>
+                  <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
+                  <option value="OTHER FINDING">OTHER FINDING</option>
+                  <option value="EXISTING FINDING">EXISTING FINDING</option>
+                </select>
+              </Box>
             </HStack>
             <Box flex={1} overflowY="auto" pt={2} className="clinical-history-scroll" sx={{
               '&::-webkit-scrollbar': { width: '4px' },
