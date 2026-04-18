@@ -116,7 +116,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [historyDateSort, setHistoryDateSort] = useState("desc");
   const [historyPage, setHistoryPage] = useState(1);
   const [treatedToothIds, setTreatedToothIds] = useState<string[]>([]);
+  const [chartRecords, setChartRecords] = useState<any[]>([]);
   const [historyFilterTooth, setHistoryFilterTooth] = useState<string | null>(null);
+
   const [selectionMode, setSelectionMode] = useState<'single' | 'multi' | 'history'>('single');
 
 
@@ -131,8 +133,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [isMultipleSelection, setIsMultipleSelection] = useState(false);
   const [isTableView, setIsTableView] = useState(true);
-  const { isOpen: isViewModalOpen, onOpen: onOpenViewModal, onClose: onCloseViewModal } = useDisclosure();
+  const { isOpen: isViewModalOpen, onOpen: onOpenViewModal, onClose: onCloseViewModalRaw } = useDisclosure();
+  const onCloseViewModal = () => {
+    onCloseViewModalRaw();
+    setActiveViewIndex(0);
+  };
+
   const [viewingRecord, setViewingRecord] = useState<any>(null);
+  const [activeViewIndex, setActiveViewIndex] = useState(0);
+
   const { isOpen: isEditDrawerOpen, onOpen: onEditDrawerOpen, onClose: onEditDrawerClose } = useDisclosure();
   const { isOpen: isHistoryDrawerOpen, onOpen: onHistoryDrawerOpen, onClose: onHistoryDrawerClose } = useDisclosure();
   const { isOpen: isProcedureDrawerOpen, onOpen: onProcedureDrawerOpen, onClose: onProcedureDrawerClose } = useDisclosure();
@@ -140,8 +149,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const {
     userStore: { getUsersList },
     toothTreatmentStore: {
-      getToothTreatments,
-      toothTreatment,
       getTodayToothTreatments,
       getTodayCount,
       todayToothTreatment,
@@ -149,8 +156,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       updateToothTreatment,
       lastExaminingDoctor,
       setLastExaminingDoctor,
-      getTreatmentCountByDate
+      getTreatmentCountByDate,
+      getChartData,
+      getToothHighlights
     },
+
   } = stores;
 
   const { isOpen: isCountModalOpen, onOpen: onOpenCountModal, onClose: onCloseCountModal } = useDisclosure();
@@ -194,22 +204,22 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
       getTodayCount({ patientId: patientDetails._id, date: sessionDate });
 
-      // Fetch history summary (All categories up to session date) as per refined user request
-      getToothTreatments({
+      // Fetch Isolated Charting Data (Highlights and Detail)
+      // We no longer use the global 'toothTreatment' variable here.
+      getToothHighlights({
         patientId: patientDetails._id,
-        page: 1,
-        limit: 100,
         toDate: sessionDate
-      } as any)
+      })
         .then((res: any) => {
-          const raw = res?.data?.data || res?.data || [];
+          const raw = res?.data || [];
+          setChartRecords(raw);
           const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
           setTreatedToothIds(ids.filter(Boolean));
         })
         .catch(err => console.error("History fetch failed", err));
-
     }
   }, [patientDetails?._id, sessionDate, complaintType]);
+
 
 
 
@@ -338,50 +348,40 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   };
 
   const handleToothClick = (tooth: ToothData) => {
-    const toothId = String(tooth.fdi || tooth.id);
+    // Generate all possible IDs for this tooth to ensure matches across all notation systems
+    const allToothIds = [
+      String(tooth.id),
+      String(tooth.fdi),
+      String(tooth.universal),
+      String(tooth.palmer)
+    ].filter(Boolean);
 
-    // If it has history and is NOT already selected for today's new charting session
-    // Redirect to history viewing as per user request
-    const isSelectedToday = selectedTeeth.some((t) => t.id === tooth.id);
+    const isMatch = (rec: any) => {
+      const recTooth = String(rec.toothFDI || rec.tooth || "");
+      const recIds = recTooth.split(',').map(s => s.trim());
+      return allToothIds.some(id => recIds.includes(id));
+    };
 
-    if (treatedToothIds.includes(toothId) && !isSelectedToday && selectionMode !== 'history') {
-      setHistoryFilterTooth(toothId);
+    // If session is NOT in multi-selection mode, we check for existing records to VIEW
+    if (selectionMode !== 'multi') {
+      const matchingTodayRecords = (todayToothTreatment.data || []).filter(isMatch);
+      const matchingHistoryRecords = (chartRecords || []).filter(isMatch);
+      
+      const allMatchingRecords = [...matchingTodayRecords, ...matchingHistoryRecords];
 
-      const historyRecords = toothTreatment.data || [];
-      const mostRecent = historyRecords.find((rec: any) => {
-        const recTooth = String(rec.toothFDI || rec.tooth || "");
-        return recTooth.split(',').map(s => s.trim()).includes(toothId);
-      });
+      // Remove duplicates based on ID if any overlap occurs
+      const uniqueRecords = Array.from(new Map(allMatchingRecords.map(r => [r._id || r.id, r])).values());
 
-      if (mostRecent) {
-        setViewingRecord(mostRecent);
+      if (uniqueRecords.length > 0) {
+        setViewingRecord(uniqueRecords);
         onOpenViewModal();
-      } else {
-        // Fallback to drawer if for some reason the specific record isn't in the local pool
-        onHistoryDrawerOpen();
+        return;
       }
-      return;
-    }
-
-    if (selectionMode === 'history') {
-      setHistoryFilterTooth(toothId);
-
-      const historyRecords = toothTreatment.data || [];
-      const mostRecent = historyRecords.find((rec: any) => {
-        const recTooth = String(rec.toothFDI || rec.tooth || "");
-        return recTooth.split(',').map(s => s.trim()).includes(toothId);
-      });
-
-      if (mostRecent) {
-        setViewingRecord(mostRecent);
-        onOpenViewModal();
-      } else {
-        onHistoryDrawerOpen();
-      }
-      return;
     }
 
 
+
+    // Default flow for adding new treatments
     if (selectionMode === 'multi') {
       setSelectedTeeth((prev) => {
         const isSelected = prev.some((t) => t.id === tooth.id);
@@ -403,6 +403,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       setIsToothFormOpen(true);
     }
   };
+
+
+
 
 
 
@@ -433,7 +436,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleMarkAsComplete = async (id: string) => {
     try {
       await updateToothTreatment({ treatmentId: id, status: "completed" });
-      if (patientDetails?._id) await getToothTreatments({ patientId: patientDetails._id, page: 1, search: "", category: historyCategoryFilter });
+      // Refresh local chart data silently after status change
+      if (patientDetails?._id) {
+        getToothHighlights({ patientId: patientDetails._id, toDate: sessionDate })
+          .then((res: any) => {
+            const raw = res?.data || [];
+            setChartRecords(raw);
+            const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
+            setTreatedToothIds(ids.filter(Boolean));
+          });
+      }
+
     } catch (err) {
       console.error("Update failed", err);
     }
@@ -619,9 +632,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     activeComplaintType={complaintType}
                     todayTreatments={todayToothTreatment.data || []}
                     historyTeeth={treatedToothIds}
-                    fullHistory={toothTreatment.data || []}
+                    fullHistory={chartRecords}
                     sessionDate={sessionDate}
                   />
+
 
 
                 </Box>
@@ -681,7 +695,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={activeTeethForStep}
             dentitionType={dentitionType}
             generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
+            onRemoveTooth={(id) => {
+               setSelectedTeeth(prev => prev.filter(t => t.id !== id));
+               setToothComplaints(prev => {
+                  const { [id]: _, ...rest } = prev;
+                  return rest;
+               });
+            }}
             onSuccess={() => {
+
               patientDetails?.applyGetAllRecords?.({});
               setStep("TOOTH_SELECTION");
               setSelectedTeeth([]);
@@ -694,17 +716,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 getTodayCount({ patientId: patientDetails._id, date: sessionDate });
 
                 // Refresh historical tooth IDs (All categories up to session date)
-                getToothTreatments({
-                  patientId: patientDetails._id,
-                  page: 1,
-                  limit: 100,
-                  toDate: sessionDate
-                } as any)
-                  .then((res: any) => {
-                    const raw = res?.data?.data || res?.data || [];
-                    const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
-                    setTreatedToothIds(ids.filter(Boolean));
-                  });
+                // getToothTreatments({
+                //   patientId: patientDetails._id,
+                //   page: 1,
+                //   limit: 100,
+                //   toDate: sessionDate
+                // } as any)
+                //   .then((res: any) => {
+                //     const raw = res?.data?.data || res?.data || [];
+                //     const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
+                //     setTreatedToothIds(ids.filter(Boolean));
+                //   });
 
 
 
@@ -735,7 +757,19 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           isPatient={isPatient} patientDetails={patientDetails}
           teeth={[{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
           generalDescription={teethNotes}
-          onSuccess={() => { onQuickAddClose(); if (patientDetails?._id) getToothTreatments({ patientId: patientDetails._id, page: 1, search: "" }); }}
+          onSuccess={() => {
+            onQuickAddClose();
+            // Silent refresh of charting state
+            if (patientDetails?._id) {
+              getToothHighlights({ patientId: patientDetails._id, toDate: sessionDate })
+                .then((res: any) => {
+                  setChartRecords(res?.data || []);
+                  const ids = Array.from(new Set((res?.data || []).flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
+                  setTreatedToothIds(ids.filter(Boolean));
+                });
+            }
+          }}
+
           onBack={onQuickAddClose} isDrawerMode={true} doctorOptions={doctorOptions}
           notation={notation}
         />
@@ -1032,72 +1066,114 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       <Modal isOpen={isViewModalOpen} onClose={onCloseViewModal} isCentered size="2xl">
         <ModalOverlay backdropFilter="blur(10px)" />
         <ModalContent borderRadius="3xl" p={2} overflow="hidden">
-          <ModalHeader borderBottom="1px solid" borderColor="gray.50" pb={4}>
-            <HStack justify="space-between" align="center">
-              <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL RECORD DETAILS</Text>
-                <Heading size="md" fontWeight="1000">{viewingRecord?.treatmentPlan || "General Record"}</Heading>
-              </VStack>
-              <Badge colorScheme="blue" variant="solid" borderRadius="full" px={4} py={1}>#{viewingRecord?._id?.slice(-6).toUpperCase()}</Badge>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody py={6}>
-            <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="20px" fontWeight="900">{new Date(viewingRecord?.treatmentDate).toLocaleDateString(undefined, { dateStyle: 'long' })}</Text>
-              </VStack>
-              <VStack align="start" spacing={1}>
-                <Badge fontSize="20px" fontWeight="900" colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>{viewingRecord?.tooth?.fdi === "General" ? "General Clinical" : `Tooth #${viewingRecord?.tooth}`}</Badge>
-              </VStack>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>
-                <Text fontWeight="800" color="gray.700">{viewingRecord?.complaintType}</Text>
-              </VStack>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="10px" fontWeight="900" color="gray.400">STATUS</Text>
-                <Badge colorScheme={viewingRecord?.status === "completed" ? "green" : "orange"} borderRadius="full">{viewingRecord?.status?.toUpperCase()}</Badge>
-              </VStack>
+          {(() => {
+            const isMultiple = Array.isArray(viewingRecord);
+            const currentRec = isMultiple ? viewingRecord[activeViewIndex] : viewingRecord;
 
-              <Box gridColumn="span 2" bg="gray.50" p={4} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
-                <Text fontSize="10px" fontWeight="900" color="gray.400" mb={2}>CLINICAL NOTES</Text>
-                <Text fontSize="sm" fontStyle="italic" color="gray.700">"{viewingRecord?.notes || "No notes provided."}"</Text>
-              </Box>
+            return (
+              <>
+                <ModalHeader borderBottom="1px solid" borderColor="gray.50" pb={4}>
+                  <VStack align="stretch" spacing={4}>
+                    <HStack justify="space-between" align="center">
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL RECORD DETAILS</Text>
+                        <Heading size="md" fontWeight="1000">{currentRec?.treatmentPlan || "General Record"}</Heading>
+                      </VStack>
+                      <Badge colorScheme="blue" variant="solid" borderRadius="full" px={4} py={1}>#{currentRec?._id?.slice(-6).toUpperCase()}</Badge>
+                    </HStack>
 
-              <VStack align="start" spacing={1} bg="blue.50/50" p={3} borderRadius="2xl">
-                <Text fontSize="10px" fontWeight="900" color="blue.400">ESTIMATED FEE</Text>
-                <Text fontWeight="1000" color="blue.700">₹{viewingRecord?.estimateMin} - ₹{viewingRecord?.estimateMax}</Text>
-              </VStack>
-              <VStack align="start" spacing={1} bg="orange.50/50" p={3} borderRadius="2xl">
-                <Text fontSize="10px" fontWeight="900" color="orange.400">CONCESSION / DISCOUNT</Text>
-                <Text fontWeight="1000" color="orange.700">₹{viewingRecord?.discount || 0}</Text>
-              </VStack>
+                    {isMultiple && viewingRecord.length > 1 && (
+                      <HStack spacing={2} overflowX="auto" py={1}>
+                        {viewingRecord.map((rec: any, idx: number) => (
+                          <Button
+                            key={rec._id || idx}
+                            size="xs"
+                            borderRadius="full"
+                            variant={activeViewIndex === idx ? "solid" : "outline"}
+                            colorScheme={activeViewIndex === idx ? "blue" : "gray"}
+                            onClick={() => setActiveViewIndex(idx)}
+                            px={4}
+                          >
+                            {new Date(rec.treatmentDate || rec.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          </Button>
+                        ))}
+                      </HStack>
+                    )}
+                  </VStack>
+                </ModalHeader>
+                <ModalCloseButton />
+                <ModalBody py={6}>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="20px" fontWeight="900">
+                        {currentRec?.treatmentDate ? new Date(currentRec.treatmentDate).toLocaleDateString(undefined, { dateStyle: 'long' }) : "No Date"}
+                      </Text>
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Badge fontSize="20px" fontWeight="900" colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>
+                        {currentRec?.tooth === "General" ? "General Clinical" : `Tooth #${currentRec?.toothFDI || currentRec?.tooth}`}
+                      </Badge>
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>
+                      <Text fontWeight="800" color="gray.700">{currentRec?.complaintType}</Text>
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="900" color="gray.400">STATUS</Text>
+                      <Badge colorScheme={currentRec?.status === "completed" ? "green" : (currentRec?.status === "pending" || currentRec?.status === "Planned" ? "orange" : "blue")} borderRadius="full">
+                        {(currentRec?.status || "Pending").toUpperCase()}
+                      </Badge>
+                    </VStack>
 
-              <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
-                <Avatar size="sm" name={viewingRecord?.doctor?.name} bg="blue.100" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="10px" fontWeight="900" color="gray.400">ATTENDING CLINICIAN</Text>
-                  <Text fontWeight="900">{viewingRecord?.doctor?.name || "Unassigned"}</Text>
-                </VStack>
-              </HStack>
+                    <Box gridColumn="span 2" bg="gray.50" p={4} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
+                      <Text fontSize="10px" fontWeight="900" color="gray.400" mb={2}>CLINICAL NOTES</Text>
+                      <Text fontSize="sm" fontStyle="italic" color="gray.700">"{currentRec?.notes || "No notes provided."}"</Text>
+                    </Box>
 
-              <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
-                <Avatar size="sm" name={viewingRecord?.examiningDoctor?.name || viewingRecord?.examiningDoctorName} bg="teal.100" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="10px" fontWeight="900" color="gray.400">EXAMINING DOCTOR</Text>
-                  <Text fontWeight="900">{viewingRecord?.examiningDoctor?.name || viewingRecord?.examiningDoctorName || viewingRecord?.examiningDoctor?.label || "Unassigned"}</Text>
-                </VStack>
-              </HStack>
-            </Grid>
-          </ModalBody>
-          <ModalFooter bg="gray.50" py={4}>
-            <Button w="full" colorScheme="blue" borderRadius="2xl" h="50px" fontWeight="1000" leftIcon={<FiActivity />} onClick={onCloseViewModal}>CLOSE RECORD</Button>
-          </ModalFooter>
+                    <VStack align="start" spacing={1} bg="blue.50/50" p={3} borderRadius="2xl">
+                      <Text fontSize="10px" fontWeight="900" color="blue.400">ESTIMATED FEE</Text>
+                      <Text fontWeight="1000" color="blue.700">₹{currentRec?.estimateMin || 0} - ₹{currentRec?.estimateMax || 0}</Text>
+                    </VStack>
+                    <VStack align="start" spacing={1} bg="orange.50/50" p={3} borderRadius="2xl">
+                      <Text fontSize="10px" fontWeight="900" color="orange.400">CONCESSION / DISCOUNT</Text>
+                      <Text fontWeight="1000" color="orange.700">₹{currentRec?.discount || 0}</Text>
+                    </VStack>
+
+                    <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
+                      <Avatar size="sm" name={currentRec?.doctor?.name || currentRec?.doctorName} bg="blue.100" />
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="10px" fontWeight="900" color="gray.400">ATTENDING CLINICIAN</Text>
+                        <Text fontWeight="900">{currentRec?.doctor?.name || currentRec?.doctorName || "Unassigned"}</Text>
+                      </VStack>
+                    </HStack>
+
+                    <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
+                      <Avatar size="sm" name={currentRec?.examiningDoctor?.name || currentRec?.examiningDoctorName || currentRec?.examiningDoctor?.label} bg="teal.100" />
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="10px" fontWeight="900" color="gray.400">EXAMINING DOCTOR</Text>
+                        <Text fontWeight="900">{currentRec?.examiningDoctor?.name || currentRec?.examiningDoctorName || currentRec?.examiningDoctor?.label || "Unassigned"}</Text>
+                      </VStack>
+                    </HStack>
+                  </Grid>
+                </ModalBody>
+                <ModalFooter bg="gray.50" py={4}>
+                  <Button w="full" colorScheme="blue" borderRadius="2xl" h="50px" fontWeight="1000" leftIcon={<FiActivity />} onClick={onCloseViewModal}>CLOSE RECORD</Button>
+                </ModalFooter>
+              </>
+            );
+          })()}
         </ModalContent>
       </Modal>
+
       <ToothFormDialog
         open={isToothFormOpen}
-        onOpenChange={setIsToothFormOpen}
+        onOpenChange={(open) => {
+          setIsToothFormOpen(open);
+          if (!open) {
+            setSelectedTeeth([]);
+            setToothComplaints({});
+          }
+        }}
         teeth={activeTeethForForm}
         isPatient={isPatient}
         patientDetails={patientDetails}
@@ -1108,12 +1184,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         setLastExaminingDoctor={setLastExaminingDoctor}
         doctorOptions={doctorOptions}
         onSuccess={() => {
+          setSelectedTeeth([]);
+          setToothComplaints({});
           if (patientDetails?._id) {
             getTodayToothTreatments({ patientId: patientDetails._id });
           }
         }}
         complaintType={complaintType}
       />
+
 
       <Modal isOpen={isCountModalOpen} onClose={onCloseCountModal} isCentered size="md">
         <ModalOverlay backdropFilter="blur(10px)" />

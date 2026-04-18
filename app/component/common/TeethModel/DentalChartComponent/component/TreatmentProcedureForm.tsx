@@ -48,7 +48,9 @@ import {
     FiLayers,
     FiSun,
     FiHeart,
+    FiX,
 } from "react-icons/fi";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 const MotionVStack = motion(VStack);
@@ -105,7 +107,9 @@ interface TreatmentProcedureFormProps {
     onEditGeneralNote?: () => void;
     notation?: "fdi" | "universal" | "palmer";
     dentitionType?: "adult" | "child";
+    onRemoveTooth?: (id: string) => void;
 }
+
 
 interface TreatmentFormData {
     doctor: any;
@@ -160,7 +164,9 @@ export const TreatmentProcedureForm = observer(
         notation = "fdi",
         isDrawerMode = false,
         dentitionType,
+        onRemoveTooth,
     }: TreatmentProcedureFormProps) => {
+
         const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
         const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure({ defaultIsOpen: teeth.length > 1 });
 
@@ -276,10 +282,17 @@ export const TreatmentProcedureForm = observer(
                 const results: any[] = [];
                 const treatments = formData.treatments;
 
+                // Only process teeth that are CURRENTLY in the active teeth selection props
+                // This prevents "removed" teeth from leaking into the final payload
+                const activeToothIds = teeth.map(t => String(t.id));
+
                 for (const toothId in treatments) {
+                    if (!activeToothIds.includes(toothId)) continue;
+                    
                     const values = replaceLabelValueObjects(treatments[toothId]);
                     // Only skip if there's absolutely NO clinical content
                     if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue;
+
 
                     const payload: any = {
                         patient: values.patient?.value || values.patient,
@@ -1035,18 +1048,64 @@ export const TreatmentProcedureForm = observer(
                                     <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
                                     <ModalContent borderRadius="3xl" overflow="hidden">
                                         <ModalHeader p={6} borderBottom="1px solid" borderColor="gray.100">
-                                            <HStack justify="space-between">
-                                                <VStack align="start" spacing={0}>
-                                                    <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY</Text>
-                                                    <Heading size="md" fontWeight="1000">
-                                                        {activeToothId === "bulk" ? "Multi-Tooth Update" : (activeToothId === "General" ? "General Clinical Record" : (teeth.find(t => t.id === activeToothId)?.name || `Tooth #${activeToothId} Details`))}
-                                                    </Heading>
+                                            <HStack justify="space-between" align="start">
+                                                <VStack align="start" spacing={3}>
+                                                    <VStack align="start" spacing={0}>
+                                                        <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY</Text>
+                                                        <Heading size="md" fontWeight="1000">
+                                                            {activeToothId === "bulk" ? "Multi-Tooth Update" : (activeToothId === "General" ? "General Clinical Record" : (teeth.find(t => t.id === activeToothId)?.name || `Tooth #${activeToothId} Details`))}
+                                                        </Heading>
+                                                    </VStack>
+                                                    {/* Premium Selection Chips */}
+                                                    {teeth.length > 1 && (
+                                                        <HStack spacing={2.5} wrap="wrap" pt={1}>
+                                                            {teeth.map(t => (
+                                                                <HStack 
+                                                                    key={t.id} 
+                                                                    bg="white" 
+                                                                    px={3} py={1.5} 
+                                                                    borderRadius="2xl" 
+                                                                    border="1px solid" 
+                                                                    borderColor="blue.100"
+                                                                    spacing={2}
+                                                                    boxShadow="sm"
+                                                                    _hover={{ borderColor: "blue.300", transform: "translateY(-1px)" }}
+                                                                    transition="all 0.2s"
+                                                                >
+                                                                    <VStack align="start" spacing={0}>
+                                                                        <Text fontSize="8px" fontWeight="1000" color="blue.400" letterSpacing="0.1em">
+                                                                            {notation?.toUpperCase() || "FDI"}
+                                                                        </Text>
+                                                                        <Text fontSize="12px" fontWeight="1000" color="gray.800" mt="-2px">
+
+                                                                            {notation === 'universal' ? t.universal : (notation === 'palmer' ? t.palmer : t.fdi)}
+                                                                        </Text>
+                                                                    </VStack>
+                                                                    {onRemoveTooth && (
+                                                                        <Circle 
+                                                                            size="20px" 
+                                                                            bg="gray.50" 
+                                                                            cursor="pointer" 
+                                                                            _hover={{ bg: "red.50", color: "red.500" }} 
+                                                                            transition="all 0.2s"
+                                                                            onClick={(e) => { e.stopPropagation(); onRemoveTooth(t.id); }}
+                                                                        >
+                                                                            <Icon as={FiX} boxSize={2.5} />
+                                                                        </Circle>
+                                                                    )}
+                                                                </HStack>
+                                                            ))}
+                                                        </HStack>
+                                                    )}
+
                                                 </VStack>
                                                 <Circle size="40px" bg="blue.50" color="blue.500">
                                                     <FiActivity />
                                                 </Circle>
                                             </HStack>
                                         </ModalHeader>
+
+
                                         <ModalBody p={8}>
                                             {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
                                         </ModalBody>

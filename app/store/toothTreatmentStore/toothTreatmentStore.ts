@@ -206,6 +206,47 @@ class ToothTreatmentStore {
     }
   };
 
+  getToothHighlights = async (sendData: {
+    patientId: any;
+    toDate?: string;
+  }) => {
+    try {
+      const params: any = {
+        patientId: sendData.patientId,
+        patient: sendData.patientId,
+        company: authStore.company,
+      };
+      if (sendData.toDate) params.toDate = sendData.toDate;
+
+      const { data } = await axios.get("/toothTreatment/highlights", { params });
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching highlights:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  getChartData = async (sendData: {
+    patientId: any;
+    date?: string;
+  }) => {
+    try {
+      const params: any = {
+        patientId: sendData.patientId,
+        patient: sendData.patientId,
+        company: authStore.company,
+      };
+      if (sendData.date) params.date = sendData.date;
+
+      const { data } = await axios.get("/toothTreatment/get-chart-data", { params });
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching chart highlights:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+
   // Create Treatment
   createToothTreatment = async (sendData: any) => {
     try {

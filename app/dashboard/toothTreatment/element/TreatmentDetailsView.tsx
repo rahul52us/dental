@@ -16,6 +16,7 @@ import {
   Grid,
   Avatar,
   Circle,
+  Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaUserMd, FaUser, FaTooth, FaCalendarAlt, FaNotesMedical, FaStethoscope } from "react-icons/fa";
@@ -32,12 +33,18 @@ const statusColors: Record<string, string> = {
 };
 
 interface TreatmentDetailsViewProps {
-  data: any;
+  data: any | any[];
 }
 
+
 const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
-  const [treatment, setTreatment] = useState<any>(data);
+  const isMultiple = Array.isArray(data);
+  const [activeRecordIndex, setActiveRecordIndex] = useState(0);
+  const currentData = isMultiple ? data[activeRecordIndex] : data;
+
+  const [treatment, setTreatment] = useState<any>(currentData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
 
   const {
     toothTreatmentStore: { getToothTreatmentById },
@@ -45,7 +52,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   } = stores;
 
   const fetchTreatment = async () => {
-    const id = data?._id || data?.id;
+    const id = currentData?._id || currentData?.id;
     if (!id) return;
 
     try {
@@ -53,6 +60,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
       const response = await getToothTreatmentById({
         treatmentId: id,
       });
+
 
       if (response?.status === "success" || response?.status === true || response?.success === "success" || response?.success === true) {
         setTreatment(response?.data);
@@ -70,8 +78,11 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   };
 
   useEffect(() => {
+    setTreatment(currentData);
     fetchTreatment();
-  }, [data?._id]);
+  }, [currentData?._id]);
+
+
 
   if (isLoading) {
     return (
@@ -127,7 +138,29 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
       '&::-webkit-scrollbar-thumb': { background: 'rgba(0,0,0,0.05)', borderRadius: '10px' }
     }}>
       <VStack spacing={6} align="stretch">
+        {/* Record Selection (If Multiple) */}
+        {isMultiple && data.length > 1 && (
+          <HStack spacing={3} overflowX="auto" pb={2} px={1}>
+            {data.map((rec: any, idx: number) => (
+              <Button
+                key={rec._id || idx}
+                size="sm"
+                borderRadius="full"
+                variant={activeRecordIndex === idx ? "solid" : "outline"}
+                colorScheme={activeRecordIndex === idx ? "blue" : "gray"}
+                onClick={() => setActiveRecordIndex(idx)}
+                flexShrink={0}
+                px={6}
+                fontWeight="900"
+              >
+                {formatDate(rec.treatmentDate || rec.createdAt)} - {rec.complaintType?.split(' ')[0] || "Record"}
+              </Button>
+            ))}
+          </HStack>
+        )}
+
         {/* Header Section */}
+
         <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
           <HStack justify="space-between" align="center">
             <HStack spacing={5}>
