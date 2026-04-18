@@ -48,7 +48,11 @@ import {
   FiGrid,
   FiList,
   FiSearch,
+  FiCalendar,
+  FiBarChart2,
 } from "react-icons/fi";
+
+
 
 
 import { DentitionToggle } from "./component/DentitionToggle";
@@ -144,9 +148,46 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       deleteToothTreatment,
       updateToothTreatment,
       lastExaminingDoctor,
-      setLastExaminingDoctor
+      setLastExaminingDoctor,
+      getTreatmentCountByDate
     },
   } = stores;
+
+  const { isOpen: isCountModalOpen, onOpen: onOpenCountModal, onClose: onCloseCountModal } = useDisclosure();
+  const [treatmentCounts, setTreatmentCounts] = useState<any[]>([]);
+  const [isCountsLoading, setIsCountsLoading] = useState(false);
+  const [countSearch, setCountSearch] = useState("");
+
+  const filteredCounts = useMemo(() => {
+    if (!countSearch) return treatmentCounts;
+    return treatmentCounts.filter(item => {
+      const dateStr = new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' }).toLowerCase();
+      return dateStr.includes(countSearch.toLowerCase()) || item.date.includes(countSearch);
+    });
+  }, [treatmentCounts, countSearch]);
+
+  const totalSummaryStats = useMemo(() => {
+    return {
+      totalVisits: treatmentCounts.length,
+      totalTreatments: treatmentCounts.reduce((acc, curr) => acc + curr.count, 0)
+    };
+  }, [treatmentCounts]);
+
+  const fetchTreatmentCounts = async () => {
+
+    if (!patientDetails?._id) return;
+    try {
+      setIsCountsLoading(true);
+      const res = await getTreatmentCountByDate({ patientId: patientDetails._id });
+      setTreatmentCounts(res?.data || []);
+      onOpenCountModal();
+    } catch (err) {
+      console.error("Failed to fetch treatment counts", err);
+    } finally {
+      setIsCountsLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     if (patientDetails?._id) {
@@ -556,7 +597,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </VStack>
                   <HStack spacing={2}>
                     <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{todayToothTreatment.totalItems || 0}</Circle>
+                    <IconButton aria-label="Summary" icon={<FiCalendar />} size="sm" colorScheme="blue" borderRadius="full" onClick={fetchTreatmentCounts} />
                     <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
+
                   </HStack>
                 </HStack>
                 <Box flex={1} overflowY="auto" pr={2}>
@@ -732,43 +775,50 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 </HStack>
               </HStack>
               <HStack spacing={4}>
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="10px" fontWeight="900" color="gray.400">TOOTH FILTER</Text>
-                  <HStack bg={historyFilterTooth ? "blue.50" : "gray.50"} px={3} py={1} borderRadius="xl" border="1px" borderColor={historyFilterTooth ? "blue.200" : "gray.200"}>
-                    <Text fontSize="xs" fontWeight="800" color={historyFilterTooth ? "blue.700" : "gray.500"}>
-                      {historyFilterTooth ? `TOOTH #${historyFilterTooth}` : "ALL TEETH"}
-                    </Text>
-                    {historyFilterTooth && (
-                      <IconButton
-                        aria-label="Clear Filter"
-                        icon={<FiX />}
-                        size="xs"
-                        variant="ghost"
-                        colorScheme="blue"
-                        onClick={() => setHistoryFilterTooth(null)}
-                      />
-                    )}
-                  </HStack>
-                </VStack>
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="10px" fontWeight="900" color="gray.400">SESSION DATE</Text>
 
-                  <Input
-                    type="date"
-                    value={sessionDate}
-                    onChange={(e) => setSessionDate(e.target.value)}
-                    size="sm"
-                    borderRadius="xl"
-                    bg="blue.50"
-                    border="none"
-                    fontWeight="800"
-                    color="blue.700"
-                  />
-                </VStack>
-                <Badge colorScheme="blue" borderRadius="lg" px={4} py={3}>
-                  {todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString().toUpperCase()}
+                  <VStack align="start" spacing={1}>
+                    <Text fontSize="10px" fontWeight="900" color="gray.400">SESSION DATE</Text>
+                    <HStack spacing={2}>
+                      <Input
+                        type="date"
+                        value={sessionDate}
+                        onChange={(e) => setSessionDate(e.target.value)}
+                        size="sm"
+                        borderRadius="xl"
+                        bg="blue.50"
+                        border="none"
+                        fontWeight="800"
+                        color="blue.700"
+                      />
+                      <IconButton 
+                        aria-label="Trends" 
+                        icon={<FiBarChart2 />} 
+                        size="sm" 
+                        colorScheme="blue" 
+                        borderRadius="xl" 
+                        onClick={fetchTreatmentCounts} 
+                      />
+                    </HStack>
+                  </VStack>
+
+                <Badge 
+                  colorScheme="blue" 
+                  borderRadius="lg" 
+                  px={4} 
+                  py={3} 
+                  cursor="pointer"
+                  onClick={fetchTreatmentCounts}
+                  _hover={{ opacity: 0.8 }}
+                  transition="all 0.2s"
+                >
+                  <HStack spacing={2}>
+                    <Icon as={FiActivity} />
+                    <Text>{todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString().toUpperCase()}</Text>
+                    <Badge variant="solid" colorScheme="blue" borderRadius="full">VIEW SUMMARY</Badge>
+                  </HStack>
                 </Badge>
               </HStack>
+
 
             </HStack>
             <HStack spacing={4} bg="gray.100" p={2} borderRadius="2xl" display="flex" mb={4}>
@@ -1006,8 +1056,110 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         }}
         complaintType={complaintType}
       />
+
+      <Modal isOpen={isCountModalOpen} onClose={onCloseCountModal} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent borderRadius="3xl" p={2}>
+          <ModalHeader borderBottom="1px solid" borderColor="gray.50">
+            <VStack align="start" spacing={3}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">PATIENT TRENDS</Text>
+                <Heading size="md" fontWeight="1000">Clinical Activity Summary</Heading>
+              </VStack>
+              {!isCountsLoading && treatmentCounts.length > 0 && (
+                <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
+                  <Box bg="blue.50" p={2} borderRadius="xl" border="1px solid" borderColor="blue.100">
+                    <Text fontSize="9px" fontWeight="800" color="blue.400">TOTAL VISITS</Text>
+                    <Text fontSize="lg" fontWeight="1000" color="blue.700">{totalSummaryStats.totalVisits}</Text>
+                  </Box>
+                  <Box bg="purple.50" p={2} borderRadius="xl" border="1px solid" borderColor="purple.100">
+                    <Text fontSize="9px" fontWeight="800" color="purple.400">TOTAL TREATMENTS</Text>
+                    <Text fontSize="lg" fontWeight="1000" color="purple.700">{totalSummaryStats.totalTreatments}</Text>
+                  </Box>
+
+                </Grid>
+              )}
+              <HStack w="full" bg="gray.100" p={2} borderRadius="xl">
+                <Icon as={FiSearch} color="gray.400" />
+                <Input 
+                  placeholder="Filter by date or year..." 
+                  variant="unstyled" 
+                  fontSize="xs" 
+                  value={countSearch}
+                  onChange={(e) => setCountSearch(e.target.value)}
+                />
+              </HStack>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6} maxH="500px" overflowY="auto">
+            {isCountsLoading ? (
+              <VStack align="stretch" spacing={3}>
+                {[1, 2, 3, 4, 5].map(i => (
+                  <HStack key={i} p={4} bg="gray.50" borderRadius="2xl" justify="space-between">
+                    <HStack spacing={4}>
+                      <Box w="36px" h="36px" bg="gray.100" borderRadius="lg" />
+                      <VStack align="start" spacing={2}>
+                        <Box w="120px" h="12px" bg="gray.100" borderRadius="full" />
+                        <Box w="60px" h="8px" bg="gray.200" borderRadius="full" />
+                      </VStack>
+                    </HStack>
+                    <Box w="40px" h="24px" bg="gray.100" borderRadius="full" />
+                  </HStack>
+                ))}
+                <Progress size="xs" isIndeterminate w="full" borderRadius="full" colorScheme="blue" mt={2} />
+              </VStack>
+            ) : filteredCounts.length > 0 ? (
+              <VStack align="stretch" spacing={3}>
+                {filteredCounts.map((item, idx) => (
+                  <HStack 
+                    key={idx} 
+                    p={4} 
+                    bg="gray.50" 
+                    borderRadius="2xl" 
+                    justify="space-between"
+                    border="1px solid"
+                    borderColor="transparent"
+                    _hover={{ borderColor: "blue.200", bg: "blue.50", cursor: "pointer", transform: "translateX(4px)" }}
+                    transition="all 0.2s"
+                    onClick={() => {
+                      setSessionDate(item.date);
+                      onCloseCountModal();
+                    }}
+                  >
+                    <HStack spacing={4}>
+                      <Box p={2} bg="white" borderRadius="lg" shadow="sm">
+                        <Icon as={FiCalendar} color="blue.500" />
+                      </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="sm" fontWeight="800" color="gray.700">
+                          {new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                        </Text>
+                        <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
+                      </VStack>
+                    </HStack>
+                    <Circle bg="blue.500" size="32px" color="white" fontWeight="1000" fontSize="sm" shadow="md">
+                      {item.count}
+                    </Circle>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : (
+              <VStack py={10} spacing={4} opacity={0.5}>
+                <Icon as={FiActivity} fontSize="40px" />
+                <Text fontWeight="800">{countSearch ? "No matches found" : "No activity history found"}</Text>
+              </VStack>
+            )}
+          </ModalBody>
+
+          <ModalFooter bg="gray.50" borderRadius="0 0 2xl 2xl">
+            <Button w="full" variant="ghost" fontWeight="1000" onClick={onCloseCountModal}>CLOSE SUMMARY</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 });
+
 
 export default Index;

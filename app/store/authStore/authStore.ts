@@ -10,12 +10,12 @@ interface Notification {
   type?: any;
   placement?: string;
   action?: any;
-  duration?:number
+  duration?: number
 }
 
 class AuthStore {
   user: any = null;
-  userType : any = null
+  userType: any = null
   token: string | null = null;
   isLoading: boolean = false;
   error: string | null = null;
@@ -32,7 +32,7 @@ class AuthStore {
     axios.interceptors.request.use(
       (config) => {
         if (typeof window !== "undefined") {
-          const token = localStorage.getItem(AUTH_TOKEN);
+          const token = sessionStorage.getItem(AUTH_TOKEN);
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
@@ -59,7 +59,7 @@ class AuthStore {
 
   changePassword = async (sendData: any) => {
     try {
-      const { data } = await axios.post("/auth/change-password", {...sendData,company : this.company});
+      const { data } = await axios.post("/auth/change-password", { ...sendData, company: this.company });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -70,7 +70,7 @@ class AuthStore {
   // Initialize User Session
   initializeUser = async () => {
     if (typeof window !== "undefined") {  // ✅ Prevent SSR errors
-      const savedToken = localStorage.getItem(AUTH_TOKEN);
+      const savedToken = sessionStorage.getItem(AUTH_TOKEN);
       if (savedToken) {
         this.token = savedToken;
         await this.fetchUser();
@@ -78,7 +78,7 @@ class AuthStore {
     }
   };
 
-   forgotPasswordStore = async (value: any) => {
+  forgotPasswordStore = async (value: any) => {
     try {
       const { data } = await axios.post("/auth/forgot-password", value);
       return data.data;
@@ -93,7 +93,7 @@ class AuthStore {
     type?: string;
     placement?: string;
     action?: any;
-    duration?:number
+    duration?: number
   }) => {
     this.notification = {
       title: data.title,
@@ -116,7 +116,7 @@ class AuthStore {
       this.token = response.data.token;
 
       if (typeof window !== "undefined") {
-        localStorage.setItem(AUTH_TOKEN, this.token);
+        sessionStorage.setItem(AUTH_TOKEN, this.token);
       }
 
       await this.fetchUser();
@@ -144,7 +144,7 @@ class AuthStore {
         this.doLogout();
         return false;
       }
-    } catch ({}) {
+    } catch ({ }) {
       this.user = null;
       this.doLogout();
     }
@@ -160,6 +160,7 @@ class AuthStore {
       AUTH_TOKEN as string
     );
     sessionStorage.removeItem(USER_SESSION_DATA!);
+    sessionStorage.clear()
   };
   // Login user
   login = async (payload: any) => {
@@ -169,7 +170,7 @@ class AuthStore {
       this.token = response?.data?.data?.authorization_token;
 
       if (this.token && typeof window !== "undefined") {
-        localStorage.setItem(AUTH_TOKEN, this.token);
+        sessionStorage.setItem(AUTH_TOKEN, this.token);
       }
 
       await this.fetchUser();
@@ -184,7 +185,7 @@ class AuthStore {
 
   uploadFile = async (sendData: any) => {
     try {
-      const { data } = await axios.post("/file/upload", {...sendData,company : this.company});
+      const { data } = await axios.post("/file/upload", { ...sendData, company: this.company });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -238,15 +239,15 @@ class AuthStore {
       const decryptedBytes = CryptoJS.AES.decrypt(storedData, ENCRYPT_SECRET_KEY);
       const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
       return decryptedData ? JSON.parse(decryptedData) : false;
-    } catch ({}) {
+    } catch ({ }) {
       return false;
     }
   }
 
-  getCompanyUsers = async (sendData : any = {}) => {
+  getCompanyUsers = async (sendData: any = {}) => {
     try {
-      const { data } = await axios.post(`auth/get/users`,{},{params : {...sendData}});
-      return data.data?.map((item : any) => ({user : {...item}})) || [];
+      const { data } = await axios.post(`auth/get/users`, {}, { params: { ...sendData } });
+      return data.data?.map((item: any) => ({ user: { ...item } })) || [];
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
     }
@@ -260,6 +261,7 @@ class AuthStore {
 
     if (typeof window !== "undefined") {
       localStorage.removeItem(AUTH_TOKEN);
+      sessionStorage.clear()
     }
   };
 }

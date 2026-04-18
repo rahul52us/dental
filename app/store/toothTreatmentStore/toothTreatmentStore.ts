@@ -30,7 +30,7 @@ class ToothTreatmentStore {
   constructor() {
     makeAutoObservable(this);
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("lastExaminingDoctor");
+      const saved = sessionStorage.getItem("lastExaminingDoctor");
       if (saved) {
         try {
           this.lastExaminingDoctor = JSON.parse(saved);
@@ -44,7 +44,7 @@ class ToothTreatmentStore {
   setLastExaminingDoctor = (doctor: any) => {
     this.lastExaminingDoctor = doctor;
     if (typeof window !== "undefined") {
-      localStorage.setItem("lastExaminingDoctor", JSON.stringify(doctor));
+      sessionStorage.setItem("lastExaminingDoctor", JSON.stringify(doctor));
     }
   };
 
@@ -74,10 +74,10 @@ class ToothTreatmentStore {
       const fdi = it?.tooth || "--";
       const notation = it?.toothNotation || "fdi";
       const dentition = it?.dentitionType || "adult";
-      
+
       const allTeeth = getTeethByType(dentition as any);
       const toothObj = allTeeth.find(t => t.id === fdi);
-      
+
       const toothUniversal = toothObj?.universal || "--";
       const toothPalmer = toothObj?.palmer || "--";
 
@@ -229,7 +229,22 @@ class ToothTreatmentStore {
       return Promise.reject(err?.response?.data || err);
     }
   };
+
+  getTreatmentCountByDate = async (sendData: { patientId: any }) => {
+    try {
+      const params = {
+        company: authStore.company,
+        patientId: sendData.patientId,
+      };
+      const { data } = await axios.get("/toothTreatment/count-by-date", { params });
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching treatment counts by date:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 }
+
 
 export const toothTreatmentStore = new ToothTreatmentStore();
 export default toothTreatmentStore;
