@@ -105,7 +105,9 @@ class ToothTreatmentStore {
     patientId?: any;
     fdi?: string;
     complaintType?: string;
+    toDate?: string;
   }) => {
+
     console.log("Fetching tooth treatments with params:", sendData);
     this.toothTreatment.loading = true;
     try {
@@ -119,6 +121,8 @@ class ToothTreatmentStore {
 
       if (sendData.fdi) params.fdi = sendData.fdi;
       if (sendData.search) params.search = sendData.search;
+      if (sendData.toDate) params.toDate = sendData.toDate;
+
 
       const cType = sendData.complaintType || sendData.category;
       if (cType && cType !== 'all') {

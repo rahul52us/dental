@@ -20,7 +20,10 @@ interface TeethChartProps {
   activeComplaintType: string;
   todayTreatments?: any[];
   historyTeeth?: string[];
+  fullHistory?: any[];
+  sessionDate: string;
 }
+
 
 export const TeethChart = ({
   dentitionType,
@@ -32,7 +35,10 @@ export const TeethChart = ({
   activeComplaintType,
   todayTreatments = [],
   historyTeeth = [],
+  fullHistory = [],
+  sessionDate,
 }: TeethChartProps) => {
+
 
   const teeth = getTeethByType(dentitionType);
 
@@ -55,12 +61,11 @@ export const TeethChart = ({
     return sorted.map((tooth) => {
       // Find if this tooth has a treatment documented today
       // Filter by current clinical mode (Complaint Type and Dentition)
-      const todayRecord = todayTreatments.find(rec => {
+      const matches = todayTreatments.filter(rec => {
         const recToothValue = String(rec.toothFDI || rec.tooth || "");
         const toothIds = recToothValue.split(',').map(s => s.trim());
         const recNotation = rec.toothNotation ? String(rec.toothNotation).toLowerCase() : "fdi";
         
-        // 1. HARD FILTER: Record must match current chart view settings
         const activeNotation = String(notationType).toLowerCase();
         if (recNotation !== activeNotation) return false;
 
@@ -71,19 +76,41 @@ export const TeethChart = ({
         const recComplaint = String(rec.complaintType || "").toUpperCase();
         if (recComplaint !== activeComplaintType) return false;
 
-        // 2. IDENTITY MATCH: Record must belong to this specific tooth in the active notation
         let isToothMatch = false;
+
         if (recNotation === "universal") {
-          isToothMatch = toothIds.includes(String(tooth.universal));
+           isToothMatch = toothIds.includes(String(tooth.universal));
         } else if (recNotation === "palmer") {
-          isToothMatch = toothIds.includes(String(tooth.palmer));
+           isToothMatch = toothIds.includes(String(tooth.palmer));
         } else {
-          // FDI / Internal ID
-          isToothMatch = toothIds.includes(String(tooth.id)) || toothIds.includes(String(tooth.fdi));
+           isToothMatch = toothIds.includes(String(tooth.id)) || toothIds.includes(String(tooth.fdi));
         }
-        
         return isToothMatch;
       });
+
+      const todayRecord = matches[0]; // Primary for styling
+      const allTodayRecords = matches;
+
+      // Find if this tooth has any historical record (for tooltip context)
+      const historyRecord = matches.length === 0 ? fullHistory.find(rec => {
+        const recToothValue = String(rec.toothFDI || rec.tooth || "");
+        const toothIds = recToothValue.split(',').map(s => s.trim());
+        const tId = String(tooth.id);
+        const fdiId = String(tooth.fdi);
+        const isMatch = toothIds.includes(tId) || toothIds.includes(fdiId);
+        if (!isMatch) return false;
+
+        // If the record is from the current session date, only include it if it matches the active category
+        // (This prevents "Other" findings from today showing up in "Chief" mode)
+        const recDate = new Date(rec.treatmentDate || rec.createdAt).toISOString().split('T')[0];
+        if (recDate === sessionDate) {
+           return String(rec.complaintType || "").toUpperCase() === activeComplaintType;
+        }
+
+        // Past history is always included (Blue background)
+        return true;
+      }) : null;
+
 
       return (
         <ToothShape
@@ -95,9 +122,19 @@ export const TeethChart = ({
           size="md"
           activeComplaintType={activeComplaintType}
           complaintType={toothComplaints[tooth.id]}
-          todayRecord={todayRecord}
+          todayRecord={todayRecord || historyRecord}
+          allTodayRecords={allTodayRecords.length > 0 ? allTodayRecords : (historyRecord ? [historyRecord] : [])}
+          isHistoryRecord={(() => {
+            const rec = todayRecord || historyRecord;
+            if (!rec) return false;
+            const recDate = new Date(rec.treatmentDate || rec.createdAt).toISOString().split('T')[0];
+            return recDate !== sessionDate;
+          })()}
           hasHistory={historyTeeth.includes(String(tooth.id)) || historyTeeth.includes(String(tooth.fdi))}
+
         />
+
+
 
       );
     });
@@ -190,7 +227,15 @@ export const TeethChart = ({
           </HStack>
           <HStack spacing={2}>
             <Box w={3} h={3} rounded="full" bg="blue.100" border="1px solid" borderColor="blue.500" />
-            <Text>Treated Today</Text>
+            <Text>Historical Record</Text>
+          </HStack>
+          <HStack spacing={6}>
+             <HStack spacing={1}>
+                <Box w={3} h={3} rounded="full" bg="red.400" />
+                <Box w={3} h={3} rounded="full" bg="orange.400" />
+                <Box w={3} h={3} rounded="full" bg="green.400" />
+                <Text ml={1}>Clinical Session Entries</Text>
+             </HStack>
           </HStack>
           <HStack spacing={2}>
             <Box 
@@ -199,8 +244,9 @@ export const TeethChart = ({
               border="1px solid" 
               borderColor={activeComplaintType === "CHIEF COMPLAINT" ? "red.500" : activeComplaintType === "OTHER FINDING" ? "orange.500" : "green.500"} 
             />
-            <Text>Selected ({activeComplaintType.split(' ')[0]})</Text>
+            <Text>Active Selection ({activeComplaintType.split(' ')[0]})</Text>
           </HStack>
+
         </Flex>
       </Box>
     </Box>

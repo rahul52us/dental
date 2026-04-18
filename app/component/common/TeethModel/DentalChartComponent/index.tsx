@@ -194,17 +194,23 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
       getTodayCount({ patientId: patientDetails._id, date: sessionDate });
 
-      // Fetch history summary to highlight treated teeth on chart
-      getToothTreatments({ patientId: patientDetails._id, page: 1, limit: 100 } as any)
+      // Fetch history summary (All categories up to session date) as per refined user request
+      getToothTreatments({
+        patientId: patientDetails._id,
+        page: 1,
+        limit: 100,
+        toDate: sessionDate
+      } as any)
         .then((res: any) => {
           const raw = res?.data?.data || res?.data || [];
-          const ids = Array.from(new Set(raw.map((it: any) => String(it.tooth || "")))) as string[];
+          const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
           setTreatedToothIds(ids.filter(Boolean));
-
         })
         .catch(err => console.error("History fetch failed", err));
+
     }
-  }, [patientDetails?._id, sessionDate]);
+  }, [patientDetails?._id, sessionDate, complaintType]);
+
 
 
 
@@ -318,8 +324,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   };
 
   const handleNext = () => {
-    if (step === "TOOTH_SELECTION") setStep("PROCEDURE_FORM");
+    if (step === "TOOTH_SELECTION") {
+      if (!procedureFormValues) {
+        setProcedureFormValues({ treatmentDate: sessionDate });
+      }
+      setStep("PROCEDURE_FORM");
+    }
   };
+
 
   const handleBack = () => {
     if (step === "PROCEDURE_FORM") setStep("TOOTH_SELECTION");
@@ -328,10 +340,13 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleToothClick = (tooth: ToothData) => {
     const toothId = String(tooth.fdi || tooth.id);
 
-    if (selectionMode === 'history') {
+    // If it has history and is NOT already selected for today's new charting session
+    // Redirect to history viewing as per user request
+    const isSelectedToday = selectedTeeth.some((t) => t.id === tooth.id);
+
+    if (treatedToothIds.includes(toothId) && !isSelectedToday && selectionMode !== 'history') {
       setHistoryFilterTooth(toothId);
 
-      // Auto-open most recent record in detail view if it exists
       const historyRecords = toothTreatment.data || [];
       const mostRecent = historyRecords.find((rec: any) => {
         const recTooth = String(rec.toothFDI || rec.tooth || "");
@@ -341,9 +356,28 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       if (mostRecent) {
         setViewingRecord(mostRecent);
         onOpenViewModal();
+      } else {
+        // Fallback to drawer if for some reason the specific record isn't in the local pool
+        onHistoryDrawerOpen();
       }
+      return;
+    }
 
-      onHistoryDrawerOpen();
+    if (selectionMode === 'history') {
+      setHistoryFilterTooth(toothId);
+
+      const historyRecords = toothTreatment.data || [];
+      const mostRecent = historyRecords.find((rec: any) => {
+        const recTooth = String(rec.toothFDI || rec.tooth || "");
+        return recTooth.split(',').map(s => s.trim()).includes(toothId);
+      });
+
+      if (mostRecent) {
+        setViewingRecord(mostRecent);
+        onOpenViewModal();
+      } else {
+        onHistoryDrawerOpen();
+      }
       return;
     }
 
@@ -369,6 +403,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       setIsToothFormOpen(true);
     }
   };
+
 
 
   const handleDeleteTreatment = (id: string) => {
@@ -576,16 +611,18 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 </Flex>
                 <Box flex={1} overflow="hidden">
                   <TeethChart
-                    key={dentitionType}
                     dentitionType={dentitionType}
                     selectedTeeth={selectedTeeth}
                     onToothClick={handleToothClick}
                     notationType={notation}
                     toothComplaints={toothComplaints}
                     activeComplaintType={complaintType}
-                    todayTreatments={todayToothTreatment.data}
+                    todayTreatments={todayToothTreatment.data || []}
                     historyTeeth={treatedToothIds}
+                    fullHistory={toothTreatment.data || []}
+                    sessionDate={sessionDate}
                   />
+
 
                 </Box>
               </VStack>
@@ -649,10 +686,31 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               setStep("TOOTH_SELECTION");
               setSelectedTeeth([]);
               setEditingTreatment(null);
+              setProcedureFormValues(null);
+              setExplorerState({ catIdx: null, subIdx: null });
               if (patientDetails?._id) {
+
                 getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
                 getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+
+                // Refresh historical tooth IDs (All categories up to session date)
+                getToothTreatments({
+                  patientId: patientDetails._id,
+                  page: 1,
+                  limit: 100,
+                  toDate: sessionDate
+                } as any)
+                  .then((res: any) => {
+                    const raw = res?.data?.data || res?.data || [];
+                    const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
+                    setTreatedToothIds(ids.filter(Boolean));
+                  });
+
+
+
+
               }
+
             }}
 
             onBack={handleBack} onToothClick={handleToothClick} hoistedValues={procedureFormValues} notation={notation} onValuesUpdate={setProcedureFormValues}
@@ -776,36 +834,36 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               </HStack>
               <HStack spacing={4}>
 
-                  <VStack align="start" spacing={1}>
-                    <Text fontSize="10px" fontWeight="900" color="gray.400">SESSION DATE</Text>
-                    <HStack spacing={2}>
-                      <Input
-                        type="date"
-                        value={sessionDate}
-                        onChange={(e) => setSessionDate(e.target.value)}
-                        size="sm"
-                        borderRadius="xl"
-                        bg="blue.50"
-                        border="none"
-                        fontWeight="800"
-                        color="blue.700"
-                      />
-                      <IconButton 
-                        aria-label="Trends" 
-                        icon={<FiBarChart2 />} 
-                        size="sm" 
-                        colorScheme="blue" 
-                        borderRadius="xl" 
-                        onClick={fetchTreatmentCounts} 
-                      />
-                    </HStack>
-                  </VStack>
+                <VStack align="start" spacing={1}>
+                  <Text fontSize="10px" fontWeight="900" color="gray.400">SESSION DATE</Text>
+                  <HStack spacing={2}>
+                    <Input
+                      type="date"
+                      value={sessionDate}
+                      onChange={(e) => setSessionDate(e.target.value)}
+                      size="sm"
+                      borderRadius="xl"
+                      bg="blue.50"
+                      border="none"
+                      fontWeight="800"
+                      color="blue.700"
+                    />
+                    <IconButton
+                      aria-label="Trends"
+                      icon={<FiBarChart2 />}
+                      size="sm"
+                      colorScheme="blue"
+                      borderRadius="xl"
+                      onClick={fetchTreatmentCounts}
+                    />
+                  </HStack>
+                </VStack>
 
-                <Badge 
-                  colorScheme="blue" 
-                  borderRadius="lg" 
-                  px={4} 
-                  py={3} 
+                <Badge
+                  colorScheme="blue"
+                  borderRadius="lg"
+                  px={4}
+                  py={3}
                   cursor="pointer"
                   onClick={fetchTreatmentCounts}
                   _hover={{ opacity: 0.8 }}
@@ -1081,10 +1139,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               )}
               <HStack w="full" bg="gray.100" p={2} borderRadius="xl">
                 <Icon as={FiSearch} color="gray.400" />
-                <Input 
-                  placeholder="Filter by date or year..." 
-                  variant="unstyled" 
-                  fontSize="xs" 
+                <Input
+                  placeholder="Filter by date or year..."
+                  variant="unstyled"
+                  fontSize="xs"
                   value={countSearch}
                   onChange={(e) => setCountSearch(e.target.value)}
                 />
@@ -1112,11 +1170,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             ) : filteredCounts.length > 0 ? (
               <VStack align="stretch" spacing={3}>
                 {filteredCounts.map((item, idx) => (
-                  <HStack 
-                    key={idx} 
-                    p={4} 
-                    bg="gray.50" 
-                    borderRadius="2xl" 
+                  <HStack
+                    key={idx}
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="2xl"
                     justify="space-between"
                     border="1px solid"
                     borderColor="transparent"

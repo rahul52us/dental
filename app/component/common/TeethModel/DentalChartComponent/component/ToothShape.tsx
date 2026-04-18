@@ -1,4 +1,5 @@
-import { Box, Text, Tooltip, VStack, Divider } from "@chakra-ui/react";
+import { Box, Text, Tooltip, VStack, Divider, Badge, HStack } from "@chakra-ui/react";
+
 import { ToothData } from "../utils/teethData";
 
 interface ToothShapeProps {
@@ -10,7 +11,9 @@ interface ToothShapeProps {
   complaintType?: string;
   activeComplaintType?: string;
   todayRecord?: any;
+  allTodayRecords?: any[];
   hasHistory?: boolean;
+  isHistoryRecord?: boolean;
 }
 
 
@@ -29,8 +32,12 @@ export const ToothShape = ({
   complaintType,
   activeComplaintType,
   todayRecord,
+  allTodayRecords = [],
   hasHistory,
+  isHistoryRecord,
 }: ToothShapeProps) => {
+
+
 
   const getNotationLabel = () => {
     switch (notationType) {
@@ -78,26 +85,51 @@ export const ToothShape = ({
     "today": { bg: "#EBF8FF", fill: "#63B3ED", stroke: "#3182CE", text: "#2C5282" }
   };
 
-  const todayComplaintType = todayRecord?.complaintType?.toUpperCase();
-  const historyStyle = { bg: "#EBF8FF", fill: "#90CDF4", stroke: "#4299E1", text: "#2C5282" };
+  const savedStyle = { bg: "#EBF8FF", fill: "#90CDF4", stroke: "#4299E1", text: "#2C5282" };
+  const todayRecordColor = todayRecord ? (colorMap[todayRecord.complaintType?.toUpperCase()] || savedStyle) : savedStyle;
+
   const activeStyle = isSelected
     ? (colorMap[activeComplaintType as string] || colorMap.default)
-    : (complaintType ? colorMap[complaintType] : (todayComplaintType && colorMap[todayComplaintType]) ? colorMap[todayComplaintType] : todayRecord ? colorMap.today : hasHistory ? historyStyle : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
+    : todayRecord && !isHistoryRecord
+      ? todayRecordColor
+      : (todayRecord || hasHistory)
+        ? savedStyle
+        : (complaintType ? colorMap[complaintType] : { bg: "transparent", fill: "#EDF2F7", stroke: "#CBD5E0", text: "#4A5568" });
 
 
-  const tooltipContent = todayRecord ? (
-    <VStack align="start" spacing={1} p={1}>
-      <Text fontSize="10px" fontWeight="900" color="blue.200">TODAY'S WORK</Text>
-      <Text fontWeight="1000" fontSize="xs">{todayRecord.treatmentPlan || "General Record"}</Text>
-      <Divider borderColor="blue.400" />
-      <Text fontSize="10px" opacity={0.8}>{todayRecord.complaintType}</Text>
-      {todayRecord.notes && (
-        <Text fontSize="10px" fontStyle="italic" color="whiteAlpha.800">
-          "{todayRecord.notes}"
-        </Text>
-      )}
+
+
+
+
+  const tooltipContent = allTodayRecords && allTodayRecords.length > 0 ? (
+    <VStack align="stretch" spacing={2} p={1} minW="180px">
+      <Text fontSize="10px" fontWeight="900" color={isHistoryRecord ? "orange.300" : "blue.200"} letterSpacing="wider">
+        {isHistoryRecord ? "PREVIOUS WORK" : "TODAY'S WORK"}
+      </Text>
+      {allTodayRecords.map((rec, i) => (
+        <Box key={i} pb={i < allTodayRecords.length - 1 ? 2 : 0} borderBottom={i < allTodayRecords.length - 1 ? "1px solid" : "none"} borderColor="whiteAlpha.200">
+          <Text fontWeight="1000" fontSize="xs">{rec.treatmentPlan || "General Record"}</Text>
+          <HStack justify="space-between" mt={1}>
+             <Badge size="xs" colorScheme={rec.complaintType?.includes("EXISTING") ? "green" : rec.complaintType?.includes("OTHER") ? "orange" : "red"} fontSize="8px" variant="solid" borderRadius="full" px={2}>
+               {rec.complaintType?.split(' ')[0]}
+             </Badge>
+             {rec.treatmentDate && isHistoryRecord && (
+               <Text fontSize="8px" fontWeight="800" color="whiteAlpha.600">
+                 {new Date(rec.treatmentDate).toLocaleDateString()}
+               </Text>
+             )}
+          </HStack>
+          {rec.notes && (
+            <Text fontSize="10px" fontStyle="italic" color="whiteAlpha.800" mt={1} noOfLines={2}>
+              "{rec.notes}"
+            </Text>
+          )}
+        </Box>
+      ))}
     </VStack>
   ) : null;
+
+
 
   return (
     <Tooltip 
