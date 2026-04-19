@@ -59,6 +59,7 @@ interface CustomInputProps {
   | "file-drag"
   | "tags"
   | "real-time-user-search"
+  | "real-time-lab-search"
   | "real-time-search"
   | "timeOnly";
   label?: string;
@@ -157,8 +158,28 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
     }
   }, [options])
 
+  useEffect(() => {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const option = {
+        label: value.label || value.name || value.username || 'Selected',
+        value: value.value || value._id || value
+      };
+      if (!userOptions.find(opt => opt.value === option.value)) {
+        setUserOptions(prev => [...prev, option]);
+      }
+    } else if (Array.isArray(value) && isMulti) {
+       const newOpts = value.map(it => ({
+         label: it.label || it.name || it.username || 'Selected',
+         value: it.value || it._id || it
+       })).filter(it => !userOptions.find(opt => opt.value === it.value));
+       if (newOpts.length > 0) {
+         setUserOptions(prev => [...prev, ...newOpts]);
+       }
+    }
+  }, [value, isMulti])
 
-  console.log('options are', options)
+
+
 
   const fetchSearchUsers = useCallback(
     async (searchValue: string) => {
@@ -178,8 +199,20 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             response.map((it: any) => ({
               label: `${it.user.username}(${it.user.code})`,
               value: it.user._id,
+              ...it.user,
             }))
           );
+        } else if (type === "real-time-lab-search") {
+          const res: any = await stores.labStore.getLabs({
+            page: 1,
+            limit: 20,
+            searchValue: searchValue,
+            ...query
+          });
+          const labs = res?.data || res || [];
+          if (Array.isArray(labs)) {
+             setUserOptions(labs.map((l: any) => ({ label: l.name, value: l._id, ...l })));
+          }
         } else if (type === "real-time-search") {
           const { entityName, functionName, key } = params || {};
 
@@ -539,7 +572,11 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
         return (
           <Select
             options={options}
-            value={value}
+            value={
+              typeof value === "string"
+                ? options?.find((opt) => opt.value === value)
+                : value
+            }
             onChange={onChange}
             placeholder={placeholder}
             isClearable={isClear ? true : undefined}
@@ -658,6 +695,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
         );
 
       case "real-time-user-search":
+      case "real-time-lab-search":
       case "real-time-search":
         return isMulti ? (
           <Select
@@ -669,9 +707,9 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
                 ? Array.isArray(value)
                   ? value
                   : [] // Ensure value is always an array for multi-select
-                : userOptions.find((opt: any) => opt?.value === value?.value) ||
-                value ||
-                null
+                : typeof value === "string"
+                  ? userOptions.find((opt: any) => opt?.value === value) || null
+                  : userOptions.find((opt: any) => opt?.value === (value?.value || value?._id || value)) || value || null
             }
             onChange={(selectedOption: any) => {
               if (isMulti) {
@@ -797,7 +835,9 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
                     ? value
                     : null
                   : null
-                : (userOptions.find((opt: any) => opt?.value === value?.value) || value || null)
+                : typeof value === "string"
+                  ? userOptions.find((opt: any) => opt?.value === value) || null
+                  : (userOptions.find((opt: any) => opt?.value === (value?.value || value?._id || value)) || value || null)
             }
             onChange={(selectedOption: any) => {
               if (isMulti) {

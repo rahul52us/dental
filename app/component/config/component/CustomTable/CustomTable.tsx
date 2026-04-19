@@ -285,7 +285,7 @@ const GenerateRows: React.FC<{
           isTruncated={true}
           color={cellTextColor}
         >
-          {row[column.key] || "--"}
+          {column.function ? column.function(row) : (row[column.key] || "--")}
         </Td>
       );
   }

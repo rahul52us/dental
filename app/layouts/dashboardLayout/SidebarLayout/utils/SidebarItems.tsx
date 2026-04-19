@@ -97,6 +97,27 @@ const sidebarDatas: SidebarItem[] = [
         url: "/dashboard/labDoctors",
         role: ["admin"],
       },
+      {
+        id: 35,
+        name: "All Lab Sheets",
+        icon: <FaNotesMedical />,
+        url: "/dashboard/labWork",
+        role: ["admin"],
+      },
+      {
+        id: 36,
+        name: "In-house Work",
+        icon: <FaNotesMedical />,
+        url: "/dashboard/labWork?type=in-house",
+        role: ["admin"],
+      },
+      {
+        id: 37,
+        name: "Outside Work",
+        icon: <FaNotesMedical />,
+        url: "/dashboard/labWork?type=outside",
+        role: ["admin"],
+      },
     ],
   },
 
