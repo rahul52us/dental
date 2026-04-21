@@ -206,17 +206,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
       // Fetch Isolated Charting Data (Highlights and Detail)
       // We no longer use the global 'toothTreatment' variable here.
-      getToothHighlights({
-        patientId: patientDetails._id,
-        toDate: sessionDate
-      })
-        .then((res: any) => {
-          const raw = res?.data || [];
-          setChartRecords(raw);
-          const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
-          setTreatedToothIds(ids.filter(Boolean));
-        })
-        .catch(err => console.error("History fetch failed", err));
+      // getToothHighlights({
+      //   patientId: patientDetails._id,
+      //   toDate: sessionDate
+      // })
+      //   .then((res: any) => {
+      //     const raw = res?.data || [];
+      //     setChartRecords(raw);
+      //     const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
+      //     setTreatedToothIds(ids.filter(Boolean));
+      //   })
+      //   .catch(err => console.error("History fetch failed", err));
     }
   }, [patientDetails?._id, sessionDate, complaintType]);
 
@@ -366,7 +366,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     if (selectionMode !== 'multi') {
       const matchingTodayRecords = (todayToothTreatment.data || []).filter(isMatch);
       const matchingHistoryRecords = (chartRecords || []).filter(isMatch);
-      
+
       const allMatchingRecords = [...matchingTodayRecords, ...matchingHistoryRecords];
 
       // Remove duplicates based on ID if any overlap occurs
@@ -696,11 +696,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             dentitionType={dentitionType}
             generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
             onRemoveTooth={(id) => {
-               setSelectedTeeth(prev => prev.filter(t => t.id !== id));
-               setToothComplaints(prev => {
-                  const { [id]: _, ...rest } = prev;
-                  return rest;
-               });
+              setSelectedTeeth(prev => prev.filter(t => t.id !== id));
+              setToothComplaints(prev => {
+                const { [id]: _, ...rest } = prev;
+                return rest;
+              });
             }}
             onSuccess={() => {
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Badge,
   Box,
@@ -115,21 +115,44 @@ export const ToothFormDialog = observer(
     const [formLoading, setFormLoading] = useState(false);
     const {
       toothTreatmentStore: { createToothTreatment },
+      procedureStore,
     } = stores;
 
     // Browser State
     const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(null);
     const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(null);
 
-    // Auto-expand explorer based on existing treatment code when editing
     useEffect(() => {
-      // Find the treatment code from Formik values (which might be initialized from edit data)
-      // Since Formik values aren't directly accessible here easily without a closure,
-      // we'll rely on the fact that this component is often used for new entries,
-      // but we add this for future-proofing or if editData is ever passed here.
-    }, []);
+      if (open) {
+        procedureStore.getProcedures();
+      }
+    }, [open]);
 
-    const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
+    const groupedData = useMemo(() => {
+      const dbData = procedureStore.procedures.data;
+      if (dbData.length === 0) return TREATMENT_CATEGORIES;
+
+      const map: any = {};
+      dbData.forEach((p: any) => {
+        if (!map[p.category]) map[p.category] = { name: p.category, subcategories: {} };
+        if (!map[p.category].subcategories[p.subcategory]) {
+          map[p.category].subcategories[p.subcategory] = { name: p.subcategory, jobs: [] };
+        }
+        map[p.category].subcategories[p.subcategory].jobs.push({
+          name: p.name,
+          estimateMin: p.estimateMin,
+          estimateMax: p.estimateMax,
+          defaultEstimate: p.defaultEstimate
+        });
+      });
+
+      return Object.values(map).map((cat: any) => ({
+        ...cat,
+        subcategories: Object.values(cat.subcategories)
+      }));
+    }, [procedureStore.procedures.data]);
+
+    const activeCategory = selectedCatIdx !== null ? groupedData[selectedCatIdx] : null;
     const activeSubcategory = (activeCategory && selectedSubIdx !== null)
       ? activeCategory.subcategories[selectedSubIdx]
       : null;
@@ -466,7 +489,7 @@ export const ToothFormDialog = observer(
                               <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Category</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
-                              {TREATMENT_CATEGORIES.map((cat, idx) => (
+                              {groupedData.map((cat: any, idx: number) => (
                                 <HStack
                                   key={cat.name}
                                   px={4} py={3}
@@ -496,7 +519,7 @@ export const ToothFormDialog = observer(
                               <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Subcategory</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
-                              {activeCategory?.subcategories.map((sub, idx) => (
+                              {activeCategory?.subcategories.map((sub: any, idx) => (
                                 <HStack
                                   key={sub.name}
                                   px={4} py={3}
@@ -525,7 +548,7 @@ export const ToothFormDialog = observer(
                               <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Job Name</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)">
-                              {activeSubcategory?.jobs.map((job) => {
+                              {activeSubcategory?.jobs.map((job: any) => {
                                 const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
                                 const isSelected = values.treatmentCode === fullCode;
                                 return (
@@ -544,10 +567,6 @@ export const ToothFormDialog = observer(
                                     _hover={{ bg: isSelected ? "blue.600" : "gray.100" }}
                                   >
                                     <Text fontSize="sm" fontWeight="bold">{job.name}</Text>
-                                    <Text fontSize="10px" color={isSelected ? "blue.100" : "blue.500"}>
-                                      {/* @ts-ignore */}
-                                      {job.estimateMin ? `₹${job.estimateMin} - ₹${job.estimateMax}` : (job.defaultEstimate ? `₹${job.defaultEstimate}` : "")}
-                                    </Text>
                                   </VStack>
                                 );
                               })}
@@ -604,4 +623,4 @@ export const ToothFormDialog = observer(
       </CustomDrawer>
     );
   }
-);
+);
