@@ -132,7 +132,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [isMultipleSelection, setIsMultipleSelection] = useState(false);
-  const [isTableView, setIsTableView] = useState(true);
+  const [isTableView, setIsTableView] = useState(false);
   const { isOpen: isViewModalOpen, onOpen: onOpenViewModal, onClose: onCloseViewModalRaw } = useDisclosure();
   const onCloseViewModal = () => {
     onCloseViewModalRaw();
@@ -1018,8 +1018,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       <Tr>
                         <Th fontSize="10px">Date</Th>
                         <Th fontSize="10px">Tooth</Th>
+                        <Th fontSize="10px">Location</Th>
                         <Th fontSize="10px">Category</Th>
                         <Th fontSize="10px">Procedure</Th>
+                        <Th fontSize="10px" isNumeric>Est Min</Th>
+                        <Th fontSize="10px" isNumeric>Est Max</Th>
                         <Th fontSize="10px">Status</Th>
                         <Th fontSize="10px" textAlign="right">Actions</Th>
                       </Tr>
@@ -1029,8 +1032,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                         <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
                           <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
                           <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth}</Badge></Td>
+                          <Td py={4}>
+                            <Badge colorScheme="purple" variant="outline" borderRadius="md" px={2} fontSize="9px">
+                              {item.position?.toUpperCase()} {item.side?.toUpperCase()}
+                            </Badge>
+                          </Td>
                           <Td py={4} fontSize="11px" fontWeight="600" color="gray.500">{item.complaintType}</Td>
                           <Td py={4} fontSize="12px" fontWeight="800" color="gray.700" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
+                          <Td py={4} fontSize="12px" fontWeight="900" isNumeric color="blue.600">₹{item.estimateMin || 0}</Td>
+                          <Td py={4} fontSize="12px" fontWeight="900" isNumeric color="blue.600">₹{item.estimateMax || 0}</Td>
                           <Td py={4}>
                             <Badge colorScheme={item.status === "completed" ? "green" : "orange"} variant="subtle" borderRadius="full" px={2} fontSize="9px">
                               {item.status?.toUpperCase()}
@@ -1060,9 +1070,32 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                             <HStack spacing={6} align="start" flex={1}>
                               <VStack align="center" justify="center" spacing={0} minW="70px" h="70px" bg="blue.50" borderRadius="2xl" border="2px solid" borderColor="blue.100" shadow="sm">
                                 <Text fontSize="10px" fontWeight="1000" color="blue.400" mt={1}>TOOTH</Text>
-                                <Text fontSize="24px" fontWeight="1000" color="blue.700" lineHeight={1} mb={1}>
+                                <Text fontSize="24px" fontWeight="1000" color="blue.700" lineHeight={1}>
                                   {item.tooth === "General" ? "GEN" : (item.tooth || "??")}
                                 </Text>
+                                {(() => {
+                                  const tId = String(item.tooth || "");
+                                  const id = parseInt(tId);
+                                  let pos = item.position;
+                                  let side = item.side;
+                                  
+                                  if (!pos || !side) {
+                                    if (id >= 11 && id <= 18) { pos = "upper"; side = "right"; }
+                                    else if (id >= 21 && id <= 28) { pos = "upper"; side = "left"; }
+                                    else if (id >= 31 && id <= 38) { pos = "lower"; side = "left"; }
+                                    else if (id >= 41 && id <= 48) { pos = "lower"; side = "right"; }
+                                    else if (id >= 51 && id <= 55) { pos = "upper"; side = "right"; }
+                                    else if (id >= 61 && id <= 65) { pos = "upper"; side = "left"; }
+                                    else if (id >= 71 && id <= 75) { pos = "lower"; side = "left"; }
+                                    else if (id >= 81 && id <= 85) { pos = "lower"; side = "right"; }
+                                  }
+
+                                  return (pos && side) ? (
+                                    <Text fontSize="8px" fontWeight="1000" color="blue.500" textTransform="uppercase" mt={1}>
+                                      {pos} {side}
+                                    </Text>
+                                  ) : null;
+                                })()}
                               </VStack>
                               <VStack align="start" spacing={2} flex={1}>
                                 <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">
@@ -1076,6 +1109,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                                     <Badge colorScheme="green" variant="solid" borderRadius="full" px={3} py={0.5} fontSize="9px" fontWeight="1000">COMPLETED</Badge>
                                   ) : (
                                     <Badge colorScheme="orange" variant="subtle" borderRadius="full" px={3} py={0.5} fontSize="9px" fontWeight="1000">PENDING</Badge>
+                                  )}
+                                  {(item.estimateMin || item.estimateMax) && (
+                                    <Badge colorScheme="blue" variant="outline" borderRadius="full" px={3} py={0.5} fontSize="9px" fontWeight="1000">
+                                      ₹{item.estimateMin || 0} - ₹{item.estimateMax || 0}
+                                    </Badge>
                                   )}
                                 </HStack>
                                 <VStack align="start" spacing={1}>
@@ -1167,6 +1205,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       <Badge fontSize="20px" fontWeight="900" colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>
                         {currentRec?.tooth === "General" ? "General Clinical" : `Tooth #${currentRec?.toothFDI || currentRec?.tooth}`}
                       </Badge>
+                      {currentRec?.position && (
+                        <Text fontSize="10px" fontWeight="1000" color="blue.600" textTransform="uppercase" mt={1}>
+                          {currentRec.position} • {currentRec.side}
+                        </Text>
+                      )}
                     </VStack>
                     <VStack align="start" spacing={1}>
                       <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>

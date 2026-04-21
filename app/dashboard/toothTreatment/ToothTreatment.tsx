@@ -25,7 +25,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   } = stores;
 
   const [openView, setOpenView] = useState({ open: false, data: null });
-  const [isTableView, setIsTableView] = useState<"table" | "card">("table");
+  const [isTableView, setIsTableView] = useState<"table" | "card">("card");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openReportModal, setOpenReportModal] = useState<any>({
     open: false,
@@ -209,6 +209,26 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       },
       props: { row: { textAlign: "center" } },
     },
+    {
+      headerName: "Est Min",
+      key: "estimateMin",
+      metaData: {
+        component: (dt: any) => (
+          <Text fontWeight="bold" color="blue.600">₹{dt?.estimateMin || 0}</Text>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Est Max",
+      key: "estimateMax",
+      metaData: {
+        component: (dt: any) => (
+          <Text fontWeight="bold" color="blue.600">₹{dt?.estimateMax || 0}</Text>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
 
     {
       headerName: "Status",
@@ -341,7 +361,30 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             spacing={0}
           >
             <Text fontSize="10px" fontWeight="800" color="blue.400" letterSpacing="wider">TOOTH</Text>
-            <Text fontSize="2xl" fontWeight="900" color="blue.700" lineHeight="1">{dt.toothFDI || "??"}</Text>
+            <Text fontSize="2xl" fontWeight="900" color="blue.700" lineHeight="1">{dt.toothFDI || dt.tooth || "??"}</Text>
+            {(() => {
+              const tId = String(dt.toothFDI || dt.tooth || "");
+              const id = parseInt(tId);
+              let pos = dt.position;
+              let side = dt.side;
+              
+              if (!pos || !side) {
+                if (id >= 11 && id <= 18) { pos = "upper"; side = "right"; }
+                else if (id >= 21 && id <= 28) { pos = "upper"; side = "left"; }
+                else if (id >= 31 && id <= 38) { pos = "lower"; side = "left"; }
+                else if (id >= 41 && id <= 48) { pos = "lower"; side = "right"; }
+                else if (id >= 51 && id <= 55) { pos = "upper"; side = "right"; }
+                else if (id >= 61 && id <= 65) { pos = "upper"; side = "left"; }
+                else if (id >= 71 && id <= 75) { pos = "lower"; side = "left"; }
+                else if (id >= 81 && id <= 85) { pos = "lower"; side = "right"; }
+              }
+
+              return (pos && side) ? (
+                <Text fontSize="9px" fontWeight="1000" color="blue.500" textTransform="uppercase" mt={1}>
+                  {pos} {side}
+                </Text>
+              ) : null;
+            })()}
           </VStack>
 
           {/* Middle part: Details */}
@@ -359,6 +402,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               <Badge colorScheme={color} variant="subtle" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
                 {dt.status?.toUpperCase() || "PENDING"}
               </Badge>
+              {(dt.estimateMin || dt.estimateMax) && (
+                <Badge colorScheme="blue" variant="outline" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
+                  ₹{dt.estimateMin || 0} - ₹{dt.estimateMax || 0}
+                </Badge>
+              )}
             </HStack>
 
 
