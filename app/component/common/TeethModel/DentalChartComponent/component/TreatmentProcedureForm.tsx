@@ -181,7 +181,36 @@ export const TreatmentProcedureForm = observer(
         const {
             toothTreatmentStore: { createToothTreatment, updateToothTreatment, lastExaminingDoctor, setLastExaminingDoctor },
             userStore: { getUsersList },
+            procedureStore,
         } = stores;
+
+        useEffect(() => {
+            procedureStore.getProcedures();
+        }, []);
+
+        const groupedData = useMemo(() => {
+            const dbData = procedureStore.procedures.data;
+            if (!dbData || dbData.length === 0) return TREATMENT_CATEGORIES;
+
+            const map: any = {};
+            dbData.forEach((p: any) => {
+                if (!map[p.category]) map[p.category] = { name: p.category, subcategories: {} };
+                if (!map[p.category].subcategories[p.subcategory]) {
+                    map[p.category].subcategories[p.subcategory] = { name: p.subcategory, jobs: [] };
+                }
+                map[p.category].subcategories[p.subcategory].jobs.push({
+                    name: p.name,
+                    estimateMin: p.estimateMin,
+                    estimateMax: p.estimateMax,
+                    defaultEstimate: p.defaultEstimate
+                });
+            });
+
+            return Object.values(map).map((cat: any) => ({
+                ...cat,
+                subcategories: Object.values(cat.subcategories)
+            }));
+        }, [procedureStore.procedures.data]);
 
         const [doctors, setDoctors] = useState<any[]>([]);
         const [doctorsLoading, setDoctorsLoading] = useState(false);
@@ -215,13 +244,13 @@ export const TreatmentProcedureForm = observer(
                     let newSubIdx: number | null = null;
 
                     if (parts.length >= 1) {
-                        const cIdx = TREATMENT_CATEGORIES.findIndex(c =>
+                        const cIdx = groupedData.findIndex(c =>
                             c.name.toLowerCase() === parts[0].toLowerCase()
                         );
                         if (cIdx !== -1) {
                             newCatIdx = cIdx;
                             if (parts.length >= 2) {
-                                const subCats = TREATMENT_CATEGORIES[cIdx].subcategories;
+                                const subCats = groupedData[cIdx].subcategories;
                                 const sIdx = subCats.findIndex(s =>
                                     s.name.toLowerCase() === parts[1].toLowerCase()
                                 );
@@ -252,7 +281,7 @@ export const TreatmentProcedureForm = observer(
             else setLocalExplorerState(newState);
         };
 
-        const activeCategory = selectedCatIdx !== null ? TREATMENT_CATEGORIES[selectedCatIdx] : null;
+        const activeCategory = selectedCatIdx !== null ? groupedData[selectedCatIdx] : null;
         const activeSubcategory = (activeCategory && selectedSubIdx !== null)
             ? activeCategory.subcategories[selectedSubIdx]
             : null;
@@ -262,7 +291,7 @@ export const TreatmentProcedureForm = observer(
             const results: any[] = [];
             const term = searchTerm.toLowerCase();
 
-            TREATMENT_CATEGORIES.forEach(cat => {
+            groupedData.forEach(cat => {
                 cat.subcategories.forEach(sub => {
                     sub.jobs.forEach(job => {
                         if (job.name.toLowerCase().includes(term)) {
@@ -789,7 +818,7 @@ export const TreatmentProcedureForm = observer(
                                                 <Grid templateColumns="1fr 1fr 1.4fr" h="full">
                                                     <Box borderRight="1px solid" borderColor="gray.100">
                                                         <VStack spacing={0} align="stretch" overflowY="auto" h="full">
-                                                            {TREATMENT_CATEGORIES.map((cat, idx) => (
+                                                            {groupedData.map((cat, idx) => (
                                                                 <Box
                                                                     key={cat.name}
                                                                     px={5} py={4}
