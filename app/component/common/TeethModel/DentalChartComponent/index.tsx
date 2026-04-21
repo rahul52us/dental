@@ -218,7 +218,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
       //   })
       //   .catch(err => console.error("History fetch failed", err));
     }
-  }, [patientDetails?._id, sessionDate, complaintType]);
+  }, [patientDetails?._id, sessionDate]);
 
 
 
@@ -590,11 +590,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             </Flex>
 
             <Grid templateColumns={{ base: "1fr", lg: "1fr 340px" }} gap={4} flex={1} overflow="hidden">
-              <VStack bg="white" borderRadius="3xl" border="1px solid" borderColor="gray.100" p={5} overflow="hidden" align="stretch" spacing={4}>
-                <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={3}>
+              <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={1} overflow="hidden" align="stretch" spacing={4}>
+                <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.2em">CHARTING MODE</Text>
-                    <Heading size="xs" fontWeight="1000">Selection Method</Heading>
                   </VStack>
                   <HStack bg="gray.100" p={1} borderRadius="xl">
                     <Button
@@ -757,16 +755,19 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           isPatient={isPatient} patientDetails={patientDetails}
           teeth={[{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
           generalDescription={teethNotes}
+          sessionDate={sessionDate}
           onSuccess={() => {
             onQuickAddClose();
             // Silent refresh of charting state
             if (patientDetails?._id) {
-              getToothHighlights({ patientId: patientDetails._id, toDate: sessionDate })
-                .then((res: any) => {
-                  setChartRecords(res?.data || []);
-                  const ids = Array.from(new Set((res?.data || []).flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
-                  setTreatedToothIds(ids.filter(Boolean));
-                });
+              getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+
+              // getToothHighlights({ patientId: patientDetails._id, toDate: sessionDate })
+              //   .then((res: any) => {
+              //     setChartRecords(res?.data || []);
+              //     const ids = Array.from(new Set((res?.data || []).flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
+              //     setTreatedToothIds(ids.filter(Boolean));
+              //   });
             }
           }}
 

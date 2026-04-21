@@ -108,6 +108,7 @@ interface TreatmentProcedureFormProps {
     notation?: "fdi" | "universal" | "palmer";
     dentitionType?: "adult" | "child";
     onRemoveTooth?: (id: string) => void;
+    sessionDate?: string;
 }
 
 
@@ -165,6 +166,7 @@ export const TreatmentProcedureForm = observer(
         isDrawerMode = false,
         dentitionType,
         onRemoveTooth,
+        sessionDate
     }: TreatmentProcedureFormProps) => {
 
         const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
@@ -288,7 +290,7 @@ export const TreatmentProcedureForm = observer(
 
                 for (const toothId in treatments) {
                     if (!activeToothIds.includes(toothId)) continue;
-                    
+
                     const values = replaceLabelValueObjects(treatments[toothId]);
                     // Only skip if there's absolutely NO clinical content
                     if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue;
@@ -302,7 +304,7 @@ export const TreatmentProcedureForm = observer(
                         tooth: toothId, // Always use unique FDI ID
                         toothNotation: notation,
                         dentitionType: dentitionType || editData?.dentitionType || (parseInt(toothId) >= 51 ? "child" : "adult"),
-                        treatmentDate: values.treatmentDate,
+                        treatmentDate: sessionDate || new Date().toISOString().split("T")[0],
                         notes: values.notes,
                         treatmentPlan: values.treatmentCode,
                         status: values.status === "Planned" ? "pending" : values.status,
@@ -1060,12 +1062,12 @@ export const TreatmentProcedureForm = observer(
                                                     {teeth.length > 1 && (
                                                         <HStack spacing={2.5} wrap="wrap" pt={1}>
                                                             {teeth.map(t => (
-                                                                <HStack 
-                                                                    key={t.id} 
-                                                                    bg="white" 
-                                                                    px={3} py={1.5} 
-                                                                    borderRadius="2xl" 
-                                                                    border="1px solid" 
+                                                                <HStack
+                                                                    key={t.id}
+                                                                    bg="white"
+                                                                    px={3} py={1.5}
+                                                                    borderRadius="2xl"
+                                                                    border="1px solid"
                                                                     borderColor="blue.100"
                                                                     spacing={2}
                                                                     boxShadow="sm"
@@ -1082,11 +1084,11 @@ export const TreatmentProcedureForm = observer(
                                                                         </Text>
                                                                     </VStack>
                                                                     {onRemoveTooth && (
-                                                                        <Circle 
-                                                                            size="20px" 
-                                                                            bg="gray.50" 
-                                                                            cursor="pointer" 
-                                                                            _hover={{ bg: "red.50", color: "red.500" }} 
+                                                                        <Circle
+                                                                            size="20px"
+                                                                            bg="gray.50"
+                                                                            cursor="pointer"
+                                                                            _hover={{ bg: "red.50", color: "red.500" }}
                                                                             transition="all 0.2s"
                                                                             onClick={(e) => { e.stopPropagation(); onRemoveTooth(t.id); }}
                                                                         >
