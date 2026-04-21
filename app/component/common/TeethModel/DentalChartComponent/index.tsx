@@ -198,6 +198,29 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     }
   };
 
+  const handleQuadrantSelect = (pos: 'upper' | 'lower', side: 'left' | 'right') => {
+    setSelectionMode('multi');
+    setIsMultipleSelection(true);
+
+    const allConfigTeeth = getTeethByType(dentitionType);
+    const quadrantTeeth = allConfigTeeth.filter(t => t.position === pos && t.side === side);
+
+    setSelectedTeeth(prev => {
+      const allSelected = quadrantTeeth.every(qt => prev.some(t => t.id === qt.id));
+      if (allSelected) {
+        return prev.filter(t => !quadrantTeeth.some(qt => qt.id === t.id));
+      } else {
+        const otherTeeth = prev.filter(t => !quadrantTeeth.some(qt => qt.id === t.id));
+        return [...otherTeeth, ...quadrantTeeth];
+      }
+    });
+  };
+
+  const currentQuadrantStatus = (pos: 'upper' | 'lower', side: 'left' | 'right') => {
+    const quadrantTeeth = getTeethByType(dentitionType).filter(t => t.position === pos && t.side === side);
+    return quadrantTeeth.every(qt => selectedTeeth.some(t => t.id === qt.id));
+  };
+
 
   useEffect(() => {
     if (patientDetails?._id) {
@@ -593,29 +616,59 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={1} overflow="hidden" align="stretch" spacing={4}>
                 <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
                   <VStack align="start" spacing={0}>
+                    <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">QUADRANTS</Text>
+                    <HStack spacing={1}>
+                      {[
+                        { label: 'RU', pos: 'upper', side: 'right' },
+                        { label: 'LU', pos: 'upper', side: 'left' },
+                        { label: 'RL', pos: 'lower', side: 'right' },
+                        { label: 'LL', pos: 'lower', side: 'left' }
+                      ].map((zone) => {
+                        const isAllSelected = currentQuadrantStatus(zone.pos as any, zone.side as any);
+                        return (
+                          <Button
+                            key={zone.label}
+                            size="xs"
+                            variant={isAllSelected ? "solid" : "outline"}
+                            colorScheme={isAllSelected ? "blue" : "gray"}
+                            fontSize="9px"
+                            fontWeight="1000"
+                            h="24px"
+                            minW="32px"
+                            borderRadius="md"
+                            onClick={() => handleQuadrantSelect(zone.pos as any, zone.side as any)}
+                          >
+                            {zone.label}
+                          </Button>
+                        );
+                      })}
+                    </HStack>
                   </VStack>
-                  <HStack bg="gray.100" p={1} borderRadius="xl">
+
+                  <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
                     <Button
-                      size="xs" leftIcon={<FiMousePointer />}
-                      bg={selectionMode === 'single' ? `${activeColor}.500` : "transparent"}
-                      color={selectionMode === 'single' ? "white" : "gray.600"}
-                      _hover={{ bg: selectionMode === 'single' ? `${activeColor}.600` : "gray.100" }}
-                      variant={selectionMode === 'single' ? "solid" : "ghost"}
+                      size="xs" leftIcon={<FiMousePointer size={11} />}
+                      bg={selectionMode === 'single' ? "white" : "transparent"}
+                      color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
+                      boxShadow={selectionMode === 'single' ? "sm" : "none"}
                       onClick={() => { setSelectionMode('single'); setIsMultipleSelection(false); setSelectedTeeth([]); }}
-                      fontWeight="900"
+                      fontWeight="1000"
+                      h="28px"
+                      borderRadius="lg"
                     >
-                      SINGLE SELECTION
+                      SINGLE
                     </Button>
                     <Button
-                      size="xs" leftIcon={<FiActivity />}
-                      bg={selectionMode === 'multi' ? `${activeColor}.500` : "transparent"}
-                      color={selectionMode === 'multi' ? "white" : "gray.600"}
-                      _hover={{ bg: selectionMode === 'multi' ? `${activeColor}.600` : "gray.100" }}
-                      variant={selectionMode === 'multi' ? "solid" : "ghost"}
+                      size="xs" leftIcon={<FiActivity size={11} />}
+                      bg={selectionMode === 'multi' ? "white" : "transparent"}
+                      color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
+                      boxShadow={selectionMode === 'multi' ? "sm" : "none"}
                       onClick={() => { setSelectionMode('multi'); setIsMultipleSelection(true); }}
-                      fontWeight="900"
+                      fontWeight="1000"
+                      h="28px"
+                      borderRadius="lg"
                     >
-                      MULTI-TOOTH
+                      MULTI
                     </Button>
                   </HStack>
 

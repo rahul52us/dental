@@ -281,98 +281,105 @@ export const TreatmentProcedureForm = observer(
         const handleSubmit = async (formData: any) => {
             try {
                 setFormLoading(true);
-                const results: any[] = [];
-                const treatments = formData.treatments;
+                const treatments = formData.treatments || {};
 
-                // Only process teeth that are CURRENTLY in the active teeth selection props
-                // This prevents "removed" teeth from leaking into the final payload
-                const activeToothIds = teeth.map(t => String(t.id));
+                // 1. Define Helper Function
+                const getQuadrantInfo = (tId: string) => {
+                    const id = parseInt(tId);
+                    if (isNaN(id)) return { position: "general", side: "general" };
+                    if ((id >= 11 && id <= 18)) return { position: "upper", side: "right" };
+                    if ((id >= 21 && id <= 28)) return { position: "upper", side: "left" };
+                    if ((id >= 31 && id <= 38)) return { position: "lower", side: "left" };
+                    if ((id >= 41 && id <= 48)) return { position: "lower", side: "right" };
+                    if ((id >= 51 && id <= 55)) return { position: "upper", side: "right" };
+                    if ((id >= 61 && id <= 65)) return { position: "upper", side: "left" };
+                    if ((id >= 71 && id <= 75)) return { position: "lower", side: "left" };
+                    if ((id >= 81 && id <= 85)) return { position: "lower", side: "right" };
+                    return { position: "general", side: "general" };
+                };
 
-                for (const toothId in treatments) {
-                    if (!activeToothIds.includes(toothId)) continue;
+                // 2. Map save promises directly from the selected teeth
+                const savePromises = teeth.map(async (activeTooth) => {
+                    const toothId = String(activeTooth.id);
+                    
+                    // Fallback for single selection mode keys
+                    let rawValues = treatments[toothId];
+                    if (!rawValues && teeth.length === 1) {
+                        const firstKey = Object.keys(treatments)[0];
+                        if (firstKey) rawValues = treatments[firstKey];
+                    }
 
-                    const values = replaceLabelValueObjects(treatments[toothId]);
-                    // Only skip if there's absolutely NO clinical content
-                    if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType) continue;
+                    const values = replaceLabelValueObjects(rawValues || {});
 
+                    // Mandatory content check
+                    if (!values.treatmentCode && !values.notes?.trim() && !values.complaintType && !values.doctor) return null;
+
+                    const quadrant = getQuadrantInfo(toothId);
+                    const position = activeTooth.position || quadrant.position;
+                    const side = activeTooth.side || quadrant.side;
 
                     const payload: any = {
                         patient: values.patient?.value || values.patient,
                         doctor: values.doctor?.value || values.doctor,
                         examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
                         company: patientDetails?.company?._id || patientDetails?.company,
-                        tooth: toothId, // Always use unique FDI ID
+                        tooth: toothId,
                         toothNotation: notation,
                         dentitionType: dentitionType || editData?.dentitionType || (parseInt(toothId) >= 51 ? "child" : "adult"),
+                        position: position,
+                        side: side,
                         treatmentDate: sessionDate || new Date().toISOString().split("T")[0],
-                        notes: values.notes,
-                        treatmentPlan: values.treatmentCode,
-                        status: values.status === "Planned" ? "pending" : values.status,
-                        estimateMin: values.estimateMin || 0,
-                        estimateMax: values.estimateMax || 0,
-                        discount: values.discount || 0,
-                        totalMin: values.totalMin || 0,
-                        totalMax: values.totalMax || 0,
-                        complaintType: values.complaintType,
+                        notes: String(values.notes || ""),
+                        treatmentPlan: values.treatmentCode || "",
+                        status: values.status === "Planned" ? "pending" : (values.status || "pending"),
+                        estimateMin: Number(values.estimateMin) || 0,
+                        estimateMax: Number(values.estimateMax) || 0,
+                        discount: Number(values.discount) || 0,
+                        totalMin: Number(values.totalMin) || 0,
+                        totalMax: Number(values.totalMax) || 0,
+                        complaintType: values.complaintType || "CHIEF COMPLAINT",
                         recordType: toothId === "General" ? "note" : "tooth",
                         user: stores.auth.user?._id
                     };
 
-                    // If no doctor is selected, do not force the first one.
-                    // Keep it undefined so the backend/UI knows it's unassigned.
-                    if (!payload.doctor) {
-                        payload.doctor = undefined;
-                    }
-
-                    if (!payload.treatmentPlan && payload.recordType === "tooth") {
-                        payload.treatmentPlan = "";
-                    }
-
                     const isEditingThisTooth = editData?._id && (
-                        (typeof editData.tooth === 'object' && editData.tooth.fdi === toothId) ||
-                        (typeof editData.tooth === 'string' && editData.tooth === toothId)
+                        (typeof editData.tooth === 'object' && String(editData.tooth.fdi) === String(toothId)) ||
+                        (typeof editData.tooth === 'string' && String(editData.tooth) === String(toothId))
                     );
 
                     if (isEditingThisTooth) {
                         payload.treatmentId = editData._id;
-                        await updateToothTreatment(payload)
-                            .then((res: any) => results.push(res))
-                            .catch((err: any) => {
-                                throw new Error(err?.message || "Internal mapping error");
-                            });
+                        return updateToothTreatment(payload);
                     } else {
-                        await createToothTreatment(payload)
-                            .then((res: any) => results.push(res))
-                            .catch((err: any) => {
-                                throw new Error(err?.message || "Internal mapping error");
-                            });
+                        return createToothTreatment(payload);
                     }
-                }
+                });
 
-                // Update last examining doctor
-                const sampleValues = Object.values(treatments)[0] as any;
-                if (sampleValues?.examiningDoctor) {
-                    setLastExaminingDoctor(sampleValues.examiningDoctor);
-                }
+                const results = (await Promise.all(savePromises)).filter(r => r !== null);
 
                 setFormLoading(false);
-                if (results.length === 0) {
+                if (results.length > 0) {
+                    // Sync Examining Doctor
+                    const firstProc = results[0]?.data || results[0];
+                    if (firstProc?.examiningDoctor && setLastExaminingDoctor) {
+                        setLastExaminingDoctor(firstProc.examiningDoctor);
+                    }
+
+                    toast({
+                        title: "Diagnostic Recorded",
+                        description: `Successfully synchronized ${results.length} record(s).`,
+                        status: "success",
+                        duration: 3000,
+                    });
+                    onSuccess();
+                } else {
                     toast({ title: "No clinical data recorded", status: "info" });
-                    return;
                 }
-                toast({
-                    title: "Diagnostic Recorded",
-                    description: `Successfully synchronized ${results.length} procedure(s) to clinical record.`,
-                    status: "success",
-                    duration: 4000,
-                    isClosable: true,
-                });
-                onSuccess();
             } catch (err: any) {
                 setFormLoading(false);
                 toast({
                     title: "Synchronization Failed",
-                    description: `${err?.message || "Validation Error"}`,
+                    description: err?.message || "Internal Server Error",
                     status: "error",
                 });
             }

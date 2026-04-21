@@ -163,23 +163,44 @@ export const ToothFormDialog = observer(
         const values = replaceLabelValueObjects(formData);
 
         const promises = teeth.map((t) => {
+          const toothId = String(t.id);
+
+          // Guaranteed Quadrant Detection based on FDI ID
+          const getQuadrantInfo = (tId: string) => {
+            const id = parseInt(tId);
+            if (isNaN(id)) return { position: "general", side: "general" };
+            if (id >= 11 && id <= 18) return { position: "upper", side: "right" };
+            if (id >= 21 && id <= 28) return { position: "upper", side: "left" };
+            if (id >= 31 && id <= 38) return { position: "lower", side: "left" };
+            if (id >= 41 && id <= 48) return { position: "lower", side: "right" };
+            if (id >= 51 && id <= 55) return { position: "upper", side: "right" };
+            if (id >= 61 && id <= 65) return { position: "upper", side: "left" };
+            if (id >= 71 && id <= 75) return { position: "lower", side: "left" };
+            if (id >= 81 && id <= 85) return { position: "lower", side: "right" };
+            return { position: "general", side: "general" };
+          };
+
+          const quadrant = getQuadrantInfo(toothId);
+
           const payload: any = {
             patient: values.patient?.value || values.patient,
             doctor: values.doctor?.value || values.doctor,
             examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
             company: patientDetails?.company?._id || patientDetails?.company,
-            tooth: t.id, // FDI ID
+            tooth: toothId,
             toothNotation: notation || "fdi",
             dentitionType: dentitionType || (detectIsChild(t) ? "child" : "adult"),
+            position: t.position || quadrant.position,
+            side: t.side || quadrant.side,
             treatmentDate: values.treatmentDate,
             notes: values.notes,
             treatmentPlan: values.treatmentCode || "",
             status: values.status === "Planned" ? "pending" : values.status,
-            estimateMin: values.estimateMin || 0,
-            estimateMax: values.estimateMax || 0,
-            discount: values.discount || 0,
-            totalMin: values.totalMin || 0,
-            totalMax: values.totalMax || 0,
+            estimateMin: Number(values.estimateMin) || 0,
+            estimateMax: Number(values.estimateMax) || 0,
+            discount: Number(values.discount) || 0,
+            totalMin: Number(values.totalMin) || 0,
+            totalMax: Number(values.totalMax) || 0,
             recordType: "tooth",
             complaintType: values.complaintType || complaintType,
             user: stores.auth.user?._id
