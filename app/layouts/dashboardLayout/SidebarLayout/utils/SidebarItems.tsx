@@ -164,6 +164,13 @@ const sidebarDatas: SidebarItem[] = [
     role: ["admin"],
   },
   {
+    id: 40,
+    name: "Procedure Master",
+    icon: <RiToothLine />,
+    url: "/dashboard/procedure-master",
+    role: ["admin"],
+  },
+  {
     id: 12,
     name: "Admins",
     icon: <FaUserAstronaut />,

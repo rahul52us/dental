@@ -9,23 +9,56 @@ import {
     Collapse,
     useDisclosure,
     Heading,
+    Spinner,
 } from "@chakra-ui/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FiSearch, FiChevronDown, FiChevronRight, FiPlus } from "react-icons/fi";
 import { TREATMENT_CATEGORIES } from "../../../../../dashboard/toothTreatment/treatmentDataConstant";
+import { observer } from "mobx-react-lite";
+import stores from "../../../../../store/stores";
+
 
 interface ProcedureTemplateListProps {
     onSelect: (procedurePath: string) => void;
 }
 
-export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) => {
+export const ProcedureTemplateList = observer(({ onSelect }: ProcedureTemplateListProps) => {
+    const { procedureStore } = stores;
     const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        procedureStore.getProcedures();
+    }, []);
+
+    const groupedData = useMemo(() => {
+        const dbData = procedureStore.procedures.data;
+        if (dbData.length === 0) return TREATMENT_CATEGORIES;
+
+        const map: any = {};
+        dbData.forEach((p: any) => {
+            if (!map[p.category]) map[p.category] = { name: p.category, subcategories: {} };
+            if (!map[p.category].subcategories[p.subcategory]) {
+                map[p.category].subcategories[p.subcategory] = { name: p.subcategory, jobs: [] };
+            }
+            map[p.category].subcategories[p.subcategory].jobs.push({
+                name: p.name,
+                estimateMin: p.estimateMin,
+                estimateMax: p.estimateMax,
+                defaultEstimate: p.defaultEstimate
+            });
+        });
+
+        return Object.values(map).map((cat: any) => ({
+            ...cat,
+            subcategories: Object.values(cat.subcategories)
+        }));
+    }, [procedureStore.procedures.data]);
 
     const flatProcedures = useMemo(() => {
         const result: { category: string, subcategory: string, job: string }[] = [];
-        TREATMENT_CATEGORIES.forEach(cat => {
-            cat.subcategories.forEach(sub => {
-                sub.jobs.forEach(job => {
+        groupedData.forEach((cat: any) => {
+            cat.subcategories.forEach((sub: any) => {
+                sub.jobs.forEach((job: any) => {
                     result.push({
                         category: cat.name,
                         subcategory: sub.name,
@@ -35,10 +68,10 @@ export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) 
             });
         });
         return result;
-    }, []);
+    }, [groupedData]);
 
     const filteredProcedures = useMemo(() => {
-        if (!search.trim()) return null; // Show tree when search is empty
+        if (!search.trim()) return null;
         const term = search.toLowerCase();
         return flatProcedures.filter(p =>
             p.job.toLowerCase().includes(term) ||
@@ -46,6 +79,15 @@ export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) 
             p.category.toLowerCase().includes(term)
         );
     }, [flatProcedures, search]);
+
+    if (procedureStore.procedures.loading && procedureStore.procedures.data.length === 0) {
+        return (
+            <VStack py={10}>
+                <Spinner color="blue.500" />
+                <Text fontSize="xs" color="gray.500">Loading procedures...</Text>
+            </VStack>
+        );
+    }
 
     return (
         <VStack align="stretch" spacing={4}>
@@ -89,7 +131,7 @@ export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) 
                     </VStack>
                 ) : (
                     <VStack align="stretch" spacing={3}>
-                        {TREATMENT_CATEGORIES.map((cat, catIdx) => (
+                        {groupedData.map((cat: any, catIdx: number) => (
                             <CategorySection key={catIdx} category={cat} onSelect={onSelect} />
                         ))}
                     </VStack>
@@ -97,7 +139,7 @@ export const ProcedureTemplateList = ({ onSelect }: ProcedureTemplateListProps) 
             </Box>
         </VStack>
     );
-};
+});
 
 const CategorySection = ({ category, onSelect }: { category: any, onSelect: any }) => {
     const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
@@ -125,11 +167,6 @@ const CategorySection = ({ category, onSelect }: { category: any, onSelect: any 
                                 >
                                     <Icon as={FiPlus} fontSize="xs" color="gray.300" />
                                     <Text fontSize="xs" fontWeight="700" color="gray.600">{job.name}</Text>
-                                    <HStack flex={1} justify="end">
-                                        <Text fontSize="10px" fontWeight="800" color="blue.300">
-                                            {job.estimateMin ? `₹${job.estimateMin} - ₹${job.estimateMax}` : (job.defaultEstimate ? `₹${job.defaultEstimate}` : "")}
-                                        </Text>
-                                    </HStack>
                                 </HStack>
                             ))}
                         </VStack>

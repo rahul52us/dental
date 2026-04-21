@@ -21,6 +21,8 @@ import { recallAppointmentStore } from "./recallAppointment/recallAppointmentSto
 import { reportStore } from "./reportStore/reportStore";
 import { labDoctorStore } from "./labDoctorStore/labDoctorStore";
 import labWorkStore from "./labWorkStore/labWorkStore";
+import { procedureStore } from "./procedureStore/procedureStore";
+
 const stores = {
   auth : authStore,
   dashboardStore : dashboardStore,
@@ -44,6 +46,8 @@ const stores = {
   reportStore:reportStore,
   labDoctorStore: labDoctorStore,
   labWorkStore: labWorkStore,
+  procedureStore: procedureStore,
+
 };
 
 export default stores;
