@@ -21,13 +21,15 @@ import CustomTable from "../../component/config/component/CustomTable/CustomTabl
 import { formatDateTime } from "../../component/config/utils/dateUtils";
 import { tablePageLimit } from "../../component/config/utils/variable";
 import LabSheet from "./component/LabSheet";
+import LabSheetView from "./component/LabSheetView";
 import DashPageHeader from "../../component/common/DashPageHeader/DashPageHeader";
 import DashPageTitle from "../../component/common/DashPageTitle/DashPageTitle";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
 
 const LabWorkTable = observer(() => {
-  const { labWorkStore, auth: { openNotification } } = stores;
+  const { labWorkStore, labWorkHierarchyStore, auth: { openNotification } } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
   const [selectedLabWork, setSelectedLabWork] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState(0);
@@ -75,16 +77,24 @@ const LabWorkTable = observer(() => {
 
   useEffect(() => {
     fetchLabWorks(currentPage);
+    labWorkHierarchyStore.getAllHierarchies();
   }, [currentPage, activeTab, debouncedSearchQuery, fetchLabWorks]);
 
   const handleAdd = () => {
-    setSelectedLabWork(null);
+    const defaultWorkType = activeTab === 1 ? "in-house" : (activeTab === 2 ? "outside" : "outside");
+    setSelectedLabWork({ workType: defaultWorkType } as any);
     onOpen();
   };
+
 
   const handleEdit = (data: any) => {
     setSelectedLabWork(data);
     onOpen();
+  };
+
+  const handleView = (data: any) => {
+    setSelectedLabWork(data);
+    onViewOpen();
   };
 
   const handleDelete = async (data: any) => {
@@ -139,13 +149,8 @@ const LabWorkTable = observer(() => {
               <VStack key={i} align="start" spacing={0} mb={1}>
                 {w.selections && w.selections.length > 0 && (
                   <Text fontSize="xs" fontWeight="700">
-                    • {w.selections.filter((s: string) => s && !s.startsWith("TXT:")).join(" > ")}
+                    • {labWorkHierarchyStore.getNamePath(w.selections)}
                   </Text>
-                )}
-                {w.selections && w.selections.some((s: string) => s?.startsWith("TXT:")) && (
-                   <Text fontSize="xs" fontStyle="italic" color="gray.600">
-                     + {w.selections.find((s: string) => s?.startsWith("TXT:"))?.replace("TXT:", "")}
-                   </Text>
                 )}
                 <HStack spacing={2}>
                     <Text fontSize="10px" color="gray.500">{w.teethNumbers?.join(", ")}</Text>
@@ -226,6 +231,7 @@ const LabWorkTable = observer(() => {
             addKey: { showAddButton: true, function: handleAdd },
             editKey: { showEditButton: true, function: handleEdit },
             deleteKey: { showDeleteButton: true, function: handleDelete },
+            viewKey: { showViewButton: true, function: handleView },
           },
           pagination: {
             show: true,
@@ -247,6 +253,7 @@ const LabWorkTable = observer(() => {
         loading={labWorkStore.loading}
       />
 
+      {/* Edit/Add Drawer */}
       <Drawer isOpen={isOpen} onClose={onClose} size="full" placement="right">
         <DrawerOverlay />
         <DrawerContent maxW="85%">
@@ -268,6 +275,20 @@ const LabWorkTable = observer(() => {
                 onSuccess={() => fetchLabWorks(currentPage)}
               />
             </Box>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      {/* View Drawer */}
+      <Drawer isOpen={isViewOpen} onClose={onViewClose} size="lg" placement="right">
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white">
+            Lab Order Details
+          </DrawerHeader>
+          <DrawerCloseButton color="white" />
+          <DrawerBody p={0}>
+            {selectedLabWork && <LabSheetView data={selectedLabWork} />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

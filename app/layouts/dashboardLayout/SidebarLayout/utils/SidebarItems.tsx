@@ -84,20 +84,6 @@ const sidebarDatas: SidebarItem[] = [
     role: ["admin"],
     children: [
       {
-        id: 5,
-        name: "Labs",
-        icon: <FaVial />,
-        url: "/dashboard/labs",
-        role: ["admin"],
-      },
-      {
-        id: 31,
-        name: "Lab Doctors",
-        icon: <FaUserMd />,
-        url: "/dashboard/labDoctors",
-        role: ["admin"],
-      },
-      {
         id: 35,
         name: "All Lab Sheets",
         icon: <FaNotesMedical />,
@@ -118,8 +104,17 @@ const sidebarDatas: SidebarItem[] = [
         url: "/dashboard/labWork?type=outside",
         role: ["admin"],
       },
+      {
+        id: 31,
+        name: "Lab Doctors",
+        icon: <FaUserMd />,
+        url: "/dashboard/labDoctors",
+        role: ["admin"],
+      },
     ],
+
   },
+
 
   {
     id: 15,
@@ -160,16 +155,35 @@ const sidebarDatas: SidebarItem[] = [
     id: 11,
     name: "Masters",
     icon: <FaListAlt />,
-    url: "/dashboard/masters",
+    url: "#",
     role: ["admin"],
+    children: [
+      {
+        id: 110,
+        name: "Common Master",
+        icon: <FaListAlt />,
+        url: "/dashboard/masters",
+        role: ["admin"],
+      },
+      {
+        id: 40,
+        name: "Procedure Master",
+        icon: <RiToothLine />,
+        url: "/dashboard/procedure-master",
+        role: ["admin"],
+      },
+      {
+        id: 38,
+        name: "Lab Hierarchy Master",
+        icon: <FaListAlt />,
+        url: "/dashboard/labWork-master",
+        role: ["admin"],
+      },
+    ]
+
+
   },
-  {
-    id: 40,
-    name: "Procedure Master",
-    icon: <RiToothLine />,
-    url: "/dashboard/procedure-master",
-    role: ["admin"],
-  },
+
   {
     id: 12,
     name: "Admins",
