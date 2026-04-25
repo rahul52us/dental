@@ -60,16 +60,17 @@ const LabSheetView = observer(({ data }: { data: any }) => {
               <Icon as={FiUser} color="blue.500" />
               <VStack align="start" spacing={0}>
                 <Text fontSize="xs" color="gray.500">Patient</Text>
-                <Text fontWeight="bold">{data.patient?.name || "N/A"}</Text>
+                <Text fontWeight="bold">{data.patient?.name || data.patientNameManual || "N/A"}</Text>
               </VStack>
             </HStack>
             <HStack spacing={3}>
               <Icon as={FiActivity} color="purple.500" />
               <VStack align="start" spacing={0}>
                 <Text fontSize="xs" color="gray.500">Primary Doctor</Text>
-                <Text fontWeight="bold">{data.primaryDoctor?.name || "N/A"}</Text>
+                <Text fontWeight="bold">{data.primaryDoctor?.name || data.doctorNameManual || "N/A"}</Text>
               </VStack>
             </HStack>
+
             <HStack spacing={3}>
               <Icon as={FiTag} color="orange.500" />
               <VStack align="start" spacing={0}>

@@ -48,8 +48,11 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
   const initialValues = {
     patient: initialData?.patient || "",
+    patientNameManual: initialData?.patientNameManual || "",
     primaryDoctor: initialData?.primaryDoctor || "",
+    doctorNameManual: initialData?.doctorNameManual || "",
     workType: initialData?.workType || "outside",
+
     selectedWorks: initialData?.selectedWorks && initialData.selectedWorks.length > 0 
       ? initialData.selectedWorks 
       : [
@@ -73,12 +76,19 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
   };
 
   const handleSubmit = async (values: any) => {
-    const payload = {
+    const payload: any = {
       ...values,
       patient: values.patient?.value || values.patient?._id || values.patient,
       primaryDoctor: values.primaryDoctor?.value || values.primaryDoctor?._id || values.primaryDoctor,
       lab: values.lab?.value || values.lab?._id || values.lab,
     };
+
+    // Clean up empty strings for ObjectIds to avoid BSON errors
+    ["patient", "primaryDoctor", "lab"].forEach(key => {
+      if (payload[key] === "" || payload[key] === undefined || payload[key] === null) {
+        delete payload[key];
+      }
+    });
 
     let res;
     if (initialData?._id) {
@@ -92,6 +102,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
       onClose?.();
     }
   };
+
 
   return (
     <Box p={6} borderRadius="xl" bg={bgColor} border="1px" borderColor={borderColor}>
@@ -110,27 +121,52 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   value={values.workType}
                   onChange={(val: any) => setFieldValue("workType", val.value)}
                 />
-                <CustomInput
-                  label="Patient"
-                  name="patient"
-                  type="real-time-user-search"
-                  query={{ type: "patient" }}
-                  placeholder="Search Patient"
-                  value={values.patient}
-                  onChange={(val: any) => setFieldValue("patient", val)}
-                  required
-                />
-                <CustomInput
-                  label="Doctor"
-                  name="primaryDoctor"
-                  type="real-time-user-search"
-                  query={{ type: "doctor" }}
-                  placeholder="Search Doctor"
-                  value={values.primaryDoctor}
-                  onChange={(val: any) => setFieldValue("primaryDoctor", val)}
-                  required
-                />
+                {values.workType === "outside" ? (
+                  <CustomInput
+                    label="Patient Name"
+                    name="patientNameManual"
+                    placeholder="Enter Patient Name"
+                    value={values.patientNameManual}
+                    onChange={(e: any) => setFieldValue("patientNameManual", e.target.value)}
+                    required
+                  />
+                ) : (
+                  <CustomInput
+                    label="Patient"
+                    name="patient"
+                    type="real-time-user-search"
+                    query={{ type: "patient" }}
+                    placeholder="Search Patient"
+                    value={values.patient}
+                    onChange={(val: any) => setFieldValue("patient", val)}
+                    required
+                  />
+                )}
+                {values.workType === "outside" ? (
+                  <CustomInput
+                    label="Doctor Name"
+                    name="doctorNameManual"
+                    placeholder="Enter Doctor Name"
+                    value={values.doctorNameManual}
+                    onChange={(e: any) => setFieldValue("doctorNameManual", e.target.value)}
+                    required
+                  />
+                ) : (
+                  <CustomInput
+                    label="Doctor"
+                    name="primaryDoctor"
+                    type="real-time-user-search"
+                    query={{ type: "doctor" }}
+                    placeholder="Search Doctor"
+                    value={values.primaryDoctor}
+                    onChange={(val: any) => setFieldValue("primaryDoctor", val)}
+                    required
+                  />
+                )}
+
+
               </Grid>
+
 
               <Box bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.300">
                 <VStack align="stretch" spacing={6}>
