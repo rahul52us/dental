@@ -263,23 +263,10 @@ const Form = observer(
                             showError={errors.languages}
                           />
                           <CustomInput
-                            label="Background Image"
-                            name="backgroundVideo"
-                            placeholder="Enter Background Image"
-                            value={values.backgroundVideo}
-                            onChange={handleChange}
-                            error={
-                              errors.backgroundVideo && touched.backgroundVideo
-                            }
-                            showError={
-                              errors.backgroundVideo && touched.backgroundVideo
-                            }
-                          />
-                          <CustomInput
                             name="refrenceBy"
-                            placeholder="Refrence By (Patient)"
+                            placeholder="Search Reference (Patient, Doctor, Staff)"
                             type="real-time-user-search"
-                            label="Refrence By (Patient)"
+                            label="Refrence By"
                             value={values.refrenceBy}
                             options={
                               values?.refrenceBy
@@ -291,8 +278,18 @@ const Form = observer(
                             ) => setFieldValue(`refrenceBy`, e)}
                             error={errors?.refrenceBy}
                             showError={errors?.refrenceBy}
-                            query={{ type: "patient" }}
                           />
+                          {values.refrenceBy && (
+                            <CustomInput
+                              name="refrenceNote"
+                              placeholder="e.g. Brother, Friend, Staff"
+                              label="Relation / Note"
+                              value={values.refrenceNote}
+                              onChange={handleChange}
+                              error={errors?.refrenceNote}
+                              showError={errors?.refrenceNote}
+                            />
+                          )}
                         </Grid>
                         <Box
                           borderWidth={1}

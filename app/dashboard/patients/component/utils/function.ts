@@ -10,6 +10,7 @@ export const generateIntialValues = (initialData: any = {}) => {
       ? { file: initialData.pic }
       : { file: [] },
     refrenceBy : initialData?.refrenceBy ? Object.keys(initialData?.refrenceBy || {}).length > 1 ? {label : `${initialData?.refrenceBy?.username}(${initialData?.refrenceBy?.code})`, value : initialData?.refrenceBy?._id } : undefined : undefined,
+    refrenceNote: initialData?.refrenceNote || "",
     gender:
       genderOptions.find((it: any) => it.value === initialData?.gender) ||
       genderOptions[0],

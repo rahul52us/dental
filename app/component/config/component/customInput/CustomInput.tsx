@@ -168,13 +168,13 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
         setUserOptions(prev => [...prev, option]);
       }
     } else if (Array.isArray(value) && isMulti) {
-       const newOpts = value.map(it => ({
-         label: it.label || it.name || it.username || 'Selected',
-         value: it.value || it._id || it
-       })).filter(it => !userOptions.find(opt => opt.value === it.value));
-       if (newOpts.length > 0) {
-         setUserOptions(prev => [...prev, ...newOpts]);
-       }
+      const newOpts = value.map(it => ({
+        label: it.label || it.name || it.username || 'Selected',
+        value: it.value || it._id || it
+      })).filter(it => !userOptions.find(opt => opt.value === it.value));
+      if (newOpts.length > 0) {
+        setUserOptions(prev => [...prev, ...newOpts]);
+      }
     }
   }, [value, isMulti])
 
@@ -197,7 +197,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
 
           setUserOptions(
             response.map((it: any) => ({
-              label: `${it.user.username}(${it.user.code})`,
+              label: `${it.user.username}`,
               value: it.user._id,
               ...it.user,
             }))
@@ -211,7 +211,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
           });
           const labs = res?.data || res || [];
           if (Array.isArray(labs)) {
-             setUserOptions(labs.map((l: any) => ({ label: l.name, value: l._id, ...l })));
+            setUserOptions(labs.map((l: any) => ({ label: l.name, value: l._id, ...l })));
           }
         } else if (type === "real-time-search") {
           const { entityName, functionName, key } = params || {};
