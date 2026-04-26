@@ -123,6 +123,34 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
         {({ values, setFieldValue, isSubmitting }) => (
           <Form>
             <VStack spacing={6} align="stretch">
+              {/* Top Header Actions */}
+              <Flex justify="space-between" align="center" pb={2}>
+                <VStack align="start" spacing={0}>
+                   <Heading size="md" color="blue.700">
+                     {initialData?._id ? "Edit Lab Order" : "New Lab Order"}
+                   </Heading>
+                   <Text fontSize="xs" color="gray.500">Please fill in the laboratory specifications below</Text>
+                </VStack>
+                <HStack spacing={3}>
+                  <Button variant="outline" colorScheme="red" size="md" px={6} borderRadius="xl" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    bg={stores.themeStore.themeConfig.colors.custom.light.primary} 
+                    color="white"
+                    size="md" 
+                    px={8} 
+                    borderRadius="xl" 
+                    shadow="md"
+                    isLoading={isSubmitting}
+                    _hover={{ filter: "brightness(0.9)", transform: "translateY(-1px)", shadow: "lg" }}
+                  >
+                    {initialData?._id ? "Update" : "Save"}
+                  </Button>
+                </HStack>
+              </Flex>
+
               <Divider />
 
               <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
@@ -449,22 +477,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 />
               </Grid>
 
-              <Flex justify="flex-end" pt={4} gap={4}>
-                <Button variant="ghost" size="lg" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button 
-                    bg={stores.themeStore.themeConfig.colors.custom.light.primary} 
-                    color="white"
-                    _hover={{ filter: "brightness(0.9)" }}
-                    size="lg" 
-                    px={12}
-                    type="submit" 
-                    isLoading={isSubmitting}
-                >
-                  {initialData?._id ? "Update Lab Order" : "Submit Lab Order"}
-                </Button>
-              </Flex>
+
             </VStack>
           </Form>
         )}
