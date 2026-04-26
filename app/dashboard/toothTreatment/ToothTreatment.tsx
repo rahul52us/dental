@@ -13,6 +13,7 @@ import Index from "../../component/common/TeethModel/DentalChartComponent";
 import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
 import TreatmentDetailsView from "./element/TreatmentDetailsView";
 import { FiGrid, FiList, FiPlus, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2 } from "react-icons/fi";
+import { FaTooth } from "react-icons/fa";
 import Pagination from "../../component/config/component/pagination/Pagination";
 
 
@@ -444,7 +445,20 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             top={4}
             right={4}
           >
-            <Tooltip label="View Details">
+            <Tooltip label="Add Treatment">
+              <IconButton
+                size="sm"
+                variant="ghost"
+                colorScheme="green"
+                icon={<FaTooth />}
+                aria-label="Add"
+                onClick={() => {
+                  const { _id, ...rest } = dt;
+                  setOpenReportModal({ open: true, type: "add", data: { ...rest, _isContextualAdd: true } });
+                }}
+              />
+            </Tooltip>
+            <Tooltip label="View Treatment">
               <IconButton
                 size="sm"
                 variant="ghost"

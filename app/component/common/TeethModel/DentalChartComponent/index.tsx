@@ -272,73 +272,104 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   };
 
   useEffect(() => {
-    if (patientDetails?.editData && patientDetails.editData._id !== lastSyncedEditId.current) {
+    if (patientDetails?.editData) {
       const edit = patientDetails.editData;
-      lastSyncedEditId.current = edit._id;
 
-      const notationToSet = edit.toothNotation || "fdi";
-      setNotation(notationToSet as any);
-
-      const rawTId = typeof edit.tooth === 'object' ? (edit.tooth.fdi || edit.tooth.id || edit.tooth.tooth?.fdi || edit.tooth.tooth?.id) : String(edit.tooth || "");
-      const tId = String(rawTId);
-      const isChild = detectIsChild(edit.tooth);
-      const dentToSet = edit.dentitionType || (isChild ? "child" : "adult");
-      setDentitionType(dentToSet as any);
-
-      const primaryPool = getTeethByType(dentToSet as any);
-      const secondaryPool = getTeethByType(dentToSet === "child" ? "adult" : "child");
-
-      let matchedTooth = primaryPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
-      if (!matchedTooth) {
-        matchedTooth = secondaryPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
-        if (matchedTooth) setDentitionType(dentToSet === "child" ? "adult" : "child");
+      // 1. Sync session date if provided (Critical for row-level "Add")
+      if (edit.treatmentDate) {
+        const dateStr = edit.treatmentDate.split("T")[0];
+        setSessionDate(dateStr);
       }
 
-      if (matchedTooth) setSelectedTeeth([matchedTooth]);
+      // 2. Handle Edit (Existing record with _id)
+      if (edit._id && edit._id !== lastSyncedEditId.current) {
+        lastSyncedEditId.current = edit._id;
 
-      setProcedureFormValues({
-        doctor: edit.doctor ? (typeof edit.doctor === 'object' ? { label: edit.doctor.name, value: edit.doctor._id } : { label: 'Selected Doctor', value: edit.doctor }) : undefined,
-        treatmentDate: edit.treatmentDate?.split("T")[0] || new Date().toISOString().split("T")[0],
-        notes: edit.notes || "",
-        treatmentCode: edit.treatmentPlan || "",
-        estimateMin: edit.estimateMin || 0,
-        estimateMax: edit.estimateMax || 0,
-        discount: edit.discount || 0,
-        totalMin: edit.totalMin || 0,
-        totalMax: edit.totalMax || 0,
-        patient: edit.patient ? (typeof edit.patient === 'object' ? { label: edit.patient.name, value: edit.patient._id } : { label: patientDetails?.name, value: edit.patient }) : { label: patientDetails?.name, value: patientDetails?._id },
-        status: edit.status || "Planned",
-        treatmentId: edit._id,
-        complaintType: edit.complaintType?.toUpperCase() || "CHIEF COMPLAINT",
-      });
+        const notationToSet = edit.toothNotation || "fdi";
+        setNotation(notationToSet as any);
 
-      if (edit.complaintType) setComplaintType(edit.complaintType.toUpperCase());
-      if (edit.toothNote && tId) {
-        setIndividualTeethNotes(prev => ({ ...prev, [tId]: edit.toothNote }));
-      }
+        const rawTId = typeof edit.tooth === 'object' ? (edit.tooth.fdi || edit.tooth.id || edit.tooth.tooth?.fdi || edit.tooth.tooth?.id) : String(edit.tooth || "");
+        const tId = String(rawTId);
+        const isChild = detectIsChild(edit.tooth);
+        const dentToSet = edit.dentitionType || (isChild ? "child" : "adult");
+        setDentitionType(dentToSet as any);
 
-      if (edit.treatmentPlan) {
-        const parts = edit.treatmentPlan.split(/→|->/).map((p: string) => p.trim());
-        if (parts.length >= 2) {
-          const catIdx = TREATMENT_CATEGORIES.findIndex(c => c.name.toLowerCase() === parts[0].toLowerCase());
-          if (catIdx !== -1) {
-            const foundCat = TREATMENT_CATEGORIES[catIdx];
-            const subIdx = foundCat.subcategories.findIndex(s => s.name.toLowerCase() === parts[1].toLowerCase());
-            if (subIdx !== -1) {
-              const foundSub = foundCat.subcategories[subIdx];
-              setExplorerState({ catIdx, subIdx });
-              if (parts[2]) {
-                const foundJob = foundSub.jobs.find(j => j.name.toLowerCase() === parts[2].toLowerCase());
-                if (foundJob) {
-                  const normalizedCode = `${foundCat.name} → ${foundSub.name} → ${foundJob.name}`;
-                  setProcedureFormValues(prev => ({ ...prev, treatmentCode: normalizedCode }));
+        const primaryPool = getTeethByType(dentToSet as any);
+        const secondaryPool = getTeethByType(dentToSet === "child" ? "adult" : "child");
+
+        let matchedTooth = primaryPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
+        if (!matchedTooth) {
+          matchedTooth = secondaryPool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
+          if (matchedTooth) setDentitionType(dentToSet === "child" ? "adult" : "child");
+        }
+
+        if (matchedTooth) setSelectedTeeth([matchedTooth]);
+
+        setProcedureFormValues({
+          doctor: edit.doctor ? (typeof edit.doctor === 'object' ? { label: edit.doctor.name, value: edit.doctor._id } : { label: 'Selected Doctor', value: edit.doctor }) : undefined,
+          treatmentDate: edit.treatmentDate?.split("T")[0] || new Date().toISOString().split("T")[0],
+          notes: edit.notes || "",
+          treatmentCode: edit.treatmentPlan || "",
+          estimateMin: edit.estimateMin || 0,
+          estimateMax: edit.estimateMax || 0,
+          discount: edit.discount || 0,
+          totalMin: edit.totalMin || 0,
+          totalMax: edit.totalMax || 0,
+          patient: edit.patient ? (typeof edit.patient === 'object' ? { label: edit.patient.name, value: edit.patient._id } : { label: patientDetails?.name, value: edit.patient }) : { label: patientDetails?.name, value: patientDetails?._id },
+          status: edit.status || "Planned",
+          treatmentId: edit._id,
+          complaintType: edit.complaintType?.toUpperCase() || "CHIEF COMPLAINT",
+        });
+
+        if (edit.complaintType) setComplaintType(edit.complaintType.toUpperCase());
+        if (edit.toothNote && tId) {
+          setIndividualTeethNotes(prev => ({ ...prev, [tId]: edit.toothNote }));
+        }
+
+        if (edit.treatmentPlan) {
+          const parts = edit.treatmentPlan.split(/→|->/).map((p: string) => p.trim());
+          if (parts.length >= 2) {
+            const catIdx = TREATMENT_CATEGORIES.findIndex(c => c.name.toLowerCase() === parts[0].toLowerCase());
+            if (catIdx !== -1) {
+              const foundCat = TREATMENT_CATEGORIES[catIdx];
+              const subIdx = foundCat.subcategories.findIndex(s => s.name.toLowerCase() === parts[1].toLowerCase());
+              if (subIdx !== -1) {
+                const foundSub = foundCat.subcategories[subIdx];
+                setExplorerState({ catIdx, subIdx });
+                if (parts[2]) {
+                  const foundJob = foundSub.jobs.find(j => j.name.toLowerCase() === parts[2].toLowerCase());
+                  if (foundJob) {
+                    const normalizedCode = `${foundCat.name} → ${foundSub.name} → ${foundJob.name}`;
+                    setProcedureFormValues(prev => ({ ...prev, treatmentCode: normalizedCode }));
+                  }
                 }
               }
             }
           }
         }
+        setStep("PROCEDURE_FORM");
+      } 
+      // 3. Handle Contextual Add (New record with passed date/tooth context)
+      else if (!edit._id) {
+        lastSyncedEditId.current = null; // Reset sync ID to allow subsequent edits of the same row
+        setStep("TOOTH_SELECTION"); // Open at Step 1 as requested
+        
+        // Pre-select the tooth if provided to save user clicks
+        const rawTId = typeof edit.tooth === 'object' ? (edit.tooth.fdi || edit.tooth.id || edit.tooth.tooth?.fdi || edit.tooth.tooth?.id) : String(edit.tooth || "");
+        const tId = String(rawTId);
+        if (tId) {
+           const isChild = detectIsChild(edit.tooth);
+           const dentToSet = edit.dentitionType || (isChild ? "child" : "adult");
+           setDentitionType(dentToSet as any);
+           const pool = getTeethByType(dentToSet as any);
+           const matchedTooth = pool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
+           if (matchedTooth) setSelectedTeeth([matchedTooth]);
+        } else {
+           setSelectedTeeth([]);
+        }
+        
+        setProcedureFormValues(null);
       }
-      setStep("PROCEDURE_FORM");
     }
   }, [patientDetails?.editData]);
 
