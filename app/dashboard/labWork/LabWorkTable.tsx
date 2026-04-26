@@ -119,16 +119,16 @@ const LabWorkTable = observer(() => {
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
-    let color = "gray";
-    switch (status) {
-      case "plan": color = "blue"; break;
-      case "sent": color = "orange"; break;
-      case "in-progress": color = "purple"; break;
-      case "received": color = "teal"; break;
-      case "completed": color = "green"; break;
-      case "cancelled": color = "red"; break;
-    }
-    return <Badge colorScheme={color} borderRadius="full" px={2}>{status.toUpperCase()}</Badge>;
+    let color = "blue";
+    const s = status?.toLowerCase();
+    if (s === "plan") color = "blue";
+    else if (s === "sent") color = "orange";
+    else if (s === "in-progress" || s === "processing") color = "purple";
+    else if (s === "received") color = "teal";
+    else if (s === "completed" || s === "delivered") color = "green";
+    else if (s === "cancelled" || s === "rejected") color = "red";
+    
+    return <Badge colorScheme={color} borderRadius="full" px={2} variant="subtle">{status?.toUpperCase() || "N/A"}</Badge>;
   };
 
   const columns = [

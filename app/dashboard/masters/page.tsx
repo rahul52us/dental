@@ -39,7 +39,7 @@ interface Sidebar  {
   handleCloseDrawer?: () => void
 }
 
-const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleCloseDrawer }) => {
+const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handleCloseDrawer }) => {
   const { dashboardStore: { getMasterData, createOrUpdateMasterData } } = stores;
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -55,7 +55,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
 
   // Fetch master data on mount
   useEffect(() => {
-    const fetchMasterData = async () => {
+    const fetchData = async () => {
       try {
         const data: any = await getMasterData();
         const masters = data?.masters || [];
@@ -65,11 +65,12 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
         setCategories(cats);
 
         if (cats.length > 0) setSelectedCategory(cats[0]);
-      } catch (err : any) {
-        alert(err?.message)
+      } catch (err: any) {
+        alert(err?.message);
       }
     };
-    fetchMasterData();
+
+    fetchData();
   }, [getMasterData]);
 
   // Add category
@@ -85,6 +86,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
     setCategories(prev => [...prev, newCategory.trim()]);
     setSelectedCategory(newCategory.trim());
     setNewCategory('');
+    setErrors({});
     toast({
       title: 'Category added',
       description: `${newCategory} has been created.`,
@@ -94,63 +96,59 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
     });
   }, [newCategory, categories, toast]);
 
-  // Add or update option
-  const handleAddOrUpdate = useCallback(() => {
-    if (!optionName.trim() || !code.trim()) {
-      setErrors({
-        option: !optionName ? 'Option name required' : '',
-        code: !code ? 'Code required' : '',
-      });
+  // Add or update option in current category
+  const handleAddOption = useCallback(() => {
+    const newErrors: { option?: string; code?: string } = {};
+    if (!optionName.trim()) newErrors.option = 'Option name is required';
+    if (!code.trim()) newErrors.code = 'Code is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     setMasterData(prev => {
-      const existing = prev.find(c => c.category === selectedCategory);
+      const updated = [...prev];
+      let catIndex = updated.findIndex(c => c.category === selectedCategory);
+      if (catIndex === -1) {
+        updated.push({ category: selectedCategory, options: [] });
+        catIndex = updated.length - 1;
+      }
+
+      const options = [...updated[catIndex].options];
       if (editing) {
-        return prev.map(c =>
-          c.category === selectedCategory
-            ? { ...c, options: c.options.map(o => (o.code === editing.code ? { optionName, code } : o)) }
-            : c
-        );
+        const optIndex = options.findIndex(o => o.optionName === editing.optionName);
+        if (optIndex !== -1) options[optIndex] = { optionName: optionName.trim(), code: code.trim() };
+      } else {
+        options.push({ optionName: optionName.trim(), code: code.trim() });
       }
-      if (existing) {
-        return prev.map(c =>
-          c.category === selectedCategory
-            ? { ...c, options: [...c.options, { optionName, code }] }
-            : c
-        );
-      }
-      return [...prev, { category: selectedCategory, options: [{ optionName, code }] }];
+
+      updated[catIndex].options = options;
+      return updated;
     });
 
-    toast({
-      title: editing ? 'Option updated' : 'Option added',
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-    });
     setOptionName('');
     setCode('');
     setEditing(null);
-  }, [optionName, code, selectedCategory, editing, toast]);
+    setErrors({});
+  }, [optionName, code, selectedCategory, editing]);
 
-  // Delete option
-  const handleDeleteOption = useCallback(
-    (opt: Option) => {
-      setMasterData(prev =>
-        prev.map(c =>
-          c.category === selectedCategory ? { ...c, options: c.options.filter(o => o.code !== opt.code) } : c
-        )
-      );
-      toast({
-        title: 'Deleted',
-        description: `${opt.optionName} removed.`,
-        status: 'info',
-        duration: 2000,
-      });
-    },
-    [selectedCategory, toast]
-  );
+  const handleEditOption = (opt: Option) => {
+    setEditing(opt);
+    setOptionName(opt.optionName);
+    setCode(opt.code);
+  };
+
+  const handleDeleteOption = (optName: string) => {
+    setMasterData(prev => {
+      const updated = [...prev];
+      const catIndex = updated.findIndex(c => c.category === selectedCategory);
+      if (catIndex !== -1) {
+        updated[catIndex].options = updated[catIndex].options.filter(o => o.optionName !== optName);
+      }
+      return updated;
+    });
+  };
 
   // Save all master data to backend
   const handleSaveAll = async () => {
@@ -164,7 +162,10 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
         duration: 3000,
         isClosable: true,
       });
-    } catch (err : any) {
+      if(handleCloseDrawer) {
+        handleCloseDrawer();
+      }
+    } catch (err: any) {
       toast({
         title: 'Save Failed',
         description: err?.message || 'Error while saving data.',
@@ -174,54 +175,54 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
       });
     } finally {
       setLoading(false);
-      await getMasterData();
-      handleCloseDrawer();
-
     }
   };
+
+  const currentOptions = masterData.find(c => c.category === selectedCategory)?.options || [];
 
   return (
     <Flex direction={{ base: 'column', md: 'row' }} h="100%" bg={stores.themeStore.themeConfig.colors.custom.light.primary + "0D"} overflow="hidden" p={4} gap={4}>
       {/* Sidebar */}
       {showSidebar && (
-      <Box w={{ base: '100%', md: isSidebarOpen ? '280px' : '70px' }} bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" borderRadius="2xl" boxShadow="lg" p={4} transition="all 0.3s ease">
-        <HStack justify="space-between" mb={4}>
-          {isSidebarOpen && <Heading size="md">Categories</Heading>}
-          <IconButton aria-label="Toggle sidebar" icon={<HamburgerIcon />} variant="ghost" color="white" onClick={toggleSidebar} />
-        </HStack>
-        <Collapse in={isSidebarOpen}>
-          <VStack align="stretch" spacing={2}>
-            {categories.map(cat => (
-              <Button
-                key={cat}
-                justifyContent="space-between"
-                onClick={() => setSelectedCategory(cat)}
-                colorScheme={selectedCategory === cat ? 'blue' : 'whiteAlpha'}
-                bg={selectedCategory === cat ? stores.themeStore.themeConfig.colors.custom.light.primary + "33" : 'transparent'}
-                border={selectedCategory === cat ? "1px solid white" : "none"}
-                borderRadius="lg"
-              >
-                {cat}
-                <Badge colorScheme="whiteAlpha">{masterData.find(c => c.category === cat)?.options.length || 0}</Badge>
+        <Box w={{ base: '100%', md: isSidebarOpen ? '280px' : '70px' }} bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" borderRadius="2xl" boxShadow="lg" p={4} transition="all 0.3s ease">
+          <HStack justify="space-between" mb={4}>
+            {isSidebarOpen && <Heading size="md">Categories</Heading>}
+            <IconButton aria-label="Toggle sidebar" icon={<HamburgerIcon />} variant="ghost" color="white" onClick={toggleSidebar} />
+          </HStack>
+          <Collapse in={isSidebarOpen}>
+            <VStack align="stretch" spacing={2}>
+              {categories.map(cat => (
+                <Button
+                  key={cat}
+                  justifyContent="space-between"
+                  onClick={() => setSelectedCategory(cat)}
+                  colorScheme={selectedCategory === cat ? 'blue' : 'whiteAlpha'}
+                  bg={selectedCategory === cat ? stores.themeStore.themeConfig.colors.custom.light.primary + "33" : 'transparent'}
+                  border={selectedCategory === cat ? "1px solid white" : "none"}
+                  borderRadius="lg"
+                  size="sm"
+                >
+                  {cat}
+                  <Badge colorScheme="whiteAlpha">{masterData.find(c => c.category === cat)?.options.length || 0}</Badge>
+                </Button>
+              ))}
+              <FormControl isInvalid={!!errors.category} mt={4}>
+                <Input
+                  size="sm"
+                  placeholder="New Category"
+                  value={newCategory}
+                  onChange={e => setNewCategory(e.target.value)}
+                  bg="whiteAlpha.800"
+                  color="blue.900"
+                />
+                <FormErrorMessage>{errors.category}</FormErrorMessage>
+              </FormControl>
+              <Button leftIcon={<AddIcon />} size="sm" mt={2} bg="white" color={stores.themeStore.themeConfig.colors.custom.light.primary} _hover={{ bg: "gray.100" }} variant="solid" onClick={handleAddCategory}>
+                Add
               </Button>
-            ))}
-            <FormControl isInvalid={!!errors.category} mt={4}>
-              <Input
-                size="sm"
-                placeholder="New Category"
-                value={newCategory}
-                onChange={e => setNewCategory(e.target.value)}
-                bg="whiteAlpha.800"
-                color="blue.900"
-              />
-              <FormErrorMessage>{errors.category}</FormErrorMessage>
-            </FormControl>
-            <Button leftIcon={<AddIcon />} size="sm" mt={2} bg="white" color={stores.themeStore.themeConfig.colors.custom.light.primary} _hover={{ bg: "gray.100" }} variant="solid" onClick={handleAddCategory}>
-              Add
-            </Button>
-          </VStack>
-        </Collapse>
-      </Box>
+            </VStack>
+          </Collapse>
+        </Box>
       )}
 
       {/* Main area */}
@@ -236,96 +237,55 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true,handleC
         ) : (
           <>
             <HStack justify="space-between" mb={6}>
-              <Heading size="lg" color={stores.themeStore.themeConfig.colors.custom.light.primary}>{selectedCategory}</Heading>
-              <Tooltip label="Delete category">
-                <IconButton
-                  icon={<DeleteIcon />}
-                  aria-label="Delete category"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => {
-                    setCategories(prev => prev.filter(c => c !== selectedCategory));
-                    setMasterData(prev => prev.filter(c => c.category !== selectedCategory));
-                    setSelectedCategory('');
-                  }}
-                />
-              </Tooltip>
+              <VStack align="start" spacing={0}>
+                <Heading size="lg" color="blue.600">{selectedCategory}</Heading>
+                <Text color="gray.500" fontSize="sm">Manage options and codes for this category</Text>
+              </VStack>
+              <Button colorScheme="blue" leftIcon={<InfoIcon />} onClick={handleSaveAll} isLoading={loading} shadow="md" borderRadius="full" px={8}>
+                Save All
+              </Button>
             </HStack>
 
-            {/* Add Option */}
-            <Card variant="outline" borderColor="blue.100" mb={6}>
-              <CardHeader>
-                <Text fontWeight="medium" color="gray.700">{editing ? 'Edit Option' : 'Add Option'}</Text>
-              </CardHeader>
-              <CardBody>
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                  <FormControl isInvalid={!!errors.option}>
-                    <FormLabel>Option Name</FormLabel>
-                    <Input placeholder="e.g. Health Insurance" value={optionName} onChange={e => setOptionName(e.target.value)} focusBorderColor="blue.400" />
-                    <FormErrorMessage>{errors.option}</FormErrorMessage>
-                  </FormControl>
-                  <FormControl isInvalid={!!errors.code}>
-                    <FormLabel>Code</FormLabel>
-                    <Input placeholder="e.g. HI" value={code} onChange={e => setCode(e.target.value)} focusBorderColor="blue.400" />
-                    <FormErrorMessage>{errors.code}</FormErrorMessage>
-                  </FormControl>
-                  <Flex align="end">
-                    <HStack>
-                      <Button bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" _hover={{ filter: "brightness(0.9)" }} onClick={handleAddOrUpdate}>{editing ? 'Update' : 'Add'}</Button>
-                      {editing && (
-                        <Button variant="outline" colorScheme="gray" onClick={() => { setEditing(null); setOptionName(''); setCode(''); }}>Cancel</Button>
-                      )}
-                    </HStack>
-                  </Flex>
-                </SimpleGrid>
-              </CardBody>
-            </Card>
+            <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mb={8}>
+              <FormControl isInvalid={!!errors.option}>
+                <FormLabel fontWeight="bold">Option Name</FormLabel>
+                <Input placeholder="e.g. Scaling" value={optionName} onChange={e => setOptionName(e.target.value)} focusBorderColor="blue.400" />
+                <FormErrorMessage>{errors.option}</FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={!!errors.code}>
+                <FormLabel fontWeight="bold">Code</FormLabel>
+                <Input placeholder="e.g. SC" value={code} onChange={e => setCode(e.target.value)} focusBorderColor="blue.400" />
+                <FormErrorMessage>{errors.code}</FormErrorMessage>
+              </FormControl>
+              <Flex align="end">
+                <Button colorScheme={editing ? "orange" : "blue"} leftIcon={editing ? <EditIcon /> : <AddIcon />} onClick={handleAddOption} w="full" shadow="sm">
+                  {editing ? "Update Option" : "Add Option"}
+                </Button>
+              </Flex>
+            </SimpleGrid>
 
-            {/* Option list */}
-            <VStack align="stretch" spacing={3}>
-              {masterData.find(c => c.category === selectedCategory)?.options.length ? (
-                masterData.find(c => c.category === selectedCategory)?.options.map(opt => (
-                  <MotionBox key={opt.code} p={4} borderWidth="1px" borderRadius="lg" whileHover={{ scale: 1.01 }}>
-                    <HStack justify="space-between">
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="semibold" color="gray.800">{opt.optionName}</Text>
-                        <Text fontSize="sm" color="gray.500">Code: {opt.code}</Text>
-                      </VStack>
-                      <HStack>
-                        <Tooltip label="Edit">
-                          <IconButton icon={<EditIcon />} aria-label="Edit" size="sm" variant="ghost" onClick={() => { setEditing(opt); setOptionName(opt.optionName); setCode(opt.code); }} />
-                        </Tooltip>
-                        <Tooltip label="Delete">
-                          <IconButton icon={<DeleteIcon />} aria-label="Delete" size="sm" colorScheme="red" variant="ghost" onClick={() => handleDeleteOption(opt)} />
-                        </Tooltip>
-                      </HStack>
+            <Divider mb={6} />
+
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+              {currentOptions.map((opt, idx) => (
+                <Box key={idx} p={4} border="1px solid" borderColor="gray.100" borderRadius="xl" _hover={{ shadow: "md", borderColor: "blue.200" }} transition="all 0.2s" bg="gray.50">
+                  <HStack justify="space-between" mb={2}>
+                    <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3}>{opt.code}</Badge>
+                    <HStack spacing={1}>
+                      <IconButton size="xs" variant="ghost" colorScheme="blue" icon={<EditIcon />} onClick={() => handleEditOption(opt)} aria-label="Edit" />
+                      <IconButton size="xs" variant="ghost" colorScheme="red" icon={<DeleteIcon />} onClick={() => handleDeleteOption(opt.optionName)} aria-label="Delete" />
                     </HStack>
-                  </MotionBox>
-                ))
-              ) : (
-                <Text color="gray.500" fontStyle="italic" textAlign="center">No options yet — add one above.</Text>
+                  </HStack>
+                  <Text fontWeight="bold" fontSize="md" color="gray.700">{opt.optionName}</Text>
+                </Box>
+              ))}
+              {currentOptions.length === 0 && (
+                <Flex gridColumn="span 3" justify="center" align="center" py={12} direction="column" color="gray.400">
+                  <InfoIcon boxSize={8} mb={2} />
+                  <Text>No options added yet for this category.</Text>
+                </Flex>
               )}
-            </VStack>
-
-            <Divider my={8} />
-
-            {/* Save Button */}
-            <Flex justify="center" mt={4}>
-              <Button
-                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
-                color="white"
-                _hover={{ filter: "brightness(0.9)" }}
-                size="lg"
-                borderRadius="full"
-                px={10}
-                shadow="md"
-                onClick={handleSaveAll}
-                isLoading={loading} // Loading spinner while saving
-                loadingText="Saving..."
-              >
-                💾 Save All
-              </Button>
-            </Flex>
+            </SimpleGrid>
           </>
         )}
       </Box>

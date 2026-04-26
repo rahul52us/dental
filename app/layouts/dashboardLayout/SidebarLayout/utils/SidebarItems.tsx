@@ -166,6 +166,13 @@ const sidebarDatas: SidebarItem[] = [
         url: "/dashboard/labWork-master",
         role: ["admin"],
       },
+      {
+        id: 39,
+        name: "Lab Status Master",
+        icon: <FaListAlt />,
+        url: "/dashboard/labWorkStatus-master",
+        role: ["admin"],
+      },
     ]
 
 

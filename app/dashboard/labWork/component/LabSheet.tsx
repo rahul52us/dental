@@ -26,12 +26,13 @@ import {
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
-  const { labWorkStore, labWorkHierarchyStore } = stores;
+  const { labWorkStore, labWorkHierarchyStore, labWorkStatusStore } = stores;
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   React.useEffect(() => {
     labWorkHierarchyStore.getAllHierarchies();
+    labWorkStatusStore.getLabWorkStatuses();
   }, []);
 
   const hierarchyData = React.useMemo(() => {
@@ -69,7 +70,17 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     labNameManual: initialData?.labNameManual || "",
     sendDate: initialData?.sendDate ? new Date(initialData.sendDate).toISOString().split('T')[0] : "",
     dueDate: initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : "",
-    status: initialData?.status || "plan",
+    statusHistory: initialData?.statusHistory?.length > 0 ? initialData.statusHistory.map((h: any) => ({
+      status: h.status,
+      date: new Date(h.date).toISOString().split('T')[0],
+      note: h.note || ""
+    })) : [
+      {
+        status: "plan",
+        date: new Date().toISOString().split('T')[0],
+        note: ""
+      }
+    ],
     warrantyCardNumber: initialData?.warrantyCardNumber || "",
     warrantyYears: initialData?.warrantyYears || "",
     price: initialData?.price || 0,
@@ -81,6 +92,8 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
       patient: values.patient?.value || values.patient?._id || values.patient,
       primaryDoctor: values.primaryDoctor?.value || values.primaryDoctor?._id || values.primaryDoctor,
       lab: values.lab?.value || values.lab?._id || values.lab,
+      status: values.statusHistory?.[values.statusHistory.length - 1]?.status || "plan",
+      statusDate: values.statusHistory?.[values.statusHistory.length - 1]?.date || new Date()
     };
 
     // Clean up empty strings for ObjectIds to avoid BSON errors
@@ -333,22 +346,76 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   value={values.sendDate}
                   onChange={(e: any) => setFieldValue("sendDate", e.target.value)}
                 />
-                <CustomInput
-                  label="Due Date"
-                  name="dueDate"
-                  type="date"
-                  value={values.dueDate}
-                  onChange={(e: any) => setFieldValue("dueDate", e.target.value)}
-                />
-                <CustomInput
-                  label="Status"
-                  name="status"
-                  type="select"
-                  options={labStatusOptions}
-                  value={values.status}
-                  onChange={(val: any) => setFieldValue("status", val.value)}
-                />
               </Grid>
+
+              <Box bg="blue.50" p={5} borderRadius="2xl" border="1px solid" borderColor="blue.100">
+                <VStack align="stretch" spacing={4}>
+                  <Flex justify="space-between" align="center">
+                    <Heading size="sm" color="blue.700">Status Tracking History</Heading>
+                    <Button 
+                      leftIcon={<FiPlus />} 
+                      size="xs" 
+                      colorScheme="blue"
+                      onClick={() => {
+                        const history = [...values.statusHistory];
+                        history.push({
+                          status: history[history.length - 1]?.status || "plan",
+                          date: new Date().toISOString().split('T')[0],
+                          note: ""
+                        });
+                        setFieldValue("statusHistory", history);
+                      }}
+                    >
+                      Update Status
+                    </Button>
+                  </Flex>
+
+                  <VStack align="stretch" spacing={3}>
+                    {values.statusHistory?.map((h: any, i: number) => (
+                      <HStack key={i} spacing={4} align="end" bg="white" p={3} borderRadius="lg" shadow="sm" position="relative">
+                        <CustomInput
+                          label="Status"
+                          name={`statusHistory.${i}.status`}
+                          type="select"
+                          options={(labWorkStatusStore.statuses || [])
+                            .filter(s => s.type === values.workType)
+                            .map(s => ({ label: s.status, value: s.status }))}
+                          value={h.status}
+                          onChange={(val: any) => setFieldValue(`statusHistory.${i}.status`, val.value)}
+                        />
+                        <CustomInput
+                          label="Date"
+                          name={`statusHistory.${i}.date`}
+                          type="date"
+                          value={h.date}
+                          onChange={(e: any) => setFieldValue(`statusHistory.${i}.date`, e.target.value)}
+                        />
+                        <CustomInput
+                          label="Update Note"
+                          name={`statusHistory.${i}.note`}
+                          placeholder="Internal notes..."
+                          value={h.note}
+                          onChange={(e: any) => setFieldValue(`statusHistory.${i}.note`, e.target.value)}
+                        />
+                        {values.statusHistory.length > 1 && (
+                          <IconButton
+                            icon={<FiTrash2 />}
+                            aria-label="Remove"
+                            size="xs"
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() => {
+                              const history = [...values.statusHistory];
+                              history.splice(i, 1);
+                              setFieldValue("statusHistory", history);
+                            }}
+                          />
+                        )}
+                      </HStack>
+                    ))}
+                  </VStack>
+                </VStack>
+              </Box>
 
               <CustomInput
                 label="Global Lab Instructions"
