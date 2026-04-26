@@ -193,7 +193,8 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
           const response: any = await stores.auth.getCompanyUsers({
             page: 1,
             searchValue: searchValue,
-            ...query,
+            isActive: true,
+            ...query
           });
 
           setUserOptions(

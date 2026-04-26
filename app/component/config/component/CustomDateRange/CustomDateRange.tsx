@@ -36,8 +36,11 @@ export default function CustomDateRange({
   months = 2,
 }: CustomDateRangeProps): any {
   const LargerThanMd = useBreakpointValue({ md: true });
-  const formattedStartDate = format(startDate, "d MMM yyyy");
-  const formattedEndDate = format(endDate, "d MMM yyyy");
+  
+  const isValidDate = (date: any) => date instanceof Date && !isNaN(date.getTime());
+
+  const formattedStartDate = isValidDate(startDate) ? format(startDate, "d MMM yyyy") : "--";
+  const formattedEndDate = isValidDate(endDate) ? format(endDate, "d MMM yyyy") : "--";
 
   const textColor = useColorModeValue("gray.700", "gray.300");
 

@@ -121,26 +121,28 @@ const MultiDropdown = ({
         </PopoverHeader>
         <PopoverBody>
           <VStack rowGap={2} align="stretch">
-            <Flex
-              justifyContent={"center"}
-              display={{ base: "block", md: "none" }}
-            >
-              <CustomDateRange
-                isMobile={actions?.datePicker?.isMobile}
-                startDate={actions?.datePicker?.date.startDate}
-                endDate={actions?.datePicker?.date.endDate}
-                onStartDateChange={(e) => {
-                  if (actions?.datePicker?.onDateChange) {
-                    actions?.datePicker?.onDateChange(e, "startDate");
-                  }
-                }}
-                onEndDateChange={(e) => {
-                  if (actions?.datePicker?.onDateChange) {
-                    actions?.datePicker?.onDateChange(e, "endDate");
-                  }
-                }}
-              />
-            </Flex>
+            {actions?.datePicker?.show && (
+              <Flex
+                justifyContent={"center"}
+                display={{ base: "block", md: "none" }}
+              >
+                <CustomDateRange
+                  isMobile={actions?.datePicker?.isMobile}
+                  startDate={actions?.datePicker?.date.startDate}
+                  endDate={actions?.datePicker?.date.endDate}
+                  onStartDateChange={(e) => {
+                    if (actions?.datePicker?.onDateChange) {
+                      actions?.datePicker?.onDateChange(e, "startDate");
+                    }
+                  }}
+                  onEndDateChange={(e) => {
+                    if (actions?.datePicker?.onDateChange) {
+                      actions?.datePicker?.onDateChange(e, "endDate");
+                    }
+                  }}
+                />
+              </Flex>
+            )}
             {search && search?.visible && (
               <Input
                 placeholder={search?.placeholder || "Search"}

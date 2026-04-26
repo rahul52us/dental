@@ -9,9 +9,16 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  IconButton,
+  Text,
+  Button,
   Tooltip,
   useDisclosure,
+  VStack,
+  Icon,
 } from "@chakra-ui/react";
+import { FiPower, FiAlertCircle } from "react-icons/fi";
+import FormModel from "../../../../component/common/FormModel/FormModel";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { GiPsychicWaves } from "react-icons/gi";
@@ -30,14 +37,18 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   } = stores;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedUser, setSelectedTherapist] = useState(null);
+  const { isOpen: isStatusOpen, onOpen: onStatusOpen, onClose: onStatusClose } = useDisclosure();
+  const [selectedUser, setSelectedTherapist] = useState<any>(null);
+  const [statusUser, setStatusUser] = useState<any>(null);
+  const [statusLoading, setStatusLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isActiveFilter, setIsActiveFilter] = useState<any>(true);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllTherapists = useCallback(
-    ({ page = 1, limit = tablePageLimit, reset = false }) => {
-      const query: any = { page, limit, type: "staff" };
+    ({ page = 1, limit = tablePageLimit, reset = false, isActive = isActiveFilter }) => {
+      const query: any = { page, limit, type: "staff", isActive };
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -62,8 +73,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   );
 
   useEffect(() => {
-    applyGetAllTherapists({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, applyGetAllTherapists]);
+    applyGetAllTherapists({ page: currentPage, limit: tablePageLimit, isActive: isActiveFilter });
+  }, [currentPage, debouncedSearchQuery, isActiveFilter, applyGetAllTherapists]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -72,12 +83,45 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
-    applyGetAllTherapists({ reset: true });
+    setIsActiveFilter(true);
+    applyGetAllTherapists({ reset: true, isActive: true });
   };
 
   const handleRowClick = (user: any) => {
     setSelectedTherapist(user);
     onOpen();
+  };
+
+  const handleStatusClick = (user: any) => {
+    setStatusUser(user);
+    onStatusOpen();
+  };
+
+  const confirmStatusChange = async () => {
+    try {
+      setStatusLoading(true);
+      const res = await stores.userStore.updateUser({
+        ...statusUser,
+        is_active: !statusUser.is_active,
+      });
+      if (res.data.status === "success") {
+        openNotification({
+          type: "success",
+          title: "Status Updated",
+          message: `${statusUser.name}'s status has been updated successfully.`,
+        });
+        applyGetAllTherapists({ page: currentPage, isActive: isActiveFilter });
+        onStatusClose();
+      }
+    } catch (err: any) {
+      openNotification({
+        type: "error",
+        title: "Update Failed",
+        message: err?.message || "Failed to update status",
+      });
+    } finally {
+      setStatusLoading(false);
+    }
   };
 
   const UserTableColumns = [
@@ -172,6 +216,34 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
+      headerName: "Status",
+      key: "is_active",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Flex justify="center" align="center" gap={2}>
+            <Badge colorScheme={dt.is_active ? "green" : "red"} variant="subtle" px={2} borderRadius="full">
+              {dt.is_active ? "Active" : "Inactive"}
+            </Badge>
+            <Tooltip label={dt.is_active ? "Deactivate" : "Activate"}>
+              <IconButton
+                aria-label="Toggle Status"
+                icon={<FiPower />}
+                size="xs"
+                colorScheme={dt.is_active ? "red" : "green"}
+                variant="ghost"
+                onClick={() => handleStatusClick(dt)}
+              />
+            </Tooltip>
+          </Flex>
+        ),
+      },
+      props: {
+        row: { textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -228,12 +300,43 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             searchValue: searchQuery,
             onSearchChange: (e: any) => setSearchQuery(e.target.value),
           },
-          resetData: {
-            show: false,
-            text: "Reset Data",
-            function: resetTableData,
-          },
-          pagination: {
+            resetData: {
+              show: true,
+              text: "Reset Data",
+              function: resetTableData,
+            },
+            multidropdown: {
+              show: true,
+              title: "Filter Status",
+              dropdowns: [
+                {
+                  label: "Status",
+                  options: [
+                    { label: "Active", value: true },
+                    { label: "Inactive", value: false },
+                    { label: "All", value: "all" },
+                  ],
+                },
+              ],
+              onDropdownChange: (selected: any, label: string) => {
+                if (label === "Status") {
+                  const val = selected?.length > 0 ? selected[selected.length - 1].value : "all";
+                  setIsActiveFilter(val);
+                }
+              },
+              selectedOptions: {
+                Status: isActiveFilter === "all" 
+                  ? [{ label: "All", value: "all" }] 
+                  : (isActiveFilter === true 
+                    ? [{ label: "Active", value: true }] 
+                    : [{ label: "Inactive", value: false }])
+              },
+              onApply: () => {
+                setCurrentPage(1);
+                applyGetAllTherapists({ page: 1, isActive: isActiveFilter });
+              },
+            },
+            pagination: {
             show: true,
             onClick: handleChangePage,
             currentPage: currentPage,
@@ -269,6 +372,46 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           )}
         </DrawerContent>
       </Drawer>
+
+      <FormModel 
+        open={isStatusOpen} 
+        close={onStatusClose} 
+        title="Confirm Status Change"
+        isCentered
+        size="md"
+      >
+        <VStack spacing={4} p={4} align="center" textAlign="center">
+          <Icon as={FiAlertCircle} w={12} h={12} color={statusUser?.is_active ? "orange.400" : "green.400"} />
+          <Box>
+            <Text fontSize="lg" fontWeight="medium">
+              You are about to {statusUser?.is_active ? "deactivate" : "activate"} 
+            </Text>
+            <Text fontSize="xl" fontWeight="bold" color="blue.600">
+              {statusUser?.name}
+            </Text>
+          </Box>
+          <Text color="gray.600">
+            {statusUser?.is_active 
+              ? "Deactivating this staff member will prevent them from logging in and accessing clinical data." 
+              : "Activating this staff member will restore their access to the system."}
+          </Text>
+          
+          <Flex gap={4} w="full" pt={4}>
+            <Button variant="ghost" flex={1} onClick={onStatusClose}>
+              Cancel
+            </Button>
+            <Button 
+              colorScheme={statusUser?.is_active ? "orange" : "green"} 
+              flex={1}
+              onClick={confirmStatusChange}
+              isLoading={statusLoading}
+              leftIcon={<FiPower />}
+            >
+              Confirm {statusUser?.is_active ? "Deactivation" : "Activation"}
+            </Button>
+          </Flex>
+        </VStack>
+      </FormModel>
     </Box>
   );
 });
