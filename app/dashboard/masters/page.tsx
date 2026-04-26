@@ -34,7 +34,7 @@ type Option = { optionName: string; code: string };
 type MasterData = { category: string; options: Option[] };
 
 const MotionBox = motion(Box);
-interface Sidebar  {
+interface Sidebar {
   showSidebar?: boolean;
   handleCloseDrawer?: () => void
 }
@@ -162,7 +162,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
         duration: 3000,
         isClosable: true,
       });
-      if(handleCloseDrawer) {
+      if (handleCloseDrawer) {
         handleCloseDrawer();
       }
     } catch (err: any) {
@@ -248,13 +248,13 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
 
             <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mb={8}>
               <FormControl isInvalid={!!errors.option}>
-                <FormLabel fontWeight="bold">Option Name</FormLabel>
-                <Input placeholder="e.g. Scaling" value={optionName} onChange={e => setOptionName(e.target.value)} focusBorderColor="blue.400" />
+                <FormLabel fontWeight="bold">Full Name</FormLabel>
+                <Input placeholder="e.g. Engineer" value={optionName} onChange={e => setOptionName(e.target.value)} focusBorderColor="blue.400" />
                 <FormErrorMessage>{errors.option}</FormErrorMessage>
               </FormControl>
               <FormControl isInvalid={!!errors.code}>
-                <FormLabel fontWeight="bold">Code</FormLabel>
-                <Input placeholder="e.g. SC" value={code} onChange={e => setCode(e.target.value)} focusBorderColor="blue.400" />
+                <FormLabel fontWeight="bold">Short Name (for display)</FormLabel>
+                <Input placeholder="e.g. Eg." value={code} onChange={e => setCode(e.target.value)} focusBorderColor="blue.400" />
                 <FormErrorMessage>{errors.code}</FormErrorMessage>
               </FormControl>
               <Flex align="end">
