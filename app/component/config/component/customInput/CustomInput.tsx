@@ -139,6 +139,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
     themeConfig.colors.custom.dark.primary
   );
   const finalLabelBg = labelBg || defaultLabelBg;
+  const stableQuery = useMemo(() => query, [JSON.stringify(query)]);
   const [inputValue, setInputValue] = useState<string>("");
   const theme = useTheme();
   const isMounted = useRef(false);
@@ -252,7 +253,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
         alert(err?.message);
       }
     },
-    [type, params, query]
+    [type, params, stableQuery]
   );
 
   const debouncedFetchSearchUserResults = useMemo(
