@@ -445,7 +445,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             top={4}
             right={4}
           >
-            <Tooltip label="Add Treatment">
+            <Tooltip label="View Treatment">
               <IconButton
                 size="sm"
                 variant="ghost"
