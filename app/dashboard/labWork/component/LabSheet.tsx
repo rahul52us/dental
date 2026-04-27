@@ -54,17 +54,17 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     doctorNameManual: initialData?.doctorNameManual || "",
     workType: initialData?.workType || "outside",
 
-    selectedWorks: initialData?.selectedWorks && initialData.selectedWorks.length > 0 
-      ? initialData.selectedWorks 
+    selectedWorks: initialData?.selectedWorks && initialData.selectedWorks.length > 0
+      ? initialData.selectedWorks
       : [
-          {
-            selections: [],
-            customNotes: "",
-            shadeSystem: "vita-classic",
-            shadeValue: "",
-            teethNumbers: [],
-          },
-        ],
+        {
+          selections: [],
+          customNotes: "",
+          shadeSystem: "vita-classic",
+          shadeValue: "",
+          teethNumbers: [],
+        },
+      ],
     labInstructions: initialData?.labInstructions || "",
     lab: initialData?.lab || "",
     labNameManual: initialData?.labNameManual || "",
@@ -126,22 +126,22 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
               {/* Top Header Actions */}
               <Flex justify="space-between" align="center" pb={2}>
                 <VStack align="start" spacing={0}>
-                   <Heading size="md" color="blue.700">
-                     {initialData?._id ? "Edit Lab Order" : "New Lab Order"}
-                   </Heading>
-                   <Text fontSize="xs" color="gray.500">Please fill in the laboratory specifications below</Text>
+                  <Heading size="md" color="blue.700">
+                    {initialData?._id ? "Edit Lab Order" : "New Lab Order"}
+                  </Heading>
+                  <Text fontSize="xs" color="gray.500">Please fill in the laboratory specifications below</Text>
                 </VStack>
                 <HStack spacing={3}>
                   <Button variant="outline" colorScheme="red" size="md" px={6} borderRadius="xl" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
-                    bg={stores.themeStore.themeConfig.colors.custom.light.primary} 
+                  <Button
+                    type="submit"
+                    bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                     color="white"
-                    size="md" 
-                    px={8} 
-                    borderRadius="xl" 
+                    size="md"
+                    px={8}
+                    borderRadius="xl"
                     shadow="md"
                     isLoading={isSubmitting}
                     _hover={{ filter: "brightness(0.9)", transform: "translateY(-1px)", shadow: "lg" }}
@@ -213,10 +213,10 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 <VStack align="stretch" spacing={6}>
                   <Flex justify="space-between" align="center">
                     <Heading size="sm" color="blue.700">Selected Works & Specifications</Heading>
-                    <Button 
-                      leftIcon={<FiPlus />} 
-                      size="sm" 
-                      colorScheme="blue" 
+                    <Button
+                      leftIcon={<FiPlus />}
+                      size="sm"
+                      colorScheme="blue"
                       variant="ghost"
                       onClick={() => {
                         const currentWorks = [...values.selectedWorks];
@@ -236,7 +236,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
                   {values.selectedWorks.map((work: any, workIndex: number) => (
                     <Box key={workIndex} p={5} bg="white" borderRadius="xl" shadow="sm" border="1px solid" borderColor="gray.100" position="relative">
-                       {values.selectedWorks.length > 1 && (
+                      {values.selectedWorks.length > 1 && (
                         <IconButton
                           icon={<FiTrash2 />}
                           aria-label="Remove"
@@ -253,102 +253,102 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                           }}
                         />
                       )}
-                      
+
                       <VStack align="stretch" spacing={4}>
-                         {/* Dynamic Dropdown Sequence */}
-                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
-                            {(() => {
-                              const dropdowns = [];
-                              let currentOptions = hierarchyData;
-                              let level = 0;
-                              
-                              // We loop as long as there are options to show
-                              // or as long as a selection exists at this level
-                              while (currentOptions && currentOptions.length > 0) {
-                                const currentLevel = level;
-                                const optionsAtThisLevel = currentOptions;
-                                const selectedValue = work.selections[currentLevel] || "";
-                                
-                                // Determine if this level should be a text input
-                                const textOption = optionsAtThisLevel.find(o => o.isTextInput);
-                                const selectedOption = optionsAtThisLevel.find(o => o.value === selectedValue);
-                                
-                                // Show input if:
-                                // 1. Already selected a text-prefixed value
-                                // 2. Selected an option marked as isTextInput
-                                // 3. The only option available is marked as isTextInput (auto-trigger)
-                                const isTextType = 
-                                  selectedValue?.startsWith("TXT:") || 
-                                  selectedOption?.isTextInput || 
-                                  (optionsAtThisLevel.length === 1 && optionsAtThisLevel[0].isTextInput);
+                        {/* Dynamic Dropdown Sequence */}
+                        <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
+                          {(() => {
+                            const dropdowns = [];
+                            let currentOptions = hierarchyData;
+                            let level = 0;
 
-                                dropdowns.push(
-                                  <GridItem key={currentLevel}>
-                                    {isTextType ? (
-                                      <CustomInput
-                                        label={currentLevel === 0 ? "Category" : `Step ${currentLevel + 1}`}
-                                        name={`selectedWorks.${workIndex}.selections.${currentLevel}`}
-                                        placeholder={`Enter ${textOption?.label || "details"}...`}
-                                        value={selectedValue?.replace("TXT:", "")}
-                                        onChange={(e: any) => {
-                                          const newSels = [...work.selections];
-                                          // If it's a known textOption ID, we still prefix with TXT: but keep track
-                                          newSels[currentLevel] = "TXT:" + e.target.value;
-                                          setFieldValue(`selectedWorks.${workIndex}.selections`, newSels);
-                                        }}
-                                      />
-                                    ) : (
-                                      <CustomInput
-                                        label={currentLevel === 0 ? "Category" : `Step ${currentLevel + 1}`}
-                                        type="select"
-                                        name={`selectedWorks.${workIndex}.selections.${currentLevel}`}
-                                        options={optionsAtThisLevel.map(o => ({ label: o.label, value: o.value }))}
-                                        value={selectedValue}
-                                        onChange={(val: any) => {
-                                          const newSels = [...work.selections];
-                                          newSels[currentLevel] = val.value;
-                                          newSels.splice(currentLevel + 1); // Clear levels below
-                                          setFieldValue(`selectedWorks.${workIndex}.selections`, newSels);
-                                        }}
-                                      />
-                                    )}
-                                  </GridItem>
-                                );
+                            // We loop as long as there are options to show
+                            // or as long as a selection exists at this level
+                            while (currentOptions && currentOptions.length > 0) {
+                              const currentLevel = level;
+                              const optionsAtThisLevel = currentOptions;
+                              const selectedValue = work.selections[currentLevel] || "";
+
+                              // Determine if this level should be a text input
+                              const textOption = optionsAtThisLevel.find(o => o.isTextInput);
+                              const selectedOption = optionsAtThisLevel.find(o => o.value === selectedValue);
+
+                              // Show input if:
+                              // 1. Already selected a text-prefixed value
+                              // 2. Selected an option marked as isTextInput
+                              // 3. The only option available is marked as isTextInput (auto-trigger)
+                              const isTextType =
+                                selectedValue?.startsWith("TXT:") ||
+                                selectedOption?.isTextInput ||
+                                (optionsAtThisLevel.length === 1 && optionsAtThisLevel[0].isTextInput);
+
+                              dropdowns.push(
+                                <GridItem key={currentLevel}>
+                                  {isTextType ? (
+                                    <CustomInput
+                                      label={textOption?.label || (currentLevel === 0 ? "Category" : `Step ${currentLevel + 1}`)}
+                                      name={`selectedWorks.${workIndex}.selections.${currentLevel}`}
+                                      placeholder={`Enter ${textOption?.label || "details"}...`}
+                                      value={selectedValue?.replace("TXT:", "")}
+                                      onChange={(e: any) => {
+                                        const newSels = [...work.selections];
+                                        // If it's a known textOption ID, we still prefix with TXT: but keep track
+                                        newSels[currentLevel] = "TXT:" + e.target.value;
+                                        setFieldValue(`selectedWorks.${workIndex}.selections`, newSels);
+                                      }}
+                                    />
+                                  ) : (
+                                    <CustomInput
+                                      label={currentLevel === 0 ? "Category" : `Step ${currentLevel + 1}`}
+                                      type="select"
+                                      name={`selectedWorks.${workIndex}.selections.${currentLevel}`}
+                                      options={optionsAtThisLevel.map(o => ({ label: o.label, value: o.value }))}
+                                      value={selectedValue}
+                                      onChange={(val: any) => {
+                                        const newSels = [...work.selections];
+                                        newSels[currentLevel] = val.value;
+                                        newSels.splice(currentLevel + 1); // Clear levels below
+                                        setFieldValue(`selectedWorks.${workIndex}.selections`, newSels);
+                                      }}
+                                    />
+                                  )}
+                                </GridItem>
+                              );
 
 
-                                if (selectedOption && !isTextType && selectedOption.children && selectedOption.children.length > 0) {
-                                  currentOptions = selectedOption.children;
-                                  level++;
-                                } else {
-                                  break;
-                                }
+                              if (selectedOption && !isTextType && selectedOption.children && selectedOption.children.length > 0) {
+                                currentOptions = selectedOption.children;
+                                level++;
+                              } else {
+                                break;
                               }
+                            }
 
-                              return dropdowns;
-                            })()}
-                         </Grid>
+                            return dropdowns;
+                          })()}
+                        </Grid>
 
-                         <Divider />
+                        <Divider />
 
-                         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
-                            <CustomInput
-                              label="Teeth Numbers"
-                              placeholder="e.g. 11, 12, 13"
-                              name={`selectedWorks.${workIndex}.teethNumbers`}
-                              value={work.teethNumbers?.join(", ")}
-                              onChange={(e: any) => {
-                                const val = e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean);
-                                setFieldValue(`selectedWorks.${workIndex}.teethNumbers`, val);
-                              }}
-                            />
-                            <CustomInput
-                              label="Shade"
-                              placeholder="e.g. A1, B2"
-                              name={`selectedWorks.${workIndex}.shadeValue`}
-                              value={work.shadeValue}
-                              onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.shadeValue`, e.target.value)}
-                            />
-                         </Grid>
+                        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
+                          <CustomInput
+                            label="Teeth Numbers"
+                            placeholder="e.g. 11, 12, 13"
+                            name={`selectedWorks.${workIndex}.teethNumbers`}
+                            value={work.teethNumbers?.join(", ")}
+                            onChange={(e: any) => {
+                              const val = e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean);
+                              setFieldValue(`selectedWorks.${workIndex}.teethNumbers`, val);
+                            }}
+                          />
+                          <CustomInput
+                            label="Shade"
+                            placeholder="e.g. A1, B2"
+                            name={`selectedWorks.${workIndex}.shadeValue`}
+                            value={work.shadeValue}
+                            onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.shadeValue`, e.target.value)}
+                          />
+                        </Grid>
                       </VStack>
                     </Box>
                   ))}
@@ -380,9 +380,9 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
                     <Heading size="sm" color="blue.700">Status Tracking History</Heading>
-                    <Button 
-                      leftIcon={<FiPlus />} 
-                      size="xs" 
+                    <Button
+                      leftIcon={<FiPlus />}
+                      size="xs"
                       colorScheme="blue"
                       onClick={() => {
                         const history = [...values.statusHistory];

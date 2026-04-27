@@ -103,25 +103,26 @@ export const ToothShape = ({
 
   const tooltipContent = allTodayRecords && allTodayRecords.length > 0 ? (
     <VStack align="stretch" spacing={2} p={1} minW="180px">
-      <Text fontSize="10px" fontWeight="900" color={isHistoryRecord ? "orange.300" : "blue.200"} letterSpacing="wider">
-        {isHistoryRecord ? "PREVIOUS WORK" : "TODAY'S WORK"}
-      </Text>
       {allTodayRecords.map((rec, i) => (
         <Box key={i} pb={i < allTodayRecords.length - 1 ? 2 : 0} borderBottom={i < allTodayRecords.length - 1 ? "1px solid" : "none"} borderColor="whiteAlpha.200">
-          <Text fontWeight="1000" fontSize="xs">{rec.treatmentPlan || "General Record"}</Text>
+          <Text fontSize="12px" fontWeight="800" color="whiteAlpha.600">
+            {new Date(rec.treatmentDate).toLocaleDateString()}
+          </Text>
+          <Divider mt={2} mb={2} />
+          <Text fontWeight="1000" fontSize="sm">"{rec.notes || "General Record"}"</Text>
           <HStack justify="space-between" mt={1}>
-             <Badge size="xs" colorScheme={rec.complaintType?.includes("EXISTING") ? "green" : rec.complaintType?.includes("OTHER") ? "orange" : "red"} fontSize="8px" variant="solid" borderRadius="full" px={2}>
-               {rec.complaintType?.split(' ')[0]}
-             </Badge>
-             {rec.treatmentDate && isHistoryRecord && (
-               <Text fontSize="8px" fontWeight="800" color="whiteAlpha.600">
-                 {new Date(rec.treatmentDate).toLocaleDateString()}
-               </Text>
-             )}
+            <Badge size="xs" colorScheme={rec.complaintType?.includes("EXISTING") ? "green" : rec.complaintType?.includes("OTHER") ? "orange" : "red"} fontSize="8px" variant="solid" borderRadius="full" px={2}>
+              {rec.complaintType?.split(' ')[0]}
+            </Badge>
+            {rec.treatmentDate && isHistoryRecord && (
+              <Text fontSize="8px" fontWeight="800" color="whiteAlpha.600">
+                {new Date(rec.treatmentDate).toLocaleDateString()}
+              </Text>
+            )}
           </HStack>
           {rec.notes && (
             <Text fontSize="10px" fontStyle="italic" color="whiteAlpha.800" mt={1} noOfLines={2}>
-              "{rec.notes}"
+              "{rec.treatmentPlan}"
             </Text>
           )}
         </Box>
@@ -132,13 +133,13 @@ export const ToothShape = ({
 
 
   return (
-    <Tooltip 
-      label={tooltipContent} 
-      hasArrow 
-      p={3} 
-      bg="blue.700" 
-      color="white" 
-      borderRadius="xl" 
+    <Tooltip
+      label={tooltipContent}
+      hasArrow
+      p={3}
+      bg="blue.700"
+      color="white"
+      borderRadius="xl"
       isDisabled={!todayRecord}
       placement="top"
     >
