@@ -46,6 +46,9 @@ import AppointmentDetailsView from "../../element/AppointmentDetailsView";
 import AppointmentList from "../../Appointments";
 import ViewPatient from "../../../patients/component/patient/ViewPatient";
 import Treatment from "../../../toothTreatment/page";
+import WorkDoneForm from "../../../workDone/component/WorkDoneForm";
+import WorkDoneList from "../../../workDone/component/WorkDoneList";
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 
 const pulse = keyframes`
   0% { transform: translateY(-50%) scale(1); opacity: 0.6; }
@@ -559,15 +562,31 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {/* Work Done Drawer Placeholder */}
             {openWorkDone.open && (
                 <CustomDrawer
-                    width="92%"
-                    title={`Work Done: ${openWorkDone.data?.name}`}
                     open={openWorkDone.open}
                     close={() => setOpenWorkDone({ open: false, data: null })}
+                    title={`Work Done: ${openWorkDone.data?.name || "Patient"}`}
+                    width={{ base: "100%", md: "90%" }}
                 >
-                    <Box p={6}>
-                        <Text fontWeight="600" color="gray.500">
-                            📝 Procedure log or Note form placeholder loaded here. Add details inside soon!
-                        </Text>
+                    <Box p={2}>
+                        <Tabs isFitted variant="enclosed" colorScheme="blue">
+                            <TabList mb="1em">
+                                <Tab fontWeight="bold" fontSize="14px">Create New Entry</Tab>
+                                <Tab fontWeight="bold" fontSize="14px">Work History</Tab>
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel p={0}>
+                                    <WorkDoneForm 
+                                        patientDetails={openWorkDone.data} 
+                                        onSuccess={() => {
+                                            setOpenWorkDone({ open: false, data: null });
+                                        }} 
+                                    />
+                                </TabPanel>
+                                <TabPanel p={0}>
+                                    <WorkDoneList patientDetails={openWorkDone.data} />
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
                     </Box>
                 </CustomDrawer>
             )}

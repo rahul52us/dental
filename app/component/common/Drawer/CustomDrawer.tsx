@@ -26,7 +26,7 @@ interface CustomDrawerProps {
   children: React.ReactNode;
   size?: string;
   props?: any;
-  width?: string | number;
+  width?: any;
   loading?: boolean;
 }
 
@@ -71,8 +71,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
       <DrawerOverlay />
 
       <DrawerContent
-        width={width && isDesktop ? width : undefined}
-        maxW={width && isDesktop ? width : undefined}
+        width={width ? width : undefined}
+        maxW={width ? width : undefined}
         display="flex"
         flexDirection="column"
         bg={useColorModeValue("white", "darkBrand.50")}

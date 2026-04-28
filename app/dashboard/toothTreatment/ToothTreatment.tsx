@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -15,6 +15,10 @@ import TreatmentDetailsView from "./element/TreatmentDetailsView";
 import { FiGrid, FiList, FiPlus, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2 } from "react-icons/fi";
 import { FaTooth } from "react-icons/fa";
 import Pagination from "../../component/config/component/pagination/Pagination";
+import WorkDoneForm from "../workDone/component/WorkDoneForm";
+import WorkDoneList from "../workDone/component/WorkDoneList";
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { FiCheckCircle } from "react-icons/fi";
 
 
 
@@ -33,6 +37,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     type: "add",
     data: null
   });
+  const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -445,6 +450,18 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             top={4}
             right={4}
           >
+            <Tooltip label="Mark as Work Done">
+              <IconButton
+                size="sm"
+                variant="ghost"
+                colorScheme="orange"
+                icon={<FiCheckCircle />}
+                aria-label="Work Done"
+                onClick={() => {
+                  setOpenWorkDone({ open: true, data: dt });
+                }}
+              />
+            </Tooltip>
             <Tooltip label="View Treatment">
               <IconButton
                 size="sm"
@@ -661,6 +678,69 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           closeWizard={() => setOpenReportModal({ open: false, type: "add", data: null })}
         />
       </CustomDrawer>
+
+      {/* Work Done Drawer */}
+      {openWorkDone.open && (
+        <CustomDrawer
+          open={openWorkDone.open}
+          close={() => setOpenWorkDone({ open: false, data: null })}
+          title={`Work Done: ${openWorkDone.data?.patient?.name || patientDetails?.name || "Patient"}`}
+          width={{ base: "100%", md: "90%" }}
+        >
+          <Box px={6}>
+            <Tabs variant="line" colorScheme="blue">
+              <TabList mb="1em">
+                <Tab 
+                  fontWeight="bold" 
+                  fontSize="14px"
+                  px={6}
+                  _selected={{ 
+                    color: "blue.700", 
+                    borderColor: "blue.600", 
+                    borderBottomWidth: "3px",
+                    bg: "blue.100",
+                    borderTopRadius: "lg"
+                  }}
+                >
+                  Create New Entry
+                </Tab>
+                <Tab 
+                  fontWeight="bold" 
+                  fontSize="14px"
+                  px={6}
+                  _selected={{ 
+                    color: "blue.700", 
+                    borderColor: "blue.600", 
+                    borderBottomWidth: "3px",
+                    bg: "blue.100",
+                    borderTopRadius: "lg"
+                  }}
+                >
+                  Work History
+                </Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel p={0}>
+                  <WorkDoneForm
+                    patientDetails={openWorkDone.data?.patient || patientDetails}
+                    treatmentDetails={openWorkDone.data}
+                    onSuccess={() => {
+                      setOpenWorkDone({ open: false, data: null });
+                      applyGetAllRecords({ page: currentPage });
+                    }}
+                  />
+                </TabPanel>
+                <TabPanel p={0}>
+                  <WorkDoneList 
+                    patientDetails={openWorkDone.data?.patient || patientDetails} 
+                    treatmentId={openWorkDone.data?._id}
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </Box>
+        </CustomDrawer>
+      )}
     </>
   );
 });
