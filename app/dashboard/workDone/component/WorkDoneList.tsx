@@ -23,6 +23,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit } from "react-icons/fi";
@@ -134,7 +136,20 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   return (
     <Box>
       <VStack align="stretch" spacing={4}>
-        {workDone.data.length === 0 && !workDone.loading ? (
+        {workDone.loading ? (
+          <Center py={10}>
+            <VStack spacing={4}>
+              <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="blue.500"
+                size="xl"
+              />
+              <Text color="gray.500" fontSize="sm" fontWeight="medium">Fetching clinical history...</Text>
+            </VStack>
+          </Center>
+        ) : workDone.data.length === 0 ? (
           <VStack py={14} bg="gray.50" borderRadius="2xl" border="1px dashed" borderColor="gray.200">
             <Icon as={FiActivity} fontSize="40px" color="gray.300" />
             <Text fontWeight="bold" color="gray.400" fontSize="14px">No clinical history found</Text>

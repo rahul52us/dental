@@ -81,6 +81,17 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
+    
+    if (!values.status) {
+      openNotification({
+        type: "error",
+        title: "Status Required",
+        message: "Please select a clinical status before saving.",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const payload = {
         ...values,
@@ -134,18 +145,23 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
           ? (treatmentDetails.doctor.name ? { label: treatmentDetails.doctor.name, value: treatmentDetails.doctor._id } : treatmentDetails.doctor)
           : ""),
     workDoneNote: editData?.workDoneNote || "",
-    status: editData?.status || "COMPLETE",
-    amount: editData?.amount ?? (treatmentDetails?.estimateMin || 0),
-    discount: editData?.discount ?? (treatmentDetails?.discount || 0),
+    status: editData?.status || "",
+    amount: editData?.amount ?? "",
+    discount: editData?.discount ?? "",
     treatmentCode: editData?.treatmentCode || treatmentDetails?.treatmentPlan || "",
   };
 
   return (
-    <Box p={0} bg="white" borderRadius="3xl">
+    <Box p={0} bg="white" borderRadius="3xl" overflow="hidden" position="relative">
       <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
-        {({ values, setFieldValue, handleSubmit }) => (
+        {({ values, setFieldValue, handleSubmit }) => {
+          const complaintColor = values.complaintType === "CHIEF COMPLAINT" ? "red.500" : 
+                                 values.complaintType === "OTHER FINDING" ? "orange.400" : 
+                                 values.complaintType === "EXISTING FINDING" ? "green.500" : "blue.500";
+          return (
           <Form onSubmit={handleSubmit}>
-            <VStack align="stretch" spacing={4}>
+            <Box h="6px" bg={complaintColor} w="full" position="absolute" top={0} left={0} />
+            <VStack align="stretch" spacing={4} pt={4}>
               {/* Header */}
               <Box mb={-4}>
                 <HStack justify="space-between" align="start">
@@ -210,15 +226,21 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                       </Text>
                     </VStack>
                     <VStack align="start" spacing={0}>
-                      <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">PLANNED DR.</Text>
+                      <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ASSIGNED DR.</Text>
                       <Text fontSize="11px" fontWeight="900" color="gray.700" noOfLines={1}>
                         {treatmentDetails.doctor?.name || (typeof treatmentDetails.doctor === 'string' ? treatmentDetails.doctor : "N/A")}
                       </Text>
                     </VStack>
                     <VStack align="start" spacing={0}>
-                      <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">PLANNED AMOUNT</Text>
+                      <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ESTIMATE</Text>
                       <Text fontSize="12px" fontWeight="1000" color="blue.600">
                         ₹{(treatmentDetails.estimateMin || 0).toLocaleString()}
+                      </Text>
+                      <Text fontSize="9px" fontWeight="800" color="gray.500" mt={1}>
+                        RECEIVED: ₹{(treatmentDetails.receivedAmount || 0).toLocaleString()}
+                      </Text>
+                      <Text fontSize="9px" fontWeight="900" color="red.500">
+                        BALANCE: ₹{((treatmentDetails.estimateMin || 0) - (treatmentDetails.receivedAmount || 0)).toLocaleString()}
                       </Text>
                     </VStack>
                   </Grid>
@@ -243,45 +265,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                 <TreatmentDetailsView data={treatmentDetails} />
               </CustomDrawer>
 
-              {/* 1. Complaint Type */}
-              <VStack align="start" spacing={3}>
-                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
-                <HStack bg="gray.50" p={1.5} borderRadius="xl" w="full" spacing={3} border="1px solid" borderColor="gray.100">
-                  {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
-                    const isActive = values.complaintType === type;
-                    const getStyles = () => {
-                      switch (type) {
-                        case "CHIEF COMPLAINT": return { bg: "red.500", color: "white" };
-                        case "OTHER FINDING": return { bg: "orange.400", color: "white" };
-                        case "EXISTING FINDING": return { bg: "green.500", color: "white" };
-                        default: return { bg: "transparent", color: "gray.600" };
-                      }
-                    };
-                    const styles = isActive ? getStyles() : { bg: "white", color: "gray.500" };
-
-                    return (
-                      <Button
-                        type="button"
-                        key={type}
-                        flex={1}
-                        size="md"
-                        h="44px"
-                        fontSize="10px"
-                        fontWeight="1000"
-                        borderRadius="xl"
-                        bg={styles.bg}
-                        color={styles.color}
-                        boxShadow={isActive ? "md" : "sm"}
-                        onClick={() => setFieldValue("complaintType", type)}
-                        _hover={{ opacity: 0.9, transform: "translateY(-1px)" }}
-                        transition="all 0.2s"
-                      >
-                        {type}
-                      </Button>
-                    );
-                  })}
-                </HStack>
-              </VStack>
+              {/* Complaint Type removed and represented by color bar on top */}
 
               {/* 2. Treating Doctor */}
               <VStack align="start" spacing={2} w="full">
@@ -309,9 +293,9 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                 />
               </VStack>
 
-              {/* 5. Actual Billing */}
+              {/* 5. Today Dues */}
               <VStack align="stretch" spacing={5} p={6} bg="green.50/30" borderRadius="3xl" border="1px solid" borderColor="green.100">
-                <Text fontSize="10px" fontWeight="1000" color="green.600" letterSpacing="0.2em">5. ACTUAL BILLING</Text>
+                <Text fontSize="10px" fontWeight="1000" color="green.600" letterSpacing="0.2em">5. TODAY DUES</Text>
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                   <VStack align="start" spacing={1}>
                     <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
@@ -559,7 +543,8 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
               </Box>
             </VStack>
           </Form>
-        )}
+          );
+        }}
       </Formik>
     </Box>
   );

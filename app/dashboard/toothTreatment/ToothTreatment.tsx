@@ -43,6 +43,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [complaintTypeFilter, setComplaintTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllRecords = useCallback(
@@ -66,6 +67,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         query.complaintType = complaintTypeFilter;
       }
 
+      if (statusFilter !== "all") {
+        query.status = statusFilter;
+      }
+
       getToothTreatments(query).catch((err) => {
         openNotification({
           type: "error",
@@ -81,12 +86,13 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       currentPage,
       patientDetails,
       complaintTypeFilter,
+      statusFilter,
     ]
   );
 
   useEffect(() => {
     applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, complaintTypeFilter, applyGetAllRecords]);
+  }, [currentPage, debouncedSearchQuery, complaintTypeFilter, statusFilter, applyGetAllRecords]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -96,6 +102,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     setCurrentPage(1);
     setSearchQuery("");
     setComplaintTypeFilter("all");
+    setStatusFilter("all");
     applyGetAllRecords({ page: 1, reset: true });
   };
 
@@ -450,7 +457,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             top={4}
             right={4}
           >
-            <Tooltip label="Mark as Work Done">
+            <Tooltip label="Add Work Done">
               <IconButton
                 size="sm"
                 variant="ghost"
@@ -571,6 +578,36 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
                 <option value="OTHER FINDING">OTHER FINDING</option>
                 <option value="EXISTING FINDING">EXISTING FINDING</option>
+              </select>
+            </Box>
+
+            <Box w="220px">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  borderRadius: '16px',
+                  padding: '0 12px',
+                  fontSize: '14px',
+                  border: '1px solid #E2E8F0',
+                  background: 'white',
+                  fontWeight: '700',
+                  color: '#4A5568',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In-Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="shift">Shift</option>
+                <option value="no-show">No Show</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="arrived">Arrived</option>
               </select>
             </Box>
 
@@ -716,7 +753,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     borderTopRadius: "lg"
                   }}
                 >
-                  Work History
+                  Previous work done
                 </Tab>
               </TabList>
               <TabPanels>

@@ -27,6 +27,9 @@ import AppointmentList from "../../../appointments/Appointments";
 import ViewDoctor from "./ViewPatient";
 import Treatment from "../../../toothTreatment/page";
 import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
+import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
+import { FiFileText } from "react-icons/fi";
+import { IconButton } from "@chakra-ui/react";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -45,6 +48,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   const [openRecallDetails, setOpenRecallDetails] = useState({
+    open: false,
+    data: null as any,
+  });
+
+  const [openWorkDoneDetails, setOpenWorkDoneDetails] = useState({
     open: false,
     data: null as any,
   });
@@ -266,12 +274,39 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
       props: { row: { minW: 120, textAlign: "center" } },
     },
+
+    {
+      headerName: "Work Done",
+      key: "history",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="View Work Done" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Work Done"
+              icon={<FiFileText />}
+              colorScheme="blue"
+              bg="blue.50"
+              color="blue.600"
+              _hover={{ bg: "blue.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => setOpenWorkDoneDetails({ open: true, data: dt })}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 100, textAlign: "center" } },
+    },
     {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
       props: { row: { minW: 180, textAlign: "center" } },
     },
+
   ];
 
   return (
@@ -382,6 +417,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               isPatient={true}
               patientDetails={openRecallDetails.data}
             />
+          </CustomDrawer>
+        )}
+
+        {/* Work Done History Drawer */}
+        {openWorkDoneDetails.open && (
+          <CustomDrawer
+            open={openWorkDoneDetails.open}
+            close={() => setOpenWorkDoneDetails({ open: false, data: null })}
+            title={`${openWorkDoneDetails.data?.name}'s Work Done`}
+            width="85vw"
+          >
+            <PatientWorkDoneHistory patientDetails={openWorkDoneDetails.data} />
           </CustomDrawer>
         )}
       </Box>

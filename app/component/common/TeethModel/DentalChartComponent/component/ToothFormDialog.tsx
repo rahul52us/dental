@@ -210,6 +210,10 @@ export const ToothFormDialog = observer(
 
         await Promise.all(promises);
 
+        if (setLastExaminingDoctor && values.examiningDoctor) {
+          setLastExaminingDoctor(values.examiningDoctor);
+        }
+
         setFormLoading(false);
         toast({
           title: "Treatment Records Saved.",
@@ -315,10 +319,7 @@ export const ToothFormDialog = observer(
                         query={{ type: 'doctor' }}
                         options={doctorOptions}
                         value={values.examiningDoctor}
-                        onChange={(val: any) => {
-                          setFieldValue("examiningDoctor", val);
-                          if (setLastExaminingDoctor) setLastExaminingDoctor(val);
-                        }}
+                        onChange={(val: any) => setFieldValue("examiningDoctor", val)}
                         style={{ height: '32px', fontSize: '12px' }}
                       />
                     </VStack>
