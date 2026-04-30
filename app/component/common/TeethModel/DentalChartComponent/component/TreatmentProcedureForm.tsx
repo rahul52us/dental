@@ -194,24 +194,45 @@ export const TreatmentProcedureForm = observer(
 
             const map: any = {};
             dbData.forEach((p: any) => {
-                if (!map[p.category]) map[p.category] = { name: p.category, subcategories: {} };
-                if (!map[p.category].subcategories[p.subcategory]) {
-                    map[p.category].subcategories[p.subcategory] = { name: p.subcategory, jobs: [] };
+                const cat = p.category;
+                const sub = p.subcategory;
+                const n1 = p.name;
+                const n2 = p.name2 || "None";
+                const n3 = p.name3 || "None";
+
+                if (!map[cat]) map[cat] = { name: cat, subcategories: {} };
+                if (!map[cat].subcategories[sub]) {
+                    map[cat].subcategories[sub] = { name: sub, name1s: {} };
                 }
-                map[p.category].subcategories[p.subcategory].jobs.push({
-                    name: p.name,
-                    estimateMin: p.estimateMin,
-                    estimateMax: p.estimateMax,
-                    defaultEstimate: p.defaultEstimate
-                });
+                if (!map[cat].subcategories[sub].name1s[n1]) {
+                    map[cat].subcategories[sub].name1s[n1] = { name: n1, name2s: {} };
+                }
+                if (!map[cat].subcategories[sub].name1s[n1].name2s[n2]) {
+                    map[cat].subcategories[sub].name1s[n1].name2s[n2] = { name: n2, name3s: {} };
+                }
+                if (!map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3]) {
+                    map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = { 
+                        name: n3, 
+                        procedure: p 
+                    };
+                }
             });
 
             return Object.values(map).map((cat: any) => ({
                 ...cat,
-                subcategories: Object.values(cat.subcategories)
+                subcategories: Object.values(cat.subcategories).map((sub: any) => ({
+                    ...sub,
+                    name1s: Object.values(sub.name1s).map((n1: any) => ({
+                        ...n1,
+                        name2s: Object.values(n1.name2s).map((n2: any) => ({
+                            ...n2,
+                            name3s: Object.values(n2.name3s)
+                        }))
+                    }))
+                }))
             }));
         }, [procedureStore.procedures.data]);
-
+        
         const [doctors, setDoctors] = useState<any[]>([]);
         const [doctorsLoading, setDoctorsLoading] = useState(false);
 
@@ -226,57 +247,38 @@ export const TreatmentProcedureForm = observer(
             }
         }, [isDrawerMode, teeth]);
 
-        const [localExplorerState, setLocalExplorerState] = useState<{ catIdx: number | null, subIdx: number | null }>({ catIdx: null, subIdx: null });
+        const [localExplorerState, setLocalExplorerState] = useState<{ catIdx: number | null, subIdx: number | null, n1Idx: number | null, n2Idx: number | null, n3Idx: number | null }>({ catIdx: null, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null });
 
         const lastSyncedId = useRef<string | null>(null);
 
-        // Auto-expand explorer based on existing treatment code when editing
-        useEffect(() => {
-            const currentId = editData?._id || editData?.id || null;
-
-            // Only sync if the record has actually changed to avoid overriding user interaction
-            if (currentId !== lastSyncedId.current) {
-                lastSyncedId.current = currentId;
-
-                if (editData?.treatmentPlan) {
-                    const parts = editData.treatmentPlan.split(" → ").map(p => p.trim());
-                    let newCatIdx: number | null = null;
-                    let newSubIdx: number | null = null;
-
-                    if (parts.length >= 1) {
-                        const cIdx = groupedData.findIndex(c =>
-                            c.name.toLowerCase() === parts[0].toLowerCase()
-                        );
-                        if (cIdx !== -1) {
-                            newCatIdx = cIdx;
-                            if (parts.length >= 2) {
-                                const subCats = groupedData[cIdx].subcategories;
-                                const sIdx = subCats.findIndex(s =>
-                                    s.name.toLowerCase() === parts[1].toLowerCase()
-                                );
-                                if (sIdx !== -1) {
-                                    newSubIdx = sIdx;
-                                }
-                            }
-                        }
-                    }
-                    setLocalExplorerState({ catIdx: newCatIdx, subIdx: newSubIdx });
-                } else {
-                    setLocalExplorerState({ catIdx: null, subIdx: null });
-                }
-            }
-        }, [editData]);
-
         const selectedCatIdx = (explorerState && explorerState.catIdx !== null) ? explorerState.catIdx : localExplorerState.catIdx;
         const selectedSubIdx = (explorerState && explorerState.subIdx !== null) ? explorerState.subIdx : localExplorerState.subIdx;
+        const selectedN1Idx = (explorerState && (explorerState as any).n1Idx !== undefined) ? (explorerState as any).n1Idx : localExplorerState.n1Idx;
+        const selectedN2Idx = (explorerState && (explorerState as any).n2Idx !== undefined) ? (explorerState as any).n2Idx : localExplorerState.n2Idx;
+        const selectedN3Idx = (explorerState && (explorerState as any).n3Idx !== undefined) ? (explorerState as any).n3Idx : localExplorerState.n3Idx;
 
         const setSelectedCatIdx = (idx: number | null) => {
-            const newState = { catIdx: idx, subIdx: null };
+            const newState = { catIdx: idx, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
         const setSelectedSubIdx = (idx: number | null) => {
-            const newState = { catIdx: selectedCatIdx, subIdx: idx };
+            const newState = { catIdx: selectedCatIdx, subIdx: idx, n1Idx: null, n2Idx: null, n3Idx: null };
+            if (onExplorerUpdate) onExplorerUpdate(newState as any);
+            else setLocalExplorerState(newState);
+        };
+        const setSelectedN1Idx = (idx: number | null) => {
+            const newState = { catIdx: selectedCatIdx, subIdx: selectedSubIdx, n1Idx: idx, n2Idx: null, n3Idx: null };
+            if (onExplorerUpdate) onExplorerUpdate(newState as any);
+            else setLocalExplorerState(newState);
+        };
+        const setSelectedN2Idx = (idx: number | null) => {
+            const newState = { catIdx: selectedCatIdx, subIdx: selectedSubIdx, n1Idx: selectedN1Idx, n2Idx: idx, n3Idx: null };
+            if (onExplorerUpdate) onExplorerUpdate(newState as any);
+            else setLocalExplorerState(newState);
+        };
+        const setSelectedN3Idx = (idx: number | null) => {
+            const newState = { catIdx: selectedCatIdx, subIdx: selectedSubIdx, n1Idx: selectedN1Idx, n2Idx: selectedN2Idx, n3Idx: idx };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
@@ -284,6 +286,12 @@ export const TreatmentProcedureForm = observer(
         const activeCategory = selectedCatIdx !== null ? groupedData[selectedCatIdx] : null;
         const activeSubcategory = (activeCategory && selectedSubIdx !== null)
             ? activeCategory.subcategories[selectedSubIdx]
+            : null;
+        const activeN1 = (activeSubcategory && selectedN1Idx !== null)
+            ? activeSubcategory.name1s[selectedN1Idx]
+            : null;
+        const activeN2 = (activeN1 && selectedN2Idx !== null)
+            ? activeN1.name2s[selectedN2Idx]
             : null;
 
         const filteredProcedures = useMemo(() => {
@@ -294,7 +302,11 @@ export const TreatmentProcedureForm = observer(
             groupedData.forEach(cat => {
                 cat.subcategories.forEach(sub => {
                     sub.jobs.forEach(job => {
-                        if (job.name.toLowerCase().includes(term)) {
+                        if (
+                          job.name.toLowerCase().includes(term) ||
+                          (job.name2 && job.name2.toLowerCase().includes(term)) ||
+                          (job.name3 && job.name3.toLowerCase().includes(term))
+                        ) {
                             results.push({
                                 category: cat.name,
                                 subcategory: sub.name,
@@ -723,6 +735,70 @@ export const TreatmentProcedureForm = observer(
                 onSubmit={handleSubmit}
             >
                 {({ values, setFieldValue, handleSubmit }: any) => {
+                    
+                    // Auto-expand explorer based on existing treatment code when editing
+                    useEffect(() => {
+                        const currentId = editData?._id || editData?.id || null;
+
+                        // Only sync if the record has actually changed to avoid overriding user interaction
+                        if (currentId !== lastSyncedId.current) {
+                            lastSyncedId.current = currentId;
+
+                            if (editData?.treatmentPlan) {
+                                const parts = editData.treatmentPlan.split(" → ").map(p => p.trim());
+                                let newCatIdx: number | null = null;
+                                let newSubIdx: number | null = null;
+                                let newN1Idx: number | null = null;
+                                let newN2Idx: number | null = null;
+                                let newN3Idx: number | null = null;
+
+                                if (parts.length >= 1) {
+                                    const cIdx = groupedData.findIndex(c => c.name.toLowerCase() === parts[0].toLowerCase());
+                                    if (cIdx !== -1) {
+                                        newCatIdx = cIdx;
+                                        if (parts.length >= 2) {
+                                            const subCats = groupedData[cIdx].subcategories;
+                                            const sIdx = subCats.findIndex(s => s.name.toLowerCase() === parts[1].toLowerCase());
+                                            if (sIdx !== -1) {
+                                                newSubIdx = sIdx;
+                                                if (parts.length >= 3) {
+                                                    const n1s = subCats[sIdx]?.name1s;
+                                                    const n1Idx = n1s?.findIndex((n: any) => n.name.toLowerCase() === parts[2].toLowerCase());
+                                                    if (n1Idx !== undefined && n1Idx !== -1) {
+                                                        newN1Idx = n1Idx;
+                                                        if (parts.length >= 4) {
+                                                            const n2s = n1s[n1Idx]?.name2s;
+                                                            const n2Idx = n2s?.findIndex((n: any) => n.name.toLowerCase() === parts[3].toLowerCase());
+                                                            if (n2Idx !== undefined && n2Idx !== -1) {
+                                                                newN2Idx = n2Idx;
+                                                                if (parts.length >= 5) {
+                                                                    const n3s = n2s[n2Idx]?.name3s;
+                                                                    const n3Idx = n3s?.findIndex((n: any) => n.name.toLowerCase() === parts[4].toLowerCase());
+                                                                    if (n3Idx !== undefined && n3Idx !== -1) {
+                                                                        newN3Idx = n3Idx;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                setLocalExplorerState({ 
+                                    catIdx: newCatIdx, 
+                                    subIdx: newSubIdx, 
+                                    n1Idx: newN1Idx, 
+                                    n2Idx: newN2Idx, 
+                                    n3Idx: newN3Idx 
+                                });
+                            } else {
+                                setLocalExplorerState({ catIdx: null, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null });
+                            }
+                        }
+                    }, [editData, groupedData, activeToothId, values.treatments]);
+
                     const currentStep = values.treatmentCode ? 2 : (teeth.length > 0 ? 1 : 0);
 
                     const groupTeethByQuadrant = (selectedTeeth: ToothData[]) => {
@@ -772,7 +848,9 @@ export const TreatmentProcedureForm = observer(
                                                 <Box h="full" overflowY="auto" p={5} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                                                     <VStack align="stretch" spacing={2.5}>
                                                         {filteredProcedures?.map((proc) => {
-                                                            const fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
+                                                            let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
+                                                            if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
+                                                            if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
                                                             const isSelected = activeToothId === "bulk"
                                                                 ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
                                                                 : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
@@ -804,7 +882,11 @@ export const TreatmentProcedureForm = observer(
                                                                         <Text fontSize="10px" fontWeight="900" color={isSelected ? "blue.100" : "blue.500"} letterSpacing="0.1em">
                                                                             {proc.category.toUpperCase()} • {proc.subcategory.toUpperCase()}
                                                                         </Text>
-                                                                        <Text fontSize="12px" fontWeight="900" letterSpacing="tight">{proc.name}</Text>
+                                                                        <Text fontSize="12px" fontWeight="900" letterSpacing="tight">
+                                                                            {proc.name}
+                                                                            {proc.name2 && ` • ${proc.name2}`}
+                                                                            {proc.name3 && ` • ${proc.name3}`}
+                                                                        </Text>
                                                                     </VStack>
                                                                     <Badge p={2} borderRadius="md" variant={isSelected ? "solid" : "subtle"} colorScheme={isSelected ? "whiteAlpha" : "blue"} fontSize="12px" fontWeight="900">
                                                                         ₹{proc.defaultEstimate.toLocaleString()}
@@ -815,9 +897,9 @@ export const TreatmentProcedureForm = observer(
                                                     </VStack>
                                                 </Box>
                                             ) : (
-                                                <Grid templateColumns="1fr 1fr 1.4fr" h="full">
-                                                    <Box borderRight="1px solid" borderColor="gray.100">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full">
+                                                <Grid templateColumns="1fr 1fr 1fr 1fr 1fr" h="full">
+                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
                                                             {groupedData.map((cat, idx) => (
                                                                 <Box
                                                                     key={cat.name}
@@ -827,11 +909,6 @@ export const TreatmentProcedureForm = observer(
                                                                     color={selectedCatIdx === idx ? "blue.600" : "gray.500"}
                                                                     onClick={() => {
                                                                         setSelectedCatIdx(idx);
-                                                                        if (activeToothId === "bulk") {
-                                                                            teeth.forEach(t => setFieldValue(`treatments.${t.id}.treatmentCode`, cat.name));
-                                                                        } else if (activeToothId) {
-                                                                            setFieldValue(`treatments.${activeToothId}.treatmentCode`, cat.name);
-                                                                        }
                                                                     }}
                                                                     _hover={{ bg: "blue.50/20" }}
                                                                 >
@@ -843,8 +920,8 @@ export const TreatmentProcedureForm = observer(
                                                             ))}
                                                         </VStack>
                                                     </Box>
-                                                    <Box borderRight="1px solid" borderColor="gray.100">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full">
+                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
                                                             {activeCategory?.subcategories.map((sub, idx) => (
                                                                 <Box
                                                                     key={sub.name}
@@ -854,12 +931,6 @@ export const TreatmentProcedureForm = observer(
                                                                     color={selectedSubIdx === idx ? "blue.600" : "gray.500"}
                                                                     onClick={() => {
                                                                         setSelectedSubIdx(idx);
-                                                                        const path = `${activeCategory?.name} → ${sub.name}`;
-                                                                        if (activeToothId === "bulk") {
-                                                                            teeth.forEach(t => setFieldValue(`treatments.${t.id}.treatmentCode`, path));
-                                                                        } else if (activeToothId) {
-                                                                            setFieldValue(`treatments.${activeToothId}.treatmentCode`, path);
-                                                                        }
                                                                     }}
                                                                 >
                                                                     <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{sub.name.toUpperCase()}</Text>
@@ -867,23 +938,67 @@ export const TreatmentProcedureForm = observer(
                                                             ))}
                                                         </VStack>
                                                     </Box>
-                                                    <Box>
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full">
-                                                            {activeSubcategory?.jobs.map((job) => {
-                                                                const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
+                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
+                                                            {activeSubcategory?.name1s?.map((n1: any, idx) => (
+                                                                <Box
+                                                                    key={n1.name}
+                                                                    px={6} py={5}
+                                                                    cursor="pointer"
+                                                                    bg={selectedN1Idx === idx ? "blue.50" : "white"}
+                                                                    color={selectedN1Idx === idx ? "blue.600" : "gray.600"}
+                                                                    onClick={() => setSelectedN1Idx(idx)}
+                                                                    _hover={{ bg: "gray.50" }}
+                                                                    borderBottom="1px solid"
+                                                                    borderColor="gray.100"
+                                                                >
+                                                                    <Text fontSize="12px" fontWeight="900">{n1.name.toUpperCase()}</Text>
+                                                                </Box>
+                                                            ))}
+                                                        </VStack>
+                                                    </Box>
+
+                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
+                                                            {activeN1?.name2s?.map((n2: any, idx) => (
+                                                                <Box
+                                                                    key={n2.name}
+                                                                    px={6} py={5}
+                                                                    cursor="pointer"
+                                                                    bg={selectedN2Idx === idx ? "blue.50" : "white"}
+                                                                    color={selectedN2Idx === idx ? "blue.600" : "gray.600"}
+                                                                    onClick={() => setSelectedN2Idx(idx)}
+                                                                    _hover={{ bg: "gray.50" }}
+                                                                    borderBottom="1px solid"
+                                                                    borderColor="gray.100"
+                                                                >
+                                                                    <Text fontSize="12px" fontWeight="700">{n2.name.toUpperCase()}</Text>
+                                                                </Box>
+                                                            ))}
+                                                        </VStack>
+                                                    </Box>
+
+                                                    <Box h="600px" bg="gray.50/30">
+                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
+                                                            {activeN2?.name3s?.map((n3: any, idx) => {
+                                                                const proc = n3.procedure;
+                                                                let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
+                                                                if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
+                                                                if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
+
                                                                 const isSelected = activeToothId === "bulk"
                                                                     ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
                                                                     : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
+
                                                                 return (
-                                                                    <VStack
-                                                                        key={job.name}
+                                                                    <Box
+                                                                        key={n3.name}
                                                                         px={6} py={5}
-                                                                        align="start"
-                                                                        spacing={1.5}
                                                                         cursor="pointer"
-                                                                        bg={isSelected ? "blue.600" : "white"}
-                                                                        color={isSelected ? "white" : "gray.600"}
+                                                                        bg={isSelected ? "blue.600" : (selectedN3Idx === idx ? "blue.50" : "white")}
+                                                                        color={isSelected ? "white" : (selectedN3Idx === idx ? "blue.600" : "gray.600")}
                                                                         onClick={() => {
+                                                                            setSelectedN3Idx(idx);
                                                                             if (activeToothId === "bulk") {
                                                                                 teeth.forEach(t => {
                                                                                     setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
@@ -891,11 +1006,13 @@ export const TreatmentProcedureForm = observer(
                                                                             } else if (activeToothId) {
                                                                                 setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
                                                                             }
-                                                                            onProcedureClose();
                                                                         }}
+                                                                        _hover={{ bg: isSelected ? "blue.700" : "gray.50" }}
+                                                                        borderBottom="1px solid"
+                                                                        borderColor="gray.100"
                                                                     >
-                                                                        <Text fontSize="12px" fontWeight="900">{job.name.toUpperCase()}</Text>
-                                                                    </VStack>
+                                                                        <Text fontSize="12px" fontWeight="700">{n3.name.toUpperCase()}</Text>
+                                                                    </Box>
                                                                 );
                                                             })}
                                                         </VStack>

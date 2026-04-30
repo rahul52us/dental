@@ -208,8 +208,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             <Badge
               colorScheme={
                 dt?.complaintType?.toUpperCase() === "CHIEF COMPLAINT" ? "red" :
-                dt?.complaintType?.toUpperCase() === "OTHER FINDING" ? "orange" :
-                dt?.complaintType?.toUpperCase() === "EXISTING FINDING" ? "green" : "gray"
+                  dt?.complaintType?.toUpperCase() === "OTHER FINDING" ? "orange" :
+                    dt?.complaintType?.toUpperCase() === "EXISTING FINDING" ? "green" : "gray"
               }
               variant="subtle"
               borderRadius="full"
@@ -351,6 +351,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
     return (
       <Box
+        key={dt._id}
         bg="white"
         p={5}
         borderRadius="3xl"
@@ -380,7 +381,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               const id = parseInt(tId);
               let pos = dt.position;
               let side = dt.side;
-              
+
               if (!pos || !side) {
                 if (id >= 11 && id <= 18) { pos = "upper"; side = "right"; }
                 else if (id >= 21 && id <= 28) { pos = "upper"; side = "left"; }
@@ -727,13 +728,13 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           <Box px={6}>
             <Tabs variant="line" colorScheme="blue">
               <TabList mb="1em">
-                <Tab 
-                  fontWeight="bold" 
+                <Tab
+                  fontWeight="bold"
                   fontSize="14px"
                   px={6}
-                  _selected={{ 
-                    color: "blue.700", 
-                    borderColor: "blue.600", 
+                  _selected={{
+                    color: "blue.700",
+                    borderColor: "blue.600",
                     borderBottomWidth: "3px",
                     bg: "blue.100",
                     borderTopRadius: "lg"
@@ -741,13 +742,13 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 >
                   Create New Entry
                 </Tab>
-                <Tab 
-                  fontWeight="bold" 
+                <Tab
+                  fontWeight="bold"
                   fontSize="14px"
                   px={6}
-                  _selected={{ 
-                    color: "blue.700", 
-                    borderColor: "blue.600", 
+                  _selected={{
+                    color: "blue.700",
+                    borderColor: "blue.600",
                     borderBottomWidth: "3px",
                     bg: "blue.100",
                     borderTopRadius: "lg"
@@ -768,8 +769,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   />
                 </TabPanel>
                 <TabPanel p={0}>
-                  <WorkDoneList 
-                    patientDetails={openWorkDone.data?.patient || patientDetails} 
+                  <WorkDoneList
+                    patientDetails={openWorkDone.data?.patient || patientDetails}
                     treatmentId={openWorkDone.data?._id}
                   />
                 </TabPanel>

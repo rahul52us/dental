@@ -53,6 +53,8 @@ const ProcedureMaster = observer(() => {
     category: '',
     subcategory: '',
     name: '',
+    name2: '',
+    name3: '',
   });
 
   useEffect(() => {
@@ -73,6 +75,8 @@ const ProcedureMaster = observer(() => {
       category: procedure.category,
       subcategory: procedure.subcategory,
       name: procedure.name,
+      name2: procedure.name2 || '',
+      name3: procedure.name3 || '',
     });
     onOpen();
   };
@@ -113,6 +117,8 @@ const ProcedureMaster = observer(() => {
       category: '',
       subcategory: '',
       name: '',
+      name2: '',
+      name3: '',
     });
   };
 
@@ -126,6 +132,8 @@ const ProcedureMaster = observer(() => {
               category: cat.name,
               subcategory: sub.name,
               name: job.name,
+              name2: '',
+              name3: '',
             });
           });
         });
@@ -196,6 +204,8 @@ const ProcedureMaster = observer(() => {
                 <Th>Category</Th>
                 <Th>Subcategory</Th>
                 <Th>Procedure Name</Th>
+                <Th>Name 2</Th>
+                <Th>Name 3</Th>
                 <Th textAlign="center">Actions</Th>
               </Tr>
             </Thead>
@@ -226,6 +236,12 @@ const ProcedureMaster = observer(() => {
                     </Td>
                     <Td>
                       <Text fontWeight="bold">{p.name}</Text>
+                    </Td>
+                    <Td>
+                      <Text color="gray.600">{p.name2 || '-'}</Text>
+                    </Td>
+                    <Td>
+                      <Text color="gray.600">{p.name3 || '-'}</Text>
                     </Td>
                     <Td>
                       <HStack justify="center" spacing={2}>
@@ -295,6 +311,25 @@ const ProcedureMaster = observer(() => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </FormControl>
+
+              <SimpleGrid columns={2} spacing={4} w="full">
+                <FormControl>
+                  <FormLabel>Procedure Name 2</FormLabel>
+                  <Input
+                    placeholder="Alternative name 2..."
+                    value={formData.name2}
+                    onChange={(e) => setFormData({ ...formData, name2: e.target.value })}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Procedure Name 3</FormLabel>
+                  <Input
+                    placeholder="Alternative name 3..."
+                    value={formData.name3}
+                    onChange={(e) => setFormData({ ...formData, name3: e.target.value })}
+                  />
+                </FormControl>
+              </SimpleGrid>
             </VStack>
           </ModalBody>
 
