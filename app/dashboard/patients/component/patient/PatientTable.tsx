@@ -12,10 +12,16 @@ import {
   Flex,
   Tooltip,
   useDisclosure,
+  IconButton,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
-import { GiPsychicWaves, GiMedicalDrip } from "react-icons/gi";
+import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
+import { FiFileText } from "react-icons/fi";
+import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
+import { FaFlask } from "react-icons/fa";
+import LabSheet from "../../../labWork/component/LabSheet";
+import PatientLabWorkHistory from "./PatientLabWorkHistory";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
@@ -27,9 +33,6 @@ import AppointmentList from "../../../appointments/Appointments";
 import ViewDoctor from "./ViewPatient";
 import Treatment from "../../../toothTreatment/page";
 import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
-import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
-import { FiFileText } from "react-icons/fi";
-import { IconButton } from "@chakra-ui/react";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -53,6 +56,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   const [openWorkDoneDetails, setOpenWorkDoneDetails] = useState({
+    open: false,
+    data: null as any,
+  });
+
+  const [openLabSheetDetails, setOpenLabSheetDetails] = useState({
     open: false,
     data: null as any,
   });
@@ -107,19 +115,6 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const PatientTableColumns = [
     {
-      headerName: "Pic",
-      key: "user",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Box m={1}>
-            <Avatar src={dt.pic?.url} name={dt.name} size="sm" />
-          </Box>
-        ),
-      },
-      props: { row: { minW: 100, textAlign: "center" } },
-    },
-    {
       headerName: "Name",
       key: "gender",
       type: "component",
@@ -152,11 +147,6 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         },
       },
       props: { row: { minW: 120, textAlign: "center" } },
-    },
-    {
-      headerName: "Code",
-      key: "code",
-      props: { row: { textAlign: "center" } },
     },
     {
       headerName: "Mobile No.",
@@ -301,6 +291,31 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
+      headerName: "Lab Work",
+      key: "labSheet",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Laboratory History" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Lab Sheet"
+              icon={<FaFlask />}
+              colorScheme="teal"
+              bg="teal.50"
+              color="teal.600"
+              _hover={{ bg: "teal.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => setOpenLabSheetDetails({ open: true, data: dt })}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 100, textAlign: "center" } },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -429,6 +444,20 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             width="85vw"
           >
             <PatientWorkDoneHistory patientDetails={openWorkDoneDetails.data} />
+          </CustomDrawer>
+        )}
+
+        {/* Lab Sheet History Drawer */}
+        {openLabSheetDetails.open && (
+          <CustomDrawer
+            open={openLabSheetDetails.open}
+            close={() => setOpenLabSheetDetails({ open: false, data: null })}
+            title={`Laboratory History: ${openLabSheetDetails.data?.name}`}
+            width="90vw"
+          >
+            <Box m={-2}>
+              <PatientLabWorkHistory patientDetails={openLabSheetDetails.data} />
+            </Box>
           </CustomDrawer>
         )}
       </Box>
