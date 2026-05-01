@@ -10,6 +10,7 @@ import {
   FaUsers,
   FaUserTie,
   FaUserClock,
+  FaPrescription,
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
@@ -171,6 +172,13 @@ const sidebarDatas: SidebarItem[] = [
         name: "Lab Status Master",
         icon: <FaListAlt />,
         url: "/dashboard/labWorkStatus-master",
+        role: ["admin"],
+      },
+      {
+        id: 41,
+        name: "Prescription Master",
+        icon: <FaPrescription />,
+        url: "/dashboard/prescription-master",
         role: ["admin"],
       },
     ]

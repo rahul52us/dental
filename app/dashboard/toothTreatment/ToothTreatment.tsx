@@ -409,15 +409,15 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
             <HStack spacing={2}>
               {dt.complaintType && (
-                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
+                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
                   {dt.complaintType?.toUpperCase()}
                 </Badge>
               )}
-              <Badge colorScheme={color} variant="subtle" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
+              <Badge colorScheme={color} variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
                 {dt.status?.toUpperCase() || "PENDING"}
               </Badge>
               {(dt.estimateMin || dt.estimateMax) && (
-                <Badge colorScheme="blue" variant="outline" borderRadius="full" px={3} fontSize="9px" fontWeight="800">
+                <Badge colorScheme="blue" variant="outline" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
                   ₹{dt.estimateMin || 0} - ₹{dt.estimateMax || 0}
                 </Badge>
               )}
