@@ -71,6 +71,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     labNameManual: initialData?.labNameManual || "",
     sendDate: initialData?.sendDate ? new Date(initialData.sendDate).toISOString().split('T')[0] : "",
     dueDate: initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : "",
+    receivedDate: initialData?.receivedDate ? new Date(initialData.receivedDate).toISOString().split('T')[0] : "",
     statusHistory: initialData?.statusHistory?.length > 0 ? initialData.statusHistory.map((h: any) => ({
       status: h.status,
       date: new Date(h.date).toISOString().split('T')[0],
@@ -388,6 +389,13 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   type="date"
                   value={values.dueDate}
                   onChange={(e: any) => setFieldValue("dueDate", e.target.value)}
+                />
+                <CustomInput
+                  label="Received Date"
+                  name="receivedDate"
+                  type="date"
+                  value={values.receivedDate}
+                  onChange={(e: any) => setFieldValue("receivedDate", e.target.value)}
                 />
               </Grid>
 

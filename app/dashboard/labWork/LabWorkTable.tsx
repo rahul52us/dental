@@ -55,7 +55,7 @@ const LabWorkTable = observer(() => {
       let workType: any = undefined;
       if (activeTab === 1) workType = "in-house";
       else if (activeTab === 2) workType = "outside";
-      
+
       const query: any = { page, limit };
       if (workType) query.workType = workType;
 
@@ -127,7 +127,7 @@ const LabWorkTable = observer(() => {
     else if (s === "received") color = "teal";
     else if (s === "completed" || s === "delivered") color = "green";
     else if (s === "cancelled" || s === "rejected") color = "red";
-    
+
     return <Badge colorScheme={color} borderRadius="full" px={2} variant="subtle">{status?.toUpperCase() || "N/A"}</Badge>;
   };
 
@@ -172,16 +172,16 @@ const LabWorkTable = observer(() => {
                     </Text>
                   </Tooltip>
                   <HStack spacing={2} ml={3}>
-                      {w.teethNumbers?.length > 0 && (
-                        <Tooltip label={`Teeth: ${w.teethNumbers.join(", ")}`}>
-                            <Badge variant="subtle" colorScheme="gray" fontSize="9px">{w.teethNumbers.join(",")}</Badge>
-                        </Tooltip>
-                      )}
-                      {w.shadeValue && (
-                        <Tooltip label={`Shade: ${w.shadeValue}`}>
-                            <Badge variant="subtle" colorScheme="orange" fontSize="9px">S: {w.shadeValue}</Badge>
-                        </Tooltip>
-                      )}
+                    {w.teethNumbers?.length > 0 && (
+                      <Tooltip label={`Teeth: ${w.teethNumbers.join(", ")}`}>
+                        <Badge variant="subtle" colorScheme="gray" fontSize="9px">{w.teethNumbers.join(",")}</Badge>
+                      </Tooltip>
+                    )}
+                    {w.shadeValue && (
+                      <Tooltip label={`Shade: ${w.shadeValue}`}>
+                        <Badge variant="subtle" colorScheme="orange" fontSize="9px">S: {w.shadeValue}</Badge>
+                      </Tooltip>
+                    )}
                   </HStack>
                 </Box>
               );
@@ -214,18 +214,6 @@ const LabWorkTable = observer(() => {
       },
     },
     {
-      headerName: "Delay",
-      key: "delay",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Text color={dt.delay > 0 ? "red.500" : "green.500"} fontWeight="bold">
-            {dt.delay > 0 ? `+${dt.delay} days` : "On Time"}
-          </Text>
-        ),
-      },
-    },
-    {
       headerName: "Price",
       key: "price",
       function: (dt: any) => `₹${dt.price || 0}`,
@@ -247,17 +235,17 @@ const LabWorkTable = observer(() => {
         subTitle="Manage In-house and Outside laboratory orders and tracking"
       />
       <Box mt={2}>
-        <Tabs 
-          index={activeTab} 
-          onChange={handleTabChange} 
-          variant="unstyled" 
+        <Tabs
+          index={activeTab}
+          onChange={handleTabChange}
+          variant="unstyled"
           mb={2}
         >
-          <TabList 
-            bg={useColorModeValue("white", "gray.800")} 
-            p={1} 
-            borderRadius="xl" 
-            shadow="sm" 
+          <TabList
+            bg={useColorModeValue("white", "gray.800")}
+            p={1}
+            borderRadius="xl"
+            shadow="sm"
             w="fit-content"
             border="1px solid"
             borderColor={useColorModeValue("gray.100", "gray.700")}
@@ -269,10 +257,10 @@ const LabWorkTable = observer(() => {
             ].map((t, i) => (
               <Tab
                 key={i}
-                _selected={{ 
-                  bg: "blue.500", 
-                  color: "white", 
-                  shadow: "md" 
+                _selected={{
+                  bg: "blue.500",
+                  color: "white",
+                  shadow: "md"
                 }}
                 _hover={{
                   bg: activeTab === i ? "blue.600" : useColorModeValue("gray.50", "gray.700")
@@ -331,7 +319,7 @@ const LabWorkTable = observer(() => {
         <Drawer isOpen={isOpen} onClose={onClose} size="full" placement="right">
           <DrawerOverlay />
           <DrawerContent maxW="85%">
-            <DrawerHeader 
+            <DrawerHeader
               bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}EE, ${stores.themeStore.themeConfig.colors.custom.light.primary}CC)`}
               color="white"
               fontWeight="700"

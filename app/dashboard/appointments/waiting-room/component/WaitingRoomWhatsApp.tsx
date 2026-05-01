@@ -416,27 +416,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 zIndex={2}
                             >
                                 <SimpleGrid columns={2} spacing={3} width="100%" px={4} pb={4} onClick={(e) => e.stopPropagation()}>
-                                    <Button
-                                        bgGradient="linear(to-r, teal.400, teal.600)"
-                                        color="white"
-                                        leftIcon={<RepeatClockIcon />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, teal.500, teal.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenHistory({ open: true, data: patient });
-                                        }}
-                                    >
-                                        History
-                                    </Button>
+
                                     <Button
                                         bgGradient="linear(to-r, purple.400, purple.600)"
                                         color="white"
@@ -599,11 +579,11 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             </TabList>
                             <TabPanels>
                                 <TabPanel p={0}>
-                                    <WorkDoneForm 
-                                        patientDetails={openWorkDone.data} 
+                                    <WorkDoneForm
+                                        patientDetails={openWorkDone.data}
                                         onSuccess={() => {
                                             setOpenWorkDone({ open: false, data: null });
-                                        }} 
+                                        }}
                                     />
                                 </TabPanel>
                                 <TabPanel p={0}>

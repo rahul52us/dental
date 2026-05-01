@@ -118,7 +118,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         </Box>
 
         {/* Dates & Billing */}
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
+        <SimpleGrid columns={{ base: 1, md: 4 }} gap={4}>
            <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
              <VStack align="start" spacing={1}>
                 <HStack color="gray.600"><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
@@ -130,6 +130,14 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                 <HStack color="gray.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">DUE DATE</Text></HStack>
                 <Text fontWeight="bold" color={data.delay > 0 ? "red.500" : "green.500"}>
                   {data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"}
+                </Text>
+             </VStack>
+           </Box>
+           <Box p={4} borderRadius="xl" bg="teal.50" border="1px solid" borderColor="teal.100">
+             <VStack align="start" spacing={1}>
+                <HStack color="teal.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">RECEIVED DATE</Text></HStack>
+                <Text fontWeight="bold" color="teal.700">
+                  {data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"}
                 </Text>
              </VStack>
            </Box>
