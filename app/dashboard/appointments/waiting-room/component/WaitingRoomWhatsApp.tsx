@@ -48,7 +48,9 @@ import ViewPatient from "../../../patients/component/patient/ViewPatient";
 import Treatment from "../../../toothTreatment/page";
 import WorkDoneForm from "../../../workDone/component/WorkDoneForm";
 import WorkDoneList from "../../../workDone/component/WorkDoneList";
+import PatientLabWorkHistory from "../../../patients/component/patient/PatientLabWorkHistory";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { FaFlask } from "react-icons/fa";
 
 const pulse = keyframes`
   0% { transform: translateY(-50%) scale(1); opacity: 0.6; }
@@ -72,6 +74,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openTreatment, setOpenTreatment] = useState({ open: false, data: null as any });
     const [openAppointment, setOpenAppointment] = useState({ open: false, data: null as any });
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
+    const [openLab, setOpenLab] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
 
@@ -456,25 +459,25 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         Treatments
                                     </Button>
                                     <Button
-                                        bgGradient="linear(to-r, blue.400, blue.600)"
+                                        bgGradient="linear(to-r, pink.400, pink.600)"
                                         color="white"
-                                        leftIcon={<CalendarIcon />}
+                                        leftIcon={<FaFlask />}
                                         size="sm"
                                         borderRadius="xl"
                                         fontSize="xs"
                                         fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
+                                        boxShadow="0 4px 12px rgba(237, 100, 166, 0.25)"
                                         _hover={{
-                                            bgGradient: "linear(to-r, blue.500, blue.700)",
+                                            bgGradient: "linear(to-r, pink.500, pink.700)",
                                             transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
+                                            boxShadow: "0 6px 15px rgba(237, 100, 166, 0.4)"
                                         }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setOpenAppointment({ open: true, data: patient });
+                                            setOpenLab({ open: true, data: patient });
                                         }}
                                     >
-                                        Appointment
+                                        Lab
                                     </Button>
                                     <Button
                                         bgGradient="linear(to-r, orange.400, orange.600)"
@@ -496,6 +499,27 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         }}
                                     >
                                         Work Done
+                                    </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, blue.400, blue.600)"
+                                        color="white"
+                                        leftIcon={<CalendarIcon />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, blue.500, blue.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenAppointment({ open: true, data: patient });
+                                        }}
+                                    >
+                                        Appointment
                                     </Button>
                                 </SimpleGrid>
                             </Flex>
@@ -588,6 +612,20 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             </TabPanels>
                         </Tabs>
                     </Box>
+                </CustomDrawer>
+            )}
+
+            {/* Lab Drawer */}
+            {openLab.open && (
+                <CustomDrawer
+                    width="92%"
+                    title={`Laboratory History: ${openLab.data?.name}`}
+                    open={openLab.open}
+                    close={() => setOpenLab({ open: false, data: null })}
+                >
+                    <PatientLabWorkHistory
+                        patientDetails={openLab.data}
+                    />
                 </CustomDrawer>
             )}
 

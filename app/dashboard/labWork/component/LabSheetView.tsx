@@ -67,7 +67,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
               <Icon as={FiActivity} color="purple.500" />
               <VStack align="start" spacing={0}>
                 <Text fontSize="xs" color="gray.500">Primary Doctor</Text>
-                <Text fontWeight="bold">{data.primaryDoctor?.name || data.doctorNameManual || "N/A"}</Text>
+                <Text fontWeight="bold">{data.primaryDoctor?.name || data.primaryDoctor?.labDoctorName || data.doctorNameManual || "N/A"}</Text>
               </VStack>
             </HStack>
 

@@ -162,7 +162,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
   useEffect(() => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       const option = {
-        label: value.label || value.name || value.username || 'Selected',
+        label: value.label || value.name || value.username || value.labDoctorName || 'Selected',
         value: value.value || value._id || value
       };
       if (!userOptions.find(opt => opt.value === option.value)) {
@@ -170,7 +170,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
       }
     } else if (Array.isArray(value) && isMulti) {
       const newOpts = value.map(it => ({
-        label: it.label || it.name || it.username || 'Selected',
+        label: it.label || it.name || it.username || it.labDoctorName || 'Selected',
         value: it.value || it._id || it
       })).filter(it => !userOptions.find(opt => opt.value === it.value));
       if (newOpts.length > 0) {

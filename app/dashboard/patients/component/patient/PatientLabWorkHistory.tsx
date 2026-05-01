@@ -99,7 +99,7 @@ const PatientLabWorkHistory = observer(({ patientDetails }: PatientLabWorkHistor
         component: (dt: any) => (
           <VStack align="start" spacing={0}>
             <Text fontSize="xs" fontWeight="bold">Lab: {dt.lab?.name || dt.labNameManual || "In-house"}</Text>
-            <Text fontSize="xs" color="gray.500">Dr. {dt.primaryDoctor?.name || dt.doctorNameManual || "N/A"}</Text>
+            <Text fontSize="xs" color="gray.500">Dr. {dt.primaryDoctor?.name || dt.primaryDoctor?.labDoctorName || dt.doctorNameManual || "N/A"}</Text>
           </VStack>
         ),
       },
@@ -129,6 +129,7 @@ const PatientLabWorkHistory = observer(({ patientDetails }: PatientLabWorkHistor
         component: (dt: any) => (
           <VStack align="start" spacing={0}>
             <Text fontSize="xs">Sent: {dt.sendDate ? formatDateTime(dt.sendDate).split(",")[0] : "-"}</Text>
+            <Text fontSize="xs" color="red.500">Due: {dt.dueDate ? formatDateTime(dt.dueDate).split(",")[0] : "-"}</Text>
           </VStack>
         ),
       },

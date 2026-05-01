@@ -51,6 +51,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     patient: initialData?.patient || "",
     patientNameManual: initialData?.patientNameManual || "",
     primaryDoctor: initialData?.primaryDoctor || "",
+    primaryDoctorModel: initialData?.primaryDoctorModel || (initialData?.workType === "in-house" ? "User" : "LabDoctor"),
     doctorNameManual: initialData?.doctorNameManual || "",
     workType: initialData?.workType || "outside",
 
@@ -91,6 +92,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
       ...values,
       patient: values.patient?.value || values.patient?._id || values.patient,
       primaryDoctor: values.primaryDoctor?.value || values.primaryDoctor?._id || values.primaryDoctor,
+      primaryDoctorModel: values.workType === "in-house" ? "User" : "LabDoctor",
       lab: values.lab?.value || values.lab?._id || values.lab,
       status: values.statusHistory?.[values.statusHistory.length - 1]?.status || "plan",
       statusDate: values.statusHistory?.[values.statusHistory.length - 1]?.date || new Date()
@@ -183,22 +185,28 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                     required
                   />
                 )}
-                {values.workType === "outside" ? (
+                {values.workType === "in-house" ? (
                   <CustomInput
-                    label="Doctor Name"
-                    name="doctorNameManual"
-                    placeholder="Enter Doctor Name"
-                    value={values.doctorNameManual}
-                    onChange={(e: any) => setFieldValue("doctorNameManual", e.target.value)}
-                    required
-                  />
-                ) : (
-                  <CustomInput
-                    label="Doctor"
+                    label="Doctor (Internal)"
                     name="primaryDoctor"
                     type="real-time-user-search"
                     query={{ type: "doctor" }}
                     placeholder="Search Doctor"
+                    value={values.primaryDoctor}
+                    onChange={(val: any) => setFieldValue("primaryDoctor", val)}
+                    required
+                  />
+                ) : (
+                  <CustomInput
+                    label="Lab Doctor (Outside)"
+                    name="primaryDoctor"
+                    type="real-time-search"
+                    params={{
+                      entityName: "labDoctorStore",
+                      functionName: "getLabDoctors",
+                      key: "labDoctorName",
+                    }}
+                    placeholder="Search Lab Doctor"
                     value={values.primaryDoctor}
                     onChange={(val: any) => setFieldValue("primaryDoctor", val)}
                     required
@@ -355,7 +363,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 </VStack>
               </Box>
 
-              <Grid templateColumns={{ base: "1fr", md: "2.5fr 1fr 1fr 1fr" }} gap={6}>
+              <Grid templateColumns={{ base: "1fr", md: values.workType === "outside" ? "2fr 1fr 1fr" : "1fr 1fr" }} gap={6}>
                 {values.workType === "outside" && (
                   <CustomInput
                     label="Laboratory"
@@ -373,6 +381,13 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   type="date"
                   value={values.sendDate}
                   onChange={(e: any) => setFieldValue("sendDate", e.target.value)}
+                />
+                <CustomInput
+                  label="Due Date"
+                  name="dueDate"
+                  type="date"
+                  value={values.dueDate}
+                  onChange={(e: any) => setFieldValue("dueDate", e.target.value)}
                 />
               </Grid>
 

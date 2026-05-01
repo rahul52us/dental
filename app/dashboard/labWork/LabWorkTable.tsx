@@ -153,7 +153,7 @@ const LabWorkTable = observer(() => {
     {
       headerName: "Doctor",
       key: "doctor",
-      function: (dt: any) => dt.primaryDoctor?.name || dt.doctorNameManual || "N/A",
+      function: (dt: any) => dt.primaryDoctor?.name || dt.primaryDoctor?.labDoctorName || dt.doctorNameManual || "N/A",
     },
     {
       headerName: "Selected Works",
