@@ -22,6 +22,11 @@ import stores from "../../../store/stores";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import TreatmentDetailsView from "../../toothTreatment/element/TreatmentDetailsView";
+import { TeethChart } from "../../../component/common/TeethModel/DentalChartComponent/component/TeethChart";
+import { getTeethByType, ToothData } from "../../../component/common/TeethModel/DentalChartComponent/utils/teethData";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+import { DentitionToggle } from "../../../component/common/TeethModel/DentalChartComponent/component/DentitionToggle";
+
 
 interface WorkDoneFormProps {
   patientDetails: any;
@@ -42,28 +47,58 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   const [isProcedureOpen, setIsProcedureOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCatIdx, setSelectedCatIdx] = useState(0);
-  const [selectedSubIdx, setSelectedSubIdx] = useState(0);
+  const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(null);
+  const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(null);
+  const [selectedN1Idx, setSelectedN1Idx] = useState<number | null>(null);
+  const [selectedN2Idx, setSelectedN2Idx] = useState<number | null>(null);
+  const [selectedN3Idx, setSelectedN3Idx] = useState<number | null>(null);
+
+
+
 
   useEffect(() => {
     getProcedures();
   }, [getProcedures]);
 
   const groupedData = useMemo(() => {
-    const categories: Record<string, any> = {};
-    procedures.data.forEach((proc: any) => {
-      if (!categories[proc.category]) {
-        categories[proc.category] = { name: proc.category, subcategories: {} };
+    const dbData = procedures.data;
+    if (dbData.length === 0) return [];
+
+    const map: any = {};
+    dbData.forEach((p: any) => {
+      const cat = p.category;
+      const sub = p.subcategory;
+      const n1 = p.name;
+      const n2 = p.name2 || "None";
+      const n3 = p.name3 || "None";
+
+      if (!map[cat]) map[cat] = { name: cat, subcategories: {} };
+      if (!map[cat].subcategories[sub]) {
+        map[cat].subcategories[sub] = { name: sub, name1s: {} };
       }
-      if (!categories[proc.category].subcategories[proc.subcategory]) {
-        categories[proc.category].subcategories[proc.subcategory] = { name: proc.subcategory, jobs: [] };
+      if (!map[cat].subcategories[sub].name1s[n1]) {
+        map[cat].subcategories[sub].name1s[n1] = { name: n1, name2s: {} };
       }
-      categories[proc.category].subcategories[proc.subcategory].jobs.push(proc);
+      if (!map[cat].subcategories[sub].name1s[n1].name2s[n2]) {
+        map[cat].subcategories[sub].name1s[n1].name2s[n2] = { name: n2, name3s: {} };
+      }
+      if (!map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3]) {
+        map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = { name: n3, proc: p };
+      }
     });
 
-    return Object.values(categories).map((cat: any) => ({
+    return Object.values(map).map((cat: any) => ({
       ...cat,
-      subcategories: Object.values(cat.subcategories)
+      subcategories: Object.values(cat.subcategories).map((sub: any) => ({
+        ...sub,
+        name1s: Object.values(sub.name1s).map((n1: any) => ({
+          ...n1,
+          name2s: Object.values(n1.name2s).map((n2: any) => ({
+            ...n2,
+            name3s: Object.values(n2.name3s)
+          }))
+        }))
+      }))
     }));
   }, [procedures.data]);
 
@@ -75,9 +110,6 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       proc.subcategory.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [procedures.data, searchTerm]);
-
-  const activeCategory = groupedData[selectedCatIdx];
-  const activeSubcategory = activeCategory?.subcategories[selectedSubIdx];
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
@@ -98,9 +130,20 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
         doctor: values.doctor?.value || values.doctor,
         patient: patientDetails._id,
         treatment: treatmentDetails?._id,
+        company: stores.auth.company,
+        user: stores.auth.user?._id,
         status: values.status,
         amount: Number(values.amount) || 0,
         discount: Number(values.discount) || 0,
+        // Standalone Tooth Details
+        tooth: values.tooth || treatmentDetails?.tooth || treatmentDetails?.toothNo,
+        toothNotation: values.toothNotation || treatmentDetails?.toothNotation,
+        dentitionType: values.dentitionType || treatmentDetails?.dentitionType,
+        position: values.position || treatmentDetails?.position,
+        side: values.side || treatmentDetails?.side,
+        toothNote: values.toothNote || treatmentDetails?.toothNote,
+        recordType: values.recordType || treatmentDetails?.recordType || (values.tooth ? "tooth" : "note"),
+        examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor || treatmentDetails?.examiningDoctor?._id || treatmentDetails?.examiningDoctor,
       };
 
       if (editData?._id) {
@@ -138,7 +181,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   };
 
   const initialValues = {
-    complaintType: editData?.complaintType || treatmentDetails?.complaintType || "CHIEF COMPLAINT",
+    complaintType: editData?.complaintType || treatmentDetails?.complaintType || "",
     doctor: editData?.doctor 
       ? (editData.doctor.name ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor)
       : (treatmentDetails?.doctor 
@@ -146,21 +189,36 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
           : ""),
     workDoneNote: editData?.workDoneNote || "",
     status: editData?.status || "",
-    amount: editData?.amount ?? "",
-    discount: editData?.discount ?? "",
+    amount: editData?.amount ?? (treatmentDetails?.estimateMin || ""),
+    discount: editData?.discount ?? (treatmentDetails?.discount || ""),
     treatmentCode: editData?.treatmentCode || treatmentDetails?.treatmentPlan || "",
+    // Standalone Fields
+    tooth: editData?.tooth || treatmentDetails?.tooth || treatmentDetails?.toothNo || "",
+    toothNotation: editData?.toothNotation || treatmentDetails?.toothNotation || "fdi",
+    dentitionType: editData?.dentitionType || treatmentDetails?.dentitionType || "adult",
+    position: editData?.position || treatmentDetails?.position || "",
+    side: editData?.side || treatmentDetails?.side || "",
+    toothNote: editData?.toothNote || treatmentDetails?.toothNote || "",
+    recordType: editData?.recordType || treatmentDetails?.recordType || "tooth",
+    examiningDoctor: editData?.examiningDoctor 
+      ? (editData.examiningDoctor.name ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor)
+      : (treatmentDetails?.examiningDoctor 
+          ? (treatmentDetails.examiningDoctor.name ? { label: treatmentDetails.examiningDoctor.name, value: treatmentDetails.examiningDoctor._id } : treatmentDetails.examiningDoctor)
+          : ""),
   };
 
   return (
     <Box p={0} bg="white" borderRadius="3xl" overflow="hidden" position="relative">
       <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
-        {({ values, setFieldValue, handleSubmit }) => {
+        {(formikProps) => {
+          const { values, setFieldValue, handleSubmit: formikHandleSubmit } = formikProps;
           const complaintColor = values.complaintType === "CHIEF COMPLAINT" ? "red.500" : 
                                  values.complaintType === "OTHER FINDING" ? "orange.400" : 
                                  values.complaintType === "EXISTING FINDING" ? "green.500" : "blue.500";
           return (
-          <Form onSubmit={handleSubmit}>
-            <Box h="6px" bg={complaintColor} w="full" position="absolute" top={0} left={0} />
+            <>
+            <Form onSubmit={formikHandleSubmit}>
+              <Box h="6px" bg={complaintColor} w="full" position="absolute" top={0} left={0} />
             <VStack align="stretch" spacing={4} pt={4}>
               {/* Header */}
               <Box mb={-4}>
@@ -245,10 +303,102 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                     </VStack>
                   </Grid>
                 ) : (
-                  <Box mt={4} p={3} bg="orange.50" borderRadius="xl" border="1px dashed" borderColor="orange.200">
-                    <Text fontSize="11px" color="orange.600" fontWeight="900">
-                      NO ACTIVE TREATMENT LINKED • STANDALONE ENTRY
-                    </Text>
+                  <Box mt={4} p={5} bg="blue.50" borderRadius="3xl" border="1px dashed" borderColor="blue.200" position="relative">
+                    <VStack align="stretch" spacing={4} w="full">
+                      <HStack justify="space-between" w="full">
+                        <VStack align="start" spacing={0}>
+                          <Text fontSize="11px" color="blue.600" fontWeight="900">
+                            STANDALONE CLINICAL ENTRY • VISUAL TOOTH SELECTION
+                          </Text>
+                          <HStack spacing={2}>
+                            <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3}>
+                              {values.tooth ? `SELECTED TOOTH: ${values.tooth}` : "NO TOOTH SELECTED"}
+                            </Badge>
+                            {values.position && (
+                              <Badge colorScheme="teal" variant="outline" borderRadius="full">
+                                {values.position.toUpperCase()} • {values.side.toUpperCase()}
+                              </Badge>
+                            )}
+                          </HStack>
+                        </VStack>
+                        
+                        <HStack spacing={4} bg="white" p={1} px={3} borderRadius="full" border="1px solid" borderColor="blue.100">
+                          <VStack align="start" spacing={0}>
+                            <Text fontSize="8px" fontWeight="1000" color="gray.400">DENTITION</Text>
+                            <DentitionToggle 
+                              value={values.dentitionType} 
+                              onChange={(val) => setFieldValue("dentitionType", val)} 
+                            />
+                          </VStack>
+                          <Divider orientation="vertical" h="20px" />
+                          <VStack align="start" spacing={0}>
+                            <Text fontSize="8px" fontWeight="1000" color="gray.400">NOTATION</Text>
+                            <HStack spacing={1}>
+                              {["fdi", "universal", "palmer"].map(n => (
+                                <Button
+                                  key={n}
+                                  type="button"
+                                  size="xxs"
+                                  variant={values.toothNotation === n ? "solid" : "ghost"}
+                                  colorScheme={values.toothNotation === n ? "blue" : "gray"}
+                                  onClick={() => setFieldValue("toothNotation", n)}
+                                  fontSize="8px"
+                                  h="18px"
+                                  minW="30px"
+                                  px={1}
+                                  fontWeight="900"
+                                >
+                                  {n.toUpperCase()}
+                                </Button>
+                              ))}
+                            </HStack>
+                          </VStack>
+                        </HStack>
+                      </HStack>
+
+                      <Box bg="white" borderRadius="2xl" p={2} border="1px solid" borderColor="blue.100" shadow="sm">
+                        <Box transform="scale(0.9)" transformOrigin="top center" h="300px" overflow="hidden">
+                          <TeethChart
+                            dentitionType={values.dentitionType}
+                            selectedTeeth={values.tooth ? [{ id: values.tooth, fdi: values.tooth } as ToothData] : []}
+                            onToothClick={(tooth) => {
+                              const toothId = String(tooth.fdi || tooth.id);
+                              setFieldValue("tooth", toothId);
+                              
+                              // Quadrant Detection
+                              const id = parseInt(toothId);
+                              if (!isNaN(id)) {
+                                if ((id >= 11 && id <= 18) || (id >= 51 && id <= 55)) { 
+                                  setFieldValue("position", "upper"); setFieldValue("side", "right"); 
+                                }
+                                else if ((id >= 21 && id <= 28) || (id >= 61 && id <= 65)) { 
+                                  setFieldValue("position", "upper"); setFieldValue("side", "left"); 
+                                }
+                                else if ((id >= 31 && id <= 38) || (id >= 71 && id <= 75)) { 
+                                  setFieldValue("position", "lower"); setFieldValue("side", "left"); 
+                                }
+                                else if ((id >= 41 && id <= 48) || (id >= 81 && id <= 85)) { 
+                                  setFieldValue("position", "lower"); setFieldValue("side", "right"); 
+                                }
+                              }
+                            }}
+                            notationType={values.toothNotation}
+                            toothComplaints={{}}
+                            activeComplaintType="CHIEF COMPLAINT"
+                            sessionDate={new Date().toISOString().split('T')[0]}
+                          />
+                        </Box>
+                      </Box>
+
+                      <VStack align="start" spacing={1} w="full">
+                        <Text fontSize="9px" fontWeight="900" color="gray.400">TOOTH CONDITION NOTE</Text>
+                        <Input 
+                          size="sm" bg="white" borderRadius="md" placeholder="e.g. Deep caries, missing, etc."
+                          value={values.toothNote}
+                          onChange={(e) => setFieldValue("toothNote", e.target.value)}
+                        />
+                      </VStack>
+                    </VStack>
                   </Box>
                 )}
 
@@ -265,19 +415,38 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                 <TreatmentDetailsView data={treatmentDetails} />
               </CustomDrawer>
 
-              {/* Complaint Type removed and represented by color bar on top */}
-
-              {/* 2. Treating Doctor */}
-              <VStack align="start" spacing={2} w="full">
-                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">2. TREATING DOCTOR</Text>
-                <CustomInput
-                  name="doctor"
-                  type="real-time-user-search"
-                  query={{ type: 'doctor' }}
-                  value={values.doctor}
-                  onChange={(val: any) => setFieldValue("doctor", val)}
-                  style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
-                />
+              {/* 2. Clinical Team */}
+              <VStack align="start" spacing={4} w="full">
+                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">2. CLINICAL TEAM</Text>
+                <Grid templateColumns={{ base: "1fr", md: treatmentDetails ? "1fr 1fr" : "1fr" }} gap={4} w="full">
+                  {treatmentDetails && (
+                    <VStack align="start" spacing={2} w="full">
+                      <Text fontSize="9px" fontWeight="1000" color="gray.400">EXAMINING DOCTOR</Text>
+                      <CustomInput
+                        name="examiningDoctor"
+                        type="real-time-user-search"
+                        query={{ type: 'doctor' }}
+                        value={values.examiningDoctor}
+                        onChange={(val: any) => setFieldValue("examiningDoctor", val)}
+                        style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                        placeholder="Select Examining Dr."
+                        disabled={true} 
+                      />
+                    </VStack>
+                  )}
+                  <VStack align="start" spacing={2} w="full">
+                      <Text fontSize="9px" fontWeight="1000" color="gray.400">TREATING DOCTOR</Text>
+                      <CustomInput
+                        name="doctor"
+                        type="real-time-user-search"
+                        query={{ type: 'doctor' }}
+                        value={values.doctor}
+                        onChange={(val: any) => setFieldValue("doctor", val)}
+                        style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                        placeholder="Select Treating Dr."
+                      />
+                  </VStack>
+                </Grid>
               </VStack>
 
               {/* 4. Clinical Observation */}
@@ -355,8 +524,8 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                     <Text fontSize="14px" fontWeight="1000" color="blue.800" noOfLines={2}>
                       {values.treatmentCode.split(" → ").pop()}
                     </Text>
-                    <Text fontSize="11px" color="blue.400" noOfLines={1} mt={1}>
-                      {values.treatmentCode.split(" → ").slice(0, 2).join(" • ")}
+                    <Text fontSize="11px" color="blue.400" mt={1}>
+                      {values.treatmentCode.split(" → ").join(" • ")}
                     </Text>
                   </Box>
                 )}
@@ -425,69 +594,115 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                     </Text>
                                     <Text fontSize="12px" fontWeight="900">{proc.name}</Text>
                                   </VStack>
-                                  <Badge p={2} borderRadius="md" colorScheme="blue" fontSize="12px" fontWeight="900">
-                                    ₹{(proc.defaultEstimate || 0).toLocaleString()}
-                                  </Badge>
                                 </HStack>
                               );
                             })}
                           </VStack>
                         </Box>
                       ) : (
-                        <Grid templateColumns="1fr 1fr 1.5fr" h="full">
+                        <Grid templateColumns="repeat(5, 1fr)" h="full">
                           {/* Categories */}
                           <Box borderRight="1px solid" borderColor="gray.100" overflowY="auto">
                             {groupedData.map((cat: any, idx) => (
                               <Box
                                 key={cat.name}
-                                px={5} py={4}
+                                px={4} py={3}
                                 cursor="pointer"
                                 bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
                                 color={selectedCatIdx === idx ? "blue.600" : "gray.500"}
-                                onClick={() => { setSelectedCatIdx(idx); setSelectedSubIdx(0); }}
+                                onClick={() => { 
+                                  setSelectedCatIdx(idx); 
+                                  setSelectedSubIdx(null); setSelectedN1Idx(null); setSelectedN2Idx(null); setSelectedN3Idx(null); 
+                                }}
                                 _hover={{ bg: "blue.50/20" }}
                               >
-                                <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{cat.name.toUpperCase()}</Text>
+                                <Text fontSize="10px" fontWeight="900" letterSpacing="widest">{cat.name.toUpperCase()}</Text>
                               </Box>
                             ))}
                           </Box>
                           {/* Subcategories */}
                           <Box borderRight="1px solid" borderColor="gray.100" overflowY="auto">
-                            {activeCategory?.subcategories.map((sub: any, idx: number) => (
+                            {selectedCatIdx !== null && groupedData[selectedCatIdx]?.subcategories.map((sub: any, idx: number) => (
                               <Box
                                 key={sub.name}
-                                px={6} py={4}
+                                px={4} py={3}
                                 cursor="pointer"
                                 bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
                                 color={selectedSubIdx === idx ? "blue.600" : "gray.500"}
-                                onClick={() => setSelectedSubIdx(idx)}
+                                onClick={() => { 
+                                  setSelectedSubIdx(idx); 
+                                  setSelectedN1Idx(null); setSelectedN2Idx(null); setSelectedN3Idx(null); 
+                                }}
+                                _hover={{ bg: "blue.50/20" }}
                               >
-                                <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{sub.name.toUpperCase()}</Text>
+                                <Text fontSize="10px" fontWeight="900">{sub.name}</Text>
                               </Box>
                             ))}
                           </Box>
-                          {/* Procedures */}
+                          {/* Name1 */}
+                          <Box borderRight="1px solid" borderColor="gray.100" overflowY="auto">
+                            {selectedSubIdx !== null && groupedData[selectedCatIdx!]?.subcategories[selectedSubIdx]?.name1s.map((n1: any, idx: number) => (
+                              <Box
+                                key={n1.name}
+                                px={4} py={3}
+                                cursor="pointer"
+                                bg={selectedN1Idx === idx ? "blue.50" : "transparent"}
+                                color={selectedN1Idx === idx ? "blue.600" : "gray.500"}
+                                onClick={() => { 
+                                  setSelectedN1Idx(idx); 
+                                  setSelectedN2Idx(null); setSelectedN3Idx(null); 
+                                }}
+                                _hover={{ bg: "blue.50/20" }}
+                              >
+                                <Text fontSize="10px" fontWeight="900">{n1.name}</Text>
+                              </Box>
+                            ))}
+                          </Box>
+                          {/* Name2 */}
+                          <Box borderRight="1px solid" borderColor="gray.100" overflowY="auto">
+                            {selectedN1Idx !== null && groupedData[selectedCatIdx!]?.subcategories[selectedSubIdx!]?.name1s[selectedN1Idx]?.name2s.map((n2: any, idx: number) => (
+                              <Box
+                                key={n2.name}
+                                px={4} py={3}
+                                cursor="pointer"
+                                bg={selectedN2Idx === idx ? "blue.50" : "transparent"}
+                                color={selectedN2Idx === idx ? "blue.600" : "gray.500"}
+                                onClick={() => { 
+                                  setSelectedN2Idx(idx); 
+                                  setSelectedN3Idx(null); 
+                                }}
+                                _hover={{ bg: "blue.50/20" }}
+                              >
+                                <Text fontSize="10px" fontWeight="900">{n2.name}</Text>
+                              </Box>
+                            ))}
+                          </Box>
+                          {/* Name3 (Procedures) */}
                           <Box overflowY="auto">
-                            {activeSubcategory?.jobs.map((job: any) => {
-                              const fullCode = `${activeCategory?.name} → ${activeSubcategory?.name} → ${job.name}`;
-                              return (
-                                <VStack
-                                  key={job.name}
-                                  px={6} py={5}
-                                  align="start"
-                                  spacing={1}
-                                  cursor="pointer"
-                                  onClick={() => {
-                                    setFieldValue("treatmentCode", fullCode);
-                                    setIsProcedureOpen(false);
-                                  }}
-                                  _hover={{ bg: "blue.50/30" }}
-                                >
-                                  <Text fontSize="12px" fontWeight="900">{job.name.toUpperCase()}</Text>
-                                  <Text fontSize="10px" color="blue.500">₹{(job.defaultEstimate || 0).toLocaleString()}</Text>
+                            {selectedN2Idx !== null && groupedData[selectedCatIdx!]?.subcategories[selectedSubIdx!]?.name1s[selectedN1Idx!]?.name2s[selectedN2Idx]?.name3s.map((n3: any, idx: number) => (
+                              <Box
+                                key={n3.name}
+                                px={4} py={3}
+                                cursor="pointer"
+                                bg={selectedN3Idx === idx ? "blue.50" : "transparent"}
+                                color={selectedN3Idx === idx ? "blue.600" : "gray.500"}
+                                onClick={() => { 
+                                  setSelectedN3Idx(idx);
+                                  const proc = n3.proc;
+                                  const parts = [proc.category, proc.subcategory, proc.name];
+                                  if (proc.name2 && proc.name2 !== "None") parts.push(proc.name2);
+                                  if (proc.name3 && proc.name3 !== "None") parts.push(proc.name3);
+                                  const fullCode = parts.join(" → ");
+                                  setFieldValue("treatmentCode", fullCode);
+                                  setIsProcedureOpen(false);
+                                }}
+                                _hover={{ bg: "blue.50/20" }}
+                              >
+                                <VStack align="start" spacing={1}>
+                                  <Text fontSize="10px" fontWeight="1000">{n3.name}</Text>
                                 </VStack>
-                              );
-                            })}
+                              </Box>
+                            ))}
                           </Box>
                         </Grid>
                       )}
@@ -543,10 +758,13 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
               </Box>
             </VStack>
           </Form>
+
+          </>
           );
         }}
       </Formik>
     </Box>
+
   );
 });
 

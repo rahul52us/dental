@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -670,25 +670,36 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           />
         ) : (
           <VStack align="stretch" spacing={6}>
-            <SimpleGrid columns={{ base: 1, md: 1, lg: 1 }} spacing={6}>
-              {toothTreatment?.data?.map((dt: any) => renderCard(dt))}
-            </SimpleGrid>
+            {toothTreatment?.loading ? (
+              <Center py={20}>
+                <VStack spacing={4}>
+                  <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+                  <Text color="gray.500" fontWeight="bold">Fetching treatment history...</Text>
+                </VStack>
+              </Center>
+            ) : (
+              <>
+                <SimpleGrid columns={{ base: 1, md: 1, lg: 1 }} spacing={6}>
+                  {toothTreatment?.data?.map((dt: any) => renderCard(dt))}
+                </SimpleGrid>
 
-            {toothTreatment?.totalPages > 1 && (
-              <Flex justify="center" pt={4}>
-                <Pagination
-                  currentPage={currentPage}
-                  onPageChange={handleChangePage}
-                  totalPages={toothTreatment?.totalPages}
-                />
-              </Flex>
-            )}
+                {toothTreatment?.totalPages > 1 && (
+                  <Flex justify="center" pt={4}>
+                    <Pagination
+                      currentPage={currentPage}
+                      onPageChange={handleChangePage}
+                      totalPages={toothTreatment?.totalPages}
+                    />
+                  </Flex>
+                )}
 
-            {!toothTreatment?.loading && toothTreatment?.data?.length === 0 && (
-              <VStack py={20} bg="white" borderRadius="3xl" border="1px dashed" borderColor="gray.200">
-                <Icon as={FiActivity} fontSize="40px" color="gray.200" />
-                <Text fontWeight="bold" color="gray.400">No matching records found</Text>
-              </VStack>
+                {!toothTreatment?.loading && toothTreatment?.data?.length === 0 && (
+                  <VStack py={20} bg="white" borderRadius="3xl" border="1px dashed" borderColor="gray.200">
+                    <Icon as={FiActivity} fontSize="40px" color="gray.200" />
+                    <Text fontWeight="bold" color="gray.400">No matching records found</Text>
+                  </VStack>
+                )}
+              </>
             )}
           </VStack>
         )}

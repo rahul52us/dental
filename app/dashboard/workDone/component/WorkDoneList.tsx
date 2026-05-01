@@ -179,9 +179,16 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     </HStack>
                     <HStack spacing={1.5}>
                       <Icon as={FiUser} fontSize="12px" color="gray.400" />
-                      <Text fontSize="12px" fontWeight="900" color="gray.700">
-                        Dr. {record.doctor?.name}
-                      </Text>
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="11px" fontWeight="900" color="gray.700">
+                          Treating: Dr. {record.doctor?.name || "N/A"}
+                        </Text>
+                        {record.examiningDoctor && (
+                          <Text fontSize="9px" fontWeight="800" color="gray.500">
+                            Examined: Dr. {record.examiningDoctor?.name}
+                          </Text>
+                        )}
+                      </VStack>
                     </HStack>
                   </HStack>
                   
@@ -268,12 +275,25 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
                 {/* Content: Procedure & Note */}
                 <VStack align="start" spacing={3}>
-                  <Box>
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em" mb={1}>PROCEDURE</Text>
-                    <Text fontSize="13px" fontWeight="1000" color="gray.800">
-                      {record.treatmentCode || "General Procedure"}
-                    </Text>
-                  </Box>
+                  <HStack spacing={4} w="full" align="start">
+                    <Box flex={1}>
+                      <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em" mb={1}>PROCEDURE</Text>
+                      <Text fontSize="13px" fontWeight="1000" color="gray.800">
+                        {record.treatmentCode || "General Procedure"}
+                      </Text>
+                    </Box>
+                    {(record.tooth || record.treatment?.tooth) && (
+                      <VStack align="end" spacing={0}>
+                        <Text fontSize="10px" fontWeight="1000" color="blue.400" letterSpacing="0.1em">TOOTH</Text>
+                        <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} fontSize="14px" fontWeight="900">
+                          {record.tooth || record.treatment?.tooth}
+                        </Badge>
+                        <Text fontSize="9px" fontWeight="800" color="gray.400" mt={1}>
+                          {record.position || record.treatment?.position} {record.side || record.treatment?.side}
+                        </Text>
+                      </VStack>
+                    )}
+                  </HStack>
 
                   {record.workDoneNote && (
                     <Box bg="gray.50" p={3} borderRadius="xl" w="full" borderLeft="4px solid" borderColor="gray.200">
@@ -284,6 +304,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       <Text fontSize="15px" fontWeight="500" color="gray.800" lineHeight="1.6">
                         {record.workDoneNote}
                       </Text>
+                      {record.toothNote && (
+                        <Text fontSize="11px" fontWeight="900" color="orange.600" mt={2} fontStyle="italic">
+                          Note: {record.toothNote}
+                        </Text>
+                      )}
                     </Box>
                   )}
                 </VStack>

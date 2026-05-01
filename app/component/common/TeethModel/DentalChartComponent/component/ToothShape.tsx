@@ -145,6 +145,7 @@ export const ToothShape = ({
     >
       <Box
         as="button"
+        type="button"
         onClick={onClick}
         display="flex"
         flexDir="column"
