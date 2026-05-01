@@ -38,14 +38,17 @@ import {
 } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useMemo } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiPackage, FiTablet, FiActivity } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiPackage, FiTablet, FiActivity, FiUpload, FiEye } from 'react-icons/fi';
 import stores from '../../store/stores';
+import CustomDrawer from '../../component/common/Drawer/CustomDrawer';
 
 const PrescriptionMaster = observer(() => {
   const { prescriptionStore } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
   const [search, setSearch] = useState('');
   const [editingPrescription, setEditingPrescription] = useState<any>(null);
+  const [viewingPrescription, setViewingPrescription] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -93,6 +96,11 @@ const PrescriptionMaster = observer(() => {
       description: prescription.description || '',
     });
     onOpen();
+  };
+
+  const handleView = (prescription: any) => {
+    setViewingPrescription(prescription);
+    onViewOpen();
   };
 
   const handleDelete = async (id: string) => {
@@ -164,23 +172,83 @@ const PrescriptionMaster = observer(() => {
     );
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      setLoading(true);
+      try {
+        const result = await prescriptionStore.bulkImportPrescriptions(base64);
+        toast({
+          title: 'Import Successful',
+          description: result.message,
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (err: any) {
+        toast({
+          title: 'Import Failed',
+          description: err.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+        // Clear input
+        e.target.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <Box p={6}>
       <VStack align="stretch" spacing={6}>
         <Flex justify="space-between" align="center">
           <VStack align="start" spacing={0}>
             <Heading size="lg" color="blue.600">Prescription Master</Heading>
-            <Text color="gray.500">Manage your drug library and default instructions</Text>
+            <HStack>
+              <Text color="gray.500">Manage your drug library</Text>
+              <Badge colorScheme="blue" variant="solid" borderRadius="full">
+                {prescriptionStore.prescriptions.total} RECORDS
+              </Badge>
+            </HStack>
           </VStack>
-          <Button
-            leftIcon={<FiPlus />}
-            colorScheme="blue"
-            onClick={() => { resetForm(); onOpen(); }}
-            size="md"
-            boxShadow="md"
-          >
-            Add New Drug
-          </Button>
+          <HStack spacing={4}>
+            <Input
+              type="file"
+              id="excel-upload"
+              display="none"
+              accept=".xlsx, .xls"
+              onChange={handleFileUpload}
+            />
+            <Button
+              as="label"
+              htmlFor="excel-upload"
+              leftIcon={<FiUpload />}
+              variant="outline"
+              colorScheme="blue"
+              size="md"
+              cursor="pointer"
+              isLoading={loading}
+            >
+              Import Excel
+            </Button>
+            <Button
+              leftIcon={<FiPlus />}
+              colorScheme="blue"
+              onClick={() => { resetForm(); onOpen(); }}
+              size="md"
+              boxShadow="md"
+            >
+              Add New Drug
+            </Button>
+          </HStack>
         </Flex>
 
         <Card variant="outline" borderRadius="xl" shadow="sm">
@@ -199,32 +267,39 @@ const PrescriptionMaster = observer(() => {
           </CardBody>
         </Card>
 
-        <Box overflowX="auto" bg="white" borderRadius="xl" shadow="sm" border="1px solid" borderColor="gray.100">
-          <Table variant="simple" size="sm">
-            <Thead bg="gray.50">
+        <Box 
+          overflowX="auto" 
+          overflowY="auto"
+          maxH="650px"
+          bg="white" 
+          borderRadius="xl" 
+          shadow="sm" 
+          border="1px solid" 
+          borderColor="gray.100"
+          className="custom-scrollbar"
+        >
+          <Table variant="simple" size="sm" colorScheme="gray">
+            <Thead bg="gray.50" position="sticky" top={0} zIndex={1} shadow="sm">
               <Tr>
-                <Th py={4}>Brand Name</Th>
-                <Th>Type & Category</Th>
-                <Th>Form</Th>
-                <Th>Basic Salt</Th>
-                <Th>Company</Th>
-                <Th>Dosage (Default)</Th>
-                <Th>Pattern</Th>
-                <Th>Dose No</Th>
-                <Th textAlign="center">Actions</Th>
+                <Th py={4} fontSize="10px">Brandname</Th>
+                <Th fontSize="10px">Type</Th>
+                <Th fontSize="10px">Catagory</Th>
+                <Th fontSize="10px">Form</Th>
+                <Th fontSize="10px">Companyname</Th>
+                <Th textAlign="center" fontSize="10px">Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
               {prescriptionStore.prescriptions.loading ? (
                 <Tr>
-                  <Td colSpan={9} textAlign="center" py={10}>
+                  <Td colSpan={6} textAlign="center" py={10}>
                     <Spinner color="blue.500" />
                     <Text mt={2} color="gray.500">Loading drug library...</Text>
                   </Td>
                 </Tr>
               ) : filteredPrescriptions.length === 0 ? (
                 <Tr>
-                  <Td colSpan={9} textAlign="center" py={10}>
+                  <Td colSpan={6} textAlign="center" py={10}>
                     <VStack spacing={2}>
                       <FiPackage size={40} color="#CBD5E0" />
                       <Text color="gray.400">No drugs found in library</Text>
@@ -233,44 +308,35 @@ const PrescriptionMaster = observer(() => {
                 </Tr>
               ) : (
                 filteredPrescriptions.map((p: any) => (
-                  <Tr key={p._id} _hover={{ bg: "blue.50/30" }}>
+                   <Tr key={p._id} _hover={{ bg: "blue.50/40" }} transition="all 0.2s">
                     <Td py={4}>
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="bold" color="blue.700">{p.brandName}</Text>
-                        <Text fontSize="xs" color="gray.500">{p.description.substring(0, 30)}...</Text>
-                      </VStack>
+                      <Text fontWeight="bold" color="blue.700" fontSize="13px">{p.brandName}</Text>
                     </Td>
                     <Td>
-                      <VStack align="start" spacing={1}>
-                        <Badge colorScheme="blue" variant="subtle" fontSize="10px">{p.type}</Badge>
-                        <Text fontSize="11px" color="gray.600">{p.category}</Text>
-                      </VStack>
+                      <Badge colorScheme="blue" variant="subtle" fontSize="10px" borderRadius="full" px={2}>{p.type}</Badge>
+                    </Td>
+                    <Td>
+                      <Text fontSize="12px" color="gray.600" fontWeight="600">{p.category}</Text>
                     </Td>
                     <Td>
                       <HStack spacing={1}>
                         <FiTablet size={12} color="#4A5568" />
-                        <Text fontWeight="medium">{p.form}</Text>
+                        <Text fontWeight="medium" fontSize="12px">{p.form}</Text>
                       </HStack>
                     </Td>
                     <Td>
-                      <Text color="gray.700" fontStyle="italic" fontSize="xs">{p.basicSalt}</Text>
+                      <Text fontWeight="bold" fontSize="11px" color="gray.500">{p.companyName}</Text>
                     </Td>
-                    <Td>
-                      <Text fontWeight="semibold" fontSize="xs" color="gray.600">{p.companyName}</Text>
-                    </Td>
-                    <Td>
-                      <Badge colorScheme="purple" variant="outline">{p.dosage}</Badge>
-                    </Td>
-                    <Td>
-                      <Tooltip label={p.details}>
-                        <Box cursor="help">
-                          <DoseVisualizer pattern={p.details} />
-                        </Box>
-                      </Tooltip>
-                    </Td>
-                    <Td fontWeight="bold" textAlign="center">{p.doseNo}</Td>
                     <Td>
                       <HStack justify="center" spacing={1}>
+                        <IconButton
+                          icon={<FiEye />}
+                          aria-label="View"
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="teal"
+                          onClick={() => handleView(p)}
+                        />
                         <IconButton
                           icon={<FiEdit2 />}
                           aria-label="Edit"
@@ -295,6 +361,45 @@ const PrescriptionMaster = observer(() => {
             </Tbody>
           </Table>
         </Box>
+
+        {/* Pagination Controls */}
+        <Flex justify="space-between" align="center" px={4} py={3} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.100">
+          <HStack spacing={2}>
+            <Text fontSize="xs" fontWeight="bold" color="gray.500">
+              Showing {filteredPrescriptions.length} of {prescriptionStore.prescriptions.total}
+            </Text>
+          </HStack>
+          <HStack spacing={2}>
+            <Button
+              size="xs"
+              onClick={() => prescriptionStore.getPrescriptions({ page: prescriptionStore.prescriptions.page - 1 })}
+              isDisabled={prescriptionStore.prescriptions.page <= 1}
+            >
+              Previous
+            </Button>
+            <HStack spacing={1}>
+              {Array.from({ length: prescriptionStore.prescriptions.totalPages }, (_, i) => i + 1)
+                .filter(p => Math.abs(p - prescriptionStore.prescriptions.page) <= 2)
+                .map(page => (
+                  <Button
+                    key={page}
+                    size="xs"
+                    colorScheme={prescriptionStore.prescriptions.page === page ? "blue" : "gray"}
+                    onClick={() => prescriptionStore.getPrescriptions({ page })}
+                  >
+                    {page}
+                  </Button>
+                ))}
+            </HStack>
+            <Button
+              size="xs"
+              onClick={() => prescriptionStore.getPrescriptions({ page: prescriptionStore.prescriptions.page + 1 })}
+              isDisabled={prescriptionStore.prescriptions.page >= prescriptionStore.prescriptions.totalPages}
+            >
+              Next
+            </Button>
+          </HStack>
+        </Flex>
       </VStack>
 
       <Modal isOpen={isOpen} onClose={onClose} size="4xl">
@@ -311,7 +416,7 @@ const PrescriptionMaster = observer(() => {
             <VStack spacing={6}>
               <SimpleGrid columns={2} spacing={8} w="full">
                 <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Type (Drug Group)</FormLabel>
+                  <FormLabel fontWeight="bold">Type</FormLabel>
                   <Input
                     placeholder="e.g. Antibiotic & Chemotherapeutic Agents"
                     value={formData.type}
@@ -320,7 +425,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">Category</FormLabel>
+                  <FormLabel fontWeight="bold">Catagory</FormLabel>
                   <Input
                     placeholder="e.g. Miscellaneous Antimicrobials"
                     value={formData.category}
@@ -332,7 +437,7 @@ const PrescriptionMaster = observer(() => {
 
               <SimpleGrid columns={3} spacing={6} w="full">
                 <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Brand Name</FormLabel>
+                  <FormLabel fontWeight="bold">Brandname</FormLabel>
                   <Input
                     placeholder="e.g. Ciprin 500mg"
                     value={formData.brandName}
@@ -341,7 +446,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">Basic Salt</FormLabel>
+                  <FormLabel fontWeight="bold">Basicsalt</FormLabel>
                   <Input
                     placeholder="e.g. Ciprofloxacin"
                     value={formData.basicSalt}
@@ -362,7 +467,7 @@ const PrescriptionMaster = observer(() => {
 
               <SimpleGrid columns={4} spacing={4} w="full">
                  <FormControl>
-                  <FormLabel fontWeight="bold">Company</FormLabel>
+                  <FormLabel fontWeight="bold">Companyname</FormLabel>
                   <Input
                     placeholder="e.g. Cipla / Lark"
                     value={formData.companyName}
@@ -371,7 +476,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">Default Dosage</FormLabel>
+                  <FormLabel fontWeight="bold">Dosage</FormLabel>
                   <Input
                     placeholder="e.g. 1bid"
                     value={formData.dosage}
@@ -380,7 +485,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">Dose Pattern</FormLabel>
+                  <FormLabel fontWeight="bold">Details</FormLabel>
                   <Input
                     placeholder="e.g. *_* or *_*_*_*"
                     value={formData.details}
@@ -389,7 +494,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">Dose No.</FormLabel>
+                  <FormLabel fontWeight="bold">DoseNo</FormLabel>
                   <Input
                     type="number"
                     value={formData.doseNo}
@@ -400,7 +505,7 @@ const PrescriptionMaster = observer(() => {
               </SimpleGrid>
 
               <FormControl>
-                <FormLabel fontWeight="bold">Instructions / Description</FormLabel>
+                <FormLabel fontWeight="bold">Description</FormLabel>
                 <Textarea
                   placeholder="e.g. 9am after breakfast and 9pm after dinner"
                   value={formData.description}
@@ -426,6 +531,100 @@ const PrescriptionMaster = observer(() => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* View Details Drawer */}
+      <CustomDrawer
+        open={isViewOpen}
+        close={onViewClose}
+        title="Drug Information Details"
+        width="450px"
+      >
+        <Box p={6}>
+          <VStack align="stretch" spacing={6}>
+            {/* Header Identity */}
+            <Box p={5} bg="blue.600" borderRadius="2xl" color="white" shadow="xl">
+              <Text fontSize="10px" fontWeight="900" color="blue.200" letterSpacing="0.1em">BRANDNAME</Text>
+              <Text fontSize="22px" fontWeight="1000">{viewingPrescription?.brandName}</Text>
+            </Box>
+
+            {/* Core Identity Section */}
+            <VStack align="stretch" spacing={4}>
+              <Box>
+                <Text fontSize="10px" fontWeight="900" color="gray.400" mb={1} letterSpacing="0.05em">TYPE</Text>
+                <Box p={3} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
+                  <Text fontWeight="bold" color="blue.700" fontSize="14px">
+                    {viewingPrescription?.type}
+                  </Text>
+                </Box>
+              </Box>
+
+              <Box>
+                <Text fontSize="10px" fontWeight="900" color="gray.400" mb={1} letterSpacing="0.05em">CATAGORY</Text>
+                <Box p={3} bg="teal.50" borderRadius="xl" border="1px solid" borderColor="teal.100">
+                  <Text fontWeight="bold" color="teal.700" fontSize="14px">
+                    {viewingPrescription?.category}
+                  </Text>
+                </Box>
+              </Box>
+            </VStack>
+
+            <SimpleGrid columns={2} spacing={4}>
+              <Box>
+                <Text fontSize="10px" fontWeight="900" color="gray.400" mb={1} letterSpacing="0.05em">FORM</Text>
+                <HStack spacing={2} p={3} border="1px solid" borderColor="gray.200" borderRadius="xl">
+                  <FiTablet color="#4A5568" />
+                  <Text fontWeight="1000" color="gray.700" fontSize="12px" textTransform="uppercase">
+                    {viewingPrescription?.form}
+                  </Text>
+                </HStack>
+              </Box>
+              <Box>
+                <Text fontSize="10px" fontWeight="900" color="gray.400" mb={1} letterSpacing="0.05em">COMPANYNAME</Text>
+                <Box p={3} bg="purple.50" borderRadius="xl" border="1px solid" borderColor="purple.100">
+                  <Text fontWeight="1000" color="purple.700" fontSize="12px">
+                    {viewingPrescription?.companyName}
+                  </Text>
+                </Box>
+              </Box>
+            </SimpleGrid>
+
+            <Box p={5} bg="gray.50" borderRadius="3xl" border="1px solid" borderColor="gray.100">
+              <Text fontSize="10px" fontWeight="1000" color="gray.500" mb={4} letterSpacing="0.1em">TECHNICAL SPECIFICATIONS</Text>
+              <VStack align="stretch" spacing={4}>
+                <HStack justify="space-between">
+                  <Text fontSize="11px" color="gray.500">Basicsalt</Text>
+                  <Text fontWeight="bold" fontSize="12px" textAlign="right">{viewingPrescription?.basicSalt || 'N/A'}</Text>
+                </HStack>
+                <HStack justify="space-between">
+                  <Text fontSize="11px" color="gray.500">Dosage</Text>
+                  <Badge colorScheme="orange" variant="solid" borderRadius="full" px={2} fontSize="10px">
+                    {viewingPrescription?.dosage || 'N/A'}
+                  </Badge>
+                </HStack>
+                <HStack justify="space-between">
+                  <Text fontSize="11px" color="gray.500">DoseNo</Text>
+                  <Text fontWeight="1000" fontSize="16px" color="blue.600">{viewingPrescription?.doseNo || '0'}</Text>
+                </HStack>
+                <Box pt={2}>
+                  <Text fontSize="11px" color="gray.500" mb={2}>Details (Pattern)</Text>
+                  <Box bg="white" px={3} py={2} borderRadius="lg" border="1px solid" borderColor="gray.200" w="fit-content">
+                    <DoseVisualizer pattern={viewingPrescription?.details} />
+                  </Box>
+                </Box>
+              </VStack>
+            </Box>
+
+            <Box>
+              <Text fontSize="10px" fontWeight="900" color="gray.400" mb={2} letterSpacing="0.05em">DESCRIPTION</Text>
+              <Box p={4} bg="blue.50" borderRadius="2xl" border="1px dashed" borderColor="blue.200">
+                <Text fontSize="13px" color="blue.800" fontWeight="medium" fontStyle="italic" lineHeight="1.6">
+                  "{viewingPrescription?.description || 'No specific instructions provided.'}"
+                </Text>
+              </Box>
+            </Box>
+          </VStack>
+        </Box>
+      </CustomDrawer>
     </Box>
   );
 });

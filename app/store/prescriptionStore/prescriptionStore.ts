@@ -3,7 +3,7 @@ import axios from "axios";
 import { authStore } from "../authStore/authStore";
 
 class PrescriptionStore {
-  prescriptions: any = { data: [], total: 0, loading: false };
+  prescriptions: any = { data: [], total: 0, loading: false, page: 1, totalPages: 0 };
 
   constructor() {
     makeAutoObservable(this);
@@ -21,6 +21,8 @@ class PrescriptionStore {
       runInAction(() => {
         this.prescriptions.data = res.data.data || [];
         this.prescriptions.total = res.data.total || 0;
+        this.prescriptions.page = res.data.page || 1;
+        this.prescriptions.totalPages = res.data.totalPages || 0;
         this.prescriptions.loading = false;
       });
       return res.data;
@@ -58,6 +60,20 @@ class PrescriptionStore {
   deletePrescription = async (id: string) => {
     try {
       const res = await axios.delete(`/prescription/delete/${id}`);
+      await this.getPrescriptions();
+      return res.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  bulkImportPrescriptions = async (base64Data: string) => {
+    try {
+      const res = await axios.post(`/prescription/bulk-import`, {
+        base64Data,
+        companyId: authStore.company,
+        userId: authStore.user?._id
+      });
       await this.getPrescriptions();
       return res.data;
     } catch (err: any) {
