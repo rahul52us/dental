@@ -295,19 +295,30 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     )}
                   </HStack>
 
-                  {record.workDoneNote && (
-                    <Box bg="gray.50" p={3} borderRadius="xl" w="full" borderLeft="4px solid" borderColor="gray.200">
-                      <HStack spacing={2} mb={1.5}>
-                        <Icon as={FiFileText} fontSize="13px" color="blue.400" />
-                        <Text fontSize="11px" fontWeight="1000" color="blue.500" letterSpacing="0.05em">CLINICAL OBSERVATION</Text>
-                      </HStack>
-                      <Text fontSize="15px" fontWeight="500" color="gray.800" lineHeight="1.6">
-                        {record.workDoneNote}
-                      </Text>
+                  {(record.workDoneNote || record.toothNote) && (
+                    <Box bg="gray.50" p={3} borderRadius="xl" w="full" borderLeft="4px solid" borderColor="blue.100">
+                      {record.workDoneNote && (
+                        <>
+                          <HStack spacing={2} mb={1.5}>
+                            <Icon as={FiFileText} fontSize="13px" color="blue.400" />
+                            <Text fontSize="11px" fontWeight="1000" color="blue.500" letterSpacing="0.05em">CLINICAL OBSERVATION</Text>
+                          </HStack>
+                          <Text fontSize="14px" fontWeight="500" color="gray.800" lineHeight="1.6">
+                            {record.workDoneNote}
+                          </Text>
+                        </>
+                      )}
+                      
                       {record.toothNote && (
-                        <Text fontSize="11px" fontWeight="900" color="orange.600" mt={2} fontStyle="italic">
-                          Note: {record.toothNote}
-                        </Text>
+                        <Box mt={record.workDoneNote ? 3 : 0} pt={record.workDoneNote ? 3 : 0} borderTop={record.workDoneNote ? "1px dashed" : "none"} borderColor="gray.200">
+                          <HStack spacing={2} mb={1}>
+                            <Icon as={FiActivity} fontSize="12px" color="orange.500" />
+                            <Text fontSize="10px" fontWeight="1000" color="orange.600" letterSpacing="0.05em">GENERAL CLINICAL NOTE</Text>
+                          </HStack>
+                          <Text fontSize="13px" fontWeight="1000" color="gray.700" fontStyle="italic">
+                            {record.toothNote}
+                          </Text>
+                        </Box>
                       )}
                     </Box>
                   )}
