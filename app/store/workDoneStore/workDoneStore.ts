@@ -17,9 +17,34 @@ class WorkDoneStore {
     loading: false,
   };
 
+  patientStats = {
+    totalBill: 0,
+    patientPending: 0,
+    loading: false,
+  };
+
   constructor() {
     makeAutoObservable(this);
   }
+
+  getPatientFinancialStats = async (patientId: string, doctorId?: string) => {
+    this.patientStats.loading = true;
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const { data } = await axios.get("/workDone/stats", {
+        params: { patientId, company: companyId || authStore.company, doctorId }
+      });
+      if (data.status === "success") {
+        this.patientStats = { ...data.data, loading: false };
+      }
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching patient stats:", err);
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+      this.patientStats.loading = false;
+    }
+  };
 
   getWorkDone = async (sendData: {
     page?: number;

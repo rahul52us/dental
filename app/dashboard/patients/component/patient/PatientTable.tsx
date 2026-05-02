@@ -17,11 +17,12 @@ import {
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
-import { FiFileText } from "react-icons/fi";
+import { FiFileText, FiDollarSign } from "react-icons/fi";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
 import { FaFlask } from "react-icons/fa";
 import LabSheet from "../../../labWork/component/LabSheet";
 import PatientLabWorkHistory from "./PatientLabWorkHistory";
+import PatientAccountHistory from "./PatientAccountHistory";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
@@ -61,6 +62,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   const [openLabSheetDetails, setOpenLabSheetDetails] = useState({
+    open: false,
+    data: null as any,
+  });
+
+  const [openAccountDetails, setOpenAccountDetails] = useState({
     open: false,
     data: null as any,
   });
@@ -316,6 +322,31 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
+      headerName: "Account",
+      key: "account",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Accountability Management" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Account"
+              icon={<FiDollarSign />}
+              colorScheme="purple"
+              bg="purple.50"
+              color="purple.600"
+              _hover={{ bg: "purple.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => setOpenAccountDetails({ open: true, data: dt })}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 100, textAlign: "center" } },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -458,6 +489,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <Box m={-2}>
               <PatientLabWorkHistory patientDetails={openLabSheetDetails.data} />
             </Box>
+          </CustomDrawer>
+        )}
+
+        {/* Accountability Drawer */}
+        {openAccountDetails.open && (
+          <CustomDrawer
+            open={openAccountDetails.open}
+            close={() => setOpenAccountDetails({ open: false, data: null })}
+            title={`Accountability Management: ${openAccountDetails.data?.name}`}
+            width="90vw"
+          >
+            <PatientAccountHistory patientDetails={openAccountDetails.data} />
           </CustomDrawer>
         )}
       </Box>

@@ -123,7 +123,7 @@ const AppointmentHistoryModal = observer(
 
     return (
       <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
-        <ModalOverlay backdropFilter="blur(12px)" bg="blackAlpha.800" />
+        <ModalOverlay backdropFilter="blur(8px)" bg={useColorModeValue("blackAlpha.300", "blackAlpha.800")} />
         <ModalContent
           borderRadius="3xl"
           overflow="hidden"
@@ -142,9 +142,9 @@ const AppointmentHistoryModal = observer(
               right="-10%"
               w="300px"
               h="300px"
-              bgGradient="radial(purple.600, transparent 70%)"
+              bgGradient={useColorModeValue("radial(purple.400, transparent 70%)", "radial(purple.600, transparent 70%)")}
               filter="blur(60px)"
-              opacity={0.4}
+              opacity={useColorModeValue(0.15, 0.4)}
               zIndex={0}
             />
             <VStack align="start" spacing={1} zIndex={1} position="relative">
@@ -200,8 +200,11 @@ const AppointmentHistoryModal = observer(
                     top="10px"
                     bottom="10px"
                     w="2px"
-                    bgGradient="linear(to-b, purple.500, blue.500, gray.800)"
-                    opacity={0.2}
+                    bgGradient={useColorModeValue(
+                      "linear(to-b, purple.400, blue.400, gray.200)",
+                      "linear(to-b, purple.500, blue.500, gray.800)"
+                    )}
+                    opacity={useColorModeValue(0.4, 0.2)}
                     borderRadius="full"
                   />
 
@@ -247,7 +250,7 @@ const AppointmentHistoryModal = observer(
                                     borderRadius="full"
                                     fontSize="10px"
                                     fontWeight="900"
-                                    boxShadow={`0 4px 12px var(--chakra-colors-${color}-900)`}
+                                    boxShadow={useColorModeValue(`0 4px 12px var(--chakra-colors-${color}-200)`, `0 4px 12px var(--chakra-colors-${color}-900)`)}
                                   >
                                     {incident.action}
                                   </Badge>
@@ -342,13 +345,20 @@ const AppointmentHistoryModal = observer(
                   )}
                </Box>
              ) : (
-               <VStack p={24} bg="whiteAlpha.50" borderRadius="3xl" border="2px dashed" borderColor="whiteAlpha.100" spacing={4}>
-                 <Box p={6} borderRadius="full" bg="whiteAlpha.50">
-                    <Icon as={InfoIcon} boxSize={8} color="whiteAlpha.300" />
+               <VStack 
+                 p={16} 
+                 bg={useColorModeValue("gray.50", "whiteAlpha.50")} 
+                 borderRadius="3xl" 
+                 border="2px dashed" 
+                 borderColor={useColorModeValue("gray.200", "whiteAlpha.100")} 
+                 spacing={4}
+               >
+                 <Box p={6} borderRadius="full" bg={useColorModeValue("purple.50", "whiteAlpha.50")}>
+                    <Icon as={InfoIcon} boxSize={8} color={useColorModeValue("purple.200", "whiteAlpha.300")} />
                  </Box>
                  <VStack spacing={1}>
-                    <Text color="white" fontWeight="900" fontSize="lg">Excellent Reliability</Text>
-                    <Text color="whiteAlpha.400" fontSize="sm" textAlign="center" maxW="200px">
+                    <Text color={textColor} fontWeight="900" fontSize="lg">Excellent Reliability</Text>
+                    <Text color={secondaryTextColor} fontSize="sm" textAlign="center" maxW="240px">
                       No significant incidents found for this patient.
                     </Text>
                  </VStack>

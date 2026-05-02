@@ -26,6 +26,7 @@ import labWorkHierarchyStore from "./labWorkHierarchyStore/labWorkHierarchyStore
 import labWorkStatusStore from "./labWorkStatusStore/labWorkStatusStore";
 import { workDoneStore } from "./workDoneStore/workDoneStore";
 import prescriptionStore from "./prescriptionStore/prescriptionStore";
+import accountabilityStore from "./accountabilityStore/accountabilityStore";
 
 const stores = {
   auth : authStore,
@@ -55,6 +56,7 @@ const stores = {
   labWorkStatusStore: labWorkStatusStore,
   workDoneStore: workDoneStore,
   prescriptionStore: prescriptionStore,
+  accountabilityStore: accountabilityStore,
 };
 
 
