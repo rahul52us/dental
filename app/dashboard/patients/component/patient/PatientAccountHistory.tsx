@@ -67,13 +67,15 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-  // Filter State
+  // Pagination & Filter State
+  const [currentPage, setCurrentPage] = useState(1);
   const [doctorFilter, setDoctorFilter] = useState<string>("all");
 
   const fetchData = useCallback(async () => {
     await workDoneStore.getWorkDone({
       patientId: patientDetails._id,
-      limit: 100
+      page: currentPage,
+      limit: 10
     });
     // Fetch stats from backend with filter
     await workDoneStore.getPatientFinancialStats(patientDetails._id, doctorFilter);
@@ -83,7 +85,11 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       companyId: auth.company,
       limit: 100
     });
-  }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter]);
+  }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, currentPage]);
+
+  const handleChangePage = (page: number) => {
+    setCurrentPage(page);
+  };
 
   useEffect(() => {
     fetchData();
@@ -355,9 +361,20 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         </Box>
 
         <CustomTable
-          data={filteredWork.map((wd: any, i: number) => ({ ...wd, sno: i + 1 }))}
+          data={filteredWork.map((wd: any, i: number) => ({ 
+            ...wd, 
+            sno: (currentPage - 1) * 10 + (i + 1) 
+          }))}
           columns={columns}
           loading={workDoneStore.workDone.loading}
+          actions={{
+            pagination: {
+              show: true,
+              onClick: handleChangePage,
+              currentPage: currentPage,
+              totalPages: workDoneStore.workDone.totalPages || 1,
+            }
+          }}
         />
       </Box>
 

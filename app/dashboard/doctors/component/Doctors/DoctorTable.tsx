@@ -17,8 +17,10 @@ import {
   VStack,
   Icon,
 } from "@chakra-ui/react";
-import { FiPower, FiRefreshCw, FiAlertCircle } from "react-icons/fi";
 import FormModel from "../../../../component/common/FormModel/FormModel";
+import { FiPower, FiRefreshCw, FiAlertCircle, FiDollarSign } from "react-icons/fi";
+import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
+import DoctorAccountHistory from "./DoctorAccountHistory";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { GiPsychicWaves } from "react-icons/gi";
@@ -41,6 +43,10 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [selectedTherapist, setSelectedTherapist] = useState<any>(null);
   const [statusUser, setStatusUser] = useState<any>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [openAccountDetails, setOpenAccountDetails] = useState({
+    open: false,
+    data: null as any,
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [isActiveFilter, setIsActiveFilter] = useState<any>(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -239,6 +245,34 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
+      headerName: "Account",
+      key: "account",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Doctor Payouts & Stats" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Account"
+              icon={<FiDollarSign />}
+              colorScheme="purple"
+              bg="purple.50"
+              color="purple.600"
+              _hover={{ bg: "purple.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="sm"
+              borderRadius="lg"
+              transition="all 0.3s"
+              onClick={() => setOpenAccountDetails({ open: true, data: dt })}
+            />
+          </Tooltip>
+        ),
+      },
+      props: {
+        row: { textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -410,6 +444,18 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Flex>
         </VStack>
       </FormModel>
+
+      {/* Doctor Accountability Drawer */}
+      {openAccountDetails.open && (
+        <CustomDrawer
+          open={openAccountDetails.open}
+          close={() => setOpenAccountDetails({ open: false, data: null })}
+          title={`Doctor Accountability: ${openAccountDetails.data?.name}`}
+          width="90vw"
+        >
+          <DoctorAccountHistory doctorDetails={openAccountDetails.data} />
+        </CustomDrawer>
+      )}
     </Box>
   );
 });

@@ -7,6 +7,7 @@ interface WorkDone {
   totalItems: number;
   totalPages: number;
   loading: boolean;
+  message?: string;
 }
 
 class WorkDoneStore {
@@ -15,6 +16,7 @@ class WorkDoneStore {
     totalItems: 0,
     totalPages: 0,
     loading: false,
+    message: ""
   };
 
   patientStats = {
@@ -22,6 +24,15 @@ class WorkDoneStore {
     patientPending: 0,
     loading: false,
   };
+
+  doctorStats = {
+    totalBill: 0,
+    collected: 0,
+    pending: 0,
+    loading: false,
+  };
+
+  patientDoctors: any[] = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -31,8 +42,9 @@ class WorkDoneStore {
     this.patientStats.loading = true;
     try {
       const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
       const { data } = await axios.get("/workDone/stats", {
-        params: { patientId, company: companyId || authStore.company, doctorId }
+        params: { patientId, company: compId, doctorId }
       });
       if (data.status === "success") {
         this.patientStats = { ...data.data, loading: false };
@@ -46,29 +58,56 @@ class WorkDoneStore {
     }
   };
 
+  getDoctorFinancialStats = async (doctorId: string) => {
+    this.doctorStats.loading = true;
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.get("/workDone/doctor-stats", {
+        params: { doctorId, company: compId }
+      });
+      if (data.status === "success") {
+        this.doctorStats = { ...data.data, loading: false };
+      }
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching doctor stats:", err);
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+      this.doctorStats.loading = false;
+    }
+  };
+
   getWorkDone = async (sendData: {
     page?: number;
     limit?: number;
     patientId?: string;
     treatmentId?: string;
+    doctorId?: string;
   }) => {
     this.workDone.loading = true;
     try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
       const params: any = {
         page: sendData.page || 1,
         limit: sendData.limit || 10,
-        company: authStore.company,
+        company: compId,
         patientId: sendData.patientId,
         treatmentId: sendData.treatmentId,
+        doctorId: sendData.doctorId,
       };
 
       const { data } = await axios.get("/workDone/get", { params });
-      const rawItems = data?.data?.data || data?.data || [];
-      this.workDone.data = rawItems;
-
-      const totalItems = data?.data?.totalItems || data?.totalItems || rawItems.length || 0;
-      this.workDone.totalItems = totalItems;
-      this.workDone.totalPages = Math.ceil(totalItems / (sendData.limit || 10)) || 1;
+      if (data.status === "success") {
+        const rawItems = data?.data?.data || data?.data || [];
+        this.workDone.data = Array.isArray(rawItems) ? rawItems : [];
+        this.workDone.message = data.message || "";
+        
+        const totalItems = data?.data?.totalItems || data?.totalItems || 0;
+        this.workDone.totalItems = totalItems;
+        this.workDone.totalPages = Math.ceil(totalItems / (sendData.limit || 10)) || 1;
+      }
 
       return data;
     } catch (err: any) {
@@ -81,7 +120,8 @@ class WorkDoneStore {
 
   createWorkDone = async (sendData: any) => {
     try {
-      const { data } = await axios.post("/workDone/create", { ...sendData, company: authStore.company });
+      const compId = authStore.company?._id || authStore.company;
+      const { data } = await axios.post("/workDone/create", { ...sendData, company: compId });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -107,6 +147,17 @@ class WorkDoneStore {
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  getPatientDoctors = async (patientId: string) => {
+    try {
+      const { data } = await axios.get(`/workDone/doctors/${patientId}`);
+      if (data.status === "success") {
+        this.patientDoctors = data.data;
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 }
