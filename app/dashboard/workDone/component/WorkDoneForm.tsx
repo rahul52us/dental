@@ -14,6 +14,7 @@ import {
   Circle,
   Badge,
   IconButton,
+  Textarea,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { Formik, Form } from "formik";
@@ -123,7 +124,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       setLoading(false);
       return;
     }
-    
+
     if (!values.tooth && !values.toothNote) {
       openNotification({
         type: "error",
@@ -439,10 +440,23 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                             </Box>
                           </Box>
 
+                          <VStack align="start" spacing={0}>
+                            <HStack spacing={2}>
+                              <Badge colorScheme={values.tooth ? "blue" : "orange"} variant="solid" borderRadius="full" px={3}>
+                                {values.tooth ? `SELECTED TOOTH: ${values.tooth}` : "GENERAL CLINICAL ENTRY"}
+                              </Badge>
+                              {values.position && (
+                                <Badge colorScheme="teal" variant="outline" borderRadius="full">
+                                  {values.position.toUpperCase()} • {values.side.toUpperCase()}
+                                </Badge>
+                              )}
+                            </HStack>
+                          </VStack>
+
                           <VStack align="start" spacing={1} w="full">
                             <Text fontSize="9px" fontWeight="900" color="gray.400">General Notes</Text>
-                            <Input
-                              size="sm" bg="white" borderRadius="md" placeholder="e.g. Deep caries, missing, etc."
+                            <Textarea
+                              size="sm" bg="white" borderRadius="md" placeholder="General Note"
                               value={values.toothNote}
                               onChange={(e) => setFieldValue("toothNote", e.target.value)}
                             />
@@ -466,7 +480,6 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                   {/* 2. Clinical Team */}
                   <VStack align="start" spacing={4} w="full">
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">2. CLINICAL TEAM</Text>
                     <Grid templateColumns={{ base: "1fr", md: treatmentDetails ? "1fr 1fr" : "1fr" }} gap={4} w="full">
                       {treatmentDetails && (
                         <VStack align="start" spacing={2} w="full">
@@ -495,25 +508,26 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                           placeholder="Select Treating Dr."
                         />
                       </VStack>
+                      <VStack align="start" spacing={2} w="full">
+                        <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                        <CustomInput
+                          name="workDoneNote"
+                          type="textarea"
+                          placeholder="Workdone Note"
+                          value={values.workDoneNote}
+                          onChange={(e: any) => setFieldValue("workDoneNote", e.target.value)}
+                          style={{ minHeight: "130px", background: "gray.50", border: '1px solid', borderColor: 'gray.100', borderRadius: '24px', padding: '20px', fontSize: '14px' }}
+                        />
+                      </VStack>
                     </Grid>
                   </VStack>
 
                   {/* 4. Clinical Observation */}
-                  <VStack align="start" spacing={2} w="full">
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">3. CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
-                    <CustomInput
-                      name="workDoneNote"
-                      type="textarea"
-                      placeholder="Enter detailed documentation regarding the work completed..."
-                      value={values.workDoneNote}
-                      onChange={(e: any) => setFieldValue("workDoneNote", e.target.value)}
-                      style={{ minHeight: "130px", background: "gray.50", border: '1px solid', borderColor: 'gray.100', borderRadius: '24px', padding: '20px', fontSize: '14px' }}
-                    />
-                  </VStack>
+
 
                   {/* 5. Today Dues */}
                   <VStack align="stretch" spacing={5} p={6} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
-                    <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">4. TODAY DUES</Text>
+                    <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">TODAY DUES</Text>
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                       <VStack align="start" spacing={1}>
                         <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
@@ -549,7 +563,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                   {/* 6. Procedure / Treatment Plan */}
                   <VStack align="start" spacing={3} w="full">
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">5. TREATMENT CODE (PROCEDURE)</Text>
+                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TREATMENT CODE (PROCEDURE)</Text>
                     <Button
                       type="button"
                       w="full"
@@ -764,7 +778,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                   {/* 7. Clinical Status */}
                   <VStack align="start" spacing={3} w="full" pt={2}>
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">6. CLINICAL STATUS</Text>
+                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL STATUS</Text>
                     <Grid templateColumns="repeat(3, 1fr)" gap={4} w="full">
                       {["COMPLETE", "PENDING", "INCOMPLETE"].map((status) => (
                         <Button
