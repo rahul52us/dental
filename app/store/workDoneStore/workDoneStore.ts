@@ -25,6 +25,12 @@ class WorkDoneStore {
     loading: false,
   };
 
+  overallStats = {
+    totalBill: 0,
+    patientPending: 0,
+    loading: false,
+  };
+
   doctorStats = {
     totalBill: 0,
     collected: 0,
@@ -55,6 +61,26 @@ class WorkDoneStore {
       return Promise.reject(err?.response?.data || err);
     } finally {
       this.patientStats.loading = false;
+    }
+  };
+
+  getOverallPatientStats = async (patientId: string) => {
+    this.overallStats.loading = true;
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.get("/workDone/overall-stats", {
+        params: { patientId, company: compId }
+      });
+      if (data.status === "success") {
+        this.overallStats = { ...data.data, loading: false };
+      }
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching overall stats:", err);
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+      this.overallStats.loading = false;
     }
   };
 

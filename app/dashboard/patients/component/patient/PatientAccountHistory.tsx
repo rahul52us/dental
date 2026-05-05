@@ -61,6 +61,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [tempValue, setTempValue] = useState<string>("");
+  const [receiveType, setReceiveType] = useState<string>("Cash");
   const [isSaving, setIsSaving] = useState(false);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -71,13 +72,18 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [doctorFilter, setDoctorFilter] = useState<string>("all");
 
+  const fetchOverallStats = useCallback(async () => {
+    await workDoneStore.getOverallPatientStats(patientDetails._id);
+  }, [workDoneStore, patientDetails._id]);
+
   const fetchData = useCallback(async () => {
     await workDoneStore.getWorkDone({
       patientId: patientDetails._id,
       page: currentPage,
       limit: 10
     });
-    // Fetch stats from backend with filter
+    
+    // Fetch filtered stats (dynamic)
     await workDoneStore.getPatientFinancialStats(patientDetails._id, doctorFilter);
 
     await accountabilityStore.getAccountabilityList({
@@ -86,6 +92,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       limit: 100
     });
   }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, currentPage]);
+
+  useEffect(() => {
+    fetchOverallStats();
+  }, [fetchOverallStats]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -115,6 +125,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const openPaymentModal = (record: any) => {
     setSelectedRecord(record);
     setTempValue("");
+    setReceiveType("Cash");
     setIsPaymentOpen(true);
   };
 
@@ -126,7 +137,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       const acc = accountabilityStore.accountabilities.data.find((a: any) =>
         (a.workDone?._id || a.workDone) === record._id
       );
-      setHistoryData(acc?.payoutHistory || []);
+      setHistoryData([...(acc?.payoutHistory || [])].reverse());
     } catch (err) {
       toast({ title: "History error", status: "error" });
     } finally {
@@ -153,7 +164,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       }
 
       await workDoneStore.updateWorkDone(selectedRecord._id, {
-        receivedAmount: alreadyPaid + paymentNow,
+        paymentAmount: paymentNow,
+        paymentMethod: receiveType,
       });
 
       const existing = accountabilityStore.accountabilities.data.find((a: any) =>
@@ -165,7 +177,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       if (existing) {
         await accountabilityStore.updatePayoutStatus(existing._id, {
           payoutAmount: paymentNow,
-          status: status
+          status: status,
+          paymentMethod: receiveType,
         });
       } else {
         await accountabilityStore.createAccountability({
@@ -177,7 +190,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           treatmentName: selectedRecord.treatmentPlan || selectedRecord.treatmentCode || "General Procedure",
           totalAmount: bill,
           doctorShareAmount: paymentNow,
-          payoutHistory: [{ amount: paymentNow, date: new Date() }],
+          payoutHistory: [{ amount: paymentNow, date: new Date(), paymentMethod: receiveType }],
           payoutStatus: status,
           createdBy: auth.user?._id,
         });
@@ -220,20 +233,30 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       key: "received",
       type: "component",
       metaData: {
-        component: (dt: any) => (
-          <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200">
-            <VStack align="start" spacing={0} flex={1}>
-              <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
-              <Text fontSize="md" fontWeight="1000" color="green.700">₹{(dt.receivedAmount || 0).toLocaleString()}</Text>
-            </VStack>
-            <Tooltip label="Add Payment" hasArrow>
-              <IconButton
-                aria-label="Add" icon={<FiPlusCircle />} size="sm" colorScheme="green" variant="solid" borderRadius="lg"
-                onClick={() => openPaymentModal(dt)}
-              />
-            </Tooltip>
-          </HStack>
-        )
+        component: (dt: any) => {
+          const modes = Array.from(new Set((dt.paymentHistory || []).map((h: any) => h.paymentMethod).filter(Boolean)));
+          return (
+            <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="140px">
+              <VStack align="start" spacing={0} flex={1}>
+                <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
+                <Text fontSize="md" fontWeight="1000" color="green.700">₹{(dt.receivedAmount || 0).toLocaleString()}</Text>
+                {modes.length > 0 && (
+                  <HStack spacing={1} mt={1}>
+                    {modes.map((m: any, i: number) => (
+                      <Badge key={i} variant="subtle" colorScheme="blue" fontSize="8px" borderRadius="md" px={1}>{String(m).toUpperCase()}</Badge>
+                    ))}
+                  </HStack>
+                )}
+              </VStack>
+              <Tooltip label="Add Payment" hasArrow>
+                <IconButton
+                  aria-label="Add" icon={<FiPlusCircle />} size="sm" colorScheme="green" variant="solid" borderRadius="lg"
+                  onClick={() => openPaymentModal(dt)}
+                />
+              </Tooltip>
+            </HStack>
+          );
+        }
       }
     },
     {
@@ -295,41 +318,60 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   return (
     <Box p={4} bg="gray.50" minH="100vh">
       <Box bg="white" borderRadius="3xl" shadow="2xl" border="1px solid" borderColor="gray.100" overflow="hidden" p={6}>
-        <SimpleGrid columns={3} gap={6} mb={10}>
-          <VStack align="start" p={5} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
-            <HStack w="full" justify="space-between" mb={1}>
-              <Text fontSize="xs" fontWeight="900" color="blue.500" letterSpacing="0.05em">TOTAL BILL VALUE</Text>
-              <Icon as={FiPieChart} color="blue.300" />
+        <VStack align="start" spacing={1} mb={3}>
+          <HStack w="full" justify="space-between" align="center">
+            <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em">OVERALL PATIENT SUMMARY</Text>
+            <Badge colorScheme="gray" variant="solid" fontSize="8px" px={2} borderRadius="md" opacity={0.6}>TOTALS</Badge>
+          </HStack>
+          <Divider opacity={0.3} />
+        </VStack>
+
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap={3} mb={6}>
+          {[
+            { label: 'Total Bill Value', val: workDoneStore.overallStats.totalBill, icon: FiPieChart, color: 'purple', sub: 'Gross Clinic Revenue' },
+            { label: 'Total Collected', val: workDoneStore.overallStats.totalBill - workDoneStore.overallStats.patientPending, icon: FiDownloadCloud, color: 'cyan', sub: 'Total Cash Received' },
+            { label: 'Total Outstanding', val: workDoneStore.overallStats.patientPending, icon: FiTrendingUp, color: 'pink', sub: 'Patient Balance' }
+          ].map((item, i) => (
+            <HStack key={i} p={3} bg={`${item.color}.50`} borderRadius="xl" border="1px solid" borderColor={`${item.color}.100`} shadow="sm" spacing={3}>
+              <Box p={2.5} bg="white" borderRadius="lg" shadow="sm"><Icon as={item.icon} color={`${item.color}.400`} boxSize="18px" /></Box>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="bold" color={`${item.color}.600`} textTransform="uppercase">{item.label}</Text>
+                {workDoneStore.overallStats.loading ? <Spinner size="xs" /> : (
+                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString()}</Text>
+                )}
+                <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
+              </VStack>
             </HStack>
-            {workDoneStore.patientStats.loading ? <Spinner size="sm" /> : (
-              <Text fontSize="24px" fontWeight="1000" color="blue.700">₹{(totalBill || 0).toLocaleString()}</Text>
-            )}
-            <Text fontSize="9px" color="blue.400" fontWeight="bold">
-              {doctorFilter === 'all' ? 'GROSS CLINIC REVENUE' : 'DOCTOR TOTAL SHARE'}
+          ))}
+        </SimpleGrid>
+
+        <VStack align="start" spacing={1} mb={3}>
+          <HStack w="full" justify="space-between" align="center">
+            <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">
+              {doctorFilter === 'all' ? 'FILTERED VIEW (ALL DOCTORS)' : 'DOCTOR SPECIFIC VIEW'}
             </Text>
-          </VStack>
+            <Badge colorScheme="blue" variant="solid" fontSize="8px" px={2} borderRadius="md">DYNAMIC</Badge>
+          </HStack>
+          <Divider borderColor="blue.100" opacity={0.5} />
+        </VStack>
 
-          <VStack align="start" p={5} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
-            <HStack w="full" justify="space-between" mb={1}>
-              <Text fontSize="xs" fontWeight="900" color="green.500" letterSpacing="0.05em">TOTAL COLLECTED</Text>
-              <Icon as={FiDownloadCloud} color="green.300" />
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap={3} mb={8}>
+          {[
+            { label: 'Bill Value', val: totalBill, icon: FiPieChart, color: 'blue', sub: doctorFilter === 'all' ? 'Gross Revenue' : 'Doctor Share' },
+            { label: 'Collected', val: serverReceived, icon: FiDownloadCloud, color: 'green', sub: 'Cash Received' },
+            { label: 'Outstanding', val: patientPending, icon: FiTrendingUp, color: 'orange', sub: 'Balance Due' }
+          ].map((item, i) => (
+            <HStack key={i} p={3} bg={`${item.color}.50`} borderRadius="xl" border="1px solid" borderColor={`${item.color}.100`} shadow="sm" spacing={3}>
+              <Box p={2.5} bg="white" borderRadius="lg" shadow="sm"><Icon as={item.icon} color={`${item.color}.400`} boxSize="18px" /></Box>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="bold" color={`${item.color}.600`} textTransform="uppercase">{item.label}</Text>
+                {workDoneStore.patientStats.loading ? <Spinner size="xs" /> : (
+                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString()}</Text>
+                )}
+                <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
+              </VStack>
             </HStack>
-            {workDoneStore.patientStats.loading ? <Spinner size="sm" /> : (
-              <Text fontSize="24px" fontWeight="1000" color="green.700">₹{(serverReceived || 0).toLocaleString()}</Text>
-            )}
-            <Text fontSize="9px" color="green.400" fontWeight="bold">CASH RECEIVED</Text>
-          </VStack>
-
-          <VStack align="start" p={5} bg="orange.50" borderRadius="2xl" border="1px solid" borderColor="orange.100">
-            <HStack w="full" justify="space-between" mb={1}>
-              <Text fontSize="xs" fontWeight="900" color="orange.500" letterSpacing="0.05em">OUTSTANDING</Text>
-              <Icon as={FiTrendingUp} color="orange.300" />
-            </HStack>
-            {workDoneStore.patientStats.loading ? <Spinner size="sm" /> : (
-              <Text fontSize="24px" fontWeight="1000" color="orange.700">₹{(patientPending || 0).toLocaleString()}</Text>
-            )}
-            <Text fontSize="9px" color="orange.400" fontWeight="bold">BALANCE REMAINING</Text>
-          </VStack>
+          ))}
         </SimpleGrid>
 
         <Box px={2} mb={6}>
@@ -400,6 +442,20 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   value={tempValue} onChange={(e) => setTempValue(e.target.value)} autoFocus
                 />
               </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="xs" fontWeight="900" color="gray.500">PAYMENT MODE</FormLabel>
+                <Select
+                  size="lg" borderRadius="2xl" fontWeight="800"
+                  value={receiveType} onChange={(e) => setReceiveType(e.target.value)}
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Card">Card</option>
+                  <option value="Other">Other</option>
+                </Select>
+              </FormControl>
             </VStack>
           </ModalBody>
           <ModalFooter>
@@ -435,12 +491,29 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   {historyData.map((h: any, i: number) => (
                     <HStack key={i} justify="space-between" p={4} bg="gray.50" borderRadius="2xl" border="1px solid" borderColor="gray.100">
                       <VStack align="start" spacing={0}>
-                        <Text fontWeight="800" color="gray.700">Payment Entry {i + 1}</Text>
+                        <Text fontWeight="800" color="gray.700">Payment Entry {historyData.length - i}</Text>
                         <Text fontSize="xs" color="gray.400">{moment(h.date).format("DD MMM YYYY, hh:mm A")}</Text>
                       </VStack>
                       <HStack>
-                        <Text fontWeight="1000" color="green.600" fontSize="lg">₹{h.amount.toLocaleString()}</Text>
-                        <Icon as={FiArrowRightCircle} color="green.300" />
+                        <VStack align="end" spacing={0}>
+                          <Text fontWeight="1000" color="green.700" fontSize="lg">₹{h.amount.toLocaleString()}</Text>
+                          <Badge 
+                            size="sm" 
+                            colorScheme={
+                              h.paymentMethod === 'Cash' ? 'green' : 
+                              h.paymentMethod === 'UPI' ? 'purple' : 
+                              h.paymentMethod === 'Cheque' ? 'orange' : 
+                              h.paymentMethod === 'Card' ? 'blue' : 'gray'
+                            } 
+                            variant="solid" 
+                            fontSize="9px"
+                            borderRadius="lg"
+                            px={2}
+                          >
+                            {(h.paymentMethod || "CASH").toUpperCase()}
+                          </Badge>
+                        </VStack>
+                        <Icon as={FiArrowRightCircle} color="green.300" boxSize="20px" />
                       </HStack>
                     </HStack>
                   ))}
