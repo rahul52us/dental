@@ -38,9 +38,10 @@ import {
 } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useMemo } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiPackage, FiTablet, FiActivity, FiUpload, FiEye } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiPackage, FiTablet, FiActivity, FiUpload, FiEye, FiPieChart, FiDownloadCloud, FiTrendingUp } from 'react-icons/fi';
 import stores from '../../store/stores';
 import CustomDrawer from '../../component/common/Drawer/CustomDrawer';
+import CreatableSelect from 'react-select/creatable';
 
 const PrescriptionMaster = observer(() => {
   const { prescriptionStore } = stores;
@@ -67,6 +68,7 @@ const PrescriptionMaster = observer(() => {
 
   useEffect(() => {
     prescriptionStore.getPrescriptions();
+    prescriptionStore.getSuggestions();
   }, []);
 
   const filteredPrescriptions = useMemo(() => {
@@ -135,6 +137,7 @@ const PrescriptionMaster = observer(() => {
       toast({ title: 'Error', description: err.message, status: 'error' });
     } finally {
       setLoading(false);
+      prescriptionStore.getSuggestions(); // Refresh suggestions
     }
   };
 
@@ -204,6 +207,31 @@ const PrescriptionMaster = observer(() => {
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const selectStyles = {
+    control: (base: any) => ({
+      ...base,
+      height: '50px',
+      borderRadius: '12px',
+      borderColor: '#E2E8F0',
+      fontSize: '14px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#3182ce'
+      }
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      fontSize: '13px',
+      backgroundColor: state.isFocused ? '#EBF8FF' : 'white',
+      color: state.isFocused ? '#2B6CB0' : '#4A5568',
+      cursor: 'pointer'
+    }),
+    placeholder: (base: any) => ({
+      ...base,
+      color: '#A0AEC0'
+    })
   };
 
   return (
@@ -417,20 +445,24 @@ const PrescriptionMaster = observer(() => {
               <SimpleGrid columns={2} spacing={8} w="full">
                 <FormControl isRequired>
                   <FormLabel fontWeight="bold">Type</FormLabel>
-                  <Input
-                    placeholder="e.g. Antibiotic & Chemotherapeutic Agents"
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    h="50px" borderRadius="xl"
+                  <CreatableSelect
+                    isClearable
+                    placeholder="Search or add type..."
+                    options={prescriptionStore.suggestions.types.map((t: string) => ({ label: t, value: t }))}
+                    value={formData.type ? { label: formData.type, value: formData.type } : null}
+                    onChange={(val: any) => setFormData({ ...formData, type: val?.value || '' })}
+                    styles={selectStyles}
                   />
                 </FormControl>
                 <FormControl>
                   <FormLabel fontWeight="bold">Catagory</FormLabel>
-                  <Input
-                    placeholder="e.g. Miscellaneous Antimicrobials"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    h="50px" borderRadius="xl"
+                  <CreatableSelect
+                    isClearable
+                    placeholder="Search or add category..."
+                    options={prescriptionStore.suggestions.categories.map((c: string) => ({ label: c, value: c }))}
+                    value={formData.category ? { label: formData.category, value: formData.category } : null}
+                    onChange={(val: any) => setFormData({ ...formData, category: val?.value || '' })}
+                    styles={selectStyles}
                   />
                 </FormControl>
               </SimpleGrid>
@@ -438,11 +470,20 @@ const PrescriptionMaster = observer(() => {
               <SimpleGrid columns={3} spacing={6} w="full">
                 <FormControl isRequired>
                   <FormLabel fontWeight="bold">Brandname</FormLabel>
-                  <Input
-                    placeholder="e.g. Ciprin 500mg"
-                    value={formData.brandName}
-                    onChange={(e) => setFormData({ ...formData, brandName: e.target.value })}
-                    h="50px" borderRadius="xl" fontWeight="bold" color="blue.600"
+                  <CreatableSelect
+                    isClearable
+                    placeholder="Search or add brand..."
+                    options={prescriptionStore.suggestions.brandNames.map((b: string) => ({ label: b, value: b }))}
+                    value={formData.brandName ? { label: formData.brandName, value: formData.brandName } : null}
+                    onChange={(val: any) => setFormData({ ...formData, brandName: val?.value || '' })}
+                    styles={{
+                      ...selectStyles,
+                      control: (base: any) => ({
+                        ...selectStyles.control(base),
+                        fontWeight: 'bold',
+                        color: '#2B6CB0'
+                      })
+                    }}
                   />
                 </FormControl>
                 <FormControl>
@@ -456,11 +497,13 @@ const PrescriptionMaster = observer(() => {
                 </FormControl>
                 <FormControl>
                   <FormLabel fontWeight="bold">Form</FormLabel>
-                  <Input
-                    placeholder="e.g. Tablet / Susp / Injection"
-                    value={formData.form}
-                    onChange={(e) => setFormData({ ...formData, form: e.target.value })}
-                    h="50px" borderRadius="xl"
+                  <CreatableSelect
+                    isClearable
+                    placeholder="Search or add form..."
+                    options={prescriptionStore.suggestions.forms.map((f: string) => ({ label: f, value: f }))}
+                    value={formData.form ? { label: formData.form, value: formData.form } : null}
+                    onChange={(val: any) => setFormData({ ...formData, form: val?.value || '' })}
+                    styles={selectStyles}
                   />
                 </FormControl>
               </SimpleGrid>
@@ -468,11 +511,13 @@ const PrescriptionMaster = observer(() => {
               <SimpleGrid columns={4} spacing={4} w="full">
                  <FormControl>
                   <FormLabel fontWeight="bold">Companyname</FormLabel>
-                  <Input
-                    placeholder="e.g. Cipla / Lark"
-                    value={formData.companyName}
-                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                    h="50px" borderRadius="xl"
+                  <CreatableSelect
+                    isClearable
+                    placeholder="Search or add company..."
+                    options={prescriptionStore.suggestions.companyNames.map((c: string) => ({ label: c, value: c }))}
+                    value={formData.companyName ? { label: formData.companyName, value: formData.companyName } : null}
+                    onChange={(val: any) => setFormData({ ...formData, companyName: val?.value || '' })}
+                    styles={selectStyles}
                   />
                 </FormControl>
                 <FormControl>

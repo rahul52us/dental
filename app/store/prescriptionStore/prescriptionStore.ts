@@ -4,10 +4,29 @@ import { authStore } from "../authStore/authStore";
 
 class PrescriptionStore {
   prescriptions: any = { data: [], total: 0, loading: false, page: 1, totalPages: 0 };
+  suggestions: any = { types: [], categories: [], brandNames: [], forms: [], companyNames: [], loading: false };
 
   constructor() {
     makeAutoObservable(this);
   }
+
+  getSuggestions = async () => {
+    this.suggestions.loading = true;
+    try {
+      const res = await axios.get(`/prescription/suggestions`, {
+        params: { companyId: authStore.company }
+      });
+      runInAction(() => {
+        this.suggestions = { ...res.data, loading: false };
+      });
+      return res.data;
+    } catch (err: any) {
+      runInAction(() => {
+        this.suggestions.loading = false;
+      });
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 
   getPrescriptions = async (params: any = {}) => {
     this.prescriptions.loading = true;
