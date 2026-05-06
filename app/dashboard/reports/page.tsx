@@ -48,7 +48,7 @@ const REPORT_TABS: {
   ];
 
 const ReportsPage = observer(() => {
-  const { reportStore: { getReportDownload } } = stores;
+  const { reportStore: { getReportDownload }, workDoneStore, auth } = stores;
   const [activeTab, setActiveTab] = useState<ReportTab>("patient");
 
   // Searchable entities
@@ -64,6 +64,7 @@ const ReportsPage = observer(() => {
   });
 
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isPDFDownloading, setIsPDFDownloading] = useState(false);
   const toast = useToast();
 
   // Persist active tab
@@ -173,6 +174,32 @@ const ReportsPage = observer(() => {
       });
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleDoctorPDFDownload = async () => {
+    if (activeTab !== "doctor" || !selectedDoctor) {
+      toast({
+        title: "Selection Required",
+        description: "Please select a doctor to download the PDF report.",
+        status: "warning",
+      });
+      return;
+    }
+
+    setIsPDFDownloading(true);
+    try {
+      await workDoneStore.downloadDoctorReport({
+        doctorId: selectedDoctor.id || selectedDoctor._id || selectedDoctor.value,
+        patientId: selectedPatient?.id || selectedPatient?._id || selectedPatient?.value,
+        fromDate: filters.doctor.fromDate,
+        toDate: filters.doctor.toDate,
+      });
+      toast({ title: "PDF Report Downloaded", status: "success" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, status: "error" });
+    } finally {
+      setIsPDFDownloading(false);
     }
   };
 
@@ -542,24 +569,43 @@ const ReportsPage = observer(() => {
                 </Text> report is ready
               </Text>
 
-              <Button
-                size="xl"
-                colorScheme={activeTabConfig.colorScheme}
-                rightIcon={<RiDownload2Line size={28} />}
-                px={12}
-                py={8}
-                fontSize="xl"
-                fontWeight="extrabold"
-                borderRadius="full"
-                boxShadow="0 20px 40px rgba(0,0,0,0.15)"
-                _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
-                isDisabled={isDownloadDisabled()}
-                isLoading={isDownloading}
-                loadingText="Generating..."
-                onClick={handleDownload}
-              >
-                Download Excel Report
-              </Button>
+              <HStack spacing={4}>
+                {activeTab === "doctor" && (
+                  <Button
+                    size="xl"
+                    colorScheme="red"
+                    variant="outline"
+                    leftIcon={<RiDownload2Line size={24} />}
+                    px={10}
+                    py={8}
+                    fontSize="lg"
+                    fontWeight="bold"
+                    borderRadius="full"
+                    isLoading={isPDFDownloading}
+                    onClick={handleDoctorPDFDownload}
+                  >
+                    Download PDF Performance
+                  </Button>
+                )}
+                <Button
+                  size="xl"
+                  colorScheme={activeTabConfig.colorScheme}
+                  rightIcon={<RiDownload2Line size={28} />}
+                  px={12}
+                  py={8}
+                  fontSize="xl"
+                  fontWeight="extrabold"
+                  borderRadius="full"
+                  boxShadow="0 20px 40px rgba(0,0,0,0.15)"
+                  _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
+                  isDisabled={isDownloadDisabled()}
+                  isLoading={isDownloading}
+                  loadingText="Generating..."
+                  onClick={handleDownload}
+                >
+                  Download Excel Report
+                </Button>
+              </HStack>
             </Flex>
           </Box>
         </Box>

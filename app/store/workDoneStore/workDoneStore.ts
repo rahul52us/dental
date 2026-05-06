@@ -261,6 +261,49 @@ class WorkDoneStore {
       return Promise.reject(err);
     }
   };
+
+  /**
+   * DOWNLOAD DOCTOR-SPECIFIC WORK DONE REPORT
+   * Supports filtering by patient and date range.
+   */
+  downloadDoctorReport = async (filters: { doctorId: string; patientId?: string; fromDate?: string; toDate?: string }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+
+      const { data } = await axios.get(`/workDone/generate-doctor-report`, {
+        params: { 
+          ...filters,
+          company: compId 
+        }
+      });
+
+      if (data.status === "success" && data.data) {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Doctor_Report_${filters.doctorId}_${new Date().getTime()}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Doctor Report Download Error:", err);
+      throw err;
+    }
+  };
 }
 
 export const workDoneStore = new WorkDoneStore();

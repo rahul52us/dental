@@ -5,6 +5,7 @@ import {
   Box,
   Badge,
   HStack,
+  Flex,
   Text,
   VStack,
   useDisclosure,
@@ -161,6 +162,21 @@ const AccountabilityPage = observer(() => {
         title="Doctor Accountability & Payouts" 
         subTitle="Manage doctor commissions and treatment-wise payouts" 
       />
+
+      <Flex justify="flex-end" mt={4}>
+        <Button
+          leftIcon={<Icon as={FiDollarSign} />}
+          colorScheme="indigo"
+          bg="indigo.600"
+          _hover={{ bg: "indigo.700" }}
+          borderRadius="full"
+          px={8}
+          isLoading={accountabilityStore.loading}
+          onClick={() => accountabilityStore.downloadAccountabilityReport({ companyId: auth.company })}
+        >
+          Download Payout Report (PDF)
+        </Button>
+      </Flex>
 
       <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mt={6} mb={8}>
         <Box p={5} bg="white" borderRadius="2xl" shadow="sm" border="1px solid" borderColor="gray.100">

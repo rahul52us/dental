@@ -69,6 +69,39 @@ class AccountabilityStore {
       this.loading = false;
     }
   };
+
+  downloadAccountabilityReport = async (query: any) => {
+    try {
+      this.loading = true;
+      const res = await axios.get("/accountability/generate-payout-report", { params: query });
+      if (res.data.status === "success" && res.data.data) {
+        const base64Data = res.data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Payout_Report_${new Date().getTime()}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      console.error("Accountability Download Error:", error);
+      throw error;
+    } finally {
+      this.loading = false;
+    }
+  };
 }
 
 export default new AccountabilityStore();

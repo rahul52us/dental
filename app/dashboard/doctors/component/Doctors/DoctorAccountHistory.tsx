@@ -7,6 +7,9 @@ import {
   Icon,
   Badge,
   Spinner,
+  Button,
+  useToast,
+  IconButton,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -21,6 +24,9 @@ import CustomTable from "../../../../component/config/component/CustomTable/Cust
 const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const { workDoneStore } = stores;
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
+  const toast = useToast();
 
   const fetchData = useCallback(async () => {
     // 1. Fetch WorkDone for this doctor with pagination
@@ -41,6 +47,32 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleDownloadReport = async () => {
+    setIsDownloading(true);
+    try {
+      await workDoneStore.downloadDoctorReport({
+        doctorId: doctorDetails._id,
+      });
+      toast({ title: "Report Downloaded", status: "success" });
+    } catch (err: any) {
+      toast({ title: "Download Failed", description: err.message, status: "error" });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleSingleDownload = async (id: string) => {
+    setDownloadingRecordId(id);
+    try {
+      await workDoneStore.downloadSingleRecordReport(id);
+      toast({ title: "Receipt Downloaded", status: "success" });
+    } catch (err: any) {
+      toast({ title: "Download Failed", description: err.message, status: "error" });
+    } finally {
+      setDownloadingRecordId(null);
+    }
+  };
 
   const displayData = workDoneStore.workDone.data;
   const { totalBill, collected, pending, loading } = workDoneStore.doctorStats;
@@ -82,6 +114,25 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
           );
         }
       }
+    },
+    {
+      headerName: "Action",
+      key: "actions",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <IconButton
+            aria-label="Download Receipt"
+            icon={<FiDownloadCloud />}
+            size="xs"
+            colorScheme="blue"
+            variant="ghost"
+            isLoading={downloadingRecordId === dt._id}
+            onClick={() => handleSingleDownload(dt._id)}
+          />
+        ),
+      },
+      props: { row: { textAlign: "center" } },
     }
   ];
 
@@ -124,10 +175,24 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
         </SimpleGrid>
 
         <Box px={2} mb={6}>
-            <VStack align="start" spacing={0}>
-                <Text fontSize="xl" fontWeight="900" color="gray.800">Doctor's Financial Ledger</Text>
-                <Text fontSize="xs" color="gray.400">Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
-            </VStack>
+            <HStack justify="space-between" align="end">
+                <VStack align="start" spacing={0}>
+                    <Text fontSize="xl" fontWeight="900" color="gray.800">Doctor's Financial Ledger</Text>
+                    <Text fontSize="xs" color="gray.400">Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
+                </VStack>
+                <Button 
+                    leftIcon={<FiDownloadCloud />} 
+                    colorScheme="purple" 
+                    variant="solid" 
+                    size="sm" 
+                    borderRadius="full" 
+                    px={6}
+                    isLoading={isDownloading}
+                    onClick={handleDownloadReport}
+                >
+                    Download Full Report (PDF)
+                </Button>
+            </HStack>
         </Box>
 
         <CustomTable 
