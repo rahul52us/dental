@@ -193,8 +193,8 @@ class WorkDoneStore {
       const compId = authStore.company?._id || authStore.company || companyId;
 
       const { data } = await axios.get("/workDone/generate-pdf", {
-        params: { 
-          patientId, 
+        params: {
+          patientId,
           company: compId,
           ...filters
         }
@@ -221,6 +221,43 @@ class WorkDoneStore {
       }
     } catch (err) {
       console.error("Error downloading PDF:", err);
+      return Promise.reject(err);
+    }
+  };
+
+  /**
+   * DOWNLOAD A RECEIPT FOR A SINGLE TREATMENT RECORD
+   */
+  downloadSingleRecordReport = async (workDoneId: string) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+
+      const { data } = await axios.get(`/workDone/generate-receipt/${workDoneId}`, {
+        params: { company: compId }
+      });
+
+      if (data.status === "success" && data.data) {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Receipt_${workDoneId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error("Error downloading single record PDF:", err);
       return Promise.reject(err);
     }
   };

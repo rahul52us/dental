@@ -85,6 +85,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     endDate: moment().format('YYYY-MM-DD')
   });
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
 
   const fetchOverallStats = useCallback(async () => {
     await workDoneStore.getOverallPatientStats(patientDetails._id);
@@ -146,6 +147,18 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       toast({ title: "Download Error", status: "error" });
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleSingleDownload = async (recordId: string) => {
+    setDownloadingRecordId(recordId);
+    try {
+      await workDoneStore.downloadSingleRecordReport(recordId);
+      toast({ title: "Record Receipt Downloaded", status: "success" });
+    } catch (err) {
+      toast({ title: "Download Error", status: "error" });
+    } finally {
+      setDownloadingRecordId(null);
     }
   };
 
@@ -306,17 +319,31 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       }
     },
     {
-      headerName: "History",
-      key: "history_col",
+      headerName: "Actions",
+      key: "actions_col",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Tooltip label="View History" hasArrow>
-            <IconButton
-              aria-label="History" icon={<FiClock />} size="md" colorScheme="blue" variant="ghost"
-              borderRadius="xl" onClick={() => openHistoryDrawer(dt)}
-            />
-          </Tooltip>
+          <HStack spacing={2}>
+            <Tooltip label="Download Receipt" hasArrow>
+              <IconButton
+                aria-label="Download"
+                icon={downloadingRecordId === dt._id ? <Spinner size="xs" /> : <FiDownload />}
+                size="sm"
+                colorScheme="blue"
+                variant="solid"
+                borderRadius="lg"
+                onClick={() => handleSingleDownload(dt._id)}
+                isDisabled={downloadingRecordId !== null}
+              />
+            </Tooltip>
+            <Tooltip label="View History" hasArrow>
+              <IconButton
+                aria-label="History" icon={<FiClock />} size="sm" colorScheme="gray" variant="ghost"
+                borderRadius="lg" onClick={() => openHistoryDrawer(dt)}
+              />
+            </Tooltip>
+          </HStack>
         )
       }
     },
