@@ -48,7 +48,11 @@ import {
   FiDownloadCloud,
   FiTrendingUp,
   FiCheck,
-  FiFilter
+  FiFilter,
+  FiDownload,
+  FiCalendar,
+  FiTarget,
+  FiChevronRight
 } from "react-icons/fi";
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
@@ -72,6 +76,16 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [doctorFilter, setDoctorFilter] = useState<string>("all");
 
+  // Download Modal State
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [downloadFilters, setDownloadFilters] = useState({
+    doctorId: "all",
+    status: "all",
+    startDate: moment().startOf('month').format('YYYY-MM-DD'),
+    endDate: moment().format('YYYY-MM-DD')
+  });
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const fetchOverallStats = useCallback(async () => {
     await workDoneStore.getOverallPatientStats(patientDetails._id);
   }, [workDoneStore, patientDetails._id]);
@@ -82,7 +96,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       page: currentPage,
       limit: 10
     });
-    
+
     // Fetch filtered stats (dynamic)
     await workDoneStore.getPatientFinancialStats(patientDetails._id, doctorFilter);
 
@@ -116,11 +130,24 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     return Object.entries(docs).map(([id, name]) => ({ id, name }));
   }, [workDoneStore.workDone.data]);
 
-  // Filtered Data for Table (Frontend filtering for table rows is fine, but stats are backend)
+  // Filtered Data for Table
   const filteredWork = useMemo(() => {
     if (doctorFilter === "all") return workDoneStore.workDone.data;
     return workDoneStore.workDone.data.filter((wd: any) => wd.doctor?._id === doctorFilter);
   }, [workDoneStore.workDone.data, doctorFilter]);
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await workDoneStore.downloadPatientStatement(patientDetails._id, downloadFilters);
+      toast({ title: "Statement Downloaded", status: "success" });
+      setIsDownloadModalOpen(false);
+    } catch (err) {
+      toast({ title: "Download Error", status: "error" });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const openPaymentModal = (record: any) => {
     setSelectedRecord(record);
@@ -375,37 +402,71 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         </SimpleGrid>
 
         <Box px={2} mb={6}>
-          <HStack justify="space-between" align="center">
+          <HStack justify="space-between" align="center" flexWrap="wrap" gap={4}>
             <VStack align="start" spacing={0}>
-              <Text fontSize="xl" fontWeight="900" color="gray.800">Financial Ledger</Text>
-              <Text fontSize="xs" color="gray.400">Server-side filtering for 1000+ records</Text>
+              <Text fontSize="xl" fontWeight="1000" color="gray.800" letterSpacing="-0.5px">Financial Ledger</Text>
+              <Text fontSize="xs" color="gray.400" fontWeight="600">Secure Audit & Statement Controls</Text>
             </VStack>
 
-            <HStack spacing={3} p={1} px={3} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
-              <Icon as={FiFilter} color="gray.400" />
-              <Text fontSize="xs" fontWeight="bold" color="gray.500" whiteSpace="nowrap">FILTER BY DOCTOR:</Text>
-              <Select
-                size="sm"
-                variant="unstyled"
-                fontWeight="bold"
-                color="blue.600"
-                w="200px"
-                value={doctorFilter}
-                onChange={(e) => setDoctorFilter(e.target.value)}
+            <HStack spacing={3} ml="auto">
+              <Button
+                leftIcon={<FiDownloadCloud />}
+                bgGradient="linear(to-r, blue.500, blue.600)"
+                color="white"
+                _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                _active={{ transform: "translateY(0)" }}
+                size="md"
+                borderRadius="2xl"
+                fontWeight="800"
+                px={6}
+                shadow="md"
+                onClick={() => setIsDownloadModalOpen(true)}
               >
-                <option value="all">Show All Doctors</option>
-                {doctorsList.map(doc => (
-                  <option key={doc.id} value={doc.id}>Dr. {doc.name}</option>
-                ))}
-              </Select>
+                Download Statement
+              </Button>
+
+              <HStack 
+                spacing={0} 
+                p={1} 
+                bg="white" 
+                borderRadius="2xl" 
+                border="1px solid" 
+                borderColor="gray.100" 
+                shadow="sm"
+                transition="all 0.2s"
+                _hover={{ borderColor: "blue.200", shadow: "md" }}
+              >
+                <Box px={3} borderRight="1px solid" borderColor="gray.100">
+                  <HStack spacing={2}>
+                    <Icon as={FiFilter} color="blue.500" />
+                    <Text fontSize="xs" fontWeight="900" color="gray.500" textTransform="uppercase" letterSpacing="0.05em">Doctor</Text>
+                  </HStack>
+                </Box>
+                <Select
+                  size="md"
+                  variant="unstyled"
+                  fontWeight="800"
+                  color="blue.600"
+                  w="200px"
+                  px={4}
+                  value={doctorFilter}
+                  onChange={(e) => setDoctorFilter(e.target.value)}
+                  cursor="pointer"
+                >
+                  <option value="all">Show All Doctors</option>
+                  {doctorsList.map(doc => (
+                    <option key={doc.id} value={doc.id}>Dr. {doc.name}</option>
+                  ))}
+                </Select>
+              </HStack>
             </HStack>
           </HStack>
         </Box>
 
         <CustomTable
-          data={filteredWork.map((wd: any, i: number) => ({ 
-            ...wd, 
-            sno: (currentPage - 1) * 10 + (i + 1) 
+          data={filteredWork.map((wd: any, i: number) => ({
+            ...wd,
+            sno: (currentPage - 1) * 10 + (i + 1)
           }))}
           columns={columns}
           loading={workDoneStore.workDone.loading}
@@ -420,7 +481,147 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         />
       </Box>
 
-      {/* Modals and Drawers remain the same... */}
+      {/* DOWNLOAD STATEMENT MODAL - PREMIUM REDESIGN */}
+      <Modal isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} isCentered size="lg">
+        <ModalOverlay backdropFilter="blur(12px)" bg="blackAlpha.300" />
+        <ModalContent borderRadius="4xl" shadow="dark-lg" overflow="hidden">
+          <ModalHeader p={0}>
+            <Box bgGradient="linear(to-br, blue.600, blue.800)" p={8} color="white" pos="relative">
+              <VStack align="start" spacing={1}>
+                <HStack spacing={2} opacity={0.9}>
+                  <Icon as={FiDownloadCloud} />
+                  <Text fontSize="xs" fontWeight="900" letterSpacing="0.2em">PDF GENERATOR</Text>
+                </HStack>
+                <Text fontSize="3xl" fontWeight="1000" letterSpacing="-1px">Download Statement</Text>
+                <Text fontSize="sm" opacity={0.8} fontWeight="500">Configure your report filters below</Text>
+              </VStack>
+              <Box pos="absolute" right={-10} top={-10} boxSize="150px" bg="whiteAlpha.100" borderRadius="full" />
+            </Box>
+          </ModalHeader>
+          <ModalCloseButton color="white" top={6} right={6} borderRadius="full" _hover={{ bg: "whiteAlpha.200" }} />
+          
+          <ModalBody p={8}>
+            <VStack spacing={6}>
+              <Box w="full">
+                <Text fontSize="xs" fontWeight="900" color="blue.500" mb={3} letterSpacing="0.1em">TIMELINE RANGE</Text>
+                <SimpleGrid columns={2} spacing={4}>
+                  <FormControl>
+                    <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>START DATE</FormLabel>
+                    <HStack bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                      <Icon as={FiCalendar} color="gray.400" />
+                      <Input 
+                        type="date" 
+                        variant="unstyled"
+                        fontSize="sm"
+                        fontWeight="700"
+                        value={downloadFilters.startDate}
+                        onChange={(e) => setDownloadFilters({...downloadFilters, startDate: e.target.value})}
+                      />
+                    </HStack>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>END DATE</FormLabel>
+                    <HStack bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                      <Icon as={FiCalendar} color="gray.400" />
+                      <Input 
+                        type="date" 
+                        variant="unstyled"
+                        fontSize="sm"
+                        fontWeight="700"
+                        value={downloadFilters.endDate}
+                        onChange={(e) => setDownloadFilters({...downloadFilters, endDate: e.target.value})}
+                      />
+                    </HStack>
+                  </FormControl>
+                </SimpleGrid>
+              </Box>
+
+              <Box w="full">
+                <Text fontSize="xs" fontWeight="900" color="blue.500" mb={3} letterSpacing="0.1em">REPORT SCOPE</Text>
+                <SimpleGrid columns={2} spacing={4}>
+                  <FormControl>
+                    <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>ASSIGNED DOCTOR</FormLabel>
+                    <Select 
+                      bg="gray.50" 
+                      borderRadius="2xl" 
+                      border="1px solid" 
+                      borderColor="gray.100"
+                      fontSize="sm"
+                      fontWeight="700"
+                      h="45px"
+                      value={downloadFilters.doctorId}
+                      onChange={(e) => setDownloadFilters({...downloadFilters, doctorId: e.target.value})}
+                    >
+                      <option value="all">All Doctors</option>
+                      {doctorsList.map(doc => (
+                        <option key={doc.id} value={doc.id}>Dr. {doc.name}</option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>PAYMENT STATUS</FormLabel>
+                    <Select 
+                      bg="gray.50" 
+                      borderRadius="2xl" 
+                      border="1px solid" 
+                      borderColor="gray.100"
+                      fontSize="sm"
+                      fontWeight="700"
+                      h="45px"
+                      value={downloadFilters.status}
+                      onChange={(e) => setDownloadFilters({...downloadFilters, status: e.target.value})}
+                    >
+                      <option value="all">Full History</option>
+                      <option value="SETTLED">Settled Only</option>
+                      <option value="PENDING">Pending Balance</option>
+                    </Select>
+                  </FormControl>
+                </SimpleGrid>
+              </Box>
+
+              <HStack w="full" p={4} bg="blue.50" borderRadius="2xl" spacing={4}>
+                <Box p={2} bg="blue.100" borderRadius="xl"><Icon as={FiTarget} color="blue.600" /></Box>
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="xs" fontWeight="bold" color="blue.700">Audit Ready</Text>
+                  <Text fontSize="10px" color="blue.600" opacity={0.8}>This report will include digital signatures and clinic branding.</Text>
+                </VStack>
+              </HStack>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter p={8} pt={0}>
+            <Button 
+              variant="ghost" 
+              mr={4} 
+              onClick={() => setIsDownloadModalOpen(false)} 
+              borderRadius="2xl"
+              fontWeight="800"
+              fontSize="sm"
+              color="gray.500"
+            >
+              Discard
+            </Button>
+            <Button 
+              bgGradient="linear(to-r, blue.500, blue.700)" 
+              color="white"
+              _hover={{ bgGradient: "linear(to-r, blue.600, blue.800)", shadow: "xl", transform: "scale(1.02)" }}
+              _active={{ transform: "scale(0.98)" }}
+              onClick={handleDownload} 
+              isLoading={isDownloading} 
+              rightIcon={<FiChevronRight />}
+              borderRadius="2xl"
+              px={10}
+              h="55px"
+              fontWeight="900"
+              fontSize="md"
+              shadow="lg"
+            >
+              Generate PDF
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       <Modal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} isCentered size="sm">
         <ModalOverlay backdropFilter="blur(8px)" />
         <ModalContent borderRadius="3xl">
@@ -497,15 +698,15 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       <HStack>
                         <VStack align="end" spacing={0}>
                           <Text fontWeight="1000" color="green.700" fontSize="lg">₹{h.amount.toLocaleString()}</Text>
-                          <Badge 
-                            size="sm" 
+                          <Badge
+                            size="sm"
                             colorScheme={
-                              h.paymentMethod === 'Cash' ? 'green' : 
-                              h.paymentMethod === 'UPI' ? 'purple' : 
-                              h.paymentMethod === 'Cheque' ? 'orange' : 
-                              h.paymentMethod === 'Card' ? 'blue' : 'gray'
-                            } 
-                            variant="solid" 
+                              h.paymentMethod === 'Cash' ? 'green' :
+                                h.paymentMethod === 'UPI' ? 'purple' :
+                                  h.paymentMethod === 'Cheque' ? 'orange' :
+                                    h.paymentMethod === 'Card' ? 'blue' : 'gray'
+                            }
+                            variant="solid"
                             fontSize="9px"
                             borderRadius="lg"
                             px={2}
