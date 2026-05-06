@@ -17,26 +17,42 @@ import {
   FiPieChart, 
   FiDownloadCloud, 
   FiTrendingUp,
+  FiFileText,
 } from "react-icons/fi";
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
+import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { FiFilter, FiX } from "react-icons/fi";
+import { Divider, Flex, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from "@chakra-ui/react";
 
 const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const { workDoneStore } = stores;
   const [currentPage, setCurrentPage] = useState(1);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Table Filters (if any, currently just page)
+  const [tableSearch, setTableSearch] = useState("");
+
+  // Modal-only Filters (Independent)
+  const [modalSelectedPatient, setModalSelectedPatient] = useState<any>(null);
+  const [modalFilters, setModalFilters] = useState({
+    fromDate: "",
+    toDate: "",
+    status: "all"
+  });
+  
   const toast = useToast();
 
   const fetchData = useCallback(async () => {
-    // 1. Fetch WorkDone for this doctor with pagination
+    // Table always shows all doctor's work done, regardless of modal filter state
     await workDoneStore.getWorkDone({ 
       doctorId: doctorDetails._id, 
       page: currentPage,
       limit: 10 
     });
     
-    // 2. Fetch Doctor-specific Stats
     await workDoneStore.getDoctorFinancialStats(doctorDetails._id);
   }, [workDoneStore, doctorDetails._id, currentPage]);
 
@@ -53,13 +69,27 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
     try {
       await workDoneStore.downloadDoctorReport({
         doctorId: doctorDetails._id,
+        patientId: modalSelectedPatient?.id || modalSelectedPatient?.value || modalSelectedPatient?._id,
+        fromDate: modalFilters.fromDate,
+        toDate: modalFilters.toDate,
+        status: modalFilters.status === "all" ? undefined : modalFilters.status,
       });
       toast({ title: "Report Downloaded", status: "success" });
+      setIsModalOpen(false);
     } catch (err: any) {
       toast({ title: "Download Failed", description: err.message, status: "error" });
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleModalFilterChange = (name: string, value: any) => {
+    setModalFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const resetModalFilters = () => {
+    setModalSelectedPatient(null);
+    setModalFilters({ fromDate: "", toDate: "", status: "all" });
   };
 
   const handleSingleDownload = async (id: string) => {
@@ -187,13 +217,14 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                     size="sm" 
                     borderRadius="full" 
                     px={6}
-                    isLoading={isDownloading}
-                    onClick={handleDownloadReport}
+                    onClick={() => setIsModalOpen(true)}
                 >
-                    Download Full Report (PDF)
+                    Generate Report (PDF)
                 </Button>
             </HStack>
         </Box>
+
+        <Divider mb={8} />
 
         <CustomTable 
           data={displayData.map((wd: any, i: number) => ({ 
@@ -212,6 +243,109 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
           }}
         />
       </Box>
+
+      {/* Download Configuration Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} isCentered size="xl">
+        <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
+        <ModalContent borderRadius="3xl" overflow="hidden" shadow="2xl">
+          <ModalHeader 
+            bg="purple.600" 
+            color="white" 
+            py={6}
+            display="flex"
+            alignItems="center"
+            gap={3}
+          >
+            <FiFileText size={24} />
+            <Text>Report Download Options</Text>
+          </ModalHeader>
+          <ModalCloseButton color="white" top={6} />
+          
+          <ModalBody p={8}>
+            <VStack spacing={8} align="stretch">
+              <Box>
+                <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">FILTER BY PATIENT</Text>
+                <CustomInput
+                  name="patientFilter"
+                  type="real-time-user-search"
+                  label=""
+                  placeholder="All Patients (Search to filter...)"
+                  value={modalSelectedPatient}
+                  onChange={(val: any) => setModalSelectedPatient(val)}
+                  query={{ type: "patient" }}
+                  isClear={true}
+                />
+              </Box>
+
+              <SimpleGrid columns={2} spacing={6}>
+                <Box>
+                  <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">FROM DATE</Text>
+                  <CustomInput
+                    name="fromDate"
+                    type="date"
+                    label=""
+                    value={modalFilters.fromDate}
+                    onChange={(e: any) => handleModalFilterChange("fromDate", e.target.value)}
+                  />
+                </Box>
+                <Box>
+                  <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">TO DATE</Text>
+                  <CustomInput
+                    name="toDate"
+                    type="date"
+                    label=""
+                    value={modalFilters.toDate}
+                    onChange={(e: any) => handleModalFilterChange("toDate", e.target.value)}
+                  />
+                </Box>
+              </SimpleGrid>
+
+              <Box>
+                <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">PAYMENT STATUS</Text>
+                <CustomInput
+                  name="statusFilter"
+                  type="select"
+                  label=""
+                  placeholder="Select status"
+                  options={[
+                    { label: "All Treatments", value: "all" },
+                    { label: "Settled Only", value: "SETTLED" },
+                    { label: "Pending Only", value: "PENDING" },
+                  ]}
+                  value={modalFilters.status}
+                  onChange={(val: any) => handleModalFilterChange("status", val?.value || "all")}
+                />
+              </Box>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter bg="gray.50" p={6} borderTop="1px solid" borderColor="gray.100">
+            <HStack spacing={4} w="full">
+              <Button 
+                variant="ghost" 
+                flex={1} 
+                borderRadius="full" 
+                onClick={resetModalFilters}
+                leftIcon={<FiX />}
+              >
+                Reset Filters
+              </Button>
+              <Button 
+                colorScheme="purple" 
+                flex={2} 
+                borderRadius="full" 
+                size="lg"
+                leftIcon={<FiDownloadCloud />}
+                isLoading={isDownloading}
+                onClick={handleDownloadReport}
+                boxShadow="0 10px 20px rgba(107, 70, 193, 0.2)"
+              >
+                Download PDF Report
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 });

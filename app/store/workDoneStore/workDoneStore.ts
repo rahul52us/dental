@@ -110,6 +110,9 @@ class WorkDoneStore {
     patientId?: string;
     treatmentId?: string;
     doctorId?: string;
+    fromDate?: string;
+    toDate?: string;
+    status?: string;
   }) => {
     this.workDone.loading = true;
     try {
@@ -122,6 +125,9 @@ class WorkDoneStore {
         patientId: sendData.patientId,
         treatmentId: sendData.treatmentId,
         doctorId: sendData.doctorId,
+        fromDate: sendData.fromDate,
+        toDate: sendData.toDate,
+        status: sendData.status,
       };
 
       const { data } = await axios.get("/workDone/get", { params });
@@ -266,7 +272,13 @@ class WorkDoneStore {
    * DOWNLOAD DOCTOR-SPECIFIC WORK DONE REPORT
    * Supports filtering by patient and date range.
    */
-  downloadDoctorReport = async (filters: { doctorId: string; patientId?: string; fromDate?: string; toDate?: string }) => {
+  downloadDoctorReport = async (filters: { 
+    doctorId: string; 
+    patientId?: string; 
+    fromDate?: string; 
+    toDate?: string;
+    status?: string;
+  }) => {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
