@@ -53,7 +53,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     primaryDoctor: initialData?.primaryDoctor || "",
     primaryDoctorModel: initialData?.primaryDoctorModel || (initialData?.workType === "in-house" ? "User" : "LabDoctor"),
     doctorNameManual: initialData?.doctorNameManual || "",
-    workType: initialData?.workType || "outside",
+    workType: initialData?.workType || "",
 
     selectedWorks: initialData?.selectedWorks && initialData.selectedWorks.length > 0
       ? initialData.selectedWorks
@@ -123,7 +123,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
   return (
     <Box p={6} borderRadius="xl" bg={bgColor} border="1px" borderColor={borderColor}>
       <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
-        {({ values, setFieldValue, isSubmitting }) => (
+        {({ values, setFieldValue, isSubmitting, resetForm }) => (
           <Form>
             <VStack spacing={6} align="stretch">
               {/* Top Header Actions */}
@@ -135,6 +135,9 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   <Text fontSize="xs" color="gray.500">Please fill in the laboratory specifications below</Text>
                 </VStack>
                 <HStack spacing={3}>
+                  <Button variant="ghost" colorScheme="orange" size="md" px={6} borderRadius="xl" onClick={() => resetForm()}>
+                    Reset Form
+                  </Button>
                   <Button variant="outline" colorScheme="red" size="md" px={6} borderRadius="xl" onClick={onClose}>
                     Cancel
                   </Button>
@@ -160,10 +163,20 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 <CustomInput
                   label="Work Type"
                   type="select"
+                  placeholder="Select Type"
+                  isClear={true}
                   name="workType"
                   options={workTypes}
                   value={values.workType}
-                  onChange={(val: any) => setFieldValue("workType", val.value)}
+                  onChange={(val: any) => {
+                    setFieldValue("workType", val.value);
+                    // Reset fields that depend on workType
+                    setFieldValue("patient", "");
+                    setFieldValue("patientNameManual", "");
+                    setFieldValue("primaryDoctor", "");
+                    setFieldValue("lab", "");
+                    setFieldValue("labNameManual", "");
+                  }}
                 />
                 {values.workType === "outside" ? (
                   <CustomInput
@@ -310,12 +323,14 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                                     <CustomInput
                                       label={currentLevel === 0 ? "Category" : `Step ${currentLevel + 1}`}
                                       type="select"
+                                      placeholder="Select..."
+                                      isClear={true}
                                       name={`selectedWorks.${workIndex}.selections.${currentLevel}`}
                                       options={optionsAtThisLevel.map(o => ({ label: o.label, value: o.value }))}
                                       value={selectedValue}
                                       onChange={(val: any) => {
                                         const newSels = [...work.selections];
-                                        newSels[currentLevel] = val.value;
+                                        newSels[currentLevel] = val?.value || "";
                                         newSels.splice(currentLevel + 1); // Clear levels below
                                         setFieldValue(`selectedWorks.${workIndex}.selections`, newSels);
                                       }}

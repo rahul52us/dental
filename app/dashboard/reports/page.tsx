@@ -26,13 +26,14 @@ import {
   RiDownload2Line,
   RiCalendar2Line,
   RiTeamLine,
+  RiFlaskLine,
 } from "react-icons/ri";
 
 import CustomInput from "../../component/config/component/customInput/CustomInput";
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
 
-type ReportTab = "patient" | "doctor" | "appointment" | "recall" | "staff";
+type ReportTab = "patient" | "doctor" | "appointment" | "recall" | "staff" | "labWork";
 
 const REPORT_TABS: {
   label: string;
@@ -45,6 +46,7 @@ const REPORT_TABS: {
     { label: "Staff", value: "staff", colorScheme: "green", icon: RiTeamLine },
     { label: "Appointment", value: "appointment", colorScheme: "purple", icon: RiCalendarTodoLine },
     { label: "Recall", value: "recall", colorScheme: "orange", icon: RiNotification4Line },
+    { label: "Lab Work", value: "labWork", colorScheme: "cyan", icon: RiFlaskLine },
   ];
 
 const ReportsPage = observer(() => {
@@ -61,6 +63,7 @@ const ReportsPage = observer(() => {
     appointment: { status: "" },
     recall: { status: "" },
     staff: { role: "all" },
+    labWork: { workType: "all", dateType: "sendDate", status: "all" },
   });
 
   const [isDownloading, setIsDownloading] = useState(false);
@@ -70,7 +73,7 @@ const ReportsPage = observer(() => {
   // Persist active tab
   useEffect(() => {
     const saved = localStorage.getItem("activeReportTab");
-    if (saved && ["patient", "doctor", "appointment", "recall", "staff"].includes(saved)) {
+    if (saved && ["patient", "doctor", "appointment", "recall", "staff", "labWork"].includes(saved)) {
       setActiveTab(saved as ReportTab);
     }
   }, []);
@@ -555,6 +558,53 @@ const ReportsPage = observer(() => {
                     value={filters.staff.role || "all"}
                     onChange={(val: any) => handleChange("staff", "role", val?.value || "all")}
                   />
+                )}
+
+                {activeTab === "labWork" && (
+                  <>
+                    <CustomInput
+                      name="dateType"
+                      type="select"
+                      label="Filter By Date"
+                      options={[
+                        { label: "Send Date", value: "sendDate" },
+                        { label: "Due Date", value: "dueDate" },
+                        { label: "Received Date", value: "receivedDate" },
+                      ]}
+                      value={filters.labWork.dateType || "sendDate"}
+                      onChange={(val: any) => handleChange("labWork", "dateType", val?.value || "sendDate")}
+                    />
+
+                    <CustomInput
+                      name="workType"
+                      type="select"
+                      label="Work Type"
+                      options={[
+                        { label: "All", value: "all" },
+                        { label: "In-house", value: "in-house" },
+                        { label: "Outside", value: "outside" },
+                      ]}
+                      value={filters.labWork.workType || "all"}
+                      onChange={(val: any) => handleChange("labWork", "workType", val?.value || "all")}
+                    />
+
+                    <CustomInput
+                      name="status"
+                      type="select"
+                      label="Status"
+                      placeholder="All status"
+                      options={[
+                        { label: "All", value: "all" },
+                        { label: "Plan", value: "plan" },
+                        { label: "Sent", value: "sent" },
+                        { label: "Received", value: "received" },
+                        { label: "Completed", value: "completed" },
+                        { label: "Cancelled", value: "cancelled" },
+                      ]}
+                      value={filters.labWork.status || "all"}
+                      onChange={(val: any) => handleChange("labWork", "status", val?.value || "all")}
+                    />
+                  </>
                 )}
               </SimpleGrid>
             </Box>
