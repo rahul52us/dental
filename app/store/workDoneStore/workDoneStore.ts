@@ -193,11 +193,13 @@ class WorkDoneStore {
     }
   };
 
-  downloadPatientStatement = async (patientId: string, filters: any = {}) => {
+  /**
+   * FETCH PATIENT STATEMENT BASE64 (FOR PREVIEW)
+   */
+  fetchPatientStatementBase64 = async (patientId: string, filters: any = {}) => {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
-
       const { data } = await axios.get("/workDone/generate-pdf", {
         params: {
           patientId,
@@ -206,28 +208,41 @@ class WorkDoneStore {
         }
       });
 
-      if (data.status === "success" && data.data) {
-        const base64Data = data.data;
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `Statement_${patientId}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+      if (data.status === "success") {
+        return data.data; // Return base64 string
       }
+      throw new Error(data.message || "Failed to fetch statement");
+    } catch (error: any) {
+      console.error("Error fetching patient statement:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * DOWNLOAD THE OVERALL PATIENT STATEMENT
+   */
+  downloadPatientStatement = async (patientId: string, filters: any = {}) => {
+    try {
+      const base64Data = await this.fetchPatientStatementBase64(patientId, filters);
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Statement_${patientId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error downloading PDF:", err);
-      return Promise.reject(err);
+      throw err;
     }
   };
 
@@ -236,35 +251,50 @@ class WorkDoneStore {
    */
   downloadSingleRecordReport = async (workDoneId: string) => {
     try {
-      const companyId = localStorage.getItem("companyId");
-      const compId = authStore.company?._id || authStore.company || companyId;
-
-      const { data } = await axios.get(`/workDone/generate-receipt/${workDoneId}`, {
-        params: { company: compId }
-      });
-
-      if (data.status === "success" && data.data) {
-        const base64Data = data.data;
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `Receipt_${workDoneId}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+      const base64Data = await this.fetchSingleRecordReportBase64(workDoneId);
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Receipt_${workDoneId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error downloading single record PDF:", err);
-      return Promise.reject(err);
+      throw err;
+    }
+  };
+
+  /**
+   * FETCH DOCTOR REPORT BASE64 (FOR PREVIEW)
+   */
+  fetchDoctorReportBase64 = async (filters: any) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.get(`/workDone/generate-doctor-report`, {
+        params: { 
+          ...filters,
+          company: compId 
+        }
+      });
+
+      if (data.status === "success") {
+        return data.data; // Return base64 string
+      }
+      throw new Error(data.message || "Failed to fetch doctor report");
+    } catch (error: any) {
+      console.error("Error fetching doctor report:", error);
+      throw error;
     }
   };
 
@@ -280,40 +310,69 @@ class WorkDoneStore {
     status?: string;
   }) => {
     try {
-      const companyId = localStorage.getItem("companyId");
-      const compId = authStore.company?._id || authStore.company || companyId;
-
-      const { data } = await axios.get(`/workDone/generate-doctor-report`, {
-        params: { 
-          ...filters,
-          company: compId 
-        }
-      });
-
-      if (data.status === "success" && data.data) {
-        const base64Data = data.data;
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `Doctor_Report_${filters.doctorId}_${new Date().getTime()}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        return true;
+      const base64Data = await this.fetchDoctorReportBase64(filters);
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
-      return false;
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Doctor_Report_${filters.doctorId}_${new Date().getTime()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
     } catch (err) {
       console.error("Doctor Report Download Error:", err);
       throw err;
+    }
+  };
+
+  /**
+   * FETCH PAYMENT RECEIPT BASE64 (FOR PREVIEW)
+   */
+  fetchPaymentReceiptBase64 = async (workDoneId: string, paymentIndex: number) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.get(`/workDone/generate-payment-receipt/${workDoneId}/${paymentIndex}`, {
+        params: { company: compId }
+      });
+
+      if (data.status === "success") {
+        return data.data; // Return base64 string
+      }
+      throw new Error(data.message || "Failed to fetch PDF");
+    } catch (error: any) {
+      console.error("Error fetching payment receipt:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * FETCH SINGLE RECORD REPORT BASE64 (FOR PREVIEW)
+   */
+  fetchSingleRecordReportBase64 = async (workDoneId: string) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.get(`/workDone/generate-receipt/${workDoneId}`, {
+        params: { company: compId }
+      });
+
+      if (data.status === "success") {
+        return data.data; // Return base64 string
+      }
+      throw new Error(data.message || "Failed to fetch PDF");
+    } catch (error: any) {
+      console.error("Error fetching report:", error);
+      throw error;
     }
   };
 
@@ -322,35 +381,26 @@ class WorkDoneStore {
    */
   downloadPaymentReceipt = async (workDoneId: string, paymentIndex: number) => {
     try {
-      const companyId = localStorage.getItem("companyId");
-      const compId = authStore.company?._id || authStore.company || companyId;
-
-      const { data } = await axios.get(`/workDone/generate-payment-receipt/${workDoneId}/${paymentIndex}`, {
-        params: { company: compId }
-      });
-
-      if (data.status === "success" && data.data) {
-        const base64Data = data.data;
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `Payment_Receipt_${workDoneId}_${paymentIndex}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+      const base64Data = await this.fetchPaymentReceiptBase64(workDoneId, paymentIndex);
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Payment_Receipt_${workDoneId}_${paymentIndex}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error downloading payment receipt PDF:", err);
-      return Promise.reject(err);
+      throw err;
     }
   };
 }

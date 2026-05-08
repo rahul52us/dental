@@ -54,8 +54,10 @@ import {
   FiCalendar,
   FiTarget,
   FiChevronRight,
-  FiFileText
+  FiFileText,
+  FiEye
 } from "react-icons/fi";
+import ReceiptPreviewDrawer from "./ReceiptPreviewDrawer";
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import moment from "moment";
@@ -89,6 +91,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
   const [downloadingPaymentId, setDownloadingPaymentId] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fetchOverallStats = useCallback(async () => {
@@ -144,11 +149,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      await workDoneStore.downloadPatientStatement(patientDetails._id, downloadFilters);
-      toast({ title: "Statement Downloaded", status: "success" });
+      const base64 = await workDoneStore.fetchPatientStatementBase64(patientDetails._id, downloadFilters);
+      setPreviewData(base64);
+      setPreviewFileName(`Statement_${patientDetails._id}.pdf`);
+      setIsPreviewOpen(true);
       setIsDownloadModalOpen(false);
     } catch (err) {
-      toast({ title: "Download Error", status: "error" });
+      toast({ title: "Preview Error", description: "Failed to load statement preview.", status: "error" });
     } finally {
       setIsDownloading(false);
     }
@@ -468,7 +475,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
             <HStack spacing={3} ml="auto">
               <Button
-                leftIcon={<FiDownloadCloud />}
+                leftIcon={<FiEye />}
                 bgGradient="linear(to-r, blue.500, blue.600)"
                 color="white"
                 _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
@@ -480,12 +487,11 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 shadow="md"
                 onClick={() => setIsDownloadModalOpen(true)}
               >
-                Download Statement
+                View Statement
               </Button>
 
               {selectedIds.length > 0 && (
                 <Button
-                  leftIcon={<FiFileText />}
                   colorScheme="orange"
                   variant="solid"
                   size="md"
@@ -494,16 +500,19 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   px={6}
                   shadow="md"
                   isLoading={isDownloading}
+                  leftIcon={<FiEye />}
                   onClick={async () => {
+                    if (selectedIds.length === 0) return;
                     try {
                       setIsDownloading(true);
-                      for (const id of selectedIds) {
-                        await workDoneStore.downloadSingleRecordReport(id);
-                      }
+                      const base64 = await workDoneStore.fetchSingleRecordReportBase64(selectedIds[0]);
+                      setPreviewData(base64);
+                      setPreviewFileName(`Summary_Bulk_${selectedIds[0]}.pdf`);
+                      setIsPreviewOpen(true);
                     } catch (error) {
                       toast({
-                        title: "Download Error",
-                        description: "Failed to download some receipts.",
+                        title: "Preview Error",
+                        description: "Failed to load the first receipt preview.",
                         status: "error",
                         duration: 3000,
                         isClosable: true,
@@ -514,7 +523,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     }
                   }}
                 >
-                  Bulk Download ({selectedIds.length})
+                  View Selected ({selectedIds.length})
                 </Button>
               )}
 
@@ -582,11 +591,11 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             <Box bgGradient="linear(to-br, blue.600, blue.800)" p={8} color="white" pos="relative">
               <VStack align="start" spacing={1}>
                 <HStack spacing={2} opacity={0.9}>
-                  <Icon as={FiDownloadCloud} />
-                  <Text fontSize="xs" fontWeight="900" letterSpacing="0.2em">PDF GENERATOR</Text>
+                  <Icon as={FiEye} />
+                  <Text fontSize="xs" fontWeight="900" letterSpacing="0.2em">PDF PREVIEWER</Text>
                 </HStack>
-                <Text fontSize="3xl" fontWeight="1000" letterSpacing="-1px">Download Statement</Text>
-                <Text fontSize="sm" opacity={0.8} fontWeight="500">Configure your report filters below</Text>
+                <Text fontSize="3xl" fontWeight="1000" letterSpacing="-1px">View Statement</Text>
+                <Text fontSize="sm" opacity={0.8} fontWeight="500">Preview your full clinical statement</Text>
               </VStack>
               <Box pos="absolute" right={-10} top={-10} boxSize="150px" bg="whiteAlpha.100" borderRadius="full" />
             </Box>
@@ -701,7 +710,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               _active={{ transform: "scale(0.98)" }}
               onClick={handleDownload} 
               isLoading={isDownloading} 
-              rightIcon={<FiChevronRight />}
+              rightIcon={<FiEye />}
               borderRadius="2xl"
               px={10}
               h="55px"
@@ -709,7 +718,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               fontSize="md"
               shadow="lg"
             >
-              Generate PDF
+              Preview PDF
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -783,14 +792,17 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     <Button 
                       size="xs" 
                       colorScheme="blue" 
-                      leftIcon={downloadingRecordId === selectedRecord?._id ? undefined : <FiDownload />} 
+                      leftIcon={downloadingRecordId === selectedRecord?._id ? undefined : <FiEye />} 
                       isLoading={downloadingRecordId === selectedRecord?._id}
                       onClick={async () => {
                         try {
                           setDownloadingRecordId(selectedRecord._id);
-                          await workDoneStore.downloadSingleRecordReport(selectedRecord._id);
+                          const base64 = await workDoneStore.fetchSingleRecordReportBase64(selectedRecord._id);
+                          setPreviewData(base64);
+                          setPreviewFileName(`Summary_${selectedRecord._id}.pdf`);
+                          setIsPreviewOpen(true);
                         } catch (error) {
-                          toast({ title: "Error", description: "Failed to download summary.", status: "error", duration: 3000 });
+                          toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
                         } finally {
                           setDownloadingRecordId(null);
                         }
@@ -829,8 +841,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                           </Badge>
                         </VStack>
                         <IconButton
-                          aria-label="Download Entry Receipt"
-                          icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiDownload />}
+                          aria-label="View Entry Receipt"
+                          icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiEye />}
                           size="sm"
                           colorScheme="green"
                           variant="ghost"
@@ -839,9 +851,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                           onClick={async () => {
                             try {
                               setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
-                              await workDoneStore.downloadPaymentReceipt(selectedRecord._id, i);
+                              const base64 = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, i);
+                              setPreviewData(base64);
+                              setPreviewFileName(`Receipt_${selectedRecord._id}_${i}.pdf`);
+                              setIsPreviewOpen(true);
                             } catch (error) {
-                              toast({ title: "Error", description: "Failed to download receipt.", status: "error", duration: 3000 });
+                              toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
                             } finally {
                               setDownloadingPaymentId(null);
                             }
@@ -861,6 +876,15 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+      <ReceiptPreviewDrawer 
+        isOpen={isPreviewOpen} 
+        onClose={() => {
+          setIsPreviewOpen(false);
+          setPreviewData(null);
+        }}
+        pdfBase64={previewData}
+        fileName={previewFileName}
+      />
     </Box>
   );
 });
