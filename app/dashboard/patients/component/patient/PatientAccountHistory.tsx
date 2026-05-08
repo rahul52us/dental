@@ -36,6 +36,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Select,
+  Checkbox,
 } from "@chakra-ui/react";
 import {
   FiActivity,
@@ -52,7 +53,8 @@ import {
   FiDownload,
   FiCalendar,
   FiTarget,
-  FiChevronRight
+  FiChevronRight,
+  FiFileText
 } from "react-icons/fi";
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
@@ -86,6 +88,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   });
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
+  const [downloadingPaymentId, setDownloadingPaymentId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fetchOverallStats = useCallback(async () => {
     await workDoneStore.getOverallPatientStats(patientDetails._id);
@@ -247,6 +251,25 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   };
 
   const columns = [
+    {
+      headerName: "",
+      key: "checkbox",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Checkbox 
+            isChecked={selectedIds.includes(dt._id)} 
+            onChange={(e) => {
+              e.stopPropagation(); // Prevent row click
+              if (e.target.checked) setSelectedIds([...selectedIds, dt._id]);
+              else setSelectedIds(selectedIds.filter(id => id !== dt._id));
+            }}
+            colorScheme="blue"
+          />
+        )
+      },
+      props: { column: { width: "40px" } }
+    },
     { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center", color: "gray.400", fontWeight: "bold" } } },
     {
       headerName: "Treatment Details",
@@ -325,22 +348,30 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       metaData: {
         component: (dt: any) => (
           <HStack spacing={2}>
-            <Tooltip label="Download Receipt" hasArrow>
-              <IconButton
-                aria-label="Download"
-                icon={downloadingRecordId === dt._id ? <Spinner size="xs" /> : <FiDownload />}
-                size="sm"
-                colorScheme="blue"
-                variant="solid"
-                borderRadius="lg"
-                onClick={() => handleSingleDownload(dt._id)}
-                isDisabled={downloadingRecordId !== null}
-              />
-            </Tooltip>
+            {dt.receivedAmount > 0 && (
+              <Tooltip label="Download Receipt" hasArrow>
+                <IconButton
+                  aria-label="Download"
+                  icon={downloadingRecordId === dt._id ? <Spinner size="xs" /> : <FiDownload />}
+                  size="sm"
+                  colorScheme="blue"
+                  variant="solid"
+                  borderRadius="lg"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSingleDownload(dt._id);
+                  }}
+                  isDisabled={downloadingRecordId !== null}
+                />
+              </Tooltip>
+            )}
             <Tooltip label="View History" hasArrow>
               <IconButton
                 aria-label="History" icon={<FiClock />} size="sm" colorScheme="gray" variant="ghost"
-                borderRadius="lg" onClick={() => openHistoryDrawer(dt)}
+                borderRadius="lg" onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click
+                  openHistoryDrawer(dt);
+                }}
               />
             </Tooltip>
           </HStack>
@@ -451,6 +482,41 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               >
                 Download Statement
               </Button>
+
+              {selectedIds.length > 0 && (
+                <Button
+                  leftIcon={<FiFileText />}
+                  colorScheme="orange"
+                  variant="solid"
+                  size="md"
+                  borderRadius="2xl"
+                  fontWeight="800"
+                  px={6}
+                  shadow="md"
+                  isLoading={isDownloading}
+                  onClick={async () => {
+                    try {
+                      setIsDownloading(true);
+                      for (const id of selectedIds) {
+                        await workDoneStore.downloadSingleRecordReport(id);
+                      }
+                    } catch (error) {
+                      toast({
+                        title: "Download Error",
+                        description: "Failed to download some receipts.",
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                      });
+                    } finally {
+                      setIsDownloading(false);
+                      setSelectedIds([]);
+                    }
+                  }}
+                >
+                  Bulk Download ({selectedIds.length})
+                </Button>
+              )}
 
               <HStack 
                 spacing={0} 
@@ -709,9 +775,30 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             ) : historyData.length > 0 ? (
               <VStack align="stretch" spacing={4}>
                 <Box p={4} bg="blue.50" borderRadius="2xl">
-                  <HStack justify="space-between">
-                    <Text fontSize="xs" fontWeight="bold" color="blue.600">TOTAL BILL</Text>
-                    <Text fontWeight="1000" color="blue.700">₹{(selectedRecord?.amount - (selectedRecord?.discount || 0)).toLocaleString()}</Text>
+                  <HStack justify="space-between" align="center">
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" fontWeight="bold" color="blue.600">TOTAL BILL</Text>
+                      <Text fontWeight="1000" color="blue.700" fontSize="lg">₹{(selectedRecord?.amount - (selectedRecord?.discount || 0)).toLocaleString()}</Text>
+                    </VStack>
+                    <Button 
+                      size="xs" 
+                      colorScheme="blue" 
+                      leftIcon={downloadingRecordId === selectedRecord?._id ? undefined : <FiDownload />} 
+                      isLoading={downloadingRecordId === selectedRecord?._id}
+                      onClick={async () => {
+                        try {
+                          setDownloadingRecordId(selectedRecord._id);
+                          await workDoneStore.downloadSingleRecordReport(selectedRecord._id);
+                        } catch (error) {
+                          toast({ title: "Error", description: "Failed to download summary.", status: "error", duration: 3000 });
+                        } finally {
+                          setDownloadingRecordId(null);
+                        }
+                      }}
+                      borderRadius="lg"
+                    >
+                      Download Summary
+                    </Button>
                   </HStack>
                 </Box>
                 <VStack align="stretch" spacing={3}>
@@ -741,7 +828,25 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             {(h.paymentMethod || "CASH").toUpperCase()}
                           </Badge>
                         </VStack>
-                        <Icon as={FiArrowRightCircle} color="green.300" boxSize="20px" />
+                        <IconButton
+                          aria-label="Download Entry Receipt"
+                          icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiDownload />}
+                          size="sm"
+                          colorScheme="green"
+                          variant="ghost"
+                          borderRadius="full"
+                          isDisabled={downloadingPaymentId !== null}
+                          onClick={async () => {
+                            try {
+                              setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
+                              await workDoneStore.downloadPaymentReceipt(selectedRecord._id, i);
+                            } catch (error) {
+                              toast({ title: "Error", description: "Failed to download receipt.", status: "error", duration: 3000 });
+                            } finally {
+                              setDownloadingPaymentId(null);
+                            }
+                          }}
+                        />
                       </HStack>
                     </HStack>
                   ))}

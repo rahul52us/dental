@@ -66,7 +66,7 @@ interface CustomTableProps {
   actions?: any;
   cells?: boolean;
   tableProps?: any;
-  subTitle?: any
+  subTitle?: any;
 }
 
 interface TableActionsProps {
