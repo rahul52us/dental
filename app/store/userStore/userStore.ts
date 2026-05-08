@@ -85,6 +85,20 @@ class UserStore {
     }
   };
 
+  updatePermissions = async (userId: string, permissions: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.put(`/user/update-permissions/${userId}`, {
+        permissions: permissions,
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   getUserByName = async (payload: any) => {
     try {
       const response = await axios.get(`/user/${payload.name}`);

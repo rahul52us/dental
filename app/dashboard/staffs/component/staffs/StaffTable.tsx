@@ -17,8 +17,9 @@ import {
   VStack,
   Icon,
 } from "@chakra-ui/react";
-import { FiPower, FiAlertCircle } from "react-icons/fi";
 import FormModel from "../../../../component/common/FormModel/FormModel";
+import { FiPower, FiAlertCircle, FiLock } from "react-icons/fi";
+import StaffPermissionsModal from "./StaffPermissionsModal";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { GiPsychicWaves } from "react-icons/gi";
@@ -41,6 +42,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [selectedUser, setSelectedTherapist] = useState<any>(null);
   const [statusUser, setStatusUser] = useState<any>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [isPermOpen, setIsPermOpen] = useState(false);
+  const [permUser, setPermUser] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isActiveFilter, setIsActiveFilter] = useState<any>(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -212,6 +215,33 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
       props: {
         row: { minW: 10, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
+      headerName: "Permissions",
+      key: "permissions",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Manage Access Permissions">
+            <IconButton
+              aria-label="Manage Permissions"
+              icon={<FiLock />}
+              size="sm"
+              colorScheme="purple"
+              variant="ghost"
+              borderRadius="xl"
+              onClick={() => {
+                setPermUser(dt);
+                setIsPermOpen(true);
+              }}
+            />
+          </Tooltip>
+        ),
+      },
+      props: {
+        row: { textAlign: "center" },
         column: { textAlign: "center" },
       },
     },
@@ -412,6 +442,13 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Flex>
         </VStack>
       </FormModel>
+
+      <StaffPermissionsModal
+        isOpen={isPermOpen}
+        onClose={() => setIsPermOpen(false)}
+        staff={permUser}
+        onUpdate={() => applyGetAllTherapists({ page: currentPage, isActive: isActiveFilter })}
+      />
     </Box>
   );
 });
