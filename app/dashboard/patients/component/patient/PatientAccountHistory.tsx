@@ -36,7 +36,6 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Select,
-  Checkbox,
 } from "@chakra-ui/react";
 import {
   FiActivity,
@@ -94,7 +93,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<string | null>(null);
   const [previewFileName, setPreviewFileName] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fetchOverallStats = useCallback(async () => {
     await workDoneStore.getOverallPatientStats(patientDetails._id);
@@ -164,12 +162,28 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const handleSingleDownload = async (recordId: string) => {
     setDownloadingRecordId(recordId);
     try {
-      await workDoneStore.downloadSingleRecordReport(recordId);
-      toast({ title: "Record Receipt Downloaded", status: "success" });
+      const base64 = await workDoneStore.fetchSingleRecordReportBase64(recordId);
+      setPreviewData(base64);
+      setPreviewFileName(`Receipt_${recordId}.pdf`);
+      setIsPreviewOpen(true);
     } catch (err) {
-      toast({ title: "Download Error", status: "error" });
+      toast({ title: "Preview Error", description: "Failed to load receipt preview.", status: "error" });
     } finally {
       setDownloadingRecordId(null);
+    }
+  };
+
+  const handlePaymentDownload = async (recordId: string, paymentIndex: number) => {
+    setDownloadingPaymentId(`${recordId}-${paymentIndex}`);
+    try {
+      const base64 = await workDoneStore.fetchPaymentReceiptBase64(recordId, paymentIndex);
+      setPreviewData(base64);
+      setPreviewFileName(`Payment_Receipt_${recordId}_Part${paymentIndex + 1}.pdf`);
+      setIsPreviewOpen(true);
+    } catch (err) {
+      toast({ title: "Preview Error", description: "Failed to load payment receipt preview.", status: "error" });
+    } finally {
+      setDownloadingPaymentId(null);
     }
   };
 
@@ -258,25 +272,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   };
 
   const columns = [
-    {
-      headerName: "",
-      key: "checkbox",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Checkbox 
-            isChecked={selectedIds.includes(dt._id)} 
-            onChange={(e) => {
-              e.stopPropagation(); // Prevent row click
-              if (e.target.checked) setSelectedIds([...selectedIds, dt._id]);
-              else setSelectedIds(selectedIds.filter(id => id !== dt._id));
-            }}
-            colorScheme="blue"
-          />
-        )
-      },
-      props: { column: { width: "40px" } }
-    },
     { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center", color: "gray.400", fontWeight: "bold" } } },
     {
       headerName: "Treatment Details",
@@ -356,14 +351,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         component: (dt: any) => (
           <HStack spacing={2}>
             {dt.receivedAmount > 0 && (
-              <Tooltip label="Download Receipt" hasArrow>
+              <Tooltip label="View Receipt" hasArrow>
                 <IconButton
-                  aria-label="Download"
-                  icon={downloadingRecordId === dt._id ? <Spinner size="xs" /> : <FiDownload />}
-                  size="sm"
+                  aria-label="View Receipt"
+                  icon={downloadingRecordId === dt._id ? <Spinner size="xs" /> : <FiEye />}
                   colorScheme="blue"
-                  variant="solid"
-                  borderRadius="lg"
+                  variant="ghost"
+                  size="sm"
+                  borderRadius="full"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSingleDownload(dt._id);
@@ -490,42 +485,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 View Statement
               </Button>
 
-              {selectedIds.length > 0 && (
-                <Button
-                  colorScheme="orange"
-                  variant="solid"
-                  size="md"
-                  borderRadius="2xl"
-                  fontWeight="800"
-                  px={6}
-                  shadow="md"
-                  isLoading={isDownloading}
-                  leftIcon={<FiEye />}
-                  onClick={async () => {
-                    if (selectedIds.length === 0) return;
-                    try {
-                      setIsDownloading(true);
-                      const base64 = await workDoneStore.fetchSingleRecordReportBase64(selectedIds[0]);
-                      setPreviewData(base64);
-                      setPreviewFileName(`Summary_Bulk_${selectedIds[0]}.pdf`);
-                      setIsPreviewOpen(true);
-                    } catch (error) {
-                      toast({
-                        title: "Preview Error",
-                        description: "Failed to load the first receipt preview.",
-                        status: "error",
-                        duration: 3000,
-                        isClosable: true,
-                      });
-                    } finally {
-                      setIsDownloading(false);
-                      setSelectedIds([]);
-                    }
-                  }}
-                >
-                  View Selected ({selectedIds.length})
-                </Button>
-              )}
 
               <HStack 
                 spacing={0} 

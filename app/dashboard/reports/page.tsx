@@ -27,7 +27,9 @@ import {
   RiCalendar2Line,
   RiTeamLine,
   RiFlaskLine,
+  RiEyeLine,
 } from "react-icons/ri";
+import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 
 import CustomInput from "../../component/config/component/customInput/CustomInput";
 import { observer } from "mobx-react-lite";
@@ -66,8 +68,11 @@ const ReportsPage = observer(() => {
     labWork: { workType: "all", dateType: "sendDate", status: "all" },
   });
 
-  const [isDownloading, setIsDownloading] = useState(false);
   const [isPDFDownloading, setIsPDFDownloading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState("");
   const toast = useToast();
 
   // Persist active tab
@@ -192,15 +197,19 @@ const ReportsPage = observer(() => {
 
     setIsPDFDownloading(true);
     try {
-      await workDoneStore.downloadDoctorReport({
+      const filtersData = {
         doctorId: selectedDoctor.id || selectedDoctor._id || selectedDoctor.value,
         patientId: selectedPatient?.id || selectedPatient?._id || selectedPatient?.value,
         fromDate: filters.doctor.fromDate,
         toDate: filters.doctor.toDate,
-      });
-      toast({ title: "PDF Report Downloaded", status: "success" });
+      };
+      
+      const base64 = await workDoneStore.fetchDoctorReportBase64(filtersData);
+      setPreviewData(base64);
+      setPreviewFileName(`Doctor_Performance_${selectedDoctor.name || 'Report'}.pdf`);
+      setIsPreviewOpen(true);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, status: "error" });
+      toast({ title: "Preview Error", description: err.message, status: "error" });
     } finally {
       setIsPDFDownloading(false);
     }
@@ -621,21 +630,21 @@ const ReportsPage = observer(() => {
 
               <HStack spacing={4}>
                 {activeTab === "doctor" && (
-                  <Button
-                    size="xl"
-                    colorScheme="red"
-                    variant="outline"
-                    leftIcon={<RiDownload2Line size={24} />}
-                    px={10}
-                    py={8}
-                    fontSize="lg"
-                    fontWeight="bold"
-                    borderRadius="full"
-                    isLoading={isPDFDownloading}
-                    onClick={handleDoctorPDFDownload}
-                  >
-                    Download PDF Performance
-                  </Button>
+                    <Button
+                      size="xl"
+                      colorScheme="red"
+                      variant="outline"
+                      leftIcon={<RiEyeLine size={24} />}
+                      px={10}
+                      py={8}
+                      fontSize="lg"
+                      fontWeight="bold"
+                      borderRadius="full"
+                      isLoading={isPDFDownloading}
+                      onClick={handleDoctorPDFDownload}
+                    >
+                      View PDF Performance
+                    </Button>
                 )}
                 <Button
                   size="xl"
@@ -668,6 +677,13 @@ const ReportsPage = observer(() => {
             100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
           }
         `}</style>
+
+        <ReceiptPreviewDrawer
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          pdfBase64={previewData}
+          fileName={previewFileName}
+        />
       </Box>
     </Box>
   );

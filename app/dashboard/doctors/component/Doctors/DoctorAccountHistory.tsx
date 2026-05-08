@@ -22,8 +22,9 @@ import {
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
-import { FiFilter, FiX } from "react-icons/fi";
+import { FiFilter, FiX, FiEye } from "react-icons/fi";
 import { Divider, Flex, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from "@chakra-ui/react";
+import ReceiptPreviewDrawer from "../../../patients/component/patient/ReceiptPreviewDrawer";
 
 const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const { workDoneStore } = stores;
@@ -31,6 +32,9 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState("");
   
   // Table Filters (if any, currently just page)
   const [tableSearch, setTableSearch] = useState("");
@@ -67,17 +71,21 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const handleDownloadReport = async () => {
     setIsDownloading(true);
     try {
-      await workDoneStore.downloadDoctorReport({
+      const filtersData = {
         doctorId: doctorDetails._id,
         patientId: modalSelectedPatient?.id || modalSelectedPatient?.value || modalSelectedPatient?._id,
         fromDate: modalFilters.fromDate,
         toDate: modalFilters.toDate,
         status: modalFilters.status === "all" ? undefined : modalFilters.status,
-      });
-      toast({ title: "Report Downloaded", status: "success" });
+      };
+      
+      const base64 = await workDoneStore.fetchDoctorReportBase64(filtersData);
+      setPreviewData(base64);
+      setPreviewFileName(`Doctor_Report_${doctorDetails.name}.pdf`);
+      setIsPreviewOpen(true);
       setIsModalOpen(false);
     } catch (err: any) {
-      toast({ title: "Download Failed", description: err.message, status: "error" });
+      toast({ title: "Preview Error", description: err.message, status: "error" });
     } finally {
       setIsDownloading(false);
     }
@@ -95,10 +103,12 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const handleSingleDownload = async (id: string) => {
     setDownloadingRecordId(id);
     try {
-      await workDoneStore.downloadSingleRecordReport(id);
-      toast({ title: "Receipt Downloaded", status: "success" });
+      const base64 = await workDoneStore.fetchSingleRecordReportBase64(id);
+      setPreviewData(base64);
+      setPreviewFileName(`Receipt_${id}.pdf`);
+      setIsPreviewOpen(true);
     } catch (err: any) {
-      toast({ title: "Download Failed", description: err.message, status: "error" });
+      toast({ title: "Preview Error", description: err.message, status: "error" });
     } finally {
       setDownloadingRecordId(null);
     }
@@ -152,8 +162,8 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
       metaData: {
         component: (dt: any) => (
           <IconButton
-            aria-label="Download Receipt"
-            icon={<FiDownloadCloud />}
+            aria-label="View Receipt"
+            icon={<FiEye />}
             size="xs"
             colorScheme="blue"
             variant="ghost"
@@ -211,7 +221,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                     <Text fontSize="xs" color="gray.400">Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
                 </VStack>
                 <Button 
-                    leftIcon={<FiDownloadCloud />} 
+                    leftIcon={<FiEye />} 
                     colorScheme="purple" 
                     variant="solid" 
                     size="sm" 
@@ -219,7 +229,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                     px={6}
                     onClick={() => setIsModalOpen(true)}
                 >
-                    Generate Report (PDF)
+                    View Report (PDF)
                 </Button>
             </HStack>
         </Box>
@@ -335,17 +345,24 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                 flex={2} 
                 borderRadius="full" 
                 size="lg"
-                leftIcon={<FiDownloadCloud />}
+                leftIcon={<FiEye />}
                 isLoading={isDownloading}
                 onClick={handleDownloadReport}
                 boxShadow="0 10px 20px rgba(107, 70, 193, 0.2)"
               >
-                Download PDF Report
+                View PDF Report
               </Button>
             </HStack>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <ReceiptPreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        pdfBase64={previewData}
+        fileName={previewFileName}
+      />
     </Box>
   );
 });
