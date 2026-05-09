@@ -994,6 +994,8 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
   useEffect(() => {
     if (isOpen) {
       fetchRecordsForDate(new Date().toISOString().split('T')[0]);
+      prescriptionStore.getPrescriptions();
+      prescriptionStore.getSuggestions();
     }
   }, [isOpen]);
 

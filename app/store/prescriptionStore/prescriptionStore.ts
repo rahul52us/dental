@@ -5,6 +5,7 @@ import { authStore } from "../authStore/authStore";
 class PrescriptionStore {
   prescriptionsData: any[] = [];
   prescriptionsLoading: boolean = false;
+  prescriptionsMetadata: { total: number, page: number, totalPages: number } = { total: 0, page: 1, totalPages: 1 };
   
   types: string[] = [];
   categories: string[] = [];
@@ -48,11 +49,17 @@ class PrescriptionStore {
       const res = await axios.get(`/prescription/get`, { 
         params: { 
           ...params, 
+          limit: 5000, // Fetch all records at once
           companyId: authStore.company 
         } 
       });
       runInAction(() => {
         this.prescriptionsData = res.data.data || [];
+        this.prescriptionsMetadata = {
+          total: res.data.total || res.data.data?.length || 0,
+          page: res.data.page || 1,
+          totalPages: res.data.totalPages || 1
+        };
         this.prescriptionsLoading = false;
       });
       return res.data;

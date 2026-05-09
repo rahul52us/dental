@@ -61,6 +61,7 @@ const PrescriptionMaster = observer(() => {
     brandName: '',
     companyName: '',
     dosage: '',
+    noOfDays: 0,
     details: '',
     doseNo: 0,
     description: '',
@@ -72,7 +73,7 @@ const PrescriptionMaster = observer(() => {
   }, []);
 
   const filteredPrescriptions = useMemo(() => {
-    const data = prescriptionStore.prescriptions.data || [];
+    const data = prescriptionStore.prescriptionsData || [];
     if (!search.trim()) return data;
     
     return data.filter((p: any) =>
@@ -81,7 +82,7 @@ const PrescriptionMaster = observer(() => {
       p.type?.toLowerCase().includes(search.toLowerCase()) ||
       p.companyName?.toLowerCase().includes(search.toLowerCase())
     );
-  }, [prescriptionStore.prescriptions.data, search]);
+  }, [prescriptionStore.prescriptionsData, search]);
 
   const handleEdit = (prescription: any) => {
     setEditingPrescription(prescription);
@@ -93,6 +94,7 @@ const PrescriptionMaster = observer(() => {
       brandName: prescription.brandName || '',
       companyName: prescription.companyName || '',
       dosage: prescription.dosage || '',
+      noOfDays: prescription.noOfDays || 0,
       details: prescription.details || '',
       doseNo: prescription.doseNo || 0,
       description: prescription.description || '',
@@ -151,6 +153,7 @@ const PrescriptionMaster = observer(() => {
       brandName: '',
       companyName: '',
       dosage: '',
+      noOfDays: 0,
       details: '',
       doseNo: 0,
       description: '',
@@ -243,7 +246,7 @@ const PrescriptionMaster = observer(() => {
             <HStack>
               <Text color="gray.500">Manage your drug library</Text>
               <Badge colorScheme="blue" variant="solid" borderRadius="full">
-                {prescriptionStore.prescriptions.total} RECORDS
+                {prescriptionStore.prescriptionsMetadata.total} RECORDS
               </Badge>
             </HStack>
           </VStack>
@@ -318,7 +321,7 @@ const PrescriptionMaster = observer(() => {
               </Tr>
             </Thead>
             <Tbody>
-              {prescriptionStore.prescriptions.loading ? (
+              {prescriptionStore.prescriptionsLoading ? (
                 <Tr>
                   <Td colSpan={6} textAlign="center" py={10}>
                     <Spinner color="blue.500" />
@@ -391,42 +394,11 @@ const PrescriptionMaster = observer(() => {
         </Box>
 
         {/* Pagination Controls */}
-        <Flex justify="space-between" align="center" px={4} py={3} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.100">
-          <HStack spacing={2}>
-            <Text fontSize="xs" fontWeight="bold" color="gray.500">
-              Showing {filteredPrescriptions.length} of {prescriptionStore.prescriptions.total}
-            </Text>
-          </HStack>
-          <HStack spacing={2}>
-            <Button
-              size="xs"
-              onClick={() => prescriptionStore.getPrescriptions({ page: prescriptionStore.prescriptions.page - 1 })}
-              isDisabled={prescriptionStore.prescriptions.page <= 1}
-            >
-              Previous
-            </Button>
-            <HStack spacing={1}>
-              {Array.from({ length: prescriptionStore.prescriptions.totalPages }, (_, i) => i + 1)
-                .filter(p => Math.abs(p - prescriptionStore.prescriptions.page) <= 2)
-                .map(page => (
-                  <Button
-                    key={page}
-                    size="xs"
-                    colorScheme={prescriptionStore.prescriptions.page === page ? "blue" : "gray"}
-                    onClick={() => prescriptionStore.getPrescriptions({ page })}
-                  >
-                    {page}
-                  </Button>
-                ))}
-            </HStack>
-            <Button
-              size="xs"
-              onClick={() => prescriptionStore.getPrescriptions({ page: prescriptionStore.prescriptions.page + 1 })}
-              isDisabled={prescriptionStore.prescriptions.page >= prescriptionStore.prescriptions.totalPages}
-            >
-              Next
-            </Button>
-          </HStack>
+        {/* Total Records Counter (No Pagination) */}
+        <Flex justify="flex-end" px={4} py={3} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.100">
+          <Text fontSize="xs" fontWeight="bold" color="gray.500">
+            Total Records: {prescriptionStore.prescriptionsMetadata.total}
+          </Text>
         </Flex>
       </VStack>
 
@@ -444,11 +416,11 @@ const PrescriptionMaster = observer(() => {
             <VStack spacing={6}>
               <SimpleGrid columns={2} spacing={8} w="full">
                 <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Type</FormLabel>
+                    <FormLabel fontWeight="bold">Type</FormLabel>
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add type..."
-                    options={prescriptionStore.suggestions.types.map((t: string) => ({ label: t, value: t }))}
+                    options={prescriptionStore.types.map((t: string) => ({ label: t, value: t }))}
                     value={formData.type ? { label: formData.type, value: formData.type } : null}
                     onChange={(val: any) => setFormData({ ...formData, type: val?.value || '' })}
                     styles={selectStyles}
@@ -459,7 +431,7 @@ const PrescriptionMaster = observer(() => {
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add category..."
-                    options={prescriptionStore.suggestions.categories.map((c: string) => ({ label: c, value: c }))}
+                    options={prescriptionStore.categories.map((c: string) => ({ label: c, value: c }))}
                     value={formData.category ? { label: formData.category, value: formData.category } : null}
                     onChange={(val: any) => setFormData({ ...formData, category: val?.value || '' })}
                     styles={selectStyles}
@@ -473,7 +445,7 @@ const PrescriptionMaster = observer(() => {
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add brand..."
-                    options={prescriptionStore.suggestions.brandNames.map((b: string) => ({ label: b, value: b }))}
+                    options={prescriptionStore.brandNames.map((b: string) => ({ label: b, value: b }))}
                     value={formData.brandName ? { label: formData.brandName, value: formData.brandName } : null}
                     onChange={(val: any) => setFormData({ ...formData, brandName: val?.value || '' })}
                     styles={{
@@ -500,7 +472,7 @@ const PrescriptionMaster = observer(() => {
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add form..."
-                    options={prescriptionStore.suggestions.forms.map((f: string) => ({ label: f, value: f }))}
+                    options={prescriptionStore.forms.map((f: string) => ({ label: f, value: f }))}
                     value={formData.form ? { label: formData.form, value: formData.form } : null}
                     onChange={(val: any) => setFormData({ ...formData, form: val?.value || '' })}
                     styles={selectStyles}
@@ -514,7 +486,7 @@ const PrescriptionMaster = observer(() => {
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add company..."
-                    options={prescriptionStore.suggestions.companyNames.map((c: string) => ({ label: c, value: c }))}
+                    options={prescriptionStore.companyNames.map((c: string) => ({ label: c, value: c }))}
                     value={formData.companyName ? { label: formData.companyName, value: formData.companyName } : null}
                     onChange={(val: any) => setFormData({ ...formData, companyName: val?.value || '' })}
                     styles={selectStyles}
@@ -530,24 +502,55 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">Details</FormLabel>
+                  <FormLabel fontWeight="bold">Days</FormLabel>
                   <Input
-                    placeholder="e.g. *_* or *_*_*_*"
-                    value={formData.details}
-                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                    type="number"
+                    placeholder="0"
+                    value={formData.noOfDays}
+                    onChange={(e) => {
+                      const days = parseInt(e.target.value) || 0;
+                      let timesPerDay = 1;
+                      const patternMatch = formData.details.match(/\d/g);
+                      if (patternMatch) {
+                        timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                      } else if (formData.dosage.toLowerCase().includes("bid")) {
+                        timesPerDay = 2;
+                      } else if (formData.dosage.toLowerCase().includes("tid")) {
+                        timesPerDay = 3;
+                      }
+                      setFormData({ ...formData, noOfDays: days, doseNo: days * timesPerDay });
+                    }}
                     h="50px" borderRadius="xl"
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="bold">DoseNo</FormLabel>
+                  <FormLabel fontWeight="bold">Details (Pattern)</FormLabel>
                   <Input
-                    type="number"
-                    value={formData.doseNo}
-                    onChange={(e) => setFormData({ ...formData, doseNo: parseInt(e.target.value) })}
+                    placeholder="e.g. *_* or *_*_*_*"
+                    value={formData.details}
+                    onChange={(e) => {
+                      const pattern = e.target.value;
+                      let timesPerDay = 1;
+                      const patternMatch = pattern.match(/\d/g);
+                      if (patternMatch) {
+                        timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                      }
+                      setFormData({ ...formData, details: pattern, doseNo: (formData.noOfDays || 1) * timesPerDay });
+                    }}
                     h="50px" borderRadius="xl"
                   />
                 </FormControl>
               </SimpleGrid>
+              
+              <FormControl>
+                <FormLabel fontWeight="bold">DoseNo (Total Qty)</FormLabel>
+                <Input
+                  type="number"
+                  value={formData.doseNo}
+                  onChange={(e) => setFormData({ ...formData, doseNo: parseInt(e.target.value) || 0 })}
+                  h="50px" borderRadius="xl"
+                />
+              </FormControl>
 
               <FormControl>
                 <FormLabel fontWeight="bold">Description</FormLabel>
