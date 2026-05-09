@@ -82,9 +82,13 @@ export const createValidationSchema = Yup.object({
   }),
   languages: Yup.array(),
   bio: Yup.string(),
-  password: Yup.string(),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .optional(),
 
-  confirmPassword: Yup.string(),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .optional(),
   vaccinations: Yup.array().of(
     Yup.object().shape({
       type: Yup.mixed(),

@@ -19,14 +19,13 @@ const AvailabilityAuthSection = ({
   const borderColor = useColorModeValue("brand.200", "darkBrand.200");
   const textColor = useColorModeValue("brand.600", "white");
   return (
-    <GridItem colSpan={2}>
+    <Box mt={3}>
       <Box
         p={4}
         borderWidth={1}
         borderRadius="md"
         boxShadow="sm"
         bg={bgBox}
-        mt={3}
         borderColor={borderColor}
       >
         <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
@@ -59,7 +58,7 @@ const AvailabilityAuthSection = ({
           )}
         </SimpleGrid>
       </Box>
-    </GridItem>
+    </Box>
   );
 };
 

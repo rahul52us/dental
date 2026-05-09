@@ -40,14 +40,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "Dashboard",
     icon: <FaChartPie />,
     url: "/dashboard",
-    role: ["patient", "doctor", "admin"],
+    role: ["patient", "doctor", "admin", "staff"],
   },
   {
     id: 21,
     name: "Patients",
     icon: <FaUsers />,
     url: "/dashboard/patients",
-    role: ["admin"],
+    role: ["admin", "staff"],
     permission: { module: "patient", action: "view" },
   },
   {
@@ -55,7 +55,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "Users",
     icon: <FaUsers />,
     url: "/dashboard/users",
-    role: ["admin"],
+    role: ["admin", "staff"],
     children: [
 
 
@@ -64,7 +64,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Doctors",
         icon: <FaUserMd />,
         url: "/dashboard/doctors",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "doctor", action: "view" },
       },
       {
@@ -72,7 +72,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Staffs",
         icon: <FaUserTie />,
         url: "/dashboard/staffs",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "staffs", action: "view" },
       },
       {
@@ -80,7 +80,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Dealers",
         icon: <FaUserClock />,
         url: "/dashboard/dealers",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "masters", action: "view" },
       },
     ],
@@ -90,7 +90,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "Lab",
     icon: <FaVial />,
     url: "/dashboard/lab",
-    role: ["admin"],
+    role: ["admin", "staff"],
     permission: { module: "lab", action: "view" },
     children: [
       {
@@ -98,7 +98,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Lab Sheets",
         icon: <FaNotesMedical />,
         url: "/dashboard/labWork",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "lab", action: "view" },
       },
       {
@@ -106,7 +106,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Lab Doctors",
         icon: <FaUserMd />,
         url: "/dashboard/labDoctors",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "lab", action: "view" },
       },
     ],
@@ -118,21 +118,21 @@ const sidebarDatas: SidebarItem[] = [
     name: "Book Appointment",
     icon: <AppointmentIcon />,
     url: "/dashboard/appointments/book",
-    role: ["patient", "doctor", "admin"],
+    role: ["patient", "doctor", "admin", "staff"],
   },
   {
     id: 16,
     name: "Waiting Room",
     icon: <WaitingRoomIcon />,
     url: "/dashboard/appointments/waiting-room",
-    role: ["patient", "doctor", "admin"],
+    role: ["patient", "doctor", "admin", "staff"],
   },
   {
     id: 9,
     name: "Recall Appointment",
     icon: <MdEventRepeat />,
     url: "/dashboard/recall-appointment",
-    role: ["admin"],
+    role: ["admin", "staff"],
     permission: { module: "recall", action: "view" },
   },
   {
@@ -140,7 +140,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "Appointments",
     icon: <AppointmentIcon />,
     url: "/dashboard/appointments",
-    role: ["admin"],
+    role: ["admin", "staff"],
     permission: { module: "appointment", action: "view" },
   },
   {
@@ -148,7 +148,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "Masters",
     icon: <FaListAlt />,
     url: "#",
-    role: ["admin"],
+    role: ["admin", "staff"],
     permission: { module: "masters", action: "view" },
     children: [
       {
@@ -156,7 +156,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Common Master",
         icon: <FaListAlt />,
         url: "/dashboard/masters",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "masters", action: "view" },
       },
       {
@@ -164,7 +164,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Procedure Master",
         icon: <RiToothLine />,
         url: "/dashboard/procedure-master",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "masters", action: "view" },
       },
       {
@@ -172,7 +172,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Lab Hierarchy Master",
         icon: <FaListAlt />,
         url: "/dashboard/labWork-master",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "masters", action: "view" },
       },
       {
@@ -180,7 +180,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Lab Status Master",
         icon: <FaListAlt />,
         url: "/dashboard/labWorkStatus-master",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "masters", action: "view" },
       },
       {
@@ -188,7 +188,7 @@ const sidebarDatas: SidebarItem[] = [
         name: "Prescription Master",
         icon: <FaPrescription />,
         url: "/dashboard/prescription-master",
-        role: ["admin"],
+        role: ["admin", "staff"],
         permission: { module: "masters", action: "view" },
       },
     ]
@@ -228,7 +228,7 @@ export const sidebarFooterData: SidebarItem[] = [
   },
 ];
 
-const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
+const getSidebarDataByRole = (role: string[] = ["admin", "staff"]): SidebarItem[] => {
   const filterByRoleAndPermission = (items: SidebarItem[]): SidebarItem[] => {
     return items
       .filter((item) => {
@@ -253,7 +253,7 @@ const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
       .filter((item) => {
         // If item has children but all were filtered out, hide parent too (unless it's a direct link)
         if (item.children && item.children.length === 0 && item.url === "#") {
-           return false;
+          return false;
         }
         return true;
       });

@@ -315,6 +315,13 @@ const Form = observer(
                           setFieldValue={setFieldValue}
                           errors={errors}
                         />
+                        <AvailabilityAuthSection
+                          values={values}
+                          handleChange={handleChange}
+                          errors={errors}
+                          touched={touched}
+                          isEdit={isEdit}
+                        />
                         <AddressesInput
                           values={values}
                           handleChange={handleChange}
@@ -339,15 +346,7 @@ const Form = observer(
                       setFieldValue={setFieldValue}
                       values={values}
                     />
-                    {false && (
-                      <AvailabilityAuthSection
-                        values={values}
-                        handleChange={handleChange}
-                        errors={errors}
-                        touched={touched}
-                        isEdit={isEdit}
-                      />
-                    )}
+
                   </Grid>
 
                   {/* Mobile Actions Only */}
