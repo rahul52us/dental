@@ -377,6 +377,76 @@ class WorkDoneStore {
   };
 
   /**
+   * GENERATE BLOB URL FOR PREVIEWING
+   */
+  generateWorkDoneReportBlob = async (workDoneId: string, params: { prescriptions: any[], topPadding: number, bottomPadding: number }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/workDone/generate-workdone-report/${workDoneId}?company=${compId}`, params);
+
+      if (data.status === "success") {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        return { url, blob };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error generating work done report blob:", err);
+      throw err;
+    }
+  };
+
+  downloadWorkDoneReport = async (workDoneId: string, params: { prescriptions: any[], topPadding: number, bottomPadding: number, isPreview?: boolean }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/workDone/generate-workdone-report/${workDoneId}?company=${compId}`, params);
+
+      if (data.status === "success") {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        
+        if (params.isPreview) {
+          // Open in new tab for preview
+          window.open(url, '_blank');
+        } else {
+          // Regular download
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `WorkDone_Report_${workDoneId}.pdf`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        
+        // Note: For preview, we don't revoke the URL immediately as the new tab needs it
+        if (!params.isPreview) {
+          window.URL.revokeObjectURL(url);
+        }
+      }
+    } catch (err) {
+      console.error("Error downloading work done report PDF:", err);
+      throw err;
+    }
+  };
+
+  /**
    * DOWNLOAD A RECEIPT FOR A SPECIFIC PAYMENT INSTALLMENT
    */
   downloadPaymentReceipt = async (workDoneId: string, paymentIndex: number) => {

@@ -10,6 +10,7 @@ import {
   Flex,
   Text,
   Button,
+   HStack,
   useBreakpointValue,
   useColorMode,
   useColorModeValue,
@@ -28,6 +29,7 @@ interface CustomDrawerProps {
   props?: any;
   width?: any;
   loading?: boolean;
+  extraActions?: React.ReactNode;
 }
 
 const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
@@ -39,6 +41,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
   width,
   loading = false,
   props,
+  extraActions,
 }) => {
   const {
     themeStore: { themeConfig },
@@ -87,23 +90,32 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
             color={headerTextColor}
             fontWeight="bold"
           >
-            {typeof title === "string" ? (
-              <Text fontSize="xl">{title}</Text>
-            ) : (
-              <Box>{title}</Box>
-            )}
+            <HStack spacing={4}>
+              {typeof title === "string" ? (
+                <Text fontSize="xl">{title}</Text>
+              ) : (
+                <Box>{title}</Box>
+              )}
+            </HStack>
 
-            {/* 🔴 RED CIRCULAR CLOSE BUTTON */}
-            <DrawerCloseButton
-              position="relative"
-              bg={headerBgColor}
-              color="white"
-              borderRadius="full"
-              size="lg"
-              _hover={{ filter: "brightness(0.9)" }}
-              _active={{ filter: "brightness(0.8)" }}
-              mb={2}
-            />
+            <HStack spacing={2}>
+              {extraActions && (
+                <Box mr={8}>
+                  {extraActions}
+                </Box>
+              )}
+              {/* 🔴 RED CIRCULAR CLOSE BUTTON */}
+              <DrawerCloseButton
+                position="relative"
+                bg={headerBgColor}
+                color="white"
+                borderRadius="full"
+                size="lg"
+                _hover={{ filter: "brightness(0.9)" }}
+                _active={{ filter: "brightness(0.8)" }}
+                mb={2}
+              />
+            </HStack>
           </Flex>
         )}
 

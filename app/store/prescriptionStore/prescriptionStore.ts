@@ -3,33 +3,47 @@ import axios from "axios";
 import { authStore } from "../authStore/authStore";
 
 class PrescriptionStore {
-  prescriptions: any = { data: [], total: 0, loading: false, page: 1, totalPages: 0 };
-  suggestions: any = { types: [], categories: [], brandNames: [], forms: [], companyNames: [], loading: false };
+  prescriptionsData: any[] = [];
+  prescriptionsLoading: boolean = false;
+  
+  types: string[] = [];
+  categories: string[] = [];
+  brandNames: string[] = [];
+  forms: string[] = [];
+  companyNames: string[] = [];
+  basicSalts: string[] = [];
+  suggestionsLoading: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
   }
 
   getSuggestions = async () => {
-    this.suggestions.loading = true;
+    this.suggestionsLoading = true;
     try {
       const res = await axios.get(`/prescription/suggestions`, {
         params: { companyId: authStore.company }
       });
       runInAction(() => {
-        this.suggestions = { ...res.data, loading: false };
+        this.types = res.data.types || [];
+        this.categories = res.data.categories || [];
+        this.brandNames = res.data.brandNames || [];
+        this.forms = res.data.forms || [];
+        this.companyNames = res.data.companyNames || [];
+        this.basicSalts = res.data.basicSalts || [];
+        this.suggestionsLoading = false;
       });
       return res.data;
     } catch (err: any) {
       runInAction(() => {
-        this.suggestions.loading = false;
+        this.suggestionsLoading = false;
       });
       return Promise.reject(err?.response?.data || err);
     }
   };
 
   getPrescriptions = async (params: any = {}) => {
-    this.prescriptions.loading = true;
+    this.prescriptionsLoading = true;
     try {
       const res = await axios.get(`/prescription/get`, { 
         params: { 
@@ -38,16 +52,13 @@ class PrescriptionStore {
         } 
       });
       runInAction(() => {
-        this.prescriptions.data = res.data.data || [];
-        this.prescriptions.total = res.data.total || 0;
-        this.prescriptions.page = res.data.page || 1;
-        this.prescriptions.totalPages = res.data.totalPages || 0;
-        this.prescriptions.loading = false;
+        this.prescriptionsData = res.data.data || [];
+        this.prescriptionsLoading = false;
       });
       return res.data;
     } catch (err: any) {
       runInAction(() => {
-        this.prescriptions.loading = false;
+        this.prescriptionsLoading = false;
       });
       return Promise.reject(err?.response?.data || err);
     }
