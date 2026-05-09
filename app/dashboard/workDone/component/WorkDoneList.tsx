@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
+import axios from "axios";
 import {
   Box,
   VStack,
@@ -59,6 +60,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [deleteModal, setDeleteModal] = useState({ open: false, id: "" });
   const [isDeleting, setIsDeleting] = useState(false);
   const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "" });
+  const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
 
   const fetchRecords = useCallback(() => {
     getWorkDone({
@@ -143,6 +145,21 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
   return (
     <Box>
+      <HStack justify="space-between" mb={4}>
+        <Text fontSize="11px" fontWeight="1000" color="gray.500" letterSpacing="0.1em">CLINICAL RECORDS</Text>
+        <Button
+          size="sm"
+          colorScheme="blue"
+          variant="outline"
+          leftIcon={<FiDownload />}
+          borderRadius="xl"
+          fontSize="11px"
+          fontWeight="bold"
+          onClick={() => setOpenDailyReportModal({ open: true })}
+        >
+          DOWNLOAD DAILY PRESCRIPTION
+        </Button>
+      </HStack>
       <VStack align="stretch" spacing={4}>
         {workDone.loading ? (
           <Center py={10}>
@@ -439,6 +456,12 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         onClose={() => setOpenPrintModal({ open: false, id: "" })}
         workDoneId={openPrintModal.id}
       />
+
+      <DailyPrescriptionDrawer
+        isOpen={openDailyReportModal.open}
+        onClose={() => setOpenDailyReportModal({ open: false })}
+        patientId={patientDetails?._id}
+      />
     </Box>
   );
 });
@@ -475,6 +498,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
     dosage: '',
     details: '',
     doseNo: 0,
+    noOfDays: 0,
     description: '',
   });
 
@@ -489,6 +513,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
       dosage: '',
       details: '',
       doseNo: 0,
+      noOfDays: 0,
       description: '',
     });
   };
@@ -660,6 +685,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                       dosage: masterData.dosage || '',
                                       details: masterData.details || '',
                                       doseNo: masterData.doseNo || 0,
+                                      noOfDays: 0,
                                       description: masterData.description || '',
                                     });
                                   } else {
@@ -697,7 +723,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                               </Box>
                             </SimpleGrid>
 
-                            <SimpleGrid columns={3} spacing={2} w="full">
+                            <SimpleGrid columns={4} spacing={2} w="full">
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DOSAGE</Text>
                                 <Input
@@ -706,7 +732,42 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                   borderRadius="lg"
                                   placeholder="1bid"
                                   value={localFormData.dosage}
-                                  onChange={(e) => setLocalFormData({ ...localFormData, dosage: e.target.value })}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setLocalFormData({ ...localFormData, dosage: val });
+                                  }}
+                                />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DAYS</Text>
+                                <Input
+                                  bg="white"
+                                  size="sm"
+                                  type="number"
+                                  borderRadius="lg"
+                                  placeholder="0"
+                                  value={localFormData.noOfDays}
+                                  onChange={(e) => {
+                                    const days = parseInt(e.target.value) || 0;
+                                    // Basic auto-calc logic for Pattern (e.g. 1-0-1 or 1-1-1)
+                                    let timesPerDay = 1;
+                                    const patternMatch = localFormData.details.match(/\d/g);
+                                    if (patternMatch) {
+                                      timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                                    } else if (localFormData.dosage.toLowerCase().includes("bid")) {
+                                      timesPerDay = 2;
+                                    } else if (localFormData.dosage.toLowerCase().includes("tid")) {
+                                      timesPerDay = 3;
+                                    } else if (localFormData.dosage.toLowerCase().includes("qid")) {
+                                      timesPerDay = 4;
+                                    }
+
+                                    setLocalFormData({ 
+                                      ...localFormData, 
+                                      noOfDays: days,
+                                      doseNo: days * timesPerDay
+                                    });
+                                  }}
                                 />
                               </Box>
                               <Box>
@@ -728,7 +789,19 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                   borderRadius="lg"
                                   placeholder="*_*_*"
                                   value={localFormData.details}
-                                  onChange={(e) => setLocalFormData({ ...localFormData, details: e.target.value })}
+                                  onChange={(e) => {
+                                    const pattern = e.target.value;
+                                    let timesPerDay = 1;
+                                    const patternMatch = pattern.match(/\d/g);
+                                    if (patternMatch) {
+                                      timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                                    }
+                                    setLocalFormData({ 
+                                      ...localFormData, 
+                                      details: pattern,
+                                      doseNo: (localFormData.noOfDays || 1) * timesPerDay
+                                    });
+                                  }}
                                 />
                               </Box>
                             </SimpleGrid>
@@ -880,6 +953,443 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
             style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }}
             title="PDF Preview"
           />
+        </Box>
+      </CustomDrawer>
+    </CustomDrawer>
+  );
+});
+
+const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOpen: boolean, onClose: () => void, patientId: string }) => {
+  const { prescriptionStore, workDoneStore, auth: { openNotification } } = stores;
+  const [loading, setLoading] = useState(false);
+  const [previewDrawer, setPreviewDrawer] = useState({ open: false, url: "" });
+  const [dailyRecords, setDailyRecords] = useState<any[]>([]);
+  const [fetchingRecords, setFetchingRecords] = useState(false);
+
+  // Fetch records for the selected date
+  const fetchRecordsForDate = async (date: string) => {
+    setFetchingRecords(true);
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = stores.auth.company?._id || stores.auth.company || companyId;
+      const { data } = await axios.get(`/workDone/get`, {
+        params: {
+          patientId,
+          company: compId,
+          fromDate: date,
+          toDate: date,
+          limit: 100
+        }
+      });
+      if (data.status === "success") {
+        setDailyRecords(data.data?.data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching daily records:", err);
+    } finally {
+      setFetchingRecords(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchRecordsForDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [isOpen]);
+
+  const [localFormData, setLocalFormData] = useState({
+    type: '',
+    category: '',
+    brandName: '',
+    dosage: '',
+    noOfDays: 0,
+    doseNo: 0,
+    details: '',
+    description: '',
+    form: '',
+    basicSalt: '',
+    companyName: '',
+  });
+
+  const resetLocalForm = () => setLocalFormData({
+    type: '', category: '', brandName: '', dosage: '', noOfDays: 0, doseNo: 0, details: '', description: '', form: '', basicSalt: '', companyName: '',
+  });
+
+  const selectStyles = {
+    control: (base: any) => ({
+      ...base,
+      borderRadius: '12px',
+      fontSize: '13px',
+      border: '1px solid #E2E8F0',
+      '&:hover': { borderColor: '#3182ce' }
+    }),
+  };
+
+  return (
+    <CustomDrawer
+      open={isOpen}
+      close={onClose}
+      title="Daily Prescription Report"
+      width="90vw"
+    >
+      <Box p={0}>
+        <Formik
+          initialValues={{
+            date: new Date().toISOString().split('T')[0],
+            prescriptions: [],
+            topPadding: 150,
+            bottomPadding: 50,
+          }}
+          onSubmit={async (values) => {
+            setLoading(true);
+            try {
+              await workDoneStore.downloadDailyWorkDoneReport(patientId, values);
+              openNotification({ 
+                type: "success", 
+                title: "Daily Report Downloaded",
+                message: "Daily clinical report has been saved successfully."
+              });
+            } catch (err: any) {
+              openNotification({ 
+                type: "error", 
+                title: "Download Failed", 
+                message: err?.message || "Something went wrong" 
+              });
+            } finally {
+              setLoading(false);
+            }
+          }}
+        >
+          {({ values, setFieldValue }) => (
+            <Form>
+              <VStack align="stretch" spacing={0}>
+                <Box p={6} overflowY="auto" maxH="calc(100vh - 120px)">
+                  <VStack align="stretch" spacing={6}>
+                    
+                    {/* Header Context & Date Picker */}
+                    <Box bg="purple.50" p={4} borderRadius="2xl" border="1px solid" borderColor="purple.100">
+                      <HStack justify="space-between">
+                        <VStack align="start" spacing={1}>
+                          <Text fontSize="10px" fontWeight="1000" color="purple.500">DAILY SUMMARY</Text>
+                          <HStack>
+                            <Text fontSize="13px" fontWeight="bold">Select Date:</Text>
+                            <Input
+                              type="date"
+                              size="sm"
+                              w="200px"
+                              bg="white"
+                              borderRadius="lg"
+                              value={values.date}
+                              onChange={(e) => {
+                                const newDate = e.target.value;
+                                setFieldValue("date", newDate);
+                                fetchRecordsForDate(newDate);
+                              }}
+                            />
+                          </HStack>
+                        </VStack>
+                        <Button 
+                          size="sm" 
+                          colorScheme="purple" 
+                          leftIcon={<FiEye />}
+                          borderRadius="lg"
+                          isLoading={loading}
+                          isDisabled={dailyRecords.length === 0}
+                          onClick={async () => {
+                            setLoading(true);
+                            try {
+                              const res: any = await workDoneStore.generateDailyWorkDoneReportBlob(patientId, values);
+                              if (res?.url) setPreviewDrawer({ open: true, url: res.url });
+                            } catch (err: any) {
+                              openNotification({ type: "error", title: "Preview Failed", message: err.message });
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          GENERATE PREVIEW
+                        </Button>
+                      </HStack>
+                    </Box>
+
+                    {/* Same Medication Form as the other drawer */}
+                    <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} alignItems="start">
+                      <VStack align="stretch" spacing={6}>
+                        <Box p={5} borderRadius="2xl" border="1px solid" borderColor="gray.100" bg="white" shadow="sm">
+                          <Text fontSize="11px" fontWeight="1000" color="gray.500" mb={4}>SEARCH OR ADD MEDICATION</Text>
+                          <VStack spacing={4}>
+                            <SimpleGrid columns={2} spacing={3} w="full">
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>TYPE</Text>
+                                <CreatableSelect
+                                  isClearable
+                                  placeholder="Type..."
+                                  options={(prescriptionStore.types || []).map((t: string) => ({ label: t, value: t }))}
+                                  value={localFormData.type ? { label: localFormData.type, value: localFormData.type } : null}
+                                  onChange={(val: any) => setLocalFormData({ ...localFormData, type: val?.value || '' })}
+                                  styles={selectStyles}
+                                />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>CATEGORY</Text>
+                                <CreatableSelect
+                                  isClearable
+                                  placeholder="Cat..."
+                                  options={(prescriptionStore.categories || []).map((c: string) => ({ label: c, value: c }))}
+                                  value={localFormData.category ? { label: localFormData.category, value: localFormData.category } : null}
+                                  onChange={(val: any) => setLocalFormData({ ...localFormData, category: val?.value || '' })}
+                                  styles={selectStyles}
+                                />
+                              </Box>
+                            </SimpleGrid>
+
+                            <Box w="full">
+                              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BRAND NAME</Text>
+                              <CreatableSelect
+                                isClearable
+                                placeholder="Start typing brand name to pick from Master..."
+                                options={(prescriptionStore.prescriptionsData || []).map((p: any) => ({ 
+                                  label: `${p.brandName} (${p.type})`, 
+                                  value: p.brandName,
+                                  data: p
+                                }))}
+                                value={localFormData.brandName ? { label: localFormData.brandName, value: localFormData.brandName } : null}
+                                onChange={(val: any) => {
+                                  const brand = val?.value || '';
+                                  const masterData = prescriptionStore.prescriptionsData.find((p: any) => p.brandName === brand);
+                                  if (masterData) {
+                                    setLocalFormData({
+                                      ...localFormData,
+                                      type: masterData.type || localFormData.type,
+                                      category: masterData.category || localFormData.category,
+                                      form: masterData.form || localFormData.form,
+                                      basicSalt: masterData.basicSalt || '',
+                                      brandName: brand,
+                                      companyName: masterData.companyName || '',
+                                      dosage: masterData.dosage || '',
+                                      details: masterData.details || '',
+                                      doseNo: masterData.doseNo || 0,
+                                      description: masterData.description || '',
+                                    });
+                                  } else {
+                                    setLocalFormData({ ...localFormData, brandName: brand });
+                                  }
+                                }}
+                                styles={selectStyles}
+                              />
+                            </Box>
+
+                            <SimpleGrid columns={2} spacing={3} w="full">
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BASIC SALT</Text>
+                                <CreatableSelect
+                                  isClearable
+                                  placeholder="Salt info"
+                                  options={(prescriptionStore.basicSalts || []).map((s: string) => ({ label: s, value: s }))}
+                                  value={localFormData.basicSalt ? { label: localFormData.basicSalt, value: localFormData.basicSalt } : null}
+                                  onChange={(val: any) => setLocalFormData({ ...localFormData, basicSalt: val?.value || '' })}
+                                  styles={selectStyles}
+                                />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>FORM</Text>
+                                <CreatableSelect
+                                  isClearable
+                                  placeholder="Form..."
+                                  options={(prescriptionStore.forms || []).map((f: string) => ({ label: f, value: f }))}
+                                  value={localFormData.form ? { label: localFormData.form, value: localFormData.form } : null}
+                                  onChange={(val: any) => setLocalFormData({ ...localFormData, form: val?.value || '' })}
+                                  styles={selectStyles}
+                                />
+                              </Box>
+                            </SimpleGrid>
+
+                            <SimpleGrid columns={4} spacing={2} w="full">
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DOSAGE</Text>
+                                <Input bg="white" size="sm" borderRadius="lg" placeholder="1bid" value={localFormData.dosage} onChange={(e) => setLocalFormData({ ...localFormData, dosage: e.target.value })} />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DAYS</Text>
+                                <Input
+                                  bg="white"
+                                  size="sm"
+                                  type="number"
+                                  borderRadius="lg"
+                                  placeholder="0"
+                                  value={localFormData.noOfDays}
+                                  onChange={(e) => {
+                                    const days = parseInt(e.target.value) || 0;
+                                    let timesPerDay = 1;
+                                    const patternMatch = localFormData.details.match(/\d/g);
+                                    if (patternMatch) {
+                                      timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                                    } else if (localFormData.dosage.toLowerCase().includes("bid")) {
+                                      timesPerDay = 2;
+                                    } else if (localFormData.dosage.toLowerCase().includes("tid")) {
+                                      timesPerDay = 3;
+                                    } else if (localFormData.dosage.toLowerCase().includes("qid")) {
+                                      timesPerDay = 4;
+                                    }
+
+                                    setLocalFormData({ 
+                                      ...localFormData, 
+                                      noOfDays: days,
+                                      doseNo: days * timesPerDay
+                                    });
+                                  }}
+                                />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>QTY</Text>
+                                <Input bg="white" size="sm" type="number" borderRadius="lg" value={localFormData.doseNo} onChange={(e) => setLocalFormData({ ...localFormData, doseNo: parseInt(e.target.value) || 0 })} />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>PATTERN</Text>
+                                <Input
+                                  bg="white"
+                                  size="sm"
+                                  borderRadius="lg"
+                                  placeholder="*_*_*"
+                                  value={localFormData.details}
+                                  onChange={(e) => {
+                                    const pattern = e.target.value;
+                                    let timesPerDay = 1;
+                                    const patternMatch = pattern.match(/\d/g);
+                                    if (patternMatch) {
+                                      timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                                    }
+                                    setLocalFormData({ 
+                                      ...localFormData, 
+                                      details: pattern,
+                                      doseNo: (localFormData.noOfDays || 1) * timesPerDay
+                                    });
+                                  }}
+                                />
+                              </Box>
+                            </SimpleGrid>
+
+                            <Box w="full">
+                              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DESCRIPTION</Text>
+                              <Textarea
+                                bg="white"
+                                size="sm"
+                                borderRadius="lg"
+                                placeholder="Instructions..."
+                                value={localFormData.description}
+                                onChange={(e) => setLocalFormData({ ...localFormData, description: e.target.value })}
+                              />
+                            </Box>
+
+                            <Button
+                              w="full"
+                              colorScheme="purple"
+                              size="md"
+                              borderRadius="xl"
+                              leftIcon={<FiPlus />}
+                              onClick={() => {
+                                if (!localFormData.brandName) return;
+                                setFieldValue("prescriptions", [...values.prescriptions, { ...localFormData }]);
+                                resetLocalForm();
+                              }}
+                            >
+                              ADD ITEM
+                            </Button>
+                          </VStack>
+                        </Box>
+                      </VStack>
+
+                      <VStack align="stretch" spacing={4}>
+                        <Text fontSize="11px" fontWeight="1000" color="gray.500">ADDED TO DAILY REPORT ({values.prescriptions.length})</Text>
+                        <VStack align="stretch" spacing={3}>
+                          {values.prescriptions.map((p: any, index: number) => (
+                            <Box key={index} p={4} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" shadow="sm" position="relative">
+                              <IconButton size="xs" icon={<FiTrash2 />} colorScheme="red" variant="ghost" position="absolute" top={2} right={2} onClick={() => {
+                                const newP = values.prescriptions.filter((_: any, i: number) => i !== index);
+                                setFieldValue("prescriptions", newP);
+                              }} aria-label="Remove" />
+                              <VStack align="start" spacing={1}>
+                                  <Badge colorScheme="purple" variant="subtle" fontSize="9px">{p.type || 'MED'}</Badge>
+                                  <Text fontWeight="1000" fontSize="13px" color="purple.700">{p.brandName}</Text>
+                                  <Text fontSize="10px" color="gray.500" fontWeight="bold">{p.basicSalt}</Text>
+                                  
+                                  <HStack spacing={4} mt={1}>
+                                    <VStack align="start" spacing={0}>
+                                      <Text fontSize="7px" fontWeight="900" color="gray.400">DOSAGE</Text>
+                                      <Text fontSize="10px" fontWeight="bold">{p.dosage || '-'}</Text>
+                                    </VStack>
+                                    <VStack align="start" spacing={0}>
+                                      <Text fontSize="7px" fontWeight="900" color="gray.400">QTY</Text>
+                                      <Text fontSize="10px" fontWeight="bold">{p.doseNo || '0'}</Text>
+                                    </VStack>
+                                    <VStack align="start" spacing={0}>
+                                      <Text fontSize="7px" fontWeight="900" color="gray.400">PATTERN</Text>
+                                      <Text fontSize="10px" fontWeight="bold">{p.details || '-'}</Text>
+                                    </VStack>
+                                  </HStack>
+
+                                  {p.description && (
+                                    <Box mt={1} p={1.5} bg="purple.50" borderRadius="md" w="full">
+                                      <Text fontSize="9px" color="purple.600" fontStyle="italic">{p.description}</Text>
+                                    </Box>
+                                  )}
+                                </VStack>
+                            </Box>
+                          ))}
+                        </VStack>
+                      </VStack>
+                    </SimpleGrid>
+                  </VStack>
+                </Box>
+
+                <Box p={6} borderTop="1px solid" borderColor="gray.100" bg="white">
+                  <HStack justify="space-between">
+                    <Button variant="ghost" onClick={onClose} borderRadius="xl">CANCEL</Button>
+                    <Button
+                      colorScheme="purple"
+                      type="submit"
+                      isLoading={loading}
+                      borderRadius="xl"
+                      size="lg"
+                      px={10}
+                      leftIcon={<FiDownload />}
+                      isDisabled={values.prescriptions.length === 0}
+                    >
+                      DOWNLOAD DAILY PDF
+                    </Button>
+                  </HStack>
+                </Box>
+              </VStack>
+            </Form>
+          )}
+        </Formik>
+      </Box>
+
+      {/* Preview Sub-Drawer */}
+      <CustomDrawer
+        open={previewDrawer.open}
+        close={() => setPreviewDrawer({ ...previewDrawer, open: false })}
+        title="Daily Report Preview"
+        width="60vw"
+        extraActions={
+          <Button
+            size="sm"
+            colorScheme="purple"
+            leftIcon={<FiDownload />}
+            borderRadius="lg"
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = previewDrawer.url;
+              link.download = `Daily_Report_${patientId}.pdf`;
+              link.click();
+            }}
+          >
+            DOWNLOAD PDF
+          </Button>
+        }
+      >
+        <Box p={4} h="calc(100vh - 100px)">
+          <iframe src={`${previewDrawer.url}#view=FitH`} width="100%" height="100%" style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }} title="PDF Preview" />
         </Box>
       </CustomDrawer>
     </CustomDrawer>

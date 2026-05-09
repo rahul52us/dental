@@ -473,6 +473,68 @@ class WorkDoneStore {
       throw err;
     }
   };
+
+  /**
+   * GENERATE DAILY BULK REPORT BLOB FOR PREVIEW
+   */
+  generateDailyWorkDoneReportBlob = async (patientId: string, params: { date: string, prescriptions: any[], topPadding: number, bottomPadding: number }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/workDone/generate-daily-report/${patientId}?company=${compId}&date=${params.date}`, params);
+
+      if (data.status === "success") {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        return { url, blob };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error generating daily report blob:", err);
+      throw err;
+    }
+  };
+
+  /**
+   * DOWNLOAD DAILY BULK REPORT PDF
+   */
+  downloadDailyWorkDoneReport = async (patientId: string, params: { date: string, prescriptions: any[], topPadding: number, bottomPadding: number }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/workDone/generate-daily-report/${patientId}?company=${compId}&date=${params.date}`, params);
+
+      if (data.status === "success") {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Daily_Report_${patientId}_${params.date}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error("Error downloading daily report PDF:", err);
+      throw err;
+    }
+  };
 }
 
 export const workDoneStore = new WorkDoneStore();
