@@ -27,6 +27,10 @@ interface SidebarItem {
   icon: any;
   url: string;
   role?: string[];
+  permission?: {
+    module: string;
+    action: string;
+  };
   children?: SidebarItem[];
 }
 
@@ -44,6 +48,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaUsers />,
     url: "/dashboard/patients",
     role: ["admin"],
+    permission: { module: "patient", action: "view" },
   },
   {
     id: 2,
@@ -60,6 +65,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserMd />,
         url: "/dashboard/doctors",
         role: ["admin"],
+        permission: { module: "doctor", action: "view" },
       },
       {
         id: 4,
@@ -67,6 +73,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserTie />,
         url: "/dashboard/staffs",
         role: ["admin"],
+        permission: { module: "staffs", action: "view" },
       },
       {
         id: 30,
@@ -74,6 +81,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserClock />,
         url: "/dashboard/dealers",
         role: ["admin"],
+        permission: { module: "masters", action: "view" },
       },
     ],
   },
@@ -83,6 +91,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaVial />,
     url: "/dashboard/lab",
     role: ["admin"],
+    permission: { module: "lab", action: "view" },
     children: [
       {
         id: 35,
@@ -90,6 +99,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaNotesMedical />,
         url: "/dashboard/labWork",
         role: ["admin"],
+        permission: { module: "lab", action: "view" },
       },
       {
         id: 31,
@@ -97,10 +107,9 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserMd />,
         url: "/dashboard/labDoctors",
         role: ["admin"],
+        permission: { module: "lab", action: "view" },
       },
     ],
-
-
   },
 
 
@@ -124,6 +133,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <MdEventRepeat />,
     url: "/dashboard/recall-appointment",
     role: ["admin"],
+    permission: { module: "recall", action: "view" },
   },
   {
     id: 13,
@@ -131,13 +141,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <AppointmentIcon />,
     url: "/dashboard/appointments",
     role: ["admin"],
-  },
-  {
-    id: 10,
-    name: "Orders",
-    icon: <FaNotesMedical />,
-    url: "/dashboard/orders",
-    role: ["admin", "patient"],
+    permission: { module: "appointment", action: "view" },
   },
   {
     id: 11,
@@ -145,6 +149,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaListAlt />,
     url: "#",
     role: ["admin"],
+    permission: { module: "masters", action: "view" },
     children: [
       {
         id: 110,
@@ -152,6 +157,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaListAlt />,
         url: "/dashboard/masters",
         role: ["admin"],
+        permission: { module: "masters", action: "view" },
       },
       {
         id: 40,
@@ -159,6 +165,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <RiToothLine />,
         url: "/dashboard/procedure-master",
         role: ["admin"],
+        permission: { module: "masters", action: "view" },
       },
       {
         id: 38,
@@ -166,6 +173,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaListAlt />,
         url: "/dashboard/labWork-master",
         role: ["admin"],
+        permission: { module: "masters", action: "view" },
       },
       {
         id: 39,
@@ -173,6 +181,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaListAlt />,
         url: "/dashboard/labWorkStatus-master",
         role: ["admin"],
+        permission: { module: "masters", action: "view" },
       },
       {
         id: 41,
@@ -180,10 +189,9 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaPrescription />,
         url: "/dashboard/prescription-master",
         role: ["admin"],
+        permission: { module: "masters", action: "view" },
       },
     ]
-
-
   },
 
   {
@@ -199,12 +207,14 @@ const sidebarDatas: SidebarItem[] = [
     icon: <GiOfficeChair />,
     url: "/dashboard/chairs",
     role: ["superAdmin", "admin"],
+    permission: { module: "masters", action: "view" },
   },
   {
     id: 14,
     name: "Reports",
     icon: <VscWorkspaceTrusted />,
     url: "/dashboard/reports",
+    permission: { module: "reports", action: "view" },
   },
 ];
 
@@ -219,15 +229,36 @@ export const sidebarFooterData: SidebarItem[] = [
 ];
 
 const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
-  const filterByRole = (items: SidebarItem[]): SidebarItem[] => {
+  const filterByRoleAndPermission = (items: SidebarItem[]): SidebarItem[] => {
     return items
-      .filter((item) => !item.role || item.role.some((r) => role.includes(r)))
+      .filter((item) => {
+        // First check role
+        const hasRole = !item.role || item.role.some((r) => role.includes(r));
+        if (!hasRole) return false;
+
+        // Then check permission
+        if (item.permission) {
+          const { module, action } = item.permission;
+          // Use stores directly or pass it - since it's a utility, we'll import stores
+          const stores = require("../../../../store/stores").default;
+          return stores.auth.hasPermission(module, action);
+        }
+
+        return true;
+      })
       .map((item) => ({
         ...item,
-        children: item.children ? filterByRole(item.children) : undefined,
-      }));
+        children: item.children ? filterByRoleAndPermission(item.children) : undefined,
+      }))
+      .filter((item) => {
+        // If item has children but all were filtered out, hide parent too (unless it's a direct link)
+        if (item.children && item.children.length === 0 && item.url === "#") {
+           return false;
+        }
+        return true;
+      });
   };
-  return filterByRole(sidebarDatas);
+  return filterByRoleAndPermission(sidebarDatas);
 };
 
 export { getSidebarDataByRole, sidebarDatas };

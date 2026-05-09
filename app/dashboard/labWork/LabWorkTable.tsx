@@ -406,24 +406,26 @@ const LabWorkTable = observer(() => {
               ))}
             </TabList>
           </Tabs>
-          <Button
-            leftIcon={<FiDownload />}
-            colorScheme="blue"
-            variant="outline"
-            size="md"
-            borderRadius="xl"
-            onClick={() => {
-              let workType: any = "all";
-              if (activeTab === 1) workType = "in-house";
-              else if (activeTab === 2) workType = "outside";
-              setReportFilters(prev => ({ ...prev, workType }));
-              onReportOpen();
-            }}
-            isLoading={isDownloading}
-            loadingText="Downloading..."
-          >
-            Download Report
-          </Button>
+          {stores.auth.hasPermission('reports', 'view') && (
+            <Button
+              leftIcon={<FiDownload />}
+              colorScheme="blue"
+              variant="outline"
+              size="md"
+              borderRadius="xl"
+              onClick={() => {
+                let workType: any = "all";
+                if (activeTab === 1) workType = "in-house";
+                else if (activeTab === 2) workType = "outside";
+                setReportFilters(prev => ({ ...prev, workType }));
+                onReportOpen();
+              }}
+              isLoading={isDownloading}
+              loadingText="Downloading..."
+            >
+              Download Report
+            </Button>
+          )}
         </Flex>
 
         <CustomTable
@@ -435,10 +437,22 @@ const LabWorkTable = observer(() => {
           columns={columns}
           actions={{
             actionBtn: {
-              addKey: { showAddButton: true, function: handleAdd },
-              editKey: { showEditButton: true, function: handleEdit },
-              deleteKey: { showDeleteButton: true, function: handleDelete },
-              viewKey: { showViewButton: true, function: handleView },
+              addKey: { 
+                showAddButton: stores.auth.hasPermission('lab', 'create'), 
+                function: handleAdd 
+              },
+              editKey: { 
+                showEditButton: stores.auth.hasPermission('lab', 'edit'), 
+                function: handleEdit 
+              },
+              deleteKey: { 
+                showDeleteButton: stores.auth.hasPermission('lab', 'delete'), 
+                function: handleDelete 
+              },
+              viewKey: { 
+                showViewButton: stores.auth.hasPermission('lab', 'view'), 
+                function: handleView 
+              },
             },
             pagination: {
               show: true,

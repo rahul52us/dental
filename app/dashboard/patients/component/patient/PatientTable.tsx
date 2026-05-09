@@ -353,7 +353,15 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 180, textAlign: "center" } },
     },
 
-  ];
+  ].filter(col => {
+    if (col.key === 'appointments') return stores.auth.hasPermission('appointment', 'view');
+    if (col.key === 'treatment') return stores.auth.hasPermission('workdone', 'view'); // Using workdone for treatment
+    if (col.key === 'recall') return stores.auth.hasPermission('recall', 'view');
+    if (col.key === 'history') return stores.auth.hasPermission('workdone', 'view');
+    if (col.key === 'labSheet') return stores.auth.hasPermission('lab', 'view');
+    if (col.key === 'account') return stores.auth.hasPermission('accountability', 'view');
+    return true;
+  });
 
   return (
     <>
@@ -370,10 +378,22 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           columns={PatientTableColumns}
           actions={{
             actionBtn: {
-              addKey: { showAddButton: true, function: onAdd },
-              editKey: { showEditButton: true, function: onEdit },
-              viewKey: { showViewButton: true, function: handleRowClick },
-              deleteKey: { showDeleteButton: true, function: onDelete },
+              addKey: { 
+                showAddButton: stores.auth.hasPermission('patient', 'create'), 
+                function: onAdd 
+              },
+              editKey: { 
+                showEditButton: stores.auth.hasPermission('patient', 'edit'), 
+                function: onEdit 
+              },
+              viewKey: { 
+                showViewButton: stores.auth.hasPermission('patient', 'view'), 
+                function: handleRowClick 
+              },
+              deleteKey: { 
+                showDeleteButton: stores.auth.hasPermission('patient', 'delete'), 
+                function: onDelete 
+              },
             },
             search: {
               show: true,

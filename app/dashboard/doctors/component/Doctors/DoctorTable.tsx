@@ -281,7 +281,10 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         column: { textAlign: "center" },
       },
     },
-  ];
+  ].filter(col => {
+    if (col.key === 'account') return stores.auth.hasPermission('accountability', 'view');
+    return true;
+  });
 
   return (
     <Box p={1}>
@@ -301,25 +304,25 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           actionBtn: {
             resetData: false,
             addKey: {
-              showAddButton: true,
+              showAddButton: stores.auth.hasPermission('doctor', 'create'),
               function: () => {
                 onAdd();
               },
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: stores.auth.hasPermission('doctor', 'edit'),
               function: (e: any) => {
                 onEdit(e);
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('doctor', 'view'),
               function: (e: any) => {
                 handleRowClick(e);
               },
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: stores.auth.hasPermission('doctor', 'delete'),
               function: (e: any) => {
                 onDelete(e);
               },

@@ -246,18 +246,20 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     </Menu>
 
                     {/* Edit Action */}
-                    <IconButton
-                      size="xs"
-                      variant="ghost"
-                      colorScheme="blue"
-                      icon={<FiEdit />}
-                      aria-label="Edit"
-                      onClick={() => setOpenEditWorkDone({ open: true, data: record })}
-                      borderRadius="full"
-                    />
+                    {stores.auth.hasPermission('workdone', 'edit') && (
+                      <IconButton
+                        size="xs"
+                        variant="ghost"
+                        colorScheme="blue"
+                        icon={<FiEdit />}
+                        aria-label="Edit"
+                        onClick={() => setOpenEditWorkDone({ open: true, data: record })}
+                        borderRadius="full"
+                      />
+                    )}
 
                     {/* Delete Action */}
-                    {["admin", "superAdmin"].includes(userType) && (
+                    {stores.auth.hasPermission('workdone', 'delete') && (
                       <IconButton
                         size="xs"
                         variant="ghost"

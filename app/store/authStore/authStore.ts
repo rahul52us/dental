@@ -264,6 +264,24 @@ class AuthStore {
       sessionStorage.clear()
     }
   };
+
+  hasPermission = (moduleId: string, action: 'view' | 'create' | 'edit' | 'delete') => {
+    // Admin always has all permissions
+    if (this.user?.role === "admin" || this.user?.userType === "admin") {
+      return true;
+    }
+
+    // Check staff permissions
+    const perms = this.user?.permissions;
+    if (!perms) return false;
+
+    // If module exists in permissions, check the specific action
+    if (perms[moduleId]) {
+      return perms[moduleId][action] === true;
+    }
+
+    return false;
+  };
 }
 
 export const authStore = new AuthStore();

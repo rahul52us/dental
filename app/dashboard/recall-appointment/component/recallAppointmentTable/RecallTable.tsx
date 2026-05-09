@@ -297,9 +297,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: ["admin", "superAdmin"].includes(userType)
-                ? true
-                : false,
+              showAddButton: stores.auth.hasPermission('recall', 'create'),
               function: () => {
                 setFormModal({
                   open: true,
@@ -309,9 +307,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
               },
             },
             editKey: {
-              showEditButton: ["admin", "superAdmin"].includes(userType)
-                ? true
-                : false,
+              showEditButton: stores.auth.hasPermission('recall', 'edit'),
               function: (dt: any) => {
                 setFormModal({
                   open: true,
@@ -326,7 +322,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('recall', 'view'),
               function: (dt: any) => {
                 setOpenView({ open: true, data: dt });
               },

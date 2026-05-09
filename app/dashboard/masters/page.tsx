@@ -178,6 +178,18 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
     }
   };
 
+  if (!stores.auth.hasPermission('masters', 'view')) {
+    return (
+      <Box p={10} textAlign="center" bg="white" borderRadius="2xl" m={4} shadow="sm">
+        <VStack spacing={4}>
+          <InfoIcon boxSize={12} color="red.500" />
+          <Heading size="md" color="gray.700">Access Denied</Heading>
+          <Text color="gray.500">You do not have permission to view or manage master settings.</Text>
+        </VStack>
+      </Box>
+    );
+  }
+
   const currentOptions = masterData.find(c => c.category === selectedCategory)?.options || [];
 
   return (
@@ -217,9 +229,11 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                 />
                 <FormErrorMessage>{errors.category}</FormErrorMessage>
               </FormControl>
-              <Button leftIcon={<AddIcon />} size="sm" mt={2} bg="white" color={stores.themeStore.themeConfig.colors.custom.light.primary} _hover={{ bg: "gray.100" }} variant="solid" onClick={handleAddCategory}>
-                Add
-              </Button>
+              {stores.auth.hasPermission('masters', 'create') && (
+                <Button leftIcon={<AddIcon />} size="sm" mt={2} bg="white" color={stores.themeStore.themeConfig.colors.custom.light.primary} _hover={{ bg: "gray.100" }} variant="solid" onClick={handleAddCategory}>
+                  Add
+                </Button>
+              )}
             </VStack>
           </Collapse>
         </Box>
@@ -241,9 +255,11 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                 <Heading size="lg" color="blue.600">{selectedCategory}</Heading>
                 <Text color="gray.500" fontSize="sm">Manage options and codes for this category</Text>
               </VStack>
-              <Button colorScheme="blue" leftIcon={<InfoIcon />} onClick={handleSaveAll} isLoading={loading} shadow="md" borderRadius="full" px={8}>
-                Save All
-              </Button>
+              {(stores.auth.hasPermission('masters', 'create') || stores.auth.hasPermission('masters', 'edit')) && (
+                <Button colorScheme="blue" leftIcon={<InfoIcon />} onClick={handleSaveAll} isLoading={loading} shadow="md" borderRadius="full" px={8}>
+                  Save All
+                </Button>
+              )}
             </HStack>
 
             <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mb={8}>
@@ -258,9 +274,11 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                 <FormErrorMessage>{errors.code}</FormErrorMessage>
               </FormControl>
               <Flex align="end">
-                <Button colorScheme={editing ? "orange" : "blue"} leftIcon={editing ? <EditIcon /> : <AddIcon />} onClick={handleAddOption} w="full" shadow="sm">
-                  {editing ? "Update Option" : "Add Option"}
-                </Button>
+                {((!editing && stores.auth.hasPermission('masters', 'create')) || (editing && stores.auth.hasPermission('masters', 'edit'))) && (
+                  <Button colorScheme={editing ? "orange" : "blue"} leftIcon={editing ? <EditIcon /> : <AddIcon />} onClick={handleAddOption} w="full" shadow="sm">
+                    {editing ? "Update Option" : "Add Option"}
+                  </Button>
+                )}
               </Flex>
             </SimpleGrid>
 
@@ -272,8 +290,12 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   <HStack justify="space-between" mb={2}>
                     <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3}>{opt.code}</Badge>
                     <HStack spacing={1}>
-                      <IconButton size="xs" variant="ghost" colorScheme="blue" icon={<EditIcon />} onClick={() => handleEditOption(opt)} aria-label="Edit" />
-                      <IconButton size="xs" variant="ghost" colorScheme="red" icon={<DeleteIcon />} onClick={() => handleDeleteOption(opt.optionName)} aria-label="Delete" />
+                      {stores.auth.hasPermission('masters', 'edit') && (
+                        <IconButton size="xs" variant="ghost" colorScheme="blue" icon={<EditIcon />} onClick={() => handleEditOption(opt)} aria-label="Edit" />
+                      )}
+                      {stores.auth.hasPermission('masters', 'delete') && (
+                        <IconButton size="xs" variant="ghost" colorScheme="red" icon={<DeleteIcon />} onClick={() => handleDeleteOption(opt.optionName)} aria-label="Delete" />
+                      )}
                     </HStack>
                   </HStack>
                   <Text fontWeight="bold" fontSize="md" color="gray.700">{opt.optionName}</Text>

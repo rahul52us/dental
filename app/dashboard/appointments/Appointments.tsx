@@ -415,9 +415,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: ["admin", "superAdmin"].includes(userType)
-                ? true
-                : false,
+              showAddButton: stores.auth.hasPermission('appointment', 'create'),
               function: () => {
                 setOpenReportModal({
                   open: true,
@@ -426,9 +424,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
               },
             },
             editKey: {
-              showEditButton: ["admin", "superAdmin"].includes(userType)
-                ? true
-                : false,
+              showEditButton: stores.auth.hasPermission('appointment', 'edit'),
               function: (dt: any) => {
                 setSelectedDateTime({
                   open: true,
@@ -441,7 +437,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('appointment', 'view'),
               function: (dt: any) => {
                 setOpenView({ open: true, data: dt });
               },

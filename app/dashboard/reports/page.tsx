@@ -87,12 +87,32 @@ const ReportsPage = observer(() => {
     localStorage.setItem("activeReportTab", activeTab);
   }, [activeTab]);
 
+  const visibleTabs = REPORT_TABS.filter(tab => {
+    const moduleKey = tab.value === 'staff' ? 'staffs' : (tab.value === 'labWork' ? 'lab' : tab.value);
+    return stores.auth.hasPermission(moduleKey, 'view');
+  });
+
+  // Reset active tab if current one is hidden
+  useEffect(() => {
+    if (visibleTabs.length > 0 && !visibleTabs.find(t => t.value === activeTab)) {
+      setActiveTab(visibleTabs[0].value);
+    }
+  }, [visibleTabs, activeTab]);
+
+  if (!stores.auth.hasPermission('reports', 'view')) {
+    return (
+      <Box p={10} textAlign="center">
+        <Text fontSize="xl" fontWeight="bold" color="red.500">Access Denied</Text>
+        <Text>You do not have permission to view reports.</Text>
+      </Box>
+    );
+  }
+
   // Reset filters and selections when tab changes
   const handleTabChange = (tab: ReportTab) => {
     setActiveTab(tab);
     setSelectedPatient(null);
     setSelectedDoctor(null);
-    // Optional: reset tab-specific filters if needed
   };
 
   const handleChange = (section: ReportTab, name: string, value: any) => {
@@ -238,8 +258,8 @@ const ReportsPage = observer(() => {
         </VStack>
 
         {/* Report Type Cards */}
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 5 }} spacing={8} mb={16}>
-          {REPORT_TABS.map((tab) => {
+        <SimpleGrid columns={{ base: 1, sm: 2, md: Math.min(visibleTabs.length, 5) }} spacing={8} mb={16}>
+          {visibleTabs.map((tab) => {
             const isActive = activeTab === tab.value;
             const IconComponent = tab.icon;
 
