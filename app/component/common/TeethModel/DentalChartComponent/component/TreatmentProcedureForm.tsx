@@ -30,6 +30,12 @@ import {
     Circle,
     InputGroup,
     InputLeftElement,
+    Drawer,
+    DrawerOverlay,
+    DrawerContent,
+    DrawerHeader,
+    DrawerBody,
+    DrawerFooter,
 } from "@chakra-ui/react";
 import CustomDrawer from "../../../Drawer/CustomDrawer";
 import { keyframes } from "@emotion/react";
@@ -1199,10 +1205,10 @@ export const TreatmentProcedureForm = observer(
                             </VStack>
 
                             {!isDrawerMode && (
-                                <Modal isOpen={isDetailOpen} onClose={onDetailClose} size="4xl" scrollBehavior="inside">
-                                    <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
-                                    <ModalContent borderRadius="3xl" overflow="hidden">
-                                        <ModalHeader p={6} borderBottom="1px solid" borderColor="gray.100">
+                                <Drawer isOpen={isDetailOpen} onClose={onDetailClose} placement="right">
+                                    <DrawerOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
+                                    <DrawerContent maxW="80vw" borderRadius="3xl 0 0 3xl" overflow="hidden">
+                                        <DrawerHeader p={6} borderBottom="1px solid" borderColor="gray.100">
                                             <HStack justify="space-between" align="start">
                                                 <VStack align="start" spacing={3}>
                                                     <VStack align="start" spacing={0}>
@@ -1258,13 +1264,13 @@ export const TreatmentProcedureForm = observer(
                                                     <FiActivity />
                                                 </Circle>
                                             </HStack>
-                                        </ModalHeader>
+                                        </DrawerHeader>
 
 
-                                        <ModalBody p={8}>
+                                        <DrawerBody p={8}>
                                             {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
-                                        </ModalBody>
-                                        <ModalFooter borderTop="1px solid" borderColor="gray.50" p={6}>
+                                        </DrawerBody>
+                                        <DrawerFooter borderTop="1px solid" borderColor="gray.50" p={6}>
                                             <HStack w="full" spacing={4}>
                                                 {activeToothId !== "bulk" && teeth.findIndex(t => t.id === activeToothId) < teeth.length - 1 ? (
                                                     <Button colorScheme="blue" w="full" h="54px" borderRadius="2xl" fontWeight="900" rightIcon={<FiChevronRight />} onClick={() => {
@@ -1279,9 +1285,9 @@ export const TreatmentProcedureForm = observer(
                                                     </Button>
                                                 )}
                                             </HStack>
-                                        </ModalFooter>
-                                    </ModalContent>
-                                </Modal>
+                                        </DrawerFooter>
+                                    </DrawerContent>
+                                </Drawer>
                             )}
                         </FormikForm>
                     );

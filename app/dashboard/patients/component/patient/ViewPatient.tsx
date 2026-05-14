@@ -623,11 +623,7 @@ const ViewPatient = ({ user }: any) => {
                   <Text fontWeight="bold" color="teal.600">
                     {ref.refrenceBy?.label || ref.refrenceBy?.name || ref.refrenceBy?.username || "N/A"}
                   </Text>
-                  {ref.refrenceBy?.code && !ref.refrenceBy?.label && (
-                    <Badge colorScheme="brand" borderRadius="full" px={2}>
-                      {ref.refrenceBy.code}
-                    </Badge>
-                  )}
+
                 </HStack>
                 {ref.refrenceNote && (
                   <Text fontSize="sm" color="gray.600" mt={1}>
