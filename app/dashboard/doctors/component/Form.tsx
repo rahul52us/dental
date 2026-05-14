@@ -255,19 +255,7 @@ const Form = observer(
                             error={errors.languages}
                             showError={errors.languages}
                           />
-                          <CustomInput
-                            label="Background Image"
-                            name="backgroundVideo"
-                            placeholder="Enter Background Image"
-                            value={values.backgroundVideo}
-                            onChange={handleChange}
-                            error={
-                              errors.backgroundVideo && touched.backgroundVideo
-                            }
-                            showError={
-                              errors.backgroundVideo && touched.backgroundVideo
-                            }
-                          />
+
                         </Grid>
                         <Box
                           borderWidth={1}

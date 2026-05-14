@@ -8,7 +8,7 @@ export const titles = [
 export const initialValues = {
     title: titles[0],
     name: "",
-    backgroundVideo:"",
+
     username: "",
     experience: "",
     reviews: [{ description: "", rating: "",dateInfo : "", name : "" }],

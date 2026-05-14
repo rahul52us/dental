@@ -10,7 +10,7 @@ export const titles = [
 export const initialValues = {
   title: titles[0],
   name: "",
-  backgroundVideo: "",
+
   dob:"",
   gender:genderOptions[0],
   languages: [],

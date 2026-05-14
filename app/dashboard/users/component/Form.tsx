@@ -45,7 +45,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
 
   const validationSchema = Yup.object({
     title: Yup.mixed().required("Title is required"),
-    backgroundVideo: Yup.mixed(),
+
     link: Yup.mixed().required("Link is required"),
     pic: Yup.mixed(),
     reviews: Yup.array().of(
@@ -268,19 +268,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                           error={errors.link && touched.link}
                           showError={errors.link && touched.link}
                         />
-                        <CustomInput
-                          label="Background Video"
-                          name="backgroundVideo"
-                          placeholder="Enter Background Video"
-                          value={values.backgroundVideo}
-                          onChange={handleChange}
-                          error={
-                            errors.backgroundVideo && touched.backgroundVideo
-                          }
-                          showError={
-                            errors.backgroundVideo && touched.backgroundVideo
-                          }
-                        />
+
                       </Grid>
                       <Box
                         borderWidth={1}
