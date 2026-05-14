@@ -369,11 +369,14 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         <CustomTable
           title="Patients"
           data={
-            user.data?.map((patient: any, index: number) => ({
-              ...patient,
-              ...patient.profileDetails?.personalInfo,
-              sno: index + 1 + (currentPage - 1) * tablePageLimit,
-            })) || []
+            user.data?.map((patient: any, index: number) => {
+              const { references, ...personalInfoRest } = patient.profileDetails?.personalInfo || {};
+              return {
+                ...patient,
+                ...personalInfoRest,
+                sno: index + 1 + (currentPage - 1) * tablePageLimit,
+              };
+            }) || []
           }
           columns={PatientTableColumns}
           actions={{
@@ -431,10 +434,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <DrawerBody>
               {selectedUser && (
                 <ViewDoctor
-                  user={{
-                    ...selectedUser,
-                    ...selectedUser.profileDetails?.personalInfo,
-                  }}
+                  user={selectedUser}
                 />
               )}
             </DrawerBody>

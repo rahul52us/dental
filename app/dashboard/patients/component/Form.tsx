@@ -28,6 +28,7 @@ import {
 } from "./utils/validation";
 import { genderOptions } from "../../../config/constant";
 import MedicalHistorySection from "./formElement/MedicalHistory";
+import ReferenceInputSection from "./formElement/ReferenceInputSection";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
 import DegreeInfo from "./formElement/DegreeInfo";
@@ -262,34 +263,13 @@ const Form = observer(
                             error={errors.languages}
                             showError={errors.languages}
                           />
-                          <CustomInput
-                            name="refrenceBy"
-                            placeholder="Search Reference (Patient, Doctor, Staff)"
-                            type="real-time-user-search"
-                            label="Refrence By"
-                            value={values.refrenceBy}
-                            options={
-                              values?.refrenceBy
-                                ? [values?.refrenceBy || {}]
-                                : []
-                            }
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) => setFieldValue(`refrenceBy`, e)}
-                            error={errors?.refrenceBy}
-                            showError={errors?.refrenceBy}
-                          />
-                          {values.refrenceBy && (
-                            <CustomInput
-                              name="refrenceNote"
-                              placeholder="e.g. Brother, Friend, Staff"
-                              label="Relation / Note"
-                              value={values.refrenceNote}
-                              onChange={handleChange}
-                              error={errors?.refrenceNote}
-                              showError={errors?.refrenceNote}
+                          <GridItem colSpan={{ base: 1, md: 2 }}>
+                            <ReferenceInputSection
+                              values={values}
+                              setFieldValue={setFieldValue}
+                              errors={errors}
                             />
-                          )}
+                          </GridItem>
                         </Grid>
                         <Box
                           borderWidth={1}

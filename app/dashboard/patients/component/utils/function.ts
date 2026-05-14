@@ -9,8 +9,23 @@ export const generateIntialValues = (initialData: any = {}) => {
     pic: initialData?.pic?.url
       ? { file: initialData.pic }
       : { file: [] },
-    refrenceBy : initialData?.refrenceBy ? Object.keys(initialData?.refrenceBy || {}).length > 1 ? {label : `${initialData?.refrenceBy?.username}(${initialData?.refrenceBy?.code})`, value : initialData?.refrenceBy?._id } : undefined : undefined,
-    refrenceNote: initialData?.refrenceNote || "",
+    references: Array.isArray(initialData?.references)
+      ? initialData.references.map((it: any) => ({
+          refrenceBy: it?.refrenceBy && typeof it.refrenceBy === 'object'
+            ? { label: it.refrenceBy.label, value: it.refrenceBy.value }
+            : it?.refrenceBy 
+              ? { label: it.refrenceBy, value: it.refrenceBy } 
+              : null,
+          refrenceNote: it?.refrenceNote || "",
+        }))
+      : initialData?.refrenceBy 
+        ? [{
+            refrenceBy: typeof initialData.refrenceBy === 'object'
+              ? { label: initialData.refrenceBy.label, value: initialData.refrenceBy.value }
+              : { label: initialData.refrenceBy, value: initialData.refrenceBy },
+            refrenceNote: initialData?.refrenceNote || ""
+          }]
+        : [{ refrenceBy: null, refrenceNote: "" }],
     gender:
       genderOptions.find((it: any) => it.value === initialData?.gender) ||
       genderOptions[0],

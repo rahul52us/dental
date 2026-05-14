@@ -613,6 +613,35 @@ const ViewPatient = ({ user }: any) => {
         </VStack>
       </SectionCard>
 
+      {/* References */}
+      <SectionCard title="References" bg={sectionCardBg}>
+        <VStack align="stretch" spacing={3}>
+          {personalInfo.references?.length > 0 ? (
+            personalInfo.references.map((ref: any, idx: number) => (
+              <Box key={idx} p={3} borderWidth={1} borderRadius="lg" bg={bg}>
+                <HStack justify="space-between">
+                  <Text fontWeight="bold" color="teal.600">
+                    {ref.refrenceBy?.label || ref.refrenceBy?.name || ref.refrenceBy?.username || "N/A"}
+                  </Text>
+                  {ref.refrenceBy?.code && !ref.refrenceBy?.label && (
+                    <Badge colorScheme="brand" borderRadius="full" px={2}>
+                      {ref.refrenceBy.code}
+                    </Badge>
+                  )}
+                </HStack>
+                {ref.refrenceNote && (
+                  <Text fontSize="sm" color="gray.600" mt={1}>
+                    Note: {ref.refrenceNote}
+                  </Text>
+                )}
+              </Box>
+            ))
+          ) : (
+            <Text color="gray.500">No references added</Text>
+          )}
+        </VStack>
+      </SectionCard>
+
       {/* Insurances */}
       <SectionCard icon={MdSecurity} title="Insurances" bg={sectionCardBg}>
         {personalInfo.insurances?.length > 0 ? (

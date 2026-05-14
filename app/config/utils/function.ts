@@ -26,13 +26,12 @@ export function replaceLabelValueObjects(obj: any): any {
     } else if (obj !== null && typeof obj === 'object') {
       // Check if it's exactly a { label, value } object
       const keys = Object.keys(obj);
+      // Check if it's a { label, value } object or a rich user object from search
       if (
-        keys.length === 2 &&
         keys.includes('label') &&
-        keys.includes('value') &&
-        typeof obj.label === 'string'
+        (keys.includes('value') || keys.includes('_id'))
       ) {
-        return obj.value;
+        return obj.value || obj._id;
       }
 
       // Otherwise, recursively process the object

@@ -163,7 +163,7 @@ const PatientPage = () => {
             data: {
               ...rest,
               ...profileDetails?.personalInfo,
-              refrenceBy: rest?.refrenceBy,
+              references: rest?.references,
             },
           });
         }}

@@ -21,8 +21,9 @@ export const initialValues = {
   },
   bio: "",
   password: "",
-  refrenceBy:null,
-  refrenceNote: "",
+  references: [
+    { refrenceBy: null, refrenceNote: "" }
+  ],
   confirmPassword: "",
   phones: [
     { number: "", primary: true },
