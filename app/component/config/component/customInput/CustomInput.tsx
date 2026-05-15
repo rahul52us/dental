@@ -995,7 +995,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             >
               <Text
                 color="black"
-                fontWeight="bold"
+                fontWeight="black"
                 fontSize="xs"
                 textTransform="uppercase"
                 letterSpacing="wider"

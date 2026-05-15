@@ -52,7 +52,7 @@ export const ComplaintSelectionMode = ({ onSelect }: ComplaintSelectionModeProps
             <VStack spacing={10}>
                 {/* Compact Centered Header */}
                 <VStack spacing={3} textAlign="center">
-                    <Text color="blue.500" fontSize="11px" fontWeight="900" letterSpacing="0.4em" textTransform="uppercase">
+                    <Text color="black" fontSize="11px" fontWeight="black" letterSpacing="0.4em" textTransform="uppercase">
                         Diagnostic Entry Protocol
                     </Text>
                     <Heading size="lg" fontWeight="900" color="gray.800" letterSpacing="tight">
@@ -117,7 +117,7 @@ export const ComplaintSelectionMode = ({ onSelect }: ComplaintSelectionModeProps
 
                             <VStack align="start" spacing={4} h="full">
                                 <HStack w="full" justify="space-between">
-                                    <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">
+                                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">
                                         {mode.tag}
                                     </Text>
                                     <Circle size="34px" bg="blue.50" color="blue.500" transition="all 0.3s" _groupHover={{ bg: "blue.500", color: "white", transform: "rotate(-10deg)" }}>

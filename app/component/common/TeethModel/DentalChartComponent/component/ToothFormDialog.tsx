@@ -281,7 +281,7 @@ export const ToothFormDialog = observer(
               : (teeth.length > 1 ? `Multi-Tooth (${teeth.length})` : "General Record")}
           </Heading>
           <HStack spacing={2} align="center">
-            <Text fontSize="xs" color="gray.400" fontWeight="bold">
+            <Text fontSize="xs" color="black" fontWeight="black">
               {teeth.length === 1
                 ? `TOOTH ${notation === 'universal' ? (teeth[0].universal || teeth[0].fdi) : (notation === 'palmer' ? (teeth[0].palmer || teeth[0].fdi) : teeth[0].fdi)}`
                 : "TREATMENT CODE ENTRY FORM"}
@@ -365,12 +365,12 @@ export const ToothFormDialog = observer(
                   {/* PATIENT & DOCTOR CONTEXT HEADER */}
                   <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4} bg="gray.50" p={5} borderRadius="2xl" border="1px" borderColor="gray.100">
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">PATIENT</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black">PATIENT</Text>
                       <Text fontWeight="black" color="gray.700" fontSize="sm" noOfLines={1}>{patientDetails?.name || "N/A"}</Text>
                     </VStack>
 
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">DATE</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black">DATE</Text>
                       <CustomInput
                         name="treatmentDate"
                         type="date"
@@ -382,7 +382,7 @@ export const ToothFormDialog = observer(
                   </Grid>
                   <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4} bg="gray.50" p={5} borderRadius="2xl" border="1px" borderColor="gray.100">
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">ASSIGN DOCTOR</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black">ASSIGN DOCTOR</Text>
                       <CustomInput
                         name="doctor"
                         type="real-time-user-search"
@@ -394,7 +394,7 @@ export const ToothFormDialog = observer(
                       />
                     </VStack>
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="black" color="gray.400">EXAMINING DOCTOR</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black">EXAMINING DOCTOR</Text>
                       <CustomInput
                         name="examiningDoctor"
                         type="real-time-user-search"
@@ -408,7 +408,7 @@ export const ToothFormDialog = observer(
                   </Grid>
                   {/* COMPLAINT TYPE SELECTOR */}
                   <VStack align="start" spacing={3}>
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
+                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
                     <HStack bg="gray.50" p={1.5} borderRadius="xl" w="full" spacing={3} border="1px solid" borderColor="gray.100">
                       {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
                         const isActive = values.complaintType === type;
@@ -450,10 +450,10 @@ export const ToothFormDialog = observer(
 
                   {/* FINANCIAL INPUTS SECTION */}
                   <VStack align="stretch" spacing={4} p={6} bg="blue.50/30" borderRadius="3xl" border="1px solid" borderColor="blue.100">
-                    <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.2em">FINANCIAL ESTIMATES</Text>
+                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">FINANCIAL ESTIMATES</Text>
                     <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
                       <VStack align="start" spacing={1}>
-                        <Text fontSize="9px" fontWeight="1000" color="gray.500">Minimum Estimate (₹)</Text>
+                        <Text fontSize="9px" fontWeight="black" color="black">Minimum Estimate (₹)</Text>
                         <Input
                           size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="48px"
                           value={values.estimateMin}
@@ -465,7 +465,7 @@ export const ToothFormDialog = observer(
                         />
                       </VStack>
                       <VStack align="start" spacing={1}>
-                        <Text fontSize="9px" fontWeight="1000" color="gray.500">Maximum Estimate (₹)</Text>
+                        <Text fontSize="9px" fontWeight="black" color="black">Maximum Estimate (₹)</Text>
                         <Input
                           size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="48px"
                           value={values.estimateMax}
@@ -477,7 +477,7 @@ export const ToothFormDialog = observer(
                         />
                       </VStack>
                       <VStack align="start" spacing={1}>
-                        <Text fontSize="9px" fontWeight="1000" color="green.500">DISCOUNT (₹)</Text>
+                        <Text fontSize="9px" fontWeight="black" color="black">DISCOUNT (₹)</Text>
                         <Input
                           size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="48px" color="green.600"
                           value={values.discount}
@@ -492,8 +492,8 @@ export const ToothFormDialog = observer(
                     </Grid>
                     <HStack pt={4} borderTop="1px dashed" borderColor="blue.200" justify="space-between" align="center">
                       <VStack align="start" spacing={0}>
-                        <Text fontSize="10px" fontWeight="1000" color="blue.400">TOTAL QUOTATION</Text>
-                        <Text fontSize="22px" fontWeight="1000" color="blue.800">
+                        <Text fontSize="10px" fontWeight="black" color="black">TOTAL QUOTATION</Text>
+                        <Text fontSize="22px" fontWeight="black" color="black">
                           ₹{Math.round(values.totalMin || 0).toLocaleString()} - ₹{Math.round(values.totalMax || 0).toLocaleString()}
                         </Text>
                       </VStack>
@@ -505,7 +505,7 @@ export const ToothFormDialog = observer(
 
                   {/* 2. CLINICAL OBSERVATION - SEPARATE ROW */}
                   <VStack align="start" spacing={2} w="full">
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">2. CLINICAL OBSERVATION</Text>
+                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. CLINICAL OBSERVATION</Text>
                     <Box position="relative" w="full">
                       <CustomInput
                         name="notes"
@@ -564,7 +564,7 @@ export const ToothFormDialog = observer(
                           {/* COLUMN 1: CATEGORY */}
                           <Box borderRight="1px solid" borderColor="gray.200" h="400px">
                             <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Category</Text>
+                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Category</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                               {groupedData.map((cat: any, idx: number) => (
@@ -596,7 +596,7 @@ export const ToothFormDialog = observer(
                           {/* COLUMN 2: SUBCATEGORY */}
                           <Box borderRight="1px solid" borderColor="gray.200" h="400px">
                             <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Subcategory</Text>
+                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Subcategory</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                               {activeCategory?.subcategories.map((sub: any, idx) => (
@@ -625,7 +625,7 @@ export const ToothFormDialog = observer(
                           {/* COLUMN 3: NAME 1 */}
                           <Box borderRight="1px solid" borderColor="gray.200" h="400px">
                             <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Name 1</Text>
+                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Name 1</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                               {activeSubcategory?.name1s.map((n1: any, idx) => (
@@ -653,7 +653,7 @@ export const ToothFormDialog = observer(
                           {/* COLUMN 4: NAME 2 */}
                           <Box borderRight="1px solid" borderColor="gray.200" h="400px">
                             <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Name 2</Text>
+                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Name 2</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                               {activeN1?.name2s.map((n2: any, idx) => (
@@ -680,7 +680,7 @@ export const ToothFormDialog = observer(
                           {/* COLUMN 5: NAME 3 */}
                           <Box h="400px" bg="gray.50/30">
                             <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="bold" color="gray.400" textTransform="uppercase">Name 3</Text>
+                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Name 3</Text>
                             </Box>
                             <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                               {activeN2?.name3s.map((n3: any, idx) => {

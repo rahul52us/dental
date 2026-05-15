@@ -150,13 +150,13 @@ export const TeethChart = ({
     >
       {/* Chart Layout - Centered with Patients Orientation */}
       <Flex borderBottom="1px solid" borderColor="gray.50" pb={3} mb={5} justify="space-between" align="center">
-        <Text fontSize="10px" fontWeight="black" color="gray.300" letterSpacing="widest">
+        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="widest">
           RIGHT
         </Text>
         <Badge variant="outline" colorScheme="gray" fontSize="9px" fontWeight="black" borderRadius="md" px={3}>
           OCCLUSAL VIEW
         </Badge>
-        <Text fontSize="10px" fontWeight="black" color="gray.300" letterSpacing="widest">
+        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="widest">
           LEFT
         </Text>
       </Flex>
@@ -170,8 +170,8 @@ export const TeethChart = ({
             top="50%"
             transform="translateY(-50%) rotate(-90deg)"
             fontSize="xs"
-            fontWeight="medium"
-            color="gray.500"
+            fontWeight="black"
+            color="black"
           >
             Upper Jaw
           </Text>
@@ -199,8 +199,8 @@ export const TeethChart = ({
             top="50%"
             transform="translateY(-50%) rotate(-90deg)"
             fontSize="xs"
-            fontWeight="medium"
-            color="gray.500"
+            fontWeight="black"
+            color="black"
           >
             Lower Jaw
           </Text>
@@ -219,7 +219,8 @@ export const TeethChart = ({
           justify="center"
           gap={6}
           fontSize="xs"
-          color="gray.500"
+          fontWeight="black"
+          color="black"
         >
           <HStack spacing={2}>
             <Box w={3} h={3} rounded="full" bg="gray.100" border="1px solid" borderColor="gray.300" />

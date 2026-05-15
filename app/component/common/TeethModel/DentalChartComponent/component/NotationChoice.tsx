@@ -69,7 +69,7 @@ export const NotationChoice = ({ onSelect, onBack }: NotationChoiceProps) => {
                             Back
                         </Button>
                         <Box w="1px" h="10px" bg="gray.100" />
-                        <Text color="gray.300" fontSize="11px" fontWeight="900" letterSpacing="0.4em" textTransform="uppercase">
+                        <Text color="black" fontSize="11px" fontWeight="black" letterSpacing="0.4em" textTransform="uppercase">
                             Narrative
                         </Text>
                     </HStack>
@@ -132,7 +132,7 @@ export const NotationChoice = ({ onSelect, onBack }: NotationChoiceProps) => {
 
                             <VStack spacing={5} align="start">
                                 <HStack w="full" justify="space-between">
-                                    <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">
+                                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">
                                         SYSTEM 0{systems.indexOf(not) + 1}
                                     </Text>
                                     <Circle size="34px" bg="blue.50" color="blue.500" transition="all 0.3s" _groupHover={{ bg: "blue.500", color: "white" }}>
@@ -144,7 +144,7 @@ export const NotationChoice = ({ onSelect, onBack }: NotationChoiceProps) => {
                                     <Heading fontSize="sm" fontWeight="900" color="gray.800" letterSpacing="tight">
                                         {not.label}
                                     </Heading>
-                                    <Text fontSize="10px" fontWeight="900" color="blue.400" letterSpacing="0.2em">
+                                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">
                                         {not.sub}
                                     </Text>
                                 </VStack>
@@ -155,7 +155,7 @@ export const NotationChoice = ({ onSelect, onBack }: NotationChoiceProps) => {
 
                                 <Box w="full" pt={3} borderTop="1px solid" borderColor="gray.100">
                                     <HStack justify="space-between">
-                                        <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.05em">
+                                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.05em">
                                             {not.example}
                                         </Text>
                                         <Icon as={FiChevronRight} boxSize={3} color="blue.500" opacity={0.4} _groupHover={{ opacity: 1, transform: "translateX(4px)" }} transition="all 0.3s" />

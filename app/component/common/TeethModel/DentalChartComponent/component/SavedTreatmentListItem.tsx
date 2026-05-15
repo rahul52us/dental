@@ -76,12 +76,12 @@ export const SavedTreatmentListItem = ({ item, onEdit, onDelete, onComplete }: S
                         <Text fontSize="10px" fontWeight="1000" color="blue.600" noOfLines={1} maxW="150px">
                             {toothName}
                         </Text>
-                        <Text fontSize="10px" color="gray.400" fontWeight="700">
+                        <Text fontSize="10px" color="black" fontWeight="black">
                             • {formatDate(item.treatmentDate)}
                         </Text>
                     </HStack>
                     
-                    <Text fontSize="xs" fontWeight="900" color="gray.700" noOfLines={1}>
+                    <Text fontSize="xs" fontWeight="black" color="black" noOfLines={1}>
                         {(item.treatmentPlan || "No Procedure").split(" → ").pop()}
                     </Text>
                     
@@ -90,7 +90,7 @@ export const SavedTreatmentListItem = ({ item, onEdit, onDelete, onComplete }: S
                             {statusStyle.label}
                         </Badge>
                         {item.doctorName && (
-                            <Text fontSize="9px" color="gray.500" fontWeight="600">
+                            <Text fontSize="9px" color="black" fontWeight="black">
                                 Dr. {item.doctorName.split(" ").pop()}
                             </Text>
                         )}
@@ -146,7 +146,7 @@ export const SavedTreatmentListItem = ({ item, onEdit, onDelete, onComplete }: S
 
             {item.notes && (
                 <Box mt={2} pt={2} borderTop="1px dashed" borderColor="gray.50">
-                    <Text fontSize="10px" color="gray.500" fontStyle="italic" noOfLines={1}>
+                    <Text fontSize="10px" color="black" fontStyle="italic" fontWeight="black" noOfLines={1}>
                         {item.notes}
                     </Text>
                 </Box>

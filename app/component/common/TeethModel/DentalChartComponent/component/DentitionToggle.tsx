@@ -56,7 +56,7 @@ export const DentitionToggle = ({
         >
           <HStack spacing={2}>
             <FiUser />
-            <Text fontSize="xs" fontWeight="medium">
+            <Text fontSize="xs" fontWeight="black" color="black">
               Adult (32 Teeth)
             </Text>
           </HStack>
@@ -78,7 +78,7 @@ export const DentitionToggle = ({
         >
           <HStack spacing={2}>
             <LuBaby />
-            <Text fontSize="xs" fontWeight="medium">
+            <Text fontSize="xs" fontWeight="black" color="black">
               Child (20 Teeth)
             </Text>
           </HStack>

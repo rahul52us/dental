@@ -86,7 +86,7 @@ export const ToothInfoCard = ({ tooth, onEditNote, onRemove, hasNote, hideAction
               Clinical Record
             </Text>
           </HStack>
-          <Text fontSize="11px" fontWeight="700" color="gray.400" textTransform="capitalize" letterSpacing="0.02em">
+          <Text fontSize="11px" fontWeight="black" color="black" textTransform="capitalize" letterSpacing="0.02em">
             {tooth.type} • {tooth.side} {tooth.position}
           </Text>
         </VStack>
@@ -125,7 +125,7 @@ export const ToothInfoCard = ({ tooth, onEditNote, onRemove, hasNote, hideAction
               />
             </HStack>
             <VStack align="end" spacing={0}>
-              <Text fontSize="8px" fontWeight="900" color="gray.300" letterSpacing="0.2em">REF</Text>
+              <Text fontSize="8px" fontWeight="black" color="black" letterSpacing="0.2em">REF</Text>
               <Text fontSize="18px" fontWeight="900" color="gray.800" lineHeight="1">
                 {tooth.id}
               </Text>

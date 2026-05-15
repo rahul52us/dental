@@ -463,7 +463,7 @@ export const TreatmentProcedureForm = observer(
                 <VStack align="stretch" spacing={10}>
                     <Box mb={-4}>
                         <VStack align="start" spacing={0}>
-                            <Text fontSize="10px" fontWeight="1000" color="blue.500" textTransform="uppercase">
+                            <Text fontSize="10px" fontWeight="black" color="black" textTransform="uppercase">
                                 {currentToothId === "General" ? "Clinical Record Type" : `Working on ${notation?.toUpperCase() || 'FDI'} Tooth ${notationLabel}`}
                             </Text>
                             <Heading size="md" color="gray.800" fontWeight="1000">
@@ -475,7 +475,7 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 1. Complaint Type - SEPARATE ROW */}
                     <VStack align="start" spacing={3}>
-                        <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
                         <HStack bg="gray.50" p={1.5} borderRadius="xl" w="full" spacing={3} border="1px solid" borderColor="gray.100">
                             {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
                                 const isActive = currentValues.complaintType === type;
@@ -521,7 +521,7 @@ export const TreatmentProcedureForm = observer(
                     {/* 2 & 3. Doctors - SAME ROW */}
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
                         <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">2. ASSIGN DOCTOR</Text>
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. ASSIGN DOCTOR</Text>
                             <CustomInput
                                 name={activeId === "bulk" ? `bulk.doctor` : `treatments.${activeId}.doctor`}
                                 type="real-time-user-search"
@@ -540,7 +540,7 @@ export const TreatmentProcedureForm = observer(
                         </VStack>
 
                         <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">3. EXAMINING DOCTOR</Text>
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. EXAMINING DOCTOR</Text>
                             <CustomInput
                                 name={activeId === "bulk" ? `bulk.examiningDoctor` : `treatments.${activeId}.examiningDoctor`}
                                 type="real-time-user-search"
@@ -561,7 +561,7 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 4. Clinical Observation - SEPARATE ROW */}
                     <VStack align="start" spacing={2} w="full">
-                        <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">4. CLINICAL OBSERVATION</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">4. CLINICAL OBSERVATION</Text>
                         <CustomInput
                             name={activeId === "bulk" ? `bulk.notes` : `treatments.${activeId}.notes`}
                             type="textarea"
@@ -581,10 +581,10 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 5. Financial - SEPARATE ROW */}
                     <VStack align="stretch" spacing={5} p={6} bg="blue.50/30" borderRadius="3xl" border="1px solid" borderColor="blue.100">
-                        <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.2em">5. FINANCIAL ESTIMATES</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">5. FINANCIAL ESTIMATES</Text>
                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
                             <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.500">Minimum Estimate (₹)</Text>
+                                <Text fontSize="9px" fontWeight="black" color="black">Minimum Estimate (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                     value={currentValues.estimateMin || 0}
@@ -603,7 +603,7 @@ export const TreatmentProcedureForm = observer(
                                 />
                             </VStack>
                             <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.500">Maximum Estimate(₹)</Text>
+                                <Text fontSize="9px" fontWeight="black" color="black">Maximum Estimate(₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                     value={currentValues.estimateMax || 0}
@@ -622,7 +622,7 @@ export const TreatmentProcedureForm = observer(
                                 />
                             </VStack>
                             <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="green.500">DISCOUNT (₹)</Text>
+                                <Text fontSize="9px" fontWeight="black" color="black">DISCOUNT (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="green.600"
                                     value={currentValues.discount || 0}
@@ -645,8 +645,8 @@ export const TreatmentProcedureForm = observer(
                         </Grid>
                         <HStack pt={4} borderTop="1px dashed" borderColor="blue.200" justify="space-between" align="center">
                             <VStack align="start" spacing={0}>
-                                <Text fontSize="10px" fontWeight="1000" color="blue.400">TOTAL QUOTATION</Text>
-                                <Text fontSize="22px" fontWeight="1000" color="blue.800">
+                                <Text fontSize="10px" fontWeight="black" color="black">TOTAL QUOTATION</Text>
+                                <Text fontSize="22px" fontWeight="black" color="black">
                                     ₹{Math.round(currentValues.totalMin || 0).toLocaleString()} - ₹{Math.round(currentValues.totalMax || 0).toLocaleString()}
                                 </Text>
                             </VStack>
@@ -656,7 +656,7 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 6. Treatment Code - SEPARATE ROW */}
                     <VStack align="start" spacing={3} w="full">
-                        <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">6. TREATMENT CODE</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">6. TREATMENT CODE</Text>
                         <Button
                             w="full"
                             h="80px"

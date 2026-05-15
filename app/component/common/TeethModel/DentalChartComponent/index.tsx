@@ -573,7 +573,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
               <HStack spacing={8}>
                 <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">DENTITION</Text>
+                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">DENTITION</Text>
                   <DentitionToggle value={dentitionType} onChange={(val) => {
                     setDentitionType(val);
                     setSelectedTeeth([]);
@@ -581,7 +581,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   }} />
                 </VStack>
                 <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">NOTATION</Text>
+                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">NOTATION</Text>
                   <HStack bg="gray.50" p={1} borderRadius="xl">
                     {["fdi", "universal", "palmer"].map(n => (
                       <Button
@@ -600,7 +600,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </HStack>
                 </VStack>
                 <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">COMPLAINT</Text>
+                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">COMPLAINT</Text>
                   <HStack bg="gray.50" p={1} borderRadius="xl">
                     {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
                       const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
@@ -624,7 +624,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   </HStack>
                 </VStack>
                 <VStack align="start" spacing={1} minW="220px">
-                  <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">EXAMINING DOCTOR</Text>
+                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">EXAMINING DOCTOR</Text>
                   <CustomInput
                     name="examiningDoctor"
                     type="real-time-user-search"
@@ -647,7 +647,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={1} overflow="hidden" align="stretch" spacing={4}>
                 <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">QUADRANTS</Text>
+                    <Text fontSize="9px" fontWeight="1000" color="black" letterSpacing="0.1em">QUADRANTS</Text>
                     <HStack spacing={1}>
                       {[
                         { label: 'RU', pos: 'upper', side: 'right' },
@@ -725,8 +725,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="11px" fontWeight="900" color={`${activeColor}.500`}>CLINICAL HISTORY</Text>
-                    <Heading size="xs" fontWeight="900">Saved Records</Heading>
+                    <Text fontSize="11px" fontWeight="black" color="black">CLINICAL HISTORY</Text>
+                    <Heading size="xs" fontWeight="black" color="black">Saved Records</Heading>
                   </VStack>
                   <HStack spacing={2}>
                     <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{todayToothTreatment.totalItems || 0}</Circle>
@@ -738,7 +738,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 <Box flex={1} overflowY="auto" pr={2}>
                   <VStack align="stretch" spacing={4}>
                     <VStack align="stretch" spacing={2}>
-                      <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.1em">SESSION CONTEXT</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">SESSION CONTEXT</Text>
                       <HStack bg="blue.50" p={2} borderRadius="xl" border="1px solid" borderColor="blue.100" justify="space-between">
                         <Input
                           type="date"
@@ -746,8 +746,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                           onChange={(e) => setSessionDate(e.target.value)}
                           size="sm"
                           variant="unstyled"
-                          fontWeight="1000"
-                          color="blue.700"
+                          fontWeight="black"
+                          color="black"
                           p={0}
                         />
                       </HStack>
@@ -756,8 +756,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={() => { if (patientDetails?._id) { getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate }); getTodayCount({ patientId: patientDetails._id, date: sessionDate }); } onHistoryDrawerOpen(); }} _hover={{ transform: "translateY(-2px)" }}>
 
                       <HStack justify="space-between">
-                        <VStack align="start" spacing={0}><Text fontSize="10px" fontWeight="1000">PATIENT RECORDS</Text><Heading size="xs">View History</Heading></VStack>
-                        <Text fontSize="24px" fontWeight="1000" color="blue.600">{todayToothTreatment.totalItems || 0}</Text>
+                        <VStack align="start" spacing={0}><Text fontSize="10px" fontWeight="black" color="black">PATIENT RECORDS</Text><Heading size="xs" fontWeight="black" color="black">View History</Heading></VStack>
+                        <Text fontSize="24px" fontWeight="black" color="black">{todayToothTreatment.totalItems || 0}</Text>
                       </HStack>
                     </Box>
                     <Button colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Initialize Record</Button>
@@ -1022,8 +1022,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     fontSize: '13px',
                     border: '1px solid #E2E8F0',
                     background: 'white',
-                    fontWeight: '700',
-                    color: '#4A5568',
+                    fontWeight: '900',
+                    color: 'black',
                     outline: 'none',
                     cursor: 'pointer'
                   }}
@@ -1068,10 +1068,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                               {item.position?.toUpperCase()} {item.side?.toUpperCase()}
                             </Badge>
                           </Td>
-                          <Td py={4} fontSize="11px" fontWeight="600" color="gray.500">{item.complaintType}</Td>
-                          <Td py={4} fontSize="12px" fontWeight="800" color="gray.700" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
-                          <Td py={4} fontSize="12px" fontWeight="900" isNumeric color="blue.600">₹{item.estimateMin || 0}</Td>
-                          <Td py={4} fontSize="12px" fontWeight="900" isNumeric color="blue.600">₹{item.estimateMax || 0}</Td>
+                          <Td py={4} fontSize="11px" fontWeight="black" color="black">{item.complaintType}</Td>
+                          <Td py={4} fontSize="12px" fontWeight="black" color="black" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
+                          <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMin || 0}</Td>
+                          <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMax || 0}</Td>
                           <Td py={4}>
                             <Badge colorScheme={item.status === "completed" ? "green" : "orange"} variant="subtle" borderRadius="full" px={2} fontSize="9px">
                               {item.status?.toUpperCase()}
@@ -1100,8 +1100,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                           <Flex justify="space-between" align="start">
                             <HStack spacing={6} align="start" flex={1}>
                               <VStack align="center" justify="center" spacing={0} minW="70px" h="70px" bg="blue.50" borderRadius="2xl" border="2px solid" borderColor="blue.100" shadow="sm">
-                                <Text fontSize="10px" fontWeight="1000" color="blue.400" mt={1}>TOOTH</Text>
-                                <Text fontSize="24px" fontWeight="1000" color="blue.700" lineHeight={1}>
+                                <Text fontSize="10px" fontWeight="black" color="black" mt={1}>TOOTH</Text>
+                                <Text fontSize="24px" fontWeight="black" color="black" lineHeight={1}>
                                   {item.tooth === "General" ? "GEN" : (item.tooth || "??")}
                                 </Text>
                                 {(() => {
@@ -1122,14 +1122,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                                   }
 
                                   return (pos && side) ? (
-                                    <Text fontSize="8px" fontWeight="1000" color="blue.500" textTransform="uppercase" mt={1}>
+                                    <Text fontSize="8px" fontWeight="black" color="black" textTransform="uppercase" mt={1}>
                                       {pos} {side}
                                     </Text>
                                   ) : null;
                                 })()}
                               </VStack>
                               <VStack align="start" spacing={2} flex={1}>
-                                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">
+                                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">
                                   {treatmentDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}
                                 </Text>
                                 <HStack spacing={2} wrap="wrap">
@@ -1150,12 +1150,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                                 <VStack align="start" spacing={1}>
                                   {item.notes && (
                                     <Box bg="gray.50" p={3} mt={1} borderRadius="xl" borderLeft="3px solid" borderColor="blue.200" w="full">
-                                      <Text fontSize="lg" color="gray.800" fontWeight="600" lineHeight="tall">
+                                      <Text fontSize="lg" color="black" fontWeight="black" lineHeight="tall">
                                         {item.notes}
                                       </Text>
                                     </Box>
                                   )}
-                                  <Heading mt={2} size="sm" fontWeight="1000" color="gray.800" letterSpacing="tight">
+                                  <Heading mt={2} size="sm" fontWeight="black" color="black" letterSpacing="tight">
                                     {item.treatmentPlan || "General Observation"}
                                   </Heading>
                                 </VStack>
@@ -1174,9 +1174,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 )
               ) : (
                 <VStack py={20} opacity={0.5} spacing={3}>
-                  <Icon as={FiActivity} fontSize="40px" color="gray.300" />
-                  <Text fontWeight="800" color="gray.400">No clinical records found</Text>
-                  <Text fontSize="xs" color="gray.400">Try adjusting your filters or adding a new record</Text>
+                  <Icon as={FiActivity} fontSize="40px" color="black" />
+                  <Text fontWeight="black" color="black">No clinical records found</Text>
+                  <Text fontSize="xs" color="black" fontWeight="black">Try adjusting your filters or adding a new record</Text>
                 </VStack>
               )}
             </Box>
@@ -1247,30 +1247,30 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       <Text fontWeight="800" color="gray.700">{currentRec?.complaintType}</Text>
                     </VStack>
                     <VStack align="start" spacing={1}>
-                      <Text fontSize="10px" fontWeight="900" color="gray.400">STATUS</Text>
+                      <Text fontSize="10px" fontWeight="900" color="black">STATUS</Text>
                       <Badge colorScheme={currentRec?.status === "completed" ? "green" : (currentRec?.status === "pending" || currentRec?.status === "Planned" ? "orange" : "blue")} borderRadius="full">
                         {(currentRec?.status || "Pending").toUpperCase()}
                       </Badge>
                     </VStack>
 
                     <Box gridColumn="span 2" bg="gray.50" p={4} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
-                      <Text fontSize="10px" fontWeight="900" color="gray.400" mb={2}>CLINICAL NOTES</Text>
+                      <Text fontSize="10px" fontWeight="900" color="black" mb={2}>CLINICAL NOTES</Text>
                       <Text fontSize="sm" fontStyle="italic" color="gray.700">"{currentRec?.notes || "No notes provided."}"</Text>
                     </Box>
 
-                    <VStack align="start" spacing={1} bg="blue.50/50" p={3} borderRadius="2xl">
-                      <Text fontSize="10px" fontWeight="900" color="blue.400">ESTIMATED FEE</Text>
-                      <Text fontWeight="1000" color="blue.700">₹{currentRec?.estimateMin || 0} - ₹{currentRec?.estimateMax || 0}</Text>
+                    <VStack align="start" spacing={1} bg="gray.50" p={3} borderRadius="2xl">
+                      <Text fontSize="10px" fontWeight="black" color="black">ESTIMATED FEE</Text>
+                      <Text fontWeight="black" color="black">₹{currentRec?.estimateMin || 0} - ₹{currentRec?.estimateMax || 0}</Text>
                     </VStack>
-                    <VStack align="start" spacing={1} bg="orange.50/50" p={3} borderRadius="2xl">
-                      <Text fontSize="10px" fontWeight="900" color="orange.400">CONCESSION / DISCOUNT</Text>
-                      <Text fontWeight="1000" color="orange.700">₹{currentRec?.discount || 0}</Text>
+                    <VStack align="start" spacing={1} bg="gray.50" p={3} borderRadius="2xl">
+                      <Text fontSize="10px" fontWeight="black" color="black">CONCESSION / DISCOUNT</Text>
+                      <Text fontWeight="black" color="black">₹{currentRec?.discount || 0}</Text>
                     </VStack>
 
                     <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
                       <Avatar size="sm" name={currentRec?.doctor?.name || currentRec?.doctorName} bg="blue.100" />
                       <VStack align="start" spacing={0}>
-                        <Text fontSize="10px" fontWeight="900" color="gray.400">ATTENDING CLINICIAN</Text>
+                        <Text fontSize="10px" fontWeight="900" color="black">ATTENDING CLINICIAN</Text>
                         <Text fontWeight="900">{currentRec?.doctor?.name || currentRec?.doctorName || "Unassigned"}</Text>
                       </VStack>
                     </HStack>
@@ -1278,7 +1278,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     <HStack gridColumn="span 2" spacing={4} pt={2} borderTop="1px solid" borderColor="gray.100">
                       <Avatar size="sm" name={currentRec?.examiningDoctor?.name || currentRec?.examiningDoctorName || currentRec?.examiningDoctor?.label} bg="teal.100" />
                       <VStack align="start" spacing={0}>
-                        <Text fontSize="10px" fontWeight="900" color="gray.400">EXAMINING DOCTOR</Text>
+                        <Text fontSize="10px" fontWeight="900" color="black">EXAMINING DOCTOR</Text>
                         <Text fontWeight="900">{currentRec?.examiningDoctor?.name || currentRec?.examiningDoctorName || currentRec?.examiningDoctor?.label || "Unassigned"}</Text>
                       </VStack>
                     </HStack>
@@ -1328,18 +1328,18 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           <ModalHeader borderBottom="1px solid" borderColor="gray.50">
             <VStack align="start" spacing={3}>
               <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">PATIENT TRENDS</Text>
+                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">PATIENT TRENDS</Text>
                 <Heading size="md" fontWeight="1000">Clinical Activity Summary</Heading>
               </VStack>
               {!isCountsLoading && treatmentCounts.length > 0 && (
                 <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
-                  <Box bg="blue.50" p={2} borderRadius="xl" border="1px solid" borderColor="blue.100">
-                    <Text fontSize="9px" fontWeight="800" color="blue.400">TOTAL VISITS</Text>
-                    <Text fontSize="lg" fontWeight="1000" color="blue.700">{totalSummaryStats.totalVisits}</Text>
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL VISITS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalVisits}</Text>
                   </Box>
-                  <Box bg="purple.50" p={2} borderRadius="xl" border="1px solid" borderColor="purple.100">
-                    <Text fontSize="9px" fontWeight="800" color="purple.400">TOTAL TREATMENTS</Text>
-                    <Text fontSize="lg" fontWeight="1000" color="purple.700">{totalSummaryStats.totalTreatments}</Text>
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL TREATMENTS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalTreatments}</Text>
                   </Box>
 
                 </Grid>

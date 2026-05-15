@@ -50,7 +50,7 @@ export const DescriptionEntry = ({ onNext, onBack, value, onChange, hideButtons 
                                 Back
                             </Button>
                             <Box w="1px" h="10px" bg="gray.100" />
-                            <Text color="gray.300" fontSize="9px" fontWeight="900" letterSpacing="0.4em" textTransform="uppercase">
+                            <Text color="black" fontSize="9px" fontWeight="black" letterSpacing="0.4em" textTransform="uppercase">
                                 Narrative
                             </Text>
                         </HStack>
@@ -72,7 +72,7 @@ export const DescriptionEntry = ({ onNext, onBack, value, onChange, hideButtons 
                         <VStack align="start" spacing={2}>
                             <HStack spacing={2}>
                                 <Circle size="4px" bg="blue.500" />
-                                <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.2em" textTransform="uppercase">
+                                <Text fontSize="9px" fontWeight="black" color="black" letterSpacing="0.2em" textTransform="uppercase">
                                     Findings Summary
                                 </Text>
                             </HStack>
@@ -120,7 +120,7 @@ export const DescriptionEntry = ({ onNext, onBack, value, onChange, hideButtons 
                                 >
                                     Finalize Entry
                                 </Button>
-                                <Text fontSize="9px" color="gray.300" fontWeight="800" textTransform="uppercase" letterSpacing="0.1em">
+                                <Text fontSize="9px" color="black" fontWeight="black" textTransform="uppercase" letterSpacing="0.1em">
                                     Proceeding to protocol assignment
                                 </Text>
                             </VStack>
