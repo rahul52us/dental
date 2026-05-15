@@ -94,6 +94,14 @@ const sidebarDatas: SidebarItem[] = [
     permission: { module: "lab", action: "view" },
     children: [
       {
+        id: 33,
+        name: "Labs",
+        icon: <FaVial />,
+        url: "/dashboard/labs",
+        role: ["admin", "staff"],
+        permission: { module: "lab", action: "view" },
+      },
+      {
         id: 35,
         name: "Lab Sheets",
         icon: <FaNotesMedical />,

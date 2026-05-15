@@ -380,7 +380,32 @@ export const ToothFormDialog = observer(
                       />
                     </VStack>
                   </Grid>
-
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4} bg="gray.50" p={5} borderRadius="2xl" border="1px" borderColor="gray.100">
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">ASSIGN DOCTOR</Text>
+                      <CustomInput
+                        name="doctor"
+                        type="real-time-user-search"
+                        query={{ type: 'doctor' }}
+                        options={doctorOptions}
+                        value={values.doctor}
+                        onChange={(val: any) => setFieldValue("doctor", val)}
+                        style={{ height: '32px', fontSize: '12px' }}
+                      />
+                    </VStack>
+                    <VStack align="start" spacing={1}>
+                      <Text fontSize="10px" fontWeight="black" color="gray.400">EXAMINING DOCTOR</Text>
+                      <CustomInput
+                        name="examiningDoctor"
+                        type="real-time-user-search"
+                        query={{ type: 'doctor' }}
+                        options={doctorOptions}
+                        value={values.examiningDoctor}
+                        onChange={(val: any) => setFieldValue("examiningDoctor", val)}
+                        style={{ height: '32px', fontSize: '12px' }}
+                      />
+                    </VStack>
+                  </Grid>
                   {/* COMPLAINT TYPE SELECTOR */}
                   <VStack align="start" spacing={3}>
                     <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
