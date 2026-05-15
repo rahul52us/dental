@@ -124,6 +124,7 @@ export const ToothFormDialog = observer(
     const [selectedN1Idx, setSelectedN1Idx] = useState<number | null>(null);
     const [selectedN2Idx, setSelectedN2Idx] = useState<number | null>(null);
     const [selectedN3Idx, setSelectedN3Idx] = useState<number | null>(null);
+    const [tempTreatmentCode, setTempTreatmentCode] = useState("");
 
     const groupedData = useMemo(() => {
       const dbData = procedureStore.procedures.data;
@@ -317,49 +318,53 @@ export const ToothFormDialog = observer(
 
             // Auto-expand hierarchy based on existing treatmentCode
             useEffect(() => {
-              if (open && values.treatmentCode) {
-                const parts = values.treatmentCode.split(" → ").map((p: string) => p.trim());
-                let catIdx: number | null = null;
-                let subIdx: number | null = null;
-                let n1Idx: number | null = null;
-                let n2Idx: number | null = null;
-                let n3Idx: number | null = null;
+              if (open) {
+                setTempTreatmentCode(values.treatmentCode || "");
+                if (values.treatmentCode) {
+                  const parts = values.treatmentCode.split(" → ").map((p: string) => p.trim());
+                  let catIdx: number | null = null;
+                  let subIdx: number | null = null;
+                  let n1Idx: number | null = null;
+                  let n2Idx: number | null = null;
+                  let n3Idx: number | null = null;
 
-                if (parts.length >= 1) {
-                  catIdx = groupedData.findIndex((c: any) => c.name.toLowerCase() === parts[0].toLowerCase());
-                  if (catIdx !== -1 && parts.length >= 2) {
-                    const activeSubcats = (groupedData[catIdx] as any).subcategories;
-                    subIdx = activeSubcats?.findIndex((s: any) => s.name.toLowerCase() === parts[1].toLowerCase());
-                    if (subIdx !== undefined && subIdx !== -1 && parts.length >= 3) {
-                      const activeN1s = activeSubcats[subIdx]?.name1s;
-                      n1Idx = activeN1s?.findIndex((n1: any) => n1.name.toLowerCase() === parts[2].toLowerCase());
-                      if (n1Idx !== undefined && n1Idx !== -1 && parts.length >= 4) {
-                        const activeN2s = activeN1s[n1Idx]?.name2s;
-                        n2Idx = activeN2s?.findIndex((n2: any) => n2.name.toLowerCase() === parts[3].toLowerCase());
-                        if (n2Idx !== undefined && n2Idx !== -1 && parts.length >= 5) {
-                          const activeN3s = activeN2s[n2Idx]?.name3s;
-                          n3Idx = activeN3s?.findIndex((n3: any) => n3.name.toLowerCase() === parts[4].toLowerCase());
+                  if (parts.length >= 1) {
+                    catIdx = groupedData.findIndex((c: any) => c.name.toLowerCase() === parts[0].toLowerCase());
+                    if (catIdx !== -1 && parts.length >= 2) {
+                      const activeSubcats = (groupedData[catIdx] as any).subcategories;
+                      subIdx = activeSubcats?.findIndex((s: any) => s.name.toLowerCase() === parts[1].toLowerCase());
+                      if (subIdx !== undefined && subIdx !== -1 && parts.length >= 3) {
+                        const activeN1s = activeSubcats[subIdx]?.name1s;
+                        n1Idx = activeN1s?.findIndex((n1: any) => n1.name.toLowerCase() === parts[2].toLowerCase());
+                        if (n1Idx !== undefined && n1Idx !== -1 && parts.length >= 4) {
+                          const activeN2s = activeN1s[n1Idx]?.name2s;
+                          n2Idx = activeN2s?.findIndex((n2: any) => n2.name.toLowerCase() === parts[3].toLowerCase());
+                          if (n2Idx !== undefined && n2Idx !== -1 && parts.length >= 5) {
+                            const activeN3s = activeN2s[n2Idx]?.name3s;
+                            n3Idx = activeN3s?.findIndex((n3: any) => n3.name.toLowerCase() === parts[4].toLowerCase());
+                          }
                         }
                       }
                     }
                   }
+                  setSelectedCatIdx(catIdx === -1 ? null : catIdx);
+                  setSelectedSubIdx(subIdx === -1 ? null : subIdx);
+                  setSelectedN1Idx(n1Idx === -1 ? null : n1Idx);
+                  setSelectedN2Idx(n2Idx === -1 ? null : n2Idx);
+                  setSelectedN3Idx(n3Idx === -1 ? null : n3Idx);
+                } else {
+                  setSelectedCatIdx(null);
+                  setSelectedSubIdx(null);
+                  setSelectedN1Idx(null);
+                  setSelectedN2Idx(null);
+                  setSelectedN3Idx(null);
                 }
-                setSelectedCatIdx(catIdx === -1 ? null : catIdx);
-                setSelectedSubIdx(subIdx === -1 ? null : subIdx);
-                setSelectedN1Idx(n1Idx === -1 ? null : n1Idx);
-                setSelectedN2Idx(n2Idx === -1 ? null : n2Idx);
-                setSelectedN3Idx(n3Idx === -1 ? null : n3Idx);
-              } else {
-                setSelectedCatIdx(null);
-                setSelectedSubIdx(null);
-                setSelectedN1Idx(null);
-                setSelectedN2Idx(null);
-                setSelectedN3Idx(null);
               }
-            }, [open, groupedData, values.treatmentCode]);
+            }, [open, showProcedureExplorer, groupedData, values.treatmentCode]);
 
             return (
-              <FormikForm onSubmit={handleSubmit} style={{ height: '100%', padding: '20px' }}>
+              <>
+                <FormikForm onSubmit={handleSubmit} style={{ height: '100%', padding: '20px' }}>
                 <VStack spacing={6} align="stretch">
 
                   {/* PATIENT & DOCTOR CONTEXT HEADER */}
@@ -406,10 +411,10 @@ export const ToothFormDialog = observer(
                       />
                     </VStack>
                   </Grid>
-                  {/* COMPLAINT TYPE SELECTOR */}
-                  <VStack align="start" spacing={3}>
+                  {/* 1. COMPLAINT TYPE */}
+                  <VStack align="start" spacing={3} w="full">
                     <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
-                    <HStack bg="gray.50" p={1.5} borderRadius="xl" w="full" spacing={3} border="1px solid" borderColor="gray.100">
+                    <HStack bg="gray.50" p={1.5} borderRadius="xl" w="full" spacing={2} border="1px solid" borderColor="gray.100">
                       {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
                         const isActive = values.complaintType === type;
                         const getStyles = () => {
@@ -426,16 +431,16 @@ export const ToothFormDialog = observer(
                           <Button
                             key={type}
                             flex={1}
-                            size="md"
-                            h="40px"
-                            fontSize="10px"
+                            size="sm"
+                            h="34px"
+                            fontSize="8px"
                             fontWeight="1000"
-                            borderRadius="xl"
+                            borderRadius="lg"
                             bg={styles.bg}
                             color={styles.color}
                             boxShadow={isActive ? "md" : "sm"}
                             onClick={() => setFieldValue("complaintType", type)}
-                            _hover={{ opacity: 0.9, transform: "translateY(-1px)" }}
+                            _hover={{ opacity: 0.9 }}
                             transition="all 0.2s"
                           >
                             {type}
@@ -444,6 +449,7 @@ export const ToothFormDialog = observer(
                       })}
                     </HStack>
                   </VStack>
+
 
 
                   {/* TREATMENT BROWSER SECTION */}
@@ -503,7 +509,7 @@ export const ToothFormDialog = observer(
 
                   <Divider />
 
-                  {/* 2. CLINICAL OBSERVATION - SEPARATE ROW */}
+                  {/* 2. CLINICAL OBSERVATION */}
                   <VStack align="start" spacing={2} w="full">
                     <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. CLINICAL OBSERVATION</Text>
                     <Box position="relative" w="full">
@@ -539,203 +545,56 @@ export const ToothFormDialog = observer(
                     </Box>
                   </VStack>
 
-                  <Box>
-                    <HStack justify="space-between" mb={3}>
-                      <Button
-                        size="xs"
-                        leftIcon={showProcedureExplorer ? <FiX /> : <FiPlusCircle />}
-                        colorScheme={showProcedureExplorer ? "gray" : "blue"}
-                        variant={showProcedureExplorer ? "ghost" : "solid"}
-                        onClick={() => setShowProcedureExplorer(!showProcedureExplorer)}
-                      >
-                        {showProcedureExplorer ? "Hide Explorer" : "Open Procedure Explorer"}
-                      </Button>
-                    </HStack>
-
-                    {showProcedureExplorer ? (
-                      <Box
-                        borderRadius="xl"
-                        border="1px solid"
-                        borderColor="gray.200"
-                        overflow="hidden"
-                        bg="white"
-                      >
-                        <Grid templateColumns="1fr 1fr 1fr 1fr 1.2fr" minH="300px" maxH="400px">
-                          {/* COLUMN 1: CATEGORY */}
-                          <Box borderRight="1px solid" borderColor="gray.200" h="400px">
-                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Category</Text>
-                            </Box>
-                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                              {groupedData.map((cat: any, idx: number) => (
-                                <HStack
-                                  key={cat.name}
-                                  px={4} py={3}
-                                  cursor="pointer"
-                                  bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
-                                  color={selectedCatIdx === idx ? "blue.600" : "gray.700"}
-                                  borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
-                                  borderLeftColor="blue.500"
-                                  onClick={() => {
-                                    setSelectedCatIdx(idx);
-                                    setSelectedSubIdx(null);
-                                    setSelectedN1Idx(null);
-                                    setSelectedN2Idx(null);
-                                    setSelectedN3Idx(null);
-                                  }}
-                                  _hover={{ bg: "gray.50" }}
-                                  justify="space-between"
-                                >
-                                  <Text fontSize="sm" fontWeight={selectedCatIdx === idx ? "bold" : "medium"}>{cat.name}</Text>
-                                  <FiChevronRight size={12} opacity={selectedCatIdx === idx ? 1 : 0.3} />
-                                </HStack>
-                              ))}
-                            </VStack>
+                  {/* 3. CLINICAL PROCEDURE */}
+                  <VStack align="start" spacing={3} w="full">
+                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. CLINICAL PROCEDURE</Text>
+                    <Box
+                      w="full"
+                      p={5}
+                      bg={values.treatmentCode ? "blue.50/50" : "gray.50"}
+                      borderRadius="2xl"
+                      border="2px dashed"
+                      borderColor={values.treatmentCode ? "blue.200" : "gray.200"}
+                      cursor="pointer"
+                      onClick={() => setShowProcedureExplorer(true)}
+                      transition="all 0.2s"
+                      _hover={{ borderColor: "blue.400", bg: "blue.50/70" }}
+                    >
+                      <HStack justify="space-between">
+                        <HStack spacing={4}>
+                          <Box p={3} bg={values.treatmentCode ? "blue.500" : "gray.100"} borderRadius="xl" color={values.treatmentCode ? "white" : "gray.400"}>
+                            <FiActivity size={20} />
                           </Box>
-
-                          {/* COLUMN 2: SUBCATEGORY */}
-                          <Box borderRight="1px solid" borderColor="gray.200" h="400px">
-                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Subcategory</Text>
-                            </Box>
-                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                              {activeCategory?.subcategories.map((sub: any, idx) => (
-                                <HStack
-                                  key={sub.name}
-                                  px={4} py={3}
-                                  cursor="pointer"
-                                  bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
-                                  color={selectedSubIdx === idx ? "blue.600" : "gray.700"}
-                                  onClick={() => {
-                                    setSelectedSubIdx(idx);
-                                    setSelectedN1Idx(null);
-                                    setSelectedN2Idx(null);
-                                    setSelectedN3Idx(null);
-                                  }}
-                                  _hover={{ bg: "gray.50" }}
-                                  justify="space-between"
-                                >
-                                  <Text fontSize="sm" fontWeight={selectedSubIdx === idx ? "bold" : "medium"}>{sub.name}</Text>
-                                  <FiChevronRight size={12} opacity={selectedSubIdx === idx ? 1 : 0.3} />
-                                </HStack>
-                              ))}
-                            </VStack>
-                          </Box>
-
-                          {/* COLUMN 3: NAME 1 */}
-                          <Box borderRight="1px solid" borderColor="gray.200" h="400px">
-                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Name 1</Text>
-                            </Box>
-                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                              {activeSubcategory?.name1s.map((n1: any, idx) => (
-                                <HStack
-                                  key={n1.name}
-                                  px={4} py={3}
-                                  cursor="pointer"
-                                  bg={selectedN1Idx === idx ? "blue.50" : "transparent"}
-                                  color={selectedN1Idx === idx ? "blue.600" : "gray.700"}
-                                  onClick={() => {
-                                    setSelectedN1Idx(idx);
-                                    setSelectedN2Idx(null);
-                                    setSelectedN3Idx(null);
-                                  }}
-                                  _hover={{ bg: "gray.50" }}
-                                  justify="space-between"
-                                >
-                                  <Text fontSize="sm" fontWeight={selectedN1Idx === idx ? "bold" : "medium"}>{n1.name}</Text>
-                                  <FiChevronRight size={12} opacity={selectedN1Idx === idx ? 1 : 0.3} />
-                                </HStack>
-                              ))}
-                            </VStack>
-                          </Box>
-
-                          {/* COLUMN 4: NAME 2 */}
-                          <Box borderRight="1px solid" borderColor="gray.200" h="400px">
-                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Name 2</Text>
-                            </Box>
-                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                              {activeN1?.name2s.map((n2: any, idx) => (
-                                <HStack
-                                  key={n2.name}
-                                  px={4} py={3}
-                                  cursor="pointer"
-                                  bg={selectedN2Idx === idx ? "blue.50" : "transparent"}
-                                  color={selectedN2Idx === idx ? "blue.600" : "gray.700"}
-                                  onClick={() => {
-                                    setSelectedN2Idx(idx);
-                                    setSelectedN3Idx(null);
-                                  }}
-                                  _hover={{ bg: "gray.50" }}
-                                  justify="space-between"
-                                >
-                                  <Text fontSize="sm" fontWeight={selectedN2Idx === idx ? "bold" : "medium"}>{n2.name}</Text>
-                                  <FiChevronRight size={12} opacity={selectedN2Idx === idx ? 1 : 0.3} />
-                                </HStack>
-                              ))}
-                            </VStack>
-                          </Box>
-
-                          {/* COLUMN 5: NAME 3 */}
-                          <Box h="400px" bg="gray.50/30">
-                            <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                              <Text fontSize="11px" fontWeight="black" color="black" textTransform="uppercase">Name 3</Text>
-                            </Box>
-                            <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                              {activeN2?.name3s.map((n3: any, idx) => {
-                                const proc = n3.procedure;
-                                let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
-                                if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
-                                if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
-
-                                const isSelected = values.treatmentCode === fullCode;
-
-                                return (
-                                  <VStack
-                                    key={n3.name}
-                                    px={4} py={3}
-                                    align="start"
-                                    spacing={0}
-                                    cursor="pointer"
-                                    bg={isSelected ? "blue.500" : (selectedN3Idx === idx ? "blue.50" : "transparent")}
-                                    color={isSelected ? "white" : (selectedN3Idx === idx ? "blue.600" : "gray.700")}
-                                    onClick={() => {
-                                      setSelectedN3Idx(idx);
-                                      setFieldValue("treatmentCode", fullCode);
-                                    }}
-                                    _hover={{ bg: isSelected ? "blue.600" : "gray.50" }}
-                                  >
-                                    <Text fontSize="sm" fontWeight="bold">{n3.name}</Text>
-                                  </VStack>
-                                );
-                              })}
-                            </VStack>
-                          </Box>
-                        </Grid>
-                      </Box>
-                    ) : (
-                      <Box p={4} bg="gray.50/50" borderRadius="xl" border="1px dashed" borderColor="gray.200">
-                        <HStack justify="space-between" align="center">
-                          <Text fontSize="sm" color={values.treatmentCode ? "blue.600" : "gray.400"} fontWeight={values.treatmentCode ? "bold" : "medium"}>
-                            {values.treatmentCode || "Please select a procedure from the explorer above"}
-                          </Text>
+                          <VStack align="start" spacing={0}>
+                            <Text fontSize="10px" fontWeight="black" color="gray.400">PROCEDURE CODE</Text>
+                            <Text fontSize="md" fontWeight="black" color={values.treatmentCode ? "gray.800" : "gray.400"}>
+                              {values.treatmentCode || "Search & Select Procedure from Explorer..."}
+                            </Text>
+                          </VStack>
+                        </HStack>
+                        <HStack>
                           {values.treatmentCode && (
                             <IconButton
                               aria-label="Clear"
                               icon={<FiX />}
-                              size="xs"
+                              size="sm"
                               variant="ghost"
-                              onClick={() => setFieldValue("treatmentCode", "")}
+                              colorScheme="red"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFieldValue("treatmentCode", "");
+                              }}
                             />
                           )}
+                          <Icon as={FiChevronRight} color="gray.300" boxSize={5} />
                         </HStack>
-                      </Box>
-                    )}
-                  </Box>
+                      </HStack>
+                    </Box>
+                  </VStack>
                   {/* FORM ACTIONS */}
                   <HStack spacing={4} pt={4} justify="flex-end">
                     <Button
+                      type="button"
                       variant="ghost"
                       onClick={() => onOpenChange(false)}
                       px={8}
@@ -757,9 +616,252 @@ export const ToothFormDialog = observer(
 
                 </VStack>
               </FormikForm>
-            );
-          }}
-        </Formik>
+              <CustomDrawer
+                open={showProcedureExplorer}
+                close={() => setShowProcedureExplorer(false)}
+                title={
+                  <HStack spacing={3}>
+                    <Box p={2} bg="blue.500" borderRadius="lg" color="white">
+                      <FiActivity size={18} />
+                    </Box>
+                    <VStack align="start" spacing={0}>
+                      <Heading size="sm" color="white">Procedure Explorer</Heading>
+                      <Text fontSize="10px" color="blue.100" fontWeight="bold">SELECT CLINICAL PROTOCOL</Text>
+                    </VStack>
+                  </HStack>
+                }
+                width="85vw"
+                extraActions={
+                  <Button
+                    type="button"
+                    colorScheme="blue"
+                    onClick={() => {
+                      setFieldValue("treatmentCode", tempTreatmentCode);
+                      setShowProcedureExplorer(false);
+                    }}
+                    isDisabled={!tempTreatmentCode}
+                    leftIcon={<FiCheckCircle />}
+                    size="sm"
+                    borderRadius="full"
+                    px={6}
+                  >
+                    Save Selection
+                  </Button>
+                }
+              >
+                <VStack spacing={4} align="stretch" h="full">
+                  <Box
+                    borderRadius="2xl"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    overflow="hidden"
+                    bg="white"
+                    flex={1}
+                    minH="500px"
+                  >
+                    <Grid templateColumns="1fr 1.2fr 1.2fr 1.2fr 1.5fr" h="full">
+                      {/* COLUMN 1: CATEGORY */}
+                      <Box borderRight="1px solid" borderColor="gray.100" bg="gray.50/30">
+                        <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                          <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Category</Text>
+                        </Box>
+                        <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                          {groupedData.map((cat: any, idx: number) => (
+                            <HStack
+                              key={cat.name}
+                              px={4} py={3.5}
+                              cursor="pointer"
+                              bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
+                              color={selectedCatIdx === idx ? "blue.700" : "gray.600"}
+                              borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
+                              borderLeftColor="blue.500"
+                              onClick={() => {
+                                setSelectedCatIdx(idx);
+                                setSelectedSubIdx(null);
+                                setSelectedN1Idx(null);
+                                setSelectedN2Idx(null);
+                                setSelectedN3Idx(null);
+                                setTempTreatmentCode(cat.name);
+                              }}
+                              _hover={{ bg: "gray.50" }}
+                              justify="space-between"
+                            >
+                              <VStack align="start" spacing={1}>
+                                <Text fontSize="xs" fontWeight={selectedCatIdx === idx ? "900" : "bold"}>{cat.name}</Text>
+                                {tempTreatmentCode === cat.name && <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>}
+                              </VStack>
+                              <FiChevronRight size={12} opacity={selectedCatIdx === idx ? 1 : 0.3} />
+                            </HStack>
+                          ))}
+                        </VStack>
+                      </Box>
+
+                      {/* COLUMN 2: SUBCATEGORY */}
+                      <Box borderRight="1px solid" borderColor="gray.100">
+                        <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                          <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Subcategory</Text>
+                        </Box>
+                        <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                          {activeCategory?.subcategories.map((sub: any, idx) => (
+                            <HStack
+                              key={sub.name}
+                              px={4} py={3.5}
+                              cursor="pointer"
+                              bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
+                              color={selectedSubIdx === idx ? "blue.700" : "gray.600"}
+                              onClick={() => {
+                                setSelectedSubIdx(idx);
+                                setSelectedN1Idx(null);
+                                setSelectedN2Idx(null);
+                                setSelectedN3Idx(null);
+                                if (activeCategory) {
+                                  setTempTreatmentCode(`${activeCategory.name} → ${sub.name}`);
+                                }
+                              }}
+                              _hover={{ bg: "gray.50" }}
+                              justify="space-between"
+                            >
+                              <VStack align="start" spacing={1}>
+                                <Text fontSize="xs" fontWeight={selectedSubIdx === idx ? "900" : "bold"}>{sub.name}</Text>
+                                {activeCategory && tempTreatmentCode === `${activeCategory.name} → ${sub.name}` && (
+                                  <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
+                                )}
+                              </VStack>
+                              <FiChevronRight size={12} opacity={selectedSubIdx === idx ? 1 : 0.3} />
+                            </HStack>
+                          ))}
+                        </VStack>
+                      </Box>
+
+                      {/* COLUMN 3: NAME 1 */}
+                      <Box borderRight="1px solid" borderColor="gray.100" bg="gray.50/30">
+                        <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                          <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 1</Text>
+                        </Box>
+                        <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                          {activeSubcategory?.name1s.map((n1: any, idx) => (
+                            <HStack
+                              key={n1.name}
+                              px={4} py={3.5}
+                              cursor="pointer"
+                              bg={selectedN1Idx === idx ? "blue.50" : "transparent"}
+                              color={selectedN1Idx === idx ? "blue.700" : "gray.600"}
+                              onClick={() => {
+                                setSelectedN1Idx(idx);
+                                setSelectedN2Idx(null);
+                                setSelectedN3Idx(null);
+                                if (activeCategory && activeSubcategory) {
+                                  setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}`);
+                                }
+                              }}
+                              _hover={{ bg: "gray.50" }}
+                              justify="space-between"
+                            >
+                              <VStack align="start" spacing={1}>
+                                <Text fontSize="xs" fontWeight={selectedN1Idx === idx ? "900" : "bold"}>{n1.name}</Text>
+                                {activeCategory && activeSubcategory && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}` && (
+                                  <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
+                                )}
+                              </VStack>
+                              <FiChevronRight size={12} opacity={selectedN1Idx === idx ? 1 : 0.3} />
+                            </HStack>
+                          ))}
+                        </VStack>
+                      </Box>
+
+                      {/* COLUMN 4: NAME 2 */}
+                      <Box borderRight="1px solid" borderColor="gray.100">
+                        <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                          <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 2</Text>
+                        </Box>
+                        <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                          {activeN1?.name2s.map((n2: any, idx) => (
+                            <HStack
+                              key={n2.name}
+                              px={4} py={3.5}
+                              cursor="pointer"
+                              bg={selectedN2Idx === idx ? "blue.50" : "transparent"}
+                              color={selectedN2Idx === idx ? "blue.700" : "gray.600"}
+                              onClick={() => {
+                                setSelectedN2Idx(idx);
+                                setSelectedN3Idx(null);
+                                if (activeCategory && activeSubcategory && activeN1) {
+                                  setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}`);
+                                }
+                              }}
+                              _hover={{ bg: "gray.50" }}
+                              justify="space-between"
+                            >
+                              <VStack align="start" spacing={1}>
+                                <Text fontSize="xs" fontWeight={selectedN2Idx === idx ? "900" : "bold"}>{n2.name}</Text>
+                                {activeCategory && activeSubcategory && activeN1 && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}` && (
+                                  <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
+                                )}
+                              </VStack>
+                              <FiChevronRight size={12} opacity={selectedN2Idx === idx ? 1 : 0.3} />
+                            </HStack>
+                          ))}
+                        </VStack>
+                      </Box>
+
+                      {/* COLUMN 5: NAME 3 */}
+                      <Box bg="blue.50/20">
+                        <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                          <Text fontSize="10px" fontWeight="black" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">Specific Procedure</Text>
+                        </Box>
+                        <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'blue.100', borderRadius: '10px' } }}>
+                          {activeN2?.name3s.map((n3: any, idx) => {
+                            const proc = n3.procedure;
+                            let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
+                            if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
+                            if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
+
+                            const isSelected = tempTreatmentCode === fullCode;
+
+                            return (
+                              <VStack
+                                key={n3.name}
+                                px={4} py={4}
+                                align="start"
+                                spacing={1}
+                                cursor="pointer"
+                                bg={isSelected ? "blue.500" : (selectedN3Idx === idx ? "blue.50" : "transparent")}
+                                color={isSelected ? "white" : (selectedN3Idx === idx ? "blue.700" : "gray.700")}
+                                onClick={() => {
+                                  setSelectedN3Idx(idx);
+                                  setTempTreatmentCode(fullCode);
+                                }}
+                                _hover={{ bg: isSelected ? "blue.600" : "blue.50/50" }}
+                                borderBottom="1px solid"
+                                borderColor={isSelected ? "blue.400" : "gray.50"}
+                              >
+                                <Text fontSize="xs" fontWeight="900" lineHeight="1.4">{n3.name}</Text>
+                                {isSelected && <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>}
+                              </VStack>
+                            );
+                          })}
+                        </VStack>
+                      </Box>
+                    </Grid>
+                  </Box>
+
+                  {tempTreatmentCode && (
+                    <Box p={4} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
+                      <HStack justify="space-between">
+                        <VStack align="start" spacing={0}>
+                          <Text fontSize="9px" fontWeight="black" color="blue.400" letterSpacing="0.1em">READY TO APPLY</Text>
+                          <Text fontSize="sm" fontWeight="900" color="blue.700">{tempTreatmentCode}</Text>
+                        </VStack>
+                        <Button size="xs" variant="ghost" colorScheme="red" onClick={() => setTempTreatmentCode("")}>Clear</Button>
+                      </HStack>
+                    </Box>
+                  )}
+                </VStack>
+              </CustomDrawer>
+            </>
+          );
+        }}
+      </Formik>
       </CustomDrawer>
     );
   }
