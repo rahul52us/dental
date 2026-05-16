@@ -217,9 +217,9 @@ export const TreatmentProcedureForm = observer(
                     map[cat].subcategories[sub].name1s[n1].name2s[n2] = { name: n2, name3s: {} };
                 }
                 if (!map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3]) {
-                    map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = { 
-                        name: n3, 
-                        procedure: p 
+                    map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = {
+                        name: n3,
+                        procedure: p
                     };
                 }
             });
@@ -238,7 +238,7 @@ export const TreatmentProcedureForm = observer(
                 }))
             }));
         }, [procedureStore.procedures.data]);
-        
+
         const [doctors, setDoctors] = useState<any[]>([]);
         const [doctorsLoading, setDoctorsLoading] = useState(false);
 
@@ -309,9 +309,9 @@ export const TreatmentProcedureForm = observer(
                 cat.subcategories.forEach(sub => {
                     sub.jobs.forEach(job => {
                         if (
-                          job.name.toLowerCase().includes(term) ||
-                          (job.name2 && job.name2.toLowerCase().includes(term)) ||
-                          (job.name3 && job.name3.toLowerCase().includes(term))
+                            job.name.toLowerCase().includes(term) ||
+                            (job.name2 && job.name2.toLowerCase().includes(term)) ||
+                            (job.name3 && job.name3.toLowerCase().includes(term))
                         ) {
                             results.push({
                                 category: cat.name,
@@ -348,7 +348,7 @@ export const TreatmentProcedureForm = observer(
                 // 2. Map save promises directly from the selected teeth
                 const savePromises = teeth.map(async (activeTooth) => {
                     const toothId = String(activeTooth.id);
-                    
+
                     // Fallback for single selection mode keys
                     let rawValues = treatments[toothId];
                     if (!rawValues && teeth.length === 1) {
@@ -741,7 +741,7 @@ export const TreatmentProcedureForm = observer(
                 onSubmit={handleSubmit}
             >
                 {({ values, setFieldValue, handleSubmit }: any) => {
-                    
+
                     // Auto-expand explorer based on existing treatment code when editing
                     useEffect(() => {
                         const currentId = editData?._id || editData?.id || null;
@@ -792,12 +792,12 @@ export const TreatmentProcedureForm = observer(
                                         }
                                     }
                                 }
-                                setLocalExplorerState({ 
-                                    catIdx: newCatIdx, 
-                                    subIdx: newSubIdx, 
-                                    n1Idx: newN1Idx, 
-                                    n2Idx: newN2Idx, 
-                                    n3Idx: newN3Idx 
+                                setLocalExplorerState({
+                                    catIdx: newCatIdx,
+                                    subIdx: newSubIdx,
+                                    n1Idx: newN1Idx,
+                                    n2Idx: newN2Idx,
+                                    n3Idx: newN3Idx
                                 });
                             } else {
                                 setLocalExplorerState({ catIdx: null, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null });
@@ -1212,7 +1212,7 @@ export const TreatmentProcedureForm = observer(
                                             <HStack justify="space-between" align="start">
                                                 <VStack align="start" spacing={3}>
                                                     <VStack align="start" spacing={0}>
-                                                        <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY</Text>
+                                                        <Text fontSize="11px" fontWeight="900" color="blue.500" letterSpacing="0.2em">CLINICAL ENTRY 22</Text>
                                                         <Heading size="md" fontWeight="1000">
                                                             {activeToothId === "bulk" ? "Multi-Tooth Update" : (activeToothId === "General" ? "General Clinical Record" : (teeth.find(t => t.id === activeToothId)?.name || `Tooth #${activeToothId} Details`))}
                                                         </Heading>

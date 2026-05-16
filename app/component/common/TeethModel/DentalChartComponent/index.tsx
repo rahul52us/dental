@@ -348,26 +348,26 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           }
         }
         setStep("PROCEDURE_FORM");
-      } 
+      }
       // 3. Handle Contextual Add (New record with passed date/tooth context)
       else if (!edit._id) {
         lastSyncedEditId.current = null; // Reset sync ID to allow subsequent edits of the same row
         setStep("TOOTH_SELECTION"); // Open at Step 1 as requested
-        
+
         // Pre-select the tooth if provided to save user clicks
         const rawTId = typeof edit.tooth === 'object' ? (edit.tooth.fdi || edit.tooth.id || edit.tooth.tooth?.fdi || edit.tooth.tooth?.id) : String(edit.tooth || "");
         const tId = String(rawTId);
         if (tId) {
-           const isChild = detectIsChild(edit.tooth);
-           const dentToSet = edit.dentitionType || (isChild ? "child" : "adult");
-           setDentitionType(dentToSet as any);
-           const pool = getTeethByType(dentToSet as any);
-           const matchedTooth = pool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
-           if (matchedTooth) setSelectedTeeth([matchedTooth]);
+          const isChild = detectIsChild(edit.tooth);
+          const dentToSet = edit.dentitionType || (isChild ? "child" : "adult");
+          setDentitionType(dentToSet as any);
+          const pool = getTeethByType(dentToSet as any);
+          const matchedTooth = pool.find(t => t.id === tId || t.fdi === tId || t.universal === tId || t.palmer === tId);
+          if (matchedTooth) setSelectedTeeth([matchedTooth]);
         } else {
-           setSelectedTeeth([]);
+          setSelectedTeeth([]);
         }
-        
+
         setProcedureFormValues(null);
       }
     }
@@ -1109,7 +1109,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                                   const id = parseInt(tId);
                                   let pos = item.position;
                                   let side = item.side;
-                                  
+
                                   if (!pos || !side) {
                                     if (id >= 11 && id <= 18) { pos = "upper"; side = "right"; }
                                     else if (id >= 21 && id <= 28) { pos = "upper"; side = "left"; }
