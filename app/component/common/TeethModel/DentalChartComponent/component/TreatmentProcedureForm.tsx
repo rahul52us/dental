@@ -42,6 +42,7 @@ import { keyframes } from "@emotion/react";
 import { Formik, Form as FormikForm } from "formik";
 import {
     FiChevronRight,
+    FiCheckCircle,
     FiSave,
     FiActivity,
     FiCreditCard,
@@ -99,8 +100,8 @@ interface TreatmentProcedureFormProps {
     onBack: () => void;
     hoistedValues?: any;
     onValuesUpdate?: (values: any) => void;
-    explorerState?: { catIdx: number; subIdx: number };
-    onExplorerUpdate?: (state: { catIdx: number; subIdx: number }) => void;
+    explorerState?: { category: string | null; subcategory: string | null };
+    onExplorerUpdate?: (state: { category: string | null; subcategory: string | null }) => void;
     editData?: any;
     complaintType?: string;
     individualTeethNotes?: any;
@@ -179,6 +180,7 @@ export const TreatmentProcedureForm = observer(
         const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure({ defaultIsOpen: teeth.length > 1 });
 
         const [searchTerm, setSearchTerm] = useState("");
+        const [tempTreatmentCode, setTempTreatmentCode] = useState("");
         const [activeToothId, setActiveToothId] = useState<string | "bulk" | null>(
             teeth.length > 1 ? "bulk" : (teeth.length > 0 ? teeth[0].id : null)
         );
@@ -196,44 +198,74 @@ export const TreatmentProcedureForm = observer(
 
         const groupedData = useMemo(() => {
             const dbData = procedureStore.procedures.data;
-            if (!dbData || dbData.length === 0) return TREATMENT_CATEGORIES;
+            
+            if (dbData && dbData.length > 0) {
+                const map: any = {};
+                dbData.forEach((p: any) => {
+                    const cat = p.category;
+                    const sub = p.subcategory;
+                    const n1 = p.name;
+                    const n2 = p.name2 || "None";
+                    const n3 = p.name3 || "None";
 
-            const map: any = {};
-            dbData.forEach((p: any) => {
-                const cat = p.category;
-                const sub = p.subcategory;
-                const n1 = p.name;
-                const n2 = p.name2 || "None";
-                const n3 = p.name3 || "None";
+                    if (!map[cat]) map[cat] = { name: cat, subcategories: {} };
+                    if (!map[cat].subcategories[sub]) {
+                        map[cat].subcategories[sub] = { name: sub, name1s: {} };
+                    }
+                    if (!map[cat].subcategories[sub].name1s[n1]) {
+                        map[cat].subcategories[sub].name1s[n1] = { name: n1, name2s: {} };
+                    }
+                    if (!map[cat].subcategories[sub].name1s[n1].name2s[n2]) {
+                        map[cat].subcategories[sub].name1s[n1].name2s[n2] = { name: n2, name3s: {} };
+                    }
+                    if (!map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3]) {
+                        map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = {
+                            name: n3,
+                            procedure: p
+                        };
+                    }
+                });
 
-                if (!map[cat]) map[cat] = { name: cat, subcategories: {} };
-                if (!map[cat].subcategories[sub]) {
-                    map[cat].subcategories[sub] = { name: sub, name1s: {} };
-                }
-                if (!map[cat].subcategories[sub].name1s[n1]) {
-                    map[cat].subcategories[sub].name1s[n1] = { name: n1, name2s: {} };
-                }
-                if (!map[cat].subcategories[sub].name1s[n1].name2s[n2]) {
-                    map[cat].subcategories[sub].name1s[n1].name2s[n2] = { name: n2, name3s: {} };
-                }
-                if (!map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3]) {
-                    map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = {
-                        name: n3,
-                        procedure: p
-                    };
-                }
-            });
-
-            return Object.values(map).map((cat: any) => ({
-                ...cat,
-                subcategories: Object.values(cat.subcategories).map((sub: any) => ({
-                    ...sub,
-                    name1s: Object.values(sub.name1s).map((n1: any) => ({
-                        ...n1,
-                        name2s: Object.values(n1.name2s).map((n2: any) => ({
-                            ...n2,
-                            name3s: Object.values(n2.name3s)
+                return Object.values(map).map((cat: any) => ({
+                    ...cat,
+                    subcategories: Object.values(cat.subcategories).map((sub: any) => ({
+                        ...sub,
+                        name1s: Object.values(sub.name1s).map((n1: any) => ({
+                            ...n1,
+                            name2s: Object.values(n1.name2s).map((n2: any) => ({
+                                ...n2,
+                                name3s: Object.values(n2.name3s)
+                            }))
                         }))
+                    }))
+                }));
+            }
+
+            // Fallback to TREATMENT_CATEGORIES with normalized structure
+            return (TREATMENT_CATEGORIES as any).map((cat: any) => ({
+                ...cat,
+                subcategories: (cat.subcategories || []).map((sub: any) => ({
+                    ...sub,
+                    name1s: (sub.jobs || []).map((job: any) => ({
+                        name: job.name,
+                        name2s: [
+                            {
+                                name: "None",
+                                name3s: [
+                                    {
+                                        name: "None",
+                                        procedure: {
+                                            ...job,
+                                            category: cat.name,
+                                            subcategory: sub.name,
+                                            name: job.name,
+                                            name2: "None",
+                                            name3: "None"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }))
                 }))
             }));
@@ -253,51 +285,51 @@ export const TreatmentProcedureForm = observer(
             }
         }, [isDrawerMode, teeth]);
 
-        const [localExplorerState, setLocalExplorerState] = useState<{ catIdx: number | null, subIdx: number | null, n1Idx: number | null, n2Idx: number | null, n3Idx: number | null }>({ catIdx: null, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null });
+        const [localExplorerState, setLocalExplorerState] = useState<{ category: string | null, subcategory: string | null, name1: string | null, name2: string | null, name3: string | null }>({ category: null, subcategory: null, name1: null, name2: null, name3: null });
 
         const lastSyncedId = useRef<string | null>(null);
 
-        const selectedCatIdx = (explorerState && explorerState.catIdx !== null) ? explorerState.catIdx : localExplorerState.catIdx;
-        const selectedSubIdx = (explorerState && explorerState.subIdx !== null) ? explorerState.subIdx : localExplorerState.subIdx;
-        const selectedN1Idx = (explorerState && (explorerState as any).n1Idx !== undefined) ? (explorerState as any).n1Idx : localExplorerState.n1Idx;
-        const selectedN2Idx = (explorerState && (explorerState as any).n2Idx !== undefined) ? (explorerState as any).n2Idx : localExplorerState.n2Idx;
-        const selectedN3Idx = (explorerState && (explorerState as any).n3Idx !== undefined) ? (explorerState as any).n3Idx : localExplorerState.n3Idx;
+        const selectedCategory = (explorerState && explorerState.category !== undefined) ? explorerState.category : localExplorerState.category;
+        const selectedSubcategory = (explorerState && explorerState.subcategory !== undefined) ? explorerState.subcategory : localExplorerState.subcategory;
+        const selectedName1 = (explorerState && (explorerState as any).name1 !== undefined) ? (explorerState as any).name1 : localExplorerState.name1;
+        const selectedName2 = (explorerState && (explorerState as any).name2 !== undefined) ? (explorerState as any).name2 : localExplorerState.name2;
+        const selectedName3 = (explorerState && (explorerState as any).name3 !== undefined) ? (explorerState as any).name3 : localExplorerState.name3;
 
-        const setSelectedCatIdx = (idx: number | null) => {
-            const newState = { catIdx: idx, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null };
+        const setSelectedCategory = (name: string | null) => {
+            const newState = { category: name, subcategory: null, name1: null, name2: null, name3: null };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
-        const setSelectedSubIdx = (idx: number | null) => {
-            const newState = { catIdx: selectedCatIdx, subIdx: idx, n1Idx: null, n2Idx: null, n3Idx: null };
+        const setSelectedSubcategory = (name: string | null) => {
+            const newState = { category: selectedCategory, subcategory: name, name1: null, name2: null, name3: null };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
-        const setSelectedN1Idx = (idx: number | null) => {
-            const newState = { catIdx: selectedCatIdx, subIdx: selectedSubIdx, n1Idx: idx, n2Idx: null, n3Idx: null };
+        const setSelectedName1 = (name: string | null) => {
+            const newState = { category: selectedCategory, subcategory: selectedSubcategory, name1: name, name2: null, name3: null };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
-        const setSelectedN2Idx = (idx: number | null) => {
-            const newState = { catIdx: selectedCatIdx, subIdx: selectedSubIdx, n1Idx: selectedN1Idx, n2Idx: idx, n3Idx: null };
+        const setSelectedName2 = (name: string | null) => {
+            const newState = { category: selectedCategory, subcategory: selectedSubcategory, name1: selectedName1, name2: name, name3: null };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
-        const setSelectedN3Idx = (idx: number | null) => {
-            const newState = { catIdx: selectedCatIdx, subIdx: selectedSubIdx, n1Idx: selectedN1Idx, n2Idx: selectedN2Idx, n3Idx: idx };
+        const setSelectedName3 = (name: string | null) => {
+            const newState = { category: selectedCategory, subcategory: selectedSubcategory, name1: selectedName1, name2: selectedName2, name3: name };
             if (onExplorerUpdate) onExplorerUpdate(newState as any);
             else setLocalExplorerState(newState);
         };
 
-        const activeCategory = selectedCatIdx !== null ? groupedData[selectedCatIdx] : null;
-        const activeSubcategory = (activeCategory && selectedSubIdx !== null)
-            ? activeCategory.subcategories[selectedSubIdx]
+        const activeCategory = selectedCategory !== null ? (groupedData as any[]).find(c => c.name.toLowerCase().trim() === selectedCategory.toLowerCase().trim()) : null;
+        const activeSubcategory = (activeCategory && selectedSubcategory !== null)
+            ? (activeCategory.subcategories as any[]).find(s => s.name.toLowerCase().trim() === selectedSubcategory.toLowerCase().trim())
             : null;
-        const activeN1 = (activeSubcategory && selectedN1Idx !== null)
-            ? activeSubcategory.name1s[selectedN1Idx]
+        const activeN1 = (activeSubcategory && selectedName1 !== null)
+            ? (activeSubcategory.name1s as any[]).find((n1: any) => n1.name.toLowerCase().trim() === selectedName1.toLowerCase().trim())
             : null;
-        const activeN2 = (activeN1 && selectedN2Idx !== null)
-            ? activeN1.name2s[selectedN2Idx]
+        const activeN2 = (activeN1 && selectedName2 !== null)
+            ? (activeN1.name2s as any[]).find((n2: any) => n2.name.toLowerCase().trim() === selectedName2.toLowerCase().trim())
             : null;
 
         const filteredProcedures = useMemo(() => {
@@ -680,9 +712,14 @@ export const TreatmentProcedureForm = observer(
                         {currentValues.treatmentCode && (
                             <Box p={5} bg="blue.50" borderRadius="2xl" w="full" borderLeft="6px solid" borderColor="blue.500">
                                 <Text fontSize="14px" fontWeight="1000" color="blue.800" noOfLines={2}>
-                                    {currentValues.treatmentCode.split(" → ").pop()}
+                                    {currentValues.treatmentCode.split(/→|->|·|\|/).pop()?.trim()}
                                 </Text>
-                                <Text fontSize="11px" color="blue.400" noOfLines={1} mt={1}>{currentValues.treatmentCode.split(" → ").slice(0, 2).join(" • ")}</Text>
+                                <Text fontSize="11px" color="blue.400" noOfLines={1} mt={1}>
+                                    {(() => {
+                                        const parts = currentValues.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
+                                        return parts.slice(0, -1).join(" · ");
+                                    })()}
+                                </Text>
                             </Box>
                         )}
                     </VStack>
@@ -742,68 +779,29 @@ export const TreatmentProcedureForm = observer(
             >
                 {({ values, setFieldValue, handleSubmit }: any) => {
 
-                    // Auto-expand explorer based on existing treatment code when editing
+                    // Sync explorer state and temp code when opening or switching teeth
                     useEffect(() => {
-                        const currentId = editData?._id || editData?.id || null;
+                        if (isProcedureOpen) {
+                            const currentToothIdForCode = activeToothId === "bulk" ? (teeth[0]?.id || "") : (activeToothId || "");
+                            const currentCode = values.treatments[currentToothIdForCode]?.treatmentCode || "";
+                            setTempTreatmentCode(currentCode);
 
-                        // Only sync if the record has actually changed to avoid overriding user interaction
-                        if (currentId !== lastSyncedId.current) {
-                            lastSyncedId.current = currentId;
-
-                            if (editData?.treatmentPlan) {
-                                const parts = editData.treatmentPlan.split(" → ").map(p => p.trim());
-                                let newCatIdx: number | null = null;
-                                let newSubIdx: number | null = null;
-                                let newN1Idx: number | null = null;
-                                let newN2Idx: number | null = null;
-                                let newN3Idx: number | null = null;
-
+                            if (currentCode) {
+                                const parts = currentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
                                 if (parts.length >= 1) {
-                                    const cIdx = groupedData.findIndex(c => c.name.toLowerCase() === parts[0].toLowerCase());
-                                    if (cIdx !== -1) {
-                                        newCatIdx = cIdx;
-                                        if (parts.length >= 2) {
-                                            const subCats = groupedData[cIdx].subcategories;
-                                            const sIdx = subCats.findIndex(s => s.name.toLowerCase() === parts[1].toLowerCase());
-                                            if (sIdx !== -1) {
-                                                newSubIdx = sIdx;
-                                                if (parts.length >= 3) {
-                                                    const n1s = subCats[sIdx]?.name1s;
-                                                    const n1Idx = n1s?.findIndex((n: any) => n.name.toLowerCase() === parts[2].toLowerCase());
-                                                    if (n1Idx !== undefined && n1Idx !== -1) {
-                                                        newN1Idx = n1Idx;
-                                                        if (parts.length >= 4) {
-                                                            const n2s = n1s[n1Idx]?.name2s;
-                                                            const n2Idx = n2s?.findIndex((n: any) => n.name.toLowerCase() === parts[3].toLowerCase());
-                                                            if (n2Idx !== undefined && n2Idx !== -1) {
-                                                                newN2Idx = n2Idx;
-                                                                if (parts.length >= 5) {
-                                                                    const n3s = n2s[n2Idx]?.name3s;
-                                                                    const n3Idx = n3s?.findIndex((n: any) => n.name.toLowerCase() === parts[4].toLowerCase());
-                                                                    if (n3Idx !== undefined && n3Idx !== -1) {
-                                                                        newN3Idx = n3Idx;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                    setLocalExplorerState({
+                                        category: parts[0] || null,
+                                        subcategory: parts[1] || null,
+                                        name1: parts[2] || null,
+                                        name2: parts[3] || null,
+                                        name3: parts[4] || null
+                                    });
                                 }
-                                setLocalExplorerState({
-                                    catIdx: newCatIdx,
-                                    subIdx: newSubIdx,
-                                    n1Idx: newN1Idx,
-                                    n2Idx: newN2Idx,
-                                    n3Idx: newN3Idx
-                                });
                             } else {
-                                setLocalExplorerState({ catIdx: null, subIdx: null, n1Idx: null, n2Idx: null, n3Idx: null });
+                                setLocalExplorerState({ category: null, subcategory: null, name1: null, name2: null, name3: null });
                             }
                         }
-                    }, [editData, groupedData, activeToothId, values.treatments]);
+                    }, [isProcedureOpen, editData, groupedData, activeToothId, values.treatments]);
 
                     const currentStep = values.treatmentCode ? 2 : (teeth.length > 0 ? 1 : 0);
 
@@ -833,202 +831,240 @@ export const TreatmentProcedureForm = observer(
                             <CustomDrawer
                                 open={isProcedureOpen}
                                 close={onProcedureClose}
-                                title="Treatment Head Code"
-                                width="70vw"
-                            >
-                                <Box h="full" overflow="hidden" p={6}>
-                                    <VStack align="stretch" spacing={5} h="full">
-
-                                        <Box
-                                            borderRadius="xl"
-                                            border="1px solid"
-                                            borderColor="gray.100"
-                                            overflow="hidden"
-                                            bg="rgba(255, 255, 255, 0.7)"
-                                            backdropFilter="blur(10px)"
-                                            boxShadow="sm"
-                                            position="relative"
-                                            h="600px"
-                                        >
-                                            {searchTerm.trim() ? (
-                                                <Box h="full" overflowY="auto" p={5} sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                                                    <VStack align="stretch" spacing={2.5}>
-                                                        {filteredProcedures?.map((proc) => {
-                                                            let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
-                                                            if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
-                                                            if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
-                                                            const isSelected = activeToothId === "bulk"
-                                                                ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
-                                                                : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
-                                                            return (
-                                                                <HStack
-                                                                    key={fullCode}
-                                                                    p={4}
-                                                                    bg={isSelected ? "blue.600" : "white"}
-                                                                    color={isSelected ? "white" : "gray.800"}
-                                                                    borderRadius="xl"
-                                                                    cursor="pointer"
-                                                                    onClick={() => {
-                                                                        if (activeToothId === "bulk") {
-                                                                            teeth.forEach(t => {
-                                                                                setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                            });
-                                                                        } else if (activeToothId) {
-                                                                            setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                        }
-                                                                        onProcedureClose();
-                                                                    }}
-                                                                    _hover={isSelected ? {} : { transform: "translateX(4px)", bg: "blue.50/30" }}
-                                                                    transition="all 0.2s"
-                                                                    justify="space-between"
-                                                                    border="1px solid"
-                                                                    borderColor={isSelected ? "blue.600" : "gray.100"}
-                                                                >
-                                                                    <VStack align="start" spacing={0}>
-                                                                        <Text fontSize="10px" fontWeight="900" color={isSelected ? "blue.100" : "blue.500"} letterSpacing="0.1em">
-                                                                            {proc.category.toUpperCase()} • {proc.subcategory.toUpperCase()}
-                                                                        </Text>
-                                                                        <Text fontSize="12px" fontWeight="900" letterSpacing="tight">
-                                                                            {proc.name}
-                                                                            {proc.name2 && ` • ${proc.name2}`}
-                                                                            {proc.name3 && ` • ${proc.name3}`}
-                                                                        </Text>
-                                                                    </VStack>
-                                                                    <Badge p={2} borderRadius="md" variant={isSelected ? "solid" : "subtle"} colorScheme={isSelected ? "whiteAlpha" : "blue"} fontSize="12px" fontWeight="900">
-                                                                        ₹{proc.defaultEstimate.toLocaleString()}
-                                                                    </Badge>
-                                                                </HStack>
-                                                            );
-                                                        })}
-                                                    </VStack>
-                                                </Box>
-                                            ) : (
-                                                <Grid templateColumns="1fr 1fr 1fr 1fr 1fr" h="full">
-                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
-                                                            {groupedData.map((cat, idx) => (
-                                                                <Box
-                                                                    key={cat.name}
-                                                                    px={5} py={4}
-                                                                    cursor="pointer"
-                                                                    bg={selectedCatIdx === idx ? "blue.50/50" : "transparent"}
-                                                                    color={selectedCatIdx === idx ? "blue.600" : "gray.500"}
-                                                                    onClick={() => {
-                                                                        setSelectedCatIdx(idx);
-                                                                    }}
-                                                                    _hover={{ bg: "blue.50/20" }}
-                                                                >
-                                                                    <HStack spacing={3}>
-                                                                        <Icon as={CATEGORY_ICONS[cat.name] || FiActivity} boxSize={3} />
-                                                                        <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{cat.name.toUpperCase()}</Text>
-                                                                    </HStack>
-                                                                </Box>
-                                                            ))}
-                                                        </VStack>
-                                                    </Box>
-                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
-                                                            {activeCategory?.subcategories.map((sub, idx) => (
-                                                                <Box
-                                                                    key={sub.name}
-                                                                    px={6} py={4}
-                                                                    cursor="pointer"
-                                                                    bg={selectedSubIdx === idx ? "blue.50/50" : "transparent"}
-                                                                    color={selectedSubIdx === idx ? "blue.600" : "gray.500"}
-                                                                    onClick={() => {
-                                                                        setSelectedSubIdx(idx);
-                                                                    }}
-                                                                >
-                                                                    <Text fontSize="11px" fontWeight="900" letterSpacing="widest">{sub.name.toUpperCase()}</Text>
-                                                                </Box>
-                                                            ))}
-                                                        </VStack>
-                                                    </Box>
-                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
-                                                            {activeSubcategory?.name1s?.map((n1: any, idx) => (
-                                                                <Box
-                                                                    key={n1.name}
-                                                                    px={6} py={5}
-                                                                    cursor="pointer"
-                                                                    bg={selectedN1Idx === idx ? "blue.50" : "white"}
-                                                                    color={selectedN1Idx === idx ? "blue.600" : "gray.600"}
-                                                                    onClick={() => setSelectedN1Idx(idx)}
-                                                                    _hover={{ bg: "gray.50" }}
-                                                                    borderBottom="1px solid"
-                                                                    borderColor="gray.100"
-                                                                >
-                                                                    <Text fontSize="12px" fontWeight="900">{n1.name.toUpperCase()}</Text>
-                                                                </Box>
-                                                            ))}
-                                                        </VStack>
-                                                    </Box>
-
-                                                    <Box borderRight="1px solid" borderColor="gray.100" h="600px">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
-                                                            {activeN1?.name2s?.map((n2: any, idx) => (
-                                                                <Box
-                                                                    key={n2.name}
-                                                                    px={6} py={5}
-                                                                    cursor="pointer"
-                                                                    bg={selectedN2Idx === idx ? "blue.50" : "white"}
-                                                                    color={selectedN2Idx === idx ? "blue.600" : "gray.600"}
-                                                                    onClick={() => setSelectedN2Idx(idx)}
-                                                                    _hover={{ bg: "gray.50" }}
-                                                                    borderBottom="1px solid"
-                                                                    borderColor="gray.100"
-                                                                >
-                                                                    <Text fontSize="12px" fontWeight="700">{n2.name.toUpperCase()}</Text>
-                                                                </Box>
-                                                            ))}
-                                                        </VStack>
-                                                    </Box>
-
-                                                    <Box h="600px" bg="gray.50/30">
-                                                        <VStack spacing={0} align="stretch" overflowY="auto" h="full" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.200', borderRadius: '10px' } }}>
-                                                            {activeN2?.name3s?.map((n3: any, idx) => {
-                                                                const proc = n3.procedure;
-                                                                let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
-                                                                if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
-                                                                if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
-
-                                                                const isSelected = activeToothId === "bulk"
-                                                                    ? teeth.every(t => values.treatments[t.id]?.treatmentCode === fullCode)
-                                                                    : (activeToothId && values.treatments[activeToothId]?.treatmentCode === fullCode);
-
-                                                                return (
-                                                                    <Box
-                                                                        key={n3.name}
-                                                                        px={6} py={5}
-                                                                        cursor="pointer"
-                                                                        bg={isSelected ? "blue.600" : (selectedN3Idx === idx ? "blue.50" : "white")}
-                                                                        color={isSelected ? "white" : (selectedN3Idx === idx ? "blue.600" : "gray.600")}
-                                                                        onClick={() => {
-                                                                            setSelectedN3Idx(idx);
-                                                                            if (activeToothId === "bulk") {
-                                                                                teeth.forEach(t => {
-                                                                                    setFieldValue(`treatments.${t.id}.treatmentCode`, fullCode);
-                                                                                });
-                                                                            } else if (activeToothId) {
-                                                                                setFieldValue(`treatments.${activeToothId}.treatmentCode`, fullCode);
-                                                                            }
-                                                                        }}
-                                                                        _hover={{ bg: isSelected ? "blue.700" : "gray.50" }}
-                                                                        borderBottom="1px solid"
-                                                                        borderColor="gray.100"
-                                                                    >
-                                                                        <Text fontSize="12px" fontWeight="700">{n3.name.toUpperCase()}</Text>
-                                                                    </Box>
-                                                                );
-                                                            })}
-                                                        </VStack>
-                                                    </Box>
-                                                </Grid>
-                                            )}
+                                title={
+                                    <HStack spacing={3}>
+                                        <Box p={2} bg="blue.500" borderRadius="lg" color="white">
+                                            <FiActivity size={18} />
                                         </Box>
-                                        <Button colorScheme="blue" onClick={onProcedureClose} w="full" borderRadius="xl">Close Explorer</Button>
-                                    </VStack>
-                                </Box>
+                                        <VStack align="start" spacing={0}>
+                                            <Heading size="sm" color="white">Procedure Explorer</Heading>
+                                            <Text fontSize="10px" color="blue.100" fontWeight="bold">SELECT CLINICAL PROTOCOL</Text>
+                                        </VStack>
+                                    </HStack>
+                                }
+                                width="85vw"
+                                extraActions={
+                                    <Button
+                                        type="button"
+                                        colorScheme="blue"
+                                        onClick={() => {
+                                            if (activeToothId === "bulk") {
+                                                teeth.forEach(t => {
+                                                    setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
+                                                });
+                                            } else if (activeToothId) {
+                                                setFieldValue(`treatments.${activeToothId}.treatmentCode`, tempTreatmentCode);
+                                            }
+                                            onProcedureClose();
+                                        }}
+                                        isDisabled={!tempTreatmentCode}
+                                        leftIcon={<FiCheckCircle />}
+                                        size="sm"
+                                        borderRadius="full"
+                                        px={6}
+                                    >
+                                        Save Selection
+                                    </Button>
+                                }
+                            >
+                                <VStack spacing={4} align="stretch" h="full" p={4}>
+                                    <Box
+                                        borderRadius="2xl"
+                                        border="1px solid"
+                                        borderColor="gray.200"
+                                        overflow="hidden"
+                                        bg="white"
+                                        flex={1}
+                                        minH="500px"
+                                    >
+                                        <Grid templateColumns="1fr 1.2fr 1.2fr 1.2fr 1.5fr" h="full">
+                                            {/* COLUMN 1: CATEGORY */}
+                                            <Box borderRight="1px solid" borderColor="gray.100" bg="gray.50/30">
+                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Category</Text>
+                                                </Box>
+                                                <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                                    {groupedData.map((cat: any) => (
+                                                        <HStack
+                                                            key={cat.name}
+                                                            px={4} py={3.5}
+                                                            cursor="pointer"
+                                                            onClick={() => {
+                                                                setSelectedCategory(cat.name);
+                                                                setTempTreatmentCode(cat.name);
+                                                            }}
+                                                            _hover={{ bg: "gray.50" }}
+                                                            borderLeft={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "4px solid" : "0px"}
+                                                            borderLeftColor="blue.500"
+                                                            bg={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "blue.100" : "transparent"}
+                                                            color={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "blue.800" : "gray.600"}
+                                                            justify="space-between"
+                                                        >
+                                                            <VStack align="start" spacing={1}>
+                                                                <Text fontSize="xs" fontWeight={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "900" : "bold"}>{cat.name}</Text>
+                                                                {tempTreatmentCode?.toLowerCase().trim() === cat.name.toLowerCase().trim() && <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>}
+                                                            </VStack>
+                                                            <FiChevronRight size={12} opacity={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? 1 : 0.3} />
+                                                        </HStack>
+                                                    ))}
+                                                </VStack>
+                                            </Box>
+
+                                            {/* COLUMN 2: SUBCATEGORY */}
+                                            <Box borderRight="1px solid" borderColor="gray.100">
+                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Subcategory</Text>
+                                                </Box>
+                                                <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                                    {(activeCategory?.subcategories || []).map((sub: any) => (
+                                                        <HStack
+                                                            key={sub.name}
+                                                            px={4} py={3.5}
+                                                            cursor="pointer"
+                                                            onClick={() => {
+                                                                setSelectedSubcategory(sub.name);
+                                                                if (activeCategory) {
+                                                                    setTempTreatmentCode(`${activeCategory.name} → ${sub.name}`);
+                                                                }
+                                                            }}
+                                                            _hover={{ bg: "blue.50/50" }}
+                                                            bg={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "blue.100" : "transparent"}
+                                                            color={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "blue.800" : "gray.600"}
+                                                            justify="space-between"
+                                                        >
+                                                            <VStack align="start" spacing={1}>
+                                                                <Text fontSize="xs" fontWeight={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "900" : "bold"}>{sub.name}</Text>
+                                                                {activeCategory && tempTreatmentCode?.toLowerCase().trim() === `${activeCategory.name} → ${sub.name}`.toLowerCase().trim() && (
+                                                                    <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
+                                                                )}
+                                                            </VStack>
+                                                            <FiChevronRight size={12} opacity={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? 1 : 0.3} />
+                                                        </HStack>
+                                                    ))}
+                                                </VStack>
+                                            </Box>
+
+                                            {/* COLUMN 3: NAME 1 */}
+                                            <Box borderRight="1px solid" borderColor="gray.100" bg="gray.50/30">
+                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 1</Text>
+                                                </Box>
+                                                <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                                    {(activeSubcategory?.name1s || []).map((n1: any) => (
+                                                        <HStack
+                                                            key={n1.name}
+                                                            px={4} py={3.5}
+                                                            cursor="pointer"
+                                                            bg={selectedName1 === n1.name ? "blue.100" : "transparent"}
+                                                            color={selectedName1 === n1.name ? "blue.800" : "gray.600"}
+                                                            onClick={() => {
+                                                                setSelectedName1(n1.name);
+                                                                if (activeCategory && activeSubcategory) {
+                                                                    setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}`);
+                                                                }
+                                                            }}
+                                                            _hover={{ bg: "gray.50" }}
+                                                            justify="space-between"
+                                                        >
+                                                            <VStack align="start" spacing={1}>
+                                                                <Text fontSize="xs" fontWeight={selectedName1 === n1.name ? "900" : "bold"}>{n1.name}</Text>
+                                                                {activeCategory && activeSubcategory && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}` && (
+                                                                    <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
+                                                                )}
+                                                            </VStack>
+                                                            <FiChevronRight size={12} opacity={selectedName1 === n1.name ? 1 : 0.3} />
+                                                        </HStack>
+                                                    ))}
+                                                </VStack>
+                                            </Box>
+
+                                            {/* COLUMN 4: NAME 2 */}
+                                            <Box borderRight="1px solid" borderColor="gray.100">
+                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 2</Text>
+                                                </Box>
+                                                <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
+                                                    {(activeN1?.name2s || []).map((n2: any) => (
+                                                        <HStack
+                                                            key={n2.name}
+                                                            px={4} py={3.5}
+                                                            cursor="pointer"
+                                                            bg={selectedName2 === n2.name ? "blue.100" : "transparent"}
+                                                            color={selectedName2 === n2.name ? "blue.800" : "gray.600"}
+                                                            onClick={() => {
+                                                                setSelectedName2(n2.name);
+                                                                if (activeCategory && activeSubcategory && activeN1) {
+                                                                    setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}`);
+                                                                }
+                                                            }}
+                                                            _hover={{ bg: "gray.50" }}
+                                                            justify="space-between"
+                                                        >
+                                                            <VStack align="start" spacing={1}>
+                                                                <Text fontSize="xs" fontWeight={selectedName2 === n2.name ? "900" : "bold"}>{n2.name}</Text>
+                                                                {activeCategory && activeSubcategory && activeN1 && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}` && (
+                                                                    <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
+                                                                )}
+                                                            </VStack>
+                                                            <FiChevronRight size={12} opacity={selectedName2 === n2.name ? 1 : 0.3} />
+                                                        </HStack>
+                                                    ))}
+                                                </VStack>
+                                            </Box>
+
+                                            {/* COLUMN 5: NAME 3 */}
+                                            <Box bg="blue.50/20">
+                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
+                                                    <Text fontSize="10px" fontWeight="black" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">Specific Procedure</Text>
+                                                </Box>
+                                                <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'blue.100', borderRadius: '10px' } }}>
+                                                    {(activeN2?.name3s || []).map((n3: any) => {
+                                                        const proc = n3.procedure;
+                                                        let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
+                                                        if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
+                                                        if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
+
+                                                        const isSelected = tempTreatmentCode === fullCode;
+
+                                                        return (
+                                                            <VStack
+                                                                key={n3.name}
+                                                                px={4} py={4}
+                                                                align="start"
+                                                                spacing={1}
+                                                                cursor="pointer"
+                                                                bg={isSelected ? "blue.500" : (selectedName3 === n3.name ? "blue.50" : "transparent")}
+                                                                color={isSelected ? "white" : (selectedName3 === n3.name ? "blue.700" : "gray.700")}
+                                                                onClick={() => {
+                                                                    setSelectedName3(n3.name);
+                                                                    setTempTreatmentCode(fullCode);
+                                                                }}
+                                                                _hover={{ bg: isSelected ? "blue.600" : "blue.50/50" }}
+                                                                borderBottom="1px solid"
+                                                                borderColor={isSelected ? "blue.400" : "gray.50"}
+                                                            >
+                                                                <Text fontSize="xs" fontWeight="900" lineHeight="1.4">{n3.name}</Text>
+                                                                {isSelected && <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>}
+                                                            </VStack>
+                                                        );
+                                                    })}
+                                                </VStack>
+                                            </Box>
+                                        </Grid>
+                                    </Box>
+
+                                    {tempTreatmentCode && (
+                                        <Box p={4} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
+                                            <HStack justify="space-between">
+                                                <VStack align="start" spacing={0}>
+                                                    <Text fontSize="9px" fontWeight="black" color="blue.400" letterSpacing="0.1em">READY TO APPLY</Text>
+                                                    <Text fontSize="sm" fontWeight="900" color="blue.700">{tempTreatmentCode}</Text>
+                                                </VStack>
+                                                <Button size="xs" variant="ghost" colorScheme="red" onClick={() => setTempTreatmentCode("")}>Clear</Button>
+                                            </HStack>
+                                        </Box>
+                                    )}
+                                </VStack>
                             </CustomDrawer>
 
 
@@ -1147,9 +1183,14 @@ export const TreatmentProcedureForm = observer(
                                                             {toothValues.treatmentCode ? (
                                                                 <Box p={3} bg={style.bg} borderRadius="xl" border="1px solid" borderColor={`${style.border}20`}>
                                                                     <VStack align="start" spacing={0.5}>
-                                                                        <Text fontSize="10px" fontWeight="1000" color={style.iconColor} noOfLines={1}>{toothValues.treatmentCode.split(" → ")[1]}</Text>
+                                                                        <Text fontSize="10px" fontWeight="1000" color={style.iconColor} noOfLines={1}>
+                                                                            {(() => {
+                                                                                const parts = toothValues.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
+                                                                                return parts.length > 1 ? parts.slice(0, -1).join(" · ") : parts[0];
+                                                                            })()}
+                                                                        </Text>
                                                                         <Text fontSize="11px" fontWeight="1000" color="gray.800" noOfLines={1}>
-                                                                            {toothValues.treatmentCode.split(" → ").pop()}
+                                                                            {toothValues.treatmentCode.split(/→|->|·|\|/).pop()?.trim()}
                                                                         </Text>
                                                                         <HStack spacing={2} pt={1}>
                                                                             <Badge variant="solid" colorScheme="blue" fontSize="8px" borderRadius="md">

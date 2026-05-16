@@ -71,7 +71,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
       finalFocusRef={drawerRef}
       {...props}
     >
-      <DrawerOverlay />
+      <DrawerOverlay backdropFilter="blur(10px)" bg="blackAlpha.700" />
 
       <DrawerContent
         width={width ? width : undefined}

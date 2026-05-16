@@ -97,7 +97,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [teethNotes, setTeethNotes] = useState<string>("");
 
   const [procedureFormValues, setProcedureFormValues] = useState<any>(null);
-  const [explorerState, setExplorerState] = useState({ catIdx: null, subIdx: null });
+  const [explorerState, setExplorerState] = useState({ category: null, subcategory: null });
 
   const [individualTeethNotes, setIndividualTeethNotes] = useState<Record<string, string>>({});
   const [editingTooth, setEditingTooth] = useState<ToothData | null>(null);
@@ -327,24 +327,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         }
 
         if (edit.treatmentPlan) {
-          const parts = edit.treatmentPlan.split(/→|->/).map((p: string) => p.trim());
-          if (parts.length >= 2) {
-            const catIdx = TREATMENT_CATEGORIES.findIndex(c => c.name.toLowerCase() === parts[0].toLowerCase());
-            if (catIdx !== -1) {
-              const foundCat = TREATMENT_CATEGORIES[catIdx];
-              const subIdx = foundCat.subcategories.findIndex(s => s.name.toLowerCase() === parts[1].toLowerCase());
-              if (subIdx !== -1) {
-                const foundSub = foundCat.subcategories[subIdx];
-                setExplorerState({ catIdx, subIdx });
-                if (parts[2]) {
-                  const foundJob = foundSub.jobs.find(j => j.name.toLowerCase() === parts[2].toLowerCase());
-                  if (foundJob) {
-                    const normalizedCode = `${foundCat.name} → ${foundSub.name} → ${foundJob.name}`;
-                    setProcedureFormValues(prev => ({ ...prev, treatmentCode: normalizedCode }));
-                  }
-                }
-              }
-            }
+          const parts = edit.treatmentPlan.split(/→|->|·|\|/).map((p: string) => p.trim());
+          if (parts.length >= 1) {
+            setExplorerState({ 
+              category: parts[0] || null, 
+              subcategory: parts[1] || null,
+              name1: parts[2] || null,
+              name2: parts[3] || null,
+              name3: parts[4] || null
+            } as any);
           }
         }
         setStep("PROCEDURE_FORM");
@@ -791,7 +782,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               setSelectedTeeth([]);
               setEditingTreatment(null);
               setProcedureFormValues(null);
-              setExplorerState({ catIdx: null, subIdx: null });
+              setExplorerState({ category: null, subcategory: null });
               if (patientDetails?._id) {
 
                 getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });

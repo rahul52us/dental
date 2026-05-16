@@ -119,11 +119,11 @@ export const ToothFormDialog = observer(
     } = stores;
 
     // Browser State
-    const [selectedCatIdx, setSelectedCatIdx] = useState<number | null>(null);
-    const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(null);
-    const [selectedN1Idx, setSelectedN1Idx] = useState<number | null>(null);
-    const [selectedN2Idx, setSelectedN2Idx] = useState<number | null>(null);
-    const [selectedN3Idx, setSelectedN3Idx] = useState<number | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+    const [selectedName1, setSelectedName1] = useState<string | null>(null);
+    const [selectedName2, setSelectedName2] = useState<string | null>(null);
+    const [selectedName3, setSelectedName3] = useState<string | null>(null);
     const [tempTreatmentCode, setTempTreatmentCode] = useState("");
 
     const groupedData = useMemo(() => {
@@ -202,15 +202,15 @@ export const ToothFormDialog = observer(
       }));
     }, [procedureStore.procedures.data]);
 
-    const activeCategory = selectedCatIdx !== null ? groupedData[selectedCatIdx] : null;
-    const activeSubcategory = (activeCategory && selectedSubIdx !== null)
-      ? activeCategory.subcategories[selectedSubIdx]
+    const activeCategory = selectedCategory !== null ? (groupedData as any[]).find(c => c.name.toLowerCase().trim() === selectedCategory.toLowerCase().trim()) : null;
+    const activeSubcategory = (activeCategory && selectedSubcategory !== null)
+      ? (activeCategory.subcategories as any[]).find(s => s.name.toLowerCase().trim() === selectedSubcategory.toLowerCase().trim())
       : null;
-    const activeN1 = (activeSubcategory && selectedN1Idx !== null)
-      ? activeSubcategory.name1s[selectedN1Idx]
+    const activeN1 = (activeSubcategory && selectedName1 !== null)
+      ? (activeSubcategory.name1s as any[]).find((n1: any) => n1.name.toLowerCase().trim() === selectedName1.toLowerCase().trim())
       : null;
-    const activeN2 = (activeN1 && selectedN2Idx !== null)
-      ? activeN1.name2s[selectedN2Idx]
+    const activeN2 = (activeN1 && selectedName2 !== null)
+      ? (activeN1.name2s as any[]).find((n2: any) => n2.name.toLowerCase().trim() === selectedName2.toLowerCase().trim())
       : null;
 
     const handleSubmit = async (formData: any) => {
@@ -351,43 +351,20 @@ export const ToothFormDialog = observer(
               if (open) {
                 setTempTreatmentCode(values.treatmentCode || "");
                 if (values.treatmentCode) {
-                  const parts = values.treatmentCode.split(" → ").map((p: string) => p.trim());
-                  let catIdx: number | null = null;
-                  let subIdx: number | null = null;
-                  let n1Idx: number | null = null;
-                  let n2Idx: number | null = null;
-                  let n3Idx: number | null = null;
-
+                  const parts = values.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
                   if (parts.length >= 1) {
-                    catIdx = groupedData.findIndex((c: any) => c.name.toLowerCase() === parts[0].toLowerCase());
-                    if (catIdx !== -1 && parts.length >= 2) {
-                      const activeSubcats = (groupedData[catIdx] as any).subcategories;
-                      subIdx = activeSubcats?.findIndex((s: any) => s.name.toLowerCase() === parts[1].toLowerCase());
-                      if (subIdx !== undefined && subIdx !== -1 && parts.length >= 3) {
-                        const activeN1s = activeSubcats[subIdx]?.name1s;
-                        n1Idx = activeN1s?.findIndex((n1: any) => n1.name.toLowerCase() === parts[2].toLowerCase());
-                        if (n1Idx !== undefined && n1Idx !== -1 && parts.length >= 4) {
-                          const activeN2s = activeN1s[n1Idx]?.name2s;
-                          n2Idx = activeN2s?.findIndex((n2: any) => n2.name.toLowerCase() === parts[3].toLowerCase());
-                          if (n2Idx !== undefined && n2Idx !== -1 && parts.length >= 5) {
-                            const activeN3s = activeN2s[n2Idx]?.name3s;
-                            n3Idx = activeN3s?.findIndex((n3: any) => n3.name.toLowerCase() === parts[4].toLowerCase());
-                          }
-                        }
-                      }
-                    }
+                    setSelectedCategory(parts[0] || null);
+                    setSelectedSubcategory(parts[1] || null);
+                    setSelectedName1(parts[2] || null);
+                    setSelectedName2(parts[3] || null);
+                    setSelectedName3(parts[4] || null);
                   }
-                  setSelectedCatIdx(catIdx === -1 ? null : catIdx);
-                  setSelectedSubIdx(subIdx === -1 ? null : subIdx);
-                  setSelectedN1Idx(n1Idx === -1 ? null : n1Idx);
-                  setSelectedN2Idx(n2Idx === -1 ? null : n2Idx);
-                  setSelectedN3Idx(n3Idx === -1 ? null : n3Idx);
                 } else {
-                  setSelectedCatIdx(null);
-                  setSelectedSubIdx(null);
-                  setSelectedN1Idx(null);
-                  setSelectedN2Idx(null);
-                  setSelectedN3Idx(null);
+                  setSelectedCategory(null);
+                  setSelectedSubcategory(null);
+                  setSelectedName1(null);
+                  setSelectedName2(null);
+                  setSelectedName3(null);
                 }
               }
             }, [open, showProcedureExplorer, groupedData, values.treatmentCode]);
@@ -597,9 +574,25 @@ export const ToothFormDialog = observer(
                             </Box>
                             <VStack align="start" spacing={0}>
                               <Text fontSize="10px" fontWeight="black" color="gray.400">PROCEDURE CODE</Text>
-                              <Text fontSize="md" fontWeight="black" color={values.treatmentCode ? "gray.800" : "gray.400"}>
-                                {values.treatmentCode || "Search & Select Procedure from Explorer..."}
-                              </Text>
+                              <VStack align="start" spacing={0}>
+                                {values.treatmentCode ? (
+                                  <>
+                                    <Text fontSize="10px" fontWeight="1000" color="blue.400" noOfLines={1}>
+                                      {(() => {
+                                        const parts = values.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
+                                        return parts.length > 1 ? parts.slice(0, -1).join(" · ") : parts[0];
+                                      })()}
+                                    </Text>
+                                    <Text fontSize="sm" fontWeight="black" color="gray.800" mt="-2px">
+                                      {values.treatmentCode.split(/→|->|·|\|/).pop()?.trim()}
+                                    </Text>
+                                  </>
+                                ) : (
+                                  <Text fontSize="md" fontWeight="black" color="gray.400">
+                                    Search & Select Procedure...
+                                  </Text>
+                                )}
+                              </VStack>
                             </VStack>
                           </HStack>
                           <HStack>
@@ -701,26 +694,26 @@ export const ToothFormDialog = observer(
                                 key={cat.name}
                                 px={4} py={3.5}
                                 cursor="pointer"
-                                bg={selectedCatIdx === idx ? "blue.50" : "transparent"}
-                                color={selectedCatIdx === idx ? "blue.700" : "gray.600"}
-                                borderLeft={selectedCatIdx === idx ? "4px solid" : "0px"}
-                                borderLeftColor="blue.500"
                                 onClick={() => {
-                                  setSelectedCatIdx(idx);
-                                  setSelectedSubIdx(null);
-                                  setSelectedN1Idx(null);
-                                  setSelectedN2Idx(null);
-                                  setSelectedN3Idx(null);
+                                  setSelectedCategory(cat.name);
+                                  setSelectedSubcategory(null);
+                                  setSelectedName1(null);
+                                  setSelectedName2(null);
+                                  setSelectedName3(null);
                                   setTempTreatmentCode(cat.name);
                                 }}
                                 _hover={{ bg: "gray.50" }}
+                                borderLeft={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "4px solid" : "0px"}
+                                borderLeftColor="blue.500"
+                                bg={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "blue.100" : "transparent"}
+                                color={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "blue.800" : "gray.600"}
                                 justify="space-between"
                               >
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="xs" fontWeight={selectedCatIdx === idx ? "900" : "bold"}>{cat.name}</Text>
-                                  {tempTreatmentCode === cat.name && <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>}
+                                  <Text fontSize="xs" fontWeight={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? "900" : "bold"}>{cat.name}</Text>
+                                  {tempTreatmentCode?.toLowerCase().trim() === cat.name.toLowerCase().trim() && <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>}
                                 </VStack>
-                                <FiChevronRight size={12} opacity={selectedCatIdx === idx ? 1 : 0.3} />
+                                <FiChevronRight size={12} opacity={selectedCategory?.toLowerCase().trim() === cat.name.toLowerCase().trim() ? 1 : 0.3} />
                               </HStack>
                             ))}
                           </VStack>
@@ -732,32 +725,32 @@ export const ToothFormDialog = observer(
                             <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Subcategory</Text>
                           </Box>
                           <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                            {(activeCategory?.subcategories || []).map((sub: any, idx: number) => (
+                            {(activeCategory?.subcategories || []).map((sub: any) => (
                               <HStack
                                 key={sub.name}
                                 px={4} py={3.5}
                                 cursor="pointer"
-                                bg={selectedSubIdx === idx ? "blue.50" : "transparent"}
-                                color={selectedSubIdx === idx ? "blue.700" : "gray.600"}
                                 onClick={() => {
-                                  setSelectedSubIdx(idx);
-                                  setSelectedN1Idx(null);
-                                  setSelectedN2Idx(null);
-                                  setSelectedN3Idx(null);
+                                  setSelectedSubcategory(sub.name);
+                                  setSelectedName1(null);
+                                  setSelectedName2(null);
+                                  setSelectedName3(null);
                                   if (activeCategory) {
                                     setTempTreatmentCode(`${activeCategory.name} → ${sub.name}`);
                                   }
                                 }}
-                                _hover={{ bg: "gray.50" }}
+                                _hover={{ bg: "blue.50/50" }}
+                                bg={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "blue.100" : "transparent"}
+                                color={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "blue.800" : "gray.600"}
                                 justify="space-between"
                               >
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="xs" fontWeight={selectedSubIdx === idx ? "900" : "bold"}>{sub.name}</Text>
-                                  {activeCategory && tempTreatmentCode === `${activeCategory.name} → ${sub.name}` && (
+                                  <Text fontSize="xs" fontWeight={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "900" : "bold"}>{sub.name}</Text>
+                                  {activeCategory && tempTreatmentCode?.toLowerCase().trim() === `${activeCategory.name} → ${sub.name}`.toLowerCase().trim() && (
                                     <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
                                   )}
                                 </VStack>
-                                <FiChevronRight size={12} opacity={selectedSubIdx === idx ? 1 : 0.3} />
+                                <FiChevronRight size={12} opacity={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? 1 : 0.3} />
                               </HStack>
                             ))}
                           </VStack>
@@ -769,31 +762,31 @@ export const ToothFormDialog = observer(
                             <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 1</Text>
                           </Box>
                           <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                            {(activeSubcategory?.name1s || []).map((n1: any, idx: number) => (
+                            {(activeSubcategory?.name1s || []).map((n1: any) => (
                               <HStack
                                 key={n1.name}
                                 px={4} py={3.5}
                                 cursor="pointer"
-                                bg={selectedN1Idx === idx ? "blue.50" : "transparent"}
-                                color={selectedN1Idx === idx ? "blue.700" : "gray.600"}
                                 onClick={() => {
-                                  setSelectedN1Idx(idx);
-                                  setSelectedN2Idx(null);
-                                  setSelectedN3Idx(null);
+                                  setSelectedName1(n1.name);
+                                  setSelectedName2(null);
+                                  setSelectedName3(null);
                                   if (activeCategory && activeSubcategory) {
                                     setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}`);
                                   }
                                 }}
-                                _hover={{ bg: "gray.50" }}
+                                _hover={{ bg: "blue.50/50" }}
+                                bg={selectedName1 === n1.name ? "blue.100" : "transparent"}
+                                color={selectedName1 === n1.name ? "blue.800" : "gray.600"}
                                 justify="space-between"
                               >
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="xs" fontWeight={selectedN1Idx === idx ? "900" : "bold"}>{n1.name}</Text>
+                                  <Text fontSize="xs" fontWeight={selectedName1 === n1.name ? "900" : "bold"}>{n1.name}</Text>
                                   {activeCategory && activeSubcategory && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}` && (
                                     <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
                                   )}
                                 </VStack>
-                                <FiChevronRight size={12} opacity={selectedN1Idx === idx ? 1 : 0.3} />
+                                <FiChevronRight size={12} opacity={selectedName1 === n1.name ? 1 : 0.3} />
                               </HStack>
                             ))}
                           </VStack>
@@ -805,30 +798,30 @@ export const ToothFormDialog = observer(
                             <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 2</Text>
                           </Box>
                           <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
-                            {(activeN1?.name2s || []).map((n2: any, idx: number) => (
+                            {(activeN1?.name2s || []).map((n2: any) => (
                               <HStack
                                 key={n2.name}
                                 px={4} py={3.5}
                                 cursor="pointer"
-                                bg={selectedN2Idx === idx ? "blue.50" : "transparent"}
-                                color={selectedN2Idx === idx ? "blue.700" : "gray.600"}
                                 onClick={() => {
-                                  setSelectedN2Idx(idx);
-                                  setSelectedN3Idx(null);
+                                  setSelectedName2(n2.name);
+                                  setSelectedName3(null);
                                   if (activeCategory && activeSubcategory && activeN1) {
                                     setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}`);
                                   }
                                 }}
-                                _hover={{ bg: "gray.50" }}
+                                _hover={{ bg: "blue.50/50" }}
+                                bg={selectedName2 === n2.name ? "blue.100" : "transparent"}
+                                color={selectedName2 === n2.name ? "blue.800" : "gray.600"}
                                 justify="space-between"
                               >
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="xs" fontWeight={selectedN2Idx === idx ? "900" : "bold"}>{n2.name}</Text>
+                                  <Text fontSize="xs" fontWeight={selectedName2 === n2.name ? "900" : "bold"}>{n2.name}</Text>
                                   {activeCategory && activeSubcategory && activeN1 && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}` && (
                                     <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
                                   )}
                                 </VStack>
-                                <FiChevronRight size={12} opacity={selectedN2Idx === idx ? 1 : 0.3} />
+                                <FiChevronRight size={12} opacity={selectedName2 === n2.name ? 1 : 0.3} />
                               </HStack>
                             ))}
                           </VStack>
@@ -840,7 +833,7 @@ export const ToothFormDialog = observer(
                             <Text fontSize="10px" fontWeight="black" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">Specific Procedure</Text>
                           </Box>
                           <VStack spacing={0} align="stretch" overflowY="auto" h="calc(100% - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'blue.100', borderRadius: '10px' } }}>
-                            {(activeN2?.name3s || []).map((n3: any, idx: number) => {
+                            {(activeN2?.name3s || []).map((n3: any) => {
                               const proc = n3.procedure;
                               let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
                               if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
@@ -855,10 +848,10 @@ export const ToothFormDialog = observer(
                                   align="start"
                                   spacing={1}
                                   cursor="pointer"
-                                  bg={isSelected ? "blue.500" : (selectedN3Idx === idx ? "blue.50" : "transparent")}
-                                  color={isSelected ? "white" : (selectedN3Idx === idx ? "blue.700" : "gray.700")}
+                                  bg={isSelected ? "blue.500" : (selectedName3 === n3.name ? "blue.50" : "transparent")}
+                                  color={isSelected ? "white" : (selectedName3 === n3.name ? "blue.700" : "gray.700")}
                                   onClick={() => {
-                                    setSelectedN3Idx(idx);
+                                    setSelectedName3(n3.name);
                                     setTempTreatmentCode(fullCode);
                                   }}
                                   _hover={{ bg: isSelected ? "blue.600" : "blue.50/50" }}
