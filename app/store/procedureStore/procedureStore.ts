@@ -12,11 +12,14 @@ class ProcedureStore {
     makeAutoObservable(this);
   }
 
-  getProcedures = async () => {
+  getProcedures = async (query?: any) => {
     this.procedures.loading = true;
     try {
       const { data } = await axios.get("/procedure/get", {
-        params: { companyId: authStore.company }
+        params: { 
+          companyId: query?.companyId || authStore.company,
+          ...query
+        }
       });
       this.procedures.data = data?.data || [];
       return data.data;

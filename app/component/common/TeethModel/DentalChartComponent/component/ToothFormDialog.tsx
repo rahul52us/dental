@@ -118,6 +118,11 @@ export const ToothFormDialog = observer(
       procedureStore,
     } = stores;
 
+    useEffect(() => {
+      const companyId = patientDetails?.company?._id || patientDetails?.company;
+      procedureStore.getProcedures(companyId ? { companyId } : {});
+    }, [patientDetails]);
+
     // Browser State
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
@@ -172,34 +177,7 @@ export const ToothFormDialog = observer(
         }));
       }
 
-      // Fallback to TREATMENT_CATEGORIES with normalized structure
-      return (TREATMENT_CATEGORIES as any).map((cat: any) => ({
-        ...cat,
-        subcategories: (cat.subcategories || []).map((sub: any) => ({
-          ...sub,
-          name1s: (sub.jobs || []).map((job: any) => ({
-            name: job.name,
-            name2s: [
-              {
-                name: "None",
-                name3s: [
-                  {
-                    name: "None",
-                    procedure: {
-                      ...job,
-                      category: cat.name,
-                      subcategory: sub.name,
-                      name: job.name,
-                      name2: "None",
-                      name3: "None"
-                    }
-                  }
-                ]
-              }
-            ]
-          }))
-        }))
-      }));
+      return [];
     }, [procedureStore.procedures.data]);
 
     const activeCategory = selectedCategory !== null ? (groupedData as any[]).find(c => c.name.toLowerCase().trim() === selectedCategory.toLowerCase().trim()) : null;

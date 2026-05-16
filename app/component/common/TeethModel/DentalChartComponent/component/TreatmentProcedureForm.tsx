@@ -193,8 +193,9 @@ export const TreatmentProcedureForm = observer(
         } = stores;
 
         useEffect(() => {
-            procedureStore.getProcedures();
-        }, []);
+            const companyId = patientDetails?.company?._id || patientDetails?.company;
+            procedureStore.getProcedures(companyId ? { companyId } : {});
+        }, [patientDetails]);
 
         const groupedData = useMemo(() => {
             const dbData = procedureStore.procedures.data;
@@ -241,34 +242,7 @@ export const TreatmentProcedureForm = observer(
                 }));
             }
 
-            // Fallback to TREATMENT_CATEGORIES with normalized structure
-            return (TREATMENT_CATEGORIES as any).map((cat: any) => ({
-                ...cat,
-                subcategories: (cat.subcategories || []).map((sub: any) => ({
-                    ...sub,
-                    name1s: (sub.jobs || []).map((job: any) => ({
-                        name: job.name,
-                        name2s: [
-                            {
-                                name: "None",
-                                name3s: [
-                                    {
-                                        name: "None",
-                                        procedure: {
-                                            ...job,
-                                            category: cat.name,
-                                            subcategory: sub.name,
-                                            name: job.name,
-                                            name2: "None",
-                                            name3: "None"
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }))
-                }))
-            }));
+            return [];
         }, [procedureStore.procedures.data]);
 
         const [doctors, setDoctors] = useState<any[]>([]);
