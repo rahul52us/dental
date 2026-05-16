@@ -106,6 +106,7 @@ class ToothTreatmentStore {
     fdi?: string;
     complaintType?: string;
     toDate?: string;
+    status?: string;
   }) => {
 
     console.log("Fetching tooth treatments with params:", sendData);
@@ -122,6 +123,7 @@ class ToothTreatmentStore {
       if (sendData.fdi) params.fdi = sendData.fdi;
       if (sendData.search) params.search = sendData.search;
       if (sendData.toDate) params.toDate = sendData.toDate;
+      if (sendData.status && sendData.status !== 'all') params.status = sendData.status;
 
 
       const cType = sendData.complaintType || sendData.category;
@@ -148,7 +150,7 @@ class ToothTreatmentStore {
     }
   };
 
-  getTodayCount = async (sendData: { patientId: any, date?: string, complaintType?: string, search?: string }) => {
+  getTodayCount = async (sendData: { patientId: any, date?: string, complaintType?: string, search?: string, status?: string }) => {
     console.log("Fetching tooth count for patient:", sendData.patientId, "on date:", sendData.date || "Today");
     try {
       const params: any = {
@@ -160,6 +162,7 @@ class ToothTreatmentStore {
 
       if (sendData.complaintType && sendData.complaintType !== 'all') params.complaintType = sendData.complaintType;
       if (sendData.search) params.search = sendData.search;
+      if (sendData.status && sendData.status !== 'all') params.status = sendData.status;
 
       console.log("FINAL API PARAMS (getTodayCount):", params);
 
@@ -173,7 +176,7 @@ class ToothTreatmentStore {
     }
   };
 
-  getTodayToothTreatments = async (sendData: { patientId: any, date?: string, complaintType?: string, search?: string }) => {
+  getTodayToothTreatments = async (sendData: { patientId: any, date?: string, complaintType?: string, search?: string, status?: string }) => {
     console.log("Fetching tooth treatments for patient:", sendData.patientId, "on date:", sendData.date || "Today");
     this.todayToothTreatment.loading = true;
     try {
@@ -186,6 +189,7 @@ class ToothTreatmentStore {
 
       if (sendData.complaintType && sendData.complaintType !== 'all') params.complaintType = sendData.complaintType;
       if (sendData.search) params.search = sendData.search;
+      if (sendData.status && sendData.status !== 'all') params.status = sendData.status;
 
       console.log("FINAL API PARAMS (getTodayToothTreatments):", params);
 

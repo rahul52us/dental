@@ -118,6 +118,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [treatedToothIds, setTreatedToothIds] = useState<string[]>([]);
   const [chartRecords, setChartRecords] = useState<any[]>([]);
   const [historyFilterTooth, setHistoryFilterTooth] = useState<string | null>(null);
+  const [historyStatusFilter, setHistoryStatusFilter] = useState("all");
 
   const [selectionMode, setSelectionMode] = useState<'single' | 'multi' | 'history'>('single');
 
@@ -329,8 +330,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         if (edit.treatmentPlan) {
           const parts = edit.treatmentPlan.split(/→|->|·|\|/).map((p: string) => p.trim());
           if (parts.length >= 1) {
-            setExplorerState({ 
-              category: parts[0] || null, 
+            setExplorerState({
+              category: parts[0] || null,
               subcategory: parts[1] || null,
               name1: parts[2] || null,
               name2: parts[3] || null,
@@ -539,12 +540,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         patientId: patientDetails._id || patientDetails.id,
         date: sessionDate,
         complaintType: historyCategoryFilter === "all" ? undefined : historyCategoryFilter,
+        status: historyStatusFilter === "all" ? undefined : historyStatusFilter,
         search: historySearch
       });
       getTodayCount({
         patientId: patientDetails._id || patientDetails.id,
         date: sessionDate,
         complaintType: historyCategoryFilter === "all" ? undefined : historyCategoryFilter,
+        status: historyStatusFilter === "all" ? undefined : historyStatusFilter,
         search: historySearch
       });
     }
@@ -553,7 +556,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   useEffect(() => {
     setHistoryPage(1);
-  }, [historySearch, historyCategoryFilter]);
+  }, [historySearch, historyCategoryFilter, historyStatusFilter]);
 
   const renderStep = () => {
     const activeColor = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" }[complaintType] || "blue";
@@ -1001,7 +1004,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   onChange={(e) => setHistorySearch(e.target.value)}
                 />
               </HStack>
-              <Box w="220px">
+              <Box w="200px">
                 <select
                   value={historyCategoryFilter}
                   onChange={(e) => setHistoryCategoryFilter(e.target.value)}
@@ -1025,6 +1028,30 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                   <option value="EXISTING FINDING">EXISTING FINDING</option>
                 </select>
               </Box>
+              <Box w="180px">
+                <select
+                  value={historyStatusFilter}
+                  onChange={(e) => setHistoryStatusFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    borderRadius: '12px',
+                    padding: '0 12px',
+                    fontSize: '13px',
+                    border: '1px solid #E2E8F0',
+                    background: 'white',
+                    fontWeight: '900',
+                    color: 'black',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending / Planned</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </Box>
             </HStack>
             <Box flex={1} overflowY="auto" pt={2} className="clinical-history-scroll" sx={{
               '&::-webkit-scrollbar': { width: '4px' },
@@ -1041,7 +1068,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                         <Th fontSize="10px">Date</Th>
                         <Th fontSize="10px">Tooth</Th>
                         <Th fontSize="10px">Location</Th>
-                        <Th fontSize="10px">Category</Th>
                         <Th fontSize="10px">Procedure</Th>
                         <Th fontSize="10px" isNumeric>Est Min</Th>
                         <Th fontSize="10px" isNumeric>Est Max</Th>
@@ -1059,7 +1085,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                               {item.position?.toUpperCase()} {item.side?.toUpperCase()}
                             </Badge>
                           </Td>
-                          <Td py={4} fontSize="11px" fontWeight="black" color="black">{item.complaintType}</Td>
                           <Td py={4} fontSize="12px" fontWeight="black" color="black" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
                           <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMin || 0}</Td>
                           <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMax || 0}</Td>
