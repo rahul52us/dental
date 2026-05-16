@@ -806,40 +806,41 @@ export const TreatmentProcedureForm = observer(
                                 open={isProcedureOpen}
                                 close={onProcedureClose}
                                 title={
-                                    <HStack spacing={3}>
-                                        <Box p={2} bg="blue.500" borderRadius="lg" color="white">
-                                            <FiActivity size={18} />
-                                        </Box>
+                                    <HStack justify="space-between" w="full" pr={12}>
                                         <VStack align="start" spacing={0}>
                                             <Heading size="sm" color="white">Procedure Explorer</Heading>
-                                            <Text fontSize="10px" color="blue.100" fontWeight="bold">SELECT CLINICAL PROTOCOL</Text>
+                                            <Text fontSize="10px" color="blue.100" fontWeight="bold" letterSpacing="0.1em">SELECT CLINICAL PROTOCOL</Text>
                                         </VStack>
+                                        <Button
+                                            type="button"
+                                            colorScheme="blue"
+                                            bg="white"
+                                            color="blue.600"
+                                            onClick={() => {
+                                                if (activeToothId === "bulk") {
+                                                    teeth.forEach(t => {
+                                                        setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
+                                                        // logic: sync procedure details if needed
+                                                    });
+                                                } else if (activeToothId) {
+                                                    setFieldValue(`treatments.${activeToothId}.treatmentCode`, tempTreatmentCode);
+                                                }
+                                                onProcedureClose();
+                                            }}
+                                            isDisabled={!tempTreatmentCode}
+                                            leftIcon={<FiCheckCircle />}
+                                            size="md"
+                                            borderRadius="xl"
+                                            fontWeight="1000"
+                                            px={6}
+                                            boxShadow="sm"
+                                            _hover={{ bg: "blue.50", transform: "translateY(-1px)" }}
+                                        >
+                                            Save Selection
+                                        </Button>
                                     </HStack>
                                 }
-                                width="85vw"
-                                extraActions={
-                                    <Button
-                                        type="button"
-                                        colorScheme="blue"
-                                        onClick={() => {
-                                            if (activeToothId === "bulk") {
-                                                teeth.forEach(t => {
-                                                    setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
-                                                });
-                                            } else if (activeToothId) {
-                                                setFieldValue(`treatments.${activeToothId}.treatmentCode`, tempTreatmentCode);
-                                            }
-                                            onProcedureClose();
-                                        }}
-                                        isDisabled={!tempTreatmentCode}
-                                        leftIcon={<FiCheckCircle />}
-                                        size="sm"
-                                        borderRadius="full"
-                                        px={6}
-                                    >
-                                        Save Selection
-                                    </Button>
-                                }
+                                width="95vw"
                             >
                                 <VStack spacing={4} align="stretch" h="full" p={4}>
                                     <Box
@@ -851,12 +852,17 @@ export const TreatmentProcedureForm = observer(
                                         flex={1}
                                         minH="500px"
                                     >
-                                        <Grid templateColumns="1fr 1.2fr 1.2fr 1.2fr 1.5fr" h="full">
+                                        <Grid templateColumns="repeat(5, 1fr)" bg="gray.50/50" borderBottom="1px solid" borderColor="gray.200">
+                                            {["CATEGORY", "SUBCATEGORY", "NAME 1", "NAME 2", "SPECIFIC PROCEDURE"].map(label => (
+                                                <Box key={label} py={3} px={4} borderRight="1px solid" borderColor="gray.100">
+                                                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">{label}</Text>
+                                                </Box>
+                                            ))}
+                                        </Grid>
+                                        <Grid templateColumns="repeat(5, 1fr)" h="full">
                                             {/* COLUMN 1: CATEGORY */}
                                             <Box borderRight="1px solid" borderColor="gray.100" bg="gray.50/30">
-                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Category</Text>
-                                                </Box>
+
                                                 <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                                                     {groupedData.map((cat: any) => (
                                                         <HStack
@@ -886,9 +892,7 @@ export const TreatmentProcedureForm = observer(
 
                                             {/* COLUMN 2: SUBCATEGORY */}
                                             <Box borderRight="1px solid" borderColor="gray.100">
-                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Subcategory</Text>
-                                                </Box>
+
                                                 <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                                                     {(activeCategory?.subcategories || []).map((sub: any) => (
                                                         <HStack
@@ -898,7 +902,7 @@ export const TreatmentProcedureForm = observer(
                                                             onClick={() => {
                                                                 setSelectedSubcategory(sub.name);
                                                                 if (activeCategory) {
-                                                                    setTempTreatmentCode(`${activeCategory.name} → ${sub.name}`);
+                                                                    setTempTreatmentCode(`${activeCategory.name} · ${sub.name}`);
                                                                 }
                                                             }}
                                                             _hover={{ bg: "blue.50/50" }}
@@ -908,7 +912,7 @@ export const TreatmentProcedureForm = observer(
                                                         >
                                                             <VStack align="start" spacing={1}>
                                                                 <Text fontSize="xs" fontWeight={selectedSubcategory?.toLowerCase().trim() === sub.name.toLowerCase().trim() ? "900" : "bold"}>{sub.name}</Text>
-                                                                {activeCategory && tempTreatmentCode?.toLowerCase().trim() === `${activeCategory.name} → ${sub.name}`.toLowerCase().trim() && (
+                                                                {tempTreatmentCode?.toLowerCase().trim() === `${activeCategory?.name} · ${sub.name}`.toLowerCase().trim() && (
                                                                     <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
                                                                 )}
                                                             </VStack>
@@ -920,9 +924,7 @@ export const TreatmentProcedureForm = observer(
 
                                             {/* COLUMN 3: NAME 1 */}
                                             <Box borderRight="1px solid" borderColor="gray.100" bg="gray.50/30">
-                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 1</Text>
-                                                </Box>
+
                                                 <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                                                     {(activeSubcategory?.name1s || []).map((n1: any) => (
                                                         <HStack
@@ -934,7 +936,7 @@ export const TreatmentProcedureForm = observer(
                                                             onClick={() => {
                                                                 setSelectedName1(n1.name);
                                                                 if (activeCategory && activeSubcategory) {
-                                                                    setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}`);
+                                                                    setTempTreatmentCode(`${activeCategory.name} · ${activeSubcategory.name} · ${n1.name}`);
                                                                 }
                                                             }}
                                                             _hover={{ bg: "gray.50" }}
@@ -942,7 +944,7 @@ export const TreatmentProcedureForm = observer(
                                                         >
                                                             <VStack align="start" spacing={1}>
                                                                 <Text fontSize="xs" fontWeight={selectedName1 === n1.name ? "900" : "bold"}>{n1.name}</Text>
-                                                                {activeCategory && activeSubcategory && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${n1.name}` && (
+                                                                {tempTreatmentCode === `${activeCategory?.name} · ${activeSubcategory?.name} · ${n1.name}` && (
                                                                     <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
                                                                 )}
                                                             </VStack>
@@ -954,9 +956,7 @@ export const TreatmentProcedureForm = observer(
 
                                             {/* COLUMN 4: NAME 2 */}
                                             <Box borderRight="1px solid" borderColor="gray.100">
-                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                                                    <Text fontSize="10px" fontWeight="black" color="gray.400" textTransform="uppercase" letterSpacing="0.1em">Name 2</Text>
-                                                </Box>
+
                                                 <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'gray.100', borderRadius: '10px' } }}>
                                                     {(activeN1?.name2s || []).map((n2: any) => (
                                                         <HStack
@@ -968,7 +968,7 @@ export const TreatmentProcedureForm = observer(
                                                             onClick={() => {
                                                                 setSelectedName2(n2.name);
                                                                 if (activeCategory && activeSubcategory && activeN1) {
-                                                                    setTempTreatmentCode(`${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}`);
+                                                                    setTempTreatmentCode(`${activeCategory.name} · ${activeSubcategory.name} · ${activeN1.name} · ${n2.name}`);
                                                                 }
                                                             }}
                                                             _hover={{ bg: "gray.50" }}
@@ -976,7 +976,7 @@ export const TreatmentProcedureForm = observer(
                                                         >
                                                             <VStack align="start" spacing={1}>
                                                                 <Text fontSize="xs" fontWeight={selectedName2 === n2.name ? "900" : "bold"}>{n2.name}</Text>
-                                                                {activeCategory && activeSubcategory && activeN1 && tempTreatmentCode === `${activeCategory.name} → ${activeSubcategory.name} → ${activeN1.name} → ${n2.name}` && (
+                                                                {tempTreatmentCode === `${activeCategory?.name} · ${activeSubcategory?.name} · ${activeN1?.name} · ${n2.name}` && (
                                                                     <Badge colorScheme="blue" variant="solid" fontSize="8px">SELECTED</Badge>
                                                                 )}
                                                             </VStack>
@@ -988,15 +988,12 @@ export const TreatmentProcedureForm = observer(
 
                                             {/* COLUMN 5: NAME 3 */}
                                             <Box bg="blue.50/20">
-                                                <Box bg="white" p={3} borderBottom="1px solid" borderColor="gray.100">
-                                                    <Text fontSize="10px" fontWeight="black" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">Specific Procedure</Text>
-                                                </Box>
                                                 <VStack spacing={0} align="stretch" overflowY="auto" h="calc(600px - 40px)" sx={{ '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { background: 'blue.100', borderRadius: '10px' } }}>
                                                     {(activeN2?.name3s || []).map((n3: any) => {
                                                         const proc = n3.procedure;
-                                                        let fullCode = `${proc.category} → ${proc.subcategory} → ${proc.name}`;
-                                                        if (proc.name2 && proc.name2 !== "None") fullCode += ` → ${proc.name2}`;
-                                                        if (proc.name3 && proc.name3 !== "None") fullCode += ` → ${proc.name3}`;
+                                                        let fullCode = `${proc.category} · ${proc.subcategory} · ${proc.name}`;
+                                                        if (proc.name2 && proc.name2 !== "None") fullCode += ` · ${proc.name2}`;
+                                                        if (proc.name3 && proc.name3 !== "None") fullCode += ` · ${proc.name3}`;
 
                                                         const isSelected = tempTreatmentCode === fullCode;
 

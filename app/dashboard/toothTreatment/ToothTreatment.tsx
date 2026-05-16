@@ -250,21 +250,16 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       metaData: {
         component: (dt: any) => {
           const getStatusColor = (status: string) => {
-            switch (status) {
-              case "scheduled":
-                return "blue";
-              case "in-progress":
-                return "yellow";
-              case "completed":
+            const s = status?.toUpperCase();
+            switch (s) {
+              case "PENDING":
+                return "orange";
+              case "COMPLETE":
+              case "COMPLETED":
                 return "green";
-              case "cancelled":
+              case "INCOMPLETE":
+              case "CANCELLED":
                 return "red";
-              case "shift":
-                return "purple";
-              case "no-show":
-                return "gray";
-              case "arrived":
-                return "green";
               default:
                 return "gray";
             }
@@ -341,13 +336,14 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const renderCard = (dt: any) => {
     const statusColors: any = {
-      scheduled: "blue",
-      "in-progress": "yellow",
-      completed: "green",
-      cancelled: "red",
-      planned: "gray",
+      PENDING: "orange",
+      COMPLETE: "green",
+      COMPLETED: "green",
+      INCOMPLETE: "red",
+      CANCELLED: "red",
+      PLANNED: "gray",
     };
-    const color = statusColors[dt.status?.toLowerCase()] || "gray";
+    const color = statusColors[dt.status?.toUpperCase()] || "gray";
 
     return (
       <Box
@@ -601,14 +597,9 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 }}
               >
                 <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="in-progress">In-Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="shift">Shift</option>
-                <option value="no-show">No Show</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="arrived">Arrived</option>
+                <option value="PENDING">PENDING</option>
+                <option value="COMPLETE">COMPLETE</option>
+                <option value="INCOMPLETE">INCOMPLETE</option>
               </select>
             </Box>
 
