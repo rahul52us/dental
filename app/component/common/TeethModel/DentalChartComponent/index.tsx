@@ -481,7 +481,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   const handleMarkAsComplete = async (id: string) => {
     try {
-      await updateToothTreatment({ treatmentId: id, status: "completed" });
+      await updateToothTreatment({ treatmentId: id, status: "complete" });
       // Refresh local chart data silently after status change
       if (patientDetails?._id) {
         getToothHighlights({ patientId: patientDetails._id, toDate: sessionDate })

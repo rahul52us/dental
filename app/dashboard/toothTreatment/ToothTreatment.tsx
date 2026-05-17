@@ -597,9 +597,9 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 }}
               >
                 <option value="all">All Statuses</option>
-                <option value="PENDING">PENDING</option>
-                <option value="COMPLETE">COMPLETE</option>
-                <option value="INCOMPLETE">INCOMPLETE</option>
+                <option value="pending">PENDING</option>
+                <option value="complete">COMPLETE</option>
+                <option value="incomplete">INCOMPLETE</option>
               </select>
             </Box>
 

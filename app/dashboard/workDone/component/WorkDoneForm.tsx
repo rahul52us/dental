@@ -243,7 +243,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       return doc;
     })(),
     workDoneNote: editData?.workDoneNote || "",
-    status: editData?.status || "COMPLETE",
+    status: String(editData?.status || "complete").toLowerCase(),
     amount: editData?.amount ?? "", // Keep empty for new records
     discount: editData?.discount ?? "", // Keep empty for new records
     treatmentCode: editData?.treatmentCode || treatmentDetails?.treatmentPlan || "",
@@ -955,9 +955,9 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                     <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL STATUS</Text>
                     <Grid templateColumns="repeat(3, 1fr)" gap={4} w="full">
                       {[
-                        { value: "COMPLETE", label: "COMPLETE", color: "green" },
-                        { value: "PENDING", label: "PENDING", color: "orange" },
-                        { value: "INCOMPLETE", label: "INCOMPLETE", color: "red" }
+                        { value: "complete", label: "COMPLETE", color: "green" },
+                        { value: "pending", label: "PENDING", color: "orange" },
+                        { value: "incomplete", label: "INCOMPLETE", color: "red" }
                       ].map((status) => (
                         <Button
                           type="button"

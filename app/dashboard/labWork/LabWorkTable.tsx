@@ -358,29 +358,6 @@ const LabWorkTable = observer(() => {
         subTitle="Manage In-house and Outside laboratory orders and tracking"
       />
       <Box mt={2}>
-        <Flex justify="flex-end" align="center" mb={4}>
-          {stores.auth.hasPermission('reports', 'view') && (
-            <Button
-              leftIcon={<FiDownload />}
-              colorScheme="blue"
-              variant="outline"
-              size="md"
-              borderRadius="xl"
-              onClick={() => {
-                let workType: any = "all";
-                if (activeTab === 1) workType = "in-house";
-                else if (activeTab === 2) workType = "outside";
-                setReportFilters(prev => ({ ...prev, workType }));
-                onReportOpen();
-              }}
-              isLoading={isDownloading}
-              loadingText="Downloading..."
-            >
-              Download Report
-            </Button>
-          )}
-        </Flex>
-
         <CustomTable
           title={activeTab === 0 ? "All Lab Sheets" : (activeTab === 1 ? "In-house Work" : "Outside Work")}
           data={labWorkStore.labWorks.map((item, index) => ({
@@ -389,6 +366,26 @@ const LabWorkTable = observer(() => {
           }))}
           columns={columns}
           actions={{
+            customComponent: stores.auth.hasPermission('reports', 'view') && (
+              <Button
+                leftIcon={<FiDownload />}
+                colorScheme="blue"
+                variant="outline"
+                size="sm"
+                borderRadius="xl"
+                onClick={() => {
+                  let workType: any = "all";
+                  if (activeTab === 1) workType = "in-house";
+                  else if (activeTab === 2) workType = "outside";
+                  setReportFilters(prev => ({ ...prev, workType }));
+                  onReportOpen();
+                }}
+                isLoading={isDownloading}
+                loadingText="Downloading..."
+              >
+                Download Report
+              </Button>
+            ),
             actionBtn: {
               addKey: { 
                 showAddButton: stores.auth.hasPermission('lab', 'create'), 

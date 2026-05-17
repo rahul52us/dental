@@ -384,7 +384,14 @@ export const TreatmentProcedureForm = observer(
                         treatmentDate: sessionDate || new Date().toISOString().split("T")[0],
                         notes: String(values.notes || ""),
                         treatmentPlan: values.treatmentCode || "",
-                        status: values.status === "Planned" ? "pending" : (values.status || "pending"),
+                        status: (() => {
+                            const s = String(values.status || "").toLowerCase().trim();
+                            if (s === "planned" || s === "pending") return "pending";
+                            if (s === "completed" || s === "complete") return "complete";
+                            if (s === "incomplete") return "incomplete";
+                            if (s === "cancelled") return "cancelled";
+                            return "pending";
+                        })(),
                         estimateMin: Number(values.estimateMin) || 0,
                         estimateMax: Number(values.estimateMax) || 0,
                         discount: Number(values.discount) || 0,

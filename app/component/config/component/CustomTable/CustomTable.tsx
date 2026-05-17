@@ -363,6 +363,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
         )}
 
         <Flex alignItems="center" columnGap={2} ml="auto">
+          {actions?.customComponent && (
+            <Box>{actions.customComponent}</Box>
+          )}
           {!isMobile && actions?.search && actions?.search?.show && (
             <Input
               placeholder={actions?.search?.placeholder || "Search"}

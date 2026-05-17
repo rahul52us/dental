@@ -135,11 +135,16 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [openEditWorkDone, setOpenEditWorkDone] = useState({ open: false, data: null as any });
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "COMPLETE": return "green";
-      case "PENDING": return "orange";
-      case "INCOMPLETE": return "red";
-      default: return "gray";
+    switch (String(status || "").toUpperCase()) {
+      case "COMPLETE":
+      case "COMPLETED":
+        return "green";
+      case "PENDING":
+        return "orange";
+      case "INCOMPLETE":
+        return "red";
+      default:
+        return "gray";
     }
   };
 
@@ -250,21 +255,25 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         _hover={{ opacity: 0.8 }}
                       >
                         <HStack spacing={1}>
-                          <Text>{record.status || "COMPLETE"}</Text>
+                          <Text>{String(record.status || "complete").toUpperCase()}</Text>
                           <Icon as={FiChevronDown} />
                         </HStack>
                       </MenuButton>
                       <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
-                        {["COMPLETE", "PENDING", "INCOMPLETE"].map((s) => (
+                        {[
+                          { value: "complete", label: "COMPLETE" },
+                          { value: "pending", label: "PENDING" },
+                          { value: "incomplete", label: "INCOMPLETE" }
+                        ].map((s) => (
                           <MenuItem 
-                            key={s}
-                            onClick={() => handleStatusChange(record, s)}
+                            key={s.value}
+                            onClick={() => handleStatusChange(record, s.value)}
                             fontSize="11px"
                             fontWeight="1000"
                             borderRadius="lg"
-                            color={getStatusColor(s) + ".600"}
+                            color={getStatusColor(s.value) + ".600"}
                           >
-                            Mark as {s}
+                            Mark as {s.label}
                           </MenuItem>
                         ))}
                       </MenuList>
