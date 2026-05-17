@@ -31,7 +31,7 @@ import {
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 import { observer } from "mobx-react-lite";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import SidebarLogo from "./component/SidebarLogo";
 import stores from "../../../store/stores";
 import { FaCircle } from "react-icons/fa"; // Added FaCircle
@@ -531,6 +531,45 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const [activeItemId, setActiveItemId] = useState<number | null>(1); // Default to 1 to match server render
 
     const { colorMode } = useColorMode();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Auto-update active sidebar item based on current URL and query parameters
+    useEffect(() => {
+      if (!sidebarData || sidebarData.length === 0) return;
+
+      const currentUrl = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+
+      let bestMatch: SidebarItem | null = null;
+      let maxMatchLength = 0;
+
+      const traverse = (items: any[]) => {
+        for (const item of items) {
+          if (item.url && item.url !== "#") {
+            const isExactMatch = currentUrl === item.url;
+            const isStartsWithMatch = currentUrl.startsWith(item.url + "?") || currentUrl.startsWith(item.url + "/");
+            const isQueryMatch = item.url.includes("?") && currentUrl.includes(item.url);
+
+            if (isExactMatch || isStartsWithMatch || isQueryMatch) {
+              if (item.url.length > maxMatchLength) {
+                maxMatchLength = item.url.length;
+                bestMatch = item;
+              }
+            }
+          }
+          if (item.children) {
+            traverse(item.children);
+          }
+        }
+      };
+
+      traverse(sidebarData);
+      traverse(sidebarFooterData);
+
+      if (bestMatch) {
+        setActiveItemId((bestMatch as SidebarItem).id);
+      }
+    }, [pathname, searchParams, sidebarData]);
 
     useEffect(() => {
       // Hydrate active item from local storage on client side only

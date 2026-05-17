@@ -19,9 +19,6 @@ import {
   DrawerCloseButton,
   VStack,
   Tooltip,
-  Tabs,
-  TabList,
-  Tab,
   Icon,
   useColorModeValue,
   Modal,
@@ -36,7 +33,7 @@ import {
   Center,
   Spacer,
 } from "@chakra-ui/react";
-import { FiList, FiHome, FiGlobe, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
+import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
 
 import stores from "../../store/stores";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
@@ -361,51 +358,7 @@ const LabWorkTable = observer(() => {
         subTitle="Manage In-house and Outside laboratory orders and tracking"
       />
       <Box mt={2}>
-        <Flex justify="space-between" align="center" mb={4}>
-          <Tabs
-            index={activeTab}
-            onChange={handleTabChange}
-            variant="unstyled"
-          >
-            <TabList
-              bg={useColorModeValue("white", "gray.800")}
-              p={1}
-              borderRadius="xl"
-              shadow="sm"
-              w="fit-content"
-              border="1px solid"
-              borderColor={useColorModeValue("gray.100", "gray.700")}
-            >
-              {[
-                { label: "All Sheets", icon: FiList },
-                { label: "In-house", icon: FiHome },
-                { label: "Outside", icon: FiGlobe }
-              ].map((t, i) => (
-                <Tab
-                  key={i}
-                  _selected={{
-                    bg: "blue.500",
-                    color: "white",
-                    shadow: "md"
-                  }}
-                  _hover={{
-                    bg: activeTab === i ? "blue.600" : useColorModeValue("gray.50", "gray.700")
-                  }}
-                  borderRadius="lg"
-                  px={6}
-                  py={2}
-                  fontSize="sm"
-                  fontWeight="600"
-                  transition="all 0.2s"
-                >
-                  <HStack spacing={2}>
-                    <Icon as={t.icon} />
-                    <Text>{t.label}</Text>
-                  </HStack>
-                </Tab>
-              ))}
-            </TabList>
-          </Tabs>
+        <Flex justify="flex-end" align="center" mb={4}>
           {stores.auth.hasPermission('reports', 'view') && (
             <Button
               leftIcon={<FiDownload />}

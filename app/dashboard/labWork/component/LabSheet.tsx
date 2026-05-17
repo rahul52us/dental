@@ -359,11 +359,12 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                             label="Teeth Numbers"
                             placeholder="e.g. 11, 12, 13"
                             name={`selectedWorks.${workIndex}.teethNumbers`}
-                            value={work.teethNumbers?.join(", ")}
+                            value={work.teethNumbers}
                             onChange={(e: any) => {
-                              const val = e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean);
+                              const val = e.target.value;
                               setFieldValue(`selectedWorks.${workIndex}.teethNumbers`, val);
                             }}
+                            type="text"
                           />
                           <CustomInput
                             label="Shade"
