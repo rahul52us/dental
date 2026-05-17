@@ -133,7 +133,7 @@ export const ToothFormDialog = observer(
 
     const groupedData = useMemo(() => {
       const dbData = procedureStore.procedures.data;
-      
+
       if (dbData.length > 0) {
         const map: any = {};
         dbData.forEach((p: any) => {
@@ -435,6 +435,41 @@ export const ToothFormDialog = observer(
                       </HStack>
                     </VStack>
 
+                    <VStack align="start" spacing={2} w="full">
+                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. CLINICAL OBSERVATION</Text>
+                      <Box position="relative" w="full">
+                        <CustomInput
+                          name="notes"
+                          type="textarea"
+                          placeholder="Enter detailed documentation regarding symptoms, findings, or patient concerns..."
+                          value={values.notes}
+                          onChange={(e: any) => setFieldValue("notes", e.target.value)}
+                          style={{
+                            minHeight: "130px",
+                            background: "gray.50",
+                            border: '1px solid',
+                            borderColor: 'gray.100',
+                            borderRadius: '24px',
+                            padding: '20px',
+                            fontSize: '14px'
+                          }}
+                        />
+                        {values.notes && (
+                          <IconButton
+                            aria-label="Clear"
+                            icon={<FiTrash2 />}
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="red"
+                            position="absolute"
+                            bottom={4}
+                            right={4}
+                            onClick={() => setFieldValue("notes", "")}
+                          />
+                        )}
+                      </Box>
+                    </VStack>
+
 
 
                     {/* TREATMENT BROWSER SECTION */}
@@ -495,41 +530,6 @@ export const ToothFormDialog = observer(
                     <Divider />
 
                     {/* 2. CLINICAL OBSERVATION */}
-                    <VStack align="start" spacing={2} w="full">
-                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. CLINICAL OBSERVATION</Text>
-                      <Box position="relative" w="full">
-                        <CustomInput
-                          name="notes"
-                          type="textarea"
-                          placeholder="Enter detailed documentation regarding symptoms, findings, or patient concerns..."
-                          value={values.notes}
-                          onChange={(e: any) => setFieldValue("notes", e.target.value)}
-                          style={{
-                            minHeight: "130px",
-                            background: "gray.50",
-                            border: '1px solid',
-                            borderColor: 'gray.100',
-                            borderRadius: '24px',
-                            padding: '20px',
-                            fontSize: '14px'
-                          }}
-                        />
-                        {values.notes && (
-                          <IconButton
-                            aria-label="Clear"
-                            icon={<FiTrash2 />}
-                            size="sm"
-                            variant="ghost"
-                            colorScheme="red"
-                            position="absolute"
-                            bottom={4}
-                            right={4}
-                            onClick={() => setFieldValue("notes", "")}
-                          />
-                        )}
-                      </Box>
-                    </VStack>
-
                     {/* 3. CLINICAL PROCEDURE */}
                     <VStack align="start" spacing={3} w="full">
                       <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. CLINICAL PROCEDURE</Text>
