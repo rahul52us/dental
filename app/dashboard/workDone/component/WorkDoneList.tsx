@@ -320,37 +320,41 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
                 <Divider mb={4} />
 
-                {/* Content: Procedure & Note */}
-                <VStack align="start" spacing={3}>
-                  <HStack spacing={4} w="full" align="start">
-                    <Box flex={1}>
-                      <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em" mb={1}>PROCEDURE</Text>
-                      <Text fontSize="13px" fontWeight="1000" color="gray.800">
-                        {record.treatmentCode || "General Procedure"}
+                {/* Content: Tooth Info & Note on the Same Line */}
+                <HStack spacing={4} w="full" align="stretch">
+                  {(record.tooth || record.treatment?.tooth) && (
+                    <VStack
+                      align="center"
+                      justify="center"
+                      bg="blue.50"
+                      border="1px solid"
+                      borderColor="blue.200"
+                      borderRadius="xl"
+                      p={2.5}
+                      minW="100px"
+                      shadow="sm"
+                      transition="all 0.2s"
+                      _hover={{ bg: "blue.100", borderColor: "blue.300" }}
+                    >
+                      <Text fontSize="8px" fontWeight="1000" color="blue.500" letterSpacing="0.05em">TOOTH</Text>
+                      <Text fontSize="16px" fontWeight="1000" color="blue.700" lineHeight="1" my={0.5}>
+                        {record.tooth || record.treatment?.tooth}
                       </Text>
-                    </Box>
-                    {(record.tooth || record.treatment?.tooth) && (
-                      <VStack align="end" spacing={0}>
-                        <Text fontSize="10px" fontWeight="1000" color="blue.400" letterSpacing="0.1em">TOOTH</Text>
-                        <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} fontSize="14px" fontWeight="900">
-                          {record.tooth || record.treatment?.tooth}
-                        </Badge>
-                        <Text fontSize="9px" fontWeight="800" color="gray.400" mt={1}>
-                          {record.position || record.treatment?.position} {record.side || record.treatment?.side}
-                        </Text>
-                      </VStack>
-                    )}
-                  </HStack>
+                      <Text fontSize="8px" fontWeight="1000" color="gray.500" textTransform="uppercase" textAlign="center">
+                        {record.position || record.treatment?.position} {record.side || record.treatment?.side}
+                      </Text>
+                    </VStack>
+                  )}
 
                   {(record.workDoneNote || record.toothNote) && (
-                    <Box bg="gray.50" p={3} borderRadius="xl" w="full" borderLeft="4px solid" borderColor="blue.100">
+                    <Box bg="gray.50" p={3} borderRadius="xl" flex={1} borderLeft="4px solid" borderColor="blue.100">
                       {record.workDoneNote && (
                         <>
                           <HStack spacing={2} mb={1.5}>
                             <Icon as={FiFileText} fontSize="13px" color="blue.400" />
                             <Text fontSize="11px" fontWeight="1000" color="blue.500" letterSpacing="0.05em">CLINICAL OBSERVATION</Text>
                           </HStack>
-                          <Text fontSize="14px" fontWeight="500" color="gray.800" lineHeight="1.6">
+                          <Text fontSize="14px" fontWeight="600" color="gray.800" lineHeight="1.6">
                             {record.workDoneNote}
                           </Text>
                         </>
@@ -369,7 +373,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       )}
                     </Box>
                   )}
-                </VStack>
+                </HStack>
 
                 {/* Footer: Billing Summary */}
                 <SimpleGrid columns={3} gap={4} mt={5} pt={4} borderTop="1px dashed" borderColor="gray.100">
@@ -386,6 +390,14 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     <Text fontSize="14px" fontWeight="1000" color="green.600">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
                   </VStack>
                 </SimpleGrid>
+
+                {/* Procedure at the very bottom, after financials */}
+                <Box mt={4} pt={4} borderTop="1px dashed" borderColor="gray.100">
+                  <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.05em" mb={1}>PROCEDURE</Text>
+                  <Text fontSize="13px" fontWeight="1000" color="gray.800">
+                    {record.treatmentCode || "General Procedure"}
+                  </Text>
+                </Box>
               </Box>
             ))}
           </VStack>
