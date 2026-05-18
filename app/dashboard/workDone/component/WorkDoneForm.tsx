@@ -503,7 +503,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               {/* Examining Doctor & Treating Doctor (50% / 50% split width) */}
                               <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="full">
                                 <VStack align="start" spacing={2} w="full">
-                                  <Text fontSize="9px" fontWeight="1000" color="gray.400">EXAMINING DOCTOR</Text>
+                                  <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">EXAMINING DOCTOR</Text>
                                   <CustomInput
                                     name="examiningDoctor"
                                     type="real-time-user-search"
@@ -515,7 +515,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   />
                                 </VStack>
                                 <VStack align="start" spacing={2} w="full">
-                                  <Text fontSize="9px" fontWeight="1000" color="gray.400">TREATING DOCTOR</Text>
+                                  <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATING DOCTOR</Text>
                                   <CustomInput
                                     name="doctor"
                                     type="real-time-user-search"
@@ -530,7 +530,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                               {/* Clinical Observation / Work Done Note (100% width) */}
                               <VStack align="start" spacing={2} w="full">
-                                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                                <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
                                 <CustomInput
                                   name="workDoneNote"
                                   type="textarea"
@@ -543,10 +543,10 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                               {/* Today Dues Card (100% width) */}
                               <VStack align="stretch" spacing={4} p={5} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
-                                <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">TODAY DUES</Text>
+                                <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.1em">TODAY DUES</Text>
                                 <Grid templateColumns="1fr 1fr" gap={4}>
                                   <VStack align="start" spacing={1}>
-                                    <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
+                                    <Text fontSize="11px" fontWeight="bold" color="gray.700">Actual Amount (₹)</Text>
                                     <Input
                                       size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                       value={values.amount}
@@ -555,7 +555,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                     />
                                   </VStack>
                                   <VStack align="start" spacing={1}>
-                                    <Text fontSize="9px" fontWeight="1000" color="red.500">DISCOUNT (₹)</Text>
+                                    <Text fontSize="11px" fontWeight="bold" color="red.600">DISCOUNT (₹)</Text>
                                     <Input
                                       size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="red.600"
                                       value={values.discount}
@@ -566,7 +566,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                 </Grid>
                                 <HStack pt={3} borderTop="1px dashed" borderColor={complaintColor} justify="space-between" align="center">
                                   <VStack align="start" spacing={0}>
-                                    <Text fontSize="10px" fontWeight="1000" color={complaintColor}>TOTAL NET PAYABLE</Text>
+                                    <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.05em">TOTAL NET PAYABLE</Text>
                                     <Text fontSize="20px" fontWeight="1000" color={complaintColor}>
                                       ₹{(Number(values.amount || 0) - Number(values.discount || 0)).toLocaleString()}
                                     </Text>
@@ -579,7 +579,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                               {/* Procedure Selector (TREATMENT CODE) - 100% full width, placed at the VERY END */}
                               <VStack align="start" spacing={3} w="full">
-                                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TREATMENT CODE (PROCEDURE)</Text>
+                                <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATMENT CODE (PROCEDURE)</Text>
                                 <Button
                                   type="button"
                                   w="full"
@@ -687,7 +687,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                           <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="full">
                             <VStack align="start" spacing={2} w="full">
-                              <Text fontSize="9px" fontWeight="1000" color="gray.400">EXAMINING DOCTOR</Text>
+                              <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">EXAMINING DOCTOR</Text>
                               <CustomInput
                                 name="examiningDoctor"
                                 type="real-time-user-search"
@@ -699,7 +699,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               />
                             </VStack>
                             <VStack align="start" spacing={2} w="full">
-                              <Text fontSize="9px" fontWeight="1000" color="gray.400">TREATING DOCTOR</Text>
+                              <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATING DOCTOR</Text>
                               <CustomInput
                                 name="doctor"
                                 type="real-time-user-search"
@@ -713,7 +713,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                           </Grid>
 
                           <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                            <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
                             <CustomInput
                               name="workDoneNote"
                               type="textarea"
@@ -725,10 +725,10 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                           </VStack>
 
                           <VStack align="stretch" spacing={5} p={6} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
-                            <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">TODAY DUES</Text>
+                            <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.1em">TODAY DUES</Text>
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                               <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
+                                <Text fontSize="11px" fontWeight="bold" color="gray.700">Actual Amount (₹)</Text>
                                 <Input
                                   size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                   value={values.amount}
@@ -737,7 +737,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                 />
                               </VStack>
                               <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="red.500">DISCOUNT (₹)</Text>
+                                <Text fontSize="11px" fontWeight="bold" color="red.600">DISCOUNT (₹)</Text>
                                 <Input
                                   size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="red.600"
                                   value={values.discount}
@@ -748,7 +748,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                             </Grid>
                             <HStack pt={4} borderTop="1px dashed" borderColor={complaintColor} justify="space-between" align="center">
                               <VStack align="start" spacing={0}>
-                                <Text fontSize="10px" fontWeight="1000" color={complaintColor}>TOTAL NET PAYABLE</Text>
+                                <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.05em">TOTAL NET PAYABLE</Text>
                                 <Text fontSize="22px" fontWeight="1000" color={complaintColor}>
                                   ₹{(Number(values.amount || 0) - Number(values.discount || 0)).toLocaleString()}
                                 </Text>
@@ -761,7 +761,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                           {/* 6. Procedure / Treatment Plan for linked/edit mode */}
                           <VStack align="start" spacing={3} w="full" mt={4}>
-                            <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TREATMENT CODE (PROCEDURE)</Text>
+                            <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATMENT CODE (PROCEDURE)</Text>
                             <Button
                               type="button"
                               w="full"
@@ -1063,7 +1063,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                   {/* 7. Clinical Status */}
                   <VStack align="start" spacing={3} w="full" pt={2}>
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL STATUS</Text>
+                    <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">CLINICAL STATUS</Text>
                     <Grid templateColumns="repeat(3, 1fr)" gap={4} w="full">
                       {[
                         { value: "complete", label: "COMPLETE", color: "green" },
