@@ -41,6 +41,7 @@ import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import TreatmentDetailsView from "../../toothTreatment/element/TreatmentDetailsView";
 import WorkDoneForm from "./WorkDoneForm";
 import CreatableSelect from 'react-select/creatable';
+import { adultTeeth, childTeeth } from "../../../component/common/TeethModel/DentalChartComponent/utils/teethData";
 
 interface WorkDoneListProps {
   patientDetails: any;
@@ -49,6 +50,36 @@ interface WorkDoneListProps {
 }
 
 const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDoneListProps) => {
+  const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
+    if (!toothId) {
+      const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+      return { line1: line1 || "GENERAL", line2: "" };
+    }
+    const idStr = String(toothId).trim();
+    const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
+    if (!tooth) {
+      const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+      return { line1: line1 || "GENERAL", line2: "" };
+    }
+
+    const line1 = `${tooth.side} ${tooth.position}`.toUpperCase();
+    let line2 = tooth.name;
+    line2 = line2.replace(/primary/gi, "").trim();
+    const sideRegex = new RegExp(tooth.side, "gi");
+    const posRegex = new RegExp(tooth.position, "gi");
+    line2 = line2.replace(sideRegex, "").replace(posRegex, "").trim();
+    line2 = line2.replace(/\s+/g, " ").toUpperCase();
+
+    return { line1, line2 };
+  };
+
+  const getToothName = (toothId: string) => {
+    if (!toothId) return "";
+    const idStr = String(toothId).trim();
+    const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
+    return tooth ? tooth.name : "";
+  };
+
   const {
     workDoneStore: { workDone, getWorkDone, deleteWorkDone, updateWorkDone },
     toothTreatmentStore: { updateToothTreatment },
@@ -216,7 +247,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         {record.examiningDoctor && (
                           <Text fontSize="10px" fontWeight="800" color="gray.500" mt={0.5}>
                             Examined: Dr. {record.examiningDoctor?.name}
-                          </Text>
+                         </Text>
                         )}
                       </VStack>
                     </HStack>
@@ -334,20 +365,35 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                        border="2px solid"
                        borderColor="blue.300"
                        borderRadius="2xl"
-                       p={3}
-                       minW="110px"
+                       p={4}
+                       minW="120px"
                        shadow="sm"
                        transition="all 0.2s"
                        _hover={{ bg: "blue.100", borderColor: "blue.400" }}
                      >
-                       <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em">TOOTH</Text>
-                       <Text fontSize="24px" fontWeight="1000" color="blue.800" lineHeight="1" my={1}>
+                        <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
                          {record.tooth || record.treatment?.tooth}
                        </Text>
-                       <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
-                         {record.position || record.treatment?.position} {record.side || record.treatment?.side}
-                       </Text>
-                     </VStack>
+                       {(() => {
+                          const { line1, line2 } = getToothNameParts(
+                            record.tooth || record.treatment?.tooth,
+                            record.position || record.treatment?.position,
+                            record.side || record.treatment?.side
+                          );
+                          return (
+                            <>
+                              <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1}>
+                                {line1}
+                              </Text>
+                              {line2 && (
+                                <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                                  {line2}
+                                </Text>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </VStack>
                    )}
  
                    {(record.workDoneNote || record.toothNote) && (
@@ -645,7 +691,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>
                                   TYPE {stores.prescriptionStore.types.length > 0 ? `(${stores.prescriptionStore.types.length})` : '(Loading...)'}
-                                </Text>
+                               </Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={stores.prescriptionStore.suggestionsLoading}
@@ -1344,9 +1390,9 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
 
                                   {p.description && (
                                     <Box mt={1} p={1.5} bg="purple.50" borderRadius="md" w="full">
-                                      <Text fontSize="9px" color="purple.600" fontStyle="italic">{p.description}</Text>
+                                     <Text fontSize="9px" color="purple.600" fontStyle="italic">{p.description}</Text>
                                     </Box>
-                                  )}
+                                 )}
                                 </VStack>
                             </Box>
                           ))}
