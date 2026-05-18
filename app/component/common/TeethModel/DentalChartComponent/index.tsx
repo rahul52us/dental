@@ -669,35 +669,41 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       })}
                     </HStack>
                   </VStack>
-
-                  <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
-                    <Button
-                      size="xs" leftIcon={<FiMousePointer size={11} />}
-                      bg={selectionMode === 'single' ? "white" : "transparent"}
-                      color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
-                      boxShadow={selectionMode === 'single' ? "sm" : "none"}
-                      onClick={() => { setSelectionMode('single'); setIsMultipleSelection(false); setSelectedTeeth([]); }}
-                      fontWeight="1000"
-                      h="28px"
-                      borderRadius="lg"
-                    >
-                      SINGLE
-                    </Button>
-                    <Button
-                      size="xs" leftIcon={<FiActivity size={11} />}
-                      bg={selectionMode === 'multi' ? "white" : "transparent"}
-                      color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
-                      boxShadow={selectionMode === 'multi' ? "sm" : "none"}
-                      onClick={() => { setSelectionMode('multi'); setIsMultipleSelection(true); }}
-                      fontWeight="1000"
-                      h="28px"
-                      borderRadius="lg"
-                    >
-                      MULTI
-                    </Button>
-                  </HStack>
+                  <Flex flexDirection="column">
+                    <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
+                      <Button
+                        size="xs" leftIcon={<FiMousePointer size={11} />}
+                        bg={selectionMode === 'single' ? "white" : "transparent"}
+                        color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
+                        boxShadow={selectionMode === 'single' ? "sm" : "none"}
+                        onClick={() => { setSelectionMode('single'); setIsMultipleSelection(false); setSelectedTeeth([]); }}
+                        fontWeight="1000"
+                        h="28px"
+                        borderRadius="lg"
+                      >
+                        SINGLE
+                      </Button>
+                      <Button
+                        size="xs" leftIcon={<FiActivity size={11} />}
+                        bg={selectionMode === 'multi' ? "white" : "transparent"}
+                        color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
+                        boxShadow={selectionMode === 'multi' ? "sm" : "none"}
+                        onClick={() => { setSelectionMode('multi'); setIsMultipleSelection(true); }}
+                        fontWeight="1000"
+                        h="28px"
+                        borderRadius="lg"
+                      >
+                        MULTI
+                      </Button>
+                    </HStack>
+                    <HStack spacing={2} mt={4}>
+                      <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
+                      <Text fontWeight="bold">Notes</Text>
+                    </HStack>
+                  </Flex>
 
                 </Flex>
+
                 <Box flex={1} overflow="hidden">
                   <TeethChart
                     dentitionType={dentitionType}
@@ -711,28 +717,22 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     fullHistory={chartRecords}
                     sessionDate={sessionDate}
                   />
-
-
-
                 </Box>
               </VStack>
               <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="11px" fontWeight="black" color="black">CLINICAL HISTORY</Text>
-                    <Heading size="xs" fontWeight="black" color="black">Saved Records</Heading>
+                    <Text fontSize="11px" fontWeight="black" color="black">VIEW HISTORY DATE WISE</Text>
                   </VStack>
                   <HStack spacing={2}>
-                    <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{todayToothTreatment.totalItems || 0}</Circle>
                     <IconButton aria-label="Summary" icon={<FiCalendar />} size="sm" colorScheme="blue" borderRadius="full" onClick={fetchTreatmentCounts} />
-                    <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
+                    <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{todayToothTreatment.totalItems || 0}</Circle>
 
                   </HStack>
                 </HStack>
                 <Box flex={1} overflowY="auto" pr={2}>
                   <VStack align="stretch" spacing={4}>
                     <VStack align="stretch" spacing={2}>
-                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">SESSION CONTEXT</Text>
                       <HStack bg="blue.50" p={2} borderRadius="xl" border="1px solid" borderColor="blue.100" justify="space-between">
                         <Input
                           type="date"
@@ -754,7 +754,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                         <Text fontSize="24px" fontWeight="black" color="black">{todayToothTreatment.totalItems || 0}</Text>
                       </HStack>
                     </Box>
-                    <Button colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Initialize Record</Button>
+                    <Button bg={`${activeColor}.500`} mt={"35px"} colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Add Records</Button>
 
                   </VStack>
                 </Box>

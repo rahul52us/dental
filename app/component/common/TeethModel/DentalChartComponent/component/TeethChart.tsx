@@ -65,7 +65,7 @@ export const TeethChart = ({
         const recToothValue = String(rec.toothFDI || rec.tooth || "");
         const toothIds = recToothValue.split(',').map(s => s.trim());
         const recNotation = rec.toothNotation ? String(rec.toothNotation).toLowerCase() : "fdi";
-        
+
         const activeNotation = String(notationType).toLowerCase();
         if (recNotation !== activeNotation) return false;
 
@@ -79,11 +79,11 @@ export const TeethChart = ({
         let isToothMatch = false;
 
         if (recNotation === "universal") {
-           isToothMatch = toothIds.includes(String(tooth.universal));
+          isToothMatch = toothIds.includes(String(tooth.universal));
         } else if (recNotation === "palmer") {
-           isToothMatch = toothIds.includes(String(tooth.palmer));
+          isToothMatch = toothIds.includes(String(tooth.palmer));
         } else {
-           isToothMatch = toothIds.includes(String(tooth.id)) || toothIds.includes(String(tooth.fdi));
+          isToothMatch = toothIds.includes(String(tooth.id)) || toothIds.includes(String(tooth.fdi));
         }
         return isToothMatch;
       });
@@ -104,7 +104,7 @@ export const TeethChart = ({
         // (This prevents "Other" findings from today showing up in "Chief" mode)
         const recDate = new Date(rec.treatmentDate || rec.createdAt).toISOString().split('T')[0];
         if (recDate === sessionDate) {
-           return String(rec.complaintType || "").toUpperCase() === activeComplaintType;
+          return String(rec.complaintType || "").toUpperCase() === activeComplaintType;
         }
 
         // Past history is always included (Blue background)
@@ -213,7 +213,7 @@ export const TeethChart = ({
       </VStack>
 
       {/* Legend */}
-      <Box mt={8} pt={4} borderTop="1px solid" borderColor="gray.200">
+      <Box display="none" mt={8} pt={4} borderTop="1px solid" borderColor="gray.200">
         <Flex
           wrap="wrap"
           justify="center"
@@ -231,19 +231,19 @@ export const TeethChart = ({
             <Text>Historical Record</Text>
           </HStack>
           <HStack spacing={6}>
-             <HStack spacing={1}>
-                <Box w={3} h={3} rounded="full" bg="red.400" />
-                <Box w={3} h={3} rounded="full" bg="orange.400" />
-                <Box w={3} h={3} rounded="full" bg="green.400" />
-                <Text ml={1}>Clinical Session Entries</Text>
-             </HStack>
+            <HStack spacing={1}>
+              <Box w={3} h={3} rounded="full" bg="red.400" />
+              <Box w={3} h={3} rounded="full" bg="orange.400" />
+              <Box w={3} h={3} rounded="full" bg="green.400" />
+              <Text ml={1}>Clinical Session Entries</Text>
+            </HStack>
           </HStack>
           <HStack spacing={2}>
-            <Box 
-              w={3} h={3} rounded="full" 
-              bg={activeComplaintType === "CHIEF COMPLAINT" ? "red.100" : activeComplaintType === "OTHER FINDING" ? "orange.100" : "green.100"} 
-              border="1px solid" 
-              borderColor={activeComplaintType === "CHIEF COMPLAINT" ? "red.500" : activeComplaintType === "OTHER FINDING" ? "orange.500" : "green.500"} 
+            <Box
+              w={3} h={3} rounded="full"
+              bg={activeComplaintType === "CHIEF COMPLAINT" ? "red.100" : activeComplaintType === "OTHER FINDING" ? "orange.100" : "green.100"}
+              border="1px solid"
+              borderColor={activeComplaintType === "CHIEF COMPLAINT" ? "red.500" : activeComplaintType === "OTHER FINDING" ? "orange.500" : "green.500"}
             />
             <Text>Active Selection ({activeComplaintType.split(' ')[0]})</Text>
           </HStack>

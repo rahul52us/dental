@@ -742,7 +742,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     borderTopRadius: "lg"
                   }}
                 >
-                  Create New Entry
+                  New Work Entry
                 </Tab>
                 <Tab
                   fontWeight="bold"

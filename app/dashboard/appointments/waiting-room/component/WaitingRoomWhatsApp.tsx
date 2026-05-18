@@ -574,7 +574,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     <Box p={2}>
                         <Tabs isFitted variant="enclosed" colorScheme="blue">
                             <TabList mb="1em">
-                                <Tab fontWeight="bold" fontSize="14px">Create New Entry</Tab>
+                                <Tab fontWeight="bold" fontSize="14px">New Work Entry</Tab>
                                 <Tab fontWeight="bold" fontSize="14px">Work History</Tab>
                             </TabList>
                             <TabPanels>
