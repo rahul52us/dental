@@ -83,14 +83,14 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
             py={2}
             transition="all 0.2s"
             _selected={{
-              bg: "white",
-              color: "blue.600",
-              shadow: "sm",
+              bg: "blue.500",
+              color: "white",
+              shadow: "md",
               fontWeight: "extrabold",
             }}
             _hover={{
-              color: "blue.500",
-              bg: "gray.100",
+              color: "blue.600",
+              bg: "blue.50",
             }}
           >
             <HStack spacing={2} justify="center">
@@ -107,14 +107,14 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
             py={2}
             transition="all 0.2s"
             _selected={{
-              bg: "white",
-              color: "blue.600",
-              shadow: "sm",
+              bg: "blue.500",
+              color: "white",
+              shadow: "md",
               fontWeight: "extrabold",
             }}
             _hover={{
-              color: "blue.500",
-              bg: "gray.100",
+              color: "blue.600",
+              bg: "blue.50",
             }}
           >
             <HStack spacing={2} justify="center">

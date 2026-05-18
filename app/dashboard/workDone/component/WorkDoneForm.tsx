@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { Formik, Form } from "formik";
-import { FiActivity, FiCheckCircle, FiPlusCircle, FiSearch, FiEye, FiAlertCircle, FiPlus } from "react-icons/fi";
+import { FiActivity, FiCheckCircle, FiPlusCircle, FiSearch, FiEye, FiAlertCircle, FiPlus, FiX } from "react-icons/fi";
 import stores from "../../../store/stores";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
@@ -90,6 +90,16 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   const [tempProcedure, setTempProcedure] = useState<any>(null);
   const [tempTreatmentCode, setTempTreatmentCode] = useState<string>("");
   const [historyStatusFilter, setHistoryStatusFilter] = useState<string>("COMPLETE");
+  const [selectedTeeth, setSelectedTeeth] = useState<string[]>([]);
+
+  useEffect(() => {
+    const singleTooth = treatmentDetails?.tooth || treatmentDetails?.toothNo || editData?.tooth;
+    if (singleTooth) {
+      setSelectedTeeth([String(singleTooth)]);
+    } else {
+      setSelectedTeeth([]);
+    }
+  }, [treatmentDetails, editData]);
 
 
 
@@ -168,43 +178,62 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       return;
     }
 
-    if (!values.tooth && !values.toothNote) {
+    if (selectedTeeth.length === 0 && !values.workDoneNote) {
       openNotification({
         type: "error",
         title: "Incomplete Documentation",
-        message: "Please select a tooth or enter a General Note to proceed.",
+        message: "Please select at least one tooth or enter a General Note to proceed.",
       });
       setLoading(false);
       return;
     }
 
     try {
-      const payload = {
-        ...values,
-        doctor: values.doctor?.value || values.doctor,
-        patient: patientDetails._id,
-        treatment: treatmentDetails?._id,
-        company: stores.auth.company,
-        user: stores.auth.user?._id,
-        status: values.status,
-        amount: Number(values.amount) || 0,
-        discount: Number(values.discount) || 0,
-        // Standalone Tooth Details
-        tooth: values.tooth || treatmentDetails?.tooth || treatmentDetails?.toothNo,
-        toothNotation: values.toothNotation || treatmentDetails?.toothNotation,
-        dentitionType: values.dentitionType || treatmentDetails?.dentitionType,
-        position: values.position || treatmentDetails?.position,
-        side: values.side || treatmentDetails?.side,
-        toothNote: values.toothNote || treatmentDetails?.toothNote,
-        recordType: values.recordType || treatmentDetails?.recordType || (values.tooth ? "tooth" : "note"),
-        examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
-      };
+      const teethList = selectedTeeth.length > 0 ? selectedTeeth : ["General"];
 
-      if (editData?._id) {
-        await updateWorkDone(editData._id, payload);
-      } else {
-        await createWorkDone(payload);
-      }
+      const promises = teethList.map(async (toothId) => {
+        // Quadrant Detection for each tooth
+        const getQuadrantInfo = (tId: string) => {
+          const id = parseInt(tId);
+          if (isNaN(id)) return { position: "general", side: "general" };
+          if ((id >= 11 && id <= 18) || (id >= 51 && id <= 55)) return { position: "upper", side: "right" };
+          if ((id >= 21 && id <= 28) || (id >= 61 && id <= 65)) return { position: "upper", side: "left" };
+          if ((id >= 31 && id <= 38) || (id >= 71 && id <= 75)) return { position: "lower", side: "left" };
+          if ((id >= 41 && id <= 48) || (id >= 81 && id <= 85)) return { position: "lower", side: "right" };
+          return { position: "general", side: "general" };
+        };
+
+        const quadrant = getQuadrantInfo(toothId);
+
+        const payload = {
+          ...values,
+          doctor: values.doctor?.value || values.doctor,
+          patient: patientDetails._id,
+          treatment: treatmentDetails?._id,
+          company: stores.auth.company,
+          user: stores.auth.user?._id,
+          status: values.status,
+          amount: Number(values.amount) || 0,
+          discount: Number(values.discount) || 0,
+          // Standalone Tooth Details
+          tooth: toothId === "General" ? "" : toothId,
+          toothNotation: values.toothNotation || "fdi",
+          dentitionType: values.dentitionType || "adult",
+          position: quadrant.position,
+          side: quadrant.side,
+          toothNote: values.workDoneNote,
+          recordType: toothId === "General" ? "note" : "tooth",
+          examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
+        };
+
+        if (editData?._id) {
+          return updateWorkDone(editData._id, payload);
+        } else {
+          return createWorkDone(payload);
+        }
+      });
+
+      await Promise.all(promises);
 
       // Sync Treatment Status if linked
       const tId = treatmentDetails?._id || editData?.treatment?._id || editData?.treatment;
@@ -220,7 +249,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
         title: editData?._id ? "Record Updated" : "Work Done Saved",
         message: editData?._id
           ? "Clinical documentation has been updated successfully."
-          : "Clinical documentation and Treatment Plan updated successfully.",
+          : `Clinical documentation for ${teethList.length} teeth and Treatment Plan updated successfully.`,
       });
       if (onSuccess) onSuccess();
     } catch (error: any) {
@@ -315,16 +344,18 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         </Button>
                       )}
                     </HStack>
+                  </Box>
 
 
-                    {/* Treatment Context Information */}
+                    {/* Treatment Context Information & Layout Grid */}
                     {(() => {
                       const data = treatmentDetails || editData;
-                      if (!data) return (
-                        <Box mt={4} p={5} bg="blue.50" borderRadius="3xl" border="1px dashed" borderColor="blue.200" position="relative">
-                          <VStack align="stretch" spacing={4} w="full">
-                            <HStack justify="space-between" w="full" align="center">
-                              <HStack bg="white" p={1.5} borderRadius="20px" border="1px solid" borderColor="blue.100" spacing={4} shadow="sm">
+                      if (!data) {
+                        return (
+                          <VStack align="stretch" spacing={6} w="full" mt={4}>
+                            {/* 1. Teeth Chart & Selector Header (100% full-width at the top) */}
+                            <VStack align="stretch" spacing={4} w="full">
+                              <HStack bg="white" p={1.5} borderRadius="20px" border="1px solid" borderColor="blue.100" spacing={4} shadow="sm" justify="space-between" wrap="wrap">
                                 {/* 1. Finding Category */}
                                 <VStack align="start" spacing={1}>
                                   <Text fontSize="8px" fontWeight="1000" color="gray.400" ml={1}>FINDING CATEGORY</Text>
@@ -345,8 +376,8 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                           onClick={() => setFieldValue("complaintType", cat.id)}
                                           fontSize="9px"
                                           h="26px"
-                                          minW="70px"
-                                          px={3}
+                                          minW="60px"
+                                          px={2}
                                           fontWeight="1000"
                                           borderRadius="lg"
                                           transition="all 0.2s"
@@ -358,7 +389,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   </HStack>
                                 </VStack>
 
-                                <Divider orientation="vertical" h="30px" borderColor="gray.200" />
+                                <Divider orientation="vertical" h="30px" borderColor="gray.200" display={{ base: "none", sm: "block" }} />
 
                                 {/* 2. Dentition */}
                                 <VStack align="start" spacing={1}>
@@ -369,11 +400,11 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   />
                                 </VStack>
 
-                                <Divider orientation="vertical" h="30px" borderColor="gray.200" />
+                                <Divider orientation="vertical" h="30px" borderColor="gray.200" display={{ base: "none", sm: "block" }} />
 
                                 {/* 3. Notation System */}
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="8px" fontWeight="1000" color="gray.400" ml={1}>NOTATION SYSTEM</Text>
+                                  <Text fontSize="8px" fontWeight="1000" color="gray.400" ml={1}>NOTATION</Text>
                                   <HStack bg="gray.100" p={0.5} borderRadius="xl" spacing={0}>
                                     {["fdi", "universal", "palmer"].map(n => (
                                       <Button
@@ -386,113 +417,215 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                         onClick={() => setFieldValue("toothNotation", n)}
                                         fontSize="9px"
                                         h="24px"
-                                        minW="45px"
-                                        px={2}
+                                        minW="35px"
+                                        px={1}
                                         fontWeight="900"
                                         borderRadius="md"
                                         transition="all 0.2s"
                                       >
-                                        {n.toUpperCase()}
+                                        {n === "universal" ? "UNIV" : n.toUpperCase()}
                                       </Button>
                                     ))}
                                   </HStack>
                                 </VStack>
                               </HStack>
-                            </HStack>
 
-                            <Box bg="white" borderRadius="2xl" p={4} border="1px solid" borderColor="blue.100" shadow="sm">
-                              <Box w="full">
-                                <TeethChart
-                                  dentitionType={values.dentitionType}
-                                  selectedTeeth={values.tooth ? [{ id: values.tooth, fdi: values.tooth } as ToothData] : []}
-                                  onToothClick={(tooth) => {
-                                    const toothId = String(tooth.fdi || tooth.id);
-                                    setFieldValue("tooth", toothId);
-
-                                    // Quadrant Detection
-                                    const id = parseInt(toothId);
-                                    if (!isNaN(id)) {
-                                      if ((id >= 11 && id <= 18) || (id >= 51 && id <= 55)) {
-                                        setFieldValue("position", "upper"); setFieldValue("side", "right");
-                                      }
-                                      else if ((id >= 21 && id <= 28) || (id >= 61 && id <= 65)) {
-                                        setFieldValue("position", "upper"); setFieldValue("side", "left");
-                                      }
-                                      else if ((id >= 31 && id <= 38) || (id >= 71 && id <= 75)) {
-                                        setFieldValue("position", "lower"); setFieldValue("side", "left");
-                                      }
-                                      else if ((id >= 41 && id <= 48) || (id >= 81 && id <= 85)) {
-                                        setFieldValue("position", "lower"); setFieldValue("side", "right");
-                                      }
-                                    }
-                                  }}
-                                  notationType={values.toothNotation}
-                                  toothComplaints={{}}
-                                  activeComplaintType={values.complaintType || "CHIEF COMPLAINT"}
-                                  sessionDate={new Date().toISOString().split('T')[0]}
-                                />
+                              <Box bg="white" borderRadius="2xl" p={4} border="1px solid" borderColor="blue.100" shadow="sm">
+                                <Box w="full">
+                                  <TeethChart
+                                    dentitionType={values.dentitionType}
+                                    selectedTeeth={selectedTeeth.map(t => ({ id: t, fdi: t } as ToothData))}
+                                    onToothClick={(tooth) => {
+                                      const toothId = String(tooth.fdi || tooth.id);
+                                      setSelectedTeeth(prev => {
+                                        if (prev.includes(toothId)) {
+                                          return prev.filter(x => x !== toothId);
+                                        } else {
+                                          return [...prev, toothId];
+                                        }
+                                      });
+                                    }}
+                                    notationType={values.toothNotation}
+                                    toothComplaints={{}}
+                                    activeComplaintType={values.complaintType || "CHIEF COMPLAINT"}
+                                    sessionDate={new Date().toISOString().split('T')[0]}
+                                  />
+                                </Box>
                               </Box>
-                            </Box>
+                            </VStack>
 
-                            <HStack spacing={3} mt={4}>
-                              <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TOOTH NO</Text>
-                                <Input
-                                  size="xs"
-                                  w="60px"
-                                  variant="filled"
-                                  borderRadius="full"
-                                  textAlign="center"
-                                  fontWeight="bold"
-                                  value={values.tooth}
-                                  onChange={(e) => setFieldValue("tooth", e.target.value)}
+                            {/* 2. Below the Chart Layout (100% stacked layout with 50/50 doctor columns) */}
+                            <VStack align="stretch" spacing={6} w="full">
+                              
+                              {/* Selected Teeth badges (100% width) */}
+                              <HStack spacing={3} wrap="wrap">
+                                <VStack align="start" spacing={1} w="full">
+                                  <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">SELECTED TEETH</Text>
+                                  <HStack spacing={2} wrap="wrap">
+                                    {selectedTeeth.length === 0 ? (
+                                      <Badge colorScheme="gray" borderRadius="full" px={3} py={1} fontSize="11px">None Selected (General Note)</Badge>
+                                    ) : (
+                                      selectedTeeth.map(t => (
+                                        <Badge
+                                          key={t}
+                                          colorScheme="blue"
+                                          borderRadius="full"
+                                          px={3}
+                                          py={1}
+                                          fontSize="11px"
+                                          fontWeight="black"
+                                          display="inline-flex"
+                                          alignItems="center"
+                                        >
+                                          Tooth {t}
+                                          <IconButton
+                                            aria-label="Remove"
+                                            icon={<FiX size={10} />}
+                                            size="xs"
+                                            variant="ghost"
+                                            colorScheme="blue"
+                                            ml={1}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedTeeth(prev => prev.filter(x => x !== t));
+                                            }}
+                                            borderRadius="full"
+                                            h="16px"
+                                            minW="16px"
+                                          />
+                                        </Badge>
+                                      ))
+                                    )}
+                                  </HStack>
+                                </VStack>
+                              </HStack>
+
+                              {/* Examining Doctor & Treating Doctor (50% / 50% split width) */}
+                              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="full">
+                                <VStack align="start" spacing={2} w="full">
+                                  <Text fontSize="9px" fontWeight="1000" color="gray.400">EXAMINING DOCTOR</Text>
+                                  <CustomInput
+                                    name="examiningDoctor"
+                                    type="real-time-user-search"
+                                    query={{ type: 'doctor' }}
+                                    value={values.examiningDoctor}
+                                    onChange={(val: any) => setFieldValue("examiningDoctor", val)}
+                                    style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                    placeholder="Select Examining Dr."
+                                  />
+                                </VStack>
+                                <VStack align="start" spacing={2} w="full">
+                                  <Text fontSize="9px" fontWeight="1000" color="gray.400">TREATING DOCTOR</Text>
+                                  <CustomInput
+                                    name="doctor"
+                                    type="real-time-user-search"
+                                    query={{ type: 'doctor' }}
+                                    value={values.doctor}
+                                    onChange={(val: any) => setFieldValue("doctor", val)}
+                                    style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                    placeholder="Select Treating Dr."
+                                  />
+                                </VStack>
+                              </Grid>
+
+                              {/* Clinical Observation / Work Done Note (100% width) */}
+                              <VStack align="start" spacing={2} w="full">
+                                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                                <CustomInput
+                                  name="workDoneNote"
+                                  type="textarea"
+                                  placeholder="Workdone Note"
+                                  value={values.workDoneNote}
+                                  onChange={(e: any) => setFieldValue("workDoneNote", e.target.value)}
+                                  style={{ minHeight: "100px", background: "gray.50", border: '1px solid', borderColor: 'gray.100', borderRadius: '24px', padding: '20px', fontSize: '14px' }}
                                 />
                               </VStack>
 
-                              <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">POSITION</Text>
-                                <select
-                                  value={values.position}
-                                  onChange={(e) => setFieldValue("position", e.target.value)}
-                                  style={{
-                                    fontSize: '10px',
-                                    fontWeight: '700',
-                                    borderRadius: '20px',
-                                    padding: '2px 8px',
-                                    background: '#E6FFFA',
-                                    color: '#2C7A7B',
-                                    border: '1px solid #B2F5EA'
-                                  }}
-                                >
-                                  <option value="upper">UPPER</option>
-                                  <option value="lower">LOWER</option>
-                                </select>
+                              {/* Today Dues Card (100% width) */}
+                              <VStack align="stretch" spacing={4} p={5} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
+                                <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">TODAY DUES</Text>
+                                <Grid templateColumns="1fr 1fr" gap={4}>
+                                  <VStack align="start" spacing={1}>
+                                    <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
+                                    <Input
+                                      size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
+                                      value={values.amount}
+                                      placeholder="0.00"
+                                      onChange={(e) => setFieldValue("amount", e.target.value)}
+                                    />
+                                  </VStack>
+                                  <VStack align="start" spacing={1}>
+                                    <Text fontSize="9px" fontWeight="1000" color="red.500">DISCOUNT (₹)</Text>
+                                    <Input
+                                      size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="red.600"
+                                      value={values.discount}
+                                      placeholder="0.00"
+                                      onChange={(e) => setFieldValue("discount", e.target.value)}
+                                    />
+                                  </VStack>
+                                </Grid>
+                                <HStack pt={3} borderTop="1px dashed" borderColor={complaintColor} justify="space-between" align="center">
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="10px" fontWeight="1000" color={complaintColor}>TOTAL NET PAYABLE</Text>
+                                    <Text fontSize="20px" fontWeight="1000" color={complaintColor}>
+                                      ₹{(Number(values.amount || 0) - Number(values.discount || 0)).toLocaleString()}
+                                    </Text>
+                                  </VStack>
+                                  <Circle size="36px" bg="white" color={complaintColor} border="1px solid" borderColor={complaintColor}>
+                                    <FiCheckCircle size={18} />
+                                  </Circle>
+                                </HStack>
                               </VStack>
 
-                              <VStack align="start" spacing={1}>
-                                <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">SIDE</Text>
-                                <select
-                                  value={values.side}
-                                  onChange={(e) => setFieldValue("side", e.target.value)}
-                                  style={{
-                                    fontSize: '10px',
-                                    fontWeight: '700',
-                                    borderRadius: '20px',
-                                    padding: '2px 8px',
-                                    background: '#E6FFFA',
-                                    color: '#2C7A7B',
-                                    border: '1px solid #B2F5EA'
-                                  }}
+                              {/* Procedure Selector (TREATMENT CODE) - 100% full width, placed at the VERY END */}
+                              <VStack align="start" spacing={3} w="full">
+                                <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TREATMENT CODE (PROCEDURE)</Text>
+                                <Button
+                                  type="button"
+                                  w="full"
+                                  h="60px"
+                                  variant="outline"
+                                  colorScheme="blue"
+                                  borderStyle="dashed"
+                                  borderWidth="2px"
+                                  borderRadius="2xl"
+                                  onClick={() => setIsProcedureOpen(true)}
+                                  leftIcon={<Icon as={FiPlusCircle} boxSize={4} />}
+                                  fontSize="12px"
+                                  fontWeight="1000"
+                                  whiteSpace="normal"
+                                  textAlign="left"
+                                  px={6}
                                 >
-                                  <option value="right">RIGHT</option>
-                                  <option value="left">LEFT</option>
-                                </select>
+                                  {values.treatmentCode ? "Change Treatment Procedure" : "Assign Treatment Procedure"}
+                                </Button>
+
+                                {values.treatmentCode && (() => {
+                                  const parts = values.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
+                                  const mainProcedure = parts[parts.length - 1];
+                                  const path = parts.slice(0, -1).join(" · ");
+                                  return (
+                                    <Box p={4} bg="blue.50" borderRadius="xl" w="full" borderLeft="4px solid" borderColor="blue.500" shadow="sm">
+                                      <VStack align="start" spacing={1}>
+                                        <Text fontSize="12px" fontWeight="1000" color="blue.800" noOfLines={2}>
+                                          {mainProcedure}
+                                        </Text>
+                                        {path && (
+                                          <Text fontSize="9px" fontWeight="900" color="blue.400" textTransform="uppercase" letterSpacing="0.05em">
+                                            {path}
+                                          </Text>
+                                        )}
+                                      </VStack>
+                                    </Box>
+                                  );
+                                })()}
                               </VStack>
-                            </HStack>
+                            </VStack>
                           </VStack>
-                        </Box>
-                      );
+                        );
+                      }
 
+                      // If there is data (editing/view plan mode), show standard linear layout
                       const doctorName = values.doctor?.label || values.doctor || data.doctor?.name || (typeof data.doctor === 'string' ? data.doctor : "N/A");
                       const examDrName = values.examiningDoctor?.label || values.examiningDoctor || data.examiningDoctor?.name || (typeof data.examiningDoctor === 'string' ? data.examiningDoctor : "N/A");
                       const toothVal = values.tooth || data.tooth || data.toothNo || "GENERAL";
@@ -500,200 +633,178 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                       const received = data.receivedAmount || 0;
 
                       return (
-                        <Grid
-                          templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }}
-                          gap={2}
-                          mt={4}
-                          p={3}
-                          bg="gray.50"
-                          borderRadius="xl"
-                          border="1px solid"
-                          borderColor="gray.100"
-                          cursor="pointer"
-                          transition="all 0.2s"
-                          _hover={{
-                            bg: "white",
-                            boxShadow: "sm",
-                            borderColor: "blue.200",
-                            transform: "translateY(-1px)"
-                          }}
-                          onClick={() => setIsViewModalOpen(true)}
-                        >
-                          <VStack align="start" spacing={0}>
-                            <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">TOOTH NO</Text>
-                            <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} fontSize="12px">
-                              {toothVal}
-                            </Badge>
-                          </VStack>
-                          <VStack align="start" spacing={0}>
-                            <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">EXAMINING DR.</Text>
-                            <Text fontSize="11px" fontWeight="900" color="gray.700" noOfLines={1}>
-                              {examDrName}
-                            </Text>
-                          </VStack>
-                          <VStack align="start" spacing={0}>
-                            <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">TREATING DR.</Text>
-                            <Text fontSize="11px" fontWeight="900" color="gray.700" noOfLines={1}>
-                              {doctorName}
-                            </Text>
-                          </VStack>
-                          <VStack align="start" spacing={0}>
-                            <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ESTIMATE</Text>
-                            <Text fontSize="12px" fontWeight="1000" color="blue.600">
-                              ₹{estimate.toLocaleString()}
-                            </Text>
-                            <Text fontSize="9px" fontWeight="800" color="gray.500" mt={1}>
-                              RECEIVED: ₹{received.toLocaleString()}
-                            </Text>
-                            <Text fontSize="9px" fontWeight="900" color="red.500">
-                              BALANCE: ₹{(estimate - received).toLocaleString()}
-                            </Text>
-                          </VStack>
-                        </Grid>
-                      );
-                    })()}
-
-
-
-
-
-                    <Divider mt={5} />
-                  </Box>
-
-                  {/* Treatment View Drawer */}
-                  <CustomDrawer
-                    open={isViewModalOpen}
-                    close={() => setIsViewModalOpen(false)}
-                    title="Full Treatment Details"
-                    width="70vw"
-                  >
-                    <TreatmentDetailsView data={treatmentDetails} />
-                  </CustomDrawer>
-
-                  {/* 2. Clinical Team */}
-                  <VStack align="start" spacing={4} w="full">
-                    <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="full">
-                      <VStack align="start" spacing={2} w="full">
-                        <Text fontSize="9px" fontWeight="1000" color="gray.400">EXAMINING DOCTOR</Text>
-                        <CustomInput
-                          name="examiningDoctor"
-                          type="real-time-user-search"
-                          query={{ type: 'doctor' }}
-                          value={values.examiningDoctor}
-                          onChange={(val: any) => setFieldValue("examiningDoctor", val)}
-                          style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
-                          placeholder="Select Examining Dr."
-                        />
-                      </VStack>
-                      <VStack align="start" spacing={2} w="full">
-                        <Text fontSize="9px" fontWeight="1000" color="gray.400">TREATING DOCTOR</Text>
-                        <CustomInput
-                          name="doctor"
-                          type="real-time-user-search"
-                          query={{ type: 'doctor' }}
-                          value={values.doctor}
-                          onChange={(val: any) => setFieldValue("doctor", val)}
-                          style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
-                          placeholder="Select Treating Dr."
-                        />
-                      </VStack>
-                    </Grid>
-
-                    <VStack align="start" spacing={2} w="full">
-                      <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
-                      <CustomInput
-                        name="workDoneNote"
-                        type="textarea"
-                        placeholder="Workdone Note"
-                        value={values.workDoneNote}
-                        onChange={(e: any) => setFieldValue("workDoneNote", e.target.value)}
-                        style={{ minHeight: "130px", background: "gray.50", border: '1px solid', borderColor: 'gray.100', borderRadius: '24px', padding: '20px', fontSize: '14px' }}
-                      />
-                    </VStack>
-                  </VStack>
-
-                  {/* 4. Clinical Observation */}
-
-
-                  {/* 5. Today Dues */}
-                  <VStack align="stretch" spacing={5} p={6} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
-                    <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">TODAY DUES</Text>
-                    <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                      <VStack align="start" spacing={1}>
-                        <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
-                        <Input
-                          size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
-                          value={values.amount}
-                          placeholder="0.00"
-                          onChange={(e) => setFieldValue("amount", e.target.value)}
-                        />
-                      </VStack>
-                      <VStack align="start" spacing={1}>
-                        <Text fontSize="9px" fontWeight="1000" color="red.500">DISCOUNT (₹)</Text>
-                        <Input
-                          size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="red.600"
-                          value={values.discount}
-                          placeholder="0.00"
-                          onChange={(e) => setFieldValue("discount", e.target.value)}
-                        />
-                      </VStack>
-                    </Grid>
-                    <HStack pt={4} borderTop="1px dashed" borderColor={complaintColor} justify="space-between" align="center">
-                      <VStack align="start" spacing={0}>
-                        <Text fontSize="10px" fontWeight="1000" color={complaintColor}>TOTAL NET PAYABLE</Text>
-                        <Text fontSize="22px" fontWeight="1000" color={complaintColor}>
-                          ₹{(Number(values.amount || 0) - Number(values.discount || 0)).toLocaleString()}
-                        </Text>
-                      </VStack>
-                      <Circle size="40px" bg="white" color={complaintColor} border="1px solid" borderColor={complaintColor}>
-                        <FiCheckCircle size={20} />
-                      </Circle>
-                    </HStack>
-                  </VStack>
-
-                  {/* 6. Procedure / Treatment Plan */}
-                  <VStack align="start" spacing={3} w="full">
-                    <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TREATMENT CODE (PROCEDURE)</Text>
-                    <Button
-                      type="button"
-                      w="full"
-                      h="80px"
-                      variant="outline"
-                      colorScheme="blue"
-                      borderStyle="dashed"
-                      borderWidth="2px"
-                      borderRadius="3xl"
-                      onClick={() => setIsProcedureOpen(true)}
-                      leftIcon={<Icon as={FiPlusCircle} boxSize={5} />}
-                      fontSize="13px"
-                      fontWeight="1000"
-                      whiteSpace="normal"
-                      textAlign="left"
-                      px={8}
-                    >
-                      {values.treatmentCode ? "Change Treatment Procedure" : "Assign Treatment Procedure"}
-                    </Button>
-
-                    {values.treatmentCode && (() => {
-                      const parts = values.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
-                      const mainProcedure = parts[parts.length - 1];
-                      const path = parts.slice(0, -1).join(" · ");
-                      return (
-                        <Box p={5} bg="blue.50" borderRadius="2xl" w="full" borderLeft="6px solid" borderColor="blue.500" shadow="sm">
-                          <VStack align="start" spacing={1}>
-                            <Text fontSize="14px" fontWeight="1000" color="blue.800" noOfLines={2}>
-                              {mainProcedure}
-                            </Text>
-                            {path && (
-                              <Text fontSize="11px" fontWeight="900" color="blue.400" textTransform="uppercase" letterSpacing="0.05em">
-                                {path}
+                        <VStack align="stretch" spacing={4} w="full">
+                          <Grid
+                            templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }}
+                            gap={2}
+                            mt={4}
+                            p={3}
+                            bg="gray.50"
+                            borderRadius="xl"
+                            border="1px solid"
+                            borderColor="gray.100"
+                            cursor="pointer"
+                            transition="all 0.2s"
+                            _hover={{
+                              bg: "white",
+                              boxShadow: "sm",
+                              borderColor: "blue.200",
+                              transform: "translateY(-1px)"
+                            }}
+                            onClick={() => setIsViewModalOpen(true)}
+                          >
+                            <VStack align="start" spacing={0}>
+                              <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">TOOTH NO</Text>
+                              <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} fontSize="12px">
+                                {toothVal}
+                              </Badge>
+                            </VStack>
+                            <VStack align="start" spacing={0}>
+                              <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">EXAMINING DR.</Text>
+                              <Text fontSize="11px" fontWeight="900" color="gray.700" noOfLines={1}>
+                                {examDrName}
                               </Text>
-                            )}
+                            </VStack>
+                            <VStack align="start" spacing={0}>
+                              <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">TREATING DR.</Text>
+                              <Text fontSize="11px" fontWeight="900" color="gray.700" noOfLines={1}>
+                                {doctorName}
+                              </Text>
+                            </VStack>
+                            <VStack align="start" spacing={0}>
+                              <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ESTIMATE</Text>
+                              <Text fontSize="12px" fontWeight="1000" color="blue.600">
+                                ₹{estimate.toLocaleString()}
+                              </Text>
+                              <Text fontSize="9px" fontWeight="800" color="gray.500" mt={1}>
+                                RECEIVED: ₹{received.toLocaleString()}
+                              </Text>
+                              <Text fontSize="9px" fontWeight="900" color="red.500">
+                                BALANCE: ₹{(estimate - received).toLocaleString()}
+                              </Text>
+                            </VStack>
+                          </Grid>
+
+                          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="full">
+                            <VStack align="start" spacing={2} w="full">
+                              <Text fontSize="9px" fontWeight="1000" color="gray.400">EXAMINING DOCTOR</Text>
+                              <CustomInput
+                                name="examiningDoctor"
+                                type="real-time-user-search"
+                                query={{ type: 'doctor' }}
+                                value={values.examiningDoctor}
+                                onChange={(val: any) => setFieldValue("examiningDoctor", val)}
+                                style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                placeholder="Select Examining Dr."
+                              />
+                            </VStack>
+                            <VStack align="start" spacing={2} w="full">
+                              <Text fontSize="9px" fontWeight="1000" color="gray.400">TREATING DOCTOR</Text>
+                              <CustomInput
+                                name="doctor"
+                                type="real-time-user-search"
+                                query={{ type: 'doctor' }}
+                                value={values.doctor}
+                                onChange={(val: any) => setFieldValue("doctor", val)}
+                                style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                placeholder="Select Treating Dr."
+                              />
+                            </VStack>
+                          </Grid>
+
+                          <VStack align="start" spacing={2} w="full">
+                            <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                            <CustomInput
+                              name="workDoneNote"
+                              type="textarea"
+                              placeholder="Workdone Note"
+                              value={values.workDoneNote}
+                              onChange={(e: any) => setFieldValue("workDoneNote", e.target.value)}
+                              style={{ minHeight: "100px", background: "gray.50", border: '1px solid', borderColor: 'gray.100', borderRadius: '24px', padding: '20px', fontSize: '14px' }}
+                            />
                           </VStack>
-                        </Box>
+
+                          <VStack align="stretch" spacing={5} p={6} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
+                            <Text fontSize="10px" fontWeight="1000" color={complaintColor} letterSpacing="0.2em">TODAY DUES</Text>
+                            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+                              <VStack align="start" spacing={1}>
+                                <Text fontSize="9px" fontWeight="1000" color="gray.500">Actual Amount (₹)</Text>
+                                <Input
+                                  size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
+                                  value={values.amount}
+                                  placeholder="0.00"
+                                  onChange={(e) => setFieldValue("amount", e.target.value)}
+                                />
+                              </VStack>
+                              <VStack align="start" spacing={1}>
+                                <Text fontSize="9px" fontWeight="1000" color="red.500">DISCOUNT (₹)</Text>
+                                <Input
+                                  size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="red.600"
+                                  value={values.discount}
+                                  placeholder="0.00"
+                                  onChange={(e) => setFieldValue("discount", e.target.value)}
+                                />
+                              </VStack>
+                            </Grid>
+                            <HStack pt={4} borderTop="1px dashed" borderColor={complaintColor} justify="space-between" align="center">
+                              <VStack align="start" spacing={0}>
+                                <Text fontSize="10px" fontWeight="1000" color={complaintColor}>TOTAL NET PAYABLE</Text>
+                                <Text fontSize="22px" fontWeight="1000" color={complaintColor}>
+                                  ₹{(Number(values.amount || 0) - Number(values.discount || 0)).toLocaleString()}
+                                </Text>
+                              </VStack>
+                              <Circle size="40px" bg="white" color={complaintColor} border="1px solid" borderColor={complaintColor}>
+                                <FiCheckCircle size={20} />
+                              </Circle>
+                            </HStack>
+                          </VStack>
+
+                          {/* 6. Procedure / Treatment Plan for linked/edit mode */}
+                          <VStack align="start" spacing={3} w="full" mt={4}>
+                            <Text fontSize="10px" fontWeight="1000" color="gray.400" letterSpacing="0.1em">TREATMENT CODE (PROCEDURE)</Text>
+                            <Button
+                              type="button"
+                              w="full"
+                              h="70px"
+                              variant="outline"
+                              colorScheme="blue"
+                              borderStyle="dashed"
+                              borderWidth="2px"
+                              borderRadius="3xl"
+                              onClick={() => setIsProcedureOpen(true)}
+                              leftIcon={<Icon as={FiPlusCircle} boxSize={5} />}
+                              fontSize="13px"
+                              fontWeight="1000"
+                              whiteSpace="normal"
+                              textAlign="left"
+                              px={8}
+                            >
+                              {values.treatmentCode ? "Change Treatment Procedure" : "Assign Treatment Procedure"}
+                            </Button>
+
+                            {values.treatmentCode && (() => {
+                              const parts = values.treatmentCode.split(/→|->|·|\|/).map((p: string) => p.trim());
+                              const mainProcedure = parts[parts.length - 1];
+                              const path = parts.slice(0, -1).join(" · ");
+                              return (
+                                <Box p={5} bg="blue.50" borderRadius="2xl" w="full" borderLeft="6px solid" borderColor="blue.500" shadow="sm">
+                                  <VStack align="start" spacing={1}>
+                                    <Text fontSize="14px" fontWeight="1000" color="blue.800" noOfLines={2}>
+                                      {mainProcedure}
+                                    </Text>
+                                    {path && (
+                                      <Text fontSize="11px" fontWeight="900" color="blue.400" textTransform="uppercase" letterSpacing="0.05em">
+                                        {path}
+                                      </Text>
+                                    )}
+                                  </VStack>
+                                </Box>
+                              );
+                            })()}
+                          </VStack>
+                        </VStack>
                       );
                     })()}
-                  </VStack>
 
                   {/* Procedure Explorer Drawer */}
                   <CustomDrawer

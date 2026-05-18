@@ -190,31 +190,31 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               <Box 
                 key={record._id} 
                 bg="white" 
-                p={5} 
+                p={6} 
                 borderRadius="2xl" 
-                border="1px solid" 
+                border="2px solid" 
                 borderColor="gray.100"
                 shadow="sm"
                 transition="all 0.2s"
-                _hover={{ shadow: "md", borderColor: "blue.100" }}
+                _hover={{ shadow: "lg", borderColor: "blue.300" }}
               >
                 {/* Header: Date & Doctor */}
-                <HStack justify="space-between" mb={3}>
+                <HStack justify="space-between" mb={4}>
                   <HStack spacing={3}>
-                    <HStack spacing={1.5} bg="blue.50" px={3} py={1} borderRadius="full">
+                    <HStack spacing={1.5} bg="blue.50" px={3.5} py={1.5} borderRadius="full">
                       <Icon as={FiClock} fontSize="12px" color="blue.500" />
-                      <Text fontSize="11px" fontWeight="1000" color="blue.600">
+                      <Text fontSize="12px" fontWeight="1000" color="blue.700">
                         {formatDate(record.createdAt)}
                       </Text>
                     </HStack>
-                    <HStack spacing={1.5}>
-                      <Icon as={FiUser} fontSize="12px" color="gray.400" />
+                    <HStack spacing={1.5} pl={2}>
+                      <Icon as={FiUser} fontSize="14px" color="blue.400" />
                       <VStack align="start" spacing={0}>
-                        <Text fontSize="11px" fontWeight="900" color="gray.700">
+                        <Text fontSize="12px" fontWeight="900" color="gray.700" lineHeight="1.2">
                           Treating: Dr. {record.doctor?.name || "N/A"}
                         </Text>
                         {record.examiningDoctor && (
-                          <Text fontSize="9px" fontWeight="800" color="gray.500">
+                          <Text fontSize="10px" fontWeight="800" color="gray.500" mt={0.5}>
                             Examined: Dr. {record.examiningDoctor?.name}
                           </Text>
                         )}
@@ -227,178 +227,169 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     {record.treatment && (
                       <Button
                         size="xs"
-                        variant="ghost"
+                        variant="solid"
                         colorScheme="blue"
                         leftIcon={<FiEye />}
                         onClick={() => setOpenView({ open: true, data: record.treatment })}
                         borderRadius="full"
-                        fontSize="9px"
+                        fontSize="10px"
                         fontWeight="1000"
-                        _hover={{ bg: "blue.50" }}
-                        px={3}
+                        px={3.5}
+                        h="28px"
+                        shadow="sm"
                       >
                         VIEW PLAN
                       </Button>
                     )}
-
-                    {/* Status Menu */}
-                    <Menu>
-                      <MenuButton 
-                        as={Badge} 
-                        cursor="pointer" 
-                        colorScheme={getStatusColor(record.status)} 
-                        px={3} py={1} 
-                        borderRadius="lg"
-                        fontSize="10px"
-                        fontWeight="1000"
-                        variant="subtle"
-                        _hover={{ opacity: 0.8 }}
-                      >
-                        <HStack spacing={1}>
-                          <Text>{String(record.status || "complete").toUpperCase()}</Text>
-                          <Icon as={FiChevronDown} />
-                        </HStack>
-                      </MenuButton>
-                      <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
-                        {[
-                          { value: "complete", label: "COMPLETE" },
-                          { value: "pending", label: "PENDING" },
-                          { value: "incomplete", label: "INCOMPLETE" }
-                        ].map((s) => (
-                          <MenuItem 
-                            key={s.value}
-                            onClick={() => handleStatusChange(record, s.value)}
-                            fontSize="11px"
-                            fontWeight="1000"
-                            borderRadius="lg"
-                            color={getStatusColor(s.value) + ".600"}
-                          >
-                            Mark as {s.label}
-                          </MenuItem>
-                        ))}
-                      </MenuList>
-                    </Menu>
-
-                    {/* Print Action */}
-                    <IconButton
-                      size="xs"
-                      variant="ghost"
-                      colorScheme="gray"
-                      icon={<FiPrinter />}
-                      aria-label="Print Report"
-                      onClick={() => setOpenPrintModal({ open: true, id: record._id })}
-                      borderRadius="full"
-                    />
-
-                    {/* Edit Action */}
-                    {stores.auth.hasPermission('workdone', 'edit') && (
-                      <IconButton
-                        size="xs"
-                        variant="ghost"
-                        colorScheme="blue"
-                        icon={<FiEdit />}
-                        aria-label="Edit"
-                        onClick={() => setOpenEditWorkDone({ open: true, data: record })}
-                        borderRadius="full"
-                      />
-                    )}
-
-                    {/* Delete Action */}
-                    {stores.auth.hasPermission('workdone', 'delete') && (
-                      <IconButton
-                        size="xs"
-                        variant="ghost"
-                        colorScheme="red"
-                        icon={<FiTrash2 />}
-                        aria-label="Delete"
-                        onClick={() => setDeleteModal({ open: true, id: record._id })}
-                        borderRadius="full"
-                      />
-                    )}
-                  </HStack>
-                </HStack>
-
-                <Divider mb={4} />
-
-                {/* Content: Tooth Info & Note on the Same Line */}
-                <HStack spacing={4} w="full" align="stretch">
-                  {(record.tooth || record.treatment?.tooth) && (
-                    <VStack
-                      align="center"
-                      justify="center"
-                      bg="blue.50"
-                      border="1px solid"
-                      borderColor="blue.200"
-                      borderRadius="xl"
-                      p={2.5}
-                      minW="100px"
-                      shadow="sm"
-                      transition="all 0.2s"
-                      _hover={{ bg: "blue.100", borderColor: "blue.300" }}
-                    >
-                      <Text fontSize="8px" fontWeight="1000" color="blue.500" letterSpacing="0.05em">TOOTH</Text>
-                      <Text fontSize="16px" fontWeight="1000" color="blue.700" lineHeight="1" my={0.5}>
-                        {record.tooth || record.treatment?.tooth}
-                      </Text>
-                      <Text fontSize="8px" fontWeight="1000" color="gray.500" textTransform="uppercase" textAlign="center">
-                        {record.position || record.treatment?.position} {record.side || record.treatment?.side}
-                      </Text>
-                    </VStack>
-                  )}
-
-                  {(record.workDoneNote || record.toothNote) && (
-                    <Box bg="gray.50" p={3} borderRadius="xl" flex={1} borderLeft="4px solid" borderColor="blue.100">
-                      {record.workDoneNote && (
-                        <>
-                          <HStack spacing={2} mb={1.5}>
-                            <Icon as={FiFileText} fontSize="13px" color="blue.400" />
-                            <Text fontSize="11px" fontWeight="1000" color="blue.500" letterSpacing="0.05em">CLINICAL OBSERVATION</Text>
-                          </HStack>
-                          <Text fontSize="14px" fontWeight="600" color="gray.800" lineHeight="1.6">
-                            {record.workDoneNote}
-                          </Text>
-                        </>
-                      )}
-                      
-                      {record.toothNote && (
-                        <Box mt={record.workDoneNote ? 3 : 0} pt={record.workDoneNote ? 3 : 0} borderTop={record.workDoneNote ? "1px dashed" : "none"} borderColor="gray.200">
-                          <HStack spacing={2} mb={1}>
-                            <Icon as={FiActivity} fontSize="12px" color="orange.500" />
-                            <Text fontSize="10px" fontWeight="1000" color="orange.600" letterSpacing="0.05em">GENERAL CLINICAL NOTE</Text>
-                          </HStack>
-                          <Text fontSize="13px" fontWeight="1000" color="gray.700" fontStyle="italic">
-                            {record.toothNote}
-                          </Text>
-                        </Box>
-                      )}
-                    </Box>
-                  )}
-                </HStack>
-
-                {/* Footer: Billing Summary */}
-                <SimpleGrid columns={3} gap={4} mt={5} pt={4} borderTop="1px dashed" borderColor="gray.100">
-                  <VStack align="start" spacing={0}>
-                    <Text fontSize="9px" fontWeight="1000" color="gray.400">AMOUNT</Text>
-                    <Text fontSize="14px" fontWeight="1000" color="blue.600">₹{record.amount?.toLocaleString()}</Text>
-                  </VStack>
-                  <VStack align="start" spacing={0}>
-                    <Text fontSize="9px" fontWeight="1000" color="gray.400">DISCOUNT</Text>
-                    <Text fontSize="14px" fontWeight="1000" color="red.500">₹{record.discount?.toLocaleString()}</Text>
-                  </VStack>
-                  <VStack align="start" spacing={0}>
-                    <Text fontSize="9px" fontWeight="1000" color="gray.400">NET TOTAL</Text>
-                    <Text fontSize="14px" fontWeight="1000" color="green.600">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
-                  </VStack>
-                </SimpleGrid>
-
-                {/* Procedure at the very bottom, after financials */}
-                <Box mt={4} pt={4} borderTop="1px dashed" borderColor="gray.100">
-                  <Text fontSize="9px" fontWeight="1000" color="gray.400" letterSpacing="0.05em" mb={1}>PROCEDURE</Text>
-                  <Text fontSize="13px" fontWeight="1000" color="gray.800">
-                    {record.treatmentCode || "General Procedure"}
-                  </Text>
-                </Box>
-              </Box>
+ 
+                     {/* Status Menu */}
+                     <Menu>
+                       <MenuButton 
+                         as={Badge} 
+                         cursor="pointer" 
+                         colorScheme={getStatusColor(record.status)} 
+                         px={3.5} py={1.5} 
+                         borderRadius="lg"
+                         fontSize="10px"
+                         fontWeight="1000"
+                         variant="solid"
+                         _hover={{ opacity: 0.9 }}
+                         h="28px"
+                         display="inline-flex"
+                         alignItems="center"
+                       >
+                         <HStack spacing={1}>
+                           <Text>{String(record.status || "complete").toUpperCase()}</Text>
+                           <Icon as={FiChevronDown} />
+                         </HStack>
+                       </MenuButton>
+                       <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
+                         {[
+                           { value: "complete", label: "COMPLETE" },
+                           { value: "pending", label: "PENDING" },
+                           { value: "incomplete", label: "INCOMPLETE" }
+                         ].map((s) => (
+                           <MenuItem 
+                             key={s.value}
+                             onClick={() => handleStatusChange(record, s.value)}
+                             fontSize="11px"
+                             fontWeight="1000"
+                             borderRadius="lg"
+                             color={getStatusColor(s.value) + ".600"}
+                           >
+                             Mark as {s.label}
+                           </MenuItem>
+                         ))}
+                       </MenuList>
+                     </Menu>
+ 
+                     {/* Print Action */}
+                     <IconButton
+                       size="sm"
+                       variant="ghost"
+                       colorScheme="gray"
+                       icon={<FiPrinter />}
+                       aria-label="Print Report"
+                       onClick={() => setOpenPrintModal({ open: true, id: record._id })}
+                       borderRadius="full"
+                     />
+ 
+                     {/* Edit Action */}
+                     {stores.auth.hasPermission('workdone', 'edit') && (
+                       <IconButton
+                         size="sm"
+                         variant="ghost"
+                         colorScheme="blue"
+                         icon={<FiEdit />}
+                         aria-label="Edit"
+                         onClick={() => setOpenEditWorkDone({ open: true, data: record })}
+                         borderRadius="full"
+                       />
+                     )}
+ 
+                     {/* Delete Action */}
+                     {stores.auth.hasPermission('workdone', 'delete') && (
+                       <IconButton
+                         size="sm"
+                         variant="ghost"
+                         colorScheme="red"
+                         icon={<FiTrash2 />}
+                         aria-label="Delete"
+                         onClick={() => setDeleteModal({ open: true, id: record._id })}
+                         borderRadius="full"
+                       />
+                     )}
+                   </HStack>
+                 </HStack>
+ 
+                 <Divider mb={4} borderColor="gray.200" borderWidth="1.5px" />
+ 
+                 {/* Content: Tooth Info & Note on the Same Line */}
+                 <HStack spacing={4} w="full" align="stretch">
+                   {(record.tooth || record.treatment?.tooth) && (
+                     <VStack
+                       align="center"
+                       justify="center"
+                       bg="blue.50"
+                       border="2px solid"
+                       borderColor="blue.300"
+                       borderRadius="2xl"
+                       p={3}
+                       minW="110px"
+                       shadow="sm"
+                       transition="all 0.2s"
+                       _hover={{ bg: "blue.100", borderColor: "blue.400" }}
+                     >
+                       <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em">TOOTH</Text>
+                       <Text fontSize="24px" fontWeight="1000" color="blue.800" lineHeight="1" my={1}>
+                         {record.tooth || record.treatment?.tooth}
+                       </Text>
+                       <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                         {record.position || record.treatment?.position} {record.side || record.treatment?.side}
+                       </Text>
+                     </VStack>
+                   )}
+ 
+                   {(record.workDoneNote || record.toothNote) && (
+                     <Box bg="blue.50" p={4} borderRadius="2xl" flex={1} borderLeft="5px solid" borderColor="blue.500" shadow="sm">
+                       <HStack spacing={2} mb={2}>
+                         <Icon as={FiFileText} fontSize="14px" color="blue.500" />
+                         <Text fontSize="12px" fontWeight="1000" color="blue.600" letterSpacing="0.08em">CLINICAL OBSERVATION</Text>
+                       </HStack>
+                       <Text fontSize="15px" fontWeight="800" color="gray.800" lineHeight="1.6">
+                         {record.workDoneNote || record.toothNote}
+                       </Text>
+                     </Box>
+                   )}
+                 </HStack>
+ 
+                 {/* Footer: Billing Summary */}
+                 <SimpleGrid columns={3} gap={4} mt={6} pt={4} borderTop="1.5px dashed" borderColor="gray.200">
+                   <VStack align="start" spacing={1} p={2.5} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
+                     <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em">AMOUNT</Text>
+                     <Text fontSize="18px" fontWeight="1000" color="blue.700">₹{record.amount?.toLocaleString()}</Text>
+                   </VStack>
+                   <VStack align="start" spacing={1} p={2.5} bg="red.50" borderRadius="xl" border="1px solid" borderColor="red.100">
+                     <Text fontSize="9px" fontWeight="1000" color="red.500" letterSpacing="0.08em">DISCOUNT</Text>
+                     <Text fontSize="18px" fontWeight="1000" color="red.600">₹{record.discount?.toLocaleString()}</Text>
+                   </VStack>
+                   <VStack align="start" spacing={1} p={2.5} bg="green.50" borderRadius="xl" border="1px solid" borderColor="green.100">
+                     <Text fontSize="9px" fontWeight="1000" color="green.600" letterSpacing="0.08em">NET TOTAL</Text>
+                     <Text fontSize="20px" fontWeight="1000" color="green.700">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
+                   </VStack>
+                 </SimpleGrid>
+ 
+                 {/* Procedure at the very bottom, after financials */}
+                 <Box mt={4} p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
+                   <HStack spacing={2} mb={1}>
+                     <Icon as={FiActivity} color="blue.500" fontSize="13px" />
+                     <Text fontSize="10px" fontWeight="1000" color="gray.500" letterSpacing="0.08em">PROCEDURE</Text>
+                   </HStack>
+                   <Text fontSize="14px" fontWeight="800" color="gray.800" pl={5}>
+                     {record.treatmentCode || "General Procedure"}
+                   </Text>
+                 </Box>
+               </Box>
             ))}
           </VStack>
         )}
