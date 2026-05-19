@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import {
   Box,
@@ -31,7 +31,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload } from "react-icons/fi";
+import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch } from "react-icons/fi";
 import { Formik, Form } from "formik";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { Grid } from "@chakra-ui/react";
@@ -81,7 +81,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   };
 
   const {
-    workDoneStore: { workDone, getWorkDone, deleteWorkDone, updateWorkDone },
+    workDoneStore: { workDone, getWorkDone, deleteWorkDone, updateWorkDone, getWorkDoneCountByDate },
     toothTreatmentStore: { updateToothTreatment },
     auth: { openNotification, userType },
   } = stores;
@@ -93,23 +93,54 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "" });
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
 
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+  const [isCountModalOpen, setIsCountModalOpen] = useState(false);
+  const [countSearch, setCountSearch] = useState("");
+  const [backendCounts, setBackendCounts] = useState<any[]>([]);
+  const [isCounting, setIsCounting] = useState(false);
+
   const fetchRecords = useCallback(() => {
-    getWorkDone({
+    const params: any = {
       patientId: patientDetails?._id,
-      treatmentId: treatmentId, // Filter by treatment if provided
-      page: currentPage,
-    }).catch((err) => {
+      treatmentId: treatmentId,
+    };
+    if (selectedDateFilter) {
+      params.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
+      params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
+    }
+    getWorkDone(params).catch((err) => {
       openNotification({
         type: "error",
         title: "Fetch Failed",
         message: err?.message,
       });
     });
-  }, [getWorkDone, patientDetails?._id, treatmentId, currentPage, openNotification]);
+  }, [getWorkDone, patientDetails?._id, treatmentId, selectedDateFilter, openNotification]);
 
   useEffect(() => {
     fetchRecords();
   }, [fetchRecords]);
+
+  const filteredCounts = useMemo(() => {
+    if (!countSearch) return backendCounts;
+    return backendCounts.filter(item => {
+      const dateStr = new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' }).toLowerCase();
+      return dateStr.includes(countSearch.toLowerCase()) || item.date.includes(countSearch);
+    });
+  }, [backendCounts, countSearch]);
+
+  const totalSummaryStats = useMemo(() => {
+    const totalVisits = backendCounts.length;
+    const totalTreatments = backendCounts.reduce((acc, curr) => acc + (curr.count || 0), 0);
+    return {
+      totalVisits,
+      totalTreatments
+    };
+  }, [backendCounts]);
+
+  const displayedRecords = useMemo(() => {
+    return workDone.data || [];
+  }, [workDone.data]);
 
   const handleDelete = async () => {
     const id = deleteModal.id;
@@ -181,20 +212,68 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
   return (
     <Box>
-      <HStack justify="space-between" mb={4}>
-        <Text fontSize="11px" fontWeight="1000" color="gray.500" letterSpacing="0.1em">CLINICAL RECORDS</Text>
-        <Button
-          size="sm"
-          colorScheme="blue"
-          variant="outline"
-          leftIcon={<FiDownload />}
-          borderRadius="xl"
-          fontSize="11px"
-          fontWeight="bold"
-          onClick={() => setOpenDailyReportModal({ open: true })}
-        >
-          DOWNLOAD DAILY PRESCRIPTION
-        </Button>
+      <HStack justify="space-between" mb={4} wrap="wrap" gap={2}>
+        <HStack spacing={3}>
+          <Text fontSize="11px" fontWeight="1000" color="gray.500" letterSpacing="0.1em">CLINICAL RECORDS</Text>
+          {selectedDateFilter && (
+            <Badge colorScheme="blue" variant="solid" borderRadius="xl" px={3} py={0.5} fontSize="10px" fontWeight="bold">
+              <HStack spacing={1} align="center">
+                <Text>{new Date(selectedDateFilter).toLocaleDateString(undefined, { dateStyle: 'medium' })}</Text>
+                <Box
+                  as="span"
+                  cursor="pointer"
+                  onClick={() => setSelectedDateFilter(null)}
+                  fontWeight="black"
+                  pl={1}
+                >
+                  ✕
+                </Box>
+              </HStack>
+            </Badge>
+          )}
+        </HStack>
+        <HStack spacing={2}>
+          <Button
+            size="sm"
+            colorScheme="blue"
+            variant="outline"
+            leftIcon={<FiBarChart2 />}
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            isLoading={isCounting}
+            onClick={() => {
+              setIsCounting(true);
+              getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                .then((res: any) => {
+                  if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                    setBackendCounts(res.data || []);
+                  }
+                })
+                .catch((err) => {
+                  console.error("Failed to load work done counts:", err);
+                })
+                .finally(() => {
+                  setIsCounting(false);
+                });
+              setIsCountModalOpen(true);
+            }}
+          >
+            VISIT TRENDS
+          </Button>
+          <Button
+            size="sm"
+            colorScheme="blue"
+            variant="outline"
+            leftIcon={<FiDownload />}
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            onClick={() => setOpenDailyReportModal({ open: true })}
+          >
+            DOWNLOAD DAILY PRESCRIPTION
+          </Button>
+        </HStack>
       </HStack>
       <VStack align="stretch" spacing={4}>
         {workDone.loading ? (
@@ -210,20 +289,20 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               <Text color="gray.500" fontSize="sm" fontWeight="medium">Fetching clinical history...</Text>
             </VStack>
           </Center>
-        ) : workDone.data.length === 0 ? (
+        ) : displayedRecords.length === 0 ? (
           <VStack py={14} bg="gray.50" borderRadius="2xl" border="1px dashed" borderColor="gray.200">
             <Icon as={FiActivity} fontSize="40px" color="gray.300" />
             <Text fontWeight="bold" color="gray.400" fontSize="14px">No clinical history found</Text>
           </VStack>
         ) : (
           <VStack align="stretch" spacing={4}>
-            {workDone.data.map((record: any) => (
-              <Box 
-                key={record._id} 
-                bg="white" 
-                p={6} 
-                borderRadius="2xl" 
-                border="2px solid" 
+            {displayedRecords.map((record: any) => (
+              <Box
+                key={record._id}
+                bg="white"
+                p={6}
+                borderRadius="2xl"
+                border="2px solid"
                 borderColor="gray.100"
                 shadow="sm"
                 transition="all 0.2s"
@@ -247,12 +326,12 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         {record.examiningDoctor && (
                           <Text fontSize="10px" fontWeight="800" color="gray.500" mt={0.5}>
                             Examined: Dr. {record.examiningDoctor?.name}
-                         </Text>
+                          </Text>
                         )}
                       </VStack>
                     </HStack>
                   </HStack>
-                  
+
                   <HStack spacing={3}>
                     {/* View Treatment Action */}
                     {record.treatment && (
@@ -272,170 +351,170 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         VIEW PLAN
                       </Button>
                     )}
- 
-                     {/* Status Menu */}
-                     <Menu>
-                       <MenuButton 
-                         as={Badge} 
-                         cursor="pointer" 
-                         colorScheme={getStatusColor(record.status)} 
-                         px={3.5} py={1.5} 
-                         borderRadius="lg"
-                         fontSize="10px"
-                         fontWeight="1000"
-                         variant="solid"
-                         _hover={{ opacity: 0.9 }}
-                         h="28px"
-                         display="inline-flex"
-                         alignItems="center"
-                       >
-                         <HStack spacing={1}>
-                           <Text>{String(record.status || "complete").toUpperCase()}</Text>
-                           <Icon as={FiChevronDown} />
-                         </HStack>
-                       </MenuButton>
-                       <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
-                         {[
-                           { value: "complete", label: "COMPLETE" },
-                           { value: "pending", label: "PENDING" },
-                           { value: "incomplete", label: "INCOMPLETE" }
-                         ].map((s) => (
-                           <MenuItem 
-                             key={s.value}
-                             onClick={() => handleStatusChange(record, s.value)}
-                             fontSize="11px"
-                             fontWeight="1000"
-                             borderRadius="lg"
-                             color={getStatusColor(s.value) + ".600"}
-                           >
-                             Mark as {s.label}
-                           </MenuItem>
-                         ))}
-                       </MenuList>
-                     </Menu>
- 
-                     {/* Print Action */}
-                     <IconButton
-                       size="sm"
-                       variant="ghost"
-                       colorScheme="gray"
-                       icon={<FiPrinter />}
-                       aria-label="Print Report"
-                       onClick={() => setOpenPrintModal({ open: true, id: record._id })}
-                       borderRadius="full"
-                     />
- 
-                     {/* Edit Action */}
-                     {stores.auth.hasPermission('workdone', 'edit') && (
-                       <IconButton
-                         size="sm"
-                         variant="ghost"
-                         colorScheme="blue"
-                         icon={<FiEdit />}
-                         aria-label="Edit"
-                         onClick={() => setOpenEditWorkDone({ open: true, data: record })}
-                         borderRadius="full"
-                       />
-                     )}
- 
-                     {/* Delete Action */}
-                     {stores.auth.hasPermission('workdone', 'delete') && (
-                       <IconButton
-                         size="sm"
-                         variant="ghost"
-                         colorScheme="red"
-                         icon={<FiTrash2 />}
-                         aria-label="Delete"
-                         onClick={() => setDeleteModal({ open: true, id: record._id })}
-                         borderRadius="full"
-                       />
-                     )}
-                   </HStack>
-                 </HStack>
- 
-                 <Divider mb={4} borderColor="gray.200" borderWidth="1.5px" />
- 
-                 {/* Content: Tooth Info & Note on the Same Line */}
-                 <HStack spacing={4} w="full" align="stretch">
-                   {(record.tooth || record.treatment?.tooth) && (
-                     <VStack
-                       align="center"
-                       justify="center"
-                       bg="blue.50"
-                       border="2px solid"
-                       borderColor="blue.300"
-                       borderRadius="2xl"
-                       p={4}
-                       minW="120px"
-                       shadow="sm"
-                       transition="all 0.2s"
-                       _hover={{ bg: "blue.100", borderColor: "blue.400" }}
-                     >
-                        <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
-                         {record.tooth || record.treatment?.tooth}
-                       </Text>
-                       {(() => {
-                          const { line1, line2 } = getToothNameParts(
-                            record.tooth || record.treatment?.tooth,
-                            record.position || record.treatment?.position,
-                            record.side || record.treatment?.side
-                          );
-                          return (
-                            <>
-                              <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1}>
-                                {line1}
+
+                    {/* Status Menu */}
+                    <Menu>
+                      <MenuButton
+                        as={Badge}
+                        cursor="pointer"
+                        colorScheme={getStatusColor(record.status)}
+                        px={3.5} py={1.5}
+                        borderRadius="lg"
+                        fontSize="10px"
+                        fontWeight="1000"
+                        variant="solid"
+                        _hover={{ opacity: 0.9 }}
+                        h="28px"
+                        display="inline-flex"
+                        alignItems="center"
+                      >
+                        <HStack spacing={1}>
+                          <Text>{String(record.status || "complete").toUpperCase()}</Text>
+                          <Icon as={FiChevronDown} />
+                        </HStack>
+                      </MenuButton>
+                      <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
+                        {[
+                          { value: "complete", label: "COMPLETE" },
+                          { value: "pending", label: "PENDING" },
+                          { value: "incomplete", label: "INCOMPLETE" }
+                        ].map((s) => (
+                          <MenuItem
+                            key={s.value}
+                            onClick={() => handleStatusChange(record, s.value)}
+                            fontSize="11px"
+                            fontWeight="1000"
+                            borderRadius="lg"
+                            color={getStatusColor(s.value) + ".600"}
+                          >
+                            Mark as {s.label}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+
+                    {/* Print Action */}
+                    <IconButton
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="gray"
+                      icon={<FiPrinter />}
+                      aria-label="Print Report"
+                      onClick={() => setOpenPrintModal({ open: true, id: record._id })}
+                      borderRadius="full"
+                    />
+
+                    {/* Edit Action */}
+                    {stores.auth.hasPermission('workdone', 'edit') && (
+                      <IconButton
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="blue"
+                        icon={<FiEdit />}
+                        aria-label="Edit"
+                        onClick={() => setOpenEditWorkDone({ open: true, data: record })}
+                        borderRadius="full"
+                      />
+                    )}
+
+                    {/* Delete Action */}
+                    {stores.auth.hasPermission('workdone', 'delete') && (
+                      <IconButton
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="red"
+                        icon={<FiTrash2 />}
+                        aria-label="Delete"
+                        onClick={() => setDeleteModal({ open: true, id: record._id })}
+                        borderRadius="full"
+                      />
+                    )}
+                  </HStack>
+                </HStack>
+
+                <Divider mb={4} borderColor="gray.200" borderWidth="1.5px" />
+
+                {/* Content: Tooth Info & Note on the Same Line */}
+                <HStack spacing={4} w="full" align="stretch">
+                  {(record.tooth || record.treatment?.tooth) && (
+                    <VStack
+                      align="center"
+                      justify="center"
+                      bg="blue.50"
+                      border="2px solid"
+                      borderColor="blue.300"
+                      borderRadius="2xl"
+                      p={4}
+                      minW="120px"
+                      shadow="sm"
+                      transition="all 0.2s"
+                      _hover={{ bg: "blue.100", borderColor: "blue.400" }}
+                    >
+                      <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
+                        {record.tooth || record.treatment?.tooth}
+                      </Text>
+                      {(() => {
+                        const { line1, line2 } = getToothNameParts(
+                          record.tooth || record.treatment?.tooth,
+                          record.position || record.treatment?.position,
+                          record.side || record.treatment?.side
+                        );
+                        return (
+                          <>
+                            <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1}>
+                              {line1}
+                            </Text>
+                            {line2 && (
+                              <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                                {line2}
                               </Text>
-                              {line2 && (
-                                <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
-                                  {line2}
-                                </Text>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </VStack>
-                   )}
- 
-                   {(record.workDoneNote || record.toothNote) && (
-                     <Box bg="blue.50" p={4} borderRadius="2xl" flex={1} borderLeft="5px solid" borderColor="blue.500" shadow="sm">
-                       <HStack spacing={2} mb={2}>
-                         <Icon as={FiFileText} fontSize="14px" color="blue.500" />
-                         <Text fontSize="12px" fontWeight="1000" color="blue.600" letterSpacing="0.08em">CLINICAL OBSERVATION</Text>
-                       </HStack>
-                       <Text fontSize="15px" fontWeight="800" color="gray.800" lineHeight="1.6">
-                         {record.workDoneNote || record.toothNote}
-                       </Text>
-                     </Box>
-                   )}
-                 </HStack>
- 
-                 {/* Footer: Billing Summary */}
-                 <SimpleGrid columns={3} gap={4} mt={6} pt={4} borderTop="1.5px dashed" borderColor="gray.200">
-                   <VStack align="start" spacing={1} p={2.5} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
-                     <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em">AMOUNT</Text>
-                     <Text fontSize="18px" fontWeight="1000" color="blue.700">₹{record.amount?.toLocaleString()}</Text>
-                   </VStack>
-                   <VStack align="start" spacing={1} p={2.5} bg="red.50" borderRadius="xl" border="1px solid" borderColor="red.100">
-                     <Text fontSize="9px" fontWeight="1000" color="red.500" letterSpacing="0.08em">DISCOUNT</Text>
-                     <Text fontSize="18px" fontWeight="1000" color="red.600">₹{record.discount?.toLocaleString()}</Text>
-                   </VStack>
-                   <VStack align="start" spacing={1} p={2.5} bg="green.50" borderRadius="xl" border="1px solid" borderColor="green.100">
-                     <Text fontSize="9px" fontWeight="1000" color="green.600" letterSpacing="0.08em">NET TOTAL</Text>
-                     <Text fontSize="20px" fontWeight="1000" color="green.700">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
-                   </VStack>
-                 </SimpleGrid>
- 
-                 {/* Procedure at the very bottom, after financials */}
-                 <Box mt={4} p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
-                   <HStack spacing={2} mb={1}>
-                     <Icon as={FiActivity} color="blue.500" fontSize="13px" />
-                     <Text fontSize="10px" fontWeight="1000" color="gray.500" letterSpacing="0.08em">PROCEDURE</Text>
-                   </HStack>
-                   <Text fontSize="14px" fontWeight="800" color="gray.800" pl={5}>
-                     {record.treatmentCode || "General Procedure"}
-                   </Text>
-                 </Box>
-               </Box>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </VStack>
+                  )}
+
+                  {(record.workDoneNote || record.toothNote) && (
+                    <Box bg="blue.50" p={4} borderRadius="2xl" flex={1} borderLeft="5px solid" borderColor="blue.500" shadow="sm">
+                      <HStack spacing={2} mb={2}>
+                        <Icon as={FiFileText} fontSize="14px" color="blue.500" />
+                        <Text fontSize="12px" fontWeight="1000" color="blue.600" letterSpacing="0.08em">CLINICAL OBSERVATION</Text>
+                      </HStack>
+                      <Text fontSize="15px" fontWeight="800" color="gray.800" lineHeight="1.6">
+                        {record.workDoneNote || record.toothNote}
+                      </Text>
+                    </Box>
+                  )}
+                </HStack>
+
+                {/* Footer: Billing Summary */}
+                <SimpleGrid columns={3} gap={4} mt={6} pt={4} borderTop="1.5px dashed" borderColor="gray.200">
+                  <VStack align="start" spacing={1} p={2.5} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
+                    <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em">AMOUNT</Text>
+                    <Text fontSize="18px" fontWeight="1000" color="blue.700">₹{record.amount?.toLocaleString()}</Text>
+                  </VStack>
+                  <VStack align="start" spacing={1} p={2.5} bg="red.50" borderRadius="xl" border="1px solid" borderColor="red.100">
+                    <Text fontSize="9px" fontWeight="1000" color="red.500" letterSpacing="0.08em">DISCOUNT</Text>
+                    <Text fontSize="18px" fontWeight="1000" color="red.600">₹{record.discount?.toLocaleString()}</Text>
+                  </VStack>
+                  <VStack align="start" spacing={1} p={2.5} bg="green.50" borderRadius="xl" border="1px solid" borderColor="green.100">
+                    <Text fontSize="9px" fontWeight="1000" color="green.600" letterSpacing="0.08em">NET TOTAL</Text>
+                    <Text fontSize="20px" fontWeight="1000" color="green.700">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
+                  </VStack>
+                </SimpleGrid>
+
+                {/* Procedure at the very bottom, after financials */}
+                <Box mt={4} p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
+                  <HStack spacing={2} mb={1}>
+                    <Icon as={FiActivity} color="blue.500" fontSize="13px" />
+                    <Text fontSize="10px" fontWeight="1000" color="gray.500" letterSpacing="0.08em">PROCEDURE</Text>
+                  </HStack>
+                  <Text fontSize="14px" fontWeight="800" color="gray.800" pl={5}>
+                    {record.treatmentCode || "General Procedure"}
+                  </Text>
+                </Box>
+              </Box>
             ))}
           </VStack>
         )}
@@ -464,9 +543,9 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             </Text>
           </ModalBody>
           <ModalFooter>
-            <Button 
-              variant="ghost" 
-              mr={3} 
+            <Button
+              variant="ghost"
+              mr={3}
               onClick={() => setDeleteModal({ open: false, id: "" })}
               borderRadius="xl"
               fontSize="12px"
@@ -474,8 +553,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             >
               CANCEL
             </Button>
-            <Button 
-              colorScheme="red" 
+            <Button
+              colorScheme="red"
               onClick={handleDelete}
               borderRadius="xl"
               fontSize="12px"
@@ -520,6 +599,101 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         onClose={() => setOpenDailyReportModal({ open: false })}
         patientId={patientDetails?._id}
       />
+
+      <Modal isOpen={isCountModalOpen} onClose={() => setIsCountModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent borderRadius="3xl" p={2}>
+          <ModalHeader borderBottom="1px solid" borderColor="gray.50">
+            <VStack align="start" spacing={3}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">PATIENT TRENDS</Text>
+                <Heading size="md" fontWeight="1000">Clinical Activity Summary</Heading>
+              </VStack>
+              {backendCounts.length > 0 && (
+                <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL VISITS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalVisits}</Text>
+                  </Box>
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL TREATMENTS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalTreatments}</Text>
+                  </Box>
+                </Grid>
+              )}
+              <HStack w="full" bg="gray.100" p={2} borderRadius="xl">
+                <Icon as={FiSearch} color="gray.400" />
+                <Input
+                  placeholder="Filter by date or year..."
+                  variant="unstyled"
+                  fontSize="xs"
+                  value={countSearch}
+                  onChange={(e) => setCountSearch(e.target.value)}
+                />
+              </HStack>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6} maxH="500px" overflowY="auto">
+            {filteredCounts.length > 0 ? (
+              <VStack align="stretch" spacing={3}>
+                {filteredCounts.map((item, idx) => (
+                  <HStack
+                    key={idx}
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="2xl"
+                    justify="space-between"
+                    border="1px solid"
+                    borderColor="transparent"
+                    _hover={{ borderColor: "blue.200", bg: "blue.50", cursor: "pointer", transform: "translateX(4px)" }}
+                    transition="all 0.2s"
+                    onClick={() => {
+                      setSelectedDateFilter(item.date);
+                      setIsCountModalOpen(false);
+                    }}
+                  >
+                    <HStack spacing={4}>
+                      <Box p={2} bg="white" borderRadius="lg" shadow="sm">
+                        <Icon as={FiCalendar} color="blue.500" />
+                      </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="sm" fontWeight="800" color="gray.700">
+                          {new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                        </Text>
+                        <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
+                      </VStack>
+                    </HStack>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      bg="blue.500"
+                      w="32px"
+                      h="32px"
+                      borderRadius="full"
+                      color="white"
+                      fontWeight="1000"
+                      fontSize="sm"
+                      shadow="md"
+                    >
+                      {item.count}
+                    </Box>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : (
+              <VStack py={10} spacing={4} opacity={0.5}>
+                <Icon as={FiActivity} fontSize="40px" />
+                <Text fontWeight="800">{countSearch ? "No matches found" : "No activity history found"}</Text>
+              </VStack>
+            )}
+          </ModalBody>
+          <ModalFooter bg="gray.50" borderRadius="0 0 2xl 2xl">
+            <Button w="full" variant="ghost" fontWeight="1000" onClick={() => setIsCountModalOpen(false)}>CLOSE SUMMARY</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 });
@@ -539,7 +713,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
       prescriptionStore.getPrescriptions({ limit: 1000 })
         .then(res => console.log("Fetched prescriptions:", res?.data?.length))
         .catch(err => console.error("Error fetching prescriptions:", err));
-      
+
       prescriptionStore.getSuggestions()
         .then(res => console.log("Fetched suggestions:", res))
         .catch(err => console.error("Error fetching suggestions:", err));
@@ -642,7 +816,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                 {/* Scrollable Content Area */}
                 <Box p={6} overflowY="auto" maxH="calc(100vh - 120px)">
                   <VStack align="stretch" spacing={6}>
-                    
+
                     {/* Header Context */}
                     <Box bg="blue.50" p={4} borderRadius="2xl" border="1px solid" borderColor="blue.100">
                       <HStack justify="space-between" mb={1}>
@@ -650,10 +824,10 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                           <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.1em">DOCUMENT READY</Text>
                           <Text fontSize="14px" fontWeight="900" color="blue.700">Clinical Report Generation</Text>
                         </VStack>
-                        <Button 
-                          size="sm" 
-                          colorScheme="blue" 
-                          variant="solid" 
+                        <Button
+                          size="sm"
+                          colorScheme="blue"
+                          variant="solid"
                           leftIcon={<FiEye />}
                           borderRadius="lg"
                           isLoading={loading}
@@ -691,7 +865,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>
                                   TYPE {stores.prescriptionStore.types.length > 0 ? `(${stores.prescriptionStore.types.length})` : '(Loading...)'}
-                               </Text>
+                                </Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={stores.prescriptionStore.suggestionsLoading}
@@ -722,8 +896,8 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                 isClearable
                                 isLoading={stores.prescriptionStore.prescriptionsLoading}
                                 placeholder="Start typing brand name to pick from Master..."
-                                options={(stores.prescriptionStore.prescriptionsData || []).map((p: any) => ({ 
-                                  label: `${p.brandName} (${p.type})`, 
+                                options={(stores.prescriptionStore.prescriptionsData || []).map((p: any) => ({
+                                  label: `${p.brandName} (${p.type})`,
                                   value: p.brandName,
                                   data: p
                                 }))}
@@ -731,7 +905,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                 onChange={(val: any) => {
                                   const brand = val?.value || '';
                                   const masterData = stores.prescriptionStore.prescriptionsData.find((p: any) => p.brandName === brand);
-                                  
+
                                   if (masterData) {
                                     setLocalFormData({
                                       type: masterData.type || localFormData.type,
@@ -820,8 +994,8 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                       timesPerDay = 4;
                                     }
 
-                                    setLocalFormData({ 
-                                      ...localFormData, 
+                                    setLocalFormData({
+                                      ...localFormData,
                                       noOfDays: days,
                                       doseNo: days * timesPerDay
                                     });
@@ -854,8 +1028,8 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                     if (patternMatch) {
                                       timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
                                     }
-                                    setLocalFormData({ 
-                                      ...localFormData, 
+                                    setLocalFormData({
+                                      ...localFormData,
                                       details: pattern,
                                       doseNo: (localFormData.noOfDays || 1) * timesPerDay
                                     });
@@ -1104,16 +1278,16 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
             setLoading(true);
             try {
               await workDoneStore.downloadDailyWorkDoneReport(patientId, values);
-              openNotification({ 
-                type: "success", 
+              openNotification({
+                type: "success",
                 title: "Daily Report Downloaded",
                 message: "Daily clinical report has been saved successfully."
               });
             } catch (err: any) {
-              openNotification({ 
-                type: "error", 
-                title: "Download Failed", 
-                message: err?.message || "Something went wrong" 
+              openNotification({
+                type: "error",
+                title: "Download Failed",
+                message: err?.message || "Something went wrong"
               });
             } finally {
               setLoading(false);
@@ -1125,7 +1299,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
               <VStack align="stretch" spacing={0}>
                 <Box p={6} overflowY="auto" maxH="calc(100vh - 120px)">
                   <VStack align="stretch" spacing={6}>
-                    
+
                     {/* Header Context & Date Picker */}
                     <Box bg="purple.50" p={4} borderRadius="2xl" border="1px solid" borderColor="purple.100">
                       <HStack justify="space-between">
@@ -1148,9 +1322,9 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                             />
                           </HStack>
                         </VStack>
-                        <Button 
-                          size="sm" 
-                          colorScheme="purple" 
+                        <Button
+                          size="sm"
+                          colorScheme="purple"
                           leftIcon={<FiEye />}
                           borderRadius="lg"
                           isLoading={loading}
@@ -1208,8 +1382,8 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                               <CreatableSelect
                                 isClearable
                                 placeholder="Start typing brand name to pick from Master..."
-                                options={(prescriptionStore.prescriptionsData || []).map((p: any) => ({ 
-                                  label: `${p.brandName} (${p.type})`, 
+                                options={(prescriptionStore.prescriptionsData || []).map((p: any) => ({
+                                  label: `${p.brandName} (${p.type})`,
                                   value: p.brandName,
                                   data: p
                                 }))}
@@ -1292,8 +1466,8 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                       timesPerDay = 4;
                                     }
 
-                                    setLocalFormData({ 
-                                      ...localFormData, 
+                                    setLocalFormData({
+                                      ...localFormData,
                                       noOfDays: days,
                                       doseNo: days * timesPerDay
                                     });
@@ -1319,8 +1493,8 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                     if (patternMatch) {
                                       timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
                                     }
-                                    setLocalFormData({ 
-                                      ...localFormData, 
+                                    setLocalFormData({
+                                      ...localFormData,
                                       details: pattern,
                                       doseNo: (localFormData.noOfDays || 1) * timesPerDay
                                     });
@@ -1369,31 +1543,31 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                 setFieldValue("prescriptions", newP);
                               }} aria-label="Remove" />
                               <VStack align="start" spacing={1}>
-                                  <Badge colorScheme="purple" variant="subtle" fontSize="9px">{p.type || 'MED'}</Badge>
-                                  <Text fontWeight="1000" fontSize="13px" color="purple.700">{p.brandName}</Text>
-                                  <Text fontSize="10px" color="gray.500" fontWeight="bold">{p.basicSalt}</Text>
-                                  
-                                  <HStack spacing={4} mt={1}>
-                                    <VStack align="start" spacing={0}>
-                                      <Text fontSize="7px" fontWeight="900" color="gray.400">DOSAGE</Text>
-                                      <Text fontSize="10px" fontWeight="bold">{p.dosage || '-'}</Text>
-                                    </VStack>
-                                    <VStack align="start" spacing={0}>
-                                      <Text fontSize="7px" fontWeight="900" color="gray.400">QTY</Text>
-                                      <Text fontSize="10px" fontWeight="bold">{p.doseNo || '0'}</Text>
-                                    </VStack>
-                                    <VStack align="start" spacing={0}>
-                                      <Text fontSize="7px" fontWeight="900" color="gray.400">PATTERN</Text>
-                                      <Text fontSize="10px" fontWeight="bold">{p.details || '-'}</Text>
-                                    </VStack>
-                                  </HStack>
+                                <Badge colorScheme="purple" variant="subtle" fontSize="9px">{p.type || 'MED'}</Badge>
+                                <Text fontWeight="1000" fontSize="13px" color="purple.700">{p.brandName}</Text>
+                                <Text fontSize="10px" color="gray.500" fontWeight="bold">{p.basicSalt}</Text>
 
-                                  {p.description && (
-                                    <Box mt={1} p={1.5} bg="purple.50" borderRadius="md" w="full">
-                                     <Text fontSize="9px" color="purple.600" fontStyle="italic">{p.description}</Text>
-                                    </Box>
-                                 )}
-                                </VStack>
+                                <HStack spacing={4} mt={1}>
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="7px" fontWeight="900" color="gray.400">DOSAGE</Text>
+                                    <Text fontSize="10px" fontWeight="bold">{p.dosage || '-'}</Text>
+                                  </VStack>
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="7px" fontWeight="900" color="gray.400">QTY</Text>
+                                    <Text fontSize="10px" fontWeight="bold">{p.doseNo || '0'}</Text>
+                                  </VStack>
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="7px" fontWeight="900" color="gray.400">PATTERN</Text>
+                                    <Text fontSize="10px" fontWeight="bold">{p.details || '-'}</Text>
+                                  </VStack>
+                                </HStack>
+
+                                {p.description && (
+                                  <Box mt={1} p={1.5} bg="purple.50" borderRadius="md" w="full">
+                                    <Text fontSize="9px" color="purple.600" fontStyle="italic">{p.description}</Text>
+                                  </Box>
+                                )}
+                              </VStack>
                             </Box>
                           ))}
                         </VStack>

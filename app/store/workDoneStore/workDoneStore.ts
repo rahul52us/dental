@@ -535,6 +535,25 @@ class WorkDoneStore {
       throw err;
     }
   };
+
+  /**
+   * FETCH WORK DONE COUNTS GROUPED BY DATE
+   */
+  getWorkDoneCountByDate = async (sendData: { patientId: any }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const params = {
+        company: compId,
+        patientId: sendData.patientId,
+      };
+      const { data } = await axios.get("/workDone/count-by-date", { params });
+      return data;
+    } catch (err: any) {
+      console.error("Failed to fetch work done count by date:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 }
 
 export const workDoneStore = new WorkDoneStore();
