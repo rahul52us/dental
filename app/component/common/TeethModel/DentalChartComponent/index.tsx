@@ -551,7 +551,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         search: historySearch
       });
     }
-  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, historyFilterTooth, patientDetails?._id, sessionDate]);
+  }, [isHistoryDrawerOpen, historyPage, historySearch, historyCategoryFilter, historyStatusFilter, historyFilterTooth, patientDetails?._id, sessionDate]);
 
 
   useEffect(() => {
@@ -1076,32 +1076,70 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {todayToothTreatment.data.map((item: any) => (
-                        <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
-                          <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
-                          <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth}</Badge></Td>
-                          <Td py={4}>
-                            <Badge colorScheme="purple" variant="outline" borderRadius="md" px={2} fontSize="9px">
-                              {item.position?.toUpperCase()} {item.side?.toUpperCase()}
-                            </Badge>
-                          </Td>
-                          <Td py={4} fontSize="12px" fontWeight="black" color="black" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
-                          <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMin || 0}</Td>
-                          <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMax || 0}</Td>
-                          <Td py={4}>
-                            <Badge colorScheme={item.status === "completed" ? "green" : "orange"} variant="subtle" borderRadius="full" px={2} fontSize="9px">
-                              {item.status?.toUpperCase()}
-                            </Badge>
-                          </Td>
-                          <Td py={4} textAlign="right">
-                            <HStack spacing={1} justify="flex-end">
-                              <IconButton size="xs" icon={<FiEye />} onClick={() => { setViewingRecord(item); onOpenViewModal(); }} variant="ghost" colorScheme="blue" aria-label="View" />
-                              <IconButton size="xs" icon={<FiEdit3 />} onClick={() => handleEditTreatment(item)} variant="ghost" colorScheme="blue" aria-label="Edit" />
-                              <IconButton size="xs" icon={<FiTrash2 />} onClick={() => handleDeleteTreatment(item._id)} variant="ghost" colorScheme="red" aria-label="Delete" />
-                            </HStack>
-                          </Td>
-                        </Tr>
-                      ))}
+                      {todayToothTreatment.data.map((item: any) => {
+                        const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
+                          if (!toothId || toothId === "General") {
+                            const l1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+                            return { line1: l1 || "GENERAL", line2: "" };
+                          }
+                          const idStr = String(toothId).trim();
+                          const toothObj = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
+                          if (!toothObj) {
+                            const l1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+                            return { line1: l1 || "GENERAL", line2: "" };
+                          }
+
+                          const l1 = `${toothObj.side} ${toothObj.position}`.toUpperCase();
+                          let l2 = toothObj.name;
+                          l2 = l2.replace(/primary/gi, "").trim();
+                          const sideRegex = new RegExp(toothObj.side, "gi");
+                          const posRegex = new RegExp(toothObj.position, "gi");
+                          l2 = l2.replace(sideRegex, "").replace(posRegex, "").trim();
+                          l2 = l2.replace(/\s+/g, " ").toUpperCase();
+
+                          return { line1: l1, line2: l2 };
+                        };
+
+                        const { line1, line2 } = getToothNameParts(
+                          item.tooth,
+                          item.position,
+                          item.side
+                        );
+
+                        return (
+                          <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
+                            <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
+                            <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth}</Badge></Td>
+                            <Td py={4}>
+                              <VStack align="start" spacing={1}>
+                                <Badge colorScheme="purple" variant="outline" borderRadius="md" px={2} fontSize="9px">
+                                  {line1}
+                                </Badge>
+                                {line2 && (
+                                  <Text fontSize="10px" fontWeight="800" color="gray.600" textTransform="uppercase">
+                                    {line2}
+                                  </Text>
+                                )}
+                              </VStack>
+                            </Td>
+                            <Td py={4} fontSize="12px" fontWeight="black" color="black" maxW="200px" isTruncated>{item.treatmentPlan}</Td>
+                            <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMin || 0}</Td>
+                            <Td py={4} fontSize="12px" fontWeight="black" isNumeric color="black">₹{item.estimateMax || 0}</Td>
+                            <Td py={4}>
+                              <Badge colorScheme={item.status === "completed" ? "green" : "orange"} variant="subtle" borderRadius="full" px={2} fontSize="9px">
+                                {item.status?.toUpperCase()}
+                              </Badge>
+                            </Td>
+                            <Td py={4} textAlign="right">
+                              <HStack spacing={1} justify="flex-end">
+                                <IconButton size="xs" icon={<FiEye />} onClick={() => { setViewingRecord(item); onOpenViewModal(); }} variant="ghost" colorScheme="blue" aria-label="View" />
+                                <IconButton size="xs" icon={<FiEdit3 />} onClick={() => handleEditTreatment(item)} variant="ghost" colorScheme="blue" aria-label="Edit" />
+                                <IconButton size="xs" icon={<FiTrash2 />} onClick={() => handleDeleteTreatment(item._id)} variant="ghost" colorScheme="red" aria-label="Delete" />
+                              </HStack>
+                            </Td>
+                          </Tr>
+                        );
+                      })}
                     </Tbody>
                   </Table>
                 ) : (
@@ -1111,38 +1149,64 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       const style = COMPLAINT_STYLES[item.complaintType?.toUpperCase()] || COMPLAINT_STYLES.default;
                       const isCompleted = item.status?.toLowerCase() === "completed";
                       const treatmentDate = new Date(item.treatmentDate);
+
+                      const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
+                        if (!toothId || toothId === "General") {
+                          const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+                          return { line1: line1 || "GENERAL", line2: "" };
+                        }
+                        const idStr = String(toothId).trim();
+                        const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
+                        if (!tooth) {
+                          const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+                          return { line1: line1 || "GENERAL", line2: "" };
+                        }
+
+                        const line1 = `${tooth.side} ${tooth.position}`.toUpperCase();
+                        let line2 = tooth.name;
+                        line2 = line2.replace(/primary/gi, "").trim();
+                        const sideRegex = new RegExp(tooth.side, "gi");
+                        const posRegex = new RegExp(tooth.position, "gi");
+                        line2 = line2.replace(sideRegex, "").replace(posRegex, "").trim();
+                        line2 = line2.replace(/\s+/g, " ").toUpperCase();
+
+                        return { line1, line2 };
+                      };
+
+                      const { line1, line2 } = getToothNameParts(
+                        item.tooth,
+                        item.position,
+                        item.side
+                      );
+
                       return (
                         <Box key={item._id} bg="white" borderRadius="3xl" boxShadow="0 4px 20px -4px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.1)" p={5} transition="all 0.3s" _hover={{ transform: "translateY(-2px)" }} border="1px solid" borderColor="gray.100" position="relative" zIndex={1}>
                           <Flex justify="space-between" align="start">
                             <HStack spacing={6} align="start" flex={1}>
-                              <VStack align="center" justify="center" spacing={0} minW="70px" h="70px" bg="blue.50" borderRadius="2xl" border="2px solid" borderColor="blue.100" shadow="sm">
-                                <Text fontSize="10px" fontWeight="black" color="black" mt={1}>TOOTH</Text>
-                                <Text fontSize="24px" fontWeight="black" color="black" lineHeight={1}>
+                              <VStack
+                                align="center"
+                                justify="center"
+                                bg="blue.50"
+                                border="2px solid"
+                                borderColor="blue.300"
+                                borderRadius="2xl"
+                                p={4}
+                                minW="120px"
+                                shadow="sm"
+                                transition="all 0.2s"
+                                _hover={{ bg: "blue.100", borderColor: "blue.400" }}
+                              >
+                                <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
                                   {item.tooth === "General" ? "GEN" : (item.tooth || "??")}
                                 </Text>
-                                {(() => {
-                                  const tId = String(item.tooth || "");
-                                  const id = parseInt(tId);
-                                  let pos = item.position;
-                                  let side = item.side;
-
-                                  if (!pos || !side) {
-                                    if (id >= 11 && id <= 18) { pos = "upper"; side = "right"; }
-                                    else if (id >= 21 && id <= 28) { pos = "upper"; side = "left"; }
-                                    else if (id >= 31 && id <= 38) { pos = "lower"; side = "left"; }
-                                    else if (id >= 41 && id <= 48) { pos = "lower"; side = "right"; }
-                                    else if (id >= 51 && id <= 55) { pos = "upper"; side = "right"; }
-                                    else if (id >= 61 && id <= 65) { pos = "upper"; side = "left"; }
-                                    else if (id >= 71 && id <= 75) { pos = "lower"; side = "left"; }
-                                    else if (id >= 81 && id <= 85) { pos = "lower"; side = "right"; }
-                                  }
-
-                                  return (pos && side) ? (
-                                    <Text fontSize="8px" fontWeight="black" color="black" textTransform="uppercase" mt={1}>
-                                      {pos} {side}
-                                    </Text>
-                                  ) : null;
-                                })()}
+                                <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1} textTransform="uppercase" textAlign="center">
+                                  {line1}
+                                </Text>
+                                {line2 && (
+                                  <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                                    {line2}
+                                  </Text>
+                                )}
                               </VStack>
                               <VStack align="start" spacing={2} flex={1}>
                                 <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">
@@ -1209,6 +1273,35 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             const isMultiple = Array.isArray(viewingRecord);
             const currentRec = isMultiple ? viewingRecord[activeViewIndex] : viewingRecord;
 
+            const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
+              if (!toothId || toothId === "General") {
+                const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+                return { line1: line1 || "GENERAL", line2: "" };
+              }
+              const idStr = String(toothId).trim();
+              const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
+              if (!tooth) {
+                const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+                return { line1: line1 || "GENERAL", line2: "" };
+              }
+
+              const line1 = `${tooth.side} ${tooth.position}`.toUpperCase();
+              let line2 = tooth.name;
+              line2 = line2.replace(/primary/gi, "").trim();
+              const sideRegex = new RegExp(tooth.side, "gi");
+              const posRegex = new RegExp(tooth.position, "gi");
+              line2 = line2.replace(sideRegex, "").replace(posRegex, "").trim();
+              line2 = line2.replace(/\s+/g, " ").toUpperCase();
+
+              return { line1, line2 };
+            };
+
+            const { line1, line2 } = getToothNameParts(
+              currentRec?.toothFDI || currentRec?.tooth,
+              currentRec?.position,
+              currentRec?.side
+            );
+
             return (
               <>
                 <ModalHeader borderBottom="1px solid" borderColor="gray.50" pb={4}>
@@ -1250,13 +1343,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     </VStack>
                     <VStack align="start" spacing={1}>
                       <Badge fontSize="20px" fontWeight="900" colorScheme="blue" variant="subtle" borderRadius="lg" px={2}>
-                        {currentRec?.tooth === "General" ? "General Clinical" : `Tooth #${currentRec?.toothFDI || currentRec?.tooth}`}
+                        {currentRec?.tooth === "General" ? "General Clinical" : `#${currentRec?.toothFDI || currentRec?.tooth}`}
                       </Badge>
-                      {currentRec?.position && (
-                        <Text fontSize="10px" fontWeight="1000" color="blue.600" textTransform="uppercase" mt={1}>
-                          {currentRec.position} • {currentRec.side}
-                        </Text>
-                      )}
+                      <Text fontSize="10px" fontWeight="1000" color="blue.600" textTransform="uppercase" mt={1}>
+                        {line1} {line2 ? `• ${line2}` : ""}
+                      </Text>
                     </VStack>
                     <VStack align="start" spacing={1}>
                       <Text fontSize="10px" fontWeight="900" color="gray.400">CATEGORY</Text>

@@ -19,6 +19,7 @@ import WorkDoneForm from "../workDone/component/WorkDoneForm";
 import WorkDoneList from "../workDone/component/WorkDoneList";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FiCheckCircle } from "react-icons/fi";
+import { adultTeeth, childTeeth } from "../../component/common/TeethModel/DentalChartComponent/utils/teethData";
 
 
 
@@ -345,6 +346,35 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     };
     const color = statusColors[dt.status?.toUpperCase()] || "gray";
 
+    const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
+      if (!toothId || toothId === "General") {
+        const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+        return { line1: line1 || "GENERAL", line2: "" };
+      }
+      const idStr = String(toothId).trim();
+      const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
+      if (!tooth) {
+        const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
+        return { line1: line1 || "GENERAL", line2: "" };
+      }
+
+      const line1 = `${tooth.side} ${tooth.position}`.toUpperCase();
+      let line2 = tooth.name;
+      line2 = line2.replace(/primary/gi, "").trim();
+      const sideRegex = new RegExp(tooth.side, "gi");
+      const posRegex = new RegExp(tooth.position, "gi");
+      line2 = line2.replace(sideRegex, "").replace(posRegex, "").trim();
+      line2 = line2.replace(/\s+/g, " ").toUpperCase();
+
+      return { line1, line2 };
+    };
+
+    const { line1, line2 } = getToothNameParts(
+      dt.toothFDI || dt.tooth,
+      dt.position,
+      dt.side
+    );
+
     return (
       <Box
         key={dt._id}
@@ -361,40 +391,29 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         <Flex align="start" gap={6}>
           {/* Left side: Tooth Identifier Box */}
           <VStack
-            minW="75px"
-            h="75px"
-            bg="blue.50"
-            borderRadius="2xl"
-            border="1px solid"
-            borderColor="blue.100"
+            align="center"
             justify="center"
-            spacing={0}
+            bg="blue.50"
+            border="2px solid"
+            borderColor="blue.300"
+            borderRadius="2xl"
+            p={4}
+            minW="120px"
+            shadow="sm"
+            transition="all 0.2s"
+            _hover={{ bg: "blue.100", borderColor: "blue.400" }}
           >
-            <Text fontSize="10px" fontWeight="800" color="blue.400" letterSpacing="wider">TOOTH</Text>
-            <Text fontSize="2xl" fontWeight="900" color="blue.700" lineHeight="1">{dt.toothFDI || dt.tooth || "??"}</Text>
-            {(() => {
-              const tId = String(dt.toothFDI || dt.tooth || "");
-              const id = parseInt(tId);
-              let pos = dt.position;
-              let side = dt.side;
-
-              if (!pos || !side) {
-                if (id >= 11 && id <= 18) { pos = "upper"; side = "right"; }
-                else if (id >= 21 && id <= 28) { pos = "upper"; side = "left"; }
-                else if (id >= 31 && id <= 38) { pos = "lower"; side = "left"; }
-                else if (id >= 41 && id <= 48) { pos = "lower"; side = "right"; }
-                else if (id >= 51 && id <= 55) { pos = "upper"; side = "right"; }
-                else if (id >= 61 && id <= 65) { pos = "upper"; side = "left"; }
-                else if (id >= 71 && id <= 75) { pos = "lower"; side = "left"; }
-                else if (id >= 81 && id <= 85) { pos = "lower"; side = "right"; }
-              }
-
-              return (pos && side) ? (
-                <Text fontSize="9px" fontWeight="1000" color="blue.500" textTransform="uppercase" mt={1}>
-                  {pos} {side}
-                </Text>
-              ) : null;
-            })()}
+            <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
+              {dt.toothFDI === "General" || dt.tooth === "General" ? "GEN" : (dt.toothFDI || dt.tooth || "??")}
+            </Text>
+            <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1} textTransform="uppercase" textAlign="center">
+              {line1}
+            </Text>
+            {line2 && (
+              <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                {line2}
+              </Text>
+            )}
           </VStack>
 
           {/* Middle part: Details */}
