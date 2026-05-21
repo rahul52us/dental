@@ -184,6 +184,8 @@ export const TreatmentProcedureForm = observer(
         const [activeToothId, setActiveToothId] = useState<string | "bulk" | null>(
             teeth.length > 1 ? "bulk" : (teeth.length > 0 ? teeth[0].id : null)
         );
+        // When true, any field change in one tooth tab is mirrored to all other tooth tabs
+        const [syncToAll, setSyncToAll] = useState(false);
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
         const {
@@ -252,7 +254,7 @@ export const TreatmentProcedureForm = observer(
             // Doctors are now fetched on-demand by CustomInput to prevent global state pollution
         }, []);
 
-        // Sync active tooth ID in drawer mode (edit case)
+        // Sync active tooth ID in drawer mode
         useEffect(() => {
             if (isDrawerMode && teeth.length > 0) {
                 setActiveToothId(teeth[0].id);
@@ -465,15 +467,88 @@ export const TreatmentProcedureForm = observer(
             "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
         };
 
-        const renderClinicalFields = (activeId: string | "bulk", values: any, setFieldValue: any) => {
+        const renderClinicalFields = (activeId: string | "bulk", values: any, rawSetFieldValue: any) => {
             const currentToothId = activeId === "bulk" ? teeth[0].id : activeId;
             const currentValues = values.treatments[currentToothId] || initialFormData;
 
             const activeTooth = teeth.find(t => t.id === currentToothId);
             const notationLabel = !activeTooth ? "" : (notation === 'universal' ? activeTooth.universal : (notation === 'palmer' ? activeTooth.palmer : activeTooth.fdi));
 
+            // Smart setter: when syncToAll is on, mirror each change to every tooth tab
+            const setFieldValue = (field: string, value: any) => {
+                if (syncToAll && teeth.length > 1 && field.startsWith(`treatments.${currentToothId}.`)) {
+                    const fieldSuffix = field.slice(`treatments.${currentToothId}.`.length);
+                    teeth.forEach(t => rawSetFieldValue(`treatments.${t.id}.${fieldSuffix}`, value));
+                } else {
+                    rawSetFieldValue(field, value);
+                }
+            };
+
+            const isMultiMode = teeth.length > 1;
+
             return (
                 <VStack align="stretch" spacing={10}>
+                    {/* ── SYNC CHECKBOX (multi-tooth only) ── */}
+                    {isMultiMode && (
+                        <HStack
+                            spacing={3}
+                            p={3}
+                            bg={syncToAll ? "blue.50" : "gray.50"}
+                            borderRadius="xl"
+                            border="1px solid"
+                            borderColor={syncToAll ? "blue.200" : "gray.200"}
+                            cursor="pointer"
+                            onClick={() => {
+                                const turningOn = !syncToAll;
+                                setSyncToAll(turningOn);
+                                if (turningOn) {
+                                    // Immediately copy current tab's data to all other tooth tabs
+                                    // (tooth identity — name/fdi — lives only in the tab header, not in form data)
+                                    const currentData = values.treatments[currentToothId] || {};
+                                    const fieldsToCopy = [
+                                        'complaintType', 'doctor', 'examiningDoctor',
+                                        'notes', 'treatmentCode',
+                                        'estimateMin', 'estimateMax',
+                                        'discount', 'totalMin', 'totalMax', 'status'
+                                    ];
+                                    teeth.forEach(t => {
+                                        if (t.id !== currentToothId) {
+                                            fieldsToCopy.forEach(field => {
+                                                rawSetFieldValue(`treatments.${t.id}.${field}`, currentData[field]);
+                                            });
+                                        }
+                                    });
+                                }
+                            }}
+                            transition="all 0.2s"
+                            _hover={{ borderColor: "blue.300" }}
+                        >
+                            <Box
+                                w="18px" h="18px"
+                                borderRadius="md"
+                                border="2px solid"
+                                borderColor={syncToAll ? "blue.500" : "gray.300"}
+                                bg={syncToAll ? "blue.500" : "white"}
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                                flexShrink={0}
+                                transition="all 0.2s"
+                            >
+                                {syncToAll && (
+                                    <Box w="9px" h="6px" borderLeft="2px solid white" borderBottom="2px solid white" transform="rotate(-45deg)" mt="-2px" />
+                                )}
+                            </Box>
+                            <VStack align="start" spacing={0}>
+                                <Text fontSize="11px" fontWeight="900" color={syncToAll ? "blue.700" : "gray.600"}>
+                                    Apply same data to all {teeth.length} teeth
+                                </Text>
+                                <Text fontSize="9px" color={syncToAll ? "blue.400" : "gray.400"} fontWeight="700">
+                                    {syncToAll ? "ON — changes here will copy to every tab" : "OFF — each tab filled separately"}
+                                </Text>
+                            </VStack>
+                        </HStack>
+                    )}
                     <Box mb={-4}>
                         <VStack align="start" spacing={0}>
                             <Text fontSize="10px" fontWeight="black" color="black" textTransform="uppercase">
@@ -1084,9 +1159,101 @@ export const TreatmentProcedureForm = observer(
                                 )}
 
                                 {isDrawerMode ? (
-                                    <Box p={2}>
-                                        {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
-                                    </Box>
+                                    teeth.length > 1 ? (
+                                        // ── MULTI-TOOTH TABS ──────────────────────────────────
+                                        <Box>
+                                            <Tabs
+                                                variant="unstyled"
+                                                index={Math.max(0, teeth.findIndex(t => t.id === activeToothId))}
+                                                onChange={(idx) => setActiveToothId(teeth[idx]?.id ?? teeth[0].id)}
+                                            >
+                                                <TabList
+                                                    overflowX="auto"
+                                                    pb={2}
+                                                    sx={{
+                                                        '&::-webkit-scrollbar': { height: '4px' },
+                                                        '&::-webkit-scrollbar-thumb': { bg: 'gray.200', borderRadius: 'full' }
+                                                    }}
+                                                    gap={2}
+                                                    flexWrap="nowrap"
+                                                >
+                                                    {teeth.map((t) => {
+                                                        const tValues = values.treatments[t.id] || {};
+                                                        const hasData = !!(tValues.treatmentCode || tValues.notes?.trim() || tValues.doctor);
+                                                        const cType = tValues.complaintType || complaintType || "CHIEF COMPLAINT";
+                                                        const dotColor =
+                                                            cType === "CHIEF COMPLAINT" ? "red.400"
+                                                            : cType === "OTHER FINDING" ? "orange.400"
+                                                            : "green.400";
+                                                        const isActive = activeToothId === t.id;
+                                                        const label = notation === "universal" ? t.universal
+                                                            : notation === "palmer" ? t.palmer
+                                                            : t.fdi;
+                                                        return (
+                                                            <Tab
+                                                                key={t.id}
+                                                                flexShrink={0}
+                                                                px={4} py={2}
+                                                                borderRadius="xl"
+                                                                fontWeight="900"
+                                                                fontSize="11px"
+                                                                bg={isActive ? "gray.800" : "gray.100"}
+                                                                color={isActive ? "white" : "gray.500"}
+                                                                _selected={{ bg: "gray.800", color: "white" }}
+                                                                _hover={{ bg: isActive ? "gray.900" : "gray.200" }}
+                                                                transition="all 0.2s"
+                                                            >
+                                                                <HStack spacing={2}>
+                                                                    <Box
+                                                                        w="7px" h="7px"
+                                                                        borderRadius="full"
+                                                                        bg={hasData ? dotColor : "gray.300"}
+                                                                        flexShrink={0}
+                                                                    />
+                                                                    <Text>{label}</Text>
+                                                                </HStack>
+                                                            </Tab>
+                                                        );
+                                                    })}
+                                                </TabList>
+
+                                                {/* small legend */}
+                                                <HStack spacing={4} px={1} pb={3} pt={1}>
+                                                    <HStack spacing={1.5}>
+                                                        <Box w="7px" h="7px" borderRadius="full" bg="gray.300" />
+                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">EMPTY</Text>
+                                                    </HStack>
+                                                    <HStack spacing={1.5}>
+                                                        <Box w="7px" h="7px" borderRadius="full" bg="red.400" />
+                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">CHIEF</Text>
+                                                    </HStack>
+                                                    <HStack spacing={1.5}>
+                                                        <Box w="7px" h="7px" borderRadius="full" bg="orange.400" />
+                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">OTHER</Text>
+                                                    </HStack>
+                                                    <HStack spacing={1.5}>
+                                                        <Box w="7px" h="7px" borderRadius="full" bg="green.400" />
+                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">EXISTING</Text>
+                                                    </HStack>
+                                                </HStack>
+
+                                                <TabPanels>
+                                                    {teeth.map((t) => (
+                                                        <TabPanel key={t.id} p={0}>
+                                                            <Box p={2}>
+                                                                {renderClinicalFields(t.id, values, setFieldValue)}
+                                                            </Box>
+                                                        </TabPanel>
+                                                    ))}
+                                                </TabPanels>
+                                            </Tabs>
+                                        </Box>
+                                    ) : (
+                                        // ── SINGLE TOOTH (original behaviour) ─────────────────
+                                        <Box p={2}>
+                                            {activeToothId && renderClinicalFields(activeToothId, values, setFieldValue)}
+                                        </Box>
+                                    )
                                 ) : (
                                     <Box flex="1" overflowY="auto" pr={2} sx={{
                                         '&::-webkit-scrollbar': { width: '6px' },
@@ -1207,18 +1374,33 @@ export const TreatmentProcedureForm = observer(
                                 )}
                                 {isDrawerMode && (
                                     <Box borderTop="1px solid" borderColor="gray.100" pt={6} mt={6}>
-                                        <Button
-                                            colorScheme="blue"
-                                            type="submit"
-                                            isLoading={formLoading}
-                                            borderRadius="xl"
-                                            fontWeight="900"
-                                            leftIcon={<FiSave />}
-                                            w="full"
-                                            h="54px"
-                                        >
-                                            Save Changes
-                                        </Button>
+                                        <HStack spacing={4}>
+                                            <Button
+                                                variant="outline"
+                                                colorScheme="gray"
+                                                onClick={onBack}
+                                                borderRadius="xl"
+                                                fontWeight="900"
+                                                flex={1}
+                                                h="54px"
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                colorScheme="blue"
+                                                type="submit"
+                                                isLoading={formLoading}
+                                                borderRadius="xl"
+                                                fontWeight="900"
+                                                leftIcon={<FiSave />}
+                                                flex={2}
+                                                h="54px"
+                                            >
+                                                {teeth.length > 1
+                                                    ? `Save ${teeth.length} Records`
+                                                    : "Save Changes"}
+                                            </Button>
+                                        </HStack>
                                     </Box>
                                 )}
                             </VStack>

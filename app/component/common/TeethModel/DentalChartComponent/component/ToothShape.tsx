@@ -150,6 +150,7 @@ export const ToothShape = ({
         display="flex"
         flexDir="column"
         alignItems="center"
+        flexShrink={0}
         gap={1}
         p={1}
         rounded="lg"

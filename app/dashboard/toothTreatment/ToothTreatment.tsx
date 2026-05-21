@@ -12,7 +12,7 @@ import stores from "../../store/stores";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
 import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
 import TreatmentDetailsView from "./element/TreatmentDetailsView";
-import { FiGrid, FiList, FiPlus, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2 } from "react-icons/fi";
+import { FiGrid, FiList, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2 } from "react-icons/fi";
 import { FaTooth } from "react-icons/fa";
 import Pagination from "../../component/config/component/pagination/Pagination";
 import WorkDoneForm from "../workDone/component/WorkDoneForm";
@@ -536,185 +536,220 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   };
 
 
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
     <>
-      <Box>
-
-        {/* Custom Dashboard Header */}
-        <Flex
-          bg="white"
-          p={4}
-          borderRadius="2xl"
-          shadow="xs"
-          border="1px solid"
-          borderColor="gray.100"
-          mb={4}
-          justify="space-between"
-          align="center"
-          wrap="wrap"
-          gap={4}
-        >
-          <VStack align="start" spacing={0}>
-            <Heading size="md" color="blue.600">Treatment Records</Heading>
-            {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
-          </VStack>
-
-          <HStack spacing={4} flex={1} maxW="850px" justify="flex-end">
-            <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1}>
-              <Icon as={FiSearch} color="gray.400" />
-              <Input
-                placeholder="Search clinical records..."
-                variant="unstyled"
-                py={2}
-                fontSize="sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </HStack>
-
-            <Box w="220px">
-              <select
-                value={complaintTypeFilter}
-                onChange={(e) => setComplaintTypeFilter(e.target.value)}
-                style={{
-                  width: '100%',
-                  height: '42px',
-                  borderRadius: '16px',
-                  padding: '0 12px',
-                  fontSize: '14px',
-                  border: '1px solid #E2E8F0',
-                  background: 'white',
-                  fontWeight: '700',
-                  color: '#4A5568',
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="all">All Complaints</option>
-                <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
-                <option value="OTHER FINDING">OTHER FINDING</option>
-                <option value="EXISTING FINDING">EXISTING FINDING</option>
-              </select>
-            </Box>
-
-            <Box w="220px">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  width: '100%',
-                  height: '42px',
-                  borderRadius: '16px',
-                  padding: '0 12px',
-                  fontSize: '14px',
-                  border: '1px solid #E2E8F0',
-                  background: 'white',
-                  fontWeight: '700',
-                  color: '#4A5568',
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="all">All Statuses</option>
-                <option value="pending">PENDING</option>
-                <option value="complete">COMPLETE</option>
-                <option value="incomplete">INCOMPLETE</option>
-              </select>
-            </Box>
-
-            <HStack bg="gray.100" p={1} borderRadius="xl">
-              <IconButton
-                size="sm"
-                variant={isTableView === "card" ? "solid" : "ghost"}
-                colorScheme={isTableView === "card" ? "blue" : "gray"}
-                icon={<FiGrid />}
-                onClick={() => setIsTableView("card")}
-                aria-label="Grid View"
-              />
-              <IconButton
-                size="sm"
-                variant={isTableView === "table" ? "solid" : "ghost"}
-                colorScheme={isTableView === "table" ? "blue" : "gray"}
-                icon={<FiList />}
-                onClick={() => setIsTableView("table")}
-                aria-label="List View"
-              />
-            </HStack>
-
-            <Button
-              colorScheme="blue"
-              leftIcon={<FiPlus />}
-              borderRadius="xl"
-              size="sm"
-              onClick={() => setOpenReportModal({ open: true, type: "add" })}
-              display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
-            >
-              Add Record
-            </Button>
-          </HStack>
-        </Flex>
-
-        {isTableView === "table" ? (
-          <CustomTable
-            data={toothTreatment?.data || []}
-            columns={ContactTableColumn}
-            loading={toothTreatment?.loading}
-            actions={{
-              actionBtn: {
-                editKey: {
-                  showEditButton: ["admin", "superAdmin"].includes(userType),
-                  function: (dt: any) => setOpenReportModal({ open: true, type: "edit", data: dt }),
-                },
-                viewKey: {
-                  showViewButton: true,
-                  function: (dt: any) => setOpenView({ open: true, data: dt }),
-                },
-              },
-              pagination: {
-                show: true,
-                onClick: handleChangePage,
-                currentPage,
-                totalPages: toothTreatment?.totalPages,
-              }
+      <Tabs
+        variant="line"
+        colorScheme="blue"
+        index={activeTab}
+        onChange={(idx) => setActiveTab(idx)}
+      >
+        <TabList mb={0} borderBottom="2px solid" borderColor="gray.100" px={2}>
+          <Tab
+            fontWeight="bold"
+            fontSize="14px"
+            px={6}
+            py={3}
+            _selected={{
+              color: "blue.700",
+              borderColor: "blue.600",
+              borderBottomWidth: "3px",
+              bg: "blue.50",
+              borderTopRadius: "lg",
             }}
-          />
-        ) : (
-          <VStack align="stretch" spacing={6}>
-            {toothTreatment?.loading ? (
-              <Center py={20}>
-                <VStack spacing={4}>
-                  <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
-                  <Text color="gray.500" fontWeight="bold">Fetching treatment history...</Text>
+          >
+            Create Treatment
+          </Tab>
+          <Tab
+            fontWeight="bold"
+            fontSize="14px"
+            px={6}
+            py={3}
+            _selected={{
+              color: "blue.700",
+              borderColor: "blue.600",
+              borderBottomWidth: "3px",
+              bg: "blue.50",
+              borderTopRadius: "lg",
+            }}
+          >
+            Previous Records
+          </Tab>
+        </TabList>
+
+        <TabPanels>
+          {/* ── TAB 1: Create Treatment ─────────────────────────── */}
+          <TabPanel p={0}>
+            <Index
+              appointments={toothTreatment}
+              isPatient={isPatient}
+              patientDetails={{ ...patientDetails, editData: openReportModal.data, applyGetAllRecords }}
+              closeWizard={() => {
+                setOpenReportModal({ open: false, type: "add", data: null });
+                setActiveTab(1); // switch to Previous Records after saving
+              }}
+            />
+          </TabPanel>
+
+          {/* ── TAB 2: Previous Records ─────────────────────────── */}
+          <TabPanel p={0} pt={4}>
+            <Box>
+              {/* Filters Bar */}
+              <Flex
+                bg="white"
+                p={4}
+                borderRadius="2xl"
+                shadow="xs"
+                border="1px solid"
+                borderColor="gray.100"
+                mb={4}
+                justify="space-between"
+                align="center"
+                wrap="wrap"
+                gap={4}
+              >
+                <VStack align="start" spacing={0}>
+                  <Heading size="md" color="blue.600">Treatment Records</Heading>
+                  {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
                 </VStack>
-              </Center>
-            ) : (
-              <>
-                <SimpleGrid columns={{ base: 1, md: 1, lg: 1 }} spacing={6}>
-                  {toothTreatment?.data?.map((dt: any) => renderCard(dt))}
-                </SimpleGrid>
 
-                {toothTreatment?.totalPages > 1 && (
-                  <Flex justify="center" pt={4}>
-                    <Pagination
-                      currentPage={currentPage}
-                      onPageChange={handleChangePage}
-                      totalPages={toothTreatment?.totalPages}
+                <HStack spacing={4} flex={1} maxW="850px" justify="flex-end">
+                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1}>
+                    <Icon as={FiSearch} color="gray.400" />
+                    <Input
+                      placeholder="Search clinical records..."
+                      variant="unstyled"
+                      py={2}
+                      fontSize="sm"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                  </Flex>
-                )}
+                  </HStack>
 
-                {!toothTreatment?.loading && toothTreatment?.data?.length === 0 && (
-                  <VStack py={20} bg="white" borderRadius="3xl" border="1px dashed" borderColor="gray.200">
-                    <Icon as={FiActivity} fontSize="40px" color="gray.200" />
-                    <Text fontWeight="bold" color="gray.400">No matching records found</Text>
-                  </VStack>
-                )}
-              </>
-            )}
-          </VStack>
-        )}
-      </Box>
+                  <Box w="220px">
+                    <select
+                      value={complaintTypeFilter}
+                      onChange={(e) => setComplaintTypeFilter(e.target.value)}
+                      style={{
+                        width: '100%', height: '42px', borderRadius: '16px',
+                        padding: '0 12px', fontSize: '14px', border: '1px solid #E2E8F0',
+                        background: 'white', fontWeight: '700', color: '#4A5568',
+                        outline: 'none', cursor: 'pointer'
+                      }}
+                    >
+                      <option value="all">All Complaints</option>
+                      <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
+                      <option value="OTHER FINDING">OTHER FINDING</option>
+                      <option value="EXISTING FINDING">EXISTING FINDING</option>
+                    </select>
+                  </Box>
 
+                  <Box w="220px">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      style={{
+                        width: '100%', height: '42px', borderRadius: '16px',
+                        padding: '0 12px', fontSize: '14px', border: '1px solid #E2E8F0',
+                        background: 'white', fontWeight: '700', color: '#4A5568',
+                        outline: 'none', cursor: 'pointer'
+                      }}
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="pending">PENDING</option>
+                      <option value="complete">COMPLETE</option>
+                      <option value="incomplete">INCOMPLETE</option>
+                    </select>
+                  </Box>
+
+                  <HStack bg="gray.100" p={1} borderRadius="xl">
+                    <IconButton
+                      size="sm"
+                      variant={isTableView === "card" ? "solid" : "ghost"}
+                      colorScheme={isTableView === "card" ? "blue" : "gray"}
+                      icon={<FiGrid />}
+                      onClick={() => setIsTableView("card")}
+                      aria-label="Grid View"
+                    />
+                    <IconButton
+                      size="sm"
+                      variant={isTableView === "table" ? "solid" : "ghost"}
+                      colorScheme={isTableView === "table" ? "blue" : "gray"}
+                      icon={<FiList />}
+                      onClick={() => setIsTableView("table")}
+                      aria-label="List View"
+                    />
+                  </HStack>
+                </HStack>
+              </Flex>
+
+              {isTableView === "table" ? (
+                <CustomTable
+                  data={toothTreatment?.data || []}
+                  columns={ContactTableColumn}
+                  loading={toothTreatment?.loading}
+                  actions={{
+                    actionBtn: {
+                      editKey: {
+                        showEditButton: ["admin", "superAdmin"].includes(userType),
+                        function: (dt: any) => setOpenReportModal({ open: true, type: "edit", data: dt }),
+                      },
+                      viewKey: {
+                        showViewButton: true,
+                        function: (dt: any) => setOpenView({ open: true, data: dt }),
+                      },
+                    },
+                    pagination: {
+                      show: true,
+                      onClick: handleChangePage,
+                      currentPage,
+                      totalPages: toothTreatment?.totalPages,
+                    }
+                  }}
+                />
+              ) : (
+                <VStack align="stretch" spacing={6}>
+                  {toothTreatment?.loading ? (
+                    <Center py={20}>
+                      <VStack spacing={4}>
+                        <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+                        <Text color="gray.500" fontWeight="bold">Fetching treatment history...</Text>
+                      </VStack>
+                    </Center>
+                  ) : (
+                    <>
+                      <SimpleGrid columns={{ base: 1, md: 1, lg: 1 }} spacing={6}>
+                        {toothTreatment?.data?.map((dt: any) => renderCard(dt))}
+                      </SimpleGrid>
+
+                      {toothTreatment?.totalPages > 1 && (
+                        <Flex justify="center" pt={4}>
+                          <Pagination
+                            currentPage={currentPage}
+                            onPageChange={handleChangePage}
+                            totalPages={toothTreatment?.totalPages}
+                          />
+                        </Flex>
+                      )}
+
+                      {!toothTreatment?.loading && toothTreatment?.data?.length === 0 && (
+                        <VStack py={20} bg="white" borderRadius="3xl" border="1px dashed" borderColor="gray.200">
+                          <Icon as={FiActivity} fontSize="40px" color="gray.200" />
+                          <Text fontWeight="bold" color="gray.400">No matching records found</Text>
+                        </VStack>
+                      )}
+                    </>
+                  )}
+                </VStack>
+              )}
+            </Box>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      {/* View drawer */}
       <CustomDrawer
         width={"80vw"}
         open={openView.open}
@@ -723,12 +758,13 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       >
         <TreatmentDetailsView data={openView.data} />
       </CustomDrawer>
-      {/* Drawer */}
+
+      {/* Edit drawer (only for editing existing records) */}
       <CustomDrawer
         width="90vw"
-        open={openReportModal.open}
-        close={() => setOpenReportModal({ open: false, type: "add" })}
-        title={<PatientHeader title="Treatment Selection" patient={patientDetails} />}
+        open={openReportModal.open && openReportModal.type === "edit"}
+        close={() => setOpenReportModal({ open: false, type: "add", data: null })}
+        title={<PatientHeader title="Edit Treatment" patient={patientDetails} />}
       >
         <Index
           appointments={toothTreatment}
@@ -749,32 +785,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           <Box px={6}>
             <Tabs variant="line" colorScheme="blue">
               <TabList mb="1em">
-                <Tab
-                  fontWeight="bold"
-                  fontSize="14px"
-                  px={6}
-                  _selected={{
-                    color: "blue.700",
-                    borderColor: "blue.600",
-                    borderBottomWidth: "3px",
-                    bg: "blue.100",
-                    borderTopRadius: "lg"
-                  }}
-                >
+                <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
                   New Work Entry
                 </Tab>
-                <Tab
-                  fontWeight="bold"
-                  fontSize="14px"
-                  px={6}
-                  _selected={{
-                    color: "blue.700",
-                    borderColor: "blue.600",
-                    borderBottomWidth: "3px",
-                    bg: "blue.100",
-                    borderTopRadius: "lg"
-                  }}
-                >
+                <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
                   Previous work done
                 </Tab>
               </TabList>
@@ -805,4 +819,4 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 });
 
 
-export default TreatmentList;
+export default TreatmentList;

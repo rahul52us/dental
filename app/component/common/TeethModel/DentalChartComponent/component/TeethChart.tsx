@@ -145,11 +145,11 @@ export const TeethChart = ({
       position="relative"
       bg="white"
       rounded="2xl"
-      p={4}
+      p={2}
       h="full"
     >
       {/* Chart Layout - Centered with Patients Orientation */}
-      <Flex borderBottom="1px solid" borderColor="gray.50" pb={3} mb={5} justify="space-between" align="center">
+      <Flex borderBottom="1px solid" borderColor="gray.50" pb={1} mb={2} justify="space-between" align="center">
         <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="widest">
           RIGHT
         </Text>
@@ -161,7 +161,7 @@ export const TeethChart = ({
         </Text>
       </Flex>
 
-      <VStack spacing={2} pt={8}>
+      <VStack spacing={2} pt={2}>
         {/* Upper Jaw */}
         <Box position="relative">
           <Text
@@ -187,7 +187,7 @@ export const TeethChart = ({
           w="100%"
           maxW="2xl"
           h="2px"
-          my={4}
+          my={2}
           bgGradient="linear(to-r, transparent, gray.300, transparent)"
         />
 

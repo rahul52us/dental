@@ -79,10 +79,7 @@ const detectIsChild = (tooth: any) => {
   );
 };
 
-type WizardStep = "TOOTH_SELECTION" | "PROCEDURE_FORM";
-
 const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
-  const [step, setStep] = useState<WizardStep>("TOOTH_SELECTION");
   const [dentitionType, setDentitionType] = useState<DentitionType>("adult");
   const formRef = useRef<any>(null);
   const lastSyncedEditId = useRef<string | null>(null);
@@ -339,12 +336,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             } as any);
           }
         }
-        setStep("PROCEDURE_FORM");
       }
       // 3. Handle Contextual Add (New record with passed date/tooth context)
       else if (!edit._id) {
         lastSyncedEditId.current = null; // Reset sync ID to allow subsequent edits of the same row
-        setStep("TOOTH_SELECTION"); // Open at Step 1 as requested
 
         // Pre-select the tooth if provided to save user clicks
         const rawTId = typeof edit.tooth === 'object' ? (edit.tooth.fdi || edit.tooth.id || edit.tooth.tooth?.fdi || edit.tooth.tooth?.id) : String(edit.tooth || "");
@@ -365,68 +360,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     }
   }, [patientDetails?.editData]);
 
-  const steps = [
-    { id: "TOOTH_SELECTION", title: "SELECTION", icon: FiMousePointer },
-    { id: "PROCEDURE_FORM", title: "PROCEDURE", icon: FiFileText },
-  ];
-
-  const currentMainIdx = steps.findIndex(s => s.id === step);
-  const progressPercent = ((currentMainIdx + 1) / steps.length) * 100;
-
-  const handleStepClick = (idx: number) => {
-    if (idx < currentMainIdx) {
-      setStep(steps[idx].id as WizardStep);
-    }
-  };
-
-  const handleNext = () => {
-    if (step === "TOOTH_SELECTION") {
-      if (!procedureFormValues) {
-        setProcedureFormValues({ treatmentDate: sessionDate });
-      }
-      setStep("PROCEDURE_FORM");
-    }
-  };
-
-
-  const handleBack = () => {
-    if (step === "PROCEDURE_FORM") setStep("TOOTH_SELECTION");
-  };
+  // Stepper handlers are no longer needed in the unified screen layout
 
   const handleToothClick = (tooth: ToothData) => {
-    // Generate all possible IDs for this tooth to ensure matches across all notation systems
-    const allToothIds = [
-      String(tooth.id),
-      String(tooth.fdi),
-      String(tooth.universal),
-      String(tooth.palmer)
-    ].filter(Boolean);
-
-    const isMatch = (rec: any) => {
-      const recTooth = String(rec.toothFDI || rec.tooth || "");
-      const recIds = recTooth.split(',').map(s => s.trim());
-      return allToothIds.some(id => recIds.includes(id));
-    };
-
-    // If session is NOT in multi-selection mode, we check for existing records to VIEW
-    if (selectionMode !== 'multi') {
-      const matchingTodayRecords = (todayToothTreatment.data || []).filter(isMatch);
-      const matchingHistoryRecords = (chartRecords || []).filter(isMatch);
-
-      const allMatchingRecords = [...matchingTodayRecords, ...matchingHistoryRecords];
-
-      // Remove duplicates based on ID if any overlap occurs
-      const uniqueRecords = Array.from(new Map(allMatchingRecords.map(r => [r._id || r.id, r])).values());
-
-      if (uniqueRecords.length > 0) {
-        setViewingRecord(uniqueRecords);
-        onOpenViewModal();
-        return;
-      }
-    }
-
-
-
     // Default flow for adding new treatments
     if (selectionMode === 'multi') {
       setSelectedTeeth((prev) => {
@@ -443,10 +379,19 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         }
       });
     } else {
-      setSelectedTeeth([tooth]);
-      setToothComplaints({ [tooth.id]: complaintType });
-      setActiveTeethForForm([tooth]);
-      setIsToothFormOpen(true);
+      // Toggle selection in single-select mode:
+      // If the clicked tooth is already selected, deselect it to default back to "General".
+      // Otherwise, select the clicked tooth.
+      const isAlreadySelected = selectedTeeth.some((t) => t.id === tooth.id);
+      if (isAlreadySelected) {
+        setSelectedTeeth([]);
+        setToothComplaints({});
+        setActiveTeethForForm([]);
+      } else {
+        setSelectedTeeth([tooth]);
+        setToothComplaints({ [tooth.id]: complaintType });
+        setActiveTeethForForm([tooth]);
+      }
     }
   };
 
@@ -501,7 +446,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const handleSelectTemplate = (path: string) => {
     setProcedureFormValues((prev: any) => ({ ...prev, treatmentCode: path }));
     onProcedureDrawerClose();
-    setStep("PROCEDURE_FORM");
   };
 
   const handleEditTreatment = (item: any) => {
@@ -560,267 +504,222 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
 
   const renderStep = () => {
     const activeColor = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" }[complaintType] || "blue";
-    switch (step) {
-      case "TOOTH_SELECTION":
-        return (
-          <VStack spacing={4} align="stretch" h="full">
-            <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
-              <HStack spacing={8}>
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">DENTITION</Text>
-                  <DentitionToggle value={dentitionType} onChange={(val) => {
-                    setDentitionType(val);
-                    setSelectedTeeth([]);
-                    setToothComplaints({});
-                  }} />
-                </VStack>
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">NOTATION</Text>
-                  <HStack bg="gray.50" p={1} borderRadius="xl">
-                    {["fdi", "universal", "palmer"].map(n => (
-                      <Button
-                        key={n}
-                        size="xs"
-                        variant={notation === n ? "solid" : "ghost"}
-                        bg={notation === n ? `${activeColor}.500` : "transparent"}
-                        color={notation === n ? "white" : "gray.600"}
-                        _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
-                        onClick={() => setNotation(n as any)}
-                        fontWeight="900"
-                      >
-                        {n.toUpperCase()}
-                      </Button>
-                    ))}
-                  </HStack>
-                </VStack>
-                <VStack align="start" spacing={1}>
-                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">COMPLAINT</Text>
-                  <HStack bg="gray.50" p={1} borderRadius="xl">
-                    {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
-                      const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
-                      const isActive = complaintType === type;
-                      const c = buttonColorMap[type];
-                      return (
-                        <Button
-                          key={type}
-                          size="xs"
-                          bg={isActive ? `${c}.500` : "transparent"}
-                          color={isActive ? "white" : "gray.600"}
-                          _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
-                          variant={isActive ? "solid" : "ghost"}
-                          onClick={() => setComplaintType(type)}
-                          fontWeight="900"
-                        >
-                          {type.split(' ')[0]}
-                        </Button>
-                      );
-                    })}
-                  </HStack>
-                </VStack>
-                <VStack align="start" spacing={1} minW="220px">
-                  <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">EXAMINING DOCTOR</Text>
-                  <CustomInput
-                    name="examiningDoctor"
-                    type="real-time-user-search"
-                    query={{ type: 'doctor' }}
-                    options={doctorOptions}
-                    value={lastExaminingDoctor}
-                    onChange={(val: any) => setLastExaminingDoctor(val)}
-                    style={{ height: '32px', borderRadius: '12px', fontSize: '11px' }}
-                    placeholder="Select Doctor"
-                  />
-                </VStack>
+
+    // Fallback to General Tooth if no teeth are selected (as per user requirement)
+    const activeTeethForStep = selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData];
+
+    return (
+      <VStack spacing={4} align="stretch">
+        <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
+          <HStack spacing={8}>
+            <VStack align="start" spacing={1}>
+              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">DENTITION</Text>
+              <DentitionToggle value={dentitionType} onChange={(val) => {
+                setDentitionType(val);
+                setSelectedTeeth([]);
+                setToothComplaints({});
+              }} />
+            </VStack>
+            <VStack align="start" spacing={1}>
+              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">NOTATION</Text>
+              <HStack bg="gray.50" p={1} borderRadius="xl">
+                {["fdi", "universal", "palmer"].map(n => (
+                  <Button
+                    key={n}
+                    size="xs"
+                    variant={notation === n ? "solid" : "ghost"}
+                    bg={notation === n ? `${activeColor}.500` : "transparent"}
+                    color={notation === n ? "white" : "gray.600"}
+                    _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
+                    onClick={() => setNotation(n as any)}
+                    fontWeight="900"
+                  >
+                    {n.toUpperCase()}
+                  </Button>
+                ))}
               </HStack>
-              <VStack align="end" spacing={0}>
-                <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
-                <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
+            </VStack>
+            <VStack align="start" spacing={1}>
+              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">COMPLAINT</Text>
+              <HStack bg="gray.50" p={1} borderRadius="xl">
+                {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
+                  const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
+                  const isActive = complaintType === type;
+                  const c = buttonColorMap[type];
+                  return (
+                    <Button
+                      key={type}
+                      size="xs"
+                      bg={isActive ? `${c}.500` : "transparent"}
+                      color={isActive ? "white" : "gray.600"}
+                      _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
+                      variant={isActive ? "solid" : "ghost"}
+                      onClick={() => setComplaintType(type)}
+                      fontWeight="900"
+                    >
+                      {type.split(' ')[0]}
+                    </Button>
+                  );
+                })}
+              </HStack>
+            </VStack>
+          </HStack>
+          <VStack align="end" spacing={0}>
+            <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
+            <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
+          </VStack>
+        </Flex>
+
+        <Flex direction="column" gap={4} w="full">
+          <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={3} align="stretch" spacing={3} h="auto" flexShrink={0}>
+            <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="9px" fontWeight="1000" color="black" letterSpacing="0.1em">QUADRANTS</Text>
+                <HStack spacing={1}>
+                  {[
+                    { label: 'RU', pos: 'upper', side: 'right' },
+                    { label: 'LU', pos: 'upper', side: 'left' },
+                    { label: 'RL', pos: 'lower', side: 'right' },
+                    { label: 'LL', pos: 'lower', side: 'left' }
+                  ].map((zone) => {
+                    const isAllSelected = currentQuadrantStatus(zone.pos as any, zone.side as any);
+                    return (
+                      <Button
+                        key={zone.label}
+                        size="xs"
+                        variant={isAllSelected ? "solid" : "outline"}
+                        colorScheme={isAllSelected ? "blue" : "gray"}
+                        fontSize="9px"
+                        fontWeight="1000"
+                        h="24px"
+                        minW="32px"
+                        borderRadius="md"
+                        onClick={() => handleQuadrantSelect(zone.pos as any, zone.side as any)}
+                      >
+                        {zone.label}
+                      </Button>
+                    );
+                  })}
+                </HStack>
               </VStack>
+              <HStack spacing={4} align="center">
+                <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
+                  <Button
+                    size="xs" leftIcon={<FiMousePointer size={11} />}
+                    bg={selectionMode === 'single' ? "white" : "transparent"}
+                    color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
+                    boxShadow={selectionMode === 'single' ? "sm" : "none"}
+                    onClick={() => {
+                      setSelectionMode('single');
+                      setIsMultipleSelection(false);
+                      setSelectedTeeth([]);
+                      setToothComplaints({});
+                    }}
+                    fontWeight="1000"
+                    h="28px"
+                    borderRadius="lg"
+                  >
+                    SINGLE
+                  </Button>
+                  <Button
+                    size="xs" leftIcon={<FiActivity size={11} />}
+                    bg={selectionMode === 'multi' ? "white" : "transparent"}
+                    color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
+                    boxShadow={selectionMode === 'multi' ? "sm" : "none"}
+                    onClick={() => {
+                      setSelectionMode('multi');
+                      setIsMultipleSelection(true);
+                      setSelectedTeeth([]);
+                      setToothComplaints({});
+                    }}
+                    fontWeight="1000"
+                    h="28px"
+                    borderRadius="lg"
+                  >
+                    MULTI
+                  </Button>
+                </HStack>
+                <HStack spacing={1}>
+                  <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
+                  <Text fontWeight="bold" fontSize="xs">Notes</Text>
+                </HStack>
+              </HStack>
             </Flex>
 
-            <Grid templateColumns={{ base: "1fr", lg: "1fr 340px" }} gap={4} flex={1} overflow="hidden">
-              <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={1} overflow="hidden" align="stretch" spacing={4}>
-                <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
-                  <VStack align="start" spacing={0}>
-                    <Text fontSize="9px" fontWeight="1000" color="black" letterSpacing="0.1em">QUADRANTS</Text>
-                    <HStack spacing={1}>
-                      {[
-                        { label: 'RU', pos: 'upper', side: 'right' },
-                        { label: 'LU', pos: 'upper', side: 'left' },
-                        { label: 'RL', pos: 'lower', side: 'right' },
-                        { label: 'LL', pos: 'lower', side: 'left' }
-                      ].map((zone) => {
-                        const isAllSelected = currentQuadrantStatus(zone.pos as any, zone.side as any);
-                        return (
-                          <Button
-                            key={zone.label}
-                            size="xs"
-                            variant={isAllSelected ? "solid" : "outline"}
-                            colorScheme={isAllSelected ? "blue" : "gray"}
-                            fontSize="9px"
-                            fontWeight="1000"
-                            h="24px"
-                            minW="32px"
-                            borderRadius="md"
-                            onClick={() => handleQuadrantSelect(zone.pos as any, zone.side as any)}
-                          >
-                            {zone.label}
-                          </Button>
-                        );
-                      })}
-                    </HStack>
-                  </VStack>
-                  <Flex flexDirection="column">
-                    <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
-                      <Button
-                        size="xs" leftIcon={<FiMousePointer size={11} />}
-                        bg={selectionMode === 'single' ? "white" : "transparent"}
-                        color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
-                        boxShadow={selectionMode === 'single' ? "sm" : "none"}
-                        onClick={() => { setSelectionMode('single'); setIsMultipleSelection(false); setSelectedTeeth([]); }}
-                        fontWeight="1000"
-                        h="28px"
-                        borderRadius="lg"
-                      >
-                        SINGLE
-                      </Button>
-                      <Button
-                        size="xs" leftIcon={<FiActivity size={11} />}
-                        bg={selectionMode === 'multi' ? "white" : "transparent"}
-                        color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
-                        boxShadow={selectionMode === 'multi' ? "sm" : "none"}
-                        onClick={() => { setSelectionMode('multi'); setIsMultipleSelection(true); }}
-                        fontWeight="1000"
-                        h="28px"
-                        borderRadius="lg"
-                      >
-                        MULTI
-                      </Button>
-                    </HStack>
-                    <HStack spacing={2} mt={4}>
-                      <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
-                      <Text fontWeight="bold">Notes</Text>
-                    </HStack>
-                  </Flex>
-
-                </Flex>
-
-                <Box flex={1} overflow="hidden">
-                  <TeethChart
-                    dentitionType={dentitionType}
-                    selectedTeeth={selectedTeeth}
-                    onToothClick={handleToothClick}
-                    notationType={notation}
-                    toothComplaints={toothComplaints}
-                    activeComplaintType={complaintType}
-                    todayTreatments={todayToothTreatment.data || []}
-                    historyTeeth={treatedToothIds}
-                    fullHistory={chartRecords}
-                    sessionDate={sessionDate}
-                  />
-                </Box>
-              </VStack>
-              <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" h="full" boxShadow="xs" overflow="hidden">
-                <HStack justify="space-between">
-                  <VStack align="start" spacing={0}>
-                    <Text fontSize="11px" fontWeight="black" color="black">VIEW HISTORY DATE WISE</Text>
-                  </VStack>
-                  <HStack spacing={2}>
-                    <IconButton aria-label="Summary" icon={<FiCalendar />} size="sm" colorScheme="blue" borderRadius="full" onClick={fetchTreatmentCounts} />
-                    <Circle size="28px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900">{todayToothTreatment.totalItems || 0}</Circle>
-
-                  </HStack>
-                </HStack>
-                <Box flex={1} overflowY="auto" pr={2}>
-                  <VStack align="stretch" spacing={4}>
-                    <VStack align="stretch" spacing={2}>
-                      <HStack bg="blue.50" p={2} borderRadius="xl" border="1px solid" borderColor="blue.100" justify="space-between">
-                        <Input
-                          type="date"
-                          value={sessionDate}
-                          onChange={(e) => setSessionDate(e.target.value)}
-                          size="sm"
-                          variant="unstyled"
-                          fontWeight="black"
-                          color="black"
-                          p={0}
-                        />
-                      </HStack>
-                    </VStack>
-
-                    <Box p={5} bg="blue.50/30" borderRadius="2xl" border="1px solid" borderColor="blue.100" cursor="pointer" onClick={() => { if (patientDetails?._id) { getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate }); getTodayCount({ patientId: patientDetails._id, date: sessionDate }); } onHistoryDrawerOpen(); }} _hover={{ transform: "translateY(-2px)" }}>
-
-                      <HStack justify="space-between">
-                        <VStack align="start" spacing={0}><Text fontSize="10px" fontWeight="black" color="black">PATIENT RECORDS</Text><Heading size="xs" fontWeight="black" color="black">View History</Heading></VStack>
-                        <Text fontSize="24px" fontWeight="black" color="black">{todayToothTreatment.totalItems || 0}</Text>
-                      </HStack>
-                    </Box>
-                    <Button bg={`${activeColor}.500`} mt={"35px"} colorScheme="blue" rightIcon={<FiChevronRight />} isDisabled={selectedTeeth.length === 0 && !teethNotes.trim()} onClick={handleNext} w="full" h="54px" borderRadius="2xl" fontWeight="900" textTransform="uppercase">Add Records</Button>
-
-                  </VStack>
-                </Box>
-
-              </VStack>
-            </Grid>
+            <Box w="full" h="auto">
+              <TeethChart
+                dentitionType={dentitionType}
+                selectedTeeth={selectedTeeth}
+                onToothClick={handleToothClick}
+                notationType={notation}
+                toothComplaints={toothComplaints}
+                activeComplaintType={complaintType}
+                todayTreatments={todayToothTreatment.data || []}
+                historyTeeth={treatedToothIds}
+                fullHistory={chartRecords}
+                sessionDate={sessionDate}
+              />
+            </Box>
           </VStack>
-        );
-      case "PROCEDURE_FORM":
-        // Fallback to General Tooth if no teeth are selected (as per user requirement)
-        const activeTeethForStep = selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData];
-        return (
-          <TreatmentProcedureForm
-            isPatient={isPatient} patientDetails={patientDetails} editData={editingTreatment || patientDetails?.editData} teeth={activeTeethForStep}
-            dentitionType={dentitionType}
-            generalDescription={generalDescription || teethNotes} complaintType={complaintType} toothComplaints={toothComplaints}
-            onRemoveTooth={(id) => {
-              setSelectedTeeth(prev => prev.filter(t => t.id !== id));
-              setToothComplaints(prev => {
-                const { [id]: _, ...rest } = prev;
-                return rest;
-              });
-            }}
-            onSuccess={() => {
 
-              patientDetails?.applyGetAllRecords?.({});
-              setStep("TOOTH_SELECTION");
-              setSelectedTeeth([]);
-              setEditingTreatment(null);
-              setProcedureFormValues(null);
-              setExplorerState({ category: null, subcategory: null });
-              if (patientDetails?._id) {
-
-                getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
-                getTodayCount({ patientId: patientDetails._id, date: sessionDate });
-
-                // Refresh historical tooth IDs (All categories up to session date)
-                // getToothTreatments({
-                //   patientId: patientDetails._id,
-                //   page: 1,
-                //   limit: 100,
-                //   toDate: sessionDate
-                // } as any)
-                //   .then((res: any) => {
-                //     const raw = res?.data?.data || res?.data || [];
-                //     const ids = Array.from(new Set(raw.flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
-                //     setTreatedToothIds(ids.filter(Boolean));
-                //   });
-
-
-
-
-              }
-
-            }}
-
-            onBack={handleBack} onToothClick={handleToothClick} hoistedValues={procedureFormValues} notation={notation} onValuesUpdate={setProcedureFormValues}
-            explorerState={explorerState} onExplorerUpdate={setExplorerState} individualTeethNotes={individualTeethNotes} onEditToothNote={handleEditToothNote}
-            onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }} formRef={formRef} doctorOptions={doctorOptions}
-          />
-        );
-    }
+          <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" boxShadow="md">
+            <TreatmentProcedureForm
+              isPatient={isPatient}
+              patientDetails={patientDetails}
+              editData={editingTreatment || patientDetails?.editData}
+              teeth={selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
+              dentitionType={dentitionType}
+              generalDescription={generalDescription || teethNotes}
+              complaintType={complaintType}
+              toothComplaints={selectedTeeth.length > 0 ? toothComplaints : { "General": complaintType }}
+              isDrawerMode={true}
+              onRemoveTooth={(id) => {
+                setSelectedTeeth(prev => prev.filter(t => t.id !== id));
+                setToothComplaints(prev => {
+                  const { [id]: _, ...rest } = prev;
+                  return rest;
+                });
+              }}
+              onSuccess={() => {
+                patientDetails?.applyGetAllRecords?.({});
+                setSelectedTeeth([]);
+                setEditingTreatment(null);
+                setProcedureFormValues(null);
+                setExplorerState({ category: null, subcategory: null });
+                if (patientDetails?._id) {
+                  getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+                  getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+                }
+                // Close the outer drawer after saving
+                closeWizard?.();
+              }}
+              onBack={() => {
+                setSelectedTeeth([]);
+                setEditingTreatment(null);
+                setProcedureFormValues(null);
+                setExplorerState({ category: null, subcategory: null });
+              }}
+              onToothClick={handleToothClick}
+              hoistedValues={procedureFormValues}
+              notation={notation}
+              onValuesUpdate={setProcedureFormValues}
+              explorerState={explorerState}
+              onExplorerUpdate={setExplorerState}
+              individualTeethNotes={individualTeethNotes}
+              onEditToothNote={handleEditToothNote}
+              onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }}
+              formRef={formRef}
+              doctorOptions={doctorOptions}
+              sessionDate={sessionDate}
+            />
+          </VStack>
+        </Flex>
+      </VStack>
+    );
   };
 
   return (
-    <Box h="100vh" bg="white" overflow="hidden">
+    <Box bg="white">
       <Modal isOpen={isGeneralNoteModalOpen} onClose={onCloseGeneralNoteModal} isCentered size="xl">
         <ModalOverlay backdropFilter="blur(10px)" /><ModalContent borderRadius="3xl" p={4}><ModalHeader><Heading size="md">General Notes</Heading></ModalHeader><ModalCloseButton /><ModalBody><Textarea value={generalNoteDraft} onChange={(e) => setGeneralNoteDraft(e.target.value)} minH="250px" borderRadius="2xl" /></ModalBody><ModalFooter><Button onClick={() => { setTeethNotes(generalNoteDraft); onCloseGeneralNoteModal(); }} colorScheme="blue">Update</Button></ModalFooter></ModalContent>
       </Modal>
@@ -866,27 +765,11 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         </ModalContent>
       </Modal>
 
-      <Flex direction="column" w="full" position="relative" zIndex={10}>
-        <Flex justify="space-between" align="center" px={8} py={2} bg="white" borderBottom="1px" borderColor="gray.100">
-          <HStack spacing={8}><VStack align="start" spacing={0}><Text fontSize="11px" fontWeight="900" color="blue.500">DIAGNOSTIC SUITE</Text></VStack>
-            <HStack spacing={8}>
-              {steps.map((s, idx) => (
-                <HStack key={idx} opacity={currentMainIdx === idx ? 1 : 0.4} onClick={() => handleStepClick(idx)} cursor="pointer">
-                  <Text fontWeight="900" color={currentMainIdx === idx ? "blue.500" : "gray.500"}>{s.title}</Text>
-                </HStack>
-              ))}
-              <Badge variant="subtle" colorScheme="blue" borderRadius="full" px={3} py={1} fontSize="xs" fontWeight="900">
-                {todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString().toUpperCase()}
-              </Badge>
-
-            </HStack>
-          </HStack>
-          <IconButton aria-label="Close" icon={<FiX />} onClick={closeWizard} variant="ghost" />
-        </Flex>
-        <Progress value={progressPercent} size="xs" colorScheme="blue" h="1px" />
-      </Flex>
-
-      <Box h="calc(100vh - 80px)" px={6} pb={6} pt={2} overflow="hidden">{renderStep()}</Box>
+      <Box h="100vh" px={6} pb={6} pt={2} overflowY="auto" className="procedure-form-scroll" sx={{
+        '&::-webkit-scrollbar': { width: '6px' },
+        '&::-webkit-scrollbar-track': { bg: 'transparent' },
+        '&::-webkit-scrollbar-thumb': { bg: 'gray.200', borderRadius: 'full' }
+      }}>{renderStep()}</Box>
 
       <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
         {(() => {
