@@ -19,11 +19,15 @@ class PrescriptionStore {
     makeAutoObservable(this);
   }
 
+  get companyId() {
+    return authStore.company?._id || authStore.company || (typeof window !== "undefined" ? localStorage.getItem("companyId") : null);
+  }
+
   getSuggestions = async () => {
     this.suggestionsLoading = true;
     try {
       const res = await axios.get(`/prescription/suggestions`, {
-        params: { companyId: authStore.company }
+        params: { companyId: this.companyId }
       });
       runInAction(() => {
         this.types = res.data.types || [];
@@ -50,7 +54,7 @@ class PrescriptionStore {
         params: { 
           ...params, 
           limit: 5000, // Fetch all records at once
-          companyId: authStore.company 
+          companyId: this.companyId 
         } 
       });
       runInAction(() => {
@@ -75,7 +79,7 @@ class PrescriptionStore {
     try {
       const res = await axios.post(`/prescription/create`, {
         ...data,
-        company: authStore.company
+        company: this.companyId
       });
       await this.getPrescriptions();
       return res.data;
@@ -108,10 +112,35 @@ class PrescriptionStore {
     try {
       const res = await axios.post(`/prescription/bulk-import`, {
         base64Data,
-        companyId: authStore.company,
+        companyId: this.companyId,
         userId: authStore.user?._id
       });
       await this.getPrescriptions();
+      return res.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  getDailyPrescription = async (patientId: string, date: string) => {
+    try {
+      const res = await axios.get(`/prescription/patient-daily`, {
+        params: { patientId, date }
+      });
+      return res.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  saveDailyPrescription = async (patientId: string, date: string, prescriptions: any[]) => {
+    try {
+      const res = await axios.post(`/prescription/patient-daily`, {
+        patientId,
+        date,
+        prescriptions,
+        company: this.companyId
+      });
       return res.data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

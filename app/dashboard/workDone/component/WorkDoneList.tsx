@@ -49,7 +49,17 @@ interface WorkDoneListProps {
   onEdit?: (record: any) => void; // Add this prop
 }
 
+const getLocalDateString = (dateInput?: any) => {
+  const d = dateInput ? new Date(dateInput) : new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDoneListProps) => {
+
+
   const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
     if (!toothId) {
       const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
@@ -90,7 +100,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [openView, setOpenView] = useState({ open: false, data: null as any });
   const [deleteModal, setDeleteModal] = useState({ open: false, id: "" });
   const [isDeleting, setIsDeleting] = useState(false);
-  const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "" });
+  const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "", patientId: "", date: "" });
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
 
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
@@ -400,7 +410,12 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       colorScheme="gray"
                       icon={<FiPrinter />}
                       aria-label="Print Report"
-                      onClick={() => setOpenPrintModal({ open: true, id: record._id })}
+                      onClick={() => setOpenPrintModal({
+                        open: true,
+                        id: record._id,
+                        patientId: patientDetails?._id,
+                        date: getLocalDateString(record.createdAt)
+                      })}
                       borderRadius="full"
                     />
 
@@ -590,8 +605,10 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
       <PrescriptionPrintDrawer
         isOpen={openPrintModal.open}
-        onClose={() => setOpenPrintModal({ open: false, id: "" })}
+        onClose={() => setOpenPrintModal({ open: false, id: "", patientId: "", date: "" })}
         workDoneId={openPrintModal.id}
+        patientId={openPrintModal.patientId}
+        date={openPrintModal.date}
       />
 
       <DailyPrescriptionDrawer
@@ -698,7 +715,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   );
 });
 
-const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) => {
+const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patientId, date }: any) => {
   const {
     workDoneStore: { downloadWorkDoneReport },
     prescriptionStore,
@@ -706,19 +723,18 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
   } = stores;
 
   const [loading, setLoading] = useState(false);
+  const [initialPrescriptions, setInitialPrescriptions] = useState<any[]>([]);
+  const [fetchingDaily, setFetchingDaily] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      console.log("Drawer opened, fetching prescriptions...");
-      prescriptionStore.getPrescriptions({ limit: 1000 })
-        .then(res => console.log("Fetched prescriptions:", res?.data?.length))
-        .catch(err => console.error("Error fetching prescriptions:", err));
+  const companyId = prescriptionStore.companyId;
 
-      prescriptionStore.getSuggestions()
-        .then(res => console.log("Fetched suggestions:", res))
-        .catch(err => console.error("Error fetching suggestions:", err));
-    }
-  }, [isOpen, prescriptionStore]);
+  const types = prescriptionStore.types || [];
+  const categories = prescriptionStore.categories || [];
+  const basicSalts = prescriptionStore.basicSalts || [];
+  const forms = prescriptionStore.forms || [];
+  const prescriptionsData = prescriptionStore.prescriptionsData || [];
+  const suggestionsLoading = prescriptionStore.suggestionsLoading;
+  const prescriptionsLoading = prescriptionStore.prescriptionsLoading;
 
   const [localFormData, setLocalFormData] = useState({
     type: '',
@@ -749,6 +765,58 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
       description: '',
     });
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log("Drawer opened, fetching prescriptions...");
+      prescriptionStore.getPrescriptions({ limit: 1000 })
+        .then(res => console.log("Fetched prescriptions:", res?.data?.length))
+        .catch(err => console.error("Error fetching prescriptions:", err));
+
+      prescriptionStore.getSuggestions()
+        .then(res => console.log("Fetched suggestions:", res))
+        .catch(err => console.error("Error fetching suggestions:", err));
+
+      if (patientId && date) {
+        setFetchingDaily(true);
+        prescriptionStore.getDailyPrescription(patientId, date)
+          .then((res: any) => {
+            if (res?.status === "success" && res.data && res.data.prescriptions && res.data.prescriptions.length > 0) {
+              const prescriptions = res.data.prescriptions;
+              setInitialPrescriptions(prescriptions);
+              const lastItem = prescriptions[prescriptions.length - 1];
+              setLocalFormData({
+                type: lastItem.type || '',
+                category: lastItem.category || '',
+                form: lastItem.form || '',
+                basicSalt: lastItem.basicSalt || '',
+                brandName: lastItem.brandName || '',
+                companyName: lastItem.companyName || '',
+                dosage: lastItem.dosage || '',
+                details: lastItem.details || '',
+                doseNo: lastItem.doseNo || 0,
+                noOfDays: lastItem.noOfDays || 0,
+                description: lastItem.description || '',
+              });
+            } else {
+              setInitialPrescriptions([]);
+              resetLocalForm();
+            }
+          })
+          .catch((err: any) => {
+            console.error("Error fetching daily prescription:", err);
+            setInitialPrescriptions([]);
+            resetLocalForm();
+          })
+          .finally(() => {
+            setFetchingDaily(false);
+          });
+      } else {
+        setInitialPrescriptions([]);
+        resetLocalForm();
+      }
+    }
+  }, [isOpen, prescriptionStore, patientId, date, companyId]);
 
   const [previewDrawer, setPreviewDrawer] = useState({ open: false, url: "" });
 
@@ -782,8 +850,9 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
     >
       <Box p={0}>
         <Formik
+          enableReinitialize
           initialValues={{
-            prescriptions: [],
+            prescriptions: initialPrescriptions,
             topPadding: 150,
             bottomPadding: 50,
           }}
@@ -864,13 +933,13 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                             <SimpleGrid columns={2} spacing={3} w="full">
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>
-                                  TYPE {stores.prescriptionStore.types.length > 0 ? `(${stores.prescriptionStore.types.length})` : '(Loading...)'}
+                                  TYPE {types.length > 0 ? `(${types.length})` : '(Loading...)'}
                                 </Text>
                                 <CreatableSelect
                                   isClearable
-                                  isLoading={stores.prescriptionStore.suggestionsLoading}
+                                  isLoading={suggestionsLoading}
                                   placeholder="Type..."
-                                  options={(stores.prescriptionStore.types || []).map((t: string) => ({ label: t, value: t }))}
+                                  options={types.map((t: string) => ({ label: t, value: t }))}
                                   value={localFormData.type ? { label: localFormData.type, value: localFormData.type } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, type: val?.value || '' })}
                                   styles={selectStyles}
@@ -880,9 +949,9 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>CATEGORY</Text>
                                 <CreatableSelect
                                   isClearable
-                                  isLoading={prescriptionStore.suggestionsLoading}
+                                  isLoading={suggestionsLoading}
                                   placeholder="Cat..."
-                                  options={(prescriptionStore.categories || []).map((c: string) => ({ label: c, value: c }))}
+                                  options={categories.map((c: string) => ({ label: c, value: c }))}
                                   value={localFormData.category ? { label: localFormData.category, value: localFormData.category } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, category: val?.value || '' })}
                                   styles={selectStyles}
@@ -894,9 +963,9 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                               <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BRAND NAME</Text>
                               <CreatableSelect
                                 isClearable
-                                isLoading={stores.prescriptionStore.prescriptionsLoading}
+                                isLoading={prescriptionsLoading}
                                 placeholder="Start typing brand name to pick from Master..."
-                                options={(stores.prescriptionStore.prescriptionsData || []).map((p: any) => ({
+                                options={prescriptionsData.map((p: any) => ({
                                   label: `${p.brandName} (${p.type})`,
                                   value: p.brandName,
                                   data: p
@@ -904,7 +973,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                 value={localFormData.brandName ? { label: localFormData.brandName, value: localFormData.brandName } : null}
                                 onChange={(val: any) => {
                                   const brand = val?.value || '';
-                                  const masterData = stores.prescriptionStore.prescriptionsData.find((p: any) => p.brandName === brand);
+                                  const masterData = prescriptionsData.find((p: any) => p.brandName === brand);
 
                                   if (masterData) {
                                     setLocalFormData({
@@ -933,9 +1002,9 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BASIC SALT</Text>
                                 <CreatableSelect
                                   isClearable
-                                  isLoading={prescriptionStore.suggestionsLoading}
+                                  isLoading={suggestionsLoading}
                                   placeholder="Salt info"
-                                  options={(prescriptionStore.basicSalts || []).map((s: string) => ({ label: s, value: s }))}
+                                  options={basicSalts.map((s: string) => ({ label: s, value: s }))}
                                   value={localFormData.basicSalt ? { label: localFormData.basicSalt, value: localFormData.basicSalt } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, basicSalt: val?.value || '' })}
                                   styles={selectStyles}
@@ -945,9 +1014,9 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>FORM</Text>
                                 <CreatableSelect
                                   isClearable
-                                  isLoading={prescriptionStore.suggestionsLoading}
+                                  isLoading={suggestionsLoading}
                                   placeholder="Form..."
-                                  options={(prescriptionStore.forms || []).map((f: string) => ({ label: f, value: f }))}
+                                  options={forms.map((f: string) => ({ label: f, value: f }))}
                                   value={localFormData.form ? { label: localFormData.form, value: localFormData.form } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, form: val?.value || '' })}
                                   styles={selectStyles}
@@ -1061,8 +1130,13 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                   openNotification({ type: 'warning', title: 'Brand Name Required', message: 'Please enter a brand name at least.' });
                                   return;
                                 }
-                                setFieldValue("prescriptions", [...values.prescriptions, { ...localFormData }]);
+                                const updatedPrescriptions = [...values.prescriptions, { ...localFormData }];
+                                setFieldValue("prescriptions", updatedPrescriptions);
                                 resetLocalForm();
+                                if (patientId && date) {
+                                  prescriptionStore.saveDailyPrescription(patientId, date, updatedPrescriptions)
+                                    .catch(err => console.error("Error saving daily prescription:", err));
+                                }
                               }}
                             >
                               ADD ITEM
@@ -1097,6 +1171,10 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId }: any) 
                                   onClick={() => {
                                     const newP = values.prescriptions.filter((_: any, i: number) => i !== index);
                                     setFieldValue("prescriptions", newP);
+                                    if (patientId && date) {
+                                      prescriptionStore.saveDailyPrescription(patientId, date, newP)
+                                        .catch(err => console.error("Error saving daily prescription:", err));
+                                    }
                                   }}
                                   aria-label="Remove"
                                 />
@@ -1197,12 +1275,41 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
   const [previewDrawer, setPreviewDrawer] = useState({ open: false, url: "" });
   const [dailyRecords, setDailyRecords] = useState<any[]>([]);
   const [fetchingRecords, setFetchingRecords] = useState(false);
+  const [initialPrescriptions, setInitialPrescriptions] = useState<any[]>([]);
+  const [fetchingDaily, setFetchingDaily] = useState(false);
+
+  const companyId = prescriptionStore.companyId;
+
+  const types = prescriptionStore.types || [];
+  const categories = prescriptionStore.categories || [];
+  const basicSalts = prescriptionStore.basicSalts || [];
+  const forms = prescriptionStore.forms || [];
+  const prescriptionsData = prescriptionStore.prescriptionsData || [];
+  const suggestionsLoading = prescriptionStore.suggestionsLoading;
+  const prescriptionsLoading = prescriptionStore.prescriptionsLoading;
+
+  const [localFormData, setLocalFormData] = useState({
+    type: '',
+    category: '',
+    brandName: '',
+    dosage: '',
+    noOfDays: 0,
+    doseNo: 0,
+    details: '',
+    description: '',
+    form: '',
+    basicSalt: '',
+    companyName: '',
+  });
+
+  const resetLocalForm = () => setLocalFormData({
+    type: '', category: '', brandName: '', dosage: '', noOfDays: 0, doseNo: 0, details: '', description: '', form: '', basicSalt: '', companyName: '',
+  });
 
   // Fetch records for the selected date
   const fetchRecordsForDate = async (date: string) => {
     setFetchingRecords(true);
     try {
-      const companyId = localStorage.getItem("companyId");
       const compId = stores.auth.company?._id || stores.auth.company || companyId;
       const { data } = await axios.get(`/workDone/get`, {
         params: {
@@ -1223,31 +1330,50 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
     }
   };
 
+  const fetchDailyPrescriptionForDate = async (date: string) => {
+    if (!patientId || !date) return;
+    setFetchingDaily(true);
+    try {
+      const res: any = await prescriptionStore.getDailyPrescription(patientId, date);
+      if (res?.status === "success" && res.data && res.data.prescriptions && res.data.prescriptions.length > 0) {
+        const prescriptions = res.data.prescriptions;
+        setInitialPrescriptions(prescriptions);
+        const lastItem = prescriptions[prescriptions.length - 1];
+        setLocalFormData({
+          type: lastItem.type || '',
+          category: lastItem.category || '',
+          brandName: lastItem.brandName || '',
+          dosage: lastItem.dosage || '',
+          noOfDays: lastItem.noOfDays || 0,
+          doseNo: lastItem.doseNo || 0,
+          details: lastItem.details || '',
+          description: lastItem.description || '',
+          form: lastItem.form || '',
+          basicSalt: lastItem.basicSalt || '',
+          companyName: lastItem.companyName || '',
+        });
+      } else {
+        setInitialPrescriptions([]);
+        resetLocalForm();
+      }
+    } catch (err: any) {
+      console.error("Error fetching daily prescription:", err);
+      setInitialPrescriptions([]);
+      resetLocalForm();
+    } finally {
+      setFetchingDaily(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
-      fetchRecordsForDate(new Date().toISOString().split('T')[0]);
+      const todayStr = getLocalDateString();
+      fetchRecordsForDate(todayStr);
+      fetchDailyPrescriptionForDate(todayStr);
       prescriptionStore.getPrescriptions();
       prescriptionStore.getSuggestions();
     }
-  }, [isOpen]);
-
-  const [localFormData, setLocalFormData] = useState({
-    type: '',
-    category: '',
-    brandName: '',
-    dosage: '',
-    noOfDays: 0,
-    doseNo: 0,
-    details: '',
-    description: '',
-    form: '',
-    basicSalt: '',
-    companyName: '',
-  });
-
-  const resetLocalForm = () => setLocalFormData({
-    type: '', category: '', brandName: '', dosage: '', noOfDays: 0, doseNo: 0, details: '', description: '', form: '', basicSalt: '', companyName: '',
-  });
+  }, [isOpen, companyId]);
 
   const selectStyles = {
     control: (base: any) => ({
@@ -1268,9 +1394,10 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
     >
       <Box p={0}>
         <Formik
+          enableReinitialize
           initialValues={{
-            date: new Date().toISOString().split('T')[0],
-            prescriptions: [],
+            date: getLocalDateString(),
+            prescriptions: initialPrescriptions,
             topPadding: 150,
             bottomPadding: 50,
           }}
@@ -1318,6 +1445,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                 const newDate = e.target.value;
                                 setFieldValue("date", newDate);
                                 fetchRecordsForDate(newDate);
+                                fetchDailyPrescriptionForDate(newDate);
                               }}
                             />
                           </HStack>
@@ -1354,11 +1482,12 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                           <VStack spacing={4}>
                             <SimpleGrid columns={2} spacing={3} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>TYPE</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>TYPE {types.length > 0 ? `(${types.length})` : '(Loading...)'}</Text>
                                 <CreatableSelect
                                   isClearable
+                                  isLoading={suggestionsLoading}
                                   placeholder="Type..."
-                                  options={(prescriptionStore.types || []).map((t: string) => ({ label: t, value: t }))}
+                                  options={types.map((t: string) => ({ label: t, value: t }))}
                                   value={localFormData.type ? { label: localFormData.type, value: localFormData.type } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, type: val?.value || '' })}
                                   styles={selectStyles}
@@ -1368,8 +1497,9 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>CATEGORY</Text>
                                 <CreatableSelect
                                   isClearable
+                                  isLoading={suggestionsLoading}
                                   placeholder="Cat..."
-                                  options={(prescriptionStore.categories || []).map((c: string) => ({ label: c, value: c }))}
+                                  options={categories.map((c: string) => ({ label: c, value: c }))}
                                   value={localFormData.category ? { label: localFormData.category, value: localFormData.category } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, category: val?.value || '' })}
                                   styles={selectStyles}
@@ -1381,8 +1511,9 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                               <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BRAND NAME</Text>
                               <CreatableSelect
                                 isClearable
+                                isLoading={prescriptionsLoading}
                                 placeholder="Start typing brand name to pick from Master..."
-                                options={(prescriptionStore.prescriptionsData || []).map((p: any) => ({
+                                options={prescriptionsData.map((p: any) => ({
                                   label: `${p.brandName} (${p.type})`,
                                   value: p.brandName,
                                   data: p
@@ -1390,7 +1521,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                 value={localFormData.brandName ? { label: localFormData.brandName, value: localFormData.brandName } : null}
                                 onChange={(val: any) => {
                                   const brand = val?.value || '';
-                                  const masterData = prescriptionStore.prescriptionsData.find((p: any) => p.brandName === brand);
+                                  const masterData = prescriptionsData.find((p: any) => p.brandName === brand);
                                   if (masterData) {
                                     setLocalFormData({
                                       ...localFormData,
@@ -1418,8 +1549,9 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BASIC SALT</Text>
                                 <CreatableSelect
                                   isClearable
+                                  isLoading={suggestionsLoading}
                                   placeholder="Salt info"
-                                  options={(prescriptionStore.basicSalts || []).map((s: string) => ({ label: s, value: s }))}
+                                  options={basicSalts.map((s: string) => ({ label: s, value: s }))}
                                   value={localFormData.basicSalt ? { label: localFormData.basicSalt, value: localFormData.basicSalt } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, basicSalt: val?.value || '' })}
                                   styles={selectStyles}
@@ -1429,8 +1561,9 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                                 <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>FORM</Text>
                                 <CreatableSelect
                                   isClearable
+                                  isLoading={suggestionsLoading}
                                   placeholder="Form..."
-                                  options={(prescriptionStore.forms || []).map((f: string) => ({ label: f, value: f }))}
+                                  options={forms.map((f: string) => ({ label: f, value: f }))}
                                   value={localFormData.form ? { label: localFormData.form, value: localFormData.form } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, form: val?.value || '' })}
                                   styles={selectStyles}
@@ -1523,8 +1656,13 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                               leftIcon={<FiPlus />}
                               onClick={() => {
                                 if (!localFormData.brandName) return;
-                                setFieldValue("prescriptions", [...values.prescriptions, { ...localFormData }]);
+                                const updatedPrescriptions = [...values.prescriptions, { ...localFormData }];
+                                setFieldValue("prescriptions", updatedPrescriptions);
                                 resetLocalForm();
+                                if (patientId && values.date) {
+                                  prescriptionStore.saveDailyPrescription(patientId, values.date, updatedPrescriptions)
+                                    .catch(err => console.error("Error saving daily prescription:", err));
+                                }
                               }}
                             >
                               ADD ITEM
@@ -1541,6 +1679,10 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                               <IconButton size="xs" icon={<FiTrash2 />} colorScheme="red" variant="ghost" position="absolute" top={2} right={2} onClick={() => {
                                 const newP = values.prescriptions.filter((_: any, i: number) => i !== index);
                                 setFieldValue("prescriptions", newP);
+                                if (patientId && values.date) {
+                                  prescriptionStore.saveDailyPrescription(patientId, values.date, newP)
+                                    .catch(err => console.error("Error saving daily prescription:", err));
+                                }
                               }} aria-label="Remove" />
                               <VStack align="start" spacing={1}>
                                 <Badge colorScheme="purple" variant="subtle" fontSize="9px">{p.type || 'MED'}</Badge>

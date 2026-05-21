@@ -282,9 +282,9 @@ class WorkDoneStore {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
       const { data } = await axios.get(`/workDone/generate-doctor-report`, {
-        params: { 
+        params: {
           ...filters,
-          company: compId 
+          company: compId
         }
       });
 
@@ -302,10 +302,10 @@ class WorkDoneStore {
    * DOWNLOAD DOCTOR-SPECIFIC WORK DONE REPORT
    * Supports filtering by patient and date range.
    */
-  downloadDoctorReport = async (filters: { 
-    doctorId: string; 
-    patientId?: string; 
-    fromDate?: string; 
+  downloadDoctorReport = async (filters: {
+    doctorId: string;
+    patientId?: string;
+    fromDate?: string;
     toDate?: string;
     status?: string;
   }) => {
@@ -421,7 +421,7 @@ class WorkDoneStore {
         const blob = new Blob([byteArray], { type: "application/pdf" });
 
         const url = window.URL.createObjectURL(blob);
-        
+
         if (params.isPreview) {
           // Open in new tab for preview
           window.open(url, '_blank');
@@ -434,7 +434,7 @@ class WorkDoneStore {
           link.click();
           document.body.removeChild(link);
         }
-        
+
         // Note: For preview, we don't revoke the URL immediately as the new tab needs it
         if (!params.isPreview) {
           window.URL.revokeObjectURL(url);
