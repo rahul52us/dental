@@ -201,7 +201,7 @@ export const TreatmentProcedureForm = observer(
 
         const groupedData = useMemo(() => {
             const dbData = procedureStore.procedures.data;
-            
+
             if (dbData && dbData.length > 0) {
                 const map: any = {};
                 dbData.forEach((p: any) => {
@@ -1183,12 +1183,12 @@ export const TreatmentProcedureForm = observer(
                                                         const cType = tValues.complaintType || complaintType || "CHIEF COMPLAINT";
                                                         const dotColor =
                                                             cType === "CHIEF COMPLAINT" ? "red.400"
-                                                            : cType === "OTHER FINDING" ? "orange.400"
-                                                            : "green.400";
+                                                                : cType === "OTHER FINDING" ? "orange.400"
+                                                                    : "green.400";
                                                         const isActive = activeToothId === t.id;
                                                         const label = notation === "universal" ? t.universal
                                                             : notation === "palmer" ? t.palmer
-                                                            : t.fdi;
+                                                                : t.fdi;
                                                         return (
                                                             <Tab
                                                                 key={t.id}
@@ -1393,7 +1393,7 @@ export const TreatmentProcedureForm = observer(
                                                 borderRadius="xl"
                                                 fontWeight="900"
                                                 leftIcon={<FiSave />}
-                                                flex={2}
+                                                flex={1}
                                                 h="54px"
                                             >
                                                 {teeth.length > 1

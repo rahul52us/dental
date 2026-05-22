@@ -196,6 +196,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
     }
   };
 
+  const handleNext = () => {
+    if (formRef.current) {
+      formRef.current.handleSubmit();
+    }
+  };
+
   const handleQuadrantSelect = (pos: 'upper' | 'lower', side: 'left' | 'right') => {
     setSelectionMode('multi');
     setIsMultipleSelection(true);
@@ -569,9 +575,9 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
           </VStack>
         </Flex>
-
-        <Flex direction="column" gap={4} w="full">
-          <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={3} align="stretch" spacing={3} h="auto" flexShrink={0}>
+        <Grid templateColumns={{ base: "1fr", xl: "2.5fr 1fr" }} gap={6} w="full">
+          {/* Column 1: Teeth Chart and Controls */}
+          <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={3} align="stretch" spacing={3} h="auto" flexShrink={0} w="full">
             <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
               <VStack align="start" spacing={0}>
                 <Text fontSize="9px" fontWeight="1000" color="black" letterSpacing="0.1em">QUADRANTS</Text>
@@ -639,10 +645,6 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                     MULTI
                   </Button>
                 </HStack>
-                <HStack spacing={1}>
-                  <IconButton aria-label="Add" icon={<FiPlus />} size="sm" colorScheme={activeColor} borderRadius="full" onClick={onQuickAddOpen} />
-                  <Text fontWeight="bold" fontSize="xs">Notes</Text>
-                </HStack>
               </HStack>
             </Flex>
 
@@ -662,59 +664,119 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
             </Box>
           </VStack>
 
+          {/* Column 2: VIEW HISTORY DATE WISE */}
           <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" boxShadow="md">
-            <TreatmentProcedureForm
-              isPatient={isPatient}
-              patientDetails={patientDetails}
-              editData={editingTreatment || patientDetails?.editData}
-              teeth={selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
-              dentitionType={dentitionType}
-              generalDescription={generalDescription || teethNotes}
-              complaintType={complaintType}
-              toothComplaints={selectedTeeth.length > 0 ? toothComplaints : { "General": complaintType }}
-              isDrawerMode={true}
-              onRemoveTooth={(id) => {
-                setSelectedTeeth(prev => prev.filter(t => t.id !== id));
-                setToothComplaints(prev => {
-                  const { [id]: _, ...rest } = prev;
-                  return rest;
-                });
-              }}
-              onSuccess={() => {
-                patientDetails?.applyGetAllRecords?.({});
-                setSelectedTeeth([]);
-                setEditingTreatment(null);
-                setProcedureFormValues(null);
-                setExplorerState({ category: null, subcategory: null });
-                if (patientDetails?._id) {
-                  getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
-                  getTodayCount({ patientId: patientDetails._id, date: sessionDate });
-                }
-                // Close the outer drawer after saving
-                closeWizard?.();
-              }}
-              onBack={() => {
-                setSelectedTeeth([]);
-                setEditingTreatment(null);
-                setProcedureFormValues(null);
-                setExplorerState({ category: null, subcategory: null });
-              }}
-              onToothClick={handleToothClick}
-              hoistedValues={procedureFormValues}
-              notation={notation}
-              onValuesUpdate={setProcedureFormValues}
-              explorerState={explorerState}
-              onExplorerUpdate={setExplorerState}
-              individualTeethNotes={individualTeethNotes}
-              onEditToothNote={handleEditToothNote}
-              onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }}
-              formRef={formRef}
-              doctorOptions={doctorOptions}
-              sessionDate={sessionDate}
-            />
+            <HStack justify="space-between" align="center" pb={2} borderBottom="1px dashed" borderColor="gray.100">
+              <VStack align="start" spacing={0}>
+                <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">HISTORY PANELS</Text>
+                <Heading size="xs" fontWeight="1000" color="black">VIEW HISTORY DATE WISE</Heading>
+              </VStack>
+              <HStack spacing={2}>
+                <IconButton aria-label="Summary" icon={<FiCalendar />} size="sm" colorScheme="blue" borderRadius="2xl" onClick={fetchTreatmentCounts} />
+                <Circle size="32px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900" border="1px solid" borderColor={`${activeColor}.100`}>
+                  {todayToothTreatment.totalItems || 0}
+                </Circle>
+              </HStack>
+            </HStack>
+            <VStack align="stretch" spacing={4} pt={2}>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.1em">SELECT DATE</Text>
+                <HStack bg="blue.50" p={3} borderRadius="2xl" border="1px solid" borderColor="blue.100" justify="space-between" w="full">
+                  <Input
+                    type="date"
+                    value={sessionDate}
+                    onChange={(e) => setSessionDate(e.target.value)}
+                    size="sm"
+                    variant="unstyled"
+                    fontWeight="black"
+                    color="black"
+                    p={0}
+                  />
+                </HStack>
+              </VStack>
+
+              <Box
+                p={5}
+                bg="blue.50/30"
+                borderRadius="2xl"
+                border="1px solid"
+                borderColor="blue.100"
+                cursor="pointer"
+                onClick={() => {
+                  if (patientDetails?._id) {
+                    getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+                    getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+                  }
+                  onHistoryDrawerOpen();
+                }}
+                _hover={{ transform: "translateY(-2px)", bg: "blue.50/50" }}
+                transition="all 0.2s"
+              >
+                <HStack justify="space-between">
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.05em">PATIENT RECORDS</Text>
+                    <Heading size="xs" fontWeight="black" color="black">View Timeline</Heading>
+                  </VStack>
+                  <Text fontSize="24px" fontWeight="black" color="black">{todayToothTreatment.totalItems || 0}</Text>
+                </HStack>
+              </Box>
+            </VStack>
           </VStack>
-        </Flex>
-      </VStack>
+        </Grid>
+
+        {/* Treatment Procedure Form (Below the grid, Full Width) */}
+        <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" boxShadow="md" w="full">
+          <TreatmentProcedureForm
+            isPatient={isPatient}
+            patientDetails={patientDetails}
+            editData={editingTreatment || patientDetails?.editData}
+            teeth={selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
+            dentitionType={dentitionType}
+            generalDescription={generalDescription || teethNotes}
+            complaintType={complaintType}
+            toothComplaints={selectedTeeth.length > 0 ? toothComplaints : { "General": complaintType }}
+            isDrawerMode={true}
+            onRemoveTooth={(id) => {
+              setSelectedTeeth(prev => prev.filter(t => t.id !== id));
+              setToothComplaints(prev => {
+                const { [id]: _, ...rest } = prev;
+                return rest;
+              });
+            }}
+            onSuccess={() => {
+              patientDetails?.applyGetAllRecords?.({});
+              setSelectedTeeth([]);
+              setEditingTreatment(null);
+              setProcedureFormValues(null);
+              setExplorerState({ category: null, subcategory: null });
+              if (patientDetails?._id) {
+                getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
+                getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+              }
+              // Close the outer drawer after saving
+              closeWizard?.();
+            }}
+            onBack={() => {
+              setSelectedTeeth([]);
+              setEditingTreatment(null);
+              setProcedureFormValues(null);
+              setExplorerState({ category: null, subcategory: null });
+            }}
+            onToothClick={handleToothClick}
+            hoistedValues={procedureFormValues}
+            notation={notation}
+            onValuesUpdate={setProcedureFormValues}
+            explorerState={explorerState}
+            onExplorerUpdate={setExplorerState}
+            individualTeethNotes={individualTeethNotes}
+            onEditToothNote={handleEditToothNote}
+            onEditGeneralNote={() => { setGeneralNoteDraft(teethNotes); onOpenGeneralNoteModal(); }}
+            formRef={formRef}
+            doctorOptions={doctorOptions}
+            sessionDate={sessionDate}
+          />
+        </VStack>
+      </VStack >
     );
   };
 
@@ -765,11 +827,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         </ModalContent>
       </Modal>
 
-      <Box h="100vh" px={6} pb={6} pt={2} overflowY="auto" className="procedure-form-scroll" sx={{
-        '&::-webkit-scrollbar': { width: '6px' },
-        '&::-webkit-scrollbar-track': { bg: 'transparent' },
-        '&::-webkit-scrollbar-thumb': { bg: 'gray.200', borderRadius: 'full' }
-      }}>{renderStep()}</Box>
+      <Box px={6} pb={6} pt={2}>{renderStep()}</Box>
 
       <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
         {(() => {
