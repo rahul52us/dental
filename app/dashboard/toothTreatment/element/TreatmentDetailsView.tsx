@@ -19,7 +19,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaUserMd, FaUser, FaTooth, FaCalendarAlt, FaNotesMedical, FaStethoscope } from "react-icons/fa";
+import { FaCoins, FaUserMd, FaUser, FaTooth, FaCalendarAlt, FaNotesMedical, FaStethoscope } from "react-icons/fa";
 import stores from "../../../store/stores";
 import { observer } from "mobx-react-lite";
 import { formatDate } from "../../../component/config/utils/dateUtils";
@@ -28,6 +28,7 @@ import { getTeethByType } from "../../../component/common/TeethModel/DentalChart
 const statusColors: Record<string, string> = {
   pending: "orange",
   "in-progress": "blue",
+  complete: "green",
   completed: "green",
   cancelled: "red",
 };
@@ -119,7 +120,12 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
     createdBy,
     createdAt,
     toothNotation,
-    dentitionType
+    dentitionType,
+    estimateMin,
+    estimateMax,
+    discount,
+    totalMin,
+    totalMax,
   } = treatment;
 
   const color = statusColors[status] || "gray";
@@ -129,8 +135,13 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   const dentition = dentitionType || "adult";
   const allTeeth = getTeethByType(dentition as any);
   const toothObj = allTeeth.find(t => t.id === tooth);
-  const toothUniversal = toothObj?.universal || "--";
-  const toothPalmer = toothObj?.palmer || "--";
+  
+  const toothDisplayNumber = (() => {
+    if (!toothObj) return tooth || "--";
+    if (notation === "universal") return toothObj.universal;
+    if (notation === "palmer") return toothObj.palmer;
+    return toothObj.fdi || toothObj.id;
+  })();
 
   return (
     <Box p={6} bg="gray.50" borderRadius="3xl" maxH="85vh" overflowY="auto" sx={{
@@ -163,10 +174,31 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
 
         <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
           <HStack justify="space-between" align="center">
-            <HStack spacing={5}>
-              <Circle size="64px" bg={`${color}.50`} color={`${color}.500`} shadow="inner">
-                <Icon as={FaTooth} size="28px" />
-              </Circle>
+            <HStack spacing={6} align="center">
+              {/* Premium Tooth Badge */}
+              <VStack
+                spacing={1}
+                border="1px solid"
+                borderColor="blue.100"
+                bg="blue.50/40"
+                borderRadius="2xl"
+                p={3}
+                minW="110px"
+                h="100px"
+                align="center"
+                justify="center"
+                boxShadow="sm"
+              >
+                <Text fontSize="32px" fontWeight="1000" color="blue.800" lineHeight="1">
+                  {toothDisplayNumber}
+                </Text>
+                <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
+                  {toothObj ? `${toothObj.side} ${toothObj.position}` : "GENERAL"}
+                </Text>
+                <Text fontSize="8px" fontWeight="1000" color="gray.500" letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
+                  {toothObj ? toothObj.name.replace(/primary|left|right|upper|lower/gi, "").trim().replace(/\s+/g, " ") : "RECORD"}
+                </Text>
+              </VStack>
               <VStack align="start" spacing={0}>
                 <HStack mb={1}>
                   <Badge colorScheme={color} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs" textTransform="uppercase" letterSpacing="wider">
@@ -177,8 +209,8 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                 <Heading size="lg" fontWeight="900" color="gray.800">
                   {patient?.name || "Anonymous Patient"}
                 </Heading>
-                <Text fontSize="sm" color="gray.500" fontWeight="600">
-                  {notation.toUpperCase()} ID: <Box as="span" color="blue.600" fontWeight="800">{tooth || "--"}</Box> | Universal: {toothUniversal} | Palmer: {toothPalmer}
+                <Text fontSize="sm" color="gray.500" fontWeight="600" mt={0.5}>
+                  {notation.toUpperCase()} ID: <Box as="span" color="blue.600" fontWeight="800">{toothDisplayNumber}</Box>
                 </Text>
               </VStack>
             </HStack>
@@ -249,6 +281,39 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
             </VStack>
           </Card>
 
+          {/* Financial Summary */}
+          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+            <VStack align="start" spacing={4} w="full">
+              <HStack>
+                <Icon as={FaCoins} color="green.500" />
+                <Heading size="sm" color="gray.700">Financial Summary</Heading>
+              </HStack>
+              <Divider />
+              <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} w="full">
+                <VStack align="start" spacing={1} p={4} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
+                  <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.05em" textTransform="uppercase">Gross Estimate</Text>
+                  <Text fontSize="18px" fontWeight="1000" color="blue.700">
+                    {estimateMin === estimateMax 
+                      ? `₹${(estimateMin || 0).toLocaleString()}` 
+                      : `₹${(estimateMin || 0).toLocaleString()} - ₹${(estimateMax || 0).toLocaleString()}`}
+                  </Text>
+                </VStack>
+                <VStack align="start" spacing={1} p={4} bg="red.50" borderRadius="2xl" border="1px solid" borderColor="red.100">
+                  <Text fontSize="10px" fontWeight="900" color="red.500" letterSpacing="0.05em" textTransform="uppercase">Discount</Text>
+                  <Text fontSize="18px" fontWeight="1000" color="red.600">₹{(discount || 0).toLocaleString()}</Text>
+                </VStack>
+                <VStack align="start" spacing={1} p={4} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
+                  <Text fontSize="10px" fontWeight="900" color="green.600" letterSpacing="0.05em" textTransform="uppercase">Net Total (Estimated)</Text>
+                  <Text fontSize="20px" fontWeight="1000" color="green.700">
+                    {totalMin === totalMax 
+                      ? `₹${(totalMin || 0).toLocaleString()}` 
+                      : `₹${(totalMin || 0).toLocaleString()} - ₹${(totalMax || 0).toLocaleString()}`}
+                  </Text>
+                </VStack>
+              </Grid>
+            </VStack>
+          </Card>
+
           {/* Notes & Clinical Findings */}
           <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
             <VStack align="start" spacing={4} w="full">
@@ -266,19 +331,15 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
           </Card>
 
           {/* Administrative Info */}
-          <Card variant="unstyled" bg="gray.800" borderRadius="3xl" boxShadow="xl" p={6} gridColumn={{ lg: "span 2" }}>
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={8}>
+          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={8}>
               <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="900" color="gray.500" textTransform="uppercase">Record Created</Text>
-                <Text color="white" fontWeight="700">{formatDate(createdAt)}</Text>
+                <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Record Created</Text>
+                <Text color="gray.700" fontWeight="800">{formatDate(createdAt)}</Text>
               </VStack>
               <VStack align="start" spacing={1}>
                 <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase" letterSpacing="wider">DENTITION</Text>
-                <Badge colorScheme={dentition === "child" ? "pink" : "blue"} variant="solid" borderRadius="full">{dentition.toUpperCase()}</Badge>
-              </VStack>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="900" color="gray.500" textTransform="uppercase">Reference ID</Text>
-                <Text color="white" fontWeight="700" fontSize="xs" fontFamily="mono">{treatment._id}</Text>
+                <Badge colorScheme={dentition === "child" ? "pink" : "blue"} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs">{dentition.toUpperCase()}</Badge>
               </VStack>
             </Grid>
           </Card>
