@@ -350,7 +350,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         variant="solid"
                         colorScheme="blue"
                         leftIcon={<FiEye />}
-                        onClick={() => setOpenView({ open: true, data: record.treatment })}
+                        onClick={() => setOpenView({ open: true, data: record })}
                         borderRadius="full"
                         fontSize="10px"
                         fontWeight="1000"
@@ -539,7 +539,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       <CustomDrawer
         open={openView.open}
         close={() => setOpenView({ open: false, data: null })}
-        title="Full Treatment Details"
+        title={openView.data?.workDoneNote !== undefined || openView.data?.amount !== undefined ? "Work Done Details" : "Full Treatment Details"}
         width="75vw"
       >
         <TreatmentDetailsView data={openView.data} />
@@ -893,33 +893,43 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                           <Text fontSize="10px" fontWeight="1000" color="blue.500" letterSpacing="0.1em">DOCUMENT READY</Text>
                           <Text fontSize="14px" fontWeight="900" color="blue.700">Clinical Report Generation</Text>
                         </VStack>
-                        <Button
-                          size="sm"
-                          colorScheme="blue"
-                          variant="solid"
-                          leftIcon={<FiEye />}
-                          borderRadius="lg"
-                          isLoading={loading}
-                          onClick={async () => {
-                            setLoading(true);
-                            try {
-                              const res: any = await stores.workDoneStore.generateWorkDoneReportBlob(workDoneId, {
-                                prescriptions: values.prescriptions,
-                                topPadding: values.topPadding,
-                                bottomPadding: values.bottomPadding,
-                              });
-                              if (res?.url) {
-                                setPreviewDrawer({ open: true, url: res.url });
+                        <HStack spacing={3}>
+                          <Button
+                            size="sm"
+                            colorScheme="blue"
+                            variant="solid"
+                            borderRadius="lg"
+                            isLoading={loading}
+                            onClick={async () => {
+                              setLoading(true);
+                              try {
+                                const res: any = await stores.workDoneStore.generateWorkDoneReportBlob(workDoneId, {
+                                  prescriptions: values.prescriptions,
+                                  topPadding: values.topPadding,
+                                  bottomPadding: values.bottomPadding,
+                                });
+                                if (res?.url) {
+                                  setPreviewDrawer({ open: true, url: res.url });
+                                }
+                              } catch (err: any) {
+                                openNotification({ type: "error", title: "Preview Failed", message: err.message });
+                              } finally {
+                                setLoading(false);
                               }
-                            } catch (err: any) {
-                              openNotification({ type: "error", title: "Preview Failed", message: err.message });
-                            } finally {
-                              setLoading(false);
-                            }
-                          }}
-                        >
-                          GENERATE PREVIEW
-                        </Button>
+                            }}
+                          >
+                            GENERATE PREVIEW
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            colorScheme="gray"
+                            borderRadius="lg"
+                            onClick={onClose}
+                          >
+                            CANCEL
+                          </Button>
+                        </HStack>
                       </HStack>
                     </Box>
 
@@ -1201,24 +1211,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                   </VStack>
                 </Box>
 
-                {/* Sticky Footer */}
-                <Box p={6} borderTop="1px solid" borderColor="gray.100" bg="white">
-                  <HStack justify="space-between">
-                    <Button variant="ghost" onClick={onClose} borderRadius="xl">CANCEL</Button>
-                    <Button
-                      colorScheme="blue"
-                      type="submit"
-                      isLoading={loading}
-                      borderRadius="xl"
-                      size="lg"
-                      px={10}
-                      leftIcon={<FiDownload />}
-                      isDisabled={values.prescriptions.length === 0}
-                    >
-                      DOWNLOAD PDF
-                    </Button>
-                  </HStack>
-                </Box>
+
               </VStack>
             </Form>
           )}

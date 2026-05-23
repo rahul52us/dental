@@ -53,8 +53,15 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   } = stores;
 
   const fetchTreatment = async () => {
-    const id = currentData?._id || currentData?.id;
+    const id = typeof currentData === "string" ? currentData : (currentData?._id || currentData?.id);
     if (!id) return;
+
+    // If it's a Work Done record, we already have all details populated in currentData!
+    // We set it as treatment and skip fetching since getToothTreatmentById would fail.
+    if (currentData && (currentData.workDoneNote !== undefined || currentData.amount !== undefined)) {
+      setTreatment(currentData);
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -81,7 +88,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   useEffect(() => {
     setTreatment(currentData);
     fetchTreatment();
-  }, [currentData?._id]);
+  }, [currentData?._id || (typeof currentData === "string" ? currentData : "")]);
 
 
 
@@ -126,6 +133,11 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
     discount,
     totalMin,
     totalMax,
+    // Work Done specific fields
+    workDoneNote,
+    toothNote,
+    amount,
+    treatmentCode,
   } = treatment;
 
   const color = statusColors[status] || "gray";
@@ -204,7 +216,9 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   <Badge colorScheme={color} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs" textTransform="uppercase" letterSpacing="wider">
                     {status || "Pending"}
                   </Badge>
-                  <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="0.1em">TREATMENT RECORD</Text>
+                  <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="0.1em">
+                    {workDoneNote !== undefined || amount !== undefined ? "WORK DONE RECORD" : "TREATMENT RECORD"}
+                  </Text>
                 </HStack>
                 <Heading size="lg" fontWeight="900" color="gray.800">
                   {patient?.name || "Anonymous Patient"}
@@ -243,9 +257,11 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   </Badge>
                 </Box>
                 <Box>
-                  <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">Procedure Planned</Text>
+                  <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">
+                    {workDoneNote !== undefined || amount !== undefined ? "Procedure Completed" : "Procedure Planned"}
+                  </Text>
                   <Text fontWeight="800" color="gray.700" fontSize="md">
-                    {treatmentPlan || "General Consultation"}
+                    {treatmentPlan || treatmentCode || "General Consultation"}
                   </Text>
                 </Box>
               </VStack>
@@ -286,16 +302,22 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
             <VStack align="start" spacing={4} w="full">
               <HStack>
                 <Icon as={FaCoins} color="green.500" />
-                <Heading size="sm" color="gray.700">Financial Summary</Heading>
+                <Heading size="sm" color="gray.700">
+                  {workDoneNote !== undefined || amount !== undefined ? "Billing Summary" : "Financial Summary"}
+                </Heading>
               </HStack>
               <Divider />
               <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} w="full">
                 <VStack align="start" spacing={1} p={4} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
-                  <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.05em" textTransform="uppercase">Gross Estimate</Text>
+                  <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.05em" textTransform="uppercase">
+                    {workDoneNote !== undefined || amount !== undefined ? "Actual Amount" : "Gross Estimate"}
+                  </Text>
                   <Text fontSize="18px" fontWeight="1000" color="blue.700">
-                    {estimateMin === estimateMax 
-                      ? `₹${(estimateMin || 0).toLocaleString()}` 
-                      : `₹${(estimateMin || 0).toLocaleString()} - ₹${(estimateMax || 0).toLocaleString()}`}
+                    {workDoneNote !== undefined || amount !== undefined
+                      ? `₹${(amount || 0).toLocaleString()}`
+                      : estimateMin === estimateMax 
+                        ? `₹${(estimateMin || 0).toLocaleString()}` 
+                        : `₹${(estimateMin || 0).toLocaleString()} - ₹${(estimateMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
                 <VStack align="start" spacing={1} p={4} bg="red.50" borderRadius="2xl" border="1px solid" borderColor="red.100">
@@ -303,11 +325,15 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   <Text fontSize="18px" fontWeight="1000" color="red.600">₹{(discount || 0).toLocaleString()}</Text>
                 </VStack>
                 <VStack align="start" spacing={1} p={4} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
-                  <Text fontSize="10px" fontWeight="900" color="green.600" letterSpacing="0.05em" textTransform="uppercase">Net Total (Estimated)</Text>
+                  <Text fontSize="10px" fontWeight="900" color="green.600" letterSpacing="0.05em" textTransform="uppercase">
+                    {workDoneNote !== undefined || amount !== undefined ? "Net Total Paid" : "Net Total (Estimated)"}
+                  </Text>
                   <Text fontSize="20px" fontWeight="1000" color="green.700">
-                    {totalMin === totalMax 
-                      ? `₹${(totalMin || 0).toLocaleString()}` 
-                      : `₹${(totalMin || 0).toLocaleString()} - ₹${(totalMax || 0).toLocaleString()}`}
+                    {workDoneNote !== undefined || amount !== undefined
+                      ? `₹${((amount || 0) - (discount || 0)).toLocaleString()}`
+                      : totalMin === totalMax 
+                        ? `₹${(totalMin || 0).toLocaleString()}` 
+                        : `₹${(totalMin || 0).toLocaleString()} - ₹${(totalMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
               </Grid>
@@ -324,7 +350,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
               <Divider />
               <Box w="full" bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
                 <Text color="gray.700" whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
-                  {notes || "No clinical notes provided for this record."}
+                  {notes || workDoneNote || toothNote || "No clinical notes provided for this record."}
                 </Text>
               </Box>
             </VStack>
