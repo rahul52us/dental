@@ -357,8 +357,22 @@ const ScheduleGrid = ({
                 name="date"
                 value={formatDateForInput(selectedDate)}
                 onChange={(e: any) => {
+                  if (!e.target.value) return;
                   const [y, m, d] = e.target.value.split("-").map(Number);
-                  setSelectedDate(new Date(y, m - 1, d));
+                  const newMonth = m - 1;
+                  if (setSelectedDate) {
+                    const oldMonth = selectedDate.getMonth();
+                    const oldYear = selectedDate.getFullYear();
+                    if (newMonth !== oldMonth || y !== oldYear) {
+                      if (d === selectedDate.getDate()) {
+                        setSelectedDate(new Date(y, newMonth, 1));
+                      } else {
+                        setSelectedDate(new Date(y, newMonth, d));
+                      }
+                    } else {
+                      setSelectedDate(new Date(y, newMonth, d));
+                    }
+                  }
                 }}
                 sx={{
                   width: "80px",

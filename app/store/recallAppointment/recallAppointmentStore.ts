@@ -28,7 +28,7 @@ class RecallAppointmentStore {
       const { data } = await axios.post(
         `/recall-appointment/get?page=${sendData.page}&limit=10${searchQuery}${patientQuery}&company=${authStore.company}`
       );
-      this.recallAppointment.data = Array.isArray(data?.data) ? data.data.map((it : any) => ({...it, doctorName:it?.doctor?.name, patientName : it.patient?.name,patientMobileNumber : it.patient?.mobileNumber, createdBy : it?.createdBy.name, createdDetails : it?.createdBy})) : [];
+      this.recallAppointment.data = Array.isArray(data?.data) ? data.data.map((it : any) => ({...it, doctorName:it?.doctor?.name, patientName : it?.patient?.name,patientMobileNumber : it?.patient?.mobileNumber, createdBy : it?.createdBy?.name, createdDetails : it?.createdBy})) : [];
       this.recallAppointment.totalPages = data?.totalPages || 0;
       return data.data;
     } catch (err: any) {
