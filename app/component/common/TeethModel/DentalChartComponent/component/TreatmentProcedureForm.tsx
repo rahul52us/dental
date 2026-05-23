@@ -888,39 +888,38 @@ export const TreatmentProcedureForm = observer(
                                 open={isProcedureOpen}
                                 close={onProcedureClose}
                                 title={
-                                    <HStack justify="space-between" w="full" pr={12}>
-                                        <VStack align="start" spacing={0}>
-                                            <Heading size="sm" color="white">Procedure Explorer</Heading>
-                                            <Text fontSize="10px" color="blue.100" fontWeight="bold" letterSpacing="0.1em">SELECT CLINICAL PROTOCOL</Text>
-                                        </VStack>
-                                        <Button
-                                            type="button"
-                                            colorScheme="blue"
-                                            bg="white"
-                                            color="blue.600"
-                                            onClick={() => {
-                                                if (activeToothId === "bulk") {
-                                                    teeth.forEach(t => {
-                                                        setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
-                                                        // logic: sync procedure details if needed
-                                                    });
-                                                } else if (activeToothId) {
-                                                    setFieldValue(`treatments.${activeToothId}.treatmentCode`, tempTreatmentCode);
-                                                }
-                                                onProcedureClose();
-                                            }}
-                                            isDisabled={!tempTreatmentCode}
-                                            leftIcon={<FiCheckCircle />}
-                                            size="md"
-                                            borderRadius="xl"
-                                            fontWeight="1000"
-                                            px={6}
-                                            boxShadow="sm"
-                                            _hover={{ bg: "blue.50", transform: "translateY(-1px)" }}
-                                        >
-                                            Save Selection
-                                        </Button>
-                                    </HStack>
+                                    <VStack align="start" spacing={0}>
+                                        <Heading size="sm" color="white">Treatment Head</Heading>
+                                    </VStack>
+                                }
+                                extraActions={
+                                    <Button
+                                        type="button"
+                                        colorScheme="blue"
+                                        bg="white"
+                                        color="blue.600"
+                                        onClick={() => {
+                                            if (activeToothId === "bulk") {
+                                                teeth.forEach(t => {
+                                                    setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
+                                                    // logic: sync procedure details if needed
+                                                });
+                                            } else if (activeToothId) {
+                                                setFieldValue(`treatments.${activeToothId}.treatmentCode`, tempTreatmentCode);
+                                            }
+                                            onProcedureClose();
+                                        }}
+                                        isDisabled={!tempTreatmentCode}
+                                        leftIcon={<FiCheckCircle />}
+                                        size="md"
+                                        borderRadius="xl"
+                                        fontWeight="1000"
+                                        px={6}
+                                        boxShadow="sm"
+                                        _hover={{ bg: "blue.50", transform: "translateY(-1px)" }}
+                                    >
+                                        Save Selection
+                                    </Button>
                                 }
                                 width="95vw"
                             >

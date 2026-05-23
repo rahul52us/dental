@@ -485,7 +485,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 }}
               />
             </Tooltip>
-            <Tooltip label="View Treatment">
+            {/* <Tooltip label="View Treatment">
               <IconButton
                 size="sm"
                 variant="ghost"
@@ -497,7 +497,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   setOpenReportModal({ open: true, type: "add", data: { ...rest, _isContextualAdd: true } });
                 }}
               />
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip label="View Treatment">
               <IconButton
                 size="sm"
@@ -819,4 +819,4 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 });
 
 
-export default TreatmentList;
+export default TreatmentList;

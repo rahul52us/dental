@@ -626,8 +626,7 @@ export const ToothFormDialog = observer(
                         <FiActivity size={18} />
                       </Box>
                       <VStack align="start" spacing={0}>
-                        <Heading size="sm" color="white">Procedure Explorer</Heading>
-                        <Text fontSize="10px" color="blue.100" fontWeight="bold">SELECT CLINICAL PROTOCOL</Text>
+                        <Heading size="sm" color="white">Treatment Head</Heading>
                       </VStack>
                     </HStack>
                   }

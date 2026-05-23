@@ -169,7 +169,7 @@ const sidebarDatas: SidebarItem[] = [
     children: [
       {
         id: 110,
-        name: "Common Master",
+        name: "Title master",
         icon: <FaListAlt />,
         url: "/dashboard/masters",
         role: ["admin", "staff"],
@@ -177,7 +177,7 @@ const sidebarDatas: SidebarItem[] = [
       },
       {
         id: 40,
-        name: "Procedure Master",
+        name: "Treatment Heads Master",
         icon: <RiToothLine />,
         url: "/dashboard/procedure-master",
         role: ["admin", "staff"],

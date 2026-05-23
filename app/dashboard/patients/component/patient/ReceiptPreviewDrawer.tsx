@@ -68,9 +68,14 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
   };
 
   return (
-    <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="lg">
+    <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
       <DrawerOverlay backdropFilter="blur(4px)" />
-      <DrawerContent bg="gray.100" borderLeftRadius="2xl" shadow="2xl">
+      <DrawerContent 
+        bg="gray.100" 
+        borderLeftRadius="2xl" 
+        shadow="2xl"
+        minW={{ base: "100vw", md: "85vw", lg: "75vw", xl: "70vw" }}
+      >
         <DrawerCloseButton zIndex={10} />
         
         <DrawerHeader 
@@ -100,12 +105,12 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
             </HStack>
           </HStack>
         </DrawerHeader>
-
+ 
         <DrawerBody p={8} display="flex" flexDirection="column" alignItems="center" bg="gray.100">
           {blobUrl ? (
             <Box 
               w="100%" 
-              maxW="900px" // Allows A4 reports to look large and clear
+              maxW="1000px" // Allows A4 reports to look large and clear
               bg="white"
               borderRadius="xl"
               overflow="hidden"
@@ -124,7 +129,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
               />
             </Box>
           ) : (
-            <VStack spacing={4} w="100%" maxW="900px" mt={10}>
+            <VStack spacing={4} w="100%" maxW="1000px" mt={10}>
               <Skeleton h="100px" w="100%" borderRadius="xl" />
               <Skeleton h="500px" w="100%" borderRadius="xl" />
             </VStack>

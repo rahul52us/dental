@@ -264,6 +264,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       toast({ title: "Payment Recorded", status: "success" });
       setIsPaymentOpen(false);
       fetchData();
+      fetchOverallStats();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, status: "error" });
     } finally {

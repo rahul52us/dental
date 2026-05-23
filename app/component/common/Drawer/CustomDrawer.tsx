@@ -98,22 +98,24 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
               )}
             </HStack>
 
-            <HStack spacing={2}>
+            <HStack spacing={2} align="center">
               {extraActions && (
-                <Box mr={8}>
+                <Box mr={3}>
                   {extraActions}
                 </Box>
               )}
               {/* 🔴 RED CIRCULAR CLOSE BUTTON */}
               <DrawerCloseButton
                 position="relative"
+                top="0"
+                right="0"
+                insetEnd="0"
                 bg={headerBgColor}
                 color="white"
                 borderRadius="full"
                 size="lg"
                 _hover={{ filter: "brightness(0.9)" }}
                 _active={{ filter: "brightness(0.8)" }}
-                mb={2}
               />
             </HStack>
           </Flex>
