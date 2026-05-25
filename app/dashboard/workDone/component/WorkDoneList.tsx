@@ -283,7 +283,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               setIsCountModalOpen(true);
             }}
           >
-            VISIT TRENDS
+            VIEW RECORDS DATE WISE
           </Button>
           <Button
             size="sm"
