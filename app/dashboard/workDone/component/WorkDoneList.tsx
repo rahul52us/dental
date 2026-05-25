@@ -31,7 +31,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch } from "react-icons/fi";
+import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign } from "react-icons/fi";
 import { Formik, Form } from "formik";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { Grid } from "@chakra-ui/react";
@@ -42,6 +42,7 @@ import TreatmentDetailsView from "../../toothTreatment/element/TreatmentDetailsV
 import WorkDoneForm from "./WorkDoneForm";
 import CreatableSelect from 'react-select/creatable';
 import { adultTeeth, childTeeth } from "../../../component/common/TeethModel/DentalChartComponent/utils/teethData";
+import PatientAccountHistory from "../../patients/component/patient/PatientAccountHistory";
 
 interface WorkDoneListProps {
   patientDetails: any;
@@ -102,6 +103,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [isDeleting, setIsDeleting] = useState(false);
   const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "", patientId: "", date: "" });
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
+  const [openAccountDetails, setOpenAccountDetails] = useState({ open: false });
 
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
@@ -243,6 +245,18 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           )}
         </HStack>
         <HStack spacing={2}>
+          <Button
+            size="sm"
+            colorScheme="teal"
+            variant="outline"
+            leftIcon={<FiDollarSign />}
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            onClick={() => setOpenAccountDetails({ open: true })}
+          >
+            ACCOUNT
+          </Button>
           <Button
             size="sm"
             colorScheme="blue"
@@ -616,6 +630,17 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         onClose={() => setOpenDailyReportModal({ open: false })}
         patientId={patientDetails?._id}
       />
+
+      {openAccountDetails.open && (
+        <CustomDrawer
+          open={openAccountDetails.open}
+          close={() => setOpenAccountDetails({ open: false })}
+          title={`Accountability Management: ${patientDetails?.name}`}
+          width="90vw"
+        >
+          <PatientAccountHistory patientDetails={patientDetails} />
+        </CustomDrawer>
+      )}
 
       <Modal isOpen={isCountModalOpen} onClose={() => setIsCountModalOpen(false)} isCentered size="md">
         <ModalOverlay backdropFilter="blur(10px)" />

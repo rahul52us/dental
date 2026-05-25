@@ -51,6 +51,8 @@ import WorkDoneList from "../../../workDone/component/WorkDoneList";
 import PatientLabWorkHistory from "../../../patients/component/patient/PatientLabWorkHistory";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FaFlask } from "react-icons/fa";
+import { FiDollarSign } from "react-icons/fi";
+import PatientAccountHistory from "../../../patients/component/patient/PatientAccountHistory";
 
 const pulse = keyframes`
   0% { transform: translateY(-50%) scale(1); opacity: 0.6; }
@@ -75,6 +77,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openAppointment, setOpenAppointment] = useState({ open: false, data: null as any });
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
     const [openLab, setOpenLab] = useState({ open: false, data: null as any });
+    const [openAccountDetails, setOpenAccountDetails] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
 
@@ -501,6 +504,27 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     >
                                         Appointment
                                     </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, teal.400, teal.600)"
+                                        color="white"
+                                        leftIcon={<FiDollarSign />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, teal.500, teal.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenAccountDetails({ open: true, data: patient });
+                                        }}
+                                    >
+                                        Account
+                                    </Button>
                                 </SimpleGrid>
                             </Flex>
                         </Box>
@@ -609,6 +633,17 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                 </CustomDrawer>
             )}
 
+            {/* Accountability Drawer */}
+            {openAccountDetails.open && (
+                <CustomDrawer
+                    open={openAccountDetails.open}
+                    close={() => setOpenAccountDetails({ open: false, data: null })}
+                    title={`Accountability Management: ${openAccountDetails.data?.name}`}
+                    width="90vw"
+                >
+                    <PatientAccountHistory patientDetails={openAccountDetails.data} />
+                </CustomDrawer>
+            )}
 
             {/* Profile Drawer */}
             <CustomDrawer
