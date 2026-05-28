@@ -122,32 +122,31 @@ const BookAppointmentPage = observer(() => {
                 // Theme color: Modern clinic teal
                 const primaryColor = [13, 143, 159]; // RGB for #0D8F9F
                 
-                // 1. Draw top brand bar
-                doc.setFillColor(13, 143, 159);
-                doc.rect(0, 0, 210, 40, "F");
+                // 1. Draw top brand bar (No background to save ink)
+                // doc.setFillColor(13, 143, 159);
+                // doc.rect(0, 0, 210, 40, "F");
 
                 // Draw solid gold accent bar at bottom of header
-                doc.setFillColor(212, 163, 89);
-                doc.rect(0, 38.5, 210, 1.5, "F");
+                // doc.setFillColor(212, 163, 89);
+                // doc.rect(0, 38.5, 210, 1.5, "F");
 
-                // Draw high-end clinic brand logo container
-                doc.setFillColor(24, 165, 182); // Brighter teal icon box
-                doc.roundedRect(15, 9, 12, 12, 2.5, 2.5, "F");
-                doc.setFillColor(255, 255, 255);
-                // White medical cross icon
-                doc.rect(20, 11, 2, 8, "F");
-                doc.rect(17, 14, 8, 2, "F");
+                // Draw high-end clinic brand logo container (Removed)
+                // doc.setFillColor(24, 165, 182);
+                // doc.roundedRect(15, 9, 12, 12, 2.5, 2.5, "F");
+                // doc.setFillColor(255, 255, 255);
+                // doc.rect(20, 11, 2, 8, "F");
+                // doc.rect(17, 14, 8, 2, "F");
 
-                // Clinic name / title (aligned to right of logo)
-                doc.setTextColor(255, 255, 255);
+                // Clinic name / title
+                doc.setTextColor(33, 37, 41);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(16);
-                doc.text(user?.companyDetails?.company_name || "DENTAL CLINIC", 32, 16.5);
+                doc.text(user?.companyDetails?.company_name || "DENTAL CLINIC", 15, 16.5);
 
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(8.5);
-                doc.setTextColor(230, 248, 250);
-                doc.text("DAILY APPOINTMENT BOOKING REPORT", 32, 21.5);
+                doc.setTextColor(108, 117, 125);
+                doc.text("DAILY APPOINTMENT BOOKING REPORT", 15, 21.5);
 
                 // Clinic Address / Tel Metadata
                 const address = user?.companyDetails?.addressInfo?.[0]?.address || "";
@@ -160,46 +159,46 @@ const BookAppointmentPage = observer(() => {
 
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(7.5);
-                doc.setTextColor(220, 240, 240);
-                doc.text(clinicMeta, 32, 26);
+                doc.setTextColor(108, 117, 125);
+                doc.text(clinicMeta, 15, 26);
 
                 // Generated info
                 doc.setFontSize(6.5);
-                doc.setTextColor(200, 230, 230);
-                doc.text(`Generated on: ${moment().format("DD MMM YYYY, hh:mm A")}`, 32, 30.5);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Generated on: ${moment().format("DD MMM YYYY, hh:mm A")}`, 15, 30.5);
 
                 // Selected Date display (Right aligned)
                 const dateStr = moment(selectedDate).format("dddd, DD MMMM YYYY").toUpperCase();
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(11);
-                doc.setTextColor(255, 255, 255);
+                doc.setTextColor(33, 37, 41);
                 doc.text(dateStr, 195 - doc.getTextWidth(dateStr), 16.5);
 
                 // Total bookings block (Right aligned)
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(8.5);
-                doc.setTextColor(230, 245, 245);
+                doc.setTextColor(108, 117, 125);
                 const bookingsText = `Total Bookings: ${allAppointmentsCount.length}`;
                 doc.text(bookingsText, 195 - doc.getTextWidth(bookingsText), 22.5);
 
                 // Clinic Status Badge (Right aligned pill shape)
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(8.5);
-                doc.setTextColor(220, 240, 240);
+                doc.setTextColor(108, 117, 125);
                 doc.text("Clinic Status:", 163 - doc.getTextWidth("Clinic Status:"), 29);
 
-                doc.setFillColor(34, 197, 94); // Modern Green #22C55E
-                doc.roundedRect(165, 25.5, 30, 5, 1.1, 1.1, "F");
-                doc.setTextColor(255, 255, 255);
+                // doc.setFillColor(34, 197, 94); // Modern Green #22C55E
+                // doc.roundedRect(165, 25.5, 30, 5, 1.1, 1.1, "F");
+                doc.setTextColor(34, 197, 94);
                 doc.setFont("helvetica", "bold");
-                doc.setFontSize(6.5);
+                doc.setFontSize(7.5);
                 doc.text("ACTIVE CLINIC", 180, 29.2, { align: "center" });
 
                 // 3. Table Headers and Body
                 const tableHeaders = [
                     [
                         "Time",
-                        ...chairs.map((chair: any) => `     ${chair.chairName || `Chair ${chair.chairNo}`}\n     (Chair ${chair.chairNo || ""})`)
+                        ...chairs.map((chair: any) => `${chair.chairName || `Chair ${chair.chairNo}`}\n(Chair ${chair.chairNo || ""})`)
                     ]
                 ];
                 
@@ -228,21 +227,16 @@ const BookAppointmentPage = observer(() => {
                             doc.setFontSize(7);
                             const phoneLines = doc.splitTextToSize(apt.patient?.mobileNumber || "--", availableWidth);
                             
-                            doc.setFont("helvetica", "bold");
-                            doc.setFontSize(7.5);
-                            const docLines = doc.splitTextToSize(`Dr. ${apt.primaryDoctor?.name || "--"}`, availableWidth);
-                            
                             doc.setFont("helvetica", "italic");
                             doc.setFontSize(7);
                             const treatmentLines = doc.splitTextToSize(apt.title || apt.description || "Consultation", availableWidth);
                             
-                            // Join all lines with newlines, adding 3 extra trailing newlines to reserve space for status pill badge
+                            // Join all lines with newlines
                             const nameStr = nameLines.join("\n");
                             const phoneStr = phoneLines.join("\n");
-                            const docStr = docLines.join("\n");
                             const treatmentStr = treatmentLines.join("\n");
                             
-                            row.push(`${nameStr}\n${phoneStr}\n${docStr}\n${treatmentStr}\n\n\n`);
+                            row.push(`${nameStr}\n${phoneStr}\n${treatmentStr}`);
                         } else {
                             row.push("");
                         }
@@ -265,18 +259,18 @@ const BookAppointmentPage = observer(() => {
                     body: tableBody,
                     theme: "grid",
                     headStyles: {
-                        fillColor: [13, 143, 159],
-                        textColor: [255, 255, 255],
+                        fillColor: [245, 245, 245],
+                        textColor: [33, 37, 41],
                         fontStyle: "bold",
                         fontSize: 9,
-                        halign: "left",
+                        halign: "center",
                         valign: "middle",
                     },
                     bodyStyles: {
                         textColor: [45, 55, 72],
                         fontSize: 8,
                         valign: "middle",
-                        minCellHeight: 45, // Elegant minimum cell height (approx 16mm / 45pt) so boxes are perfectly sized
+                        minCellHeight: 18, // Elegant minimum cell height
                     },
                     columnStyles: columnStyles,
                     styles: {
@@ -294,20 +288,20 @@ const BookAppointmentPage = observer(() => {
                             data.cell.styles.textColor = [74, 85, 104];
                         }
                         if (data.column.index >= 1) {
-                            // Add extra bottom padding to allocate space for status pill badges
-                            data.cell.styles.cellPadding = { left: 8, right: 4, top: 4, bottom: 8 };
-                            
-                            // Apply soft pastel background of the chair color for appointment cells
                             if (data.cell.section === "body") {
+                                // Add extra bottom padding to allocate space for status pill badges
+                                data.cell.styles.cellPadding = { left: 8, right: 4, top: 4, bottom: 8 };
+                                
+                                // Apply soft pastel background of the chair color for appointment cells
                                 const slot = sortedTimeSlots[data.row.index];
                                 const chair = chairs[data.column.index - 1];
                                 if (slot && chair) {
                                     const apt = chair.appointments?.find((a: any) => a && a.startTime === slot.startTime);
                                     if (apt && chair.chairColor) {
                                         const [r, g, b] = parseHexToRGB(chair.chairColor);
-                                        const lightR = Math.round(r * 0.08 + 255 * 0.92);
-                                        const lightG = Math.round(g * 0.08 + 255 * 0.92);
-                                        const lightB = Math.round(b * 0.08 + 255 * 0.92);
+                                        const lightR = Math.round(r * 0.25 + 255 * 0.75);
+                                        const lightG = Math.round(g * 0.25 + 255 * 0.75);
+                                        const lightB = Math.round(b * 0.25 + 255 * 0.75);
                                         data.cell.styles.fillColor = [lightR, lightG, lightB];
                                     }
                                 }
@@ -328,20 +322,6 @@ const BookAppointmentPage = observer(() => {
                         }
                     },
                     didDrawCell: (data: any) => {
-                        // Draw dynamic Chair color circle dot in Chair header cells (index >= 1)
-                        if (data.row.section === "head" && data.column.index >= 1) {
-                            const chair = chairs[data.column.index - 1];
-                            if (chair && chair.chairColor) {
-                                const docInstance = data.doc;
-                                const [r, g, b] = parseHexToRGB(chair.chairColor);
-                                
-                                docInstance.setFillColor(r, g, b);
-                                const x = data.cell.x + 5.0;
-                                const y = data.cell.y + (data.cell.height / 2);
-                                docInstance.circle(x, y, 1.5, "F");
-                            }
-                        }
-
                         // Draw custom premium appointment card in body cells (index >= 1)
                         if (data.row.section === "body" && data.column.index >= 1) {
                             const slot = sortedTimeSlots[data.row.index];
@@ -377,16 +357,6 @@ const BookAppointmentPage = observer(() => {
                                     phoneLines.forEach((line: string) => {
                                         docInstance.text(line, startX, currentY);
                                         currentY += 3.2;
-                                    });
-                                    
-                                    // 3. Primary Doctor (Teal-Brand Bold)
-                                    docInstance.setFont("helvetica", "bold");
-                                    docInstance.setFontSize(7.5);
-                                    docInstance.setTextColor(13, 143, 159);
-                                    const docLines = docInstance.splitTextToSize(`Dr. ${apt.primaryDoctor?.name || "--"}`, availableWidth);
-                                    docLines.forEach((line: string) => {
-                                        docInstance.text(line, startX, currentY);
-                                        currentY += 3.4;
                                     });
                                     
                                     // 4. Treatment description (Small, Italicized)
