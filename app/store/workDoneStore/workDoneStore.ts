@@ -447,6 +447,90 @@ class WorkDoneStore {
   };
 
   /**
+   * GENERATE FILTERED REPORT BLOB FOR PREVIEWING
+   */
+  generateFilteredWorkDoneReportBlob = async (patientId: string, filters: any, params: { prescriptions: any[], topPadding: number, bottomPadding: number }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const queryParams = new URLSearchParams({
+        company: compId,
+        ...(filters.treatmentId && { treatmentId: filters.treatmentId }),
+        ...(filters.fromDate && { fromDate: filters.fromDate }),
+        ...(filters.toDate && { toDate: filters.toDate }),
+        ...(filters.doctorId && { doctorId: filters.doctorId }),
+      });
+      const { data } = await axios.post(`/workDone/generate-filtered-report/${patientId}?${queryParams.toString()}`, params);
+
+      if (data.status === "success") {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        return { url, blob };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error generating filtered report blob:", err);
+      throw err;
+    }
+  };
+
+  /**
+   * DOWNLOAD FILTERED WORK DONE REPORT
+   */
+  downloadFilteredWorkDoneReport = async (patientId: string, filters: any, params: { prescriptions: any[], topPadding: number, bottomPadding: number, isPreview?: boolean }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const queryParams = new URLSearchParams({
+        company: compId,
+        ...(filters.treatmentId && { treatmentId: filters.treatmentId }),
+        ...(filters.fromDate && { fromDate: filters.fromDate }),
+        ...(filters.toDate && { toDate: filters.toDate }),
+        ...(filters.doctorId && { doctorId: filters.doctorId }),
+      });
+      const { data } = await axios.post(`/workDone/generate-filtered-report/${patientId}?${queryParams.toString()}`, params);
+
+      if (data.status === "success") {
+        const base64Data = data.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+
+        if (params.isPreview) {
+          window.open(url, '_blank');
+        } else {
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `Filtered_Report_${patientId}.pdf`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+
+        if (!params.isPreview) {
+          window.URL.revokeObjectURL(url);
+        }
+      }
+    } catch (err) {
+      console.error("Error downloading filtered report PDF:", err);
+      throw err;
+    }
+  };
+
+  /**
    * DOWNLOAD A RECEIPT FOR A SPECIFIC PAYMENT INSTALLMENT
    */
   downloadPaymentReceipt = async (workDoneId: string, paymentIndex: number) => {

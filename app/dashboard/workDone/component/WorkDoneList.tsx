@@ -103,6 +103,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [isDeleting, setIsDeleting] = useState(false);
   const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "", patientId: "", date: "" });
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
+  const [openFilteredReportModal, setOpenFilteredReportModal] = useState({ open: false });
   const [openAccountDetails, setOpenAccountDetails] = useState({ open: false });
 
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
@@ -294,8 +295,21 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             fontSize="11px"
             fontWeight="bold"
             onClick={() => setOpenDailyReportModal({ open: true })}
+            display="none"
           >
             DOWNLOAD DAILY PRESCRIPTION
+          </Button>
+          <Button
+            size="sm"
+            colorScheme="purple"
+            variant="solid"
+            leftIcon={<FiDownload />}
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            onClick={() => setOpenFilteredReportModal({ open: true })}
+          >
+            DOWNLOAD FILTERED WORKDONE
           </Button>
         </HStack>
       </HStack>
@@ -625,11 +639,24 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         date={openPrintModal.date}
       />
 
-      <DailyPrescriptionDrawer
-        isOpen={openDailyReportModal.open}
-        onClose={() => setOpenDailyReportModal({ open: false })}
-        patientId={patientDetails?._id}
-      />
+      {openDailyReportModal.open && (
+        <DailyPrescriptionDrawer
+          isOpen={openDailyReportModal.open}
+          onClose={() => setOpenDailyReportModal({ open: false })}
+          patientId={patientDetails?._id}
+          date={selectedDateFilter || getLocalDateString()}
+          mode="daily"
+        />
+      )}
+
+      {openFilteredReportModal.open && (
+        <FilteredWorkDoneModal
+          isOpen={openFilteredReportModal.open}
+          onClose={() => setOpenFilteredReportModal({ open: false })}
+          patientId={patientDetails?._id}
+          treatmentId={treatmentId}
+        />
+      )}
 
       {openAccountDetails.open && (
         <CustomDrawer
@@ -742,7 +769,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
 const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patientId, date }: any) => {
   const {
-    workDoneStore: { downloadWorkDoneReport },
+    workDoneStore: { downloadWorkDoneReport, generateWorkDoneReportBlob },
     prescriptionStore,
     auth: { openNotification },
   } = stores;
@@ -928,7 +955,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                             onClick={async () => {
                               setLoading(true);
                               try {
-                                const res: any = await stores.workDoneStore.generateWorkDoneReportBlob(workDoneId, {
+                                const res: any = await generateWorkDoneReportBlob(workDoneId, {
                                   prescriptions: values.prescriptions,
                                   topPadding: values.topPadding,
                                   bottomPadding: values.bottomPadding,
@@ -1287,7 +1314,136 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
   );
 });
 
-const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOpen: boolean, onClose: () => void, patientId: string }) => {
+const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentId }: any) => {
+  const { workDoneStore, auth: { openNotification } } = stores;
+  const [loading, setLoading] = useState(false);
+  const [previewDrawer, setPreviewDrawer] = useState({ open: false, url: "" });
+
+  const [fromDate, setFromDate] = useState(getLocalDateString());
+  const [toDate, setToDate] = useState(getLocalDateString());
+  const [doctorIds, setDoctorIds] = useState<any[]>([]);
+
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const selectedDoctorIds = doctorIds && doctorIds.length > 0 ? doctorIds.map((d: any) => d.value || d).join(',') : 'all';
+      const filterParams = {
+        treatmentId,
+        fromDate: `${fromDate}T00:00:00.000Z`,
+        toDate: `${toDate}T23:59:59.999Z`,
+        doctorId: selectedDoctorIds
+      };
+      await workDoneStore.downloadFilteredWorkDoneReport(patientId, filterParams, { prescriptions: [], topPadding: 0, bottomPadding: 0 });
+      openNotification({
+        type: "success",
+        title: "Report Downloaded",
+        message: "Filtered clinical report has been saved successfully."
+      });
+      onClose();
+    } catch (err: any) {
+      openNotification({
+        type: "error",
+        title: "Download Failed",
+        message: err?.message
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePreview = async () => {
+    setLoading(true);
+    try {
+      const selectedDoctorIds = doctorIds && doctorIds.length > 0 ? doctorIds.map((d: any) => d.value || d).join(',') : 'all';
+      const filterParams = {
+        treatmentId,
+        fromDate: `${fromDate}T00:00:00.000Z`,
+        toDate: `${toDate}T23:59:59.999Z`,
+        doctorId: selectedDoctorIds
+      };
+      const res: any = await workDoneStore.generateFilteredWorkDoneReportBlob(patientId, filterParams, { prescriptions: [], topPadding: 0, bottomPadding: 0 });
+      if (res?.url) setPreviewDrawer({ open: true, url: res.url });
+    } catch (err: any) {
+      openNotification({ type: "error", title: "Preview Failed", message: err.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
+      <ModalOverlay backdropFilter="blur(4px)" />
+      <ModalContent borderRadius="2xl">
+        <ModalHeader fontSize="14px" fontWeight="black" color="purple.600">FILTERED WORKDONE REPORT</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <VStack spacing={4} align="stretch">
+            <Box>
+              <Text fontSize="11px" fontWeight="bold" color="gray.500" mb={1}>FROM DATE</Text>
+              <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} borderRadius="xl" />
+            </Box>
+            <Box>
+              <Text fontSize="11px" fontWeight="bold" color="gray.500" mb={1}>TO DATE</Text>
+              <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} borderRadius="xl" />
+            </Box>
+            <Box>
+              <Text fontSize="11px" fontWeight="bold" color="gray.500" mb={1}>DOCTORS (OPTIONAL)</Text>
+              <CustomInput
+                name="doctor"
+                type="real-time-user-search"
+                query={{ type: 'doctor' }}
+                isMulti={true}
+                value={doctorIds}
+                onChange={(val: any) => setDoctorIds(val)}
+                placeholder="All Doctors"
+              />
+            </Box>
+          </VStack>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="ghost" onClick={onClose} mr={3}>CANCEL</Button>
+          <Button colorScheme="purple" variant="outline" mr={2} onClick={handlePreview} isLoading={loading}>PREVIEW</Button>
+          <Button colorScheme="purple" onClick={handleDownload} isLoading={loading} leftIcon={<FiDownload />}>DOWNLOAD</Button>
+        </ModalFooter>
+      </ModalContent>
+
+      <CustomDrawer
+        open={previewDrawer.open}
+        close={() => setPreviewDrawer({ ...previewDrawer, open: false })}
+        title="Filtered Report Preview"
+        width="60vw"
+        extraActions={
+          <Button
+            size="sm"
+            colorScheme="purple"
+            leftIcon={<FiDownload />}
+            borderRadius="lg"
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = previewDrawer.url;
+              link.download = `Filtered_Report_${patientId}.pdf`;
+              link.click();
+            }}
+          >
+            DOWNLOAD PDF
+          </Button>
+        }
+      >
+        <Box p={4} h="calc(100vh - 100px)">
+          <iframe
+            src={`${previewDrawer.url}#view=FitH`}
+            width="100%"
+            height="100%"
+            style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }}
+            title="PDF Preview"
+          />
+        </Box>
+      </CustomDrawer>
+    </Modal>
+  );
+});
+
+const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, filterParams }: any) => {
   const { prescriptionStore, workDoneStore, auth: { openNotification } } = stores;
   const [loading, setLoading] = useState(false);
   const [previewDrawer, setPreviewDrawer] = useState({ open: false, url: "" });
@@ -1407,7 +1563,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
     <CustomDrawer
       open={isOpen}
       close={onClose}
-      title="Daily Prescription Report"
+      title={mode === 'filtered' ? "Filtered Prescription Report" : "Daily Prescription Report"}
       width="90vw"
     >
       <Box p={0}>
@@ -1422,12 +1578,21 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
           onSubmit={async (values) => {
             setLoading(true);
             try {
-              await workDoneStore.downloadDailyWorkDoneReport(patientId, values);
-              openNotification({
-                type: "success",
-                title: "Daily Report Downloaded",
-                message: "Daily clinical report has been saved successfully."
-              });
+              if (mode === 'filtered') {
+                await workDoneStore.downloadFilteredWorkDoneReport(patientId, filterParams, values);
+                openNotification({
+                  type: "success",
+                  title: "Filtered Report Downloaded",
+                  message: "Filtered clinical report has been saved successfully."
+                });
+              } else {
+                await workDoneStore.downloadDailyWorkDoneReport(patientId, values);
+                openNotification({
+                  type: "success",
+                  title: "Daily Report Downloaded",
+                  message: "Daily clinical report has been saved successfully."
+                });
+              }
             } catch (err: any) {
               openNotification({
                 type: "error",
@@ -1478,7 +1643,12 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                           onClick={async () => {
                             setLoading(true);
                             try {
-                              const res: any = await workDoneStore.generateDailyWorkDoneReportBlob(patientId, values);
+                              let res: any;
+                              if (mode === 'filtered') {
+                                res = await workDoneStore.generateFilteredWorkDoneReportBlob(patientId, filterParams, values);
+                              } else {
+                                res = await workDoneStore.generateDailyWorkDoneReportBlob(patientId, values);
+                              }
                               if (res?.url) setPreviewDrawer({ open: true, url: res.url });
                             } catch (err: any) {
                               openNotification({ type: "error", title: "Preview Failed", message: err.message });
@@ -1749,7 +1919,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId }: { isOp
                       leftIcon={<FiDownload />}
                       isDisabled={values.prescriptions.length === 0}
                     >
-                      DOWNLOAD DAILY PDF
+                      {mode === 'filtered' ? "DOWNLOAD FILTERED PDF" : "DOWNLOAD DAILY PDF"}
                     </Button>
                   </HStack>
                 </Box>
