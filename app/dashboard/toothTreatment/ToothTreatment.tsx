@@ -536,7 +536,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   };
 
 
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
 
   return (
     <>
@@ -783,7 +783,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           width={{ base: "100%", md: "90%" }}
         >
           <Box px={6}>
-            <Tabs variant="line" colorScheme="blue">
+            <Tabs variant="line" colorScheme="blue" defaultIndex={1}>
               <TabList mb="1em">
                 <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
                   New Work Entry
