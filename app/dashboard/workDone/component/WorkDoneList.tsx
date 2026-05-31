@@ -309,7 +309,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             fontWeight="bold"
             onClick={() => setOpenFilteredReportModal({ open: true })}
           >
-            DOWNLOAD FILTERED WORKDONE
+            DOWNLOAD FILTERED PRESCRIPTION
           </Button>
         </HStack>
       </HStack>
@@ -1374,7 +1374,7 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay backdropFilter="blur(4px)" />
       <ModalContent borderRadius="2xl">
-        <ModalHeader fontSize="14px" fontWeight="black" color="purple.600">FILTERED WORKDONE REPORT</ModalHeader>
+        <ModalHeader fontSize="14px" fontWeight="black" color="purple.600">DOWNLOAD FILTERED PRESCRIPTION REPORT</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
@@ -1919,7 +1919,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                       leftIcon={<FiDownload />}
                       isDisabled={values.prescriptions.length === 0}
                     >
-                      {mode === 'filtered' ? "DOWNLOAD FILTERED PDF" : "DOWNLOAD DAILY PDF"}
+                      {mode === 'filtered' ? "DOWNLOAD FILTERED PRESCRIPTION PDF" : "DOWNLOAD DAILY PDF"}
                     </Button>
                   </HStack>
                 </Box>
