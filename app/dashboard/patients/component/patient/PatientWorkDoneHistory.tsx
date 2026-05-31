@@ -35,7 +35,7 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
   const [treatments, setTreatments] = useState<any[]>([]);
   const [selectedTreatmentId, setSelectedTreatmentId] = useState<string>("all");
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchTreatments = useCallback(async () => {
@@ -63,13 +63,13 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
   return (
     <Box py={3} px={6}>
       <Tabs index={activeTab} onChange={(index) => setActiveTab(index)} variant="unstyled" colorScheme="blue" w="full">
-        <TabList 
-          bg="gray.50" 
-          p={1} 
-          borderRadius="xl" 
-          border="1px solid" 
-          borderColor="gray.100" 
-          display="flex" 
+        <TabList
+          bg="gray.50"
+          p={1}
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="gray.100"
+          display="flex"
           w="full"
           mb={4}
           gap={1.5}
