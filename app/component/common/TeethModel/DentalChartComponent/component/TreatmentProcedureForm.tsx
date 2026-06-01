@@ -211,24 +211,31 @@ export const TreatmentProcedureForm = observer(
             if (dbData && dbData.length > 0) {
                 const map: any = {};
                 dbData.forEach((p: any) => {
-                    const cat = p.category;
-                    const sub = p.subcategory;
-                    const n1 = p.name;
-                    const n2 = p.name2 || "None";
-                    const n3 = p.name3 || "None";
+                    const normalizeKey = (str: string) => (str || "").trim().replace(/\s+/g, ' ').toLowerCase();
+                    const catKey = normalizeKey(p.category);
+                    const subKey = normalizeKey(p.subcategory);
+                    const n1Key = normalizeKey(p.name);
+                    const n2Key = normalizeKey(p.name2) || "none";
+                    const n3Key = normalizeKey(p.name3) || "none";
 
-                    if (!map[cat]) map[cat] = { name: cat, subcategories: {} };
-                    if (!map[cat].subcategories[sub]) {
-                        map[cat].subcategories[sub] = { name: sub, name1s: {} };
+                    const cat = p.category?.trim().replace(/\s+/g, ' ') || "";
+                    const sub = p.subcategory?.trim().replace(/\s+/g, ' ') || "";
+                    const n1 = p.name?.trim().replace(/\s+/g, ' ') || "";
+                    const n2 = p.name2?.trim().replace(/\s+/g, ' ') || "None";
+                    const n3 = p.name3?.trim().replace(/\s+/g, ' ') || "None";
+
+                    if (!map[catKey]) map[catKey] = { name: cat, subcategories: {} };
+                    if (!map[catKey].subcategories[subKey]) {
+                        map[catKey].subcategories[subKey] = { name: sub, name1s: {} };
                     }
-                    if (!map[cat].subcategories[sub].name1s[n1]) {
-                        map[cat].subcategories[sub].name1s[n1] = { name: n1, name2s: {} };
+                    if (!map[catKey].subcategories[subKey].name1s[n1Key]) {
+                        map[catKey].subcategories[subKey].name1s[n1Key] = { name: n1, name2s: {} };
                     }
-                    if (!map[cat].subcategories[sub].name1s[n1].name2s[n2]) {
-                        map[cat].subcategories[sub].name1s[n1].name2s[n2] = { name: n2, name3s: {} };
+                    if (!map[catKey].subcategories[subKey].name1s[n1Key].name2s[n2Key]) {
+                        map[catKey].subcategories[subKey].name1s[n1Key].name2s[n2Key] = { name: n2, name3s: {} };
                     }
-                    if (!map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3]) {
-                        map[cat].subcategories[sub].name1s[n1].name2s[n2].name3s[n3] = {
+                    if (!map[catKey].subcategories[subKey].name1s[n1Key].name2s[n2Key].name3s[n3Key]) {
+                        map[catKey].subcategories[subKey].name1s[n1Key].name2s[n2Key].name3s[n3Key] = {
                             name: n3,
                             procedure: p
                         };
