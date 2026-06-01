@@ -151,6 +151,12 @@ const initialFormData: TreatmentFormData = {
     complaintType: undefined as any,
 };
 
+const pulseRing = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(43, 108, 176, 0.8); border-color: #2b6cb0; }
+  50% { box-shadow: 0 0 18px 6px rgba(43, 108, 176, 0.5); border-color: #63b3ed; }
+  100% { box-shadow: 0 0 0 0 rgba(43, 108, 176, 0.8); border-color: #2b6cb0; }
+`;
+
 export const TreatmentProcedureForm = observer(
     ({
         teeth = [],
@@ -491,13 +497,17 @@ export const TreatmentProcedureForm = observer(
                     {/* ── SYNC CHECKBOX (multi-tooth only) ── */}
                     {isMultiMode && (
                         <HStack
-                            spacing={3}
-                            p={3}
+                            spacing={4}
+                            px={6}
+                            py={4}
+                            pr={12}
+                            w="fit-content"
                             bg={syncToAll ? "blue.50" : "gray.50"}
                             borderRadius="xl"
                             border="1px solid"
                             borderColor={syncToAll ? "blue.200" : "gray.200"}
                             cursor="pointer"
+                            animation={!syncToAll ? `${pulseRing} 1.5s infinite` : "none"}
                             onClick={() => {
                                 const turningOn = !syncToAll;
                                 setSyncToAll(turningOn);
@@ -524,10 +534,10 @@ export const TreatmentProcedureForm = observer(
                             _hover={{ borderColor: "blue.300" }}
                         >
                             <Box
-                                w="18px" h="18px"
+                                w="20px" h="20px"
                                 borderRadius="md"
                                 border="2px solid"
-                                borderColor={syncToAll ? "blue.500" : "gray.300"}
+                                borderColor={syncToAll ? "blue.500" : "blue.300"}
                                 bg={syncToAll ? "blue.500" : "white"}
                                 display="flex"
                                 alignItems="center"
@@ -540,10 +550,10 @@ export const TreatmentProcedureForm = observer(
                                 )}
                             </Box>
                             <VStack align="start" spacing={0}>
-                                <Text fontSize="11px" fontWeight="900" color={syncToAll ? "blue.700" : "gray.600"}>
+                                <Text fontSize="13px" fontWeight="900" color={syncToAll ? "blue.700" : "gray.600"}>
                                     Apply same data to all {teeth.length} teeth
                                 </Text>
-                                <Text fontSize="9px" color={syncToAll ? "blue.400" : "gray.400"} fontWeight="700">
+                                <Text fontSize="11px" color={syncToAll ? "blue.400" : "gray.400"} fontWeight="700" mt={0.5}>
                                     {syncToAll ? "ON — changes here will copy to every tab" : "OFF — each tab filled separately"}
                                 </Text>
                             </VStack>
@@ -1215,26 +1225,6 @@ export const TreatmentProcedureForm = observer(
                                                         );
                                                     })}
                                                 </TabList>
-
-                                                {/* small legend */}
-                                                <HStack spacing={4} px={1} pb={3} pt={1}>
-                                                    <HStack spacing={1.5}>
-                                                        <Box w="7px" h="7px" borderRadius="full" bg="gray.300" />
-                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">EMPTY</Text>
-                                                    </HStack>
-                                                    <HStack spacing={1.5}>
-                                                        <Box w="7px" h="7px" borderRadius="full" bg="red.400" />
-                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">CHIEF</Text>
-                                                    </HStack>
-                                                    <HStack spacing={1.5}>
-                                                        <Box w="7px" h="7px" borderRadius="full" bg="orange.400" />
-                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">OTHER</Text>
-                                                    </HStack>
-                                                    <HStack spacing={1.5}>
-                                                        <Box w="7px" h="7px" borderRadius="full" bg="green.400" />
-                                                        <Text fontSize="9px" fontWeight="800" color="gray.400">EXISTING</Text>
-                                                    </HStack>
-                                                </HStack>
 
                                                 <TabPanels>
                                                     {teeth.map((t) => (
