@@ -675,7 +675,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                           <VStack align="start" spacing={0}>
                             <Text fontSize="9px" fontWeight="900" color="gray.400" letterSpacing="0.1em">ESTIMATE</Text>
                             <Text fontSize="12px" fontWeight="1000" color="blue.600">
-                              ₹{estimate.toLocaleString()}
+                              ₹{data.estimateMin?.toLocaleString()} - ₹{data.estimateMax?.toLocaleString()}
                             </Text>
                             <Text fontSize="9px" fontWeight="800" color="gray.500" mt={1}>
                               BILLED: ₹{received.toLocaleString()}
