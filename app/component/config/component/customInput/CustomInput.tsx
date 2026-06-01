@@ -987,14 +987,16 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               </Box>
             )}
             <Box
-              bg={finalLabelBg}
+              bg="transparent"
+              border="2px solid"
+              borderColor={colorMode === "light" ? "blue.600" : "blue.400"}
               px={3}
               py={0.5}
               borderRadius="full"
               width="fit-content"
             >
               <Text
-                color="black"
+                color={colorMode === "light" ? "black" : "white"}
                 fontWeight="black"
                 fontSize="xs"
                 textTransform="uppercase"
