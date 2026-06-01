@@ -39,6 +39,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     data: null
   });
   const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
+  const [workDoneTab, setWorkDoneTab] = useState(1);
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -481,6 +482,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 icon={<FiCheckCircle />}
                 aria-label="Work Done"
                 onClick={() => {
+                  setWorkDoneTab(1);
                   setOpenWorkDone({ open: true, data: dt });
                 }}
               />
@@ -783,7 +785,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           width={{ base: "100%", md: "90%" }}
         >
           <Box px={6}>
-            <Tabs variant="line" colorScheme="blue" defaultIndex={1}>
+            <Tabs variant="line" colorScheme="blue" index={workDoneTab} onChange={(idx) => setWorkDoneTab(idx)}>
               <TabList mb="1em">
                 <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
                   New Work Entry
@@ -798,7 +800,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     patientDetails={openWorkDone.data?.patient || patientDetails}
                     treatmentDetails={openWorkDone.data}
                     onSuccess={() => {
-                      setOpenWorkDone({ open: false, data: null });
+                      setWorkDoneTab(1);
                       applyGetAllRecords({ page: currentPage });
                     }}
                   />
