@@ -618,8 +618,28 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 2 & 3. Doctors - SAME ROW */}
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
+
                         <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. ASSIGN DOCTOR</Text>
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. EXAMINING DOCTOR</Text>
+                            <CustomInput
+                                name={activeId === "bulk" ? `bulk.examiningDoctor` : `treatments.${activeId}.examiningDoctor`}
+                                type="real-time-user-search"
+                                query={{ type: 'doctor' }}
+                                options={doctorOptions}
+                                value={currentValues.examiningDoctor}
+                                onChange={(val: any) => {
+                                    if (activeId === "bulk") {
+                                        teeth.forEach(t => setFieldValue(`treatments.${t.id}.examiningDoctor`, val));
+                                    } else {
+                                        setFieldValue(`treatments.${activeId}.examiningDoctor`, val);
+                                    }
+                                }}
+                                style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                            />
+                        </VStack>
+
+                        <VStack align="start" spacing={2} w="full">
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. ASSIGN DOCTOR</Text>
                             <CustomInput
                                 name={activeId === "bulk" ? `bulk.doctor` : `treatments.${activeId}.doctor`}
                                 type="real-time-user-search"
@@ -637,24 +657,7 @@ export const TreatmentProcedureForm = observer(
                             />
                         </VStack>
 
-                        <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. EXAMINING DOCTOR</Text>
-                            <CustomInput
-                                name={activeId === "bulk" ? `bulk.examiningDoctor` : `treatments.${activeId}.examiningDoctor`}
-                                type="real-time-user-search"
-                                query={{ type: 'doctor' }}
-                                options={doctorOptions}
-                                value={currentValues.examiningDoctor}
-                                onChange={(val: any) => {
-                                    if (activeId === "bulk") {
-                                        teeth.forEach(t => setFieldValue(`treatments.${t.id}.examiningDoctor`, val));
-                                    } else {
-                                        setFieldValue(`treatments.${activeId}.examiningDoctor`, val);
-                                    }
-                                }}
-                                style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
-                            />
-                        </VStack>
+
                     </Grid>
 
                     {/* 4. Clinical Observation - SEPARATE ROW */}
@@ -685,7 +688,8 @@ export const TreatmentProcedureForm = observer(
                                 <Text fontSize="9px" fontWeight="black" color="black">Minimum Estimate (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
-                                    value={currentValues.estimateMin || 0}
+                                    placeholder="0"
+                                    value={currentValues.estimateMin || ""}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         if (activeId === "bulk") {
@@ -704,7 +708,8 @@ export const TreatmentProcedureForm = observer(
                                 <Text fontSize="9px" fontWeight="black" color="black">Maximum Estimate(₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
-                                    value={currentValues.estimateMax || 0}
+                                    placeholder="0"
+                                    value={currentValues.estimateMax || ""}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         if (activeId === "bulk") {
@@ -723,7 +728,8 @@ export const TreatmentProcedureForm = observer(
                                 <Text fontSize="9px" fontWeight="black" color="black">DISCOUNT (₹)</Text>
                                 <Input
                                     size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="green.600"
-                                    value={currentValues.discount || 0}
+                                    placeholder="0"
+                                    value={currentValues.discount || ""}
                                     onChange={(e) => {
                                         const val = Number(e.target.value);
                                         if (activeId === "bulk") {
