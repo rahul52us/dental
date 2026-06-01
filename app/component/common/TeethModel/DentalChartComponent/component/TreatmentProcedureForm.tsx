@@ -572,7 +572,7 @@ export const TreatmentProcedureForm = observer(
                     </Box>
 
                     {/* 1. Complaint Type - SEPARATE ROW */}
-                    <VStack align="start" spacing={3}>
+                    <VStack display="none" align="start" spacing={3}>
                         <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. COMPLAINT TYPE</Text>
                         <HStack bg="gray.50" p={1.5} borderRadius="xl" w="full" spacing={3} border="1px solid" borderColor="gray.100">
                             {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map((type) => {
@@ -619,7 +619,7 @@ export const TreatmentProcedureForm = observer(
                     {/* 2 & 3. Doctors - SAME ROW */}
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
                         <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. ASSIGN DOCTOR</Text>
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. ASSIGN DOCTOR</Text>
                             <CustomInput
                                 name={activeId === "bulk" ? `bulk.doctor` : `treatments.${activeId}.doctor`}
                                 type="real-time-user-search"
@@ -638,7 +638,7 @@ export const TreatmentProcedureForm = observer(
                         </VStack>
 
                         <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. EXAMINING DOCTOR</Text>
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. EXAMINING DOCTOR</Text>
                             <CustomInput
                                 name={activeId === "bulk" ? `bulk.examiningDoctor` : `treatments.${activeId}.examiningDoctor`}
                                 type="real-time-user-search"
@@ -659,7 +659,7 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 4. Clinical Observation - SEPARATE ROW */}
                     <VStack align="start" spacing={2} w="full">
-                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">4. CLINICAL OBSERVATION</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. CLINICAL OBSERVATION</Text>
                         <CustomInput
                             name={activeId === "bulk" ? `bulk.notes` : `treatments.${activeId}.notes`}
                             type="textarea"
@@ -679,7 +679,7 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 5. Financial - SEPARATE ROW */}
                     <VStack align="stretch" spacing={5} p={6} bg="blue.50/30" borderRadius="3xl" border="1px solid" borderColor="blue.100">
-                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">5. FINANCIAL ESTIMATES</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">4. FINANCIAL ESTIMATES</Text>
                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
                             <VStack align="start" spacing={1}>
                                 <Text fontSize="9px" fontWeight="black" color="black">Minimum Estimate (₹)</Text>
@@ -754,7 +754,7 @@ export const TreatmentProcedureForm = observer(
 
                     {/* 6. Treatment Code - SEPARATE ROW */}
                     <VStack align="start" spacing={3} w="full">
-                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">6. TREATMENT CODE</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">5. TREATMENT CODE</Text>
                         <Button
                             w="full"
                             h="80px"
@@ -868,6 +868,18 @@ export const TreatmentProcedureForm = observer(
                             }
                         }
                     }, [isProcedureOpen, editData, groupedData, activeToothId, values.treatments]);
+
+                    // Dynamically sync the complaint type from the parent (top selector) into the form
+                    useEffect(() => {
+                        if (teeth && teeth.length > 0) {
+                            teeth.forEach(t => {
+                                const newComplaint = (toothComplaints && toothComplaints[t.id]) ? toothComplaints[t.id] : complaintType;
+                                if (newComplaint) {
+                                    setFieldValue(`treatments.${t.id}.complaintType`, newComplaint);
+                                }
+                            });
+                        }
+                    }, [complaintType, toothComplaints, teeth, setFieldValue]);
 
                     const currentStep = values.treatmentCode ? 2 : (teeth.length > 0 ? 1 : 0);
 
