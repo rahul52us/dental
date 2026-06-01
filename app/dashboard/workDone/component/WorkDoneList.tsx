@@ -227,7 +227,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
     <Box>
       <HStack justify="space-between" mb={4} wrap="wrap" gap={2}>
         <HStack spacing={3}>
-          <Text fontSize="11px" fontWeight="1000" color="gray.500" letterSpacing="0.1em">CLINICAL RECORDS</Text>
+          <Text fontSize="11px" fontWeight="1000" color="gray.700" letterSpacing="0.1em">CLINICAL RECORDS</Text>
           {selectedDateFilter && (
             <Badge colorScheme="blue" variant="solid" borderRadius="xl" px={3} py={0.5} fontSize="10px" fontWeight="bold">
               <HStack spacing={1} align="center">
@@ -324,7 +324,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 color="blue.500"
                 size="xl"
               />
-              <Text color="gray.500" fontSize="sm" fontWeight="medium">Fetching clinical history...</Text>
+              <Text color="gray.700" fontSize="sm" fontWeight="medium">Fetching clinical history...</Text>
             </VStack>
           </Center>
         ) : displayedRecords.length === 0 ? (
@@ -362,7 +362,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                           Treating: Dr. {record.doctor?.name || "N/A"}
                         </Text>
                         {record.examiningDoctor && (
-                          <Text fontSize="10px" fontWeight="800" color="gray.500" mt={0.5}>
+                          <Text fontSize="10px" fontWeight="800" color="gray.700" mt={0.5}>
                             Examined: Dr. {record.examiningDoctor?.name}
                           </Text>
                         )}
@@ -551,7 +551,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 <Box mt={4} p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
                   <HStack spacing={2} mb={1}>
                     <Icon as={FiActivity} color="blue.500" fontSize="13px" />
-                    <Text fontSize="10px" fontWeight="1000" color="gray.500" letterSpacing="0.08em">PROCEDURE</Text>
+                    <Text fontSize="10px" fontWeight="1000" color="gray.700" letterSpacing="0.08em">PROCEDURE</Text>
                   </HStack>
                   <Text fontSize="14px" fontWeight="800" color="gray.800" pl={5}>
                     {record.treatmentCode || "General Procedure"}
@@ -990,11 +990,11 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                       {/* Left Column: Prescription Entry Form Column */}
                       <VStack align="stretch" spacing={6}>
                         <Box p={5} borderRadius="2xl" border="1px solid" borderColor="gray.100" bg="white" shadow="sm">
-                          <Text fontSize="11px" fontWeight="1000" color="gray.500" mb={4} letterSpacing="0.1em">SEARCH OR ADD PRESCRIPTION</Text>
+                          <Text fontSize="11px" fontWeight="1000" color="gray.700" mb={4} letterSpacing="0.1em">SEARCH OR ADD PRESCRIPTION</Text>
                           <VStack spacing={4}>
                             <SimpleGrid columns={2} spacing={3} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>
                                   TYPE {types.length > 0 ? `(${types.length})` : '(Loading...)'}
                                 </Text>
                                 <CreatableSelect
@@ -1008,7 +1008,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                 />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>CATEGORY</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>CATEGORY</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1022,12 +1022,15 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                             </SimpleGrid>
 
                             <Box w="full">
-                              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BRAND NAME</Text>
+                              <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>BRAND NAME</Text>
                               <CreatableSelect
                                 isClearable
                                 isLoading={prescriptionsLoading}
                                 placeholder="Start typing brand name to pick from Master..."
-                                options={prescriptionsData.map((p: any) => ({
+                                options={prescriptionsData
+                                  .filter((p: any) => !localFormData.type || p.type === localFormData.type)
+                                  .filter((p: any) => !localFormData.category || p.category === localFormData.category)
+                                  .map((p: any) => ({
                                   label: `${p.brandName} (${p.type})`,
                                   value: p.brandName,
                                   data: p
@@ -1048,7 +1051,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                       dosage: masterData.dosage || '',
                                       details: masterData.details || '',
                                       doseNo: masterData.doseNo || 0,
-                                      noOfDays: 0,
+                                      noOfDays: masterData.noOfDays || 0,
                                       description: masterData.description || '',
                                     });
                                   } else {
@@ -1061,7 +1064,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
 
                             <SimpleGrid columns={2} spacing={3} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BASIC SALT</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>BASIC SALT</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1073,7 +1076,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                 />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>FORM</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>FORM</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1086,9 +1089,9 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                               </Box>
                             </SimpleGrid>
 
-                            <SimpleGrid columns={4} spacing={2} w="full">
+                            <SimpleGrid columns={3} spacing={2} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DOSAGE</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>DOSAGE</Text>
                                 <Input
                                   bg="white"
                                   size="sm"
@@ -1102,39 +1105,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                 />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DAYS</Text>
-                                <Input
-                                  bg="white"
-                                  size="sm"
-                                  type="number"
-                                  borderRadius="lg"
-                                  placeholder="0"
-                                  value={localFormData.noOfDays}
-                                  onChange={(e) => {
-                                    const days = parseInt(e.target.value) || 0;
-                                    // Basic auto-calc logic for Pattern (e.g. 1-0-1 or 1-1-1)
-                                    let timesPerDay = 1;
-                                    const patternMatch = localFormData.details.match(/\d/g);
-                                    if (patternMatch) {
-                                      timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
-                                    } else if (localFormData.dosage.toLowerCase().includes("bid")) {
-                                      timesPerDay = 2;
-                                    } else if (localFormData.dosage.toLowerCase().includes("tid")) {
-                                      timesPerDay = 3;
-                                    } else if (localFormData.dosage.toLowerCase().includes("qid")) {
-                                      timesPerDay = 4;
-                                    }
-
-                                    setLocalFormData({
-                                      ...localFormData,
-                                      noOfDays: days,
-                                      doseNo: days * timesPerDay
-                                    });
-                                  }}
-                                />
-                              </Box>
-                              <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>QTY</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>QTY</Text>
                                 <Input
                                   bg="white"
                                   size="sm"
@@ -1145,7 +1116,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                 />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>PATTERN</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>PATTERN</Text>
                                 <Input
                                   bg="white"
                                   size="sm"
@@ -1170,7 +1141,40 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                             </SimpleGrid>
 
                             <Box w="full">
-                              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DESCRIPTION</Text>
+                              <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>DAYS</Text>
+                              <Input
+                                bg="white"
+                                size="sm"
+                                type="number"
+                                borderRadius="lg"
+                                placeholder="0"
+                                value={localFormData.noOfDays}
+                                onChange={(e) => {
+                                  const days = parseInt(e.target.value) || 0;
+                                  // Basic auto-calc logic for Pattern (e.g. 1-0-1 or 1-1-1)
+                                  let timesPerDay = 1;
+                                  const patternMatch = localFormData.details.match(/\d/g);
+                                  if (patternMatch) {
+                                    timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                                  } else if (localFormData.dosage.toLowerCase().includes("bid")) {
+                                    timesPerDay = 2;
+                                  } else if (localFormData.dosage.toLowerCase().includes("tid")) {
+                                    timesPerDay = 3;
+                                  } else if (localFormData.dosage.toLowerCase().includes("qid")) {
+                                    timesPerDay = 4;
+                                  }
+
+                                  setLocalFormData({
+                                    ...localFormData,
+                                    noOfDays: days,
+                                    doseNo: days * timesPerDay
+                                  });
+                                }}
+                              />
+                            </Box>
+
+                            <Box w="full">
+                              <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>DESCRIPTION</Text>
                               <Textarea
                                 bg="white"
                                 size="sm"
@@ -1209,7 +1213,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
 
                       {/* Right Column: List */}
                       <VStack align="stretch" spacing={4}>
-                        <Text fontSize="11px" fontWeight="1000" color="gray.500" letterSpacing="0.1em">ADDED TO REPORT ({values.prescriptions.length})</Text>
+                        <Text fontSize="11px" fontWeight="1000" color="gray.700" letterSpacing="0.1em">ADDED TO REPORT ({values.prescriptions.length})</Text>
 
                         {values.prescriptions.length === 0 ? (
                           <Center p={10} bg="gray.50" borderRadius="3xl" border="1px dashed" borderColor="gray.200">
@@ -1379,15 +1383,15 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
         <ModalBody>
           <VStack spacing={4} align="stretch">
             <Box>
-              <Text fontSize="11px" fontWeight="bold" color="gray.500" mb={1}>FROM DATE</Text>
+              <Text fontSize="11px" fontWeight="bold" color="gray.700" mb={1}>FROM DATE</Text>
               <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} borderRadius="xl" />
             </Box>
             <Box>
-              <Text fontSize="11px" fontWeight="bold" color="gray.500" mb={1}>TO DATE</Text>
+              <Text fontSize="11px" fontWeight="bold" color="gray.700" mb={1}>TO DATE</Text>
               <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} borderRadius="xl" />
             </Box>
             <Box>
-              <Text fontSize="11px" fontWeight="bold" color="gray.500" mb={1}>DOCTORS (OPTIONAL)</Text>
+              <Text fontSize="11px" fontWeight="bold" color="gray.700" mb={1}>DOCTORS (OPTIONAL)</Text>
               <CustomInput
                 name="doctor"
                 type="real-time-user-search"
@@ -1666,11 +1670,11 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                     <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} alignItems="start">
                       <VStack align="stretch" spacing={6}>
                         <Box p={5} borderRadius="2xl" border="1px solid" borderColor="gray.100" bg="white" shadow="sm">
-                          <Text fontSize="11px" fontWeight="1000" color="gray.500" mb={4}>SEARCH OR ADD MEDICATION</Text>
+                          <Text fontSize="11px" fontWeight="1000" color="gray.700" mb={4}>SEARCH OR ADD MEDICATION</Text>
                           <VStack spacing={4}>
                             <SimpleGrid columns={2} spacing={3} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>TYPE {types.length > 0 ? `(${types.length})` : '(Loading...)'}</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>TYPE {types.length > 0 ? `(${types.length})` : '(Loading...)'}</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1682,7 +1686,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                                 />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>CATEGORY</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>CATEGORY</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1696,12 +1700,15 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                             </SimpleGrid>
 
                             <Box w="full">
-                              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BRAND NAME</Text>
+                              <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>BRAND NAME</Text>
                               <CreatableSelect
                                 isClearable
                                 isLoading={prescriptionsLoading}
                                 placeholder="Start typing brand name to pick from Master..."
-                                options={prescriptionsData.map((p: any) => ({
+                                options={prescriptionsData
+                                  .filter((p: any) => !localFormData.type || p.type === localFormData.type)
+                                  .filter((p: any) => !localFormData.category || p.category === localFormData.category)
+                                  .map((p: any) => ({
                                   label: `${p.brandName} (${p.type})`,
                                   value: p.brandName,
                                   data: p
@@ -1722,6 +1729,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                                       dosage: masterData.dosage || '',
                                       details: masterData.details || '',
                                       doseNo: masterData.doseNo || 0,
+                                      noOfDays: masterData.noOfDays || 0,
                                       description: masterData.description || '',
                                     });
                                   } else {
@@ -1734,7 +1742,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
 
                             <SimpleGrid columns={2} spacing={3} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>BASIC SALT</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>BASIC SALT</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1746,7 +1754,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                                 />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>FORM</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>FORM</Text>
                                 <CreatableSelect
                                   isClearable
                                   isLoading={suggestionsLoading}
@@ -1759,48 +1767,17 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                               </Box>
                             </SimpleGrid>
 
-                            <SimpleGrid columns={4} spacing={2} w="full">
+                            <SimpleGrid columns={3} spacing={2} w="full">
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DOSAGE</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>DOSAGE</Text>
                                 <Input bg="white" size="sm" borderRadius="lg" placeholder="1bid" value={localFormData.dosage} onChange={(e) => setLocalFormData({ ...localFormData, dosage: e.target.value })} />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DAYS</Text>
-                                <Input
-                                  bg="white"
-                                  size="sm"
-                                  type="number"
-                                  borderRadius="lg"
-                                  placeholder="0"
-                                  value={localFormData.noOfDays}
-                                  onChange={(e) => {
-                                    const days = parseInt(e.target.value) || 0;
-                                    let timesPerDay = 1;
-                                    const patternMatch = localFormData.details.match(/\d/g);
-                                    if (patternMatch) {
-                                      timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
-                                    } else if (localFormData.dosage.toLowerCase().includes("bid")) {
-                                      timesPerDay = 2;
-                                    } else if (localFormData.dosage.toLowerCase().includes("tid")) {
-                                      timesPerDay = 3;
-                                    } else if (localFormData.dosage.toLowerCase().includes("qid")) {
-                                      timesPerDay = 4;
-                                    }
-
-                                    setLocalFormData({
-                                      ...localFormData,
-                                      noOfDays: days,
-                                      doseNo: days * timesPerDay
-                                    });
-                                  }}
-                                />
-                              </Box>
-                              <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>QTY</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>QTY</Text>
                                 <Input bg="white" size="sm" type="number" borderRadius="lg" value={localFormData.doseNo} onChange={(e) => setLocalFormData({ ...localFormData, doseNo: parseInt(e.target.value) || 0 })} />
                               </Box>
                               <Box>
-                                <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>PATTERN</Text>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>PATTERN</Text>
                                 <Input
                                   bg="white"
                                   size="sm"
@@ -1825,7 +1802,39 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                             </SimpleGrid>
 
                             <Box w="full">
-                              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={1.5}>DESCRIPTION</Text>
+                              <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>DAYS</Text>
+                              <Input
+                                bg="white"
+                                size="sm"
+                                type="number"
+                                borderRadius="lg"
+                                placeholder="0"
+                                value={localFormData.noOfDays}
+                                onChange={(e) => {
+                                  const days = parseInt(e.target.value) || 0;
+                                  let timesPerDay = 1;
+                                  const patternMatch = localFormData.details.match(/\d/g);
+                                  if (patternMatch) {
+                                    timesPerDay = patternMatch.reduce((acc, curr) => acc + parseInt(curr), 0);
+                                  } else if (localFormData.dosage.toLowerCase().includes("bid")) {
+                                    timesPerDay = 2;
+                                  } else if (localFormData.dosage.toLowerCase().includes("tid")) {
+                                    timesPerDay = 3;
+                                  } else if (localFormData.dosage.toLowerCase().includes("qid")) {
+                                    timesPerDay = 4;
+                                  }
+
+                                  setLocalFormData({
+                                    ...localFormData,
+                                    noOfDays: days,
+                                    doseNo: days * timesPerDay
+                                  });
+                                }}
+                              />
+                            </Box>
+
+                            <Box w="full">
+                              <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>DESCRIPTION</Text>
                               <Textarea
                                 bg="white"
                                 size="sm"
@@ -1860,7 +1869,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                       </VStack>
 
                       <VStack align="stretch" spacing={4}>
-                        <Text fontSize="11px" fontWeight="1000" color="gray.500">ADDED TO DAILY REPORT ({values.prescriptions.length})</Text>
+                        <Text fontSize="11px" fontWeight="1000" color="gray.700">ADDED TO DAILY REPORT ({values.prescriptions.length})</Text>
                         <VStack align="stretch" spacing={3}>
                           {values.prescriptions.map((p: any, index: number) => (
                             <Box key={index} p={4} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" shadow="sm" position="relative">
@@ -1875,7 +1884,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                               <VStack align="start" spacing={1}>
                                 <Badge colorScheme="purple" variant="subtle" fontSize="9px">{p.type || 'MED'}</Badge>
                                 <Text fontWeight="1000" fontSize="13px" color="purple.700">{p.brandName}</Text>
-                                <Text fontSize="10px" color="gray.500" fontWeight="bold">{p.basicSalt}</Text>
+                                <Text fontSize="10px" color="gray.700" fontWeight="bold">{p.basicSalt}</Text>
 
                                 <HStack spacing={4} mt={1}>
                                   <VStack align="start" spacing={0}>

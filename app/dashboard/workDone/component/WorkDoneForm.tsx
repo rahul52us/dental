@@ -172,7 +172,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       openNotification({
         type: "error",
         title: "Status Required",
-        message: "Please select a clinical status before saving.",
+        message: "Select the clinical status, it is mandatory.",
       });
       setLoading(false);
       return;
@@ -223,7 +223,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
           side: quadrant.side,
           toothNote: values.workDoneNote,
           recordType: toothId === "General" ? "note" : "tooth",
-          examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor,
+          examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor || null,
         };
 
         if (editData?._id) {
@@ -272,7 +272,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       return doc;
     })(),
     workDoneNote: editData?.workDoneNote || "",
-    status: String(editData?.status || "complete").toLowerCase(),
+    status: editData?.status ? String(editData.status).toLowerCase() : "",
     amount: editData?.amount ?? "", // Keep empty for new records
     discount: editData?.discount ?? "", // Keep empty for new records
     treatmentCode: editData?.treatmentCode || treatmentDetails?.treatmentPlan || "",
@@ -504,18 +504,6 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="full">
 
                               <VStack align="start" spacing={2} w="full">
-                                <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATING DOCTOR</Text>
-                                <CustomInput
-                                  name="doctor"
-                                  type="real-time-user-search"
-                                  query={{ type: 'doctor' }}
-                                  value={values.doctor}
-                                  onChange={(val: any) => setFieldValue("doctor", val)}
-                                  style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
-                                  placeholder="Select Treating Dr."
-                                />
-                              </VStack>
-                              <VStack align="start" spacing={2} w="full">
                                 <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">EXAMINING DOCTOR</Text>
                                 <CustomInput
                                   name="examiningDoctor"
@@ -525,6 +513,18 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   onChange={(val: any) => setFieldValue("examiningDoctor", val)}
                                   style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
                                   placeholder="Select Examining Dr."
+                                />
+                              </VStack>
+                              <VStack align="start" spacing={2} w="full">
+                                <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATING DOCTOR</Text>
+                                <CustomInput
+                                  name="doctor"
+                                  type="real-time-user-search"
+                                  query={{ type: 'doctor' }}
+                                  value={values.doctor}
+                                  onChange={(val: any) => setFieldValue("doctor", val)}
+                                  style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                  placeholder="Select Treating Dr."
                                 />
                               </VStack>
                             </Grid>
