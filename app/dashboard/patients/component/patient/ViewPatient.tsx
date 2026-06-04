@@ -24,7 +24,7 @@ import { MdSecurity, MdHealthAndSafety } from "react-icons/md";
 import { useColorModeValue } from "@chakra-ui/react";
 
 // --- Info Item Component ---
-const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, activeHoverBg }: any) => {
+export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, activeHoverBg }: any) => {
   return (
     <Box
       p={3}
@@ -98,7 +98,7 @@ const SectionCard = ({ icon, title, children, bg }: any) => {
 };
 
 // --- Render Medical History Component ---
-const RenderMedicalHistory = ({
+export const RenderMedicalHistory = ({
   history = {},
   activeBg,
   inactiveBg,

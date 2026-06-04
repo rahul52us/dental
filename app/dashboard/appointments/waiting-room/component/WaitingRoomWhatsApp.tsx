@@ -35,7 +35,7 @@ import {
 import { keyframes } from "@emotion/react";
 import { CalendarIcon, CheckIcon, DeleteIcon, EditIcon, InfoIcon, RepeatClockIcon, SearchIcon, SmallCloseIcon, RepeatIcon } from "@chakra-ui/icons";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
-import { MdOutlineAirlineSeatReclineExtra } from "react-icons/md";
+import { MdOutlineAirlineSeatReclineExtra, MdLocalHospital } from "react-icons/md";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
@@ -44,7 +44,7 @@ import { genderOptions } from "../../../../config/constant";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import AppointmentDetailsView from "../../element/AppointmentDetailsView";
 import AppointmentList from "../../Appointments";
-import ViewPatient from "../../../patients/component/patient/ViewPatient";
+import ViewPatient, { RenderMedicalHistory } from "../../../patients/component/patient/ViewPatient";
 import Treatment from "../../../toothTreatment/page";
 import WorkDoneForm from "../../../workDone/component/WorkDoneForm";
 import WorkDoneList from "../../../workDone/component/WorkDoneList";
@@ -109,6 +109,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             setOpenConfirm({ open: false, id: "" });
         }
     };
+
+    const [openMedicalHistory, setOpenMedicalHistory] = useState({ open: false, data: null as any });
 
     const fetchArrivedAppointments = async () => {
         setLoading(true);
@@ -227,6 +229,25 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     const silkBg = useColorModeValue(`${chairColor}11`, `${chairColor}15`); // Very soft silk tint
                     const borderHover = useColorModeValue(`${chairColor}44`, `${chairColor}66`);
 
+                    const history = personalInfo?.medicalHistory;
+                    let hasAlert = false;
+                    if (history) {
+                        const checkNested = (obj: any): boolean => {
+                            if (!obj) return false;
+                            if (typeof obj !== "object") return false;
+                            for (const key in obj) {
+                                const val = obj[key];
+                                if (val === true) return true;
+                                if (typeof val === "string" && val.trim() !== "") return true;
+                                if (typeof val === "object" && val !== null) {
+                                    if (checkNested(val)) return true;
+                                }
+                            }
+                            return false;
+                        };
+                        hasAlert = checkNested(history);
+                    }
+
                     return (
                         <Box
                             key={apt._id}
@@ -278,6 +299,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     }}
                                 />
                             </Tooltip>
+
                             {/* Refined Atmospheric Radial Glow */}
                             <Box
                                 position="absolute"
@@ -349,9 +371,32 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             {patient?.name || "Unknown"}
                                         </Text>
                                         <HStack spacing={2} mt={1}>
-                                            <Badge variant="subtle" colorScheme="gray" fontSize="9px" borderRadius="md" px={2} fontWeight="700">
-                                                {patient?.code || "CODE"}
-                                            </Badge>
+                                            {hasAlert ? (
+                                                <Badge
+                                                    variant="solid"
+                                                    colorScheme="red"
+                                                    fontSize="9px"
+                                                    borderRadius="md"
+                                                    px={2}
+                                                    py={0.5}
+                                                    fontWeight="700"
+                                                    cursor="pointer"
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    gap={1}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenMedicalHistory({ open: true, data: patient });
+                                                    }}
+                                                    _hover={{ bg: "red.600" }}
+                                                >
+                                                    <Icon as={MdLocalHospital} boxSize={3} /> View Medical History
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="subtle" colorScheme="gray" fontSize="9px" borderRadius="md" px={2} fontWeight="700">
+                                                    {patient?.code || "CODE"}
+                                                </Badge>
+                                            )}
                                         </HStack>
                                     </Box>
                                 </Flex>
@@ -707,6 +752,33 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             ...selectedUser?.profileDetails?.personalInfo,
                         }}
                     />
+                )}
+            </CustomDrawer>
+
+            {/* Medical History Drawer */}
+            <CustomDrawer
+                width="60vw"
+                open={openMedicalHistory.open}
+                close={() => setOpenMedicalHistory({ open: false, data: null })}
+                title={`Medical History: ${openMedicalHistory.data?.name || "Patient"}`}
+            >
+                {openMedicalHistory.data && (
+                    <Box p={4}>
+                        <RenderMedicalHistory
+                            history={openMedicalHistory.data?.profileDetails?.personalInfo?.medicalHistory}
+                            activeBg="linear-gradient(to bottom, teal.50, teal.100)"
+                            inactiveBg="gray.50"
+                            activeBorder="teal.300"
+                            inactiveBorder="gray.200"
+                            activeGroupBg="teal.100"
+                            inactiveGroupBg="gray.100"
+                            headingColor="gray.800"
+                            activeColor="teal.600"
+                            bg="gray.100"
+                            activeHoverBg="linear-gradient(to right, teal.100, teal.200)"
+                            textColor="gray.700"
+                        />
+                    </Box>
                 )}
             </CustomDrawer>
 
