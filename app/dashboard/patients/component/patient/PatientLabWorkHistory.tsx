@@ -24,9 +24,10 @@ import LabSheet from "../../../labWork/component/LabSheet";
 
 interface PatientLabWorkHistoryProps {
   patientDetails: any;
+  workType?: "all" | "in-house" | "outside";
 }
 
-const PatientLabWorkHistory = observer(({ patientDetails }: PatientLabWorkHistoryProps) => {
+const PatientLabWorkHistory = observer(({ patientDetails, workType = "all" }: PatientLabWorkHistoryProps) => {
   const { labWorkStore, labWorkHierarchyStore, auth: { openNotification } } = stores;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedWork, setSelectedWork] = useState<{ open: boolean, type: "view" | "edit", data: any }>({
@@ -36,18 +37,23 @@ const PatientLabWorkHistory = observer(({ patientDetails }: PatientLabWorkHistor
   });
 
   const fetchRecords = useCallback(() => {
-    labWorkStore.getAllLabWorks({
+    const query: any = {
       patient: patientDetails?._id,
       page: currentPage,
       limit: tablePageLimit
-    }).catch((err: any) => {
+    };
+    if (workType && workType !== "all") {
+      query.workType = workType;
+    }
+
+    labWorkStore.getAllLabWorks(query).catch((err: any) => {
       openNotification({
         type: "error",
         title: "Fetch Failed",
         message: err?.message,
       });
     });
-  }, [labWorkStore, patientDetails?._id, currentPage, openNotification]);
+  }, [labWorkStore, patientDetails?._id, currentPage, openNotification, workType]);
 
   useEffect(() => {
     fetchRecords();
@@ -181,7 +187,7 @@ const PatientLabWorkHistory = observer(({ patientDetails }: PatientLabWorkHistor
               addKey: {
                 showAddButton: true,
                 text: "New Lab Order",
-                function: () => setSelectedWork({ open: true, type: "edit", data: { workType: "in-house", patient: patientDetails } })
+                function: () => setSelectedWork({ open: true, type: "edit", data: { workType: workType === "outside" ? "outside" : "in-house", patient: patientDetails } })
               }
             },
             pagination: {

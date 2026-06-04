@@ -46,14 +46,20 @@ import DashPageTitle from "../../component/common/DashPageTitle/DashPageTitle";
 import CustomInput from "../../component/config/component/customInput/CustomInput";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
 
-const LabWorkTable = observer(() => {
+interface LabWorkTableProps {
+  patientId?: string;
+  isDrawer?: boolean;
+  defaultWorkType?: "in-house" | "outside" | "all";
+}
+
+const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWorkTableProps = {}) => {
   const { labWorkStore, labWorkHierarchyStore, auth: { openNotification } } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
   const { isOpen: isReportOpen, onOpen: onReportOpen, onClose: onReportClose } = useDisclosure();
   const [selectedLabWork, setSelectedLabWork] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(defaultWorkType === "in-house" ? 1 : (defaultWorkType === "outside" ? 2 : 0));
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
   const searchParams = useSearchParams();
@@ -86,6 +92,7 @@ const LabWorkTable = observer(() => {
 
       const query: any = { page, limit };
       if (workType) query.workType = workType;
+      if (patientId) query.patient = patientId;
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -99,7 +106,7 @@ const LabWorkTable = observer(() => {
           });
         });
     },
-    [labWorkStore, openNotification, activeTab, debouncedSearchQuery]
+    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, patientId]
   );
 
   const resetReportFilters = () => {
@@ -125,11 +132,13 @@ const LabWorkTable = observer(() => {
 
   // Sync tab with query param
   useEffect(() => {
-    const type = searchParams.get("type");
-    if (type === "in-house") setActiveTab(1);
-    else if (type === "outside") setActiveTab(2);
-    else setActiveTab(0);
-  }, [searchParams]);
+    if (!isDrawer) {
+      const type = searchParams.get("type");
+      if (type === "in-house") setActiveTab(1);
+      else if (type === "outside") setActiveTab(2);
+      else setActiveTab(0);
+    }
+  }, [searchParams, isDrawer]);
 
   useEffect(() => {
     fetchLabWorks(currentPage);
@@ -349,15 +358,19 @@ const LabWorkTable = observer(() => {
   }, [activeTab, labWorkHierarchyStore]);
 
   return (
-    <Box p={4}>
-      <Box display="none">
-        <DashPageHeader breadcrumb={[]} />
-      </Box>
-      <DashPageTitle
-        title="Lab Management"
-        subTitle="Manage In-house and Outside laboratory orders and tracking"
-      />
-      <Box mt={2}>
+    <Box p={isDrawer ? 0 : 4}>
+      {!isDrawer && (
+        <>
+          <Box display="none">
+            <DashPageHeader breadcrumb={[]} />
+          </Box>
+          <DashPageTitle
+            title="Lab Management"
+            subTitle="Manage In-house and Outside laboratory orders and tracking"
+          />
+        </>
+      )}
+      <Box mt={isDrawer ? 0 : 2}>
         <CustomTable
           title={activeTab === 0 ? "All Lab Sheets" : (activeTab === 1 ? "In-house Work" : "Outside Work")}
           data={labWorkStore.labWorks.map((item, index) => ({

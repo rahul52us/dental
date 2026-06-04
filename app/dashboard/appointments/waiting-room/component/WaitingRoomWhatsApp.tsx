@@ -48,7 +48,7 @@ import ViewPatient from "../../../patients/component/patient/ViewPatient";
 import Treatment from "../../../toothTreatment/page";
 import WorkDoneForm from "../../../workDone/component/WorkDoneForm";
 import WorkDoneList from "../../../workDone/component/WorkDoneList";
-import PatientLabWorkHistory from "../../../patients/component/patient/PatientLabWorkHistory";
+import LabWorkTable from "../../../labWork/LabWorkTable";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FaFlask } from "react-icons/fa";
 import { FiDollarSign } from "react-icons/fi";
@@ -76,7 +76,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openTreatment, setOpenTreatment] = useState({ open: false, data: null as any });
     const [openAppointment, setOpenAppointment] = useState({ open: false, data: null as any });
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
-    const [openLab, setOpenLab] = useState({ open: false, data: null as any });
+    const [openLab, setOpenLab] = useState({ open: false, data: null as any, workType: "all" as any });
     const [openAccountDetails, setOpenAccountDetails] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
@@ -457,7 +457,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setOpenLab({ open: true, data: patient });
+                                            setOpenLab({ open: true, data: patient, workType: "all" });
                                         }}
                                     >
                                         Lab
@@ -524,6 +524,27 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         }}
                                     >
                                         Account
+                                    </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, red.400, red.600)"
+                                        color="white"
+                                        leftIcon={<FaFlask />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        boxShadow="0 4px 12px rgba(229, 62, 62, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, red.500, red.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(229, 62, 62, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenLab({ open: true, data: patient, workType: "in-house" });
+                                        }}
+                                    >
+                                        In-House Lab
                                     </Button>
                                 </SimpleGrid>
                             </Flex>
@@ -623,12 +644,14 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {openLab.open && (
                 <CustomDrawer
                     width="92%"
-                    title={`Laboratory History: ${openLab.data?.name}`}
+                    title={openLab.workType === "in-house" ? `In-house Laboratory: ${openLab.data?.name}` : `Laboratory History: ${openLab.data?.name}`}
                     open={openLab.open}
-                    close={() => setOpenLab({ open: false, data: null })}
+                    close={() => setOpenLab({ open: false, data: null, workType: "all" })}
                 >
-                    <PatientLabWorkHistory
-                        patientDetails={openLab.data}
+                    <LabWorkTable
+                        patientId={openLab.data?._id}
+                        isDrawer={true}
+                        defaultWorkType={openLab.workType}
                     />
                 </CustomDrawer>
             )}
