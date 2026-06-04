@@ -29,6 +29,7 @@ import {
   Input,
   Heading,
   Textarea,
+  Select,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign } from "react-icons/fi";
@@ -111,6 +112,17 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [countSearch, setCountSearch] = useState("");
   const [backendCounts, setBackendCounts] = useState<any[]>([]);
   const [isCounting, setIsCounting] = useState(false);
+  
+  const [searchTooth, setSearchTooth] = useState("");
+  const [debouncedSearchTooth, setDebouncedSearchTooth] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTooth(searchTooth);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTooth]);
 
   const fetchRecords = useCallback(() => {
     const params: any = {
@@ -121,6 +133,13 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       params.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
       params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
     }
+    if (debouncedSearchTooth) {
+      params.search = debouncedSearchTooth;
+    }
+    if (statusFilter !== "all") {
+      params.status = statusFilter;
+    }
+    
     getWorkDone(params).catch((err) => {
       openNotification({
         type: "error",
@@ -128,7 +147,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         message: err?.message,
       });
     });
-  }, [getWorkDone, patientDetails?._id, treatmentId, selectedDateFilter, openNotification]);
+  }, [getWorkDone, patientDetails?._id, treatmentId, selectedDateFilter, debouncedSearchTooth, statusFilter, openNotification]);
 
   useEffect(() => {
     fetchRecords();
@@ -246,6 +265,40 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           )}
         </HStack>
         <HStack spacing={2}>
+          <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
+             <Icon as={FiSearch} color="gray.500" fontSize="14px" />
+             <Input
+                placeholder="Search..."
+                variant="unstyled"
+                h="100%"
+                fontSize="11px"
+                fontWeight="bold"
+                w="160px"
+                value={searchTooth}
+                onChange={(e) => setSearchTooth(e.target.value)}
+             />
+          </HStack>
+
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            bg="white"
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="gray.300"
+            size="sm"
+            h="32px"
+            w="140px"
+            fontSize="11px"
+            fontWeight="bold"
+            cursor="pointer"
+            _hover={{ borderColor: "gray.400" }}
+          >
+            <option value="all">All Status</option>
+            <option value="complete">Complete</option>
+            <option value="pending">Pending</option>
+            <option value="incomplete">Incomplete</option>
+          </Select>
           <Button
             size="sm"
             colorScheme="teal"

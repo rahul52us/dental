@@ -113,6 +113,7 @@ class WorkDoneStore {
     fromDate?: string;
     toDate?: string;
     status?: string;
+    search?: string;
   }) => {
     this.workDone.loading = true;
     try {
@@ -128,6 +129,7 @@ class WorkDoneStore {
         fromDate: sendData.fromDate,
         toDate: sendData.toDate,
         status: sendData.status,
+        search: sendData.search,
       };
 
       const { data } = await axios.get("/workDone/get", { params });

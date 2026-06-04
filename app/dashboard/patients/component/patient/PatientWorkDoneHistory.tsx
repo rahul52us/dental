@@ -15,6 +15,7 @@ import {
   Tab,
   TabPanel,
   Icon,
+  Input,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
@@ -141,7 +142,7 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
                   <HStack spacing={2}>
                     <Box w="3px" h="12px" bg="blue.500" borderRadius="full" />
                     <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="widest" fontSize="9px">
-                      Filter by Treatment Plan
+                      Filter by Treatment Plan & Tooth
                     </Heading>
                   </HStack>
                   <HStack w="full" spacing={4}>
