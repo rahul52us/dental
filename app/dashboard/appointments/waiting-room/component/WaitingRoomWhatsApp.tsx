@@ -73,7 +73,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
     const [openDetails, setOpenDetails] = useState(false);
     const [openHistory, setOpenHistory] = useState({ open: false, data: null as any });
-    const [openTreatment, setOpenTreatment] = useState({ open: false, data: null as any });
+    const [openTreatment, setOpenTreatment] = useState({ open: false, data: null as any, defaultTab: 0, defaultStatusFilter: "all" });
     const [openAppointment, setOpenAppointment] = useState({ open: false, data: null as any });
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
     const [openLab, setOpenLab] = useState({ open: false, data: null as any, workType: "all" as any });
@@ -428,6 +428,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         borderRadius="xl"
                                         fontSize="xs"
                                         fontWeight="800"
+                                        position="relative"
                                         boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
                                         _hover={{
                                             bgGradient: "linear(to-r, purple.500, purple.700)",
@@ -436,10 +437,32 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setOpenTreatment({ open: true, data: patient });
+                                            setOpenTreatment({ 
+                                                open: true, 
+                                                data: patient,
+                                                defaultTab: patient?.pendingTreatmentCount > 0 ? 1 : 0,
+                                                defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
+                                            });
                                         }}
                                     >
                                         Treatments
+                                        {patient?.pendingTreatmentCount > 0 && (
+                                            <Badge
+                                                position="absolute"
+                                                top="-2px"
+                                                right="-2px"
+                                                colorScheme="red"
+                                                variant="solid"
+                                                borderRadius="full"
+                                                px={2}
+                                                py={0.5}
+                                                fontSize="9px"
+                                                transform="translate(25%, -25%)"
+                                                boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                            >
+                                                {patient.pendingTreatmentCount}
+                                            </Badge>
+                                        )}
                                     </Button>
                                     <Button
                                         bgGradient="linear(to-r, pink.400, pink.600)"
@@ -584,11 +607,13 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     width="92%"
                     title={`Treatment History: ${openTreatment.data?.name}`}
                     open={openTreatment.open}
-                    close={() => setOpenTreatment({ open: false, data: null })}
+                    close={() => setOpenTreatment({ open: false, data: null, defaultTab: 0, defaultStatusFilter: "all" })}
                 >
                     <Treatment
                         isPatient={true}
                         patientDetails={openTreatment.data}
+                        defaultTab={openTreatment.defaultTab}
+                        defaultStatusFilter={openTreatment.defaultStatusFilter}
                     />
                 </CustomDrawer>
             )}
