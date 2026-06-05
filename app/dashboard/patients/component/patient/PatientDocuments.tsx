@@ -278,7 +278,6 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
                     shadow="sm"
                     _hover={{ shadow: "lg", borderColor: "blue.300" }}
                     transition="all 0.2s"
-                    group
                   >
                     <Image
                       src={doc.url}
