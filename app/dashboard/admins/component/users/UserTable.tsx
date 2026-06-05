@@ -154,6 +154,8 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
         title="Admins"
         data={user.data?.map((t: any, index: number) => ({
           ...t,
+          ...t.profileDetails?.personalInfo,
+          permissions: t.permissions,
           sno: index + 1,
         })) || []}
         columns={TherapistTableColumns}

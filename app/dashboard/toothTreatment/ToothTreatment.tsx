@@ -507,37 +507,44 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 }}
               />
             </Tooltip> */}
-            <Tooltip label="View Treatment">
-              <IconButton
-                size="sm"
-                variant="ghost"
-                colorScheme="blue"
-                icon={<FiEye />}
-                aria-label="View"
-                onClick={() => setOpenView({ open: true, data: dt })}
-              />
-            </Tooltip>
-            <Tooltip label="Edit Record">
-              <IconButton
-                size="sm"
-                variant="ghost"
-                colorScheme="blue"
-                icon={<FiEdit3 />}
-                aria-label="Edit"
-                onClick={() => setOpenReportModal({ open: true, type: "edit", data: dt })}
-              />
-            </Tooltip>
-            <Tooltip label="Delete Record">
-              <IconButton
-                size="sm"
-                variant="ghost"
-                colorScheme="red"
-                icon={<FiTrash2 />}
-                aria-label="Delete"
-                onClick={() => handleDelete(dt._id)}
-                display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
-              />
-            </Tooltip>
+            <HStack spacing={0}>
+            {stores.auth.hasPermission('treatment', 'view') && (
+              <Tooltip label="View Treatment">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="blue"
+                  icon={<FiEye />}
+                  aria-label="View"
+                  onClick={() => setOpenView({ open: true, data: dt })}
+                />
+              </Tooltip>
+            )}
+            {stores.auth.hasPermission('treatment', 'edit') && (
+              <Tooltip label="Edit Record">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="blue"
+                  icon={<FiEdit3 />}
+                  aria-label="Edit"
+                  onClick={() => setOpenReportModal({ open: true, type: "edit", data: dt })}
+                />
+              </Tooltip>
+            )}
+            {stores.auth.hasPermission('treatment', 'delete') && (
+              <Tooltip label="Delete Record">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="red"
+                  icon={<FiTrash2 />}
+                  aria-label="Delete"
+                  onClick={() => handleDelete(dt._id)}
+                />
+              </Tooltip>
+            )}
+            </HStack>
           </HStack>
         </Flex>
       </Box>
@@ -702,12 +709,16 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   actions={{
                     actionBtn: {
                       editKey: {
-                        showEditButton: ["admin", "superAdmin"].includes(userType),
+                        showEditButton: stores.auth.hasPermission('treatment', 'edit'),
                         function: (dt: any) => setOpenReportModal({ open: true, type: "edit", data: dt }),
                       },
                       viewKey: {
-                        showViewButton: true,
+                        showViewButton: stores.auth.hasPermission('treatment', 'view'),
                         function: (dt: any) => setOpenView({ open: true, data: dt }),
+                      },
+                      deleteKey: {
+                        showDeleteButton: stores.auth.hasPermission('treatment', 'delete'),
+                        function: (dt: any) => handleDelete(dt._id),
                       },
                     },
                     pagination: {

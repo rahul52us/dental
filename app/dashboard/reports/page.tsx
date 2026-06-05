@@ -649,41 +649,45 @@ const ReportsPage = observer(() => {
               </Text>
 
               <HStack spacing={4}>
-                {activeTab === "doctor" && (
+                {stores.auth.hasPermission('reports', 'download') && (
+                  <>
+                    {activeTab === "doctor" && (
+                        <Button
+                          size="xl"
+                          colorScheme="red"
+                          variant="outline"
+                          leftIcon={<RiEyeLine size={24} />}
+                          px={10}
+                          py={8}
+                          fontSize="lg"
+                          fontWeight="bold"
+                          borderRadius="full"
+                          isLoading={isPDFDownloading}
+                          onClick={handleDoctorPDFDownload}
+                        >
+                          View PDF Performance
+                        </Button>
+                    )}
                     <Button
                       size="xl"
-                      colorScheme="red"
-                      variant="outline"
-                      leftIcon={<RiEyeLine size={24} />}
-                      px={10}
+                      colorScheme={activeTabConfig.colorScheme}
+                      rightIcon={<RiDownload2Line size={28} />}
+                      px={12}
                       py={8}
-                      fontSize="lg"
-                      fontWeight="bold"
+                      fontSize="xl"
+                      fontWeight="extrabold"
                       borderRadius="full"
-                      isLoading={isPDFDownloading}
-                      onClick={handleDoctorPDFDownload}
+                      boxShadow="0 20px 40px rgba(0,0,0,0.15)"
+                      _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
+                      isDisabled={isDownloadDisabled()}
+                      isLoading={isDownloading}
+                      loadingText="Generating..."
+                      onClick={handleDownload}
                     >
-                      View PDF Performance
+                      Download Excel Report
                     </Button>
+                  </>
                 )}
-                <Button
-                  size="xl"
-                  colorScheme={activeTabConfig.colorScheme}
-                  rightIcon={<RiDownload2Line size={28} />}
-                  px={12}
-                  py={8}
-                  fontSize="xl"
-                  fontWeight="extrabold"
-                  borderRadius="full"
-                  boxShadow="0 20px 40px rgba(0,0,0,0.15)"
-                  _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
-                  isDisabled={isDownloadDisabled()}
-                  isLoading={isDownloading}
-                  loadingText="Generating..."
-                  onClick={handleDownload}
-                >
-                  Download Excel Report
-                </Button>
               </HStack>
             </Flex>
           </Box>

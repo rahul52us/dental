@@ -402,7 +402,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                     </option>
                   ))}
                 </Select>
-                {stores.auth.hasPermission('reports', 'view') && (
+                {stores.auth.hasPermission('reports', 'download') && (
                   <Button
                     leftIcon={<FiDownload />}
                     colorScheme="blue"

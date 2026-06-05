@@ -266,13 +266,13 @@ const LineItems = observer(({ data }: any) => {
         columns={DealerItemTableColumns}
         actions={{
           actionBtn: {
-            addKey: { showAddButton: ['admin','superAdmin'].includes(userType), function: handleAdd },
-            editKey: { showEditButton: ['admin','superAdmin'].includes(userType), function: handleEdit },
+            addKey: { showAddButton: stores.auth.hasPermission('masters', 'create'), function: handleAdd },
+            editKey: { showEditButton: stores.auth.hasPermission('masters', 'edit'), function: handleEdit },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('masters', 'view'),
               function: (e: any) => handleRowClick(e),
             },
-            deleteKey: { showDeleteButton: ['admin','superAdmin'].includes(userType), function: handleDelete },
+            deleteKey: { showDeleteButton: stores.auth.hasPermission('masters', 'delete'), function: handleDelete },
           },
           search: {
             show: true,

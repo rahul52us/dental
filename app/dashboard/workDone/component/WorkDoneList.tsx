@@ -379,7 +379,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       metaData: {
         component: (dt: any) => (
           <HStack justify="center" spacing={1}>
-             {dt.treatment && (
+             {dt.treatment && stores.auth.hasPermission('workdone', 'view') && (
                 <IconButton
                   size="sm"
                   variant="ghost"
@@ -389,36 +389,42 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                   aria-label="View"
                 />
              )}
-             <IconButton
-               size="sm"
-               variant="ghost"
-               colorScheme="gray"
-               icon={<FiPrinter />}
-               aria-label="Print Report"
-               onClick={() => setOpenPrintModal({
-                 open: true,
-                 id: dt._id,
-                 patientId: patientDetails?._id,
-                 date: getLocalDateString(dt.createdAt)
-               })}
-             />
-             <IconButton
-               size="sm"
-               variant="ghost"
-               colorScheme="blue"
-               icon={<FiEdit />}
-               onClick={() => setOpenEditWorkDone({ open: true, data: dt })}
-               aria-label="Edit"
-             />
-             <IconButton
-               size="sm"
-               variant="ghost"
-               colorScheme="red"
-               icon={<FiTrash2 />}
-               onClick={() => setDeleteModal({ open: true, id: dt._id })}
-               display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
-               aria-label="Delete"
-             />
+             {stores.auth.hasPermission('workdone', 'download') && (
+               <IconButton
+                 size="sm"
+                 variant="ghost"
+                 colorScheme="gray"
+                 icon={<FiPrinter />}
+                 aria-label="Print Report"
+                 onClick={() => setOpenPrintModal({
+                   open: true,
+                   id: dt._id,
+                   patientId: patientDetails?._id,
+                   date: getLocalDateString(dt.createdAt)
+                 })}
+               />
+             )}
+             {stores.auth.hasPermission('workdone', 'edit') && (
+               <IconButton
+                 size="sm"
+                 variant="ghost"
+                 colorScheme="blue"
+                 icon={<FiEdit />}
+                 onClick={() => setOpenEditWorkDone({ open: true, data: dt })}
+                 aria-label="Edit"
+               />
+             )}
+             {stores.auth.hasPermission('workdone', 'delete') && (
+               <IconButton
+                 size="sm"
+                 variant="ghost"
+                 colorScheme="red"
+                 icon={<FiTrash2 />}
+                 onClick={() => setDeleteModal({ open: true, id: dt._id })}
+                 display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
+                 aria-label="Delete"
+               />
+             )}
           </HStack>
         )
       },
@@ -716,20 +722,22 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     </Menu>
 
                     {/* Print Action */}
-                    <IconButton
-                      size="sm"
-                      variant="ghost"
-                      colorScheme="gray"
-                      icon={<FiPrinter />}
-                      aria-label="Print Report"
-                      onClick={() => setOpenPrintModal({
-                        open: true,
-                        id: record._id,
-                        patientId: patientDetails?._id,
-                        date: getLocalDateString(record.createdAt)
-                      })}
-                      borderRadius="full"
-                    />
+                    {stores.auth.hasPermission('workdone', 'download') && (
+                      <IconButton
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="gray"
+                        icon={<FiPrinter />}
+                        aria-label="Print Report"
+                        onClick={() => setOpenPrintModal({
+                          open: true,
+                          id: record._id,
+                          patientId: patientDetails?._id,
+                          date: getLocalDateString(record.createdAt)
+                        })}
+                        borderRadius="full"
+                      />
+                    )}
 
                     {/* Edit Action */}
                     {stores.auth.hasPermission('workdone', 'edit') && (

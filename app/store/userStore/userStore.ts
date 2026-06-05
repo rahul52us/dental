@@ -91,6 +91,11 @@ class UserStore {
       const response = await axios.put(`/user/update-permissions/${userId}`, {
         permissions: permissions,
       });
+      
+      if (authStore.user?._id === userId) {
+        authStore.user.permissions = permissions;
+      }
+      
       return response;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err.message);

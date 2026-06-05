@@ -148,7 +148,10 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
         column: { textAlign: "center" },
       },
     },
-  ];
+  ].filter((col: any) => {
+    if (col.key === 'address') return stores.auth.hasPermission('masters', 'view');
+    return true;
+  });
 
   return (
     <Box p={4}>
@@ -166,25 +169,25 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: stores.auth.hasPermission('masters', 'create'),
               function: () => {
                 onAdd();
               },
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: stores.auth.hasPermission('masters', 'edit'),
               function: (e: any) => {
                 onEdit(e);
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('masters', 'view'),
               function: (e: any) => {
                 handleRowClick(e);
               },
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: stores.auth.hasPermission('masters', 'delete'),
               function: (e: any) => {
                 onDelete(e);
               },

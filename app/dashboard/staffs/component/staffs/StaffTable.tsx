@@ -282,7 +282,10 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         column: { textAlign: "center" },
       },
     },
-  ];
+  ].filter(col => {
+    if (col.key === 'permissions') return stores.auth.hasPermission('staffs', 'edit');
+    return true;
+  });
 
   return (
     <Box p={4}>
@@ -293,6 +296,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             return {
               ...t,
               ...t.profileDetails?.personalInfo,
+              permissions: t.permissions,
               sno: index + 1,
             };
           }) || []
@@ -301,25 +305,25 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: stores.auth.hasPermission('staffs', 'create'),
               function: () => {
                 onAdd();
               },
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: stores.auth.hasPermission('staffs', 'edit'),
               function: (e: any) => {
                 onEdit(e);
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('staffs', 'view'),
               function: (e: any) => {
                 handleRowClick(e);
               },
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: stores.auth.hasPermission('staffs', 'delete'),
               function: (e: any) => {
                 onDelete(e);
               },

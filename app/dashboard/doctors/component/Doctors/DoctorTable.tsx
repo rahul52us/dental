@@ -295,6 +295,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             return {
               ...t,
               ...t.profileDetails?.personalInfo,
+              permissions: t.permissions,
               sno: index + 1,
             };
           }) || []

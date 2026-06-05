@@ -36,6 +36,15 @@ import { AddIcon } from "@chakra-ui/icons";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import MasterDataForm from "../../masters/page";
 import { calculateAgeSafe } from "../../../config/utils/function";
+import PermissionsSelector, { MODULES } from "./staffs/PermissionsSelector";
+
+const getDefaultPermissions = () => {
+  const perms: any = {};
+  MODULES.forEach((m) => {
+    perms[m.id] = { view: false, create: false, edit: false, delete: false, download: false, sidebar: false };
+  });
+  return perms;
+};
 
 const Form = observer(
   ({
@@ -63,7 +72,11 @@ const Form = observer(
     };
     useEffect(() => {
       if (initialData) {
-        setFormData(generateIntialValues(initialData));
+        const generatedValues = generateIntialValues(initialData);
+        if (!generatedValues.permissions || Object.keys(generatedValues.permissions).length === 0) {
+          generatedValues.permissions = getDefaultPermissions();
+        }
+        setFormData(generatedValues);
       }
     }, [initialData]);
 
@@ -335,6 +348,17 @@ const Form = observer(
                       values={values}
                     />
 
+                    <GridItem colSpan={2}>
+                      <Box p={4} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor}>
+                        <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.800">
+                          Access & Permissions
+                        </Text>
+                        <PermissionsSelector
+                          permissions={values.permissions || getDefaultPermissions()}
+                          onChange={(newPerms) => setFieldValue("permissions", newPerms)}
+                        />
+                      </Box>
+                    </GridItem>
                   </Grid>
 
                   {/* Mobile Actions Only */}

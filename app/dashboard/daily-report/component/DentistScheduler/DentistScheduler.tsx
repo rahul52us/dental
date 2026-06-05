@@ -241,14 +241,14 @@ const AppointmentCard = ({
             <IconButton
               display={shouldNotEditIcon ? "none" : undefined}
               aria-label="Mark as arrived"
-              icon={<FiCheckCircle />}
+              icon={<FiCheckCircle strokeWidth={3} />}
               isLoading={isLoading}
-              colorScheme="blue"
+              colorScheme="green"
               size="xs"
               position="absolute"
               top="30px"
               right="4px"
-              variant="solid"
+              variant="ghost"
               zIndex={50}
               onMouseEnter={(e) => e.stopPropagation()}
               onMouseLeave={(e) => e.stopPropagation()}

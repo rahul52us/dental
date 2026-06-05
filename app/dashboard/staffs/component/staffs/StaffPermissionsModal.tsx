@@ -8,112 +8,36 @@ import {
   DrawerBody,
   DrawerCloseButton,
   Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Checkbox,
   Text,
   useToast,
   VStack,
   HStack,
   Icon,
   Box,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Tooltip,
-  Badge,
 } from "@chakra-ui/react";
-import { useState, useEffect, useMemo } from "react";
-import { 
-  FiLock, 
-  FiCheckCircle, 
-  FiUser, 
-  FiActivity, 
-  FiUsers, 
-  FiCalendar, 
-  FiRefreshCw, 
-  FiBox, 
-  FiFileText, 
-  FiDollarSign, 
-  FiSettings,
-  FiUserCheck,
-  FiSearch,
-  FiShield
-} from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { toJS } from "mobx";
+import { FiShield } from "react-icons/fi";
 import stores from "../../../../store/stores";
-
-const MODULES = [
-  { id: "patient", label: "Patient Management", icon: FiUser, color: "blue", category: "Clinical" },
-  { id: "workdone", label: "Work Done / Treatments", icon: FiActivity, color: "green", category: "Clinical" },
-  { id: "doctor", label: "Doctor Management", icon: FiUserCheck, color: "teal", category: "Clinical" },
-  { id: "appointment", label: "Appointments", icon: FiCalendar, color: "purple", category: "Clinical" },
-  { id: "recall", label: "Recalls", icon: FiRefreshCw, color: "orange", category: "Clinical" },
-  { id: "lab", label: "Lab Work", icon: FiBox, color: "cyan", category: "Lab" },
-  { id: "reports", label: "Financial Reports", icon: FiFileText, color: "red", category: "Admin" },
-  { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin" },
-  { id: "masters", label: "Masters (Prescription/Procedure)", icon: FiSettings, color: "gray", category: "Admin" },
-  { id: "staffs", label: "Staff Management", icon: FiUsers, color: "indigo", category: "Admin" },
-  { id: "chairs", label: "Chair Management", icon: FiActivity, color: "yellow", category: "Clinical" },
-];
-
-const PERMISSIONS = [
-  { id: "view", label: "View" },
-  { id: "create", label: "Create" },
-  { id: "edit", label: "Edit" },
-  { id: "delete", label: "Delete" },
-];
+import PermissionsSelector, { MODULES } from "./PermissionsSelector";
 
 const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
   const [permissions, setPermissions] = useState<any>({});
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const toast = useToast();
   const { userStore } = stores;
 
   useEffect(() => {
     if (staff && staff.permissions) {
-      setPermissions(staff.permissions);
+      setPermissions(toJS(staff.permissions));
     } else {
       const defaultPerms: any = {};
       MODULES.forEach(m => {
-        defaultPerms[m.id] = { view: false, create: false, edit: false, delete: false };
+        defaultPerms[m.id] = { view: false, create: false, edit: false, delete: false, download: false, print: false, sidebar: false };
       });
       setPermissions(defaultPerms);
     }
   }, [staff, isOpen]);
-
-  const handleToggle = (moduleId: string, permId: string) => {
-    setPermissions((prev: any) => ({
-      ...prev,
-      [moduleId]: {
-        ...(prev[moduleId] || { view: false, create: false, edit: false, delete: false }),
-        [permId]: !prev[moduleId]?.[permId]
-      }
-    }));
-  };
-
-  const handleRowToggle = (moduleId: string) => {
-    const allChecked = PERMISSIONS.every(p => permissions[moduleId]?.[p.id]);
-    const newState: any = {};
-    PERMISSIONS.forEach(p => {
-      newState[p.id] = !allChecked;
-    });
-    setPermissions((prev: any) => ({
-      ...prev,
-      [moduleId]: newState
-    }));
-  };
-
-  const filteredModules = useMemo(() => {
-    return MODULES.filter(m => 
-      m.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
 
   const handleSave = async () => {
     setLoading(true);
@@ -142,11 +66,11 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} size="lg" placement="right">
+    <Drawer isOpen={isOpen} onClose={onClose} size="full" placement="right">
       <DrawerOverlay backdropFilter="blur(8px)" />
-      <DrawerContent borderLeftRadius="3xl" shadow="2xl">
+      <DrawerContent maxW="80vw" borderLeftRadius="3xl" shadow="2xl">
         <DrawerHeader borderBottomWidth="1px" p={8} bg="gray.50">
-          <HStack spacing={4} mb={6}>
+          <HStack spacing={4} mb={2}>
             <Box p={3} bg="brand.500" borderRadius="2xl" shadow="lg">
               <Icon as={FiShield} color="white" boxSize={6} />
             </Box>
@@ -155,82 +79,15 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
               <Text fontSize="sm" color="gray.500" fontWeight="600">Managing {staff?.name}</Text>
             </VStack>
           </HStack>
-
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" h="full" ml={2}>
-              <FiSearch color="gray.400" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search modules or categories..."
-              size="lg"
-              borderRadius="2xl"
-              bg="white"
-              borderWidth="2px"
-              _focus={{ borderColor: "brand.500", shadow: "sm" }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </InputGroup>
         </DrawerHeader>
 
         <DrawerCloseButton mt={6} mr={4} />
         
-        <DrawerBody p={0} bg="white">
-          <Table variant="simple">
-            <Thead bg="gray.50" position="sticky" top={0} zIndex={10}>
-              <Tr>
-                <Th py={4} fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">Module</Th>
-                {PERMISSIONS.map(p => (
-                  <Th key={p.id} py={4} textAlign="center" fontSize="xs" color="gray.500">{p.label}</Th>
-                ))}
-              </Tr>
-            </Thead>
-            <Tbody>
-              {filteredModules.map(m => (
-                <Tr key={m.id} _hover={{ bg: "gray.50" }} transition="all 0.2s">
-                  <Td py={4} minW="250px">
-                    <HStack spacing={3} onClick={() => handleRowToggle(m.id)} cursor="pointer">
-                      <Box p={2} bg={`${m.color}.50`} borderRadius="xl">
-                        <Icon as={m.icon} color={`${m.color}.500`} boxSize={4} />
-                      </Box>
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="800" color="gray.800" fontSize="sm">{m.label}</Text>
-                        <Badge colorScheme={m.color} variant="subtle" fontSize="9px" borderRadius="full" px={2}>{m.category}</Badge>
-                      </VStack>
-                    </HStack>
-                  </Td>
-                  {PERMISSIONS.map(p => (
-                    <Td key={p.id} textAlign="center" py={4}>
-                      <Checkbox
-                        colorScheme="brand"
-                        size="lg"
-                        isChecked={permissions[m.id]?.[p.id] || false}
-                        onChange={() => handleToggle(m.id, p.id)}
-                        sx={{
-                          'span.chakra-checkbox__control': {
-                            borderRadius: '8px',
-                            border: '2px solid',
-                            borderColor: 'gray.200',
-                            _checked: {
-                              bg: 'brand.500',
-                              borderColor: 'brand.500',
-                            }
-                          }
-                        }}
-                      />
-                    </Td>
-                  ))}
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-
-          {filteredModules.length === 0 && (
-            <VStack py={20} spacing={4}>
-              <Icon as={FiSearch} boxSize={10} color="gray.300" />
-              <Text color="gray.500" fontWeight="600">No modules found matching your search</Text>
-            </VStack>
-          )}
+        <DrawerBody p={4} bg="white">
+          <PermissionsSelector 
+            permissions={permissions} 
+            onChange={(newPerms) => setPermissions(newPerms)} 
+          />
         </DrawerBody>
 
         <DrawerFooter borderTopWidth="1px" p={8} bg="gray.50">

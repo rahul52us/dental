@@ -114,7 +114,7 @@ const ChairsTable = observer(() => {
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: stores.auth.hasPermission('chairs', 'create'),
               function: () => {
                 setSelectedChair(null);
                 setIsDrawerOpen("add");
@@ -122,7 +122,7 @@ const ChairsTable = observer(() => {
             },
 
             editKey: {
-              showEditButton: true,
+              showEditButton: stores.auth.hasPermission('chairs', 'edit'),
               function: (c: any) => {
                 setSelectedChair(c);
                 setIsDrawerOpen("edit");
@@ -130,7 +130,7 @@ const ChairsTable = observer(() => {
             },
 
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: stores.auth.hasPermission('chairs', 'delete'),
               function: (c: any) => {
                 setSelectedChair(c);
                 setIsDeleteOpen(true);

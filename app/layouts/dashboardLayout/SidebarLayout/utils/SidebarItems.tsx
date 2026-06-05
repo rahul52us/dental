@@ -48,7 +48,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaUsers />,
     url: "/dashboard/patients",
     role: ["admin", "staff"],
-    permission: { module: "patient", action: "view" },
+    permission: { module: "patient", action: "sidebar" },
   },
   {
     id: 2,
@@ -65,7 +65,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserMd />,
         url: "/dashboard/doctors",
         role: ["admin", "staff"],
-        permission: { module: "doctor", action: "view" },
+        permission: { module: "doctor", action: "sidebar" },
       },
       {
         id: 4,
@@ -73,7 +73,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserTie />,
         url: "/dashboard/staffs",
         role: ["admin", "staff"],
-        permission: { module: "staffs", action: "view" },
+        permission: { module: "staffs", action: "sidebar" },
       },
       {
         id: 30,
@@ -81,7 +81,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserClock />,
         url: "/dashboard/dealers",
         role: ["admin", "staff"],
-        permission: { module: "masters", action: "view" },
+        permission: { module: "masters", action: "sidebar" },
       },
     ],
   },
@@ -91,7 +91,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaVial />,
     url: "/dashboard/lab",
     role: ["admin", "staff"],
-    permission: { module: "lab", action: "view" },
+    permission: { module: "lab", action: "sidebar" },
     children: [
       {
         id: 33,
@@ -99,7 +99,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaVial />,
         url: "/dashboard/labs",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "view" },
+        permission: { module: "lab", action: "sidebar" },
       },
       {
         id: 35,
@@ -107,7 +107,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaNotesMedical />,
         url: "/dashboard/labWork?type=in-house",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "view" },
+        permission: { module: "lab", action: "sidebar" },
       },
       {
         id: 36,
@@ -115,7 +115,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaNotesMedical />,
         url: "/dashboard/labWork?type=outside",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "view" },
+        permission: { module: "lab", action: "sidebar" },
       },
       {
         id: 31,
@@ -123,7 +123,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserMd />,
         url: "/dashboard/labDoctors",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "view" },
+        permission: { module: "lab", action: "sidebar" },
       },
     ],
   },
@@ -149,7 +149,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <MdEventRepeat />,
     url: "/dashboard/recall-appointment",
     role: ["admin", "staff"],
-    permission: { module: "recall", action: "view" },
+    permission: { module: "recall", action: "sidebar" },
   },
   {
     id: 13,
@@ -157,7 +157,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <AppointmentIcon />,
     url: "/dashboard/appointments",
     role: ["admin", "staff"],
-    permission: { module: "appointment", action: "view" },
+    permission: { module: "appointment", action: "sidebar" },
   },
   {
     id: 11,
@@ -165,7 +165,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaListAlt />,
     url: "#",
     role: ["admin", "staff"],
-    permission: { module: "masters", action: "view" },
+    permission: { module: "masters", action: "sidebar" },
     children: [
       {
         id: 110,
@@ -173,7 +173,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaListAlt />,
         url: "/dashboard/masters",
         role: ["admin", "staff"],
-        permission: { module: "masters", action: "view" },
+        permission: { module: "masters", action: "sidebar" },
       },
       {
         id: 40,
@@ -181,7 +181,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <RiToothLine />,
         url: "/dashboard/procedure-master",
         role: ["admin", "staff"],
-        permission: { module: "masters", action: "view" },
+        permission: { module: "masters", action: "sidebar" },
       },
       {
         id: 38,
@@ -189,7 +189,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaListAlt />,
         url: "/dashboard/labWork-master",
         role: ["admin", "staff"],
-        permission: { module: "masters", action: "view" },
+        permission: { module: "masters", action: "sidebar" },
       },
       {
         id: 39,
@@ -197,7 +197,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaListAlt />,
         url: "/dashboard/labWorkStatus-master",
         role: ["admin", "staff"],
-        permission: { module: "masters", action: "view" },
+        permission: { module: "masters", action: "sidebar" },
       },
       {
         id: 41,
@@ -205,7 +205,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaPrescription />,
         url: "/dashboard/prescription-master",
         role: ["admin", "staff"],
-        permission: { module: "masters", action: "view" },
+        permission: { module: "masters", action: "sidebar" },
       },
     ]
   },
@@ -223,14 +223,14 @@ const sidebarDatas: SidebarItem[] = [
     icon: <GiOfficeChair />,
     url: "/dashboard/chairs",
     role: ["superAdmin", "admin"],
-    permission: { module: "masters", action: "view" },
+    permission: { module: "masters", action: "sidebar" },
   },
   {
     id: 14,
     name: "Reports",
     icon: <VscWorkspaceTrusted />,
     url: "/dashboard/reports",
-    permission: { module: "reports", action: "view" },
+    permission: { module: "reports", action: "sidebar" },
   },
 ];
 

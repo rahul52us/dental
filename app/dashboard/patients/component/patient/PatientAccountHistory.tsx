@@ -337,12 +337,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   </HStack>
                 )}
               </VStack>
-              <Tooltip label="Add Payment" hasArrow>
-                <IconButton
-                  aria-label="Add" icon={<FiPlusCircle />} size="sm" colorScheme="green" variant="solid" borderRadius="lg"
-                  onClick={() => openPaymentModal(dt)}
-                />
-              </Tooltip>
+              {stores.auth.hasPermission('accountability', 'create') && (
+                <Tooltip label="Add Payment" hasArrow>
+                  <IconButton
+                    aria-label="Add" icon={<FiPlusCircle />} size="sm" colorScheme="green" variant="solid" borderRadius="lg"
+                    onClick={() => openPaymentModal(dt)}
+                  />
+                </Tooltip>
+              )}
             </HStack>
           );
         }
@@ -374,7 +376,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       metaData: {
         component: (dt: any) => (
           <HStack spacing={2}>
-            {dt.receivedAmount > 0 && (
+            {dt.receivedAmount > 0 && stores.auth.hasPermission('accountability', 'download') && (
               <Tooltip label="View Receipt" hasArrow>
                 <IconButton
                   aria-label="View Receipt"
@@ -391,15 +393,17 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 />
               </Tooltip>
             )}
-            <Tooltip label="View History" hasArrow>
-              <IconButton
-                aria-label="History" icon={<FiClock />} size="sm" colorScheme="gray" variant="ghost"
-                borderRadius="lg" onClick={(e) => {
-                  e.stopPropagation(); // Prevent row click
-                  openHistoryDrawer(dt);
-                }}
-              />
-            </Tooltip>
+            {stores.auth.hasPermission('accountability', 'view') && (
+              <Tooltip label="View History" hasArrow>
+                <IconButton
+                  aria-label="History" icon={<FiClock />} size="sm" colorScheme="gray" variant="ghost"
+                  borderRadius="lg" onClick={(e) => {
+                    e.stopPropagation(); // Prevent row click
+                    openHistoryDrawer(dt);
+                  }}
+                />
+              </Tooltip>
+            )}
           </HStack>
         )
       }
@@ -493,21 +497,23 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             </VStack>
 
             <HStack spacing={3} ml="auto">
-              <Button
-                leftIcon={<FiEye />}
-                bgGradient="linear(to-r, blue.500, blue.600)"
-                color="white"
-                _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
-                _active={{ transform: "translateY(0)" }}
-                size="md"
-                borderRadius="2xl"
-                fontWeight="800"
-                px={6}
-                shadow="md"
-                onClick={() => setIsDownloadModalOpen(true)}
-              >
-                View Statement
-              </Button>
+              {stores.auth.hasPermission('accountability', 'download') && (
+                <Button
+                  leftIcon={<FiEye />}
+                  bgGradient="linear(to-r, blue.500, blue.600)"
+                  color="white"
+                  _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                  _active={{ transform: "translateY(0)" }}
+                  size="md"
+                  borderRadius="2xl"
+                  fontWeight="800"
+                  px={6}
+                  shadow="md"
+                  onClick={() => setIsDownloadModalOpen(true)}
+                >
+                  View Statement
+                </Button>
+              )}
 
               <HStack
                 spacing={0}

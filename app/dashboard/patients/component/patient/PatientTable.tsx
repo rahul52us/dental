@@ -386,7 +386,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   ].filter(col => {
     if (col.key === 'appointments') return stores.auth.hasPermission('appointment', 'view');
-    if (col.key === 'treatment') return stores.auth.hasPermission('workdone', 'view');
+    if (col.key === 'treatment') return stores.auth.hasPermission('treatment', 'view');
     if (col.key === 'recall') return stores.auth.hasPermission('recall', 'view');
     if (col.key === 'history') return stores.auth.hasPermission('workdone', 'view');
     if (col.key === 'labSheet') return stores.auth.hasPermission('lab', 'view');

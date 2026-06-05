@@ -110,12 +110,12 @@ const Dashboard = observer(() => {
     getDashboardCount();
   }, [getDashboardCount]);
   const dashboardData = [
-    { label: "Doctors", value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors" },
-    { label: "Patients", value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients" },
-    { label: "Appointments", value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments" },
-    { label: "Staff", value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs" },
-    { label: "Dealers", value: count?.data?.dealers || 0, icon: FaStore, color: "blue", href: "/dashboard/dealers" },
-  ];
+    { label: "Doctors", value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors", show: stores.auth.hasPermission('doctor', 'view') },
+    { label: "Patients", value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients", show: stores.auth.hasPermission('patient', 'view') },
+    { label: "Appointments", value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments", show: stores.auth.hasPermission('appointment', 'view') },
+    { label: "Staff", value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs", show: stores.auth.hasPermission('staffs', 'view') },
+    { label: "Dealers", value: count?.data?.dealers || 0, icon: FaStore, color: "blue", href: "/dashboard/dealers", show: stores.auth.hasPermission('masters', 'view') },
+  ].filter(item => item.show !== false);
 
   const weeklyGrowthData = useMemo(() => {
     const growth = count?.data?.growth || [];

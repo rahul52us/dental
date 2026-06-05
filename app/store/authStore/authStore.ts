@@ -265,7 +265,7 @@ class AuthStore {
     }
   };
 
-  hasPermission = (moduleId: string, action: 'view' | 'create' | 'edit' | 'delete') => {
+  hasPermission = (moduleId: string, action: 'view' | 'create' | 'edit' | 'delete' | 'download' | 'sidebar' | string) => {
     // Admin always has all permissions
     if (this.user?.role === "admin" || this.user?.userType === "admin") {
       return true;

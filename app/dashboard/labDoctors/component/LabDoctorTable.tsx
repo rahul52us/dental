@@ -107,15 +107,15 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: stores.auth.hasPermission('lab', 'create'),
               function: () => onAdd(),
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: stores.auth.hasPermission('lab', 'edit'),
               function: (row: any) => onEdit(row),
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: stores.auth.hasPermission('lab', 'delete'),
               function: (row: any) => onDelete(row),
             },
           },

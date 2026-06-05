@@ -299,13 +299,13 @@ const LineItems = observer(({ data }: any) => {
         columns={TherapistTableColumns}
         actions={{
           actionBtn: {
-            addKey: { showAddButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleAdd },
-            editKey: { showEditButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleEdit },
+            addKey: { showAddButton: stores.auth.hasPermission('lab', 'create'), function: handleAdd },
+            editKey: { showEditButton: stores.auth.hasPermission('lab', 'edit'), function: handleEdit },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('lab', 'view'),
               function: (e: any) => handleRowClick(e),
             },
-            deleteKey: { showDeleteButton: ['admin','superAdmin'].includes(userType) ? true : false, function: handleDelete },
+            deleteKey: { showDeleteButton: stores.auth.hasPermission('lab', 'delete'), function: handleDelete },
           },
           search: {
             show: true,

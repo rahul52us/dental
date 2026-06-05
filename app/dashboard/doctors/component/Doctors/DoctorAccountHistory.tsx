@@ -161,15 +161,19 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <IconButton
-            aria-label="View Receipt"
-            icon={<FiEye />}
-            size="xs"
-            colorScheme="blue"
-            variant="ghost"
-            isLoading={downloadingRecordId === dt._id}
-            onClick={() => handleSingleDownload(dt._id)}
-          />
+          <>
+            {stores.auth.hasPermission('accountability', 'download') && (
+              <IconButton
+                aria-label="View Receipt"
+                icon={<FiEye />}
+                size="xs"
+                colorScheme="blue"
+                variant="ghost"
+                isLoading={downloadingRecordId === dt._id}
+                onClick={() => handleSingleDownload(dt._id)}
+              />
+            )}
+          </>
         ),
       },
       props: { row: { textAlign: "center" } },
@@ -220,17 +224,19 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                     <Text fontSize="xl" fontWeight="900" color="gray.800">Doctor's Financial Ledger</Text>
                     <Text fontSize="xs" color="gray.400">Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
                 </VStack>
-                <Button 
-                    leftIcon={<FiEye />} 
-                    colorScheme="purple" 
-                    variant="solid" 
-                    size="sm" 
-                    borderRadius="full" 
-                    px={6}
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    View Report (PDF)
-                </Button>
+                {stores.auth.hasPermission('accountability', 'download') && (
+                  <Button 
+                      leftIcon={<FiEye />} 
+                      colorScheme="purple" 
+                      variant="solid" 
+                      size="sm" 
+                      borderRadius="full" 
+                      px={6}
+                      onClick={() => setIsModalOpen(true)}
+                  >
+                      View Report (PDF)
+                  </Button>
+                )}
             </HStack>
         </Box>
 

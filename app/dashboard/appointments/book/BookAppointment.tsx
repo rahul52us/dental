@@ -482,20 +482,22 @@ const BookAppointmentPage = observer(() => {
             <Flex align="center" justify="space-between" mb={6} bg={useColorModeValue("white", "gray.800")} p={4} borderRadius="xl" boxShadow="sm">
                 <Heading size="lg">Book Appointment</Heading>
                 <Flex align="center" gap={4}>
-                    <Button
-                        leftIcon={<FiDownload />}
-                        colorScheme="teal"
-                        variant="solid"
-                        onClick={handleDownloadSchedule}
-                        isLoading={isDownloading}
-                        borderRadius="xl"
-                        boxShadow="sm"
-                        _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
-                        _active={{ transform: "translateY(0)" }}
-                        transition="all 0.2s"
-                    >
-                        Download Schedule
-                    </Button>
+                    {stores.auth.hasPermission('appointment', 'download') && (
+                        <Button
+                            leftIcon={<FiDownload />}
+                            colorScheme="teal"
+                            variant="solid"
+                            onClick={handleDownloadSchedule}
+                            isLoading={isDownloading}
+                            borderRadius="xl"
+                            boxShadow="sm"
+                            _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
+                            _active={{ transform: "translateY(0)" }}
+                            transition="all 0.2s"
+                        >
+                            Download Schedule
+                        </Button>
+                    )}
                     <Flex align="center" gap={3}>
                         <Button size="md" colorScheme="blue" onClick={goToPreviousDate} p={1}>
                             <ChevronLeftIcon fontSize={28} />

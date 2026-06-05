@@ -226,17 +226,19 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
             {patientDetails?.name} · {documents.length} item{documents.length !== 1 ? "s" : ""}
           </Text>
         </VStack>
-        <Button
-          leftIcon={<FiPlus />}
-          colorScheme="blue"
-          borderRadius="full"
-          size="sm"
-          fontWeight="bold"
-          onClick={onOpen}
-          shadow="md"
-        >
-          Add Media
-        </Button>
+        {stores.auth.hasPermission('patient', 'create') && (
+          <Button
+            leftIcon={<FiPlus />}
+            colorScheme="blue"
+            borderRadius="full"
+            size="sm"
+            fontWeight="bold"
+            onClick={onOpen}
+            shadow="md"
+          >
+            Add Media
+          </Button>
+        )}
       </Flex>
 
       {/* Content */}
@@ -324,17 +326,19 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
                           aria-label="Open"
                         />
                       </Tooltip>
-                      <Tooltip label="Delete">
-                        <IconButton
-                          icon={deleteId === doc._id ? <Spinner size="xs" /> : <FiTrash2 />}
-                          size="xs"
-                          colorScheme="red"
-                          borderRadius="full"
-                          aria-label="Delete"
-                          isLoading={deleteId === doc._id}
-                          onClick={() => handleDelete(doc._id)}
-                        />
-                      </Tooltip>
+                      {stores.auth.hasPermission('patient', 'delete') && (
+                        <Tooltip label="Delete">
+                          <IconButton
+                            icon={deleteId === doc._id ? <Spinner size="xs" /> : <FiTrash2 />}
+                            size="xs"
+                            colorScheme="red"
+                            borderRadius="full"
+                            aria-label="Delete"
+                            isLoading={deleteId === doc._id}
+                            onClick={() => handleDelete(doc._id)}
+                          />
+                        </Tooltip>
+                      )}
                     </HStack>
                   </Box>
                 ))}
@@ -411,17 +415,19 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
                               aria-label="Open"
                             />
                           </Tooltip>
-                          <Tooltip label="Delete">
-                            <IconButton
-                              icon={deleteId === doc._id ? <Spinner size="xs" /> : <FiTrash2 />}
-                              size="xs"
-                              variant="ghost"
-                              colorScheme="red"
-                              aria-label="Delete"
-                              isLoading={deleteId === doc._id}
-                              onClick={() => handleDelete(doc._id)}
-                            />
-                          </Tooltip>
+                          {stores.auth.hasPermission('patient', 'delete') && (
+                            <Tooltip label="Delete">
+                              <IconButton
+                                icon={deleteId === doc._id ? <Spinner size="xs" /> : <FiTrash2 />}
+                                size="xs"
+                                variant="ghost"
+                                colorScheme="red"
+                                aria-label="Delete"
+                                isLoading={deleteId === doc._id}
+                                onClick={() => handleDelete(doc._id)}
+                              />
+                            </Tooltip>
+                          )}
                         </HStack>
                       </HStack>
                     </Box>

@@ -135,7 +135,10 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
         column: { textAlign: "center" },
       },
     },
-  ];
+  ].filter(col => {
+    if (col?.key === 'address') return stores.auth.hasPermission('lab', 'view');
+    return true;
+  });
 
   return (
     <Box p={4}>
@@ -154,25 +157,25 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
         actions={{
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: stores.auth.hasPermission('lab', 'create'),
               function: () => {
                 onAdd();
               },
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: stores.auth.hasPermission('lab', 'edit'),
               function: (e: any) => {
                 onEdit(e);
               },
             },
             viewKey: {
-              showViewButton: true,
+              showViewButton: stores.auth.hasPermission('lab', 'view'),
               function: (e: any) => {
                 handleRowClick(e);
               },
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: stores.auth.hasPermission('lab', 'delete'),
               function: (e: any) => {
                 onDelete(e);
               },

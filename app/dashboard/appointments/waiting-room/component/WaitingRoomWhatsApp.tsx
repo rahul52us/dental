@@ -468,172 +468,184 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             >
                                 <SimpleGrid columns={2} spacing={3} width="100%" px={4} pb={4} onClick={(e) => e.stopPropagation()}>
 
-                                    <Button
-                                        bgGradient="linear(to-r, purple.400, purple.600)"
-                                        color="white"
-                                        leftIcon={<GiMedicalDrip />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        position="relative"
-                                        boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, purple.500, purple.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(128, 0, 128, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenTreatment({ 
-                                                open: true, 
-                                                data: patient,
-                                                defaultTab: patient?.pendingTreatmentCount > 0 ? 1 : 0,
-                                                defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
-                                            });
-                                        }}
-                                    >
-                                        {patient?.incompleteTreatmentCount > 0 && (
-                                            <Badge
-                                                position="absolute"
-                                                top="-2px"
-                                                left="-2px"
-                                                bg="yellow.400"
-                                                color="black"
-                                                borderRadius="full"
-                                                px={2}
-                                                py={0.5}
-                                                fontSize="9px"
-                                                transform="translate(-25%, -25%)"
-                                                boxShadow="0 0 10px rgba(236,201,75,0.8)"
-                                            >
-                                                {patient.incompleteTreatmentCount}
-                                            </Badge>
-                                        )}
-                                        Tmt Plan
-                                        {patient?.pendingTreatmentCount > 0 && (
-                                            <Badge
-                                                position="absolute"
-                                                top="-2px"
-                                                right="-2px"
-                                                colorScheme="red"
-                                                variant="solid"
-                                                borderRadius="full"
-                                                px={2}
-                                                py={0.5}
-                                                fontSize="9px"
-                                                transform="translate(25%, -25%)"
-                                                boxShadow="0 0 10px rgba(229,62,62,0.8)"
-                                            >
-                                                {patient.pendingTreatmentCount}
-                                            </Badge>
-                                        )}
-                                    </Button>
-                                    <Button
-                                        bgGradient="linear(to-r, teal.400, teal.600)"
-                                        color="white"
-                                        leftIcon={<FiDollarSign />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, teal.500, teal.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenAccountDetails({ open: true, data: patient });
-                                        }}
-                                    >
-                                        Account
-                                    </Button>
-                                    <Button
-                                        bgGradient="linear(to-r, orange.400, orange.600)"
-                                        color="white"
-                                        leftIcon={<CheckIcon />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(237, 137, 54, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, orange.500, orange.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(237, 137, 54, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenWorkDone({ open: true, data: patient });
-                                        }}
-                                    >
-                                        Work Done
-                                    </Button>
-                                    <Button
-                                        bgGradient="linear(to-r, blue.400, blue.600)"
-                                        color="white"
-                                        leftIcon={<CalendarIcon />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, blue.500, blue.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenAppointment({ open: true, data: patient });
-                                        }}
-                                    >
-                                        Appointment
-                                    </Button>
-                                    <Button
-                                        bgGradient="linear(to-r, pink.400, pink.600)"
-                                        color="white"
-                                        leftIcon={<FiRefreshCw />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(237, 100, 166, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, pink.500, pink.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(237, 100, 166, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenRecall({ open: true, data: patient });
-                                        }}
-                                    >
-                                        Recall
-                                    </Button>
-                                    <Button
-                                        bgGradient="linear(to-r, red.400, red.600)"
-                                        color="white"
-                                        leftIcon={<FaFlask />}
-                                        size="sm"
-                                        borderRadius="xl"
-                                        fontSize="xs"
-                                        fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(229, 62, 62, 0.25)"
-                                        _hover={{
-                                            bgGradient: "linear(to-r, red.500, red.700)",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(229, 62, 62, 0.4)"
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenLab({ open: true, data: patient, workType: "in-house" });
-                                        }}
-                                    >
-                                        In-House Lab
-                                    </Button>
+                                    {stores.auth.hasPermission('treatment', 'view') && (
+                                        <Button
+                                            bgGradient="linear(to-r, purple.400, purple.600)"
+                                            color="white"
+                                            leftIcon={<GiMedicalDrip />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            position="relative"
+                                            boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, purple.500, purple.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(128, 0, 128, 0.4)"
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenTreatment({ 
+                                                    open: true, 
+                                                    data: patient,
+                                                    defaultTab: patient?.pendingTreatmentCount > 0 ? 1 : 0,
+                                                    defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
+                                                });
+                                            }}
+                                        >
+                                            {patient?.incompleteTreatmentCount > 0 && (
+                                                <Badge
+                                                    position="absolute"
+                                                    top="-2px"
+                                                    left="-2px"
+                                                    bg="yellow.400"
+                                                    color="black"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                    py={0.5}
+                                                    fontSize="9px"
+                                                    transform="translate(-25%, -25%)"
+                                                    boxShadow="0 0 10px rgba(236,201,75,0.8)"
+                                                >
+                                                    {patient.incompleteTreatmentCount}
+                                                </Badge>
+                                            )}
+                                            Tmt Plan
+                                            {patient?.pendingTreatmentCount > 0 && (
+                                                <Badge
+                                                    position="absolute"
+                                                    top="-2px"
+                                                    right="-2px"
+                                                    colorScheme="red"
+                                                    variant="solid"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                    py={0.5}
+                                                    fontSize="9px"
+                                                    transform="translate(25%, -25%)"
+                                                    boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                                >
+                                                    {patient.pendingTreatmentCount}
+                                                </Badge>
+                                            )}
+                                        </Button>
+                                    )}
+                                    {stores.auth.hasPermission('accountability', 'view') && (
+                                        <Button
+                                            bgGradient="linear(to-r, teal.400, teal.600)"
+                                            color="white"
+                                            leftIcon={<FiDollarSign />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, teal.500, teal.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenAccountDetails({ open: true, data: patient });
+                                            }}
+                                        >
+                                            Account
+                                        </Button>
+                                    )}
+                                    {stores.auth.hasPermission('workdone', 'view') && (
+                                        <Button
+                                            bgGradient="linear(to-r, orange.400, orange.600)"
+                                            color="white"
+                                            leftIcon={<CheckIcon />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            boxShadow="0 4px 12px rgba(237, 137, 54, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, orange.500, orange.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(237, 137, 54, 0.4)"
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenWorkDone({ open: true, data: patient });
+                                            }}
+                                        >
+                                            Work Done
+                                        </Button>
+                                    )}
+                                    {stores.auth.hasPermission('appointment', 'view') && (
+                                        <Button
+                                            bgGradient="linear(to-r, blue.400, blue.600)"
+                                            color="white"
+                                            leftIcon={<CalendarIcon />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, blue.500, blue.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenAppointment({ open: true, data: patient });
+                                            }}
+                                        >
+                                            Appointment
+                                        </Button>
+                                    )}
+                                    {stores.auth.hasPermission('recall', 'view') && (
+                                        <Button
+                                            bgGradient="linear(to-r, pink.400, pink.600)"
+                                            color="white"
+                                            leftIcon={<FiRefreshCw />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            boxShadow="0 4px 12px rgba(237, 100, 166, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, pink.500, pink.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(237, 100, 166, 0.4)"
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenRecall({ open: true, data: patient });
+                                            }}
+                                        >
+                                            Recall
+                                        </Button>
+                                    )}
+                                    {stores.auth.hasPermission('lab', 'view') && (
+                                        <Button
+                                            bgGradient="linear(to-r, red.400, red.600)"
+                                            color="white"
+                                            leftIcon={<FaFlask />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            boxShadow="0 4px 12px rgba(229, 62, 62, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, red.500, red.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(229, 62, 62, 0.4)"
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenLab({ open: true, data: patient, workType: "in-house" });
+                                            }}
+                                        >
+                                            In-House Lab
+                                        </Button>
+                                    )}
                                 </SimpleGrid>
                             </Flex>
                         </Box>
