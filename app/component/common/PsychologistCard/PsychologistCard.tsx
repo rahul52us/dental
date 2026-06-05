@@ -99,9 +99,9 @@ const PsychologistCard = ({ data }) => {
             </Text>
           </Flex>
 
-          {/* Bio (Hidden on Mobile) */}
+          {/* Special Details (Hidden on Mobile) */}
           {/* <Box display={{ base: "block", md: "block" }} mt={3}>
-            <Text fontWeight={500}>Bio</Text>
+            <Text fontWeight={500}>Special Details</Text>
             <Text color="#616161" fontSize="15px" minH="65px" noOfLines={3}>
               {data?.bio}
               <Text as="span" fontSize="14px" color="#065F68" fontWeight={600}> Read More...</Text>

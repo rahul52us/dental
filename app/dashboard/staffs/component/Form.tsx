@@ -288,10 +288,10 @@ const Form = observer(
                           p={3}
                         >
                           <CustomInput
-                            label="Bio"
+                            label="Special Details"
                             name="bio"
                             type="textarea"
-                            placeholder="Enter Bio"
+                            placeholder="Enter Special Details"
                             // required={true}
                             value={values.bio}
                             onChange={handleChange}

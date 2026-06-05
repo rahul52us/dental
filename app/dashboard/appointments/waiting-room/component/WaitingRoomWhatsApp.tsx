@@ -563,6 +563,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             borderRadius="xl"
                                             fontSize="xs"
                                             fontWeight="800"
+                                            position="relative"
                                             boxShadow="0 4px 12px rgba(237, 137, 54, 0.25)"
                                             _hover={{
                                                 bgGradient: "linear(to-r, orange.500, orange.700)",
@@ -574,7 +575,41 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                 setOpenWorkDone({ open: true, data: patient });
                                             }}
                                         >
+                                            {patient?.incompleteWorkDoneCount > 0 && (
+                                                <Badge
+                                                    position="absolute"
+                                                    top="-2px"
+                                                    left="-2px"
+                                                    bg="yellow.400"
+                                                    color="black"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                    py={0.5}
+                                                    fontSize="9px"
+                                                    transform="translate(-25%, -25%)"
+                                                    boxShadow="0 0 10px rgba(236,201,75,0.8)"
+                                                >
+                                                    {patient.incompleteWorkDoneCount}
+                                                </Badge>
+                                            )}
                                             Work Done
+                                            {patient?.pendingWorkDoneCount > 0 && (
+                                                <Badge
+                                                    position="absolute"
+                                                    top="-2px"
+                                                    right="-2px"
+                                                    colorScheme="red"
+                                                    variant="solid"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                    py={0.5}
+                                                    fontSize="9px"
+                                                    transform="translate(25%, -25%)"
+                                                    boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                                >
+                                                    {patient.pendingWorkDoneCount}
+                                                </Badge>
+                                            )}
                                         </Button>
                                     )}
                                     {stores.auth.hasPermission('appointment', 'view') && (

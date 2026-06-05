@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useCallback } from "react";
-import { Box, Heading, Flex, Button, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Heading, Flex, Button, Text, useColorModeValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
 import stores from "../../../store/stores";
@@ -36,6 +36,7 @@ const BookAppointmentPage = observer(() => {
     const patientDetails = isPatient ? user : null;
 
     const [isDownloading, setIsDownloading] = useState(false);
+    const [pdfPreview, setPdfPreview] = useState<{ isOpen: boolean; url: string; doc: any; formattedDate: string }>({ isOpen: false, url: "", doc: null, formattedDate: "" });
 
     const toMinutes = (time: string) => {
         if (!time || typeof time !== "string" || !time.includes(":")) return 0;
@@ -408,12 +409,14 @@ const BookAppointmentPage = observer(() => {
                     }
                 });
 
-                doc.save(`Dental_Schedule_${formattedDate}.pdf`);
+                const blob = doc.output("blob");
+                const url = URL.createObjectURL(blob);
+                setPdfPreview({ isOpen: true, url, doc, formattedDate });
 
                 openNotification({
                     type: "success",
-                    title: "Download Successful",
-                    message: `Daily schedule for ${moment(selectedDate).format("DD MMM YYYY")} has been exported.`,
+                    title: "Schedule Generated",
+                    message: `Daily schedule for ${moment(selectedDate).format("DD MMM YYYY")} is ready for preview.`,
                 });
             } else {
                 throw new Error(res?.message || "Failed to retrieve daily schedule.");
@@ -422,7 +425,7 @@ const BookAppointmentPage = observer(() => {
             console.error("Error generating schedule PDF:", error);
             openNotification({
                 type: "error",
-                title: "Download Failed",
+                title: "Generation Failed",
                 message: error?.message || "An error occurred while preparing the PDF document.",
             });
         } finally {
@@ -561,6 +564,31 @@ const BookAppointmentPage = observer(() => {
                         />
                     )}
                 </Box>
+            </CustomDrawer>
+
+            <CustomDrawer
+                width="80vw"
+                open={pdfPreview.isOpen}
+                close={() => setPdfPreview({ ...pdfPreview, isOpen: false })}
+                title="Preview Schedule"
+            >
+                <Flex direction="column" h="full" p={1}>
+                    <Box flex="1" bg="gray.100" p={0} borderRadius="md" overflow="hidden">
+                        <iframe src={pdfPreview.url} style={{ width: '100%', height: '80vh', border: 'none', borderRadius: '8px', display: 'block' }} title="Schedule Preview" />
+                    </Box>
+                    <Flex justify="flex-end" pt={4} gap={3}>
+                        <Button variant="ghost" onClick={() => setPdfPreview({ ...pdfPreview, isOpen: false })}>
+                            Close
+                        </Button>
+                        <Button colorScheme="brand" onClick={() => {
+                            if (pdfPreview.doc) {
+                                pdfPreview.doc.save(`Dental_Schedule_${pdfPreview.formattedDate}.pdf`);
+                            }
+                        }}>
+                            Download PDF
+                        </Button>
+                    </Flex>
+                </Flex>
             </CustomDrawer>
         </Box>
     );

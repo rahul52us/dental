@@ -111,7 +111,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
       props: { row: { textAlign: "center" } }
     },
     {
-      headerName: "Bio",
+      headerName: "Special Details",
       key: "bio",
       type: "tooltip",
       function: (dt: any) => dt.profileDetails?.personalInfo?.bio ? (
@@ -248,7 +248,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
                 <Tabs mt={6} variant="soft-rounded" colorScheme="teal">
                   <TabList>
-                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Bio</Tab>
+                    <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Special Details</Tab>
                     <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Expertise</Tab>
                     <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Availability</Tab>
                     <Tab _selected={{ color: "white", bg: stores.themeStore.themeConfig.colors.custom.light.primary }}>Contact</Tab>

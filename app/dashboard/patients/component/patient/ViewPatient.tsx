@@ -498,7 +498,7 @@ const ViewPatient = ({ user }: any) => {
             activeHoverBg={activeHoverBg}
           />
           <InfoItem
-            label="Bio"
+            label="Special Details"
             value={personalInfo.bio}
             isActive={!!personalInfo.bio}
             activeColor={activeColor}

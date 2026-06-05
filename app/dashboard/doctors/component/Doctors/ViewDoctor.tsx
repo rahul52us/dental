@@ -80,7 +80,7 @@ const ViewDoctor = ({ doctor }) => {
       <SectionCard title="Basic Information">
         <VStack align="stretch" spacing={2}>
           <InfoItem label="Username" value={doctor.username} />
-          <InfoItem label="Bio" value={doctor.bio} />
+          <InfoItem label="Special Details" value={doctor.bio} />
           <InfoItem label="DOB" value={personalInfo.dob} />
           <InfoItem
             label="Languages"

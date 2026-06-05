@@ -37,7 +37,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
     name: Yup.string().required("Name is required"),
     username: Yup.string().required("Username is required"),
 
-    bio: Yup.string().required("Bio is required"),
+    bio: Yup.string().required("Special Details is required"),
 
     phoneNumber: Yup.string()
       .matches(/^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/, "Phone number is not valid")
@@ -214,10 +214,10 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                     p={3}
                   >
                     <CustomInput
-                      label="Bio"
+                      label="Special Details"
                       name="bio"
                       type="textarea"
-                      placeholder="Enter Bio"
+                      placeholder="Enter Special Details"
                       value={values.bio}
                       onChange={handleChange}
                       error={errors.bio && touched.bio}

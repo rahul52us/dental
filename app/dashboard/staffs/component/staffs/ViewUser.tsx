@@ -98,7 +98,7 @@ const ViewUser = ({ user }) => {
       <SectionCard title="Basic Information">
         <VStack align="stretch" spacing={2} divider={<Divider />}>
           <InfoItem label="Username" value={user.username} />
-          <InfoItem label="Bio" value={user.bio} />
+          <InfoItem label="Special Details" value={user.bio} />
           <InfoItem label="DOB" value={personalInfo.dob} />
           <InfoItem
             label="Languages"

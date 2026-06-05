@@ -74,7 +74,7 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
       .required("Charges are required")
       .positive("Charges must be a positive number")
       .typeError("Charges must be a valid number"),
-    bio: Yup.string().required("Bio is required"),
+    bio: Yup.string().required("Special Details is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
@@ -280,10 +280,10 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
                         p={3}
                       >
                         <CustomInput
-                          label="Bio"
+                          label="Special Details"
                           name="bio"
                           type="textarea"
-                          placeholder="Enter Bio"
+                          placeholder="Enter Special Details"
                           value={values.bio}
                           onChange={handleChange}
                           error={errors.bio && touched.bio}

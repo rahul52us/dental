@@ -23,7 +23,7 @@ const BioComponent = ({ data }) => {
   return (
     <Box mt={{ lg: 4 }} position="relative">
       <Text fontWeight={500} color="black" fontSize={{ base: "xs", md: "md" }}>
-        Bio:{" "}
+        Special Details:{" "}
       </Text>
       <Text
         ref={bioRef}
