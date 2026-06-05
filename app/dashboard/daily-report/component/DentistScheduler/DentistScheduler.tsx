@@ -1,4 +1,5 @@
 import { RepeatClockIcon, EditIcon } from "@chakra-ui/icons";
+import { FiCheckCircle } from "react-icons/fi";
 import {
   Box,
   Center,
@@ -106,8 +107,11 @@ const AppointmentCard = ({
   chair,
   handleTimeSlots,
   onOpenDetails,
-  shouldNotEditIcon
+  shouldNotEditIcon,
+  onRefresh
 }: any) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const heightMultiplier = appointment.duration / SLOT_DURATION;
   const heightStyle = `calc(${heightMultiplier * 100}% + ${heightMultiplier - 1
     }px)`;
@@ -232,6 +236,50 @@ const AppointmentCard = ({
           </Tooltip>
         )}
 
+        {editable && appointment.status === "scheduled" && (
+          <Tooltip label="Mark as arrived" hasArrow>
+            <IconButton
+              display={shouldNotEditIcon ? "none" : undefined}
+              aria-label="Mark as arrived"
+              icon={<FiCheckCircle />}
+              isLoading={isLoading}
+              colorScheme="blue"
+              size="xs"
+              position="absolute"
+              top="30px"
+              right="4px"
+              variant="solid"
+              zIndex={50}
+              onMouseEnter={(e) => e.stopPropagation()}
+              onMouseLeave={(e) => e.stopPropagation()}
+              onClick={async (e) => {
+                e.stopPropagation();
+                setIsLoading(true);
+                try {
+                  await stores.DoctorAppointment.updateAppointmentStatus({
+                    id: appointment.id,
+                    status: "arrived",
+                  });
+                  stores.auth.openNotification({
+                    type: "success",
+                    title: "Success",
+                    message: "Appointment marked as arrived",
+                  });
+                  if (onRefresh) onRefresh();
+                } catch (error: any) {
+                  stores.auth.openNotification({
+                    type: "error",
+                    title: "Error",
+                    message: error?.message || "Failed to update status",
+                  });
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+            />
+          </Tooltip>
+        )}
+
 
 
         {/* Doctor name (secondary) */}
@@ -270,7 +318,8 @@ const ScheduleGrid = ({
   setSelectedDate,
   allowedSlots,
   onOpenDetails,
-  shouldNotEditIcon
+  shouldNotEditIcon,
+  onRefresh
 }: any) => {
   const bg = useColorModeValue("white", "gray.800");
   const headerBg = useColorModeValue("gray.50", "gray.900");
@@ -457,6 +506,7 @@ const ScheduleGrid = ({
                         totalOverlaps={startingAppointments.length}
                         onOpenDetails={onOpenDetails}
                         shouldNotEditIcon={shouldNotEditIcon}
+                        onRefresh={onRefresh}
                       />
                     )
                   })}
@@ -642,6 +692,7 @@ export default observer(function DentistScheduler({
           setOpenDrawer(true);
         }}
         shouldNotEditIcon={shouldNotEditIcon}
+        onRefresh={fetchAppointments}
       />
 
       {/* ✅ ONLY NEW UI */}
