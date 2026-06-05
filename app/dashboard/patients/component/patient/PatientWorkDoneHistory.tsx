@@ -70,18 +70,18 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
           borderRadius="xl"
           border="1px solid"
           borderColor="gray.100"
-          display="flex"
-          w="full"
+          display="inline-flex"
+          w="max-content"
           mb={4}
           gap={1.5}
         >
           <Tab
-            flex={1}
             borderRadius="lg"
             fontSize="sm"
             fontWeight="bold"
             color="gray.500"
             py={2}
+            px={6}
             transition="all 0.2s"
             _selected={{
               bg: "blue.500",
@@ -100,12 +100,12 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
             </HStack>
           </Tab>
           <Tab
-            flex={1}
             borderRadius="lg"
             fontSize="sm"
             fontWeight="bold"
             color="gray.500"
             py={2}
+            px={6}
             transition="all 0.2s"
             _selected={{
               bg: "blue.500",

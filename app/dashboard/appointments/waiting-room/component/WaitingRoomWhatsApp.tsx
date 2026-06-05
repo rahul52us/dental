@@ -754,8 +754,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     width={{ base: "100%", md: "90%" }}
                 >
                     <Box p={2}>
-                        <Tabs isFitted variant="enclosed" colorScheme="blue" defaultIndex={1}>
-                            <TabList mb="1em">
+                        <Tabs variant="soft-rounded" colorScheme="brand" defaultIndex={1}>
+                            <TabList mb="1em" display="inline-flex" w="auto" gap={2} bg="gray.100" p={1} borderRadius="full">
                                 <Tab fontWeight="bold" fontSize="14px">New Work Entry</Tab>
                                 <Tab fontWeight="bold" fontSize="14px">Work History</Tab>
                             </TabList>

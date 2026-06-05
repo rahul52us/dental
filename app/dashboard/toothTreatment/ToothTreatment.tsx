@@ -591,7 +591,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               borderTopRadius: "lg",
             }}
           >
-            Previous Records
+            Previous Treatment Plan History
           </Tab>
         </TabList>
 
@@ -809,7 +809,9 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   New Work Entry
                 </Tab>
                 <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
-                  Previous work done
+                  <Tooltip label="To View full work go to main Work Done History" hasArrow placement="top">
+                    <span>Previous work done entered through tmt Plan</span>
+                  </Tooltip>
                 </Tab>
               </TabList>
               <TabPanels>
