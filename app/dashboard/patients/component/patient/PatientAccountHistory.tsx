@@ -79,6 +79,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
   const [doctorFilter, setDoctorFilter] = useState<string>("all");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [appliedStartDate, setAppliedStartDate] = useState<string>("");
+  const [appliedEndDate, setAppliedEndDate] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
@@ -115,7 +119,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       patientId: patientDetails._id,
       page: currentPage,
       limit: 10,
-      search: debouncedSearchQuery
+      search: debouncedSearchQuery,
+      fromDate: appliedStartDate || undefined,
+      toDate: appliedEndDate || undefined
     });
 
     // Fetch filtered stats (dynamic)
@@ -126,7 +132,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       companyId: auth.company,
       limit: 100
     });
-  }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, currentPage, debouncedSearchQuery]);
+  }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, appliedStartDate, appliedEndDate, currentPage, debouncedSearchQuery]);
 
   useEffect(() => {
     fetchOverallStats();
@@ -316,7 +322,23 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         )
       }
     },
-    { headerName: "Total Bill (₹)", key: "bill", function: (dt: any) => (dt.amount - (dt.discount || 0)).toLocaleString() },
+    {
+      headerName: "Total Bill (₹)",
+      key: "bill",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const val = dt.amount - (dt.discount || 0);
+          return (
+            <Box px={3} py={1.5} bg="yellow.100" borderRadius="xl" display="inline-block" border="1px solid" borderColor="yellow.300" minW="80px" textAlign="center">
+              <Text fontWeight="1000" color="yellow.900" fontSize="md">
+                ₹{val.toLocaleString()}
+              </Text>
+            </Box>
+          );
+        }
+      }
+    },
     {
       headerName: "Amount Received",
       key: "received",
@@ -492,8 +514,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         <Box px={2} mb={6}>
           <HStack justify="space-between" align="center" flexWrap="wrap" gap={4}>
             <VStack align="start" spacing={0}>
-              <Text fontSize="xl" fontWeight="1000" color="gray.800" letterSpacing="-0.5px">Financial Ledger</Text>
-              <Text fontSize="xs" color="gray.400" fontWeight="600">Secure Audit & Statement Controls</Text>
             </VStack>
 
             <HStack spacing={3} ml="auto">
@@ -569,6 +589,71 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     <option key={doc.id} value={doc.id}>Dr. {doc.name}</option>
                   ))}
                 </Select>
+              </HStack>
+
+              <HStack 
+                spacing={2} 
+                p={1} 
+                bg="white" 
+                borderRadius="2xl" 
+                border="1px solid" 
+                borderColor="gray.100" 
+                shadow="sm"
+                transition="all 0.2s"
+                _hover={{ borderColor: "blue.200", shadow: "md" }}
+              >
+                <Input
+                  type="date"
+                  variant="unstyled"
+                  size="sm"
+                  px={2}
+                  w="145px"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  fontWeight="800"
+                  color="blue.600"
+                />
+                <Box color="gray.300" fontWeight="bold">-</Box>
+                <Input
+                  type="date"
+                  variant="unstyled"
+                  size="sm"
+                  px={2}
+                  w="145px"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  fontWeight="800"
+                  color="blue.600"
+                />
+                <Button 
+                  size="sm" 
+                  colorScheme="blue" 
+                  borderRadius="xl" 
+                  px={4} 
+                  onClick={() => {
+                    setAppliedStartDate(startDate);
+                    setAppliedEndDate(endDate);
+                  }}
+                >
+                  Apply
+                </Button>
+                {(startDate || endDate || appliedStartDate || appliedEndDate) && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    colorScheme="red" 
+                    borderRadius="xl" 
+                    px={3} 
+                    onClick={() => {
+                      setStartDate("");
+                      setEndDate("");
+                      setAppliedStartDate("");
+                      setAppliedEndDate("");
+                    }}
+                  >
+                    Reset
+                  </Button>
+                )}
               </HStack>
             </HStack>
           </HStack>
