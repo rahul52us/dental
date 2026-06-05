@@ -167,6 +167,40 @@ class UserStore {
       this.isLoading = false;
     }
   };
+
+  // ─── Patient Documents ───────────────────────────────────────────────────────
+
+  getPatientDocuments = async (patientId: string) => {
+    try {
+      const response = await axios.get("/patient-documents/get", {
+        params: { patientId, company: authStore.company },
+      });
+      return response?.data?.data || [];
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    }
+  };
+
+  addPatientDocument = async (payload: any) => {
+    try {
+      const response = await axios.post("/patient-documents/create", {
+        ...payload,
+        company: authStore.company,
+      });
+      return response?.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    }
+  };
+
+  deletePatientDocument = async (id: string) => {
+    try {
+      const response = await axios.delete(`/patient-documents/${id}`);
+      return response?.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    }
+  };
 }
 
 export const userStore = new UserStore();

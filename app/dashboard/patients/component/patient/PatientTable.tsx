@@ -17,12 +17,13 @@ import {
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
-import { FiFileText, FiDollarSign } from "react-icons/fi";
+import { FiFileText, FiDollarSign, FiPaperclip } from "react-icons/fi";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
 import { FaFlask } from "react-icons/fa";
 import LabSheet from "../../../labWork/component/LabSheet";
 import PatientLabWorkHistory from "./PatientLabWorkHistory";
 import PatientAccountHistory from "./PatientAccountHistory";
+import PatientDocuments from "./PatientDocuments";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
@@ -67,6 +68,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   const [openAccountDetails, setOpenAccountDetails] = useState({
+    open: false,
+    data: null as any,
+  });
+
+  const [openDocumentsDetails, setOpenDocumentsDetails] = useState({
     open: false,
     data: null as any,
   });
@@ -347,6 +353,31 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
+      headerName: "Documents",
+      key: "documents",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Documents & Media" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Documents"
+              icon={<FiPaperclip />}
+              colorScheme="cyan"
+              bg="cyan.50"
+              color="cyan.600"
+              _hover={{ bg: "cyan.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => setOpenDocumentsDetails({ open: true, data: dt })}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 100, textAlign: "center" } },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -355,11 +386,12 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   ].filter(col => {
     if (col.key === 'appointments') return stores.auth.hasPermission('appointment', 'view');
-    if (col.key === 'treatment') return stores.auth.hasPermission('workdone', 'view'); // Using workdone for treatment
+    if (col.key === 'treatment') return stores.auth.hasPermission('workdone', 'view');
     if (col.key === 'recall') return stores.auth.hasPermission('recall', 'view');
     if (col.key === 'history') return stores.auth.hasPermission('workdone', 'view');
     if (col.key === 'labSheet') return stores.auth.hasPermission('lab', 'view');
     if (col.key === 'account') return stores.auth.hasPermission('accountability', 'view');
+    if (col.key === 'documents') return true;
     return true;
   });
 
@@ -521,6 +553,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             width="90vw"
           >
             <PatientAccountHistory patientDetails={openAccountDetails.data} />
+          </CustomDrawer>
+        )}
+
+        {/* Documents & Media Drawer */}
+        {openDocumentsDetails.open && (
+          <CustomDrawer
+            open={openDocumentsDetails.open}
+            close={() => setOpenDocumentsDetails({ open: false, data: null })}
+            title={`📎 Documents & Media — ${openDocumentsDetails.data?.name}`}
+            width="80vw"
+          >
+            <PatientDocuments patientDetails={openDocumentsDetails.data} />
           </CustomDrawer>
         )}
       </Box>
