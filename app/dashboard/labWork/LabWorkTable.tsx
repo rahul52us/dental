@@ -649,9 +649,9 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
         </Drawer>
 
         {/* View Drawer */}
-        <Drawer isOpen={isViewOpen} onClose={onViewClose} size="lg" placement="right">
+        <Drawer isOpen={isViewOpen} onClose={onViewClose} size="full" placement="right">
           <DrawerOverlay />
-          <DrawerContent>
+          <DrawerContent maxW="75%">
             <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white">
               Lab Order Details
             </DrawerHeader>

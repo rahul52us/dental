@@ -22,24 +22,35 @@ import {
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
 import { formatDateTime } from "../../../component/config/utils/dateUtils";
-import { FiUser, FiCalendar, FiClock, FiActivity, FiTag, FiFileText } from "react-icons/fi";
+import { FiUser, FiCalendar, FiClock, FiActivity, FiTag, FiFileText, FiCheckCircle } from "react-icons/fi";
 
 const LabSheetView = observer(({ data }: { data: any }) => {
   const { labWorkHierarchyStore } = stores;
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const headerBg = useColorModeValue("blue.50", "gray.700");
 
+  const getStatusColor = (status: string) => {
+    const s = status?.toLowerCase();
+    if (s === "plan") return { scheme: "blue", bg: "blue.600" };
+    if (s === "sent") return { scheme: "orange", bg: "orange.500" };
+    if (s === "in-progress") return { scheme: "purple", bg: "purple.600" };
+    if (s === "received" || s?.includes("received")) return { scheme: "teal", bg: "teal.500" };
+    if (s === "completed") return { scheme: "green", bg: "green.600" };
+    if (s === "cancelled") return { scheme: "red", bg: "red.500" };
+    if (s === "hold") return { scheme: "yellow", bg: "yellow.500" };
+    if (s?.includes("wax")) return { scheme: "pink", bg: "pink.500" };
+    if (s?.includes("cast")) return { scheme: "orange", bg: "orange.600" };
+    if (s?.includes("final")) return { scheme: "green", bg: "green.500" };
+    return { scheme: "gray", bg: "gray.500" };
+  };
+
   const StatusBadge = ({ status }: { status: string }) => {
-    let color = "gray";
-    switch (status) {
-      case "plan": color = "blue"; break;
-      case "sent": color = "orange"; break;
-      case "in-progress": color = "purple"; break;
-      case "received": color = "teal"; break;
-      case "completed": color = "green"; break;
-      case "cancelled": color = "red"; break;
-    }
-    return <Badge colorScheme={color} borderRadius="full" px={3} py={1}>{status.toUpperCase()}</Badge>;
+    const { scheme } = getStatusColor(status);
+    return (
+      <Badge colorScheme={scheme} borderRadius="full" px={3} py={1} fontSize="sm">
+        {status?.toUpperCase()}
+      </Badge>
+    );
   };
 
   return (
@@ -117,8 +128,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
           </Box>
         </Box>
 
-        {/* Dates & Billing */}
-        <SimpleGrid columns={{ base: 1, md: 5 }} gap={4}>
+        {/* Dates, Status & Billing */}
+        <SimpleGrid columns={{ base: 1, md: 6 }} gap={4}>
            <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
              <VStack align="start" spacing={1}>
                 <HStack color="gray.600"><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
@@ -149,6 +160,23 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                 </Text>
              </VStack>
            </Box>
+           {/* Prominent Status Card */}
+           <Box
+             p={4}
+             borderRadius="xl"
+             bg={getStatusColor(data.status).bg}
+             color="white"
+           >
+             <VStack align="start" spacing={1}>
+               <HStack>
+                 <Icon as={FiCheckCircle} />
+                 <Text fontSize="xs" fontWeight="bold" opacity={0.85}>CURRENT STATUS</Text>
+               </HStack>
+               <Text fontSize="md" fontWeight="extrabold" letterSpacing="wide">
+                 {data.status?.toUpperCase() || "N/A"}
+               </Text>
+             </VStack>
+           </Box>
            <Box p={4} borderRadius="xl" bg="blue.600" color="white">
              <VStack align="start" spacing={1}>
                 <Text fontSize="xs" fontWeight="bold" opacity={0.8}>TOTAL BILLING AMOUNT</Text>
@@ -156,6 +184,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
              </VStack>
            </Box>
         </SimpleGrid>
+
 
         {/* Instructions */}
         <Box>
