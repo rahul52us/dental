@@ -54,7 +54,8 @@ import {
   FiTarget,
   FiChevronRight,
   FiFileText,
-  FiEye
+  FiEye,
+  FiEdit2
 } from "react-icons/fi";
 import ReceiptPreviewDrawer from "./ReceiptPreviewDrawer";
 import stores from "../../../../store/stores";
@@ -75,6 +76,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Edit Amount State
+  const [isEditAmountOpen, setIsEditAmountOpen] = useState(false);
+  const [editingPaymentIndex, setEditingPaymentIndex] = useState<number | null>(null);
+  const [editAmount, setEditAmount] = useState<string>("");
+  const [isSavingAmount, setIsSavingAmount] = useState(false);
 
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
@@ -978,6 +985,19 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             }
                           }}
                         />
+                        <IconButton
+                          aria-label="Edit Amount"
+                          icon={<FiEdit2 />}
+                          size="sm"
+                          colorScheme="orange"
+                          variant="ghost"
+                          borderRadius="full"
+                          onClick={() => {
+                            setEditingPaymentIndex(i);
+                            setEditAmount(String(h.amount));
+                            setIsEditAmountOpen(true);
+                          }}
+                        />
                       </HStack>
                     </HStack>
                   ))}
@@ -989,6 +1009,81 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 <Text fontWeight="bold">No payment entries found.</Text>
               </VStack>
             )}
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Edit Amount Drawer */}
+      <Drawer isOpen={isEditAmountOpen} placement="right" onClose={() => setIsEditAmountOpen(false)} size="sm">
+        <DrawerOverlay backdropFilter="blur(4px)" />
+        <DrawerContent borderLeftRadius="3xl" bg="white">
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100">
+            <VStack align="start" spacing={0}>
+              <Text fontWeight="1000" fontSize="xl" color="orange.500">Edit Payment Amount</Text>
+              <Text fontSize="xs" color="gray.400">
+                {editingPaymentIndex !== null ? `Payment Entry ${historyData.length - editingPaymentIndex}` : ""}
+              </Text>
+            </VStack>
+          </DrawerHeader>
+          <DrawerBody py={8}>
+            <VStack spacing={6} align="stretch">
+              <Box p={4} bg="orange.50" borderRadius="xl" border="1px solid" borderColor="orange.100">
+                <Text fontSize="xs" fontWeight="bold" color="orange.600" mb={1}>CURRENT AMOUNT</Text>
+                <Text fontWeight="1000" fontSize="2xl" color="orange.700">
+                  ₹{editingPaymentIndex !== null ? (historyData[editingPaymentIndex]?.amount || 0).toLocaleString() : 0}
+                </Text>
+              </Box>
+              <FormControl>
+                <FormLabel fontWeight="700" color="gray.700">New Amount (₹)</FormLabel>
+                <Input
+                  type="number"
+                  value={editAmount}
+                  onChange={(e) => setEditAmount(e.target.value)}
+                  placeholder="Enter new amount"
+                  borderRadius="xl"
+                  size="lg"
+                  focusBorderColor="orange.400"
+                />
+              </FormControl>
+              <Button
+                colorScheme="orange"
+                size="lg"
+                borderRadius="xl"
+                isLoading={isSavingAmount}
+                leftIcon={<FiCheck />}
+                onClick={async () => {
+                  if (editingPaymentIndex === null || !selectedRecord) return;
+                  const newAmt = Number(editAmount);
+                  if (isNaN(newAmt) || newAmt < 0) {
+                    toast({ title: "Invalid amount", status: "error", duration: 2000 });
+                    return;
+                  }
+                  setIsSavingAmount(true);
+                  try {
+                    const updatedHistory = historyData.map((p: any, idx: number) =>
+                      idx === editingPaymentIndex ? { ...p, amount: newAmt } : p
+                    );
+                    const totalReceived = updatedHistory.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                    await workDoneStore.updateWorkDone(selectedRecord._id, {
+                      paymentHistory: updatedHistory,
+                      receivedAmount: totalReceived,
+                    });
+                    setHistoryData(updatedHistory);
+                    setIsEditAmountOpen(false);
+                    toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
+                    // Refresh the main table
+                    fetchData();
+                  } catch (err: any) {
+                    toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
+                  } finally {
+                    setIsSavingAmount(false);
+                  }
+                }}
+              >
+                Save Changes
+              </Button>
+            </VStack>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
