@@ -60,6 +60,7 @@ import ReceiptPreviewDrawer from "./ReceiptPreviewDrawer";
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import moment from "moment";
+import CreatableSelect from "react-select/creatable";
 
 const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const { accountabilityStore, workDoneStore, auth } = stores;
@@ -78,15 +79,26 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
   const [doctorFilter, setDoctorFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // Download Modal State
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [downloadFilters, setDownloadFilters] = useState({
     doctorId: "all",
     status: "all",
+    toothNumber: "",
     startDate: moment().startOf('month').format('YYYY-MM-DD'),
     endDate: moment().format('YYYY-MM-DD')
   });
+  const [downloadToothNumbers, setDownloadToothNumbers] = useState<any[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
   const [downloadingPaymentId, setDownloadingPaymentId] = useState<string | null>(null);
@@ -102,7 +114,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     await workDoneStore.getWorkDone({
       patientId: patientDetails._id,
       page: currentPage,
-      limit: 10
+      limit: 10,
+      search: debouncedSearchQuery
     });
 
     // Fetch filtered stats (dynamic)
@@ -113,7 +126,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       companyId: auth.company,
       limit: 100
     });
-  }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, currentPage]);
+  }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, currentPage, debouncedSearchQuery]);
 
   useEffect(() => {
     fetchOverallStats();
@@ -140,14 +153,18 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
   // Filtered Data for Table
   const filteredWork = useMemo(() => {
-    if (doctorFilter === "all") return workDoneStore.workDone.data;
-    return workDoneStore.workDone.data.filter((wd: any) => wd.doctor?._id === doctorFilter);
+    let data = workDoneStore.workDone.data;
+    if (doctorFilter !== "all") {
+      data = data.filter((wd: any) => wd.doctor?._id === doctorFilter);
+    }
+    return data;
   }, [workDoneStore.workDone.data, doctorFilter]);
 
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      const base64 = await workDoneStore.fetchPatientStatementBase64(patientDetails._id, downloadFilters);
+      const filtersToPass = { ...downloadFilters, toothNumber: downloadToothNumbers.map(t => t.value).join(",") };
+      const base64 = await workDoneStore.fetchPatientStatementBase64(patientDetails._id, filtersToPass);
       setPreviewData(base64);
       setPreviewFileName(`Statement_${patientDetails._id}.pdf`);
       setIsPreviewOpen(true);
@@ -274,6 +291,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
   const columns = [
     { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center", color: "gray.400", fontWeight: "bold" } } },
+    {
+      headerName: "Date",
+      key: "createdAt",
+      function: (dt: any) => dt.createdAt ? moment(dt.createdAt).format("DD MMM YYYY") : "N/A",
+      props: { row: { fontWeight: "bold", color: "gray.600" } }
+    },
     {
       headerName: "Treatment Details",
       key: "treatment",
@@ -486,6 +509,29 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 View Statement
               </Button>
 
+              <HStack
+                spacing={0}
+                p={1}
+                bg="white"
+                borderRadius="2xl"
+                border="1px solid"
+                borderColor="gray.100"
+                shadow="sm"
+                transition="all 0.2s"
+                _hover={{ borderColor: "blue.200", shadow: "md" }}
+              >
+                <Box px={3}>
+                  <Icon as={FiSearch} color="gray.400" mt={1} />
+                </Box>
+                <Input
+                  variant="unstyled"
+                  placeholder="Search tooth or note..."
+                  size="md"
+                  w="200px"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </HStack>
 
               <HStack 
                 spacing={0} 
@@ -499,10 +545,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 _hover={{ borderColor: "blue.200", shadow: "md" }}
               >
                 <Box px={3} borderRight="1px solid" borderColor="gray.100">
-                  <HStack spacing={2}>
-                    <Icon as={FiFilter} color="blue.500" />
-                    <Text fontSize="xs" fontWeight="900" color="gray.500" textTransform="uppercase" letterSpacing="0.05em">Doctor</Text>
-                  </HStack>
+                  <Icon as={FiFilter} color="blue.500" />
                 </Box>
                 <Select
                   size="md"
@@ -637,6 +680,28 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       <option value="SETTLED">Settled Only</option>
                       <option value="PENDING">Pending Balance</option>
                     </Select>
+                  </FormControl>
+                  <FormControl gridColumn="1 / -1">
+                    <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>TOOTH NUMBERS (OPTIONAL)</FormLabel>
+                    <CreatableSelect
+                      isMulti
+                      options={[]}
+                      value={downloadToothNumbers}
+                      onChange={(val) => setDownloadToothNumbers(val as any[])}
+                      placeholder="Type tooth numbers and press enter"
+                      formatCreateLabel={(inputValue) => `Add tooth "${inputValue}"`}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          background: "#F7FAFC",
+                          borderRadius: "1rem",
+                          border: "1px solid #EDF2F7",
+                          minHeight: "45px",
+                          fontSize: "14px",
+                          fontWeight: "700"
+                        })
+                      }}
+                    />
                   </FormControl>
                 </SimpleGrid>
               </Box>
