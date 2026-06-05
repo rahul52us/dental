@@ -85,6 +85,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     ],
     warrantyCardNumber: initialData?.warrantyCardNumber || "",
     warrantyYears: initialData?.warrantyYears || "",
+    delay: initialData?.delay || "",
     price: initialData?.price || 0,
   };
 
@@ -380,7 +381,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 </VStack>
               </Box>
 
-              <Grid templateColumns={{ base: "1fr", md: values.workType === "outside" ? "2fr 1fr 1fr" : "1fr 1fr" }} gap={6}>
+              <Grid templateColumns={{ base: "1fr", md: values.workType === "outside" ? "1.5fr 1fr 1fr 1fr 0.8fr" : "1fr 1fr 1fr 1fr" }} gap={4}>
                 {values.workType === "outside" && (
                   <CustomInput
                     label="Laboratory"
@@ -397,7 +398,15 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   name="sendDate"
                   type="date"
                   value={values.sendDate}
-                  onChange={(e: any) => setFieldValue("sendDate", e.target.value)}
+                  onChange={(e: any) => {
+                    setFieldValue("sendDate", e.target.value);
+                    if (e.target.value && values.receivedDate) {
+                      const s = new Date(e.target.value).getTime();
+                      const r = new Date(values.receivedDate).getTime();
+                      const diff = r - s;
+                      setFieldValue("delay", Math.ceil(diff / (1000 * 3600 * 24)));
+                    }
+                  }}
                 />
                 <CustomInput
                   label="Due Date"
@@ -411,7 +420,22 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   name="receivedDate"
                   type="date"
                   value={values.receivedDate}
-                  onChange={(e: any) => setFieldValue("receivedDate", e.target.value)}
+                  onChange={(e: any) => {
+                    setFieldValue("receivedDate", e.target.value);
+                    if (values.sendDate && e.target.value) {
+                      const s = new Date(values.sendDate).getTime();
+                      const r = new Date(e.target.value).getTime();
+                      const diff = r - s;
+                      setFieldValue("delay", Math.ceil(diff / (1000 * 3600 * 24)));
+                    }
+                  }}
+                />
+                <CustomInput
+                  label="Delay (Days)"
+                  name="delay"
+                  type="number"
+                  value={values.delay}
+                  onChange={(e: any) => setFieldValue("delay", e.target.value)}
                 />
               </Grid>
 

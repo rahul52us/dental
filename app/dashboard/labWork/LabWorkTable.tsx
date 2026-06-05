@@ -69,12 +69,9 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   const [isDownloading, setIsDownloading] = useState(false);
 
   const [reportFilters, setReportFilters] = useState({
-    sendDateFrom: "",
-    sendDateTo: "",
-    dueDateFrom: "",
-    dueDateTo: "",
-    receivedDateFrom: "",
-    receivedDateTo: "",
+    dateType: "receivedDate",
+    fromDate: "",
+    toDate: "",
     workType: "all",
     patient: null as any,
     doctor: null as any,
@@ -114,12 +111,9 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
 
   const resetReportFilters = () => {
     setReportFilters({
-      sendDateFrom: "",
-      sendDateTo: "",
-      dueDateFrom: "",
-      dueDateTo: "",
-      receivedDateFrom: "",
-      receivedDateTo: "",
+      dateType: "receivedDate",
+      fromDate: "",
+      toDate: "",
       workType: "all",
       patient: null,
       doctor: null,
@@ -519,85 +513,40 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                   </HStack>
 
                   <VStack spacing={4} align="stretch">
-                    {/* Send Date Row */}
                     <Box bg="gray.50" p={4} borderRadius="2xl" border="1px solid" borderColor="gray.100">
                       <VStack align="stretch" spacing={3}>
-                        <HStack spacing={3}>
-                          <Center bg="blue.100" color="blue.600" p={2} borderRadius="lg">
-                            <Icon as={FiSend} />
-                          </Center>
-                          <Text fontWeight="bold" fontSize="sm" color="gray.700">SEND DATE</Text>
+                        <HStack mb={2} spacing={2} justify="space-between">
+                          <HStack spacing={2}>
+                            <Icon as={FiCalendar} color="teal.500" />
+                            <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">DATE FILTER</Text>
+                          </HStack>
                         </HStack>
-                        <SimpleGrid columns={2} spacing={4}>
+                        <CustomInput
+                          name="dateType"
+                          type="select"
+                          isPortal
+                          options={[
+                            { label: "Received Date", value: "receivedDate" },
+                            { label: "Send Date", value: "sendDate" },
+                            { label: "Due Date", value: "dueDate" },
+                          ]}
+                          value={reportFilters.dateType}
+                          onChange={(val: any) => setReportFilters({ ...reportFilters, dateType: val?.value || "receivedDate" })}
+                        />
+                        <SimpleGrid columns={2} spacing={4} w="100%">
                           <CustomInput
-                            name="sendDateFrom"
+                            name="fromDate"
                             type="date"
                             label="From"
-                            value={reportFilters.sendDateFrom}
-                            onChange={(e: any) => setReportFilters({ ...reportFilters, sendDateFrom: e.target.value })}
+                            value={reportFilters.fromDate}
+                            onChange={(e: any) => setReportFilters({ ...reportFilters, fromDate: e.target.value })}
                           />
                           <CustomInput
-                            name="sendDateTo"
+                            name="toDate"
                             type="date"
                             label="To"
-                            value={reportFilters.sendDateTo}
-                            onChange={(e: any) => setReportFilters({ ...reportFilters, sendDateTo: e.target.value })}
-                          />
-                        </SimpleGrid>
-                      </VStack>
-                    </Box>
-
-                    {/* Due Date Row */}
-                    <Box bg="gray.50" p={4} borderRadius="2xl" border="1px solid" borderColor="gray.100">
-                      <VStack align="stretch" spacing={3}>
-                        <HStack spacing={3}>
-                          <Center bg="orange.100" color="orange.600" p={2} borderRadius="lg">
-                            <Icon as={FiClock} />
-                          </Center>
-                          <Text fontWeight="bold" fontSize="sm" color="gray.700">DUE DATE</Text>
-                        </HStack>
-                        <SimpleGrid columns={2} spacing={4}>
-                          <CustomInput
-                            name="dueDateFrom"
-                            type="date"
-                            label="From"
-                            value={reportFilters.dueDateFrom}
-                            onChange={(e: any) => setReportFilters({ ...reportFilters, dueDateFrom: e.target.value })}
-                          />
-                          <CustomInput
-                            name="dueDateTo"
-                            type="date"
-                            label="To"
-                            value={reportFilters.dueDateTo}
-                            onChange={(e: any) => setReportFilters({ ...reportFilters, dueDateTo: e.target.value })}
-                          />
-                        </SimpleGrid>
-                      </VStack>
-                    </Box>
-
-                    {/* Received Date Row */}
-                    <Box bg="gray.50" p={4} borderRadius="2xl" border="1px solid" borderColor="gray.100">
-                      <VStack align="stretch" spacing={3}>
-                        <HStack spacing={3}>
-                          <Center bg="teal.100" color="teal.600" p={2} borderRadius="lg">
-                            <Icon as={FiCheckCircle} />
-                          </Center>
-                          <Text fontWeight="bold" fontSize="sm" color="gray.700">RECEIVED DATE</Text>
-                        </HStack>
-                        <SimpleGrid columns={2} spacing={4}>
-                          <CustomInput
-                            name="receivedDateFrom"
-                            type="date"
-                            label="From"
-                            value={reportFilters.receivedDateFrom}
-                            onChange={(e: any) => setReportFilters({ ...reportFilters, receivedDateFrom: e.target.value })}
-                          />
-                          <CustomInput
-                            name="receivedDateTo"
-                            type="date"
-                            label="To"
-                            value={reportFilters.receivedDateTo}
-                            onChange={(e: any) => setReportFilters({ ...reportFilters, receivedDateTo: e.target.value })}
+                            value={reportFilters.toDate}
+                            onChange={(e: any) => setReportFilters({ ...reportFilters, toDate: e.target.value })}
                           />
                         </SimpleGrid>
                       </VStack>

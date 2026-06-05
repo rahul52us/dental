@@ -118,7 +118,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         </Box>
 
         {/* Dates & Billing */}
-        <SimpleGrid columns={{ base: 1, md: 4 }} gap={4}>
+        <SimpleGrid columns={{ base: 1, md: 5 }} gap={4}>
            <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
              <VStack align="start" spacing={1}>
                 <HStack color="gray.600"><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
@@ -128,7 +128,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
            <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
              <VStack align="start" spacing={1}>
                 <HStack color="gray.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">DUE DATE</Text></HStack>
-                <Text fontWeight="bold" color={data.delay > 0 ? "red.500" : "green.500"}>
+                <Text fontWeight="bold">
                   {data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"}
                 </Text>
              </VStack>
@@ -138,6 +138,14 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                 <HStack color="teal.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">RECEIVED DATE</Text></HStack>
                 <Text fontWeight="bold" color="teal.700">
                   {data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"}
+                </Text>
+             </VStack>
+           </Box>
+           <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
+             <VStack align="start" spacing={1}>
+                <HStack color="orange.600"><Icon as={FiActivity} /><Text fontSize="xs" fontWeight="bold">DELAY (DAYS)</Text></HStack>
+                <Text fontWeight="bold" color="orange.700">
+                  {data.delay !== undefined && data.delay !== null ? `${data.delay} Days` : "N/A"}
                 </Text>
              </VStack>
            </Box>
