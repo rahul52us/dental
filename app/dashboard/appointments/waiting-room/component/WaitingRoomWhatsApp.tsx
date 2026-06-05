@@ -53,6 +53,8 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FaFlask } from "react-icons/fa";
 import { FiDollarSign } from "react-icons/fi";
 import PatientAccountHistory from "../../../patients/component/patient/PatientAccountHistory";
+import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
+import { FiRefreshCw } from "react-icons/fi";
 
 const pulse = keyframes`
   0% { transform: translateY(-50%) scale(1); opacity: 0.6; }
@@ -78,6 +80,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
     const [openLab, setOpenLab] = useState({ open: false, data: null as any, workType: "all" as any });
     const [openAccountDetails, setOpenAccountDetails] = useState({ open: false, data: null as any });
+    const [openRecall, setOpenRecall] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
 
@@ -490,6 +493,23 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             });
                                         }}
                                     >
+                                        {patient?.incompleteTreatmentCount > 0 && (
+                                            <Badge
+                                                position="absolute"
+                                                top="-2px"
+                                                left="-2px"
+                                                bg="yellow.400"
+                                                color="black"
+                                                borderRadius="full"
+                                                px={2}
+                                                py={0.5}
+                                                fontSize="9px"
+                                                transform="translate(-25%, -25%)"
+                                                boxShadow="0 0 10px rgba(236,201,75,0.8)"
+                                            >
+                                                {patient.incompleteTreatmentCount}
+                                            </Badge>
+                                        )}
                                         Treatments
                                         {patient?.pendingTreatmentCount > 0 && (
                                             <Badge
@@ -510,25 +530,25 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         )}
                                     </Button>
                                     <Button
-                                        bgGradient="linear(to-r, pink.400, pink.600)"
+                                        bgGradient="linear(to-r, teal.400, teal.600)"
                                         color="white"
-                                        leftIcon={<FaFlask />}
+                                        leftIcon={<FiDollarSign />}
                                         size="sm"
                                         borderRadius="xl"
                                         fontSize="xs"
                                         fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(237, 100, 166, 0.25)"
+                                        boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
                                         _hover={{
-                                            bgGradient: "linear(to-r, pink.500, pink.700)",
+                                            bgGradient: "linear(to-r, teal.500, teal.700)",
                                             transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(237, 100, 166, 0.4)"
+                                            boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
                                         }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setOpenLab({ open: true, data: patient, workType: "all" });
+                                            setOpenAccountDetails({ open: true, data: patient });
                                         }}
                                     >
-                                        Lab
+                                        Account
                                     </Button>
                                     <Button
                                         bgGradient="linear(to-r, orange.400, orange.600)"
@@ -573,25 +593,25 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         Appointment
                                     </Button>
                                     <Button
-                                        bgGradient="linear(to-r, teal.400, teal.600)"
+                                        bgGradient="linear(to-r, pink.400, pink.600)"
                                         color="white"
-                                        leftIcon={<FiDollarSign />}
+                                        leftIcon={<FiRefreshCw />}
                                         size="sm"
                                         borderRadius="xl"
                                         fontSize="xs"
                                         fontWeight="800"
-                                        boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
+                                        boxShadow="0 4px 12px rgba(237, 100, 166, 0.25)"
                                         _hover={{
-                                            bgGradient: "linear(to-r, teal.500, teal.700)",
+                                            bgGradient: "linear(to-r, pink.500, pink.700)",
                                             transform: "translateY(-2px)",
-                                            boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
+                                            boxShadow: "0 6px 15px rgba(237, 100, 166, 0.4)"
                                         }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setOpenAccountDetails({ open: true, data: patient });
+                                            setOpenRecall({ open: true, data: patient });
                                         }}
                                     >
-                                        Account
+                                        Recall
                                     </Button>
                                     <Button
                                         bgGradient="linear(to-r, red.400, red.600)"
@@ -722,6 +742,21 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                         patientId={openLab.data?._id}
                         isDrawer={true}
                         defaultWorkType={openLab.workType}
+                    />
+                </CustomDrawer>
+            )}
+
+            {/* Recall Drawer */}
+            {openRecall.open && (
+                <CustomDrawer
+                    width="92%"
+                    title={`Recall Appointments ${openRecall.data?.name ? `(${openRecall.data.name})` : ""}`}
+                    open={openRecall.open}
+                    close={() => setOpenRecall({ open: false, data: null })}
+                >
+                    <RecallAppointmentList
+                        isPatient={true}
+                        patientDetails={openRecall.data}
                     />
                 </CustomDrawer>
             )}
