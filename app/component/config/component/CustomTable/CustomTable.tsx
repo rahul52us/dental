@@ -19,6 +19,10 @@ import {
   MenuList,
   MenuItem,
   Input,
+  InputGroup,
+  InputRightElement,
+  InputLeftElement,
+  Icon,
   useColorModeValue,
   Text,
 } from "@chakra-ui/react";
@@ -30,8 +34,9 @@ const MultiDropdown = dynamic(() => import("../multiDropdown/MultiDropdown"), {
 });
 import { FaEdit, FaEye } from "react-icons/fa";
 import { IoMdAdd, IoMdInformationCircle } from "react-icons/io";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdClear } from "react-icons/md";
 import { FcClearFilters } from "react-icons/fc";
+import { FiSearch, FiX } from "react-icons/fi";
 import { formatDate } from "../../utils/dateUtils";
 const CustomDateRange = dynamic(
   () => import("../CustomDateRange/CustomDateRange"),
@@ -367,16 +372,47 @@ const CustomTable: React.FC<CustomTableProps> = ({
             <Box>{actions.customComponent}</Box>
           )}
           {!isMobile && actions?.search && actions?.search?.show && (
-            <Input
-              placeholder={actions?.search?.placeholder || "Search"}
-              value={actions?.search?.searchValue}
-              onChange={actions?.search?.onSearchChange}
-              borderRadius="5rem"
-              // bg="white"
-              borderColor={boxBorder}
-              _focus={{ borderColor: "brand.500", boxShadow: "outline" }}
-              maxW="25rem"
-            />
+            <InputGroup maxW="20rem" size="md">
+              <InputLeftElement pointerEvents="none" h="100%">
+                <Icon as={FiSearch} color="gray.400" boxSize={4} />
+              </InputLeftElement>
+              <Input
+                placeholder={actions?.search?.placeholder || "Search..."}
+                value={actions?.search?.searchValue}
+                onChange={actions?.search?.onSearchChange}
+                borderRadius="full"
+                bg={useColorModeValue("gray.50", "gray.800")}
+                border="1px solid"
+                borderColor={useColorModeValue("gray.200", "gray.600")}
+                _hover={{ borderColor: "blue.300", bg: useColorModeValue("white", "gray.700") }}
+                _focus={{ 
+                  bg: useColorModeValue("white", "gray.800"),
+                  borderColor: "blue.500", 
+                  boxShadow: "0 0 0 1px #3182ce" 
+                }}
+                pl={10}
+                pr={10}
+                transition="all 0.2s"
+              />
+              {actions?.search?.searchValue && (
+                <InputRightElement h="100%">
+                  <IconButton
+                    aria-label="Clear Search"
+                    icon={<Icon as={FiX} boxSize={5} />}
+                    size="sm"
+                    variant="ghost"
+                    color="red.500"
+                    _hover={{ color: "red.600", bg: "red.50" }}
+                    onClick={() => {
+                      if (actions?.search?.onSearchChange) {
+                        actions.search.onSearchChange({ target: { value: "" } });
+                      }
+                    }}
+                    borderRadius="full"
+                  />
+                </InputRightElement>
+              )}
+            </InputGroup>
           )}
           {actions?.datePicker?.show && actions?.datePicker?.date && (
             <Box display={isMobile ? "none" : undefined}>

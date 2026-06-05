@@ -32,6 +32,7 @@ import {
   Divider,
   Center,
   Spacer,
+  Select,
 } from "@chakra-ui/react";
 import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
 
@@ -53,7 +54,7 @@ interface LabWorkTableProps {
 }
 
 const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWorkTableProps = {}) => {
-  const { labWorkStore, labWorkHierarchyStore, auth: { openNotification } } = stores;
+  const { labWorkStore, labWorkHierarchyStore, labWorkStatusStore, auth: { openNotification } } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
   const { isOpen: isReportOpen, onOpen: onReportOpen, onClose: onReportClose } = useDisclosure();
@@ -61,6 +62,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState(defaultWorkType === "in-house" ? 1 : (defaultWorkType === "outside" ? 2 : 0));
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
   const searchParams = useSearchParams();
   const toast = stores.auth.openNotification;
@@ -93,6 +95,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
       const query: any = { page, limit };
       if (workType) query.workType = workType;
       if (patientId) query.patient = patientId;
+      if (statusFilter !== "all") query.status = statusFilter;
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -106,7 +109,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
           });
         });
     },
-    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, patientId]
+    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, patientId, statusFilter]
   );
 
   const resetReportFilters = () => {
@@ -127,6 +130,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
+    setStatusFilter("all");
     setActiveTab(0);
   };
 
@@ -143,7 +147,11 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   useEffect(() => {
     fetchLabWorks(currentPage);
     labWorkHierarchyStore.getAllHierarchies();
-  }, [currentPage, activeTab, debouncedSearchQuery, fetchLabWorks]);
+  }, [currentPage, activeTab, debouncedSearchQuery, statusFilter, fetchLabWorks, labWorkHierarchyStore]);
+
+  useEffect(() => {
+    labWorkStatusStore.getLabWorkStatuses();
+  }, [labWorkStatusStore]);
 
   const handleAdd = () => {
     const defaultWorkType = activeTab === 1 ? "in-house" : (activeTab === 2 ? "outside" : "outside");
@@ -379,25 +387,48 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
           }))}
           columns={columns}
           actions={{
-            customComponent: stores.auth.hasPermission('reports', 'view') && (
-              <Button
-                leftIcon={<FiDownload />}
-                colorScheme="blue"
-                variant="outline"
-                size="sm"
-                borderRadius="xl"
-                onClick={() => {
-                  let workType: any = "all";
-                  if (activeTab === 1) workType = "in-house";
-                  else if (activeTab === 2) workType = "outside";
-                  setReportFilters(prev => ({ ...prev, workType }));
-                  onReportOpen();
-                }}
-                isLoading={isDownloading}
-                loadingText="Downloading..."
-              >
-                Download Report
-              </Button>
+            customComponent: (
+              <HStack spacing={3}>
+                <Select
+                  size="sm"
+                  borderRadius="xl"
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  w="150px"
+                  bg={useColorModeValue("white", "gray.800")}
+                  borderColor={useColorModeValue("gray.300", "gray.600")}
+                >
+                  <option value="all">All Statuses</option>
+                  {labWorkStatusStore.statuses.map((s: any) => (
+                    <option key={s._id} value={s.status}>
+                      {s.status}
+                    </option>
+                  ))}
+                </Select>
+                {stores.auth.hasPermission('reports', 'view') && (
+                  <Button
+                    leftIcon={<FiDownload />}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="sm"
+                    borderRadius="xl"
+                    onClick={() => {
+                      let workType: any = "all";
+                      if (activeTab === 1) workType = "in-house";
+                      else if (activeTab === 2) workType = "outside";
+                      setReportFilters(prev => ({ ...prev, workType }));
+                      onReportOpen();
+                    }}
+                    isLoading={isDownloading}
+                    loadingText="Downloading..."
+                  >
+                    Download Report
+                  </Button>
+                )}
+              </HStack>
             ),
             actionBtn: {
               addKey: { 
@@ -604,11 +635,10 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                         isPortal
                         options={[
                           { label: "All", value: "all" },
-                          { label: "Plan", value: "plan" },
-                          { label: "Sent", value: "sent" },
-                          { label: "Received", value: "received" },
-                          { label: "Completed", value: "completed" },
-                          { label: "Cancelled", value: "cancelled" },
+                          ...(labWorkStatusStore.statuses || []).map((s: any) => ({
+                            label: s.status,
+                            value: s.status,
+                          })),
                         ]}
                         value={reportFilters.status}
                         onChange={(val: any) => setReportFilters({ ...reportFilters, status: val?.value || "all" })}

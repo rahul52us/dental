@@ -433,7 +433,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                         setFieldValue("statusHistory", history);
                       }}
                     >
-                      Update Status
+                      Add Status
                     </Button>
                   </Flex>
 
