@@ -148,6 +148,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Tooth",
       key: "toothFDI",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Box>
@@ -160,6 +161,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "System",
       key: "toothNotation",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Box>
@@ -180,6 +182,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Doctor",
       key: "doctorName",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Box>
@@ -192,6 +195,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Examining Doctor",
       key: "examiningDoctorName",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Box>
@@ -204,6 +208,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Complaint Type",
       key: "complaintType",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Box>
@@ -227,6 +232,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Est Min",
       key: "estimateMin",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Text fontWeight="bold" color="blue.600">₹{dt?.estimateMin || 0}</Text>
@@ -237,6 +243,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     {
       headerName: "Est Max",
       key: "estimateMax",
+      type: "component",
       metaData: {
         component: (dt: any) => (
           <Text fontWeight="bold" color="blue.600">₹{dt?.estimateMax || 0}</Text>

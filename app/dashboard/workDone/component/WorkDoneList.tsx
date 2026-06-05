@@ -30,9 +30,10 @@ import {
   Heading,
   Textarea,
   Select,
+  Flex,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign } from "react-icons/fi";
+import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign, FiGrid, FiList } from "react-icons/fi";
 import { Formik, Form } from "formik";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { Grid } from "@chakra-ui/react";
@@ -44,6 +45,8 @@ import WorkDoneForm from "./WorkDoneForm";
 import CreatableSelect from 'react-select/creatable';
 import { adultTeeth, childTeeth } from "../../../component/common/TeethModel/DentalChartComponent/utils/teethData";
 import PatientAccountHistory from "../../patients/component/patient/PatientAccountHistory";
+import CustomTable from "../../../component/config/component/CustomTable/CustomTable";
+import Pagination from "../../../component/config/component/pagination/Pagination";
 
 interface WorkDoneListProps {
   patientDetails: any;
@@ -116,6 +119,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [searchTooth, setSearchTooth] = useState("");
   const [debouncedSearchTooth, setDebouncedSearchTooth] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isTableView, setIsTableView] = useState<"card" | "table">("card");
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -242,6 +246,186 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
     }
   };
 
+  const workDoneTableColumns = [
+    {
+      headerName: "Date",
+      key: "date",
+      type: "component",
+      metaData: {
+        component: (dt: any) => <Box>{formatDate(dt?.createdAt)}</Box>,
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Tooth",
+      key: "tooth",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const toothId = dt.tooth || dt.treatment?.tooth;
+          const { line1, line2 } = getToothNameParts(
+            toothId,
+            dt.position || dt.treatment?.position,
+            dt.side || dt.treatment?.side
+          );
+          return (
+            <Box textAlign="center">
+              <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
+                {toothId || "GEN"}
+              </Badge>
+              <Text fontSize="xs" color="gray.500" mt={1}>
+                {line1}
+              </Text>
+              {line2 && (
+                <Text fontSize="xs" color="gray.500">
+                  {line2}
+                </Text>
+              )}
+            </Box>
+          );
+        },
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Doctor",
+      key: "doctorName",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box>
+            <Text>{dt?.doctor?.name || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Work Description",
+      key: "description",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Box textAlign="left" maxW="300px">
+            <Text noOfLines={2} fontSize="sm" fontWeight="semibold">{dt?.workDoneNote || dt?.toothNote || "--"}</Text>
+          </Box>
+        ),
+      },
+      props: { row: { textAlign: "left" } },
+    },
+    {
+      headerName: "Amount",
+      key: "amount",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Text fontWeight="bold" color="blue.600">₹{dt?.amount || 0}</Text>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Status",
+      key: "status",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          return (
+            <Menu>
+              <MenuButton
+                as={Badge}
+                cursor="pointer"
+                colorScheme={getStatusColor(dt.status)}
+                px={3} py={1}
+                borderRadius="full"
+                fontSize="xs"
+                variant="solid"
+                display="inline-flex"
+                alignItems="center"
+              >
+                <HStack spacing={1}>
+                  <Text>{String(dt.status || "complete").toUpperCase()}</Text>
+                  <Icon as={FiChevronDown} />
+                </HStack>
+              </MenuButton>
+              <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
+                {[
+                  { value: "complete", label: "COMPLETE" },
+                  { value: "pending", label: "PENDING" },
+                  { value: "incomplete", label: "INCOMPLETE" }
+                ].map((s) => (
+                  <MenuItem
+                    key={s.value}
+                    onClick={() => handleStatusChange(dt, s.value)}
+                    fontSize="11px"
+                    fontWeight="1000"
+                    borderRadius="lg"
+                    color={getStatusColor(s.value) + ".600"}
+                  >
+                    Mark as {s.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+          );
+        },
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <HStack justify="center" spacing={1}>
+             {dt.treatment && (
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="blue"
+                  icon={<FiEye />}
+                  onClick={() => setOpenView({ open: true, data: dt })}
+                  aria-label="View"
+                />
+             )}
+             <IconButton
+               size="sm"
+               variant="ghost"
+               colorScheme="gray"
+               icon={<FiPrinter />}
+               aria-label="Print Report"
+               onClick={() => setOpenPrintModal({
+                 open: true,
+                 id: dt._id,
+                 patientId: patientDetails?._id,
+                 date: getLocalDateString(dt.createdAt)
+               })}
+             />
+             <IconButton
+               size="sm"
+               variant="ghost"
+               colorScheme="blue"
+               icon={<FiEdit />}
+               onClick={() => setOpenEditWorkDone({ open: true, data: dt })}
+               aria-label="Edit"
+             />
+             <IconButton
+               size="sm"
+               variant="ghost"
+               colorScheme="red"
+               icon={<FiTrash2 />}
+               onClick={() => setDeleteModal({ open: true, id: dt._id })}
+               display={["admin", "superAdmin"].includes(userType) ? "flex" : "none"}
+               aria-label="Delete"
+             />
+          </HStack>
+        )
+      },
+      props: { row: { minW: 160, textAlign: "center" } },
+    },
+  ];
+
   return (
     <Box>
       <HStack justify="space-between" mb={4} wrap="wrap" gap={2}>
@@ -364,6 +548,25 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           >
             DOWNLOAD FILTERED PRESCRIPTION
           </Button>
+
+          <HStack bg="gray.100" p={1} borderRadius="xl" ml={2}>
+            <IconButton
+              size="sm"
+              variant={isTableView === "card" ? "solid" : "ghost"}
+              colorScheme={isTableView === "card" ? "blue" : "gray"}
+              icon={<FiGrid />}
+              onClick={() => setIsTableView("card")}
+              aria-label="Grid View"
+            />
+            <IconButton
+              size="sm"
+              variant={isTableView === "table" ? "solid" : "ghost"}
+              colorScheme={isTableView === "table" ? "blue" : "gray"}
+              icon={<FiList />}
+              onClick={() => setIsTableView("table")}
+              aria-label="List View"
+            />
+          </HStack>
         </HStack>
       </HStack>
       <VStack align="stretch" spacing={4}>
@@ -385,6 +588,34 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             <Icon as={FiActivity} fontSize="40px" color="gray.300" />
             <Text fontWeight="bold" color="gray.400" fontSize="14px">No clinical history found</Text>
           </VStack>
+        ) : isTableView === "table" ? (
+          <CustomTable
+            data={displayedRecords}
+            columns={workDoneTableColumns}
+            loading={workDone.loading}
+            actions={{
+              pagination: {
+                show: workDone?.totalPages > 1,
+                onClick: (page: number) => {
+                  setCurrentPage(page);
+                  const params: any = {
+                    patientId: patientDetails?._id,
+                    treatmentId: treatmentId,
+                    page
+                  };
+                  if (selectedDateFilter) {
+                    params.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
+                    params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
+                  }
+                  if (debouncedSearchTooth) params.search = debouncedSearchTooth;
+                  if (statusFilter !== "all") params.status = statusFilter;
+                  getWorkDone(params);
+                },
+                currentPage,
+                totalPages: workDone?.totalPages,
+              }
+            }}
+          />
         ) : (
           <VStack align="stretch" spacing={4}>
             {displayedRecords.map((record: any) => (
@@ -612,6 +843,30 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 </Box>
               </Box>
             ))}
+
+            {workDone?.totalPages > 1 && (
+              <Flex justify="center" pt={4}>
+                <Pagination
+                  currentPage={currentPage}
+                  onPageChange={(page: number) => {
+                    setCurrentPage(page);
+                    const params: any = {
+                      patientId: patientDetails?._id,
+                      treatmentId: treatmentId,
+                      page
+                    };
+                    if (selectedDateFilter) {
+                      params.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
+                      params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
+                    }
+                    if (debouncedSearchTooth) params.search = debouncedSearchTooth;
+                    if (statusFilter !== "all") params.status = statusFilter;
+                    getWorkDone(params);
+                  }}
+                  totalPages={workDone?.totalPages}
+                />
+              </Flex>
+            )}
           </VStack>
         )}
       </VStack>
