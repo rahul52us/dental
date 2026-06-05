@@ -381,7 +381,7 @@ class WorkDoneStore {
   /**
    * GENERATE BLOB URL FOR PREVIEWING
    */
-  generateWorkDoneReportBlob = async (workDoneId: string, params: { prescriptions: any[], topPadding: number, bottomPadding: number }) => {
+  generateWorkDoneReportBlob = async (workDoneId: string, params: { prescriptions: any[], topPadding: number, bottomPadding: number, reportType?: string }) => {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
@@ -406,7 +406,7 @@ class WorkDoneStore {
     }
   };
 
-  downloadWorkDoneReport = async (workDoneId: string, params: { prescriptions: any[], topPadding: number, bottomPadding: number, isPreview?: boolean }) => {
+  downloadWorkDoneReport = async (workDoneId: string, params: { prescriptions: any[], topPadding: number, bottomPadding: number, isPreview?: boolean, reportType?: string }) => {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
@@ -461,6 +461,8 @@ class WorkDoneStore {
         ...(filters.fromDate && { fromDate: filters.fromDate }),
         ...(filters.toDate && { toDate: filters.toDate }),
         ...(filters.doctorId && { doctorId: filters.doctorId }),
+        ...(filters.toothNumber && { toothNumber: filters.toothNumber }),
+        ...(filters.reportType && { reportType: filters.reportType }),
       });
       const { data } = await axios.post(`/workDone/generate-filtered-report/${patientId}?${queryParams.toString()}`, params);
 
@@ -496,6 +498,8 @@ class WorkDoneStore {
         ...(filters.fromDate && { fromDate: filters.fromDate }),
         ...(filters.toDate && { toDate: filters.toDate }),
         ...(filters.doctorId && { doctorId: filters.doctorId }),
+        ...(filters.toothNumber && { toothNumber: filters.toothNumber }),
+        ...(filters.reportType && { reportType: filters.reportType }),
       });
       const { data } = await axios.post(`/workDone/generate-filtered-report/${patientId}?${queryParams.toString()}`, params);
 

@@ -960,6 +960,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
             prescriptions: initialPrescriptions,
             topPadding: 150,
             bottomPadding: 50,
+            reportType: "both",
           }}
           onSubmit={async (values) => {
             setLoading(true);
@@ -999,6 +1000,18 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                           <Text fontSize="14px" fontWeight="900" color="blue.700">Clinical Report Generation</Text>
                         </VStack>
                         <HStack spacing={3}>
+                          <Select
+                            size="sm"
+                            borderRadius="lg"
+                            w="220px"
+                            bg="white"
+                            value={values.reportType}
+                            onChange={(e) => setFieldValue("reportType", e.target.value)}
+                          >
+                            <option value="both">Work Done & Prescriptions</option>
+                            <option value="workdone_only">Work Done Only</option>
+                            <option value="prescription_only">Prescriptions Only</option>
+                          </Select>
                           <Button
                             size="sm"
                             colorScheme="blue"
@@ -1012,6 +1025,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                   prescriptions: values.prescriptions,
                                   topPadding: values.topPadding,
                                   bottomPadding: values.bottomPadding,
+                                  reportType: values.reportType,
                                 });
                                 if (res?.url) {
                                   setPreviewDrawer({ open: true, url: res.url });
@@ -1379,16 +1393,21 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
   const [fromDate, setFromDate] = useState(getLocalDateString());
   const [toDate, setToDate] = useState(getLocalDateString());
   const [doctorIds, setDoctorIds] = useState<any[]>([]);
+  const [toothNumbers, setToothNumbers] = useState<any[]>([]);
+  const [reportType, setReportType] = useState("both");
 
   const handleDownload = async () => {
     setLoading(true);
     try {
       const selectedDoctorIds = doctorIds && doctorIds.length > 0 ? doctorIds.map((d: any) => d.value || d).join(',') : 'all';
+      const selectedToothNumbers = toothNumbers && toothNumbers.length > 0 ? toothNumbers.map((t: any) => t.value || t).join(',') : 'all';
       const filterParams = {
         treatmentId,
         fromDate: `${fromDate}T00:00:00.000Z`,
         toDate: `${toDate}T23:59:59.999Z`,
-        doctorId: selectedDoctorIds
+        doctorId: selectedDoctorIds,
+        toothNumber: selectedToothNumbers,
+        reportType
       };
       await workDoneStore.downloadFilteredWorkDoneReport(patientId, filterParams, { prescriptions: [], topPadding: 0, bottomPadding: 0 });
       openNotification({
@@ -1412,11 +1431,14 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
     setLoading(true);
     try {
       const selectedDoctorIds = doctorIds && doctorIds.length > 0 ? doctorIds.map((d: any) => d.value || d).join(',') : 'all';
+      const selectedToothNumbers = toothNumbers && toothNumbers.length > 0 ? toothNumbers.map((t: any) => t.value || t).join(',') : 'all';
       const filterParams = {
         treatmentId,
         fromDate: `${fromDate}T00:00:00.000Z`,
         toDate: `${toDate}T23:59:59.999Z`,
-        doctorId: selectedDoctorIds
+        doctorId: selectedDoctorIds,
+        toothNumber: selectedToothNumbers,
+        reportType
       };
       const res: any = await workDoneStore.generateFilteredWorkDoneReportBlob(patientId, filterParams, { prescriptions: [], topPadding: 0, bottomPadding: 0 });
       if (res?.url) setPreviewDrawer({ open: true, url: res.url });
@@ -1454,6 +1476,28 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
                 onChange={(val: any) => setDoctorIds(val)}
                 placeholder="All Doctors"
               />
+            </Box>
+            <Box>
+              <Text fontSize="11px" fontWeight="bold" color="gray.700" mb={1}>TOOTH NUMBERS (OPTIONAL)</Text>
+              <CreatableSelect
+                isMulti
+                isClearable
+                placeholder="Type and press enter for multiple teeth..."
+                value={toothNumbers}
+                onChange={(val: any) => setToothNumbers(val)}
+                options={[]}
+                styles={{
+                  control: (base) => ({ ...base, borderRadius: '12px' }),
+                }}
+              />
+            </Box>
+            <Box>
+              <Text fontSize="11px" fontWeight="bold" color="gray.700" mb={1}>REPORT TYPE</Text>
+              <Select value={reportType} onChange={(e) => setReportType(e.target.value)} borderRadius="xl">
+                <option value="both">Work Done & Prescriptions</option>
+                <option value="workdone_only">Work Done Only</option>
+                <option value="prescription_only">Prescriptions Only</option>
+              </Select>
             </Box>
           </VStack>
         </ModalBody>
