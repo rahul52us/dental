@@ -41,6 +41,7 @@ export const MODULES = [
   { id: "lab", label: "Lab Work", icon: FiBox, color: "cyan", category: "Lab" },
   { id: "reports", label: "Financial Reports", icon: FiFileText, color: "red", category: "Admin" },
   { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin" },
+  { id: "doctorInventory", label: "Doctor Inventory", icon: FiBox, color: "cyan", category: "Lab" },
   { id: "masters", label: "Masters (Prescription/Procedure)", icon: FiSettings, color: "gray", category: "Admin" },
   { id: "staffs", label: "Staff Management", icon: FiUsers, color: "indigo", category: "Admin" },
   { id: "chairs", label: "Chair Management", icon: FiActivity, color: "yellow", category: "Clinical" },

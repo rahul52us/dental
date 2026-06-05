@@ -11,6 +11,8 @@ import {
   FaUserTie,
   FaUserClock,
   FaPrescription,
+  FaClipboardList,
+  FaStethoscope,
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
@@ -126,6 +128,15 @@ const sidebarDatas: SidebarItem[] = [
         permission: { module: "lab", action: "sidebar" },
       },
     ],
+  },
+
+  {
+    id: 37,
+    name: "Doctor Inventory",
+    icon: <FaStethoscope />,
+    url: "/dashboard/doctorInventory",
+    role: ["admin", "staff"],
+    permission: { module: "doctorInventory", action: "sidebar" },
   },
 
 
