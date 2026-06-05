@@ -91,7 +91,7 @@ const initialFormData: TreatmentFormData = {
   totalMax: "" as any,
   patient: undefined,
   status: "Planned",
-  complaintType: "CHIEF COMPLAINT",
+  complaintType: "EXISTING FINDING",
 };
 
 export const ToothFormDialog = observer(
@@ -108,7 +108,7 @@ export const ToothFormDialog = observer(
     setLastExaminingDoctor,
     doctorOptions = [],
     onSuccess,
-    complaintType = "CHIEF COMPLAINT",
+    complaintType = "EXISTING FINDING",
   }: ToothFormDialogProps) => {
     const toast = useToast();
     const [showProcedureExplorer, setShowProcedureExplorer] = useState(false);

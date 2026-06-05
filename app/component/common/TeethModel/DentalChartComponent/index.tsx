@@ -90,7 +90,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
   const [generalDescription, setGeneralDescription] = useState("");
   const [isToothFormOpen, setIsToothFormOpen] = useState(false);
   const [activeTeethForForm, setActiveTeethForForm] = useState<ToothData[]>([]);
-  const [complaintType, setComplaintType] = useState<string>("CHIEF COMPLAINT");
+  const [complaintType, setComplaintType] = useState<string>("EXISTING FINDING");
   const [teethNotes, setTeethNotes] = useState<string>("");
 
   const [procedureFormValues, setProcedureFormValues] = useState<any>(null);
@@ -322,7 +322,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           patient: edit.patient ? (typeof edit.patient === 'object' ? { label: edit.patient.name, value: edit.patient._id } : { label: patientDetails?.name, value: edit.patient }) : { label: patientDetails?.name, value: patientDetails?._id },
           status: edit.status || "Planned",
           treatmentId: edit._id,
-          complaintType: edit.complaintType?.toUpperCase() || "CHIEF COMPLAINT",
+          complaintType: edit.complaintType?.toUpperCase() || "EXISTING FINDING",
         });
 
         if (edit.complaintType) setComplaintType(edit.complaintType.toUpperCase());

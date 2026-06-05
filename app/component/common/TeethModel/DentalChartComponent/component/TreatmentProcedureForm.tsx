@@ -412,7 +412,7 @@ export const TreatmentProcedureForm = observer(
                         discount: Number(values.discount) || 0,
                         totalMin: Number(values.totalMin) || 0,
                         totalMax: Number(values.totalMax) || 0,
-                        complaintType: values.complaintType || "CHIEF COMPLAINT",
+                        complaintType: values.complaintType || "EXISTING FINDING",
                         recordType: toothId === "General" ? "note" : "tooth",
                         user: stores.auth.user?._id
                     };
@@ -627,26 +627,7 @@ export const TreatmentProcedureForm = observer(
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
 
                         <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. EXAMINING DOCTOR</Text>
-                            <CustomInput
-                                name={activeId === "bulk" ? `bulk.examiningDoctor` : `treatments.${activeId}.examiningDoctor`}
-                                type="real-time-user-search"
-                                query={{ type: 'doctor' }}
-                                options={doctorOptions}
-                                value={currentValues.examiningDoctor}
-                                onChange={(val: any) => {
-                                    if (activeId === "bulk") {
-                                        teeth.forEach(t => setFieldValue(`treatments.${t.id}.examiningDoctor`, val));
-                                    } else {
-                                        setFieldValue(`treatments.${activeId}.examiningDoctor`, val);
-                                    }
-                                }}
-                                style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
-                            />
-                        </VStack>
-
-                        <VStack align="start" spacing={2} w="full">
-                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. ASSIGN DOCTOR</Text>
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">1. ASSIGN DOCTOR</Text>
                             <CustomInput
                                 name={activeId === "bulk" ? `bulk.doctor` : `treatments.${activeId}.doctor`}
                                 type="real-time-user-search"
@@ -658,6 +639,25 @@ export const TreatmentProcedureForm = observer(
                                         teeth.forEach(t => setFieldValue(`treatments.${t.id}.doctor`, val));
                                     } else {
                                         setFieldValue(`treatments.${activeId}.doctor`, val);
+                                    }
+                                }}
+                                style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                            />
+                        </VStack>
+
+                        <VStack align="start" spacing={2} w="full">
+                            <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. EXAMINING DOCTOR</Text>
+                            <CustomInput
+                                name={activeId === "bulk" ? `bulk.examiningDoctor` : `treatments.${activeId}.examiningDoctor`}
+                                type="real-time-user-search"
+                                query={{ type: 'doctor' }}
+                                options={doctorOptions}
+                                value={currentValues.examiningDoctor}
+                                onChange={(val: any) => {
+                                    if (activeId === "bulk") {
+                                        teeth.forEach(t => setFieldValue(`treatments.${t.id}.examiningDoctor`, val));
+                                    } else {
+                                        setFieldValue(`treatments.${activeId}.examiningDoctor`, val);
                                     }
                                 }}
                                 style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
@@ -815,7 +815,7 @@ export const TreatmentProcedureForm = observer(
                     notes: generalDescription,
                     doctor: lastExaminingDoctor || undefined,
                     examiningDoctor: lastExaminingDoctor || undefined,
-                    complaintType: toothComplaints[t.id] || complaintType || "CHIEF COMPLAINT",
+                    complaintType: toothComplaints[t.id] || complaintType || "EXISTING FINDING",
                 };
             });
 
@@ -840,7 +840,7 @@ export const TreatmentProcedureForm = observer(
                         totalMin: editData.totalMin || 0,
                         totalMax: editData.totalMax || 0,
                         doctor: editData.doctor ? (typeof editData.doctor === 'object' ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor) : (lastExaminingDoctor || undefined),
-                        complaintType: editData.complaintType || "Chief Complaint",
+                        complaintType: editData.complaintType || "EXISTING FINDING",
                         examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : (lastExaminingDoctor || undefined),
                     };
                 }
@@ -1214,7 +1214,7 @@ export const TreatmentProcedureForm = observer(
                                                     {teeth.map((t) => {
                                                         const tValues = values.treatments[t.id] || {};
                                                         const hasData = !!(tValues.treatmentCode || tValues.notes?.trim() || tValues.doctor);
-                                                        const cType = tValues.complaintType || complaintType || "CHIEF COMPLAINT";
+                                                        const cType = tValues.complaintType || complaintType || "EXISTING FINDING";
                                                         const dotColor =
                                                             cType === "CHIEF COMPLAINT" ? "red.400"
                                                                 : cType === "OTHER FINDING" ? "orange.400"
