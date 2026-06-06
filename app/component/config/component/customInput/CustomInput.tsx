@@ -608,11 +608,11 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
                 ...styles,
                 backgroundColor:
                   isSelected
-                    ? "#FBB6CE"
+                    ? "#D53F8C"
                     : isFocused
                       ? "#FED7E2"
                       : "transparent",
-                color: isSelected || isFocused ? "#1A202C" : colorMode === "light" ? "#2D3748" : "white",
+                color: isSelected ? "white" : isFocused ? "#1A202C" : colorMode === "light" ? "#2D3748" : "white",
                 fontWeight: isSelected || isFocused ? "700" : "500",
                 fontSize: "13px",
                 padding: "10px 12px",
@@ -643,8 +643,8 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: "#1A202C",
-                backgroundColor: "#FBB6CE",
+                color: "white",
+                backgroundColor: "#D53F8C",
                 borderRadius: "8px",
                 padding: "4px 12px",
                 fontWeight: "700",
@@ -754,19 +754,18 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
-                  isSelected || isFocused
-                    ? colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500]
-                    : "transparent",
-                color:
-                  isSelected || isFocused
-                    ? "white"
-                    : colorMode === "light" ? "gray.700" : "white",
+                  isSelected
+                    ? "#D53F8C"
+                    : isFocused
+                      ? "#FED7E2"
+                      : "transparent",
+                color: isSelected ? "white" : isFocused ? "#1A202C" : colorMode === "light" ? "gray.700" : "white",
                 fontWeight: isSelected || isFocused ? "700" : "500",
                 fontSize: "13px",
                 padding: "10px 12px",
                 cursor: "pointer",
                 ":active": {
-                  backgroundColor: colorMode === "light" ? theme.colors.brand[200] : theme.colors.darkBrand[400],
+                  backgroundColor: "#FBB6CE",
                 },
               }),
               menu: (baseStyles) => ({
@@ -777,7 +776,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                backgroundColor: "#D53F8C",
                 borderRadius: "8px",
                 padding: "2px 4px",
               }),
@@ -795,7 +794,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               singleValue: (styles) => ({
                 ...styles,
                 color: "white",
-                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                backgroundColor: "#D53F8C",
                 borderRadius: "8px",
                 padding: "4px 12px",
                 fontWeight: "700",
@@ -875,19 +874,18 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
-                  isSelected || isFocused
-                    ? colorMode === "light" ? "#6269ff" : "#4a5066" // brand.500/darkBrand.300
-                    : "transparent",
-                color:
-                  isSelected || isFocused
-                    ? "white"
-                    : colorMode === "light" ? "#4A5568" : "white",
+                  isSelected
+                    ? "#D53F8C"
+                    : isFocused
+                      ? "#FED7E2"
+                      : "transparent",
+                color: isSelected ? "white" : isFocused ? "#1A202C" : colorMode === "light" ? "#4A5568" : "white",
                 fontWeight: isSelected || isFocused ? "700" : "500",
                 fontSize: "13px",
                 padding: "10px 12px",
                 cursor: "pointer",
                 ":active": {
-                  backgroundColor: colorMode === "light" ? "#c5c9ff" : "#1b1f2d",
+                  backgroundColor: "#FBB6CE",
                 },
               }),
               menu: (baseStyles) => ({
@@ -914,7 +912,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               singleValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#6269ff" : "#4a5066",
+                backgroundColor: "#D53F8C",
                 color: "white",
                 borderRadius: "8px",
                 padding: "4px 12px",

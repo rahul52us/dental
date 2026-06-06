@@ -14,6 +14,13 @@ import {
   IconButton,
   Text,
   FormLabel,
+  Checkbox,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { observer } from "mobx-react-lite";
@@ -87,6 +94,33 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
     warrantyYears: initialData?.warrantyYears || "",
     delay: initialData?.delay || "",
     price: initialData?.price || 0,
+    itemsReceived: initialData?.itemsReceived || {
+      impressionTraysUpper: false,
+      impressionTraysLower: false,
+      modelsUpper: false,
+      modelsLower: false,
+      articulator: false,
+      implantAnalog: "",
+      implantImpressionCoping: "",
+      implantAbutment: "",
+      bite: false,
+      certificate: false,
+      accessories: "",
+    },
+    itemsSent: initialData?.itemsSent || {
+      impressionTraysUpper: false,
+      impressionTraysLower: false,
+      modelsUpper: false,
+      modelsLower: false,
+      articulator: false,
+      implantAnalog: "",
+      implantImpressionCoping: "",
+      implantAbutment: "",
+      bite: false,
+      certificate: false,
+      accessories: "",
+    },
+    returnableItems: initialData?.returnableItems || "",
   };
 
   const handleSubmit = async (values: any) => {
@@ -439,6 +473,8 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 />
               </Grid>
 
+
+
               <Box bg="blue.50" p={5} borderRadius="2xl" border="1px solid" borderColor="blue.100">
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
@@ -539,6 +575,98 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   onChange={(e: any) => setFieldValue("price", e.target.value)}
                 />
               </Grid>
+
+              {values.workType === "outside" && (
+                <Box bg="white" p={6} borderRadius="2xl" border="1px solid" borderColor="gray.200" shadow="sm">
+                  <VStack align="stretch" spacing={5}>
+                    <HStack justify="space-between">
+                      <VStack align="start" spacing={0}>
+                        <Heading size="sm" color="blue.800">Items Received / Sent Tracking</Heading>
+                        <Text fontSize="xs" color="gray.500">Track all items sent to and received from the laboratory</Text>
+                      </VStack>
+                    </HStack>
+
+                    <Box overflowX="auto" border="1px solid" borderColor="gray.100" borderRadius="xl" bg="white">
+                      <Table variant="simple" size="sm">
+                        <Thead bg="gray.50">
+                          <Tr>
+                            <Th py={3} color="gray.600">Item Name</Th>
+                            <Th textAlign="center" color="blue.600">Sent</Th>
+                            <Th textAlign="center" color="green.600">Received</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Impression trays (Upper)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.impressionTraysUpper || false} onChange={(e) => setFieldValue("itemsSent.impressionTraysUpper", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.impressionTraysUpper || false} onChange={(e) => setFieldValue("itemsReceived.impressionTraysUpper", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Impression trays (Lower)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.impressionTraysLower || false} onChange={(e) => setFieldValue("itemsSent.impressionTraysLower", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.impressionTraysLower || false} onChange={(e) => setFieldValue("itemsReceived.impressionTraysLower", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Models (Upper)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.modelsUpper || false} onChange={(e) => setFieldValue("itemsSent.modelsUpper", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.modelsUpper || false} onChange={(e) => setFieldValue("itemsReceived.modelsUpper", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Models (Lower)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.modelsLower || false} onChange={(e) => setFieldValue("itemsSent.modelsLower", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.modelsLower || false} onChange={(e) => setFieldValue("itemsReceived.modelsLower", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Articulator</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.articulator || false} onChange={(e) => setFieldValue("itemsSent.articulator", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.articulator || false} onChange={(e) => setFieldValue("itemsReceived.articulator", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Implant Analog</Td>
+                            <Td><CustomInput name="itemsSent.implantAnalog" value={values.itemsSent?.implantAnalog || ""} onChange={(e: any) => setFieldValue("itemsSent.implantAnalog", e.target.value)} placeholder="Details..." /></Td>
+                            <Td><CustomInput name="itemsReceived.implantAnalog" value={values.itemsReceived?.implantAnalog || ""} onChange={(e: any) => setFieldValue("itemsReceived.implantAnalog", e.target.value)} placeholder="Details..." /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Implant Impression Coping</Td>
+                            <Td><CustomInput name="itemsSent.implantImpressionCoping" value={values.itemsSent?.implantImpressionCoping || ""} onChange={(e: any) => setFieldValue("itemsSent.implantImpressionCoping", e.target.value)} placeholder="Details..." /></Td>
+                            <Td><CustomInput name="itemsReceived.implantImpressionCoping" value={values.itemsReceived?.implantImpressionCoping || ""} onChange={(e: any) => setFieldValue("itemsReceived.implantImpressionCoping", e.target.value)} placeholder="Details..." /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Implant Abutment</Td>
+                            <Td><CustomInput name="itemsSent.implantAbutment" value={values.itemsSent?.implantAbutment || ""} onChange={(e: any) => setFieldValue("itemsSent.implantAbutment", e.target.value)} placeholder="Details..." /></Td>
+                            <Td><CustomInput name="itemsReceived.implantAbutment" value={values.itemsReceived?.implantAbutment || ""} onChange={(e: any) => setFieldValue("itemsReceived.implantAbutment", e.target.value)} placeholder="Details..." /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Bite</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.bite || false} onChange={(e) => setFieldValue("itemsSent.bite", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.bite || false} onChange={(e) => setFieldValue("itemsReceived.bite", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Certificate</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.certificate || false} onChange={(e) => setFieldValue("itemsSent.certificate", e.target.checked)} colorScheme="blue" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.certificate || false} onChange={(e) => setFieldValue("itemsReceived.certificate", e.target.checked)} colorScheme="green" /></Td>
+                          </Tr>
+                          <Tr _hover={{ bg: "gray.50" }}>
+                            <Td fontWeight="600" color="gray.700">Accessories</Td>
+                            <Td><CustomInput name="itemsSent.accessories" value={values.itemsSent?.accessories || ""} onChange={(e: any) => setFieldValue("itemsSent.accessories", e.target.value)} placeholder="Any accessories..." /></Td>
+                            <Td><CustomInput name="itemsReceived.accessories" value={values.itemsReceived?.accessories || ""} onChange={(e: any) => setFieldValue("itemsReceived.accessories", e.target.value)} placeholder="Any accessories..." /></Td>
+                          </Tr>
+                        </Tbody>
+                      </Table>
+                    </Box>
+                    <Box bg="blue.50" p={4} borderRadius="xl" border="1px dashed" borderColor="blue.200">
+                      <CustomInput
+                        label="Returnable Items Note (for Lab Doctor)"
+                        name="returnableItems"
+                        type="textarea"
+                        placeholder="Record any items that must be returned here..."
+                        value={values.returnableItems || ""}
+                        onChange={(e: any) => setFieldValue("returnableItems", e.target.value)}
+                      />
+                    </Box>
+                  </VStack>
+                </Box>
+              )}
 
 
             </VStack>

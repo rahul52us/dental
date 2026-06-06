@@ -23,6 +23,8 @@ import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
 import { formatDateTime } from "../../../component/config/utils/dateUtils";
 import { FiUser, FiCalendar, FiClock, FiActivity, FiTag, FiFileText, FiCheckCircle } from "react-icons/fi";
+import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
+import labWorkStatusStore from "../../../store/labWorkStatusStore/labWorkStatusStore";
 
 const LabSheetView = observer(({ data }: { data: any }) => {
   const { labWorkHierarchyStore } = stores;
@@ -128,6 +130,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
           </Box>
         </Box>
 
+
         {/* Dates, Status & Billing */}
         <SimpleGrid columns={{ base: 1, md: 6 }} gap={4}>
            <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
@@ -210,6 +213,144 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                 </VStack>
              </HStack>
            </Box>
+        )}
+
+        {/* Status Tracking History */}
+        {data.workType && (
+          <Box bg="blue.50" p={6} borderRadius="2xl" border="1px solid" borderColor="blue.100" shadow="sm">
+            <VStack align="stretch" spacing={4}>
+              <HStack>
+                <Icon as={FiActivity} color="blue.500" />
+                <VStack align="start" spacing={0}>
+                  <Heading size="sm" color="blue.800">Status Tracking History</Heading>
+                  <Text fontSize="xs" color="blue.600">Complete milestone tracking for this lab order</Text>
+                </VStack>
+              </HStack>
+              <Box borderRadius="xl" border="1px solid" borderColor="blue.200" overflow="hidden" bg="white">
+                <Table variant="simple" size="sm">
+                  <Thead bg="blue.50">
+                    <Tr>
+                      <Th color="blue.700" w="35%">Status</Th>
+                      <Th color="blue.700" w="25%">Date</Th>
+                      <Th color="blue.700">Note</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {(() => {
+                      const availableStatuses = (labWorkStatusStore.statuses || [])
+                        .filter((s: any) => s.type === data.workType)
+                        .map((s: any) => s.status);
+                      const merged = availableStatuses.map((s: string) => {
+                        const existing = (data.statusHistory || []).find((h: any) => h.status === s);
+                        return existing || { status: s, date: null, note: "" };
+                      });
+                      const extras = (data.statusHistory || []).filter((h: any) => !availableStatuses.includes(h.status));
+                      const fullList = [...merged, ...extras];
+
+                      return fullList.map((historyItem: any, idx: number) => {
+                        const isDone = !!historyItem.date;
+                        return (
+                          <Tr key={idx} _hover={{ bg: "blue.50" }} opacity={isDone ? 1 : 0.55}>
+                            <Td>
+                              <HStack spacing={2}>
+                                {isDone
+                                  ? <CheckIcon color="green.500" boxSize={3} />
+                                  : <CloseIcon color="gray.300" boxSize={2} />}
+                                <Badge
+                                  colorScheme={isDone ? "blue" : "gray"}
+                                  borderRadius="full"
+                                  px={2} py={0.5}
+                                  fontWeight="600"
+                                  fontSize="xs"
+                                >
+                                  {historyItem.status?.toUpperCase() || "N/A"}
+                                </Badge>
+                              </HStack>
+                            </Td>
+                            <Td fontWeight={isDone ? "600" : "400"} color={isDone ? "gray.800" : "gray.400"}>
+                              {historyItem.date ? new Date(historyItem.date).toLocaleDateString() : "Not set"}
+                            </Td>
+                            <Td color={isDone ? "gray.700" : "gray.400"} fontStyle={isDone ? "normal" : "italic"}>
+                              {historyItem.note || "-"}
+                            </Td>
+                          </Tr>
+                        );
+                      });
+                    })()}
+                  </Tbody>
+                </Table>
+              </Box>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Items Received / Sent Tracking - Moved to End */}
+        {data.workType === "outside" && (data.itemsSent || data.itemsReceived) && (
+          <Box bg="white" p={6} borderRadius="2xl" border="1px solid" borderColor={borderColor} shadow="sm">
+            <VStack align="stretch" spacing={5}>
+              <HStack justify="space-between">
+                <VStack align="start" spacing={0}>
+                  <Heading size="sm" color="blue.800" display="flex" alignItems="center">
+                    <Icon as={FiActivity} mr={2} color="blue.500" /> Items Received / Sent Tracking
+                  </Heading>
+                  <Text fontSize="xs" color="gray.500">Track all items sent to and received from the laboratory</Text>
+                </VStack>
+              </HStack>
+              <Box borderRadius="xl" border="1px solid" borderColor="gray.100" overflow="hidden" mb={2}>
+                <Table variant="simple" size="sm">
+                  <Thead bg="gray.50">
+                    <Tr>
+                      <Th color="gray.600">Item Name</Th>
+                      <Th textAlign="center" color="blue.600">Sent</Th>
+                      <Th textAlign="center" color="green.600">Received</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {[
+                      { label: "Impression trays (Upper)", key: "impressionTraysUpper", type: "boolean" },
+                      { label: "Impression trays (Lower)", key: "impressionTraysLower", type: "boolean" },
+                      { label: "Models (Upper)", key: "modelsUpper", type: "boolean" },
+                      { label: "Models (Lower)", key: "modelsLower", type: "boolean" },
+                      { label: "Articulator", key: "articulator", type: "boolean" },
+                      { label: "Implant Analog", key: "implantAnalog", type: "string" },
+                      { label: "Implant Impression Coping", key: "implantImpressionCoping", type: "string" },
+                      { label: "Implant Abutment", key: "implantAbutment", type: "string" },
+                      { label: "Bite", key: "bite", type: "boolean" },
+                      { label: "Certificate", key: "certificate", type: "boolean" },
+                      { label: "Accessories", key: "accessories", type: "string" },
+                    ].map((item, idx) => (
+                      <Tr key={idx} _hover={{ bg: "gray.50" }}>
+                        <Td fontWeight="600" color="gray.700">{item.label}</Td>
+                        <Td textAlign="center">
+                          {item.type === "boolean" ? (
+                            data.itemsSent?.[item.key] ? <CheckIcon color="blue.500" /> : <CloseIcon color="gray.200" boxSize={2} />
+                          ) : (
+                            <Text color="gray.600" fontWeight="500">{data.itemsSent?.[item.key] || "-"}</Text>
+                          )}
+                        </Td>
+                        <Td textAlign="center">
+                          {item.type === "boolean" ? (
+                            data.itemsReceived?.[item.key] ? <CheckIcon color="green.500" /> : <CloseIcon color="gray.200" boxSize={2} />
+                          ) : (
+                            <Text color="gray.600" fontWeight="500">{data.itemsReceived?.[item.key] || "-"}</Text>
+                          )}
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </Box>
+
+              {data.returnableItems && (
+                <Box p={4} borderRadius="xl" bg="blue.50" border="1px dashed" borderColor="blue.200">
+                  <VStack align="start" spacing={1}>
+                     <Text fontSize="xs" fontWeight="bold" color="blue.700">RETURNABLE ITEMS NOTE</Text>
+                     <Text fontSize="sm" color="gray.800" fontWeight="500">{data.returnableItems}</Text>
+                  </VStack>
+                </Box>
+              )}
+            </VStack>
+          </Box>
         )}
       </VStack>
     </Box>
