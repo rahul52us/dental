@@ -810,10 +810,60 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     width={{ base: "100%", md: "90%" }}
                 >
                     <Box p={2}>
-                        <Tabs variant="soft-rounded" colorScheme="brand" defaultIndex={1}>
-                            <TabList mb="1em" display="inline-flex" w="auto" gap={2} bg="gray.100" p={1} borderRadius="full">
-                                <Tab fontWeight="bold" fontSize="14px">New Work Entry</Tab>
-                                <Tab fontWeight="bold" fontSize="14px">Work History</Tab>
+                        <Tabs variant="unstyled" colorScheme="blue" defaultIndex={1}>
+                            <TabList 
+                              bg="gray.50" 
+                              p={1} 
+                              borderRadius="xl" 
+                              border="1px solid" 
+                              borderColor="gray.100" 
+                              display="inline-flex" 
+                              w="max-content" 
+                              mb={4} 
+                              gap={1.5}
+                            >
+                                <Tab
+                                    borderRadius="lg"
+                                    fontSize="sm"
+                                    fontWeight="bold"
+                                    color="gray.500"
+                                    py={2}
+                                    px={6}
+                                    transition="all 0.2s"
+                                    _selected={{
+                                        bg: "blue.500",
+                                        color: "white",
+                                        shadow: "md",
+                                        fontWeight: "extrabold",
+                                    }}
+                                    _hover={{
+                                        color: "blue.600",
+                                        bg: "blue.50",
+                                    }}
+                                >
+                                    New Work Entry
+                                </Tab>
+                                <Tab
+                                    borderRadius="lg"
+                                    fontSize="sm"
+                                    fontWeight="bold"
+                                    color="gray.500"
+                                    py={2}
+                                    px={6}
+                                    transition="all 0.2s"
+                                    _selected={{
+                                        bg: "blue.500",
+                                        color: "white",
+                                        shadow: "md",
+                                        fontWeight: "extrabold",
+                                    }}
+                                    _hover={{
+                                        color: "blue.600",
+                                        bg: "blue.50",
+                                    }}
+                                >
+                                    Work History
+                                </Tab>
                             </TabList>
                             <TabPanels>
                                 <TabPanel p={0}>
