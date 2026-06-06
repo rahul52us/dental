@@ -227,7 +227,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     const genderLabel = genderOptions.find((opt: any) => opt.value === personalInfo?.gender)?.label || "--";
                     const primaryPhone = patient?.mobileNumber || "--"
                     const displayPhone = primaryPhone;
-
+                    const balancePendingAmount = patient?.patientPendingBalance;
+                    const totalBalanceAmount = patient?.totalBill
                     // Silk & Chair Color Aesthetics
                     const silkBg = useColorModeValue(`${chairColor}11`, `${chairColor}15`); // Very soft silk tint
                     const borderHover = useColorModeValue(`${chairColor}44`, `${chairColor}66`);
@@ -396,15 +397,15 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                     <Icon as={MdLocalHospital} boxSize={3} /> View Medical History
                                                 </Badge>
                                             ) : (
-                                                <Badge variant="subtle" colorScheme="gray" fontSize="9px" borderRadius="md" px={2} fontWeight="700">
-                                                    {patient?.code || "CODE"}
+                                                <Badge variant="subtle" colorScheme="blue" fontSize="9px" borderRadius="md" px={2} fontWeight="700">
+                                                    👨‍⚕️ {apt.primaryDoctor?.name || "No Doctor"}
                                                 </Badge>
                                             )}
                                         </HStack>
                                     </Box>
                                 </Flex>
 
-                                <VStack align="stretch" spacing={4}>
+                                <VStack align="stretch" spacing={4} w="100%">
                                     <HStack justify="space-between">
                                         <Flex align="center" gap={2} fontSize="xs" fontWeight="700" color={mutedTextColor} letterSpacing="tight">
                                             <CalendarIcon boxSize={3} color={chairColor} />
@@ -424,34 +425,89 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         borderWidth="1px"
                                         borderColor={useColorModeValue("whiteAlpha.500", "whiteAlpha.100")}
                                         boxShadow="sm"
+                                        w="100%"
                                     >
-                                        <Text fontWeight="800" fontSize="sm" color={labelTextColor} noOfLines={1} letterSpacing="-0.01em">
+                                        <Text fontWeight="800" fontSize="sm" color={labelTextColor} noOfLines={1} letterSpacing="-0.01em" minH="20px">
                                             {apt.description}
                                         </Text>
 
+                                        {/* 💰 Patient Balance Summary */}
+                                        <Box
+                                            mt={2}
+                                            p={2.5}
+                                            borderRadius="xl"
+                                            w="100%"
+                                            bg={useColorModeValue(
+                                                balancePendingAmount > 0 ? "red.50" : "green.50",
+                                                balancePendingAmount > 0 ? "rgba(254,178,178,0.08)" : "rgba(154,230,180,0.08)"
+                                            )}
+                                            border="1px solid"
+                                            borderColor={useColorModeValue(
+                                                balancePendingAmount > 0 ? "red.100" : "green.100",
+                                                balancePendingAmount > 0 ? "red.800" : "green.800"
+                                            )}
+                                        >
+                                                <HStack justify="space-between" mb={1.5}>
+                                                    <Text fontSize="10px" fontWeight="700" textTransform="uppercase" letterSpacing="0.05em" color={useColorModeValue("gray.500", "gray.400")}>
+                                                        💰 Account Summary
+                                                    </Text>
+                                                    {balancePendingAmount > 0 ? (
+                                                        <Badge
+                                                            colorScheme="red"
+                                                            variant="subtle"
+                                                            fontSize="9px"
+                                                            px={2}
+                                                            py={0.5}
+                                                            borderRadius="full"
+                                                            fontWeight="800"
+                                                        >
+                                                            DUE
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge
+                                                            colorScheme="green"
+                                                            variant="subtle"
+                                                            fontSize="9px"
+                                                            px={2}
+                                                            py={0.5}
+                                                            borderRadius="full"
+                                                            fontWeight="800"
+                                                        >
+                                                            ✓ CLEAR
+                                                        </Badge>
+                                                    )}
+                                                </HStack>
+                                                <HStack justify="space-between" spacing={3}>
+                                                    <VStack spacing={0} align="start">
+                                                        <Text fontSize="9px" color={useColorModeValue("gray.400", "gray.500")} fontWeight="600">Total Bill</Text>
+                                                        <Text fontSize="13px" fontWeight="800" color={useColorModeValue("gray.700", "gray.200")}>
+                                                            ₹{totalBalanceAmount?.toLocaleString("en-IN") || 0}
+                                                        </Text>
+                                                    </VStack>
+                                                    <VStack spacing={0} align="center">
+                                                        <Text fontSize="9px" color={useColorModeValue("gray.400", "gray.500")} fontWeight="600">Received</Text>
+                                                        <Text fontSize="13px" fontWeight="800" color={useColorModeValue("blue.600", "blue.300")}>
+                                                            ₹{(totalBalanceAmount - balancePendingAmount)?.toLocaleString("en-IN") || 0}
+                                                        </Text>
+                                                    </VStack>
+                                                    <VStack spacing={0} align="end">
+                                                        <Text fontSize="9px" color={useColorModeValue("gray.400", "gray.500")} fontWeight="600">Outstanding</Text>
+                                                        <Text
+                                                            fontSize="13px"
+                                                            fontWeight="900"
+                                                            color={balancePendingAmount > 0
+                                                                ? useColorModeValue("red.600", "red.300")
+                                                                : useColorModeValue("green.600", "green.300")
+                                                            }
+                                                        >
+                                                            ₹{balancePendingAmount?.toLocaleString("en-IN") || 0}
+                                                        </Text>
+                                                    </VStack>
+                                                </HStack>
+                                        </Box>
 
-
-                                        <Flex align="center" gap={1.5} mt={3}>
-                                            <Badge
-                                                bg="gray.100"
-                                                color="black"
-                                                px={2.5}
-                                                py={0.8}
-                                                borderRadius="md"
-                                                fontSize="10px"
-                                                fontWeight="900"
-                                                display="inline-flex"
-                                                alignItems="center"
-                                                gap={1}
-                                                borderWidth="1px"
-                                                borderColor="gray.200"
-                                            >
-                                                👨‍⚕️ {apt.primaryDoctor?.name || "No Doctor"}
-                                            </Badge>
-                                        </Flex>
                                     </Box>
 
-                                    <Text fontSize="11px" color={mutedTextColor} fontWeight="600" ml={1} opacity={0.8}>📞 {displayPhone}</Text>
                                 </VStack>
                             </Box>
 
@@ -486,8 +542,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             }}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setOpenTreatment({ 
-                                                    open: true, 
+                                                setOpenTreatment({
+                                                    open: true,
                                                     data: patient,
                                                     defaultTab: patient?.pendingTreatmentCount > 0 ? 1 : 0,
                                                     defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
