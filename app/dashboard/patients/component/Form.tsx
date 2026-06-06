@@ -52,6 +52,28 @@ const Form = observer(
     } = stores;
     const [formData, setFormData] = useState<any>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [searchTimeout, setSearchTimeout] = useState<any>(null);
+
+    const fetchNameSuggestions = async (query: string) => {
+      if (query.length < 2) {
+        setNameSuggestions([]);
+        return;
+      }
+      try {
+        const res: any = await stores.userStore.getUsersList({
+          type: "patient",
+          search: query,
+          page: 1,
+          limit: 8,
+        });
+        const patients = res?.data?.data?.data || [];
+        setNameSuggestions(patients.map((p: any) => p.name).filter(Boolean));
+      } catch {
+        setNameSuggestions([]);
+      }
+    };
 
     const bgBox = useColorModeValue("white", "darkBrand.100");
     const borderColor = useColorModeValue("brand.200", "darkBrand.200");
@@ -213,16 +235,69 @@ const Form = observer(
                               onClick={() => setIsDrawerOpen(true)}
                             />
                           </Flex>
-                          <CustomInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter Name"
-                            value={values.name}
-                            required={true}
-                            onChange={handleChange}
-                            error={errors?.name}
-                            showError={errors.name && touched.name}
-                          />
+                          <Box
+                            position="relative"
+                            onFocus={() => {
+                              if (nameSuggestions.length > 0) setShowSuggestions(true);
+                            }}
+                            onBlur={() => {
+                              setTimeout(() => setShowSuggestions(false), 200);
+                            }}
+                          >
+                            <CustomInput
+                              label="Name"
+                              name="name"
+                              placeholder="Enter Name"
+                              value={values.name}
+                              required={true}
+                              onChange={(e: any) => {
+                                handleChange(e);
+                                const val = e.target.value;
+                                if (searchTimeout) clearTimeout(searchTimeout);
+                                const timeout = setTimeout(() => fetchNameSuggestions(val), 300);
+                                setSearchTimeout(timeout);
+                                setShowSuggestions(true);
+                              }}
+                              error={errors?.name}
+                              showError={errors.name && touched.name}
+                            />
+                            {showSuggestions && nameSuggestions.length > 0 && (
+                              <Box
+                                position="absolute"
+                                top="100%"
+                                left={0}
+                                right={0}
+                                bg="white"
+                                border="1px solid"
+                                borderColor="gray.200"
+                                borderRadius="xl"
+                                boxShadow="lg"
+                                zIndex={99}
+                                maxH="200px"
+                                overflowY="auto"
+                                mt={1}
+                              >
+                                {nameSuggestions.map((name: string, idx: number) => (
+                                  <Box
+                                    key={idx}
+                                    px={4}
+                                    py={2.5}
+                                    cursor="pointer"
+                                    fontSize="sm"
+                                    fontWeight="600"
+                                    color="gray.700"
+                                    _hover={{ bg: "blue.50", color: "blue.600" }}
+                                    onMouseDown={() => {
+                                      setFieldValue("name", name);
+                                      setShowSuggestions(false);
+                                    }}
+                                  >
+                                    {name}
+                                  </Box>
+                                ))}
+                              </Box>
+                            )}
+                          </Box>
                           <CustomInput
                             label="Date Of birth"
                             type="date"

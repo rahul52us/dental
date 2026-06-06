@@ -607,13 +607,12 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               option: (styles, { isSelected, isFocused }) => ({
                 ...styles,
                 backgroundColor:
-                  isSelected || isFocused
-                    ? colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500]
-                    : "transparent",
-                color:
-                  isSelected || isFocused
-                    ? "white"
-                    : colorMode === "light" ? "gray.700" : "white",
+                  isSelected
+                    ? "#FBB6CE"
+                    : isFocused
+                      ? "#FED7E2"
+                      : "transparent",
+                color: isSelected || isFocused ? "#1A202C" : colorMode === "light" ? "#2D3748" : "white",
                 fontWeight: isSelected || isFocused ? "700" : "500",
                 fontSize: "13px",
                 padding: "10px 12px",
@@ -644,8 +643,8 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: "white",
-                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                color: "#1A202C",
+                backgroundColor: "#FBB6CE",
                 borderRadius: "8px",
                 padding: "4px 12px",
                 fontWeight: "700",
