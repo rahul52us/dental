@@ -69,6 +69,22 @@ class ToothTreatmentStore {
     }
   };
 
+  getToothTreatmentCountByDate = async (sendData: { patientId: any }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const params = {
+        company: compId,
+        patientId: sendData.patientId,
+      };
+      const { data } = await axios.get("/toothTreatment/count-by-date", { params });
+      return data;
+    } catch (err: any) {
+      console.error("Failed to fetch treatment count by date:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   _mapTreatmentData = (rawItems: any[]) => {
     return rawItems.map((it: any) => {
       const fdi = it?.tooth || "--";

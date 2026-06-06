@@ -961,6 +961,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         workDoneId={openPrintModal.id}
         patientId={openPrintModal.patientId}
         date={openPrintModal.date}
+        onOpenFilteredReport={() => setOpenFilteredReportModal({ open: true })}
       />
 
       {openDailyReportModal.open && (
@@ -1091,7 +1092,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   );
 });
 
-const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patientId, date }: any) => {
+const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patientId, date, onOpenFilteredReport }: any) => {
   const {
     workDoneStore: { downloadWorkDoneReport, generateWorkDoneReportBlob },
     prescriptionStore,
@@ -1271,18 +1272,19 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                           <Text fontSize="14px" fontWeight="900" color="blue.700">Clinical Report Generation</Text>
                         </VStack>
                         <HStack spacing={3}>
-                          <Select
+                          <Button
                             size="sm"
+                            colorScheme="purple"
+                            variant="solid"
+                            leftIcon={<FiDownload />}
                             borderRadius="lg"
-                            w="220px"
-                            bg="white"
-                            value={values.reportType}
-                            onChange={(e) => setFieldValue("reportType", e.target.value)}
+                            fontSize="11px"
+                            fontWeight="bold"
+                            onClick={onOpenFilteredReport}
                           >
-                            <option value="both">Work Done & Prescriptions</option>
-                            <option value="workdone_only">Work Done Only</option>
-                            <option value="prescription_only">Prescriptions Only</option>
-                          </Select>
+                            DOWNLOAD FILTERED PRESCRIPTION
+                          </Button>
+
                           <Button
                             size="sm"
                             colorScheme="blue"
@@ -1308,7 +1310,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                               }
                             }}
                           >
-                            GENERATE PREVIEW
+                            GENERATE AND SAVE
                           </Button>
                           <Button
                             size="sm"
@@ -1680,7 +1682,7 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
         toothNumber: selectedToothNumbers,
         reportType
       };
-      await workDoneStore.downloadFilteredWorkDoneReport(patientId, filterParams, { prescriptions: [], topPadding: 0, bottomPadding: 0 });
+      await workDoneStore.downloadFilteredWorkDoneReport(patientId, filterParams, { prescriptions: [], topPadding: 150, bottomPadding: 50 });
       openNotification({
         type: "success",
         title: "Report Downloaded",
@@ -1711,7 +1713,7 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
         toothNumber: selectedToothNumbers,
         reportType
       };
-      const res: any = await workDoneStore.generateFilteredWorkDoneReportBlob(patientId, filterParams, { prescriptions: [], topPadding: 0, bottomPadding: 0 });
+      const res: any = await workDoneStore.generateFilteredWorkDoneReportBlob(patientId, filterParams, { prescriptions: [], topPadding: 150, bottomPadding: 50 });
       if (res?.url) setPreviewDrawer({ open: true, url: res.url });
     } catch (err: any) {
       openNotification({ type: "error", title: "Preview Failed", message: err.message });

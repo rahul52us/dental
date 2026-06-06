@@ -147,7 +147,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   const dentition = dentitionType || "adult";
   const allTeeth = getTeethByType(dentition as any);
   const toothObj = allTeeth.find(t => t.id === tooth);
-  
+
   const toothDisplayNumber = (() => {
     if (!toothObj) return tooth || "--";
     if (notation === "universal") return toothObj.universal;
@@ -242,13 +242,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
           {/* Clinical Context */}
           <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
             <VStack align="start" spacing={4} w="full">
-              <HStack w="full" justify="space-between">
-                <HStack>
-                  <Icon as={FaStethoscope} color="blue.500" />
-                  <Heading size="sm" color="gray.700">Clinical Context</Heading>
-                </HStack>
-              </HStack>
-              <Divider />
+
               <VStack align="stretch" w="full" spacing={4}>
                 <Box>
                   <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">Complaint Type</Text>
@@ -271,10 +265,6 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
           {/* Assigned Staff */}
           <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
             <VStack align="start" spacing={4} w="full">
-              <HStack>
-                <Icon as={FaUserMd} color="teal.500" />
-                <Heading size="sm" color="gray.700">Medical Team</Heading>
-              </HStack>
               <Divider />
               <VStack align="stretch" w="full" spacing={4}>
                 <HStack spacing={4}>
@@ -297,6 +287,22 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
             </VStack>
           </Card>
 
+                    <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+            <VStack align="start" spacing={4} w="full">
+              <HStack>
+                <Icon as={FaNotesMedical} color="orange.500" />
+                <Heading size="sm" color="gray.700">Clinical Findings & Notes</Heading>
+              </HStack>
+              <Divider />
+              <Box w="full" bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
+                <Text color="gray.700" whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
+                  {notes || workDoneNote || toothNote || "No clinical notes provided for this record."}
+                </Text>
+              </Box>
+            </VStack>
+          </Card>
+
+
           {/* Financial Summary */}
           <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
             <VStack align="start" spacing={4} w="full">
@@ -315,8 +321,8 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   <Text fontSize="18px" fontWeight="1000" color="blue.700">
                     {workDoneNote !== undefined || amount !== undefined
                       ? `₹${(amount || 0).toLocaleString()}`
-                      : estimateMin === estimateMax 
-                        ? `₹${(estimateMin || 0).toLocaleString()}` 
+                      : estimateMin === estimateMax
+                        ? `₹${(estimateMin || 0).toLocaleString()}`
                         : `₹${(estimateMin || 0).toLocaleString()} - ₹${(estimateMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
@@ -331,8 +337,8 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   <Text fontSize="20px" fontWeight="1000" color="green.700">
                     {workDoneNote !== undefined || amount !== undefined
                       ? `₹${((amount || 0) - (discount || 0)).toLocaleString()}`
-                      : totalMin === totalMax 
-                        ? `₹${(totalMin || 0).toLocaleString()}` 
+                      : totalMin === totalMax
+                        ? `₹${(totalMin || 0).toLocaleString()}`
                         : `₹${(totalMin || 0).toLocaleString()} - ₹${(totalMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
@@ -341,20 +347,6 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
           </Card>
 
           {/* Notes & Clinical Findings */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
-            <VStack align="start" spacing={4} w="full">
-              <HStack>
-                <Icon as={FaNotesMedical} color="orange.500" />
-                <Heading size="sm" color="gray.700">Clinical Findings & Notes</Heading>
-              </HStack>
-              <Divider />
-              <Box w="full" bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
-                <Text color="gray.700" whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
-                  {notes || workDoneNote || toothNote || "No clinical notes provided for this record."}
-                </Text>
-              </Box>
-            </VStack>
-          </Card>
 
           {/* Administrative Info */}
           <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>

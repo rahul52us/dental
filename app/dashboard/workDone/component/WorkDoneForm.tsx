@@ -271,7 +271,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   };
 
   const initialValues = {
-    complaintType: editData?.complaintType || treatmentDetails?.complaintType || "EXISTING FINDING",
+    complaintType: editData?.complaintType || treatmentDetails?.complaintType || "OTHER FINDING",
     doctor: (() => {
       const doc = editData?.doctor; // Only use editData for doctors on new records to keep it empty
       if (!doc) return "";

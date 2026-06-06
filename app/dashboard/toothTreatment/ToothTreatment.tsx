@@ -1,8 +1,8 @@
 "use client";
-import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
@@ -18,8 +18,9 @@ import Pagination from "../../component/config/component/pagination/Pagination";
 import WorkDoneForm from "../workDone/component/WorkDoneForm";
 import WorkDoneList from "../workDone/component/WorkDoneList";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
-import { FiCheckCircle } from "react-icons/fi";
+import { FiCheckCircle, FiCalendar } from "react-icons/fi";
 import { adultTeeth, childTeeth } from "../../component/common/TeethModel/DentalChartComponent/utils/teethData";
+
 
 
 
@@ -46,6 +47,30 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [complaintTypeFilter, setComplaintTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+  const [isCountModalOpen, setIsCountModalOpen] = useState(false);
+  const [backendCounts, setBackendCounts] = useState<any[]>([]);
+  const [isCounting, setIsCounting] = useState(false);
+  const [countSearch, setCountSearch] = useState("");
+
+  const totalSummaryStats = useMemo(() => {
+    if (!backendCounts || backendCounts.length === 0) return { totalVisits: 0, totalTreatments: 0 };
+    return backendCounts.reduce((acc, curr) => {
+      acc.totalVisits += 1;
+      acc.totalTreatments += curr.count || 0;
+      return acc;
+    }, { totalVisits: 0, totalTreatments: 0 });
+  }, [backendCounts]);
+
+  const filteredCounts = useMemo(() => {
+    if (!countSearch) return backendCounts;
+    return backendCounts.filter((item) => {
+      const dateStr = new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' }).toLowerCase();
+      return dateStr.includes(countSearch.toLowerCase());
+    });
+  }, [backendCounts, countSearch]);
+
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllRecords = useCallback(
@@ -73,6 +98,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         query.status = statusFilter;
       }
 
+      if (selectedDateFilter) {
+        query.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
+        query.toDate = `${selectedDateFilter}T23:59:59.999Z`;
+      }
+
       getToothTreatments(query).catch((err) => {
         openNotification({
           type: "error",
@@ -94,7 +124,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
   useEffect(() => {
     applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, complaintTypeFilter, statusFilter, applyGetAllRecords]);
+  }, [currentPage, debouncedSearchQuery, complaintTypeFilter, statusFilter, selectedDateFilter, applyGetAllRecords]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -105,6 +135,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     setSearchQuery("");
     setComplaintTypeFilter("all");
     setStatusFilter("all");
+    setSelectedDateFilter(null);
     applyGetAllRecords({ page: 1, reset: true });
   };
 
@@ -627,18 +658,19 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 gap={4}
               >
                 <VStack align="start" spacing={0}>
-                  <Heading size="md" color="blue.600">Treatment Records</Heading>
+                  <Heading size="md" color="blue.600">Treatment Records ({toothTreatment?.totalItems || 0})</Heading>
                   {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
                 </VStack>
 
-                <HStack spacing={4} flex={1} maxW="850px" justify="flex-end">
-                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1}>
+                <HStack spacing={4} flex={1} w="full" justify="flex-end" flexWrap="wrap">
+                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1} minW="250px">
                     <Icon as={FiSearch} color="gray.400" />
                     <Input
                       placeholder="Search clinical records..."
                       variant="unstyled"
                       py={2}
                       fontSize="sm"
+                      w="full"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -679,6 +711,35 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                       <option value="incomplete">INCOMPLETE</option>
                     </select>
                   </Box>
+
+                  <HStack spacing={1}>
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      variant="solid"
+                      leftIcon={<FiCalendar />}
+                      borderRadius="xl"
+                      fontSize="11px"
+                      fontWeight="bold"
+                      onClick={() => {
+                        setIsCounting(true);
+                        stores.toothTreatmentStore.getToothTreatmentCountByDate({ patientId: patientDetails?._id })
+                          .then((res: any) => {
+                            if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                              setBackendCounts(res.data || []);
+                            }
+                          })
+                          .catch((err: any) => console.error("Failed to load counts:", err))
+                          .finally(() => setIsCounting(false));
+                        setIsCountModalOpen(true);
+                      }}
+                    >
+                      VIEW HISTORY DATE WISE
+                    </Button>
+                    <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
+                      {toothTreatment?.totalItems || 0}
+                    </Circle>
+                  </HStack>
 
                   <HStack bg="gray.100" p={1} borderRadius="xl">
                     <IconButton
@@ -835,6 +896,103 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             </Tabs>
           </Box>
         </CustomDrawer>
+      )}
+
+      {isCountModalOpen && (
+      <Modal isOpen={isCountModalOpen} onClose={() => setIsCountModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent borderRadius="3xl" p={2}>
+          <ModalHeader borderBottom="1px solid" borderColor="gray.50">
+            <VStack align="start" spacing={3}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">PATIENT TRENDS</Text>
+                <Heading size="md" fontWeight="1000">Clinical Activity Summary</Heading>
+              </VStack>
+              {backendCounts.length > 0 && (
+                <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL VISITS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalVisits}</Text>
+                  </Box>
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL TREATMENTS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalTreatments}</Text>
+                  </Box>
+                </Grid>
+              )}
+              <HStack w="full" bg="gray.100" p={2} borderRadius="xl">
+                <Icon as={FiSearch} color="gray.400" />
+                <Input
+                  placeholder="Filter by date or year..."
+                  variant="unstyled"
+                  fontSize="xs"
+                  value={countSearch}
+                  onChange={(e) => setCountSearch(e.target.value)}
+                />
+              </HStack>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6} maxH="500px" overflowY="auto">
+            {filteredCounts.length > 0 ? (
+              <VStack align="stretch" spacing={3}>
+                {filteredCounts.map((item: any, idx: number) => (
+                  <HStack
+                    key={idx}
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="2xl"
+                    justify="space-between"
+                    border="1px solid"
+                    borderColor="transparent"
+                    _hover={{ borderColor: "blue.200", bg: "blue.50", cursor: "pointer", transform: "translateX(4px)" }}
+                    transition="all 0.2s"
+                    onClick={() => {
+                      setSelectedDateFilter(item.date);
+                      setIsCountModalOpen(false);
+                    }}
+                  >
+                    <HStack spacing={4}>
+                      <Box p={2} bg="white" borderRadius="lg" shadow="sm">
+                        <Icon as={FiCalendar} color="blue.500" />
+                      </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="sm" fontWeight="800" color="gray.700">
+                          {new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                        </Text>
+                        <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
+                      </VStack>
+                    </HStack>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      bg="blue.500"
+                      w="32px"
+                      h="32px"
+                      borderRadius="full"
+                      color="white"
+                      fontWeight="1000"
+                      fontSize="sm"
+                      shadow="md"
+                    >
+                      {item.count}
+                    </Box>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : (
+              <VStack py={10} spacing={4} opacity={0.5}>
+                <Icon as={FiActivity} fontSize="40px" />
+                <Text fontWeight="800">{countSearch ? "No matches found" : "No activity history found"}</Text>
+              </VStack>
+            )}
+          </ModalBody>
+          <ModalFooter bg="gray.50" borderRadius="0 0 2xl 2xl">
+            <Button w="full" variant="ghost" fontWeight="1000" onClick={() => setIsCountModalOpen(false)}>CLOSE SUMMARY</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       )}
     </>
   );
