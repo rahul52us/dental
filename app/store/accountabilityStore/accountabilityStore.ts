@@ -114,6 +114,32 @@ class AccountabilityStore {
       this.loading = false;
     }
   };
+
+  getAccountabilityCountByDate = async (query: { company: string; patientId?: string }) => {
+    try {
+      this.loading = true;
+      const res = await axios.get("/accountability/count-by-date", { params: query });
+      return res.data;
+    } catch (error: any) {
+      console.error("Failed to fetch accountability count by date:", error);
+      return Promise.reject(error?.response?.data || error.message);
+    } finally {
+      this.loading = false;
+    }
+  };
+
+  getAccountabilityGroupedByDate = async (query: { company: string; patientId?: string }) => {
+    try {
+      this.loading = true;
+      const res = await axios.get("/accountability/grouped-by-date", { params: query });
+      return res.data;
+    } catch (error: any) {
+      console.error("Failed to fetch accountability grouped by date:", error);
+      return Promise.reject(error?.response?.data || error.message);
+    } finally {
+      this.loading = false;
+    }
+  };
 }
 
 export default new AccountabilityStore();

@@ -31,6 +31,7 @@ import {
   Textarea,
   Select,
   Flex,
+  Circle,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign, FiGrid, FiList } from "react-icons/fi";
@@ -434,27 +435,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
   return (
     <Box>
-      <HStack justify="space-between" mb={4} wrap="wrap" gap={2}>
-        <HStack spacing={3}>
-          <Text fontSize="11px" fontWeight="1000" color="gray.700" letterSpacing="0.1em">CLINICAL RECORDS</Text>
-          {selectedDateFilter && (
-            <Badge colorScheme="blue" variant="solid" borderRadius="xl" px={3} py={0.5} fontSize="10px" fontWeight="bold">
-              <HStack spacing={1} align="center">
-                <Text>{new Date(selectedDateFilter).toLocaleDateString(undefined, { dateStyle: 'medium' })}</Text>
-                <Box
-                  as="span"
-                  cursor="pointer"
-                  onClick={() => setSelectedDateFilter(null)}
-                  fontWeight="black"
-                  pl={1}
-                >
-                  ✕
-                </Box>
-              </HStack>
-            </Badge>
-          )}
-        </HStack>
-        <HStack spacing={2}>
+      <HStack justify="flex-end" mb={4}>
+        <HStack spacing={2} flex={1} justify="flex-end">
           <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
              <Icon as={FiSearch} color="gray.500" fontSize="14px" />
              <Input
@@ -468,6 +450,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 onChange={(e) => setSearchTooth(e.target.value)}
              />
           </HStack>
+
 
           <Select
             value={statusFilter}
@@ -489,6 +472,9 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             <option value="pending">Pending</option>
             <option value="incomplete">Incomplete</option>
           </Select>
+
+
+
           <Button
             size="sm"
             colorScheme="teal"
@@ -501,34 +487,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           >
             ACCOUNT
           </Button>
-          <Button
-            size="sm"
-            colorScheme="blue"
-            variant="outline"
-            leftIcon={<FiCalendar />}
-            borderRadius="xl"
-            fontSize="11px"
-            fontWeight="bold"
-            isLoading={isCounting}
-            onClick={() => {
-              setIsCounting(true);
-              getWorkDoneCountByDate({ patientId: patientDetails?._id })
-                .then((res: any) => {
-                  if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
-                    setBackendCounts(res.data || []);
-                  }
-                })
-                .catch((err) => {
-                  console.error("Failed to load work done counts:", err);
-                })
-                .finally(() => {
-                  setIsCounting(false);
-                });
-              setIsCountModalOpen(true);
-            }}
-          >
-            VIEW RECORDS DATE WISE
-          </Button>
+
           <Button
             size="sm"
             colorScheme="blue"
@@ -555,6 +514,35 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             DOWNLOAD FILTERED PRESCRIPTION
           </Button>
 
+          <HStack spacing={1}>
+            <Button
+              size="sm"
+              colorScheme="blue"
+              variant="solid"
+              leftIcon={<FiCalendar />}
+              borderRadius="xl"
+              fontSize="11px"
+              fontWeight="bold"
+              onClick={() => {
+                setIsCounting(true);
+                getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                  .then((res: any) => {
+                    if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                      setBackendCounts(res.data || []);
+                    }
+                  })
+                  .catch((err: any) => console.error("Failed to load counts:", err))
+                  .finally(() => setIsCounting(false));
+                setIsCountModalOpen(true);
+              }}
+            >
+              VIEW HISTORY DATE WISE
+            </Button>
+            <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
+              {displayedRecords.length || 0}
+            </Circle>
+          </HStack>
+
           <HStack bg="gray.100" p={1} borderRadius="xl" ml={2}>
             <IconButton
               size="sm"
@@ -573,8 +561,28 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               aria-label="List View"
             />
           </HStack>
+
+          <Button
+            size="sm"
+            variant="solid"
+            colorScheme="blue"
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            px={4}
+            ml={2}
+            shadow="sm"
+            onClick={() => {
+              setSearchTooth("");
+              setStatusFilter("all");
+              setSelectedDateFilter(null);
+            }}
+          >
+            RESET FILTERS
+          </Button>
         </HStack>
       </HStack>
+
       <VStack align="stretch" spacing={4}>
         {workDone.loading ? (
           <Center py={10}>

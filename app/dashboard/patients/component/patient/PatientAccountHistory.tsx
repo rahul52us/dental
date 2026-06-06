@@ -36,6 +36,9 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Select,
+  Circle,
+  Grid,
+  Heading,
 } from "@chakra-ui/react";
 import {
   FiActivity,
@@ -93,6 +96,29 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
+  const [sessionDate, setSessionDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const [backendCounts, setBackendCounts] = useState<any[]>([]);
+  const [isCounting, setIsCounting] = useState(false);
+  const [isCountModalOpen, setIsCountModalOpen] = useState(false);
+  const [countSearch, setCountSearch] = useState("");
+
+  const filteredCounts = useMemo(() => {
+    if (!countSearch) return backendCounts;
+    return backendCounts.filter(item => {
+      const dateStr = new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' }).toLowerCase();
+      return dateStr.includes(countSearch.toLowerCase()) || item.date.includes(countSearch);
+    });
+  }, [backendCounts, countSearch]);
+
+  const totalSummaryStats = useMemo(() => {
+    const totalVisits = backendCounts.length;
+    const totalTreatments = backendCounts.reduce((acc, curr) => acc + (curr.count || 0), 0);
+    return {
+      totalVisits,
+      totalTreatments
+    };
+  }, [backendCounts]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -137,7 +163,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     await accountabilityStore.getAccountabilityList({
       patient: patientDetails._id,
       companyId: auth.company,
-      limit: 100
+      limit: 100,
+      startDate: appliedStartDate || undefined,
+      endDate: appliedEndDate || undefined
     });
   }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, appliedStartDate, appliedEndDate, currentPage, debouncedSearchQuery]);
 
@@ -319,10 +347,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           <HStack spacing={3}>
             <Box p={1.5} bg="blue.50" borderRadius="lg"><Icon as={FiActivity} color="blue.500" /></Box>
             <VStack align="start" spacing={0}>
-              <Text fontSize="sm" fontWeight="800" color="gray.700">{dt.workDoneNote || dt.toothNote || dt.treatmentPlan || dt.treatmentCode || "General"}</Text>
-              <HStack spacing={2}>
-                <Badge colorScheme="blue" variant="subtle" fontSize="9px">T: {dt.tooth || "N/A"}</Badge>
-                <Text fontSize="10px" color="gray.400" fontWeight="600"><Icon as={FiUser} mr={1} boxSize="10px" />{dt.doctor?.name}</Text>
+              <Text fontSize="md" fontWeight="900" color="gray.800">{dt.workDoneNote || dt.toothNote || dt.treatmentPlan || dt.treatmentCode || "General"}</Text>
+              <HStack spacing={2} mt={1}>
+                <Badge colorScheme="blue" variant="subtle" fontSize="11px" px={2} py={0.5} borderRadius="md">T: {dt.tooth || "N/A"}</Badge>
+                <Text fontSize="xs" color="gray.500" fontWeight="700"><Icon as={FiUser} mr={1} boxSize="12px" />{dt.doctor?.name}</Text>
               </HStack>
             </VStack>
           </HStack>
@@ -518,12 +546,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           ))}
         </SimpleGrid>
 
-        <Box px={2} mb={6}>
-          <HStack justify="space-between" align="center" flexWrap="wrap" gap={4}>
-            <VStack align="start" spacing={0}>
-            </VStack>
-
-            <HStack spacing={3} ml="auto">
+        <HStack px={2} mb={6} justify="flex-end">
+          <Box maxW="100%" overflowX="auto" css={{ '&::-webkit-scrollbar': { height: '6px' }, '&::-webkit-scrollbar-thumb': { background: '#CBD5E0', borderRadius: '4px' } }} pb={2}>
+            <HStack spacing={2} minW="max-content">
               {stores.auth.hasPermission('accountability', 'download') && (
                 <Button
                   leftIcon={<FiEye />}
@@ -560,7 +585,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   variant="unstyled"
                   placeholder="Search tooth or note..."
                   size="md"
-                  w="200px"
+                  w="220px"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -585,7 +610,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   variant="unstyled"
                   fontWeight="800"
                   color="blue.600"
-                  w="200px"
+                  w="220px"
                   px={4}
                   value={doctorFilter}
                   onChange={(e) => setDoctorFilter(e.target.value)}
@@ -599,6 +624,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               </HStack>
 
               <HStack 
+                display="none"
                 spacing={2} 
                 p={1} 
                 bg="white" 
@@ -644,27 +670,61 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 >
                   Apply
                 </Button>
-                {(startDate || endDate || appliedStartDate || appliedEndDate) && (
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    colorScheme="red" 
-                    borderRadius="xl" 
-                    px={3} 
-                    onClick={() => {
-                      setStartDate("");
-                      setEndDate("");
-                      setAppliedStartDate("");
-                      setAppliedEndDate("");
-                    }}
-                  >
-                    Reset
-                  </Button>
-                )}
+
               </HStack>
+              <HStack spacing={1}>
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  variant="solid"
+                  leftIcon={<FiCalendar />}
+                  borderRadius="xl"
+                  fontSize="11px"
+                  fontWeight="bold"
+                  onClick={() => {
+                    setIsCounting(true);
+                    workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                      .then((res: any) => {
+                        if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                          setBackendCounts(res.data || []);
+                        }
+                      })
+                      .catch((err: any) => console.error("Failed to load accountability counts:", err))
+                      .finally(() => setIsCounting(false));
+                    setIsCountModalOpen(true);
+                  }}
+                >
+                  VIEW HISTORY DATE WISE
+                </Button>
+                <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
+                  {filteredWork.length || 0}
+                </Circle>
+              </HStack>
+
+              <Button
+                size="sm"
+                variant="solid"
+                colorScheme="blue"
+                borderRadius="xl"
+                fontSize="11px"
+                fontWeight="bold"
+                px={4}
+                ml={2}
+                shadow="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setDoctorFilter("all");
+                  setStartDate("");
+                  setEndDate("");
+                  setAppliedStartDate("");
+                  setAppliedEndDate("");
+                }}
+              >
+                RESET FILTERS
+              </Button>
             </HStack>
-          </HStack>
-        </Box>
+          </Box>
+        </HStack>
 
         <CustomTable
           data={filteredWork.map((wd: any, i: number) => ({
@@ -683,6 +743,105 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           }}
         />
       </Box>
+
+      <Modal isOpen={isCountModalOpen} onClose={() => setIsCountModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalContent borderRadius="3xl" p={2}>
+          <ModalHeader borderBottom="1px solid" borderColor="gray.50">
+            <VStack align="start" spacing={3}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">PATIENT TRENDS</Text>
+                <Heading size="md" fontWeight="1000">Accountability Summary</Heading>
+              </VStack>
+              {backendCounts.length > 0 && (
+                <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL VISITS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalVisits}</Text>
+                  </Box>
+                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL RECORDS</Text>
+                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalTreatments}</Text>
+                  </Box>
+                </Grid>
+              )}
+              <HStack w="full" bg="gray.100" p={2} borderRadius="xl">
+                <Icon as={FiSearch} color="gray.400" />
+                <Input
+                  placeholder="Filter by date or year..."
+                  variant="unstyled"
+                  fontSize="xs"
+                  value={countSearch}
+                  onChange={(e) => setCountSearch(e.target.value)}
+                />
+              </HStack>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6} maxH="500px" overflowY="auto">
+            {filteredCounts.length > 0 ? (
+              <VStack align="stretch" spacing={3}>
+                {filteredCounts.map((item, idx) => (
+                  <HStack
+                    key={idx}
+                    p={4}
+                    bg="gray.50"
+                    borderRadius="2xl"
+                    justify="space-between"
+                    border="1px solid"
+                    borderColor="transparent"
+                    _hover={{ borderColor: "blue.200", bg: "blue.50", cursor: "pointer", transform: "translateX(4px)" }}
+                    transition="all 0.2s"
+                    onClick={() => {
+                      setSessionDate(item.date);
+                      setStartDate(item.date);
+                      setEndDate(item.date);
+                      setAppliedStartDate(item.date);
+                      setAppliedEndDate(item.date);
+                      setIsCountModalOpen(false);
+                    }}
+                  >
+                    <HStack spacing={4}>
+                      <Box p={2} bg="white" borderRadius="lg" shadow="sm">
+                        <Icon as={FiCalendar} color="blue.500" />
+                      </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="sm" fontWeight="800" color="gray.700">
+                          {new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                        </Text>
+                        <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
+                      </VStack>
+                    </HStack>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      bg="blue.500"
+                      w="32px"
+                      h="32px"
+                      borderRadius="full"
+                      color="white"
+                      fontWeight="1000"
+                      fontSize="sm"
+                      shadow="md"
+                    >
+                      {item.count}
+                    </Box>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : (
+              <VStack py={10} spacing={4} opacity={0.5}>
+                <Icon as={FiActivity} fontSize="40px" />
+                <Text fontWeight="800">{countSearch ? "No matches found" : "No activity history found"}</Text>
+              </VStack>
+            )}
+          </ModalBody>
+          <ModalFooter bg="gray.50" borderRadius="0 0 2xl 2xl">
+            <Button w="full" variant="ghost" fontWeight="1000" onClick={() => setIsCountModalOpen(false)}>CLOSE SUMMARY</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* DOWNLOAD STATEMENT MODAL - PREMIUM REDESIGN */}
       <Modal isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} isCentered size="lg">

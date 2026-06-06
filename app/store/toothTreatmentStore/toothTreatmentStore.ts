@@ -292,6 +292,20 @@ class ToothTreatmentStore {
       return Promise.reject(err?.response?.data || err);
     }
   };
+
+  getTreatmentGroupedByDate = async (sendData: { patientId: any }) => {
+    try {
+      const params = {
+        company: authStore.company,
+        patientId: sendData.patientId,
+      };
+      const { data } = await axios.get("/treatment/grouped-by-date", { params });
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching treatment grouped by date:", err);
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 }
 
 
