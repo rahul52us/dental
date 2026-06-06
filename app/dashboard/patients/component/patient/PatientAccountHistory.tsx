@@ -1059,17 +1059,46 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     toast({ title: "Invalid amount", status: "error", duration: 2000 });
                     return;
                   }
+
+                  const updatedHistoryTest = historyData.map((p: any, idx: number) =>
+                    idx === editingPaymentIndex ? { ...p, amount: newAmt } : p
+                  );
+                  const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                  const bill = selectedRecord.amount - (selectedRecord.discount || 0);
+
+                  if (proposedTotalReceived > bill) {
+                    toast({ 
+                      title: "Overpayment Error", 
+                      description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`,
+                      status: "warning", 
+                      duration: 3000 
+                    });
+                    return;
+                  }
+
                   setIsSavingAmount(true);
                   try {
-                    const updatedHistory = historyData.map((p: any, idx: number) =>
-                      idx === editingPaymentIndex ? { ...p, amount: newAmt } : p
-                    );
-                    const totalReceived = updatedHistory.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                    const updatedHistory = updatedHistoryTest;
+                    const totalReceived = proposedTotalReceived;
+
+                    const reversedBackHistory = [...updatedHistory].reverse();
                     await workDoneStore.updateWorkDone(selectedRecord._id, {
-                      paymentHistory: updatedHistory,
+                      paymentHistory: reversedBackHistory,
                       receivedAmount: totalReceived,
                     });
+                    
+                    const existingAcc = accountabilityStore.accountabilities.data.find((a: any) =>
+                      (a.workDone?._id || a.workDone) === selectedRecord._id
+                    );
+                    if (existingAcc) {
+                      await accountabilityStore.updateAccountability(existingAcc._id, {
+                        payoutHistory: reversedBackHistory,
+                        doctorShareAmount: totalReceived
+                      });
+                    }
+                    
                     setHistoryData(updatedHistory);
+
                     setIsEditAmountOpen(false);
                     toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
                     // Refresh the main table

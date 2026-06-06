@@ -26,6 +26,18 @@ class AccountabilityStore {
     }
   };
 
+  updateAccountability = async (id: string, data: any) => {
+    try {
+      this.loading = true;
+      const res = await axios.put(`/accountability/update/${id}`, data);
+      return res.data;
+    } catch (error: any) {
+      return Promise.reject(error?.response?.data || error.message);
+    } finally {
+      this.loading = false;
+    }
+  };
+
   getAccountabilityList = async (query: any) => {
     try {
       this.loading = true;
