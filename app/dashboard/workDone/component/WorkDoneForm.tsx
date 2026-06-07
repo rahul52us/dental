@@ -231,6 +231,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
           toothNote: values.workDoneNote,
           recordType: toothId === "General" ? "note" : "tooth",
           examiningDoctor: values.examiningDoctor?.value || values.examiningDoctor || null,
+          sittingNo: values.sittingNo ? Number(values.sittingNo) : undefined,
         };
 
         if (editData?._id) {
@@ -297,6 +298,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       if (typeof doc === 'object' && doc.name) return { label: doc.name, value: doc._id };
       return doc;
     })(),
+    sittingNo: editData?.sittingNo || treatmentDetails?.sittingNo || "",
   };
 
   return (

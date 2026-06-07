@@ -34,7 +34,7 @@ import {
   Circle,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign, FiGrid, FiList } from "react-icons/fi";
+import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign, FiGrid, FiList, FiCheckCircle } from "react-icons/fi";
 import { Formik, Form } from "formik";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import { Grid } from "@chakra-ui/react";
@@ -61,6 +61,50 @@ const getLocalDateString = (dateInput?: any) => {
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
+  const [val, setVal] = useState<string>(dt.sittingNo ? String(dt.sittingNo) : "");
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    if (!val || val === String(dt.sittingNo)) return;
+    setLoading(true);
+    try {
+      await stores.workDoneStore.assignSittingNo({ workDoneId: dt._id, sittingNo: Number(val) });
+      stores.auth.openNotification({ type: "success", title: "Sitting Assigned", message: "Sitting number updated successfully." });
+      onSave();
+    } catch (err: any) {
+      stores.auth.openNotification({ type: "error", title: "Error", message: err?.message || "Failed to assign sitting" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <HStack spacing={1}>
+      <Input
+        size="md"
+        w="70px"
+        textAlign="center"
+        placeholder="No."
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSave();
+        }}
+        bg="white"
+      />
+      <IconButton
+        aria-label="Save Sitting"
+        icon={loading ? <Spinner size="xs" /> : <FiCheckCircle />}
+        colorScheme="blue"
+        size="md"
+        onClick={handleSave}
+        isDisabled={loading || val === String(dt.sittingNo)}
+      />
+    </HStack>
+  );
 };
 
 const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDoneListProps) => {
@@ -119,6 +163,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   
   const [searchTooth, setSearchTooth] = useState("");
   const [debouncedSearchTooth, setDebouncedSearchTooth] = useState("");
+  const [sittingNoSearch, setSittingNoSearch] = useState("");
+  const [debouncedSittingNoSearch, setDebouncedSittingNoSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isTableView, setIsTableView] = useState<"card" | "table">("card");
 
@@ -128,6 +174,13 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
     }, 500);
     return () => clearTimeout(handler);
   }, [searchTooth]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSittingNoSearch(sittingNoSearch);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [sittingNoSearch]);
 
   const fetchRecords = useCallback(() => {
     const params: any = {
@@ -144,6 +197,9 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
     if (statusFilter !== "all") {
       params.status = statusFilter;
     }
+    if (debouncedSittingNoSearch?.trim()) {
+      params.sittingNo = Number(debouncedSittingNoSearch.trim());
+    }
     
     getWorkDone(params).catch((err) => {
       openNotification({
@@ -152,7 +208,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         message: err?.message,
       });
     });
-  }, [getWorkDone, patientDetails?._id, treatmentId, selectedDateFilter, debouncedSearchTooth, statusFilter, openNotification]);
+  }, [getWorkDone, patientDetails?._id, treatmentId, selectedDateFilter, debouncedSearchTooth, statusFilter, debouncedSittingNoSearch, openNotification]);
 
   useEffect(() => {
     fetchRecords();
@@ -326,6 +382,23 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       props: { row: { textAlign: "center" } },
     },
     {
+      headerName: "Sitting No",
+      key: "sittingNo",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Center>
+            {dt.status !== "complete" ? (
+              <SittingAssigner dt={dt} onSave={fetchRecords} />
+            ) : (
+              <Text color="gray.500" fontSize="sm">--</Text>
+            )}
+          </Center>
+        ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+    {
       headerName: "Status",
       key: "status",
       type: "component",
@@ -435,59 +508,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
   return (
     <Box>
-      <HStack justify="flex-end" mb={4}>
-        <HStack spacing={2} flex={1} justify="flex-end">
-          <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
-             <Icon as={FiSearch} color="gray.500" fontSize="14px" />
-             <Input
-                placeholder="Search..."
-                variant="unstyled"
-                h="100%"
-                fontSize="11px"
-                fontWeight="bold"
-                w="160px"
-                value={searchTooth}
-                onChange={(e) => setSearchTooth(e.target.value)}
-             />
-          </HStack>
-
-
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            bg="white"
-            borderRadius="xl"
-            border="1px solid"
-            borderColor="gray.300"
-            size="sm"
-            h="32px"
-            w="140px"
-            fontSize="11px"
-            fontWeight="bold"
-            cursor="pointer"
-            _hover={{ borderColor: "gray.400" }}
-          >
-            <option value="all">All Status</option>
-            <option value="complete">Complete</option>
-            <option value="pending">Pending</option>
-            <option value="incomplete">Incomplete</option>
-          </Select>
-
-
-
-          <Button
-            size="sm"
-            colorScheme="teal"
-            variant="outline"
-            leftIcon={<FiDollarSign />}
-            borderRadius="xl"
-            fontSize="11px"
-            fontWeight="bold"
-            onClick={() => setOpenAccountDetails({ open: true })}
-          >
-            ACCOUNT
-          </Button>
-
+      <VStack align="stretch" spacing={3} mb={4}>
+        <HStack justify="flex-end" w="full" spacing={2}>
           <Button
             size="sm"
             colorScheme="blue"
@@ -501,6 +523,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           >
             DOWNLOAD DAILY PRESCRIPTION
           </Button>
+
           <Button
             size="sm"
             colorScheme="purple"
@@ -542,6 +565,73 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               {displayedRecords.length || 0}
             </Circle>
           </HStack>
+        </HStack>
+
+        <HStack spacing={2} flex={1} justify="flex-end">
+          <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
+             <Icon as={FiSearch} color="gray.500" fontSize="14px" />
+             <Input
+                placeholder="Search..."
+                variant="unstyled"
+                h="100%"
+                fontSize="11px"
+                fontWeight="bold"
+                w="160px"
+                value={searchTooth}
+                onChange={(e) => setSearchTooth(e.target.value)}
+             />
+          </HStack>
+
+          <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
+             <Input
+                placeholder="SITTING NO."
+                variant="unstyled"
+                h="100%"
+                fontSize="11px"
+                fontWeight="bold"
+                w="80px"
+                type="number"
+                value={sittingNoSearch}
+                onChange={(e) => setSittingNoSearch(e.target.value)}
+             />
+          </HStack>
+
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            bg="white"
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="gray.300"
+            size="sm"
+            h="32px"
+            w="140px"
+            fontSize="11px"
+            fontWeight="bold"
+            cursor="pointer"
+            _hover={{ borderColor: "gray.400" }}
+          >
+            <option value="all">All Status</option>
+            <option value="complete">Complete</option>
+            <option value="pending">Pending</option>
+            <option value="incomplete">Incomplete</option>
+          </Select>
+
+
+
+          <Button
+            size="sm"
+            colorScheme="teal"
+            variant="outline"
+            leftIcon={<FiDollarSign />}
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            onClick={() => setOpenAccountDetails({ open: true })}
+          >
+            ACCOUNT
+          </Button>
+
 
           <HStack bg="gray.100" p={1} borderRadius="xl" ml={2}>
             <IconButton
@@ -574,6 +664,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             shadow="sm"
             onClick={() => {
               setSearchTooth("");
+              setSittingNoSearch("");
               setStatusFilter("all");
               setSelectedDateFilter(null);
             }}
@@ -581,7 +672,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             RESET FILTERS
           </Button>
         </HStack>
-      </HStack>
+      </VStack>
 
       <VStack align="stretch" spacing={4}>
         {workDone.loading ? (
@@ -622,6 +713,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
                   }
                   if (debouncedSearchTooth) params.search = debouncedSearchTooth;
+                  if (sittingNoSearch?.trim()) params.sittingNo = Number(sittingNoSearch.trim());
                   if (statusFilter !== "all") params.status = statusFilter;
                   getWorkDone(params);
                 },
@@ -666,6 +758,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         )}
                       </VStack>
                     </HStack>
+                    {record.sittingNo && (
+                      <Text fontSize="12px" fontWeight="900" color="purple.600" bg="purple.50" px={2} py={1} borderRadius="md" border="1px solid" borderColor="purple.200" ml={2}>
+                        SITTING {record.sittingNo}
+                      </Text>
+                    )}
                   </HStack>
 
                   <HStack spacing={3}>
@@ -686,6 +783,13 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       >
                         VIEW PLAN
                       </Button>
+                    )}
+
+                    {record.status !== "complete" && (
+                      <Box bg="white" px={2} py={1} borderRadius="lg" border="1px solid" borderColor="gray.200" display="flex" alignItems="center">
+                        <Text fontSize="10px" fontWeight="bold" color="gray.500" mr={2}>SITTING:</Text>
+                        <SittingAssigner dt={record} onSave={fetchRecords} />
+                      </Box>
                     )}
 
                     {/* Status Menu */}

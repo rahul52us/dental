@@ -123,6 +123,7 @@ class ToothTreatmentStore {
     complaintType?: string;
     toDate?: string;
     status?: string;
+    sittingNo?: any;
   }) => {
 
     console.log("Fetching tooth treatments with params:", sendData);
@@ -140,6 +141,7 @@ class ToothTreatmentStore {
       if (sendData.search) params.search = sendData.search;
       if (sendData.toDate) params.toDate = sendData.toDate;
       if (sendData.status && sendData.status !== 'all') params.status = sendData.status;
+      if (sendData.sittingNo !== undefined && sendData.sittingNo !== "") params.sittingNo = sendData.sittingNo;
 
 
       const cType = sendData.complaintType || sendData.category;
@@ -266,6 +268,33 @@ class ToothTreatmentStore {
     }
   };
 
+  getBySittingNo = async (sittingNo: number, patientId: any, statusFilter: string = "all") => {
+    this.toothTreatment.loading = true;
+    try {
+      const params: any = {
+        sittingNo,
+        status: statusFilter,
+        patientId,
+        company: authStore.company,
+      };
+
+      const { data } = await axios.get("/toothTreatment/by-sitting", { params });
+      const rawItems = data?.data?.data || data?.data || [];
+      this.toothTreatment.data = this._mapTreatmentData(rawItems);
+
+      const totalItems = data?.data?.totalItems || data?.totalItems || data?.count || rawItems.length || 0;
+      this.toothTreatment.totalItems = totalItems;
+      this.toothTreatment.totalPages = 1;
+
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching treatments by sitting no:", err);
+      return Promise.reject(err?.response?.data || err);
+    } finally {
+      this.toothTreatment.loading = false;
+    }
+  };
+
 
   // Create Treatment
   createToothTreatment = async (sendData: any) => {
@@ -280,6 +309,15 @@ class ToothTreatmentStore {
   updateToothTreatment = async (sendData: any) => {
     try {
       const { data } = await axios.put(`/toothTreatment/${sendData.treatmentId}`, { ...sendData, company: authStore.company });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  assignSittingNo = async (sendData: { treatmentId: string, sittingNo: number }) => {
+    try {
+      const { data } = await axios.put(`/toothTreatment/${sendData.treatmentId}/sitting`, sendData);
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

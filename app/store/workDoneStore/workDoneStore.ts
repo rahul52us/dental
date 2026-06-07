@@ -114,6 +114,7 @@ class WorkDoneStore {
     toDate?: string;
     status?: string;
     search?: string;
+    sittingNo?: number;
   }) => {
     this.workDone.loading = true;
     try {
@@ -130,6 +131,7 @@ class WorkDoneStore {
         toDate: sendData.toDate,
         status: sendData.status,
         search: sendData.search,
+        sittingNo: sendData.sittingNo,
       };
 
       const { data } = await axios.get("/workDone/get", { params });
@@ -178,6 +180,19 @@ class WorkDoneStore {
   deleteWorkDone = async (workDoneId: string) => {
     try {
       const { data } = await axios.delete(`/workDone/${workDoneId}`);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  assignSittingNo = async (sendData: { workDoneId: string; sittingNo: number }) => {
+    try {
+      const { data } = await axios.put(`/workDone/assign-sitting/${sendData.workDoneId}`, { sittingNo: sendData.sittingNo });
+      const index = this.workDone.data.findIndex((item) => item._id === sendData.workDoneId);
+      if (index !== -1) {
+        this.workDone.data[index] = { ...this.workDone.data[index], sittingNo: sendData.sittingNo };
+      }
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

@@ -25,6 +25,50 @@ import { adultTeeth, childTeeth } from "../../component/common/TeethModel/Dental
 
 
 
+const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
+  const [val, setVal] = useState<string>(dt.sittingNo ? String(dt.sittingNo) : "");
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    if (!val || val === String(dt.sittingNo)) return;
+    setLoading(true);
+    try {
+      await stores.toothTreatmentStore.assignSittingNo({ treatmentId: dt._id, sittingNo: Number(val) });
+      stores.auth.openNotification({ type: "success", title: "Sitting Assigned", message: "Sitting number updated successfully." });
+      onSave();
+    } catch (err: any) {
+      stores.auth.openNotification({ type: "error", title: "Error", message: err?.message || "Failed to assign sitting" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <HStack spacing={1}>
+      <Input
+        size="md"
+        w="70px"
+        textAlign="center"
+        placeholder="No."
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSave();
+        }}
+        bg="white"
+      />
+      <IconButton
+        size="md"
+        aria-label="Save Sitting"
+        icon={<FiCheckCircle />}
+        colorScheme="blue"
+        isLoading={loading}
+        onClick={handleSave}
+      />
+    </HStack>
+  );
+};
+
 const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
     toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
@@ -45,6 +89,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sittingNoSearch, setSittingNoSearch] = useState("");
   const [complaintTypeFilter, setComplaintTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   
@@ -76,6 +121,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const applyGetAllRecords = useCallback(
     ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
       const query: any = { page, limit };
+
+      if (sittingNoSearch?.trim()) {
+        query.sittingNo = sittingNoSearch.trim();
+      }
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -119,12 +168,13 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       patientDetails,
       complaintTypeFilter,
       statusFilter,
+      sittingNoSearch,
     ]
   );
 
   useEffect(() => {
     applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, complaintTypeFilter, statusFilter, selectedDateFilter, applyGetAllRecords]);
+  }, [currentPage, debouncedSearchQuery, sittingNoSearch, complaintTypeFilter, statusFilter, selectedDateFilter, applyGetAllRecords]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -133,6 +183,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
+    setSittingNoSearch("");
     setComplaintTypeFilter("all");
     setStatusFilter("all");
     setSelectedDateFilter(null);
@@ -279,6 +330,27 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         component: (dt: any) => (
           <Text fontWeight="bold" color="blue.600">₹{dt?.estimateMax || 0}</Text>
         ),
+      },
+      props: { row: { textAlign: "center" } },
+    },
+
+    {
+      headerName: "Sitting No",
+      key: "sittingNo",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          const isPendingOrIncomplete = dt.status?.toLowerCase() === "pending" || dt.status?.toLowerCase() === "incomplete";
+          return (
+            <Box>
+              {isPendingOrIncomplete ? (
+                <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
+              ) : (
+                <Text fontWeight="bold">{dt.sittingNo || "--"}</Text>
+              )}
+            </Box>
+          );
+        },
       },
       props: { row: { textAlign: "center" } },
     },
@@ -475,6 +547,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   ₹{dt.estimateMin || 0} - ₹{dt.estimateMax || 0}
                 </Badge>
               )}
+              {dt.sittingNo ? (
+                 <Badge colorScheme="purple" variant="solid" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
+                   Sitting: {dt.sittingNo}
+                 </Badge>
+              ) : null}
             </HStack>
 
 
@@ -577,6 +654,15 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             )}
             </HStack>
           </HStack>
+
+          {(dt.status?.toLowerCase() === "pending" || dt.status?.toLowerCase() === "incomplete") && (
+            <Box position="absolute" top={16} right={4}>
+              <VStack align="flex-end" spacing={1}>
+                <Text fontSize="10px" fontWeight="bold" color="gray.500" textTransform="uppercase">Sitting No</Text>
+                <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
+              </VStack>
+            </Box>
+          )}
         </Flex>
       </Box>
     );
@@ -673,6 +759,20 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                       w="full"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </HStack>
+
+                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" w="130px">
+                    <Icon as={FiSearch} color="gray.400" />
+                    <Input
+                      placeholder="Sitting No."
+                      type="number"
+                      variant="unstyled"
+                      py={2}
+                      fontSize="sm"
+                      w="full"
+                      value={sittingNoSearch}
+                      onChange={(e) => setSittingNoSearch(e.target.value)}
                     />
                   </HStack>
 
