@@ -13,89 +13,101 @@ const AuthenticationLayout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (
-    <Flex
-      maxHeight="100vh"
-      direction={{ base: 'column', md: 'row' }}
-      bgGradient="linear(to-br, gray.100, gray.200)"
-      justifyContent="center"
-      alignItems="center"
-      px={{ base: 4, md: 8 }}
-      py={{ base: 6, md: 10 }}
-      gap={{ base: 6, md: 10 }}
-    >
+    <Box position="relative" minH="100vh" w="100%" overflow="hidden" bg="gray.50">
+      {/* Decorative Background Blobs */}
+      <Box
+        position="absolute"
+        top="-10%"
+        left="-5%"
+        w={{ base: "300px", md: "500px" }}
+        h={{ base: "300px", md: "500px" }}
+        bg="blue.300"
+        opacity={0.4}
+        filter="blur(100px)"
+        rounded="full"
+        zIndex={0}
+      />
+      <Box
+        position="absolute"
+        bottom="-10%"
+        right="-5%"
+        w={{ base: "400px", md: "600px" }}
+        h={{ base: "400px", md: "600px" }}
+        bg="teal.300"
+        opacity={0.3}
+        filter="blur(120px)"
+        rounded="full"
+        zIndex={0}
+      />
+      <Box
+        position="absolute"
+        top="20%"
+        right="20%"
+        w="300px"
+        h="300px"
+        bg="orange.200"
+        opacity={0.4}
+        filter="blur(90px)"
+        rounded="full"
+        zIndex={0}
+      />
+
+      <Flex
+        position="relative"
+        zIndex={1}
+        maxHeight="100vh"
+        minHeight="100vh"
+        direction={{ base: 'column', md: 'row' }}
+        justifyContent="center"
+        alignItems="center"
+        px={{ base: 4, md: 8 }}
+        py={{ base: 6, md: 10 }}
+        gap={{ base: 8, md: 10 }}
+      >
       {/* Left Section */}
       {!isMobile && (
         <Box
           position="relative"
-          height={{ md: '90vh', xl: '94vh' }}
-          width={{ md: '40%', lg: '45%' }}
-          rounded="2xl"
+          height={{ md: '85vh', xl: '90vh' }}
+          width={{ md: '48%' }}
+          maxW={{ md: '600px', xl: '650px' }}
+          rounded="3xl"
           overflow="hidden"
-          boxShadow="2xl"
+          boxShadow="xl"
+          bg="white"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
         >
-          {/* Background Image with Overlay */}
-          <Box
-            as="div"
-            position="absolute"
-            inset={0}
-            bgGradient="linear(to-b, blackAlpha.700, blackAlpha.400)"
-            zIndex={1}
-          />
+          {/* Background Image */}
           <Image
-            src="/images/auth/bgImage.png"
-            alt="Background"
-            objectFit="cover"
+            src="/dental-login-image.jpeg"
+            alt="Dental Background"
+            objectFit="contain"
             w="100%"
             h="100%"
-            animation={`${zoomIn} 20s ease-in-out infinite alternate`}
+            p={6}
           />
-
-          {/* Content Overlay */}
-          <Flex
-            position="absolute"
-            inset={0}
-            zIndex={2}
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            color="white"
-            textAlign="center"
-            px={6}
-          >
-            <Text fontSize="5xl" fontWeight="extrabold" letterSpacing="wide" mb={3}>
-              DentalCare+
-            </Text>
-            <Image
-              src="/images/auth/gridImages.png"
-              alt="Dental Services"
-              width="70%"
-              maxW="380px"
-            />
-            <Text mt={6} fontSize="lg" fontWeight="medium" opacity={0.85} maxW="90%">
-              Providing world-class dental services with expert doctors and modern facilities.
-            </Text>
-          </Flex>
         </Box>
       )}
 
       {/* Right Section - Form */}
       <Box
         bg="white"
-        p={{ base: 6, md: 10 }}
-        rounded="2xl"
-        width={{ base: '100%', md: '40%', lg: '45%' }}
-        maxW="550px"
-        boxShadow="2xl"
-        border="1px solid"
-        borderColor="gray.200"
+        p={{ base: 6, md: 12 }}
+        rounded="3xl"
+        width={{ base: '100%', md: '48%' }}
+        maxW={{ md: '600px', xl: '650px' }}
+        height={{ md: '85vh', xl: '90vh' }}
+        boxShadow="xl"
         display="flex"
         flexDirection="column"
         justifyContent="center"
-        minHeight={{ base: 'auto', md: '80vh' }}
       >
         {children}
       </Box>
     </Flex>
+    </Box>
   );
 };
 

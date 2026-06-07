@@ -21,7 +21,8 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { RiEyeLine, RiEyeOffLine, RiUserSmileLine } from "react-icons/ri";
+import { FaTooth } from "react-icons/fa";
 import CustomButton from "../../component/common/CustomButton/CustomButton";
 import { useRouter } from "next/navigation";
 import { observer } from "mobx-react-lite";
@@ -90,11 +91,24 @@ const Login = observer(() => {
         <VStack spacing={6} align="stretch">
           {/* Heading */}
           <Box textAlign="center">
-            <Heading size={headingSize} mb={2} color="teal.700">
+            <Flex justify="center" mb={6}>
+              <Flex
+                align="center"
+                justify="center"
+                w="90px"
+                h="90px"
+                bgGradient="linear(to-tr, orange.400, pink.400, purple.500)"
+                rounded="full"
+                boxShadow="lg"
+              >
+                <FaTooth size={45} color="white" />
+              </Flex>
+            </Flex>
+            <Heading size={headingSize} mb={2} color="teal.700" fontWeight="extrabold" letterSpacing="tight">
               Welcome Back
             </Heading>
-            <Text fontSize="sm" color="gray.600">
-              Log in to continue
+            <Text fontSize="md" color="gray.500" mb={4}>
+              Log in to continue to your dashboard
             </Text>
           </Box>
 
@@ -103,7 +117,7 @@ const Login = observer(() => {
             <VStack spacing={4} align="stretch">
               {/* LOGIN TYPE + USERNAME */}
               <FormControl id="username">
-                <FormLabel fontSize="sm" fontWeight="500">
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.700">
                   Login Using
                 </FormLabel>
 
@@ -112,7 +126,12 @@ const Login = observer(() => {
                   value={formData.loginType}
                   onChange={handleInputChange}
                   size="lg"
-                  mb={2}
+                  mb={3}
+                  variant="filled"
+                  bg="gray.50"
+                  _hover={{ bg: "gray.100" }}
+                  _focus={{ bg: "white", borderColor: "teal.500" }}
+                  borderRadius="xl"
                 >
                   <option value="email">Email</option>
                   <option value="code">User Code</option>
@@ -130,32 +149,40 @@ const Login = observer(() => {
                   }
                   value={formData.username}
                   onChange={handleInputChange}
-                  focusBorderColor="teal.500"
                   size="lg"
+                  variant="filled"
+                  bg="gray.50"
+                  _hover={{ bg: "gray.100" }}
+                  _focus={{ bg: "white", borderColor: "teal.500", boxShadow: "0 0 0 1px #319795" }}
+                  borderRadius="xl"
                   required
                 />
               </FormControl>
 
               {/* Password */}
               <FormControl id="password">
-                <FormLabel fontSize="sm" fontWeight="500">
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.700">
                   Password
                 </FormLabel>
-                <InputGroup>
+                <InputGroup size="lg">
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    focusBorderColor="teal.500"
-                    size="lg"
+                    variant="filled"
+                    bg="gray.50"
+                    _hover={{ bg: "gray.100" }}
+                    _focus={{ bg: "white", borderColor: "teal.500", boxShadow: "0 0 0 1px #319795" }}
+                    borderRadius="xl"
                     required
                   />
                   <InputRightElement
-                    mt={1}
                     cursor="pointer"
                     onClick={handleTogglePassword}
+                    color="gray.500"
+                    _hover={{ color: "teal.600" }}
                   >
                     {showPassword ? (
                       <RiEyeOffLine size={20} />
@@ -166,28 +193,33 @@ const Login = observer(() => {
                 </InputGroup>
               </FormControl>
 
-              <Flex justify="space-between" align="center" fontSize="sm">
-                <Checkbox colorScheme="teal" size="sm">
-                  Remember me
+              <Flex justify="flex-start" align="center" fontSize="sm" mt={2} mb={2}>
+                <Checkbox colorScheme="teal" size="md">
+                  <Text color="gray.600" fontWeight="500">Remember me</Text>
                 </Checkbox>
-                <Link href="/forgot-password">
-                  <Text
-                    color="teal.600"
-                    fontWeight="500"
-                    _hover={{ textDecoration: "underline" }}
-                  >
-                    Forgot password?
-                  </Text>
-                </Link>
               </Flex>
 
               {/* Sign in button */}
-              <CustomButton
+              <Button
                 size="lg"
                 width="100%"
                 type="submit"
-                mt={2}
-                borderRadius="full"
+                height="56px"
+                borderRadius="xl"
+                bgGradient="linear(to-r, teal.400, blue.500)"
+                color="white"
+                fontWeight="bold"
+                fontSize="md"
+                _hover={{
+                  bgGradient: "linear(to-r, teal.500, blue.600)",
+                  transform: "translateY(-2px)",
+                  boxShadow: "lg"
+                }}
+                _active={{
+                  transform: "translateY(0)",
+                  boxShadow: "md"
+                }}
+                transition="all 0.2s"
                 isDisabled={
                   !formData.username || !formData.password || isLoading
                 }
@@ -197,7 +229,7 @@ const Login = observer(() => {
                 ) : (
                   "Sign in"
                 )}
-              </CustomButton>
+              </Button>
 
               {/* OR divider */}
               <Flex align="center" gap={2} display="none">
