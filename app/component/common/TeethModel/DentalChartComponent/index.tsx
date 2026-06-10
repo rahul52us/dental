@@ -79,7 +79,7 @@ const detectIsChild = (tooth: any) => {
   );
 };
 
-const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
+const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkDone }: any) => {
   const [dentitionType, setDentitionType] = useState<DentitionType>("adult");
   const formRef = useRef<any>(null);
   const lastSyncedEditId = useRef<string | null>(null);
@@ -743,7 +743,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 return rest;
               });
             }}
-            onSuccess={() => {
+            onSuccess={(treatment) => {
               patientDetails?.applyGetAllRecords?.({});
               setSelectedTeeth([]);
               setEditingTreatment(null);
@@ -753,8 +753,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                 getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
                 getTodayCount({ patientId: patientDetails._id, date: sessionDate });
               }
-              // Close the outer drawer after saving
-              closeWizard?.();
+              if (treatment && onSaveAndWorkDone) {
+                onSaveAndWorkDone(treatment);
+              } else {
+                // Close the outer drawer after saving
+                closeWizard?.();
+              }
             }}
             onBack={() => {
               setSelectedTeeth([]);
@@ -795,18 +799,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
           teeth={[{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
           generalDescription={teethNotes}
           sessionDate={sessionDate}
-          onSuccess={() => {
+          onSuccess={(treatment) => {
             onQuickAddClose();
             // Silent refresh of charting state
             if (patientDetails?._id) {
               getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
-
-              // getToothHighlights({ patientId: patientDetails._id, toDate: sessionDate })
-              //   .then((res: any) => {
-              //     setChartRecords(res?.data || []);
-              //     const ids = Array.from(new Set((res?.data || []).flatMap((it: any) => String(it.tooth || "").split(',').map(s => s.trim())))) as string[];
-              //     setTreatedToothIds(ids.filter(Boolean));
-              //   });
+            }
+            if (treatment && onSaveAndWorkDone) {
+              onSaveAndWorkDone(treatment);
             }
           }}
 
@@ -858,12 +858,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               teeth={toothObj ? [toothObj as ToothData] : []}
               dentitionType={isChild ? "child" : "adult"}
               generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
-              onSuccess={() => {
+              onSuccess={(treatment) => {
                 onEditDrawerClose();
                 patientDetails?.applyGetAllRecords?.({});
                 if (patientDetails?._id) {
                   getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
                   getTodayCount({ patientId: patientDetails._id, date: sessionDate });
+                }
+                if (treatment && onSaveAndWorkDone) {
+                  onSaveAndWorkDone(treatment);
                 }
               }}
 
@@ -1359,11 +1362,14 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
         lastExaminingDoctor={lastExaminingDoctor}
         setLastExaminingDoctor={setLastExaminingDoctor}
         doctorOptions={doctorOptions}
-        onSuccess={() => {
+        onSuccess={(treatment) => {
           setSelectedTeeth([]);
           setToothComplaints({});
           if (patientDetails?._id) {
             getTodayToothTreatments({ patientId: patientDetails._id });
+          }
+          if (treatment && onSaveAndWorkDone) {
+            onSaveAndWorkDone(treatment);
           }
         }}
         complaintType={complaintType}

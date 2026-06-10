@@ -226,7 +226,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
         const payload = {
           ...values,
           doctor: values.doctor?.value || values.doctor,
-          patient: patientDetails._id,
+          patient: patientDetails?._id || patientDetails,
           treatment: tId,
           company: stores.auth.company,
           user: stores.auth.user?._id,
@@ -255,7 +255,6 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       await Promise.all(promises);
 
       // Sync Treatment Status if linked
-      const tId = treatmentDetails?._id || editData?.treatment?._id || editData?.treatment;
       if (tId) {
         await updateToothTreatment({
           treatmentId: tId,
@@ -285,12 +284,13 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   const initialValues = {
     complaintType: editData?.complaintType || treatmentDetails?.complaintType || "OTHER FINDING",
     doctor: (() => {
-      const doc = editData?.doctor; // Only use editData for doctors on new records to keep it empty
+      const doc = editData?.doctor || treatmentDetails?.doctorObj || treatmentDetails?.doctor; 
       if (!doc) return "";
+      if (typeof doc === 'object' && doc.label) return doc;
       if (typeof doc === 'object' && doc.name) return { label: doc.name, value: doc._id };
       return doc;
     })(),
-    workDoneNote: editData?.workDoneNote || "",
+    workDoneNote: editData?.workDoneNote || treatmentDetails?.notes || "",
     status: editData?.status ? String(editData.status).toLowerCase() : "",
     amount: editData?.amount ?? "", // Keep empty for new records
     discount: editData?.discount ?? "", // Keep empty for new records
@@ -304,8 +304,9 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
     toothNote: editData?.toothNote || "", // Keep empty for new records
     recordType: editData?.recordType || treatmentDetails?.recordType || "tooth",
     examiningDoctor: (() => {
-      const doc = editData?.examiningDoctor; // Only use editData for doctors on new records to keep it empty
+      const doc = editData?.examiningDoctor || treatmentDetails?.examiningDoctorObj || treatmentDetails?.examiningDoctor;
       if (!doc) return "";
+      if (typeof doc === 'object' && doc.label) return doc;
       if (typeof doc === 'object' && doc.name) return { label: doc.name, value: doc._id };
       return doc;
     })(),

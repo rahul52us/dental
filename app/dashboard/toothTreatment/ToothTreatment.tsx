@@ -835,6 +835,12 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 setOpenReportModal({ open: false, type: "add", data: null });
                 setActiveTab(1); // switch to Previous Records after saving
               }}
+              onSaveAndWorkDone={(treatment: any) => {
+                setOpenReportModal({ open: false, type: "add", data: null });
+                setActiveTab(2); // Optionally switch to Work Done tab or stay
+                setWorkDoneTab(0); // Default to form tab
+                setOpenWorkDone({ open: true, data: treatment });
+              }}
             />
           </TabPanel>
 
@@ -1067,7 +1073,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           width={{ base: "100%", md: "90%" }}
         >
           <Box px={6}>
-            <Tabs variant="line" colorScheme="blue" index={workDoneTab} onChange={(idx) => setWorkDoneTab(idx)}>
+            <Tabs variant="line" colorScheme="blue" index={workDoneTab} onChange={(idx) => setWorkDoneTab(idx)} isLazy lazyBehavior="unmount">
               <TabList mb="1em">
                 <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
                   New Work Entry
@@ -1081,7 +1087,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               <TabPanels>
                 <TabPanel p={0}>
                   <WorkDoneForm
-                    patientDetails={openWorkDone.data?.patient || patientDetails}
+                    patientDetails={typeof openWorkDone.data?.patient === 'object' ? openWorkDone.data.patient : patientDetails}
                     treatmentDetails={openWorkDone.data}
                     onSuccess={() => {
                       setWorkDoneTab(1);
@@ -1091,7 +1097,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 </TabPanel>
                 <TabPanel p={0}>
                   <WorkDoneList
-                    patientDetails={openWorkDone.data?.patient || patientDetails}
+                    patientDetails={typeof openWorkDone.data?.patient === 'object' ? openWorkDone.data.patient : patientDetails}
                     treatmentId={openWorkDone.data?._id}
                   />
                 </TabPanel>

@@ -48,7 +48,7 @@ interface ToothFormDialogProps {
   lastExaminingDoctor?: any;
   setLastExaminingDoctor?: (doc: any) => void;
   doctorOptions?: any[];
-  onSuccess?: () => void;
+  onSuccess?: (treatment?: any) => void;
   complaintType?: string;
 }
 
@@ -113,6 +113,7 @@ export const ToothFormDialog = observer(
     const toast = useToast();
     const [showProcedureExplorer, setShowProcedureExplorer] = useState(false);
     const [formLoading, setFormLoading] = useState(false);
+    const [saveAction, setSaveAction] = useState<"save" | "saveAndWorkDone">("save");
     const {
       toothTreatmentStore: { createToothTreatment },
       procedureStore,
@@ -242,7 +243,7 @@ export const ToothFormDialog = observer(
           return createToothTreatment(payload);
         });
 
-        await Promise.all(promises);
+        const results = await Promise.all(promises);
 
         if (setLastExaminingDoctor && values.examiningDoctor) {
           setLastExaminingDoctor(values.examiningDoctor);
@@ -257,7 +258,14 @@ export const ToothFormDialog = observer(
           isClosable: true,
         });
 
-        if (onSuccess) onSuccess();
+        if (onSuccess) {
+          const treat = results[0]?.data || results[0];
+          if (treat) {
+            treat.doctorObj = values.doctor;
+            treat.examiningDoctorObj = values.examiningDoctor;
+          }
+          onSuccess(saveAction === "saveAndWorkDone" ? treat : undefined);
+        }
         if (onOpenChange) onOpenChange(false);
 
       } catch (err: any) {
@@ -604,14 +612,27 @@ export const ToothFormDialog = observer(
                       </Button>
                       <Button
                         colorScheme="blue"
+                        variant="outline"
+                        isLoading={formLoading && saveAction === "save"}
+                        onClick={() => setSaveAction("save")}
                         type="submit"
-                        isLoading={formLoading}
+                        px={6}
+                        h="50px"
+                        borderRadius="xl"
+                      >
+                        Save Only
+                      </Button>
+                      <Button
+                        colorScheme="blue"
+                        type="submit"
+                        isLoading={formLoading && saveAction === "saveAndWorkDone"}
+                        onClick={() => setSaveAction("saveAndWorkDone")}
                         px={10}
                         h="50px"
                         borderRadius="xl"
                         leftIcon={<FiCheckCircle />}
                       >
-                        Save Treatment Record
+                        Save & Create Work Done
                       </Button>
                     </HStack>
 

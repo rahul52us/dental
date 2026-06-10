@@ -96,7 +96,7 @@ interface TreatmentProcedureFormProps {
     generalDescription: string;
     isPatient: boolean;
     patientDetails: any;
-    onSuccess: () => void;
+    onSuccess: (treatment?: any) => void;
     onBack: () => void;
     hoistedValues?: any;
     onValuesUpdate?: (values: any) => void;
@@ -194,6 +194,7 @@ export const TreatmentProcedureForm = observer(
         const [syncToAll, setSyncToAll] = useState(false);
         const toast = useToast();
         const [formLoading, setFormLoading] = useState(false);
+        const [saveAction, setSaveAction] = useState<"save" | "saveAndWorkDone">("save");
         const {
             toothTreatmentStore: { createToothTreatment, updateToothTreatment, lastExaminingDoctor, setLastExaminingDoctor },
             userStore: { getUsersList },
@@ -424,9 +425,15 @@ export const TreatmentProcedureForm = observer(
 
                     if (isEditingThisTooth) {
                         payload.treatmentId = editData._id;
-                        return updateToothTreatment(payload);
+                        return updateToothTreatment(payload).then(res => {
+                            if (res?.data) { res.data.doctorObj = rawValues.doctor; res.data.examiningDoctorObj = rawValues.examiningDoctor; }
+                            return res;
+                        });
                     } else {
-                        return createToothTreatment(payload);
+                        return createToothTreatment(payload).then(res => {
+                            if (res?.data) { res.data.doctorObj = rawValues.doctor; res.data.examiningDoctorObj = rawValues.examiningDoctor; }
+                            return res;
+                        });
                     }
                 });
 
@@ -446,7 +453,7 @@ export const TreatmentProcedureForm = observer(
                         status: "success",
                         duration: 3000,
                     });
-                    onSuccess();
+                    onSuccess(saveAction === "saveAndWorkDone" ? results[0]?.data || results[0] : undefined);
                 } else {
                     toast({ title: "No clinical data recorded", status: "info" });
                 }
@@ -1401,19 +1408,35 @@ export const TreatmentProcedureForm = observer(
                                                 Cancel
                                             </Button>
                                             <Button
+                                                variant="outline"
                                                 colorScheme="blue"
+                                                isLoading={formLoading && saveAction === "save"}
+                                                onClick={() => setSaveAction("save")}
                                                 type="submit"
-                                                isLoading={formLoading}
                                                 borderRadius="xl"
                                                 fontWeight="900"
-                                                leftIcon={<FiSave />}
                                                 flex={1}
                                                 h="54px"
                                             >
                                                 {teeth.length > 1
-                                                    ? `Save ${teeth.length} Records`
-                                                    : "Save Changes"}
+                                                    ? `Save Only (${teeth.length} Records)`
+                                                    : "Save Only"}
                                             </Button>
+                                            {!editData?._id && (
+                                                <Button
+                                                    colorScheme="blue"
+                                                    type="submit"
+                                                    isLoading={formLoading && saveAction === "saveAndWorkDone"}
+                                                    onClick={() => setSaveAction("saveAndWorkDone")}
+                                                    borderRadius="xl"
+                                                    fontWeight="900"
+                                                    leftIcon={<FiCheckCircle />}
+                                                    flex={1}
+                                                    h="54px"
+                                                >
+                                                    Save & Create Work Done
+                                                </Button>
+                                            )}
                                         </HStack>
                                     </Box>
                                 )}
