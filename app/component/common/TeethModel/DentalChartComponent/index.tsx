@@ -546,7 +546,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
               </HStack>
             </VStack>
             <VStack align="start" spacing={1}>
-              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">COMPLAINT</Text>
+              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">RECORD AS</Text>
               <HStack bg="gray.50" p={1} borderRadius="xl">
                 {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
                   const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
@@ -563,7 +563,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard }: any) => {
                       onClick={() => setComplaintType(type)}
                       fontWeight="900"
                     >
-                      {type.split(' ')[0]}
+                      {type}
                     </Button>
                   );
                 })}

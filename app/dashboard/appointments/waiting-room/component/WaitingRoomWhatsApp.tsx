@@ -45,10 +45,9 @@ import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import AppointmentDetailsView from "../../element/AppointmentDetailsView";
 import AppointmentList from "../../Appointments";
 import ViewPatient, { RenderMedicalHistory } from "../../../patients/component/patient/ViewPatient";
-import Treatment from "../../../toothTreatment/page";
-import WorkDoneForm from "../../../workDone/component/WorkDoneForm";
-import WorkDoneList from "../../../workDone/component/WorkDoneList";
+import PatientWorkDoneHistory from "../../../patients/component/patient/PatientWorkDoneHistory";
 import LabWorkTable from "../../../labWork/LabWorkTable";
+import Treatment from "../../../toothTreatment/page";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FaFlask } from "react-icons/fa";
 import { FiDollarSign } from "react-icons/fi";
@@ -809,77 +808,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     title={`Work Done: ${openWorkDone.data?.name || "Patient"}`}
                     width={{ base: "100%", md: "90%" }}
                 >
-                    <Box p={2}>
-                        <Tabs variant="unstyled" colorScheme="blue" defaultIndex={1}>
-                            <TabList 
-                              bg="gray.50" 
-                              p={1} 
-                              borderRadius="xl" 
-                              border="1px solid" 
-                              borderColor="gray.100" 
-                              display="inline-flex" 
-                              w="max-content" 
-                              mb={4} 
-                              gap={1.5}
-                            >
-                                <Tab
-                                    borderRadius="lg"
-                                    fontSize="sm"
-                                    fontWeight="bold"
-                                    color="gray.500"
-                                    py={2}
-                                    px={6}
-                                    transition="all 0.2s"
-                                    _selected={{
-                                        bg: "blue.500",
-                                        color: "white",
-                                        shadow: "md",
-                                        fontWeight: "extrabold",
-                                    }}
-                                    _hover={{
-                                        color: "blue.600",
-                                        bg: "blue.50",
-                                    }}
-                                >
-                                    New Work Entry
-                                </Tab>
-                                <Tab
-                                    borderRadius="lg"
-                                    fontSize="sm"
-                                    fontWeight="bold"
-                                    color="gray.500"
-                                    py={2}
-                                    px={6}
-                                    transition="all 0.2s"
-                                    _selected={{
-                                        bg: "blue.500",
-                                        color: "white",
-                                        shadow: "md",
-                                        fontWeight: "extrabold",
-                                    }}
-                                    _hover={{
-                                        color: "blue.600",
-                                        bg: "blue.50",
-                                    }}
-                                >
-                                    Work History
-                                </Tab>
-                            </TabList>
-                            <TabPanels>
-                                <TabPanel p={0}>
-                                    <WorkDoneForm
-                                        patientDetails={openWorkDone.data}
-                                        onSuccess={() => {
-                                            setOpenWorkDone({ open: false, data: null });
-                                        }}
-                                    />
-                                </TabPanel>
-                                <TabPanel p={0}>
-                                    <WorkDoneList patientDetails={openWorkDone.data} />
-                                </TabPanel>
-                            </TabPanels>
-                        </Tabs>
-                    </Box>
+                    <PatientWorkDoneHistory patientDetails={openWorkDone.data} />
                 </CustomDrawer>
             )}
 

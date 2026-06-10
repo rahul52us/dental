@@ -9,20 +9,11 @@ import {
   Spinner,
   Heading,
   Divider,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Icon,
-  Input,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
-import { FiPlus, FiClock } from "react-icons/fi";
 
 import WorkDoneList from "../../../workDone/component/WorkDoneList";
-import WorkDoneForm from "../../../workDone/component/WorkDoneForm";
 
 interface PatientWorkDoneHistoryProps {
   patientDetails: any;
@@ -36,7 +27,6 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
   const [treatments, setTreatments] = useState<any[]>([]);
   const [selectedTreatmentId, setSelectedTreatmentId] = useState<string>("all");
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchTreatments = useCallback(async () => {
@@ -62,127 +52,52 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
   }, [fetchTreatments]);
 
   return (
-    <Box py={3} px={6}>
-      <Tabs index={activeTab} onChange={(index) => setActiveTab(index)} variant="unstyled" colorScheme="blue" w="full">
-        <TabList
-          bg="gray.50"
-          p={1}
-          borderRadius="xl"
-          border="1px solid"
-          borderColor="gray.100"
-          display="inline-flex"
-          w="max-content"
-          mb={4}
-          gap={1.5}
-        >
-          <Tab
-            borderRadius="lg"
-            fontSize="sm"
-            fontWeight="bold"
-            color="gray.500"
-            py={2}
-            px={6}
-            transition="all 0.2s"
-            _selected={{
-              bg: "blue.500",
-              color: "white",
-              shadow: "md",
-              fontWeight: "extrabold",
-            }}
-            _hover={{
-              color: "blue.600",
-              bg: "blue.50",
-            }}
-          >
-            <HStack spacing={2} justify="center">
-              <Icon as={FiPlus} boxSize={3.5} />
-              <Text>New Work Entry</Text>
+    <Box p={2}>
+      <VStack align="stretch" spacing={4} h="full" p={0}>
+        {/* Filter Section */}
+        <Box p={4} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" shadow="sm">
+          <VStack align="start" spacing={3}>
+            <HStack spacing={2}>
+              <Box w="3px" h="12px" bg="blue.500" borderRadius="full" />
+              <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="widest" fontSize="9px">
+                Filter by Treatment Plan & Tooth
+              </Heading>
             </HStack>
-          </Tab>
-          <Tab
-            borderRadius="lg"
-            fontSize="sm"
-            fontWeight="bold"
-            color="gray.500"
-            py={2}
-            px={6}
-            transition="all 0.2s"
-            _selected={{
-              bg: "blue.500",
-              color: "white",
-              shadow: "md",
-              fontWeight: "extrabold",
-            }}
-            _hover={{
-              color: "blue.600",
-              bg: "blue.50",
-            }}
-          >
-            <HStack spacing={2} justify="center">
-              <Icon as={FiClock} boxSize={3.5} />
-              <Text>Work History</Text>
+            <HStack w="full" spacing={4}>
+              <Select
+                value={selectedTreatmentId}
+                onChange={(e) => setSelectedTreatmentId(e.target.value)}
+                bg="white"
+                borderRadius="xl"
+                h="38px"
+                fontSize="sm"
+                fontWeight="600"
+              >
+                <option value="all">All Treatments</option>
+                {treatments.map((t: any) => {
+                  return (
+                    <option key={t._id} value={t._id}>
+                      {t.treatmentPlan} ({t.tooth} {t.toothNotation.toUpperCase()})
+                    </option>
+                  )
+                })}
+              </Select>
+              {loading && <Spinner size="sm" color="blue.500" />}
             </HStack>
-          </Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel p={0}>
-            <WorkDoneForm
-              patientDetails={patientDetails}
-              onSuccess={() => {
-                setActiveTab(1); // Switch to Work History tab
-                setRefreshKey((prev) => prev + 1); // Refresh the list
-              }}
-            />
-          </TabPanel>
-          <TabPanel p={0}>
-            <VStack align="stretch" spacing={4} h="full" py={1} px={0}>
-              {/* Filter Section */}
-              <Box p={4} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" shadow="sm">
-                <VStack align="start" spacing={3}>
-                  <HStack spacing={2}>
-                    <Box w="3px" h="12px" bg="blue.500" borderRadius="full" />
-                    <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="widest" fontSize="9px">
-                      Filter by Treatment Plan & Tooth
-                    </Heading>
-                  </HStack>
-                  <HStack w="full" spacing={4}>
-                    <Select
-                      value={selectedTreatmentId}
-                      onChange={(e) => setSelectedTreatmentId(e.target.value)}
-                      bg="white"
-                      borderRadius="xl"
-                      h="38px"
-                      fontSize="sm"
-                      fontWeight="600"
-                    >
-                      <option value="all">All Treatments</option>
-                      {treatments.map((t: any) => {
-                        return (
-                          <option key={t._id} value={t._id}>
-                            {t.treatmentPlan} ({t.tooth} {t.toothNotation.toUpperCase()})
-                          </option>
-                        )
-                      })}
-                    </Select>
-                    {loading && <Spinner size="sm" color="blue.500" />}
-                  </HStack>
-                </VStack>
-              </Box>
+          </VStack>
+        </Box>
 
-              <Divider my={1} />
+        <Divider my={1} />
 
-              {/* Work Done List Section */}
-              <Box flex={1} overflowY="auto">
-                <WorkDoneList
-                  key={refreshKey}
-                  patientDetails={patientDetails}
-                  treatmentId={selectedTreatmentId === "all" ? undefined : selectedTreatmentId}
-                />
-              </Box>
-            </VStack>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+        {/* Work Done List Section */}
+        <Box flex={1} overflowY="auto">
+          <WorkDoneList
+            key={refreshKey}
+            patientDetails={patientDetails}
+            treatmentId={selectedTreatmentId === "all" ? undefined : selectedTreatmentId}
+          />
+        </Box>
+      </VStack>
     </Box>
   );
 });

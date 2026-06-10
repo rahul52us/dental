@@ -237,16 +237,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                   </Thead>
                   <Tbody>
                     {(() => {
-                      const availableStatuses = (labWorkStatusStore.statuses || [])
-                        .filter((s: any) => s.type === data.workType)
-                        .map((s: any) => s.status);
-                      const merged = availableStatuses.map((s: string) => {
-                        const existing = (data.statusHistory || []).find((h: any) => h.status === s);
-                        return existing || { status: s, date: null, note: "" };
-                      });
-                      const extras = (data.statusHistory || []).filter((h: any) => !availableStatuses.includes(h.status));
-                      const fullList = [...merged, ...extras];
-
+                      const fullList = data.statusHistory || [];
+                      
                       return fullList.map((historyItem: any, idx: number) => {
                         const isDone = !!historyItem.date;
                         return (
@@ -301,8 +293,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                   <Thead bg="gray.50">
                     <Tr>
                       <Th color="gray.600">Item Name</Th>
-                      <Th textAlign="center" color="blue.600">Sent</Th>
                       <Th textAlign="center" color="green.600">Received</Th>
+                      <Th textAlign="center" color="blue.600">Sent</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -323,16 +315,16 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                         <Td fontWeight="600" color="gray.700">{item.label}</Td>
                         <Td textAlign="center">
                           {item.type === "boolean" ? (
-                            data.itemsSent?.[item.key] ? <CheckIcon color="blue.500" /> : <CloseIcon color="gray.200" boxSize={2} />
+                            data.itemsReceived?.[item.key] ? <CheckIcon color="green.500" /> : <CloseIcon color="gray.200" boxSize={2} />
                           ) : (
-                            <Text color="gray.600" fontWeight="500">{data.itemsSent?.[item.key] || "-"}</Text>
+                            <Text color="gray.600" fontWeight="500">{data.itemsReceived?.[item.key] || "-"}</Text>
                           )}
                         </Td>
                         <Td textAlign="center">
                           {item.type === "boolean" ? (
-                            data.itemsReceived?.[item.key] ? <CheckIcon color="green.500" /> : <CloseIcon color="gray.200" boxSize={2} />
+                            data.itemsSent?.[item.key] ? <CheckIcon color="blue.500" /> : <CloseIcon color="gray.200" boxSize={2} />
                           ) : (
-                            <Text color="gray.600" fontWeight="500">{data.itemsReceived?.[item.key] || "-"}</Text>
+                            <Text color="gray.600" fontWeight="500">{data.itemsSent?.[item.key] || "-"}</Text>
                           )}
                         </Td>
                       </Tr>

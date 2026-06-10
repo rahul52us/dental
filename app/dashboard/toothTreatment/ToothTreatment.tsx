@@ -17,6 +17,7 @@ import { FaTooth } from "react-icons/fa";
 import Pagination from "../../component/config/component/pagination/Pagination";
 import WorkDoneForm from "../workDone/component/WorkDoneForm";
 import WorkDoneList from "../workDone/component/WorkDoneList";
+import PatientWorkDoneHistory from "../patients/component/patient/PatientWorkDoneHistory";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FiCheckCircle, FiCalendar } from "react-icons/fi";
 import { adultTeeth, childTeeth } from "../../component/common/TeethModel/DentalChartComponent/utils/teethData";
@@ -246,17 +247,57 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box>
-            <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
-              {(dt?.toothNotation || "FDI").toUpperCase()}
-            </Badge>
-            <Text fontSize="xs" color="gray.500" mt={1}>
-              {dt?.toothName || ""}
-            </Text>
-          </Box>
+          <Tooltip label={
+            <Box>
+              <Text fontWeight="bold">{(dt?.toothNotation || "FDI").toUpperCase()}</Text>
+              {dt?.toothName && <Text fontSize="sm">{dt?.toothName}</Text>}
+            </Box>
+          } placement="top" hasArrow>
+            <VStack spacing={0} maxW="100px" align="center" justify="center">
+              <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
+                {(dt?.toothNotation || "FDI").toUpperCase()}
+              </Badge>
+              {dt?.toothName && (
+                <Text fontSize="10px" color="gray.500" noOfLines={1}>
+                  {dt?.toothName}
+                </Text>
+              )}
+            </VStack>
+          </Tooltip>
         ),
       },
       props: { row: { textAlign: "center" } },
+    },
+
+    {
+      headerName: "Treatment Plan",
+      key: "treatmentPlan",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label={
+            <Box>
+              <Text fontWeight="bold">{dt.treatmentPlan || "General Consultation"}</Text>
+              {dt.notes && <Text fontStyle="italic" fontSize="xs" mt={1}>{dt.notes}</Text>}
+            </Box>
+          } placement="top" hasArrow>
+            <VStack align="start" spacing={0} maxW="200px">
+              <Text fontSize="sm" fontWeight="bold" color="gray.800" noOfLines={1}>
+                {dt.treatmentPlan || "General Consultation"}
+              </Text>
+              {dt.notes && (
+                <Text fontSize="xs" color="gray.500" fontStyle="italic" noOfLines={1}>
+                  {dt.notes}
+                </Text>
+              )}
+            </VStack>
+          </Tooltip>
+        ),
+      },
+      props: {
+        row: { textAlign: "left" },
+        column: { textAlign: "left" },
+      },
     },
 
     ...(!isPatient ? [patientColumn] : []),
@@ -267,9 +308,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box>
-            <Text>{dt?.doctorName || "--"}</Text>
-          </Box>
+          <Tooltip label={dt?.doctorName || "--"} placement="top" hasArrow>
+            <Box maxW="120px">
+              <Text noOfLines={1}>{dt?.doctorName || "--"}</Text>
+            </Box>
+          </Tooltip>
         ),
       },
       props: { row: { textAlign: "center" } },
@@ -280,9 +323,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box>
-            <Text>{dt?.examiningDoctorName || "--"}</Text>
-          </Box>
+          <Tooltip label={dt?.examiningDoctorName || "--"} placement="top" hasArrow>
+            <Box maxW="120px">
+              <Text noOfLines={1}>{dt?.examiningDoctorName || "--"}</Text>
+            </Box>
+          </Tooltip>
         ),
       },
       props: { row: { textAlign: "center" } },
@@ -414,29 +459,74 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     },
 
     {
-      headerName: "Created By",
-      key: "createdBy",
+      headerName: "Actions",
+      key: "table-actions",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box>
-            <Text>{dt?.createdBy?.name || "--"}</Text>
-            <Text fontSize="xs" color="gray.500">
-              {dt?.createdBy?.code || ""}
-            </Text>
-          </Box>
+          <HStack spacing={1} justify="center">
+            <Tooltip label="Add Work Done">
+              <IconButton
+                size="sm"
+                variant="ghost"
+                colorScheme="orange"
+                icon={<FiCheckCircle />}
+                aria-label="Work Done"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setWorkDoneTab(1);
+                  setOpenWorkDone({ open: true, data: dt });
+                }}
+              />
+            </Tooltip>
+            {stores.auth.hasPermission('treatment', 'view') && (
+              <Tooltip label="View Record">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="blue"
+                  icon={<FiEye />}
+                  aria-label="View"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenView({ open: true, data: dt });
+                  }}
+                />
+              </Tooltip>
+            )}
+            {stores.auth.hasPermission('treatment', 'edit') && (
+              <Tooltip label="Edit Record">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="blue"
+                  icon={<FiEdit3 />}
+                  aria-label="Edit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenReportModal({ open: true, type: "edit", data: dt });
+                  }}
+                />
+              </Tooltip>
+            )}
+            {stores.auth.hasPermission('treatment', 'delete') && (
+              <Tooltip label="Delete Record">
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="red"
+                  icon={<FiTrash2 />}
+                  aria-label="Delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(dt._id);
+                  }}
+                />
+              </Tooltip>
+            )}
+          </HStack>
         ),
       },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-
-    {
-      headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
       props: {
         row: { minW: 180, textAlign: "center" },
         column: { textAlign: "center" },
@@ -677,7 +767,14 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
         variant="line"
         colorScheme="blue"
         index={activeTab}
-        onChange={(idx) => setActiveTab(idx)}
+        onChange={(idx) => {
+          setActiveTab(idx);
+          if (idx === 1) {
+            applyGetAllRecords({ page: currentPage });
+          }
+        }}
+        isLazy
+        lazyBehavior="unmount"
       >
         <TabList mb={0} borderBottom="2px solid" borderColor="gray.100" px={2}>
           <Tab
@@ -709,6 +806,21 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             }}
           >
             Previous Treatment Plan History
+          </Tab>
+          <Tab
+            fontWeight="bold"
+            fontSize="14px"
+            px={6}
+            py={3}
+            _selected={{
+              color: "blue.700",
+              borderColor: "blue.600",
+              borderBottomWidth: "3px",
+              bg: "blue.50",
+              borderTopRadius: "lg",
+            }}
+          >
+            Work Done History
           </Tab>
         </TabList>
 
@@ -868,20 +980,6 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   columns={ContactTableColumn}
                   loading={toothTreatment?.loading}
                   actions={{
-                    actionBtn: {
-                      editKey: {
-                        showEditButton: stores.auth.hasPermission('treatment', 'edit'),
-                        function: (dt: any) => setOpenReportModal({ open: true, type: "edit", data: dt }),
-                      },
-                      viewKey: {
-                        showViewButton: stores.auth.hasPermission('treatment', 'view'),
-                        function: (dt: any) => setOpenView({ open: true, data: dt }),
-                      },
-                      deleteKey: {
-                        showDeleteButton: stores.auth.hasPermission('treatment', 'delete'),
-                        function: (dt: any) => handleDelete(dt._id),
-                      },
-                    },
                     pagination: {
                       show: true,
                       onClick: handleChangePage,
@@ -926,6 +1024,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 </VStack>
               )}
             </Box>
+          </TabPanel>
+
+          {/* ── TAB 3: Work Done History ─────────────────────────── */}
+          <TabPanel p={0} pt={4}>
+            <PatientWorkDoneHistory patientDetails={patientDetails} />
           </TabPanel>
         </TabPanels>
       </Tabs>
