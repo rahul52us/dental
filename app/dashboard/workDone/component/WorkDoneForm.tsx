@@ -175,6 +175,17 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   const handleSubmit = async (values: any) => {
     setLoading(true);
 
+    const tId = treatmentDetails?._id || editData?.treatment?._id || editData?.treatment;
+    if (!tId) {
+      openNotification({
+        type: "error",
+        title: "Treatment Required",
+        message: "A Treatment Plan is mandatory to create or update a clinical entry.",
+      });
+      setLoading(false);
+      return;
+    }
+
     if (!values.status) {
       openNotification({
         type: "error",
@@ -216,7 +227,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
           ...values,
           doctor: values.doctor?.value || values.doctor,
           patient: patientDetails._id,
-          treatment: treatmentDetails?._id,
+          treatment: tId,
           company: stores.auth.company,
           user: stores.auth.user?._id,
           status: values.status,
