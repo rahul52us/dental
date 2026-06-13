@@ -154,6 +154,19 @@ class WorkDoneStore {
     }
   };
 
+  fetchFilteredTablePDFBase64 = async (patientId: string, params: any) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const response = await axios.get(`/workDone/generate-filtered-table-pdf/${patientId}`, { 
+        params: { ...params, company: compId } 
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Error generating table PDF");
+    }
+  };
+
   createWorkDone = async (sendData: any) => {
     try {
       const compId = authStore.company?._id || authStore.company;
@@ -478,6 +491,7 @@ class WorkDoneStore {
         ...(filters.doctorId && { doctorId: filters.doctorId }),
         ...(filters.toothNumber && { toothNumber: filters.toothNumber }),
         ...(filters.reportType && { reportType: filters.reportType }),
+        ...(filters.sittingNo && { sittingNo: filters.sittingNo }),
       });
       const { data } = await axios.post(`/workDone/generate-filtered-report/${patientId}?${queryParams.toString()}`, params);
 
@@ -515,6 +529,7 @@ class WorkDoneStore {
         ...(filters.doctorId && { doctorId: filters.doctorId }),
         ...(filters.toothNumber && { toothNumber: filters.toothNumber }),
         ...(filters.reportType && { reportType: filters.reportType }),
+        ...(filters.sittingNo && { sittingNo: filters.sittingNo }),
       });
       const { data } = await axios.post(`/workDone/generate-filtered-report/${patientId}?${queryParams.toString()}`, params);
 

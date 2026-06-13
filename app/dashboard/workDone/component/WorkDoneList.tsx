@@ -154,6 +154,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
   const [openFilteredReportModal, setOpenFilteredReportModal] = useState({ open: false });
   const [openAccountDetails, setOpenAccountDetails] = useState({ open: false });
+  const [tablePreviewDrawer, setTablePreviewDrawer] = useState({ open: false, url: "" });
+  const [isDownloadingData, setIsDownloadingData] = useState(false);
 
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
@@ -163,8 +165,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   
   const [searchTooth, setSearchTooth] = useState("");
   const [debouncedSearchTooth, setDebouncedSearchTooth] = useState("");
-  const [sittingNoSearch, setSittingNoSearch] = useState("");
-  const [debouncedSittingNoSearch, setDebouncedSittingNoSearch] = useState("");
+  const [sittingNoSearch, setSittingNoSearch] = useState<any[]>([]);
+  const [debouncedSittingNoSearch, setDebouncedSittingNoSearch] = useState<any[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [isTableView, setIsTableView] = useState<"card" | "table">("card");
 
@@ -197,8 +199,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
     if (statusFilter !== "all") {
       params.status = statusFilter;
     }
-    if (debouncedSittingNoSearch?.trim()) {
-      params.sittingNo = Number(debouncedSittingNoSearch.trim());
+    if (debouncedSittingNoSearch && debouncedSittingNoSearch.length > 0) {
+      params.sittingNo = debouncedSittingNoSearch.map((s: any) => s.value || s).join(',');
     }
     
     getWorkDone(params).catch((err) => {
@@ -582,19 +584,31 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
              />
           </HStack>
 
-          <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
-             <Input
-                placeholder="SITTING NO."
-                variant="unstyled"
-                h="100%"
-                fontSize="11px"
-                fontWeight="bold"
-                w="80px"
-                type="number"
-                value={sittingNoSearch}
-                onChange={(e) => setSittingNoSearch(e.target.value)}
-             />
-          </HStack>
+          <Box w="150px" zIndex={10}>
+            <CreatableSelect
+              isMulti
+              isClearable
+              placeholder="Sit. No..."
+              value={sittingNoSearch}
+              onChange={(val: any) => setSittingNoSearch(val)}
+              options={[]}
+              styles={{
+                control: (base) => ({ 
+                  ...base, 
+                  minHeight: '32px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  borderColor: '#E2E8F0',
+                  '&:hover': { borderColor: '#CBD5E1' }
+                }),
+                valueContainer: (base) => ({ ...base, padding: '0 8px' }),
+                clearIndicator: (base) => ({ ...base, padding: '4px' }),
+                dropdownIndicator: (base) => ({ ...base, padding: '4px' }),
+                multiValue: (base) => ({ ...base, backgroundColor: '#E2E8F0' }),
+              }}
+            />
+          </Box>
 
           <Select
             value={statusFilter}
@@ -632,6 +646,46 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             ACCOUNT
           </Button>
 
+          <Button
+            size="sm"
+            colorScheme="blue"
+            variant="solid"
+            leftIcon={<FiDownload />}
+            borderRadius="xl"
+            fontSize="11px"
+            fontWeight="bold"
+            isLoading={isDownloadingData}
+            onClick={async () => {
+              setIsDownloadingData(true);
+              try {
+                const params: any = {
+                  treatmentId,
+                };
+                if (selectedDateFilter) {
+                  params.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
+                  params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
+                }
+                if (debouncedSearchTooth) params.search = debouncedSearchTooth;
+                if (statusFilter !== "all") params.status = statusFilter;
+                if (debouncedSittingNoSearch && debouncedSittingNoSearch.length > 0) {
+                  params.sittingNo = debouncedSittingNoSearch.map((s: any) => s.value || s).join(',');
+                }
+
+                const res = await stores.workDoneStore.fetchFilteredTablePDFBase64(patientDetails?._id, params);
+                if (res?.data) {
+                   const blob = new Blob([Uint8Array.from(atob(res.data), c => c.charCodeAt(0))], { type: 'application/pdf' });
+                   const url = URL.createObjectURL(blob);
+                   setTablePreviewDrawer({ open: true, url });
+                }
+              } catch (err: any) {
+                openNotification({ type: "error", title: "Failed", message: err.message });
+              } finally {
+                setIsDownloadingData(false);
+              }
+            }}
+          >
+            DOWNLOAD DATA
+          </Button>
 
           <HStack bg="gray.100" p={1} borderRadius="xl" ml={2}>
             <IconButton
@@ -664,7 +718,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             shadow="sm"
             onClick={() => {
               setSearchTooth("");
-              setSittingNoSearch("");
+              setSittingNoSearch([]);
               setStatusFilter("all");
               setSelectedDateFilter(null);
             }}
@@ -713,7 +767,9 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     params.toDate = `${selectedDateFilter}T23:59:59.999Z`;
                   }
                   if (debouncedSearchTooth) params.search = debouncedSearchTooth;
-                  if (sittingNoSearch?.trim()) params.sittingNo = Number(sittingNoSearch.trim());
+                  if (debouncedSittingNoSearch && debouncedSittingNoSearch.length > 0) {
+                    params.sittingNo = debouncedSittingNoSearch.map((s: any) => s.value || s).join(',');
+                  }
                   if (statusFilter !== "all") params.status = statusFilter;
                   getWorkDone(params);
                 },
@@ -1078,6 +1134,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         />
       )}
 
+      {/* Filtered Report Modal */}
       {openFilteredReportModal.open && (
         <FilteredWorkDoneModal
           isOpen={openFilteredReportModal.open}
@@ -1086,6 +1143,41 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           treatmentId={treatmentId}
         />
       )}
+
+      {/* Table Data Preview Drawer */}
+      <CustomDrawer
+        open={tablePreviewDrawer.open}
+        close={() => {
+          if (tablePreviewDrawer.url) URL.revokeObjectURL(tablePreviewDrawer.url);
+          setTablePreviewDrawer({ open: false, url: "" });
+        }}
+        title="Table Data Preview"
+        width="60vw"
+      >
+        <Box minH="85vh" p={4} display="flex" flexDirection="column">
+          <HStack justify="space-between" mb={4}>
+            <Text fontSize="14px" fontWeight="bold">Preview generated report</Text>
+            <Button
+              colorScheme="blue"
+              size="sm"
+              leftIcon={<FiDownload />}
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = tablePreviewDrawer.url;
+                link.download = `WorkDone_Table_${patientDetails?.name || 'Report'}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+            >
+              DOWNLOAD PDF
+            </Button>
+          </HStack>
+          <Box height="calc(100vh - 150px)" bg="gray.50" borderRadius="xl" overflow="hidden" border="1px solid" borderColor="gray.200">
+            <iframe src={tablePreviewDrawer.url} width="100%" height="100%" style={{ border: 'none' }} title="Table Preview" />
+          </Box>
+        </Box>
+      </CustomDrawer>
 
       {openAccountDetails.open && (
         <CustomDrawer
@@ -1772,19 +1864,22 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
   const [doctorIds, setDoctorIds] = useState<any[]>([]);
   const [toothNumbers, setToothNumbers] = useState<any[]>([]);
   const [reportType, setReportType] = useState("both");
+  const [sittingNos, setSittingNos] = useState<any[]>([]);
 
   const handleDownload = async () => {
     setLoading(true);
     try {
       const selectedDoctorIds = doctorIds && doctorIds.length > 0 ? doctorIds.map((d: any) => d.value || d).join(',') : 'all';
       const selectedToothNumbers = toothNumbers && toothNumbers.length > 0 ? toothNumbers.map((t: any) => t.value || t).join(',') : 'all';
+      const selectedSittingNos = sittingNos && sittingNos.length > 0 ? sittingNos.map((s: any) => s.value || s).join(',') : '';
       const filterParams = {
         treatmentId,
         fromDate: `${fromDate}T00:00:00.000Z`,
         toDate: `${toDate}T23:59:59.999Z`,
         doctorId: selectedDoctorIds,
         toothNumber: selectedToothNumbers,
-        reportType
+        reportType,
+        ...(selectedSittingNos ? { sittingNo: selectedSittingNos } : {})
       };
       await workDoneStore.downloadFilteredWorkDoneReport(patientId, filterParams, { prescriptions: [], topPadding: 150, bottomPadding: 50 });
       openNotification({
@@ -1809,13 +1904,15 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
     try {
       const selectedDoctorIds = doctorIds && doctorIds.length > 0 ? doctorIds.map((d: any) => d.value || d).join(',') : 'all';
       const selectedToothNumbers = toothNumbers && toothNumbers.length > 0 ? toothNumbers.map((t: any) => t.value || t).join(',') : 'all';
+      const selectedSittingNos = sittingNos && sittingNos.length > 0 ? sittingNos.map((s: any) => s.value || s).join(',') : '';
       const filterParams = {
         treatmentId,
         fromDate: `${fromDate}T00:00:00.000Z`,
         toDate: `${toDate}T23:59:59.999Z`,
         doctorId: selectedDoctorIds,
         toothNumber: selectedToothNumbers,
-        reportType
+        reportType,
+        ...(selectedSittingNos ? { sittingNo: selectedSittingNos } : {})
       };
       const res: any = await workDoneStore.generateFilteredWorkDoneReportBlob(patientId, filterParams, { prescriptions: [], topPadding: 150, bottomPadding: 50 });
       if (res?.url) setPreviewDrawer({ open: true, url: res.url });
@@ -1862,6 +1959,20 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
                 placeholder="Type and press enter for multiple teeth..."
                 value={toothNumbers}
                 onChange={(val: any) => setToothNumbers(val)}
+                options={[]}
+                styles={{
+                  control: (base) => ({ ...base, borderRadius: '12px' }),
+                }}
+              />
+            </Box>
+            <Box>
+              <Text fontSize="11px" fontWeight="bold" color="gray.700" mb={1}>SITTING NUMBER (OPTIONAL)</Text>
+              <CreatableSelect
+                isMulti
+                isClearable
+                placeholder="Type and press enter for multiple sitting numbers..."
+                value={sittingNos}
+                onChange={(val: any) => setSittingNos(val)}
                 options={[]}
                 styles={{
                   control: (base) => ({ ...base, borderRadius: '12px' }),

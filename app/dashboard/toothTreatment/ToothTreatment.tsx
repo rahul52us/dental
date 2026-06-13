@@ -21,6 +21,8 @@ import PatientWorkDoneHistory from "../patients/component/patient/PatientWorkDon
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { FiCheckCircle, FiCalendar } from "react-icons/fi";
 import { adultTeeth, childTeeth } from "../../component/common/TeethModel/DentalChartComponent/utils/teethData";
+import CreatableSelect from "react-select/creatable";
+import { FiDownload } from "react-icons/fi";
 
 
 
@@ -90,7 +92,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sittingNoSearch, setSittingNoSearch] = useState("");
+  const [sittingNoSearch, setSittingNoSearch] = useState<any[]>([]);
   const [complaintTypeFilter, setComplaintTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   
@@ -99,6 +101,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const [backendCounts, setBackendCounts] = useState<any[]>([]);
   const [isCounting, setIsCounting] = useState(false);
   const [countSearch, setCountSearch] = useState("");
+  const [isDownloadingData, setIsDownloadingData] = useState(false);
+  const [tablePreviewDrawer, setTablePreviewDrawer] = useState({ open: false, data: null as any });
 
   const totalSummaryStats = useMemo(() => {
     if (!backendCounts || backendCounts.length === 0) return { totalVisits: 0, totalTreatments: 0 };
@@ -123,8 +127,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
       const query: any = { page, limit };
 
-      if (sittingNoSearch?.trim()) {
-        query.sittingNo = sittingNoSearch.trim();
+      if (sittingNoSearch && sittingNoSearch.length > 0) {
+        query.sittingNo = sittingNoSearch.map((s: any) => s.value || s).join(',');
       }
 
       if (debouncedSearchQuery?.trim()) {
@@ -184,7 +188,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
-    setSittingNoSearch("");
+    setSittingNoSearch([]);
     setComplaintTypeFilter("all");
     setStatusFilter("all");
     setSelectedDateFilter(null);
@@ -208,6 +212,52 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           message: err?.message || "Something went wrong"
         });
       }
+    }
+  };
+
+  const handleDownloadTable = async () => {
+    setIsDownloadingData(true);
+    try {
+      const query: any = {
+        company: stores.auth.company,
+      };
+
+      if (isPatient && patientDetails) {
+        query.patientId = patientDetails?._id;
+      }
+
+      if (sittingNoSearch && sittingNoSearch.length > 0) {
+        query.sittingNo = sittingNoSearch.map((s: any) => s.value || s).join(',');
+      }
+
+      if (debouncedSearchQuery?.trim()) {
+        query.search = debouncedSearchQuery.trim();
+      }
+
+      if (complaintTypeFilter !== "all") {
+        query.complaintType = complaintTypeFilter;
+      }
+
+      if (statusFilter !== "all") {
+        query.status = statusFilter;
+      }
+
+      if (selectedDateFilter) {
+        query.fromDate = `${selectedDateFilter}T00:00:00.000Z`;
+        query.toDate = `${selectedDateFilter}T23:59:59.999Z`;
+      }
+
+      const pId = patientDetails?._id || query.patientId || "all";
+      const base64Pdf = await stores.toothTreatmentStore.fetchFilteredTreatmentTablePDFBase64(pId, query);
+      setTablePreviewDrawer({ open: true, data: base64Pdf });
+    } catch (err: any) {
+      openNotification({
+        type: "error",
+        title: "Download Failed",
+        message: err?.message || "Failed to generate report",
+      });
+    } finally {
+      setIsDownloadingData(false);
     }
   };
 
@@ -880,19 +930,32 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     />
                   </HStack>
 
-                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" w="130px">
-                    <Icon as={FiSearch} color="gray.400" />
-                    <Input
-                      placeholder="Sitting No."
-                      type="number"
-                      variant="unstyled"
-                      py={2}
-                      fontSize="sm"
-                      w="full"
+                  <Box w="150px" zIndex={10}>
+                    <CreatableSelect
+                      isMulti
+                      placeholder="Sitting No"
                       value={sittingNoSearch}
-                      onChange={(e) => setSittingNoSearch(e.target.value)}
+                      onChange={(newVal) => setSittingNoSearch(newVal as any)}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          borderRadius: 'full',
+                          borderColor: '#E2E8F0',
+                          minHeight: '40px',
+                          fontSize: '14px',
+                          boxShadow: 'none',
+                          '&:hover': {
+                            borderColor: '#CBD5E1'
+                          }
+                        }),
+                        multiValue: (base) => ({
+                          ...base,
+                          backgroundColor: '#EBF8FF',
+                          borderRadius: '4px'
+                        })
+                      }}
                     />
-                  </HStack>
+                  </Box>
 
                   <Box w="220px">
                     <select
@@ -930,15 +993,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     </select>
                   </Box>
 
-                  <HStack spacing={1}>
+                  <HStack spacing={2}>
                     <Button
                       size="sm"
-                      colorScheme="blue"
-                      variant="solid"
+                      colorScheme="purple"
                       leftIcon={<FiCalendar />}
-                      borderRadius="xl"
-                      fontSize="11px"
-                      fontWeight="bold"
                       onClick={() => {
                         setIsCounting(true);
                         stores.toothTreatmentStore.getToothTreatmentCountByDate({ patientId: patientDetails?._id })
@@ -954,6 +1013,24 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     >
                       VIEW HISTORY DATE WISE
                     </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="orange"
+                      leftIcon={<FiDownload />}
+                      isLoading={isDownloadingData}
+                      onClick={handleDownloadTable}
+                    >
+                      DOWNLOAD DATA
+                    </Button>
+                    {isPatient && (
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        onClick={() => setOpenReportModal({ open: true, type: "add", data: null })}
+                      >
+                        + ADD TREATMENT
+                      </Button>
+                    )}
                     <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
                       {toothTreatment?.totalItems || 0}
                     </Circle>
@@ -1202,6 +1279,25 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      )}
+
+      {tablePreviewDrawer.open && (
+        <CustomDrawer
+          open={tablePreviewDrawer.open}
+          close={() => setTablePreviewDrawer({ open: false, data: null })}
+          title="Treatment List Report Preview"
+          size="xl"
+        >
+          <Box h="calc(100vh - 150px)" w="full">
+            <iframe
+              src={`data:application/pdf;base64,${tablePreviewDrawer.data}#toolbar=1&navpanes=0`}
+              width="100%"
+              height="100%"
+              style={{ border: 'none', borderRadius: '8px' }}
+              title="Treatment Report PDF"
+            />
+          </Box>
+        </CustomDrawer>
       )}
     </>
   );

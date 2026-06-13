@@ -360,6 +360,15 @@ class ToothTreatmentStore {
       return Promise.reject(err?.response?.data || err);
     }
   };
+
+  fetchFilteredTreatmentTablePDFBase64 = async (patientId: string, params: any) => {
+    try {
+      const response = await axios.get(`/toothTreatment/generate-filtered-table-pdf/${patientId}`, { params });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Error generating report");
+    }
+  };
 }
 
 
