@@ -626,7 +626,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? theme.colors.brand[500] : theme.colors.darkBrand[500],
+                backgroundColor: "#D53F8C",
                 borderRadius: "8px",
                 padding: "2px 4px",
               }),

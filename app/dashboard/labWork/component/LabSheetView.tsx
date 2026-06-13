@@ -18,18 +18,139 @@ import {
   Icon,
   Flex,
   useColorModeValue,
+  Button,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerBody,
+  DrawerCloseButton,
+  useDisclosure
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
 import { formatDateTime } from "../../../component/config/utils/dateUtils";
-import { FiUser, FiCalendar, FiClock, FiActivity, FiTag, FiFileText, FiCheckCircle } from "react-icons/fi";
+import { FiUser, FiCalendar, FiClock, FiActivity, FiTag, FiFileText, FiCheckCircle, FiDownload, FiEye } from "react-icons/fi";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import labWorkStatusStore from "../../../store/labWorkStatusStore/labWorkStatusStore";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const LabSheetView = observer(({ data }: { data: any }) => {
   const { labWorkHierarchyStore } = stores;
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const headerBg = useColorModeValue("blue.50", "gray.700");
+  
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
+
+  const generatePDF = (download: boolean = false) => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Lab Order Details", 14, 20);
+    
+    doc.setFontSize(12);
+    doc.text(`Order ID: ${data._id?.slice(-8).toUpperCase()}`, 14, 28);
+
+    const tableData: any[] = [
+      ["Patient", data.patient?.name || data.patientNameManual || "N/A"],
+      ["Doctor", data.primaryDoctor?.name || data.primaryDoctor?.labDoctorName || data.doctorNameManual || "N/A"]
+    ];
+
+    if (data.workType === "in-house") {
+      tableData.push(["Send Date", data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent"]);
+    } else {
+      tableData.push(["Received Date", data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"]);
+    }
+
+    tableData.push(
+      ["Due Date", data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"],
+      ["Status", data.status?.toUpperCase() || "N/A"],
+      ["Lab Instructions", data.labInstructions || "None"]
+    );
+
+    autoTable(doc, {
+      startY: 35,
+      head: [["Field", "Details"]],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [49, 130, 206] },
+      styles: { fontSize: 11, cellPadding: 5 },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } }
+    });
+
+    let currentY = (doc as any).lastAutoTable.finalY + 10;
+
+    // Selected Works & Specifications
+    if (data.selectedWorks && data.selectedWorks.length > 0) {
+      doc.setFontSize(14);
+      doc.text("Selected Works & Specifications", 14, currentY);
+      
+      const worksData = data.selectedWorks.map((work: any) => [
+        labWorkHierarchyStore.getNamePath(work.selections),
+        work.teethNumbers?.join(", ") || "-",
+        work.shadeValue || "-"
+      ]);
+
+      autoTable(doc, {
+        startY: currentY + 5,
+        head: [["Classification", "Teeth #", "Shade"]],
+        body: worksData,
+        theme: 'grid',
+        headStyles: { fillColor: [49, 130, 206] },
+        styles: { fontSize: 11, cellPadding: 5 },
+      });
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // Received Items
+    const receivedItemsFields = [
+      { label: "Impression trays (Upper)", key: "impressionTraysUpper", type: "boolean" },
+      { label: "Impression trays (Lower)", key: "impressionTraysLower", type: "boolean" },
+      { label: "Models (Upper)", key: "modelsUpper", type: "boolean" },
+      { label: "Models (Lower)", key: "modelsLower", type: "boolean" },
+      { label: "Articulator", key: "articulator", type: "boolean" },
+      { label: "Implant Analog", key: "implantAnalog", type: "string" },
+      { label: "Implant Impression Coping", key: "implantImpressionCoping", type: "string" },
+      { label: "Implant Abutment", key: "implantAbutment", type: "string" },
+      { label: "Bite", key: "bite", type: "boolean" },
+      { label: "Certificate", key: "certificate", type: "boolean" },
+      { label: "Accessories", key: "accessories", type: "string" },
+    ];
+
+    const selectedReceivedItems: string[][] = [];
+    receivedItemsFields.forEach(item => {
+      if (item.type === "boolean" && data.itemsReceived?.[item.key]) {
+        selectedReceivedItems.push([item.label, "Yes"]);
+      } else if (item.type === "string" && data.itemsReceived?.[item.key]) {
+        selectedReceivedItems.push([item.label, data.itemsReceived[item.key]]);
+      }
+    });
+
+    if (selectedReceivedItems.length > 0) {
+      doc.setFontSize(14);
+      doc.text("Received Items", 14, currentY);
+      
+      autoTable(doc, {
+        startY: currentY + 5,
+        head: [["Item Name", "Details"]],
+        body: selectedReceivedItems,
+        theme: 'grid',
+        headStyles: { fillColor: [49, 130, 206] },
+        styles: { fontSize: 11, cellPadding: 5 },
+      });
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    if (download) {
+      doc.save(`Lab_Order_${data._id?.slice(-8).toUpperCase()}.pdf`);
+    } else {
+      const pdfString = doc.output('datauristring');
+      setPdfUrl(pdfString);
+      onOpen();
+    }
+  };
 
   const getStatusColor = (status: string) => {
     const s = status?.toLowerCase();
@@ -57,6 +178,38 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
   return (
     <Box p={4}>
+      {/* PDF Preview Drawer */}
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader>PDF Preview</DrawerHeader>
+          <DrawerCloseButton />
+          <DrawerBody p={0}>
+            {pdfUrl ? (
+              <iframe 
+                src={pdfUrl} 
+                width="100%" 
+                height="100%" 
+                style={{ border: 'none' }}
+                title="PDF Preview"
+              />
+            ) : (
+              <Flex justify="center" align="center" height="100%">
+                <Text>Generating PDF...</Text>
+              </Flex>
+            )}
+          </DrawerBody>
+          <DrawerFooter>
+            <Button variant="ghost" mr={3} onClick={onClose}>
+              Close
+            </Button>
+            <Button colorScheme="blue" leftIcon={<Icon as={FiDownload} />} onClick={() => generatePDF(true)}>
+              Download PDF
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
       <VStack align="stretch" spacing={6}>
         {/* Header Information */}
         <Box p={5} borderRadius="2xl" border="1px solid" borderColor={borderColor} bg={headerBg}>
@@ -65,7 +218,12 @@ const LabSheetView = observer(({ data }: { data: any }) => {
               <Heading size="md" color="blue.700">Lab Work Order Summary</Heading>
               <Text fontSize="sm" color="gray.500">Order ID: {data._id?.slice(-8).toUpperCase()}</Text>
             </VStack>
-            <StatusBadge status={data.status} />
+            <HStack>
+              <Button size="sm" colorScheme="blue" variant="outline" leftIcon={<Icon as={FiEye} />} onClick={() => generatePDF(false)}>
+                Preview PDF
+              </Button>
+              <StatusBadge status={data.status} />
+            </HStack>
           </Flex>
 
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>

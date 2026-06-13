@@ -69,13 +69,14 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   const [isDownloading, setIsDownloading] = useState(false);
 
   const [reportFilters, setReportFilters] = useState({
-    dateType: "receivedDate",
+    dateType: "receivedDate" as string | string[],
     fromDate: "",
     toDate: "",
-    workType: "all",
+    workType: "in-house",
     patient: null as any,
     doctor: null as any,
-    status: "all",
+    labDoctor: null as any,
+    status: "all" as string | string[],
   });
 
   const handleTabChange = (index: number) => {
@@ -114,9 +115,10 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
       dateType: "receivedDate",
       fromDate: "",
       toDate: "",
-      workType: "all",
+      workType: "in-house",
       patient: null,
       doctor: null,
+      labDoctor: null,
       status: "all",
     });
   };
@@ -183,7 +185,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
         ...reportFilters,
         workType: reportFilters.workType === "all" ? workType : reportFilters.workType,
         patientId: reportFilters.patient?._id || reportFilters.patient?.value || reportFilters.patient?.id,
-        doctorId: reportFilters.doctor?._id || reportFilters.doctor?.value || reportFilters.doctor?.id,
+        doctorId: reportFilters.doctor?._id || reportFilters.doctor?.value || reportFilters.doctor?.id || reportFilters.labDoctor?._id || reportFilters.labDoctor?.value || reportFilters.labDoctor?.id,
         search: debouncedSearchQuery?.trim() || undefined,
       };
 
@@ -326,23 +328,39 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
       } as any);
     }
 
+    const dateCols: any[] = [];
+    if (activeTab === 1) {
+      // In-house: Send -> Due -> Received
+      dateCols.push(
+        { headerName: "Send Date", key: "sendDate", function: (dt: any) => dt.sendDate ? formatDateTime(dt.sendDate).split(",")[0] : "-" },
+        { headerName: "Due Date", key: "dueDate", function: (dt: any) => dt.dueDate ? formatDateTime(dt.dueDate).split(",")[0] : "-" },
+        { headerName: "Received Date", key: "receivedDate", function: (dt: any) => dt.receivedDate ? formatDateTime(dt.receivedDate).split(",")[0] : "-" }
+      );
+    } else {
+      // Outside & All: Received -> Due -> Send
+      dateCols.push(
+        { headerName: "Received Date", key: "receivedDate", function: (dt: any) => dt.receivedDate ? formatDateTime(dt.receivedDate).split(",")[0] : "-" },
+        { headerName: "Due Date", key: "dueDate", function: (dt: any) => dt.dueDate ? formatDateTime(dt.dueDate).split(",")[0] : "-" },
+        { headerName: "Send Date", key: "sendDate", function: (dt: any) => dt.sendDate ? formatDateTime(dt.sendDate).split(",")[0] : "-" }
+      );
+    }
+
+    // Add Delay column
+    dateCols.push({
+      headerName: "Delay",
+      key: "delay",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          if (dt.delay === undefined || dt.delay === null || dt.delay === "") return <Text>-</Text>;
+          return <Badge colorScheme={dt.delay < 0 ? "red" : (dt.delay > 0 ? "green" : "gray")} borderRadius="full" px={2}>{dt.delay} Days</Badge>;
+        }
+      }
+    });
+
     return [
       ...baseCols,
-      {
-        headerName: "Send Date",
-        key: "sendDate",
-        function: (dt: any) => dt.sendDate ? formatDateTime(dt.sendDate).split(",")[0] : "-",
-      },
-      {
-        headerName: "Due Date",
-        key: "dueDate",
-        function: (dt: any) => dt.dueDate ? formatDateTime(dt.dueDate).split(",")[0] : "-",
-      },
-      {
-        headerName: "Received Date",
-        key: "receivedDate",
-        function: (dt: any) => dt.receivedDate ? formatDateTime(dt.receivedDate).split(",")[0] : "-",
-      },
+      ...dateCols,
       {
         headerName: "Status",
         key: "status",
@@ -489,9 +507,9 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
         </Drawer>
 
         {/* Report Filter Drawer */}
-        <Drawer isOpen={isReportOpen} onClose={onReportClose} size="lg" placement="right">
+        <Drawer isOpen={isReportOpen} onClose={onReportClose} size="full" placement="right">
           <DrawerOverlay backdropFilter="blur(5px)" />
-          <DrawerContent borderLeftRadius="3xl" shadow="2xl">
+          <DrawerContent maxW="75%" borderLeftRadius="3xl" shadow="2xl">
             <DrawerHeader bg="blue.600" color="white" py={6} px={8}>
               <HStack spacing={3}>
                 <Icon as={FiDownload} boxSize={6} />
@@ -505,6 +523,36 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
 
             <DrawerBody p={8}>
               <VStack spacing={8} align="stretch">
+                {/* Work Type Section */}
+                <Box>
+                  <HStack mb={4} spacing={2}>
+                    <Icon as={FiList} color="blue.500" />
+                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">WORK TYPE</Text>
+                  </HStack>
+                  <CustomInput
+                    name="workType"
+                    type="select"
+                    isPortal
+                    options={[
+                      { label: "In-house", value: "in-house" },
+                      { label: "Outside", value: "outside" },
+                    ]}
+                    value={{
+                      label: reportFilters.workType === "in-house" ? "In-house" : "Outside",
+                      value: reportFilters.workType
+                    }}
+                    onChange={(val: any) => {
+                      if (!val || val.value === "in-house") {
+                        setReportFilters({ ...reportFilters, workType: "in-house", labDoctor: null, dateType: "sendDate" });
+                      } else {
+                        setReportFilters({ ...reportFilters, workType: "outside", doctor: null, dateType: "receivedDate" });
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Divider />
+
                 {/* Date Filters Section */}
                 <Box>
                   <HStack mb={4} spacing={2}>
@@ -525,13 +573,24 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                           name="dateType"
                           type="select"
                           isPortal
-                          options={[
-                            { label: "Received Date", value: "receivedDate" },
-                            { label: "Send Date", value: "sendDate" },
-                            { label: "Due Date", value: "dueDate" },
-                          ]}
-                          value={reportFilters.dateType}
-                          onChange={(val: any) => setReportFilters({ ...reportFilters, dateType: val?.value || "receivedDate" })}
+                          options={
+                            reportFilters.workType === "in-house"
+                              ? [
+                                  { label: "Send Date", value: "sendDate" },
+                                ]
+                              : [
+                                  { label: "Received Date", value: "receivedDate" },
+                                ]
+                          }
+                          value={{
+                            label: (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "receivedDate" ? "Received Date" : (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "sendDate" ? "Send Date" : "Due Date",
+                            value: Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType
+                          }}
+                          onChange={(val: any) => {
+                            if (val) {
+                              setReportFilters({ ...reportFilters, dateType: val.value });
+                            }
+                          }}
                         />
                         <SimpleGrid columns={2} spacing={4} w="100%">
                           <CustomInput
@@ -563,36 +622,33 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                     <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">ENTITY FILTERS</Text>
                   </HStack>
                   <VStack spacing={5} align="stretch">
-                    <SimpleGrid columns={2} spacing={4}>
-                      <CustomInput
-                        name="workType"
-                        type="select"
-                        label="Work Type"
-                        isPortal
-                        options={[
-                          { label: "All", value: "all" },
-                          { label: "In-house", value: "in-house" },
-                          { label: "Outside", value: "outside" },
-                        ]}
-                        value={reportFilters.workType}
-                        onChange={(val: any) => setReportFilters({ ...reportFilters, workType: val?.value || "all" })}
-                      />
-                      <CustomInput
-                        name="status"
-                        type="select"
-                        label="Status"
-                        isPortal
-                        options={[
-                          { label: "All", value: "all" },
-                          ...(labWorkStatusStore.statuses || []).map((s: any) => ({
-                            label: s.status,
-                            value: s.status,
-                          })),
-                        ]}
-                        value={reportFilters.status}
-                        onChange={(val: any) => setReportFilters({ ...reportFilters, status: val?.value || "all" })}
-                      />
+                    <SimpleGrid columns={1} spacing={4}>
                     </SimpleGrid>
+                    <CustomInput
+                      name="status"
+                      type="select"
+                      label="Status"
+                      isPortal
+                      isMulti
+                      options={(labWorkStatusStore.statuses || []).map((s: any) => ({
+                        label: s.status,
+                        value: s.status,
+                      }))}
+                      value={
+                        reportFilters.status === "all"
+                          ? (labWorkStatusStore.statuses || []).map((s: any) => ({ label: s.status, value: s.status }))
+                          : Array.isArray(reportFilters.status)
+                          ? reportFilters.status.map((s: string) => ({ label: s, value: s }))
+                          : []
+                      }
+                      onChange={(val: any) => {
+                        if (!val || val.length === 0) {
+                          setReportFilters({ ...reportFilters, status: [] });
+                        } else {
+                          setReportFilters({ ...reportFilters, status: val.map((v: any) => v.value) });
+                        }
+                      }}
+                    />
                     <CustomInput
                       name="patient"
                       placeholder="Search Patient"
@@ -603,16 +659,34 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                       onChange={(val: any) => setReportFilters({ ...reportFilters, patient: val })}
                       query={{ type: "patient" }}
                     />
-                    <CustomInput
-                      name="doctor"
-                      placeholder="Search Doctor"
-                      type="real-time-user-search"
-                      label="Filter by Doctor"
-                      isPortal
-                      value={reportFilters.doctor}
-                      onChange={(val: any) => setReportFilters({ ...reportFilters, doctor: val })}
-                      query={{ type: "doctor" }}
-                    />
+                    {reportFilters.workType === "in-house" && (
+                      <CustomInput
+                        name="doctor"
+                        placeholder="Search Doctor"
+                        type="real-time-user-search"
+                        label="Filter by Doctor (In-house)"
+                        isPortal
+                        value={reportFilters.doctor}
+                        onChange={(val: any) => setReportFilters({ ...reportFilters, doctor: val, labDoctor: null })}
+                        query={{ type: "doctor" }}
+                      />
+                    )}
+                    {reportFilters.workType === "outside" && (
+                      <CustomInput
+                        name="labDoctor"
+                        placeholder="Search Lab Doctor"
+                        type="real-time-search"
+                        params={{
+                          entityName: "labDoctorStore",
+                          functionName: "getLabDoctors",
+                          key: "labDoctorName",
+                        }}
+                        label="Filter by Lab Doctor (Outside)"
+                        isPortal
+                        value={reportFilters.labDoctor}
+                        onChange={(val: any) => setReportFilters({ ...reportFilters, labDoctor: val, doctor: null })}
+                      />
+                    )}
                   </VStack>
                 </Box>
               </VStack>
