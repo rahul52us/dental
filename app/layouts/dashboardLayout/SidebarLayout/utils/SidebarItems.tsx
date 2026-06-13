@@ -91,9 +91,8 @@ const sidebarDatas: SidebarItem[] = [
     id: 32,
     name: "Lab",
     icon: <FaVial />,
-    url: "/dashboard/lab",
+    url: "#",
     role: ["admin", "staff"],
-    permission: { module: "lab", action: "sidebar" },
     children: [
       {
         id: 33,
@@ -109,7 +108,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaNotesMedical />,
         url: "/dashboard/labWork?type=in-house",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "sidebar" },
+        permission: { module: "inhouse_lab", action: "sidebar" },
       },
       {
         id: 36,
@@ -117,7 +116,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaNotesMedical />,
         url: "/dashboard/labWork?type=outside",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "sidebar" },
+        permission: { module: "outside_lab", action: "sidebar" },
       },
       {
         id: 31,
@@ -125,7 +124,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaUserMd />,
         url: "/dashboard/labDoctors",
         role: ["admin", "staff"],
-        permission: { module: "lab", action: "sidebar" },
+        permission: { module: "lab_doctors", action: "sidebar" },
       },
     ],
   },

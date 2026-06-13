@@ -673,29 +673,31 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
               </HStack>
               <HStack spacing={1}>
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  variant="solid"
-                  leftIcon={<FiCalendar />}
-                  borderRadius="xl"
-                  fontSize="11px"
-                  fontWeight="bold"
-                  onClick={() => {
-                    setIsCounting(true);
-                    workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
-                      .then((res: any) => {
-                        if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
-                          setBackendCounts(res.data || []);
-                        }
-                      })
-                      .catch((err: any) => console.error("Failed to load accountability counts:", err))
-                      .finally(() => setIsCounting(false));
-                    setIsCountModalOpen(true);
-                  }}
-                >
-                  VIEW HISTORY DATE WISE
-                </Button>
+                {stores.auth.hasPermission('accountability', 'view') && (
+                  <Button
+                    size="sm"
+                    colorScheme="blue"
+                    variant="solid"
+                    leftIcon={<FiCalendar />}
+                    borderRadius="xl"
+                    fontSize="11px"
+                    fontWeight="bold"
+                    onClick={() => {
+                      setIsCounting(true);
+                      workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                        .then((res: any) => {
+                          if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                            setBackendCounts(res.data || []);
+                          }
+                        })
+                        .catch((err: any) => console.error("Failed to load accountability counts:", err))
+                        .finally(() => setIsCounting(false));
+                      setIsCountModalOpen(true);
+                    }}
+                  >
+                    VIEW HISTORY DATE WISE
+                  </Button>
+                )}
                 <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
                   {filteredWork.length || 0}
                 </Circle>
@@ -1122,41 +1124,45 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             {(h.paymentMethod || "CASH").toUpperCase()}
                           </Badge>
                         </VStack>
-                        <IconButton
-                          aria-label="View Entry Receipt"
-                          icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiEye />}
-                          size="sm"
-                          colorScheme="green"
-                          variant="ghost"
-                          borderRadius="full"
-                          isDisabled={downloadingPaymentId !== null}
-                          onClick={async () => {
-                            try {
-                              setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
-                              const base64 = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, i);
-                              setPreviewData(base64);
-                              setPreviewFileName(`Receipt_${selectedRecord._id}_${i}.pdf`);
-                              setIsPreviewOpen(true);
-                            } catch (error) {
-                              toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
-                            } finally {
-                              setDownloadingPaymentId(null);
-                            }
-                          }}
-                        />
-                        <IconButton
-                          aria-label="Edit Amount"
-                          icon={<FiEdit2 />}
-                          size="sm"
-                          colorScheme="orange"
-                          variant="ghost"
-                          borderRadius="full"
-                          onClick={() => {
-                            setEditingPaymentIndex(i);
-                            setEditAmount(String(h.amount));
-                            setIsEditAmountOpen(true);
-                          }}
-                        />
+                        {stores.auth.hasPermission('accountability', 'download') && (
+                          <IconButton
+                            aria-label="View Entry Receipt"
+                            icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiEye />}
+                            size="sm"
+                            colorScheme="green"
+                            variant="ghost"
+                            borderRadius="full"
+                            isDisabled={downloadingPaymentId !== null}
+                            onClick={async () => {
+                              try {
+                                setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
+                                const base64 = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, i);
+                                setPreviewData(base64);
+                                setPreviewFileName(`Receipt_${selectedRecord._id}_${i}.pdf`);
+                                setIsPreviewOpen(true);
+                              } catch (error) {
+                                toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
+                              } finally {
+                                setDownloadingPaymentId(null);
+                              }
+                            }}
+                          />
+                        )}
+                        {stores.auth.hasPermission('accountability', 'edit') && (
+                          <IconButton
+                            aria-label="Edit Amount"
+                            icon={<FiEdit2 />}
+                            size="sm"
+                            colorScheme="orange"
+                            variant="ghost"
+                            borderRadius="full"
+                            onClick={() => {
+                              setEditingPaymentIndex(i);
+                              setEditAmount(String(h.amount));
+                              setIsEditAmountOpen(true);
+                            }}
+                          />
+                        )}
                       </HStack>
                     </HStack>
                   ))}

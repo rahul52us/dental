@@ -163,7 +163,7 @@ const AccountabilityPage = observer(() => {
         subTitle="Manage doctor commissions and treatment-wise payouts" 
       />
 
-      {stores.auth.hasPermission('reports', 'view') && (
+      {stores.auth.hasPermission('accountability', 'download') && (
         <Flex justify="flex-end" mt={4}>
           <Button
             leftIcon={<Icon as={FiDollarSign} />}

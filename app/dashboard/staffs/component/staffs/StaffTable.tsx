@@ -284,6 +284,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     },
   ].filter(col => {
     if (col.key === 'permissions') return stores.auth.hasPermission('staffs', 'edit');
+    if (col.key === 'is_active') return stores.auth.hasPermission('staffs', 'edit');
     return true;
   });
 

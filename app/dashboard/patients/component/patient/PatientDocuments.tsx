@@ -226,7 +226,7 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
             {patientDetails?.name} · {documents.length} item{documents.length !== 1 ? "s" : ""}
           </Text>
         </VStack>
-        {stores.auth.hasPermission('patient', 'create') && (
+        {stores.auth.hasPermission('patient_documents', 'create') && (
           <Button
             leftIcon={<FiPlus />}
             colorScheme="blue"
@@ -326,7 +326,7 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
                           aria-label="Open"
                         />
                       </Tooltip>
-                      {stores.auth.hasPermission('patient', 'delete') && (
+                      {stores.auth.hasPermission('patient_documents', 'delete') && (
                         <Tooltip label="Delete">
                           <IconButton
                             icon={deleteId === doc._id ? <Spinner size="xs" /> : <FiTrash2 />}
@@ -415,7 +415,7 @@ const PatientDocuments = observer(({ patientDetails }: PatientDocumentsProps) =>
                               aria-label="Open"
                             />
                           </Tooltip>
-                          {stores.auth.hasPermission('patient', 'delete') && (
+                          {stores.auth.hasPermission('patient_documents', 'delete') && (
                             <Tooltip label="Delete">
                               <IconButton
                                 icon={deleteId === doc._id ? <Spinner size="xs" /> : <FiTrash2 />}

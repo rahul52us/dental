@@ -420,7 +420,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                     </option>
                   ))}
                 </Select>
-                {stores.auth.hasPermission('reports', 'download') && (
+                {stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'download') && (
                   <Button
                     leftIcon={<FiDownload />}
                     colorScheme="blue"
@@ -444,19 +444,19 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
             ),
             actionBtn: {
               addKey: { 
-                showAddButton: stores.auth.hasPermission('lab', 'create'), 
+                showAddButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'create'), 
                 function: handleAdd 
               },
               editKey: { 
-                showEditButton: stores.auth.hasPermission('lab', 'edit'), 
+                showEditButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'edit'), 
                 function: handleEdit 
               },
               deleteKey: { 
-                showDeleteButton: stores.auth.hasPermission('lab', 'delete'), 
+                showDeleteButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'delete'), 
                 function: handleDelete 
               },
               viewKey: { 
-                showViewButton: stores.auth.hasPermission('lab', 'view'), 
+                showViewButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'view'), 
                 function: handleView 
               },
             },

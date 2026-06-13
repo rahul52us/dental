@@ -90,7 +90,7 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
           />
         </DrawerBody>
 
-        <DrawerFooter borderTopWidth="1px" p={8} bg="gray.50">
+        <DrawerFooter borderTopWidth="1px" py={4} px={8} bg="gray.50">
           <Button 
             variant="ghost" 
             mr="auto" 
@@ -106,13 +106,13 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
               colorScheme="brand" 
               onClick={handleSave} 
               isLoading={loading}
-              borderRadius="2xl"
-              px={12}
-              h="60px"
+              borderRadius="xl"
+              px={10}
+              size="lg"
               fontSize="md"
-              fontWeight="900"
-              shadow="xl"
-              _hover={{ transform: "translateY(-2px)", shadow: "2xl" }}
+              fontWeight="800"
+              shadow="md"
+              _hover={{ transform: "translateY(-2px)", shadow: "lg" }}
               _active={{ transform: "translateY(0)" }}
             >
               Apply Permissions

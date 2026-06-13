@@ -994,35 +994,39 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   </Box>
 
                   <HStack spacing={2}>
-                    <Button
-                      size="sm"
-                      colorScheme="purple"
-                      leftIcon={<FiCalendar />}
-                      onClick={() => {
-                        setIsCounting(true);
-                        stores.toothTreatmentStore.getToothTreatmentCountByDate({ patientId: patientDetails?._id })
-                          .then((res: any) => {
-                            if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
-                              setBackendCounts(res.data || []);
-                            }
-                          })
-                          .catch((err: any) => console.error("Failed to load counts:", err))
-                          .finally(() => setIsCounting(false));
-                        setIsCountModalOpen(true);
-                      }}
-                    >
-                      VIEW HISTORY DATE WISE
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="orange"
-                      leftIcon={<FiDownload />}
-                      isLoading={isDownloadingData}
-                      onClick={handleDownloadTable}
-                    >
-                      DOWNLOAD DATA
-                    </Button>
-                    {isPatient && (
+                    {stores.auth.hasPermission('treatment', 'view') && (
+                      <Button
+                        size="sm"
+                        colorScheme="purple"
+                        leftIcon={<FiCalendar />}
+                        onClick={() => {
+                          setIsCounting(true);
+                          stores.toothTreatmentStore.getToothTreatmentCountByDate({ patientId: patientDetails?._id })
+                            .then((res: any) => {
+                              if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                                setBackendCounts(res.data || []);
+                              }
+                            })
+                            .catch((err: any) => console.error("Failed to load counts:", err))
+                            .finally(() => setIsCounting(false));
+                          setIsCountModalOpen(true);
+                        }}
+                      >
+                        VIEW HISTORY DATE WISE
+                      </Button>
+                    )}
+                    {stores.auth.hasPermission('treatment', 'download') && (
+                      <Button
+                        size="sm"
+                        colorScheme="orange"
+                        leftIcon={<FiDownload />}
+                        isLoading={isDownloadingData}
+                        onClick={handleDownloadTable}
+                      >
+                        DOWNLOAD DATA
+                      </Button>
+                    )}
+                    {isPatient && stores.auth.hasPermission('treatment', 'create') && (
                       <Button
                         size="sm"
                         colorScheme="blue"

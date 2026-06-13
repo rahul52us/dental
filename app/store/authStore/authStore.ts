@@ -277,6 +277,9 @@ class AuthStore {
 
     // If module exists in permissions, check the specific action
     if (perms[moduleId]) {
+      if (action === 'sidebar') {
+        return perms[moduleId].sidebar === true || perms[moduleId].view === true;
+      }
       return perms[moduleId][action] === true;
     }
 

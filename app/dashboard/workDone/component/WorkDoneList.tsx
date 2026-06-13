@@ -94,6 +94,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
           if (e.key === "Enter") handleSave();
         }}
         bg="white"
+        isDisabled={!stores.auth.hasPermission('workdone', 'edit')}
       />
       <IconButton
         aria-label="Save Sitting"
@@ -101,7 +102,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         colorScheme="blue"
         size="md"
         onClick={handleSave}
-        isDisabled={loading || val === String(dt.sittingNo)}
+        isDisabled={!stores.auth.hasPermission('workdone', 'edit') || loading || val === String(dt.sittingNo)}
       />
     </HStack>
   );
@@ -407,42 +408,45 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       metaData: {
         component: (dt: any) => {
           return (
-            <Menu>
-              <MenuButton
-                as={Badge}
-                cursor="pointer"
-                colorScheme={getStatusColor(dt.status)}
-                px={3} py={1}
-                borderRadius="full"
-                fontSize="xs"
-                variant="solid"
-                display="inline-flex"
-                alignItems="center"
-              >
-                <HStack spacing={1}>
-                  <Text>{String(dt.status || "complete").toUpperCase()}</Text>
-                  <Icon as={FiChevronDown} />
-                </HStack>
-              </MenuButton>
-              <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
-                {[
-                  { value: "complete", label: "COMPLETE" },
-                  { value: "pending", label: "PENDING" },
-                  { value: "incomplete", label: "INCOMPLETE" }
-                ].map((s) => (
-                  <MenuItem
-                    key={s.value}
-                    onClick={() => handleStatusChange(dt, s.value)}
-                    fontSize="11px"
-                    fontWeight="1000"
-                    borderRadius="lg"
-                    color={getStatusColor(s.value) + ".600"}
-                  >
-                    Mark as {s.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
+              <Menu>
+                <MenuButton
+                  as={Badge}
+                  cursor="pointer"
+                  colorScheme={getStatusColor(dt.status)}
+                  px={3} py={1}
+                  borderRadius="full"
+                  fontSize="xs"
+                  variant="solid"
+                  display="inline-flex"
+                  alignItems="center"
+                  disabled={!stores.auth.hasPermission('workdone', 'edit')}
+                >
+                  <HStack spacing={1}>
+                    <Text>{String(dt.status || "complete").toUpperCase()}</Text>
+                    {stores.auth.hasPermission('workdone', 'edit') && <Icon as={FiChevronDown} />}
+                  </HStack>
+                </MenuButton>
+                {stores.auth.hasPermission('workdone', 'edit') && (
+                  <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
+                    {[
+                      { value: "complete", label: "COMPLETE" },
+                      { value: "pending", label: "PENDING" },
+                      { value: "incomplete", label: "INCOMPLETE" }
+                    ].map((s) => (
+                      <MenuItem
+                        key={s.value}
+                        onClick={() => handleStatusChange(dt, s.value)}
+                        fontSize="11px"
+                        fontWeight="1000"
+                        borderRadius="lg"
+                        color={getStatusColor(s.value) + ".600"}
+                      >
+                        Mark as {s.label}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                )}
+              </Menu>
           );
         },
       },
@@ -823,7 +827,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
                   <HStack spacing={3}>
                     {/* View Treatment Action */}
-                    {record.treatment && (
+                    {record.treatment && stores.auth.hasPermission('workdone', 'view') && (
                       <Button
                         size="xs"
                         variant="solid"
@@ -863,30 +867,33 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         h="28px"
                         display="inline-flex"
                         alignItems="center"
+                        disabled={!stores.auth.hasPermission('workdone', 'edit')}
                       >
                         <HStack spacing={1}>
                           <Text>{String(record.status || "complete").toUpperCase()}</Text>
-                          <Icon as={FiChevronDown} />
+                          {stores.auth.hasPermission('workdone', 'edit') && <Icon as={FiChevronDown} />}
                         </HStack>
                       </MenuButton>
-                      <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
-                        {[
-                          { value: "complete", label: "COMPLETE" },
-                          { value: "pending", label: "PENDING" },
-                          { value: "incomplete", label: "INCOMPLETE" }
-                        ].map((s) => (
-                          <MenuItem
-                            key={s.value}
-                            onClick={() => handleStatusChange(record, s.value)}
-                            fontSize="11px"
-                            fontWeight="1000"
-                            borderRadius="lg"
-                            color={getStatusColor(s.value) + ".600"}
-                          >
-                            Mark as {s.label}
-                          </MenuItem>
-                        ))}
-                      </MenuList>
+                      {stores.auth.hasPermission('workdone', 'edit') && (
+                        <MenuList p={1} borderRadius="xl" shadow="xl" border="none">
+                          {[
+                            { value: "complete", label: "COMPLETE" },
+                            { value: "pending", label: "PENDING" },
+                            { value: "incomplete", label: "INCOMPLETE" }
+                          ].map((s) => (
+                            <MenuItem
+                              key={s.value}
+                              onClick={() => handleStatusChange(record, s.value)}
+                              fontSize="11px"
+                              fontWeight="1000"
+                              borderRadius="lg"
+                              color={getStatusColor(s.value) + ".600"}
+                            >
+                              Mark as {s.label}
+                            </MenuItem>
+                          ))}
+                        </MenuList>
+                      )}
                     </Menu>
 
                     {/* Print Action */}

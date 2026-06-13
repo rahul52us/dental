@@ -337,20 +337,22 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
       metaData: {
         component: (dt: any) => {
           return (
-            <Button
-              size="xs"
-              variant="solid"
-              colorScheme="purple"
-              borderRadius="full"
-              px={4}
-              onClick={() => setHistoryModal({
-                isOpen: true,
-                patientId: dt.patient?._id || dt.patient,
-                patientName: dt.patientName || dt.patient?.name || "Patient"
-              })}
-            >
-              View History
-            </Button>
+            stores.auth.hasPermission('appointment', 'view') ? (
+              <Button
+                size="xs"
+                variant="solid"
+                colorScheme="purple"
+                borderRadius="full"
+                px={4}
+                onClick={() => setHistoryModal({
+                  isOpen: true,
+                  patientId: dt.patient?._id || dt.patient,
+                  patientName: dt.patientName || dt.patient?.name || "Patient"
+                })}
+              >
+                View History
+              </Button>
+            ) : <Text>--</Text>
           );
         },
       },
@@ -470,7 +472,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
         patientName={historyModal.patientName}
       />
 
-      {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && (
+      {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && stores.auth.hasPermission('appointment', 'view') && (
         <Box position="fixed" bottom="20px" right="20px" zIndex={1000}>
           <Button
             colorScheme="orange"
@@ -517,7 +519,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
               </Button>
             </Flex>
 
-            {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && (
+            {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && stores.auth.hasPermission('appointment', 'view') && (
               <Flex
                 align="center"
                 gap={2}

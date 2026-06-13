@@ -283,6 +283,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     },
   ].filter(col => {
     if (col.key === 'account') return stores.auth.hasPermission('accountability', 'view');
+    if (col.key === 'is_active') return stores.auth.hasPermission('doctor', 'edit');
     return true;
   });
 
