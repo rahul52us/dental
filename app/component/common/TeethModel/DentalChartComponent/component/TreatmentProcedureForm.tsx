@@ -116,6 +116,7 @@ interface TreatmentProcedureFormProps {
     dentitionType?: "adult" | "child";
     onRemoveTooth?: (id: string) => void;
     sessionDate?: string;
+    isMultipleSelection?: boolean;
 }
 
 
@@ -179,7 +180,8 @@ export const TreatmentProcedureForm = observer(
         isDrawerMode = false,
         dentitionType,
         onRemoveTooth,
-        sessionDate
+        sessionDate,
+        isMultipleSelection
     }: TreatmentProcedureFormProps) => {
 
         const { isOpen: isProcedureOpen, onOpen: onProcedureOpen, onClose: onProcedureClose } = useDisclosure();
@@ -944,10 +946,16 @@ export const TreatmentProcedureForm = observer(
                                             if (activeToothId === "bulk") {
                                                 teeth.forEach(t => {
                                                     setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
-                                                    // logic: sync procedure details if needed
                                                 });
                                             } else if (activeToothId) {
                                                 setFieldValue(`treatments.${activeToothId}.treatmentCode`, tempTreatmentCode);
+                                                if (syncToAll && teeth.length > 1) {
+                                                    teeth.forEach(t => {
+                                                        if (t.id !== activeToothId) {
+                                                            setFieldValue(`treatments.${t.id}.treatmentCode`, tempTreatmentCode);
+                                                        }
+                                                    });
+                                                }
                                             }
                                             onProcedureClose();
                                         }}
@@ -1422,7 +1430,7 @@ export const TreatmentProcedureForm = observer(
                                                     ? `Save Only (${teeth.length} Records)`
                                                     : "Save Only"}
                                             </Button>
-                                            {!editData?._id && (
+                                            {!editData?._id && !isMultipleSelection && (
                                                 <Button
                                                     colorScheme="blue"
                                                     type="submit"

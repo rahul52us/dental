@@ -88,8 +88,59 @@ const BookAppointmentPage = observer(() => {
                     });
                 });
 
-                // Get all unique sorted timeslots across all chairs
+                // Get all standard timeslots across operating hours
+                const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                const selectedDayName = dayNames[selectedDate.getDay()];
+                const dayConfig = user?.companyDetails?.operatingHours?.find(
+                    (d: any) => d.day === selectedDayName && d.isOpen
+                );
+
+                let allowedSlots: any[] = [];
+                if (dayConfig && dayConfig.slots) {
+                    allowedSlots = dayConfig.slots.map((slot: any) => ({
+                        startTime: slot.start,
+                        endTime: slot.end,
+                    }));
+                }
+
+                const timeSet = new Set<string>();
+                const sameDayEnds = allowedSlots
+                    .map((s: any) => toMinutes(s.endTime))
+                    .filter((end: any) => end > 0 && end <= 24 * 60);
+                const maxSameDayEnd = sameDayEnds.length ? Math.max(...sameDayEnds) : 24 * 60;
+
+                allowedSlots.forEach((slot: any) => {
+                    const start = toMinutes(slot.startTime);
+                    const end = toMinutes(slot.endTime);
+                    if (end > start) {
+                        let current = start;
+                        while (current < end) {
+                            timeSet.add(
+                                `${String(Math.floor(current / 60)).padStart(2, "0")}:${String(current % 60).padStart(2, "0")}`
+                            );
+                            current += SLOT_DURATION;
+                        }
+                    } else {
+                        let current = start;
+                        while (current < maxSameDayEnd) {
+                            timeSet.add(
+                                `${String(Math.floor(current / 60)).padStart(2, "0")}:${String(current % 60).padStart(2, "0")}`
+                            );
+                            current += SLOT_DURATION;
+                        }
+                    }
+                });
+
                 const timeSlotsMap = new Map<string, { startTime: string; endTime: string }>();
+
+                Array.from(timeSet).forEach(time => {
+                    const startMin = toMinutes(time);
+                    const endMin = startMin + SLOT_DURATION;
+                    timeSlotsMap.set(time, {
+                        startTime: time,
+                        endTime: `${String(Math.floor(endMin / 60)).padStart(2, "0")}:${String(endMin % 60).padStart(2, "0")}`
+                    });
+                });
 
                 chairs.forEach((chair: any) => {
                     chair.appointments?.forEach((apt: any) => {

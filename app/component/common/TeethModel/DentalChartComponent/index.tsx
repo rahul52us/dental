@@ -732,6 +732,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
             editData={editingTreatment || patientDetails?.editData}
             teeth={selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
             dentitionType={dentitionType}
+            isMultipleSelection={selectionMode === 'multi'}
             generalDescription={generalDescription || teethNotes}
             complaintType={complaintType}
             toothComplaints={selectedTeeth.length > 0 ? toothComplaints : { "General": complaintType }}
