@@ -142,6 +142,18 @@ class UserStore {
     }
   };
 
+  getReferredPatients = async (userId: string) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.get(`/user/referred-patients/${userId}`);
+      return response.data?.data || [];
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
 
   updateUserSettings = async (settings: any) => {
     this.isLoading = true;

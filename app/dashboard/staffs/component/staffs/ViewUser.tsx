@@ -23,6 +23,7 @@ import {
   MdSchool,
   MdHome,
 } from "react-icons/md";
+import ReferredPatientsList from "../../../patients/component/patient/ReferredPatientsList";
 
 const InfoItem = ({ label, value }: { label: string; value: any }) => (
   <HStack align="start" justify="space-between">
@@ -261,6 +262,9 @@ const ViewUser = ({ user }) => {
           ))}
         </SectionCard>
       )}
+
+      {/* Referred Patients List */}
+      <ReferredPatientsList userId={user._id} />
     </Box>
   );
 };

@@ -22,6 +22,7 @@ import {
 import { PhoneIcon, EmailIcon, CheckCircleIcon } from "@chakra-ui/icons";
 import { MdSecurity, MdHealthAndSafety } from "react-icons/md";
 import { useColorModeValue } from "@chakra-ui/react";
+import ReferredPatientsList from "./ReferredPatientsList";
 
 // --- Info Item Component ---
 export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, activeHoverBg }: any) => {
@@ -654,6 +655,9 @@ const ViewPatient = ({ user }: any) => {
           <Text>N/A</Text>
         )}
       </SectionCard>
+
+      {/* Referred Patients List */}
+      <ReferredPatientsList userId={personalInfo._id} />
     </Box>
   );
 };

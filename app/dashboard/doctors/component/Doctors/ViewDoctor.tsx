@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { PhoneIcon, EmailIcon } from "@chakra-ui/icons";
 import { MdAccountBalance, MdVaccines, MdSecurity } from "react-icons/md";
+import ReferredPatientsList from "../../../patients/component/patient/ReferredPatientsList";
 
 const InfoItem = ({ label, value }: { label: string; value: any }) => (
   <HStack align="start">
@@ -191,6 +192,9 @@ const ViewDoctor = ({ doctor }) => {
           </Box>
         ))}
       </SectionCard>
+
+      {/* Referred Patients List */}
+      <ReferredPatientsList userId={doctor._id} />
     </Box>
   );
 };
