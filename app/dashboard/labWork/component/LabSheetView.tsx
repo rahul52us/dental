@@ -212,7 +212,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
             <Button variant="ghost" mr={3} onClick={onClose}>
               Close
             </Button>
-            {stores.auth.hasPermission(data?.workType === 'in-house' ? 'inhouse_lab' : data?.workType === 'outside' ? 'outside_lab' : 'lab', 'download') && (
+            {stores.auth.hasPermission(data?.workType === 'in-house' ? 'inhouse_lab' : 'outside_lab', 'download') && (
               <Button colorScheme="blue" leftIcon={<Icon as={FiDownload} />} onClick={() => generatePDF(true)}>
                 Download PDF
               </Button>

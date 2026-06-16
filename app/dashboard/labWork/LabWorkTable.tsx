@@ -100,6 +100,12 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
     setCurrentPage(1);
   };
 
+  const hasTabPermission = (action: string) => {
+    if (activeTab === 1) return stores.auth.hasPermission('inhouse_lab', action);
+    if (activeTab === 2) return stores.auth.hasPermission('outside_lab', action);
+    return stores.auth.hasPermission('inhouse_lab', action) || stores.auth.hasPermission('outside_lab', action);
+  };
+
   const fetchLabWorks = useCallback(
     (page = 1, limit = tablePageLimit) => {
       let workType: any = undefined;
@@ -520,7 +526,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                     </option>
                   ))}
                 </Select>
-                {stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'download') && (
+                {hasTabPermission('download') && (
                   <Button
                     leftIcon={<FiDownload />}
                     colorScheme="blue"
@@ -544,19 +550,19 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
             ),
             actionBtn: {
               addKey: {
-                showAddButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'create'),
+                showAddButton: hasTabPermission('create'),
                 function: handleAdd
               },
               editKey: {
-                showEditButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'edit'),
+                showEditButton: hasTabPermission('edit'),
                 function: handleEdit
               },
               deleteKey: {
-                showDeleteButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'delete'),
+                showDeleteButton: hasTabPermission('delete'),
                 function: handleDelete
               },
               viewKey: {
-                showViewButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'view'),
+                showViewButton: hasTabPermission('view'),
                 function: handleView
               },
             },

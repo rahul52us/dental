@@ -713,7 +713,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             Recall
                                         </Button>
                                     )}
-                                    {stores.auth.hasPermission('lab', 'view') && (
+                                    {(stores.auth.hasPermission('inhouse_lab', 'view') || stores.auth.hasPermission('outside_lab', 'view')) && (
                                         <Button
                                             bgGradient="linear(to-r, red.400, red.600)"
                                             color="white"

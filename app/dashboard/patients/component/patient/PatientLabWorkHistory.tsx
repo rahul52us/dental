@@ -147,7 +147,7 @@ const PatientLabWorkHistory = observer(({ patientDetails, workType = "all" }: Pa
       metaData: {
         component: (dt: any) => (
           <HStack spacing={2}>
-            {stores.auth.hasPermission('lab', 'view') && (
+            {stores.auth.hasPermission(dt.workType === 'in-house' ? 'inhouse_lab' : 'outside_lab', 'view') && (
               <IconButton
                 size="xs"
                 variant="ghost"
@@ -156,7 +156,7 @@ const PatientLabWorkHistory = observer(({ patientDetails, workType = "all" }: Pa
                 aria-label="View"
               />
             )}
-            {stores.auth.hasPermission('lab', 'edit') && (
+            {stores.auth.hasPermission(dt.workType === 'in-house' ? 'inhouse_lab' : 'outside_lab', 'edit') && (
               <IconButton
                 size="xs"
                 variant="ghost"
@@ -189,7 +189,7 @@ const PatientLabWorkHistory = observer(({ patientDetails, workType = "all" }: Pa
           actions={{
             actionBtn: {
               addKey: {
-                showAddButton: stores.auth.hasPermission('lab', 'create'),
+                showAddButton: stores.auth.hasPermission('inhouse_lab', 'create') || stores.auth.hasPermission('outside_lab', 'create'),
                 text: "New Lab Order",
                 function: () => setSelectedWork({ open: true, type: "edit", data: { workType: workType === "outside" ? "outside" : "in-house", patient: patientDetails } })
               }

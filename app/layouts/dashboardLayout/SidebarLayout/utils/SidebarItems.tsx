@@ -228,12 +228,12 @@ const sidebarDatas: SidebarItem[] = [
     role: ["superAdmin"],
   },
   {
-    id: 13,
+    id: 42,
     name: "Chairs",
     icon: <GiOfficeChair />,
     url: "/dashboard/chairs",
-    role: ["superAdmin", "admin"],
-    permission: { module: "masters", action: "sidebar" },
+    role: ["superAdmin", "admin", "staff"],
+    permission: { module: "chairs", action: "sidebar" },
   },
   {
     id: 14,

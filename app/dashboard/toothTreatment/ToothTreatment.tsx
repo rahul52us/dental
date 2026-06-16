@@ -47,10 +47,19 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
   };
 
   return (
-    <HStack spacing={1}>
+    <Flex
+      align="center"
+      border="1px solid"
+      borderColor="gray.300"
+      borderRadius="lg"
+      bg="white"
+      w="100px"
+      overflow="hidden"
+      _focusWithin={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+    >
       <Input
-        size="md"
-        w="70px"
+        variant="unstyled"
+        size="sm"
         textAlign="center"
         placeholder="No."
         value={val}
@@ -58,17 +67,24 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         onKeyDown={(e) => {
           if (e.key === "Enter") handleSave();
         }}
-        bg="white"
+        px={2}
+        h="32px"
       />
+      <Divider orientation="vertical" h="20px" borderColor="gray.300" />
       <IconButton
-        size="md"
+        size="sm"
+        variant="ghost"
         aria-label="Save Sitting"
-        icon={<FiCheckCircle />}
+        icon={loading ? <Spinner size="xs" /> : <FiCheckCircle />}
         colorScheme="blue"
-        isLoading={loading}
         onClick={handleSave}
+        isDisabled={loading || val === String(dt.sittingNo)}
+        minW="32px"
+        h="32px"
+        borderRadius="0"
+        _hover={{ bg: "blue.50", color: "blue.600" }}
       />
-    </HStack>
+    </Flex>
   );
 };
 
@@ -719,16 +735,26 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
 
           {/* Right side: Floating Actions */}
           <HStack
-            spacing={1}
-            bg="gray.50"
-            p={2}
-            borderRadius="2xl"
-            border="1px solid"
-            borderColor="gray.100"
             position="absolute"
             top={4}
             right={4}
+            spacing={2}
           >
+            {(dt.status?.toLowerCase() === "pending" || dt.status?.toLowerCase() === "incomplete") && (
+              <HStack align="center" spacing={2} bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                <Text fontSize="10px" fontWeight="bold" color="gray.500" textTransform="uppercase" pl={2}>SITTING NO:</Text>
+                <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
+              </HStack>
+            )}
+
+            <HStack
+              spacing={1}
+              bg="gray.50"
+              p={2}
+              borderRadius="2xl"
+              border="1px solid"
+              borderColor="gray.100"
+            >
             <Tooltip label="Add Work Done">
               <IconButton
                 size="sm"
@@ -794,15 +820,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             )}
             </HStack>
           </HStack>
-
-          {(dt.status?.toLowerCase() === "pending" || dt.status?.toLowerCase() === "incomplete") && (
-            <Box position="absolute" top={16} right={4}>
-              <VStack align="flex-end" spacing={1}>
-                <Text fontSize="10px" fontWeight="bold" color="gray.500" textTransform="uppercase">Sitting No</Text>
-                <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
-              </VStack>
-            </Box>
-          )}
+          </HStack>
         </Flex>
       </Box>
     );

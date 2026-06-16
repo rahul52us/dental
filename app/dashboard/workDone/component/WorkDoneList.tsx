@@ -32,6 +32,8 @@ import {
   Select,
   Flex,
   Circle,
+  InputGroup,
+  InputRightElement
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign, FiGrid, FiList, FiCheckCircle } from "react-icons/fi";
@@ -82,10 +84,19 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
   };
 
   return (
-    <HStack spacing={1}>
+    <Flex
+      align="center"
+      border="1px solid"
+      borderColor="gray.300"
+      borderRadius="lg"
+      bg="white"
+      w="100px"
+      overflow="hidden"
+      _focusWithin={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+    >
       <Input
-        size="md"
-        w="70px"
+        variant="unstyled"
+        size="sm"
         textAlign="center"
         placeholder="No."
         value={val}
@@ -93,18 +104,25 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         onKeyDown={(e) => {
           if (e.key === "Enter") handleSave();
         }}
-        bg="white"
         isDisabled={!stores.auth.hasPermission('workdone', 'edit')}
+        px={2}
+        h="32px"
       />
+      <Divider orientation="vertical" h="20px" borderColor="gray.300" />
       <IconButton
+        size="sm"
+        variant="ghost"
         aria-label="Save Sitting"
         icon={loading ? <Spinner size="xs" /> : <FiCheckCircle />}
         colorScheme="blue"
-        size="md"
         onClick={handleSave}
         isDisabled={!stores.auth.hasPermission('workdone', 'edit') || loading || val === String(dt.sittingNo)}
+        minW="32px"
+        h="32px"
+        borderRadius="0"
+        _hover={{ bg: "blue.50", color: "blue.600" }}
       />
-    </HStack>
+    </Flex>
   );
 };
 

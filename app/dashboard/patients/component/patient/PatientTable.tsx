@@ -389,7 +389,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     if (col.key === 'treatment') return stores.auth.hasPermission('treatment', 'view');
     if (col.key === 'recall') return stores.auth.hasPermission('recall', 'view');
     if (col.key === 'history') return stores.auth.hasPermission('workdone', 'view');
-    if (col.key === 'labSheet') return stores.auth.hasPermission('lab', 'view');
+    if (col.key === 'labSheet') return stores.auth.hasPermission('inhouse_lab', 'view') || stores.auth.hasPermission('outside_lab', 'view');
     if (col.key === 'account') return stores.auth.hasPermission('accountability', 'view');
     if (col.key === 'documents') return stores.auth.hasPermission('patient_documents', 'view');
     return true;
