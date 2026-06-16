@@ -192,38 +192,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
               <Divider />
 
-              <Grid templateColumns={{ base: "1fr", md: values.workType === "outside" ? "repeat(4, 1fr)" : "repeat(3, 1fr)" }} gap={6}>
-                <CustomInput
-                  label="Work Type"
-                  type="select"
-                  placeholder="Select Type"
-                  isClear={true}
-                  name="workType"
-                  options={workTypes}
-                  value={values.workType}
-                  onChange={(val: any) => {
-                    setFieldValue("workType", val.value);
-                    // Reset fields that depend on workType
-                    setFieldValue("patient", "");
-                    setFieldValue("patientNameManual", "");
-                    setFieldValue("primaryDoctor", "");
-                    setFieldValue("lab", "");
-                    setFieldValue("labNameManual", "");
-
-                    // Recalculate delay based on workType
-                    if (val.value === "in-house" && values.sendDate && values.dueDate) {
-                      const s = new Date(values.sendDate).getTime();
-                      const d = new Date(values.dueDate).getTime();
-                      setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
-                    } else if (val.value === "outside" && values.receivedDate && values.dueDate) {
-                      const r = new Date(values.receivedDate).getTime();
-                      const d = new Date(values.dueDate).getTime();
-                      setFieldValue("delay", Math.round((r - d) / (1000 * 3600 * 24)));
-                    } else {
-                      setFieldValue("delay", "");
-                    }
-                  }}
-                />
+              <Grid templateColumns={{ base: "1fr", md: values.workType === "outside" ? "repeat(2, 1fr)" : "repeat(3, 1fr)" }} gap={6}>
                 {values.workType === "outside" ? (
                   <CustomInput
                     label="Patient Name"
@@ -246,28 +215,13 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   />
                 )}
                 {values.workType === "in-house" ? (
-                  <CustomInput
-                    label="Doctor (Internal)"
-                    name="primaryDoctor"
-                    type="real-time-user-search"
-                    query={{ type: "doctor" }}
-                    placeholder="Search Doctor"
-                    value={values.primaryDoctor}
-                    onChange={(val: any) => setFieldValue("primaryDoctor", val)}
-                    required
-                  />
-                ) : (
                   <>
                     <CustomInput
-                      label="Lab Doctor (Outside)"
+                      label="Doctor (Internal)"
                       name="primaryDoctor"
-                      type="real-time-search"
-                      params={{
-                        entityName: "labDoctorStore",
-                        functionName: "getLabDoctors",
-                        key: "labDoctorName",
-                      }}
-                      placeholder="Search Lab Doctor"
+                      type="real-time-user-search"
+                      query={{ type: "doctor" }}
+                      placeholder="Search Doctor"
                       value={values.primaryDoctor}
                       onChange={(val: any) => setFieldValue("primaryDoctor", val)}
                       required
@@ -282,37 +236,32 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                       required
                     />
                   </>
+                ) : (
+                  <CustomInput
+                    label="Lab Doctor (Outside)"
+                    name="primaryDoctor"
+                    type="real-time-search"
+                    params={{
+                      entityName: "labDoctorStore",
+                      functionName: "getLabDoctors",
+                      key: "labDoctorName",
+                    }}
+                    placeholder="Search Lab Doctor"
+                    value={values.primaryDoctor}
+                    onChange={(val: any) => setFieldValue("primaryDoctor", val)}
+                    required
+                  />
                 )}
               </Grid>
 
-              <Box bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.300">
-                <VStack align="stretch" spacing={6}>
+              <Box bg="gray.50" p={4} borderRadius="xl" border="1px dashed" borderColor="gray.300">
+                <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
                     <Heading size="sm" color="blue.700">Selected Works & Specifications</Heading>
-                    <Button
-                      leftIcon={<FiPlus />}
-                      size="sm"
-                      colorScheme="blue"
-                      variant="ghost"
-                      onClick={() => {
-                        const currentWorks = [...values.selectedWorks];
-                        currentWorks.push({
-                          selections: [],
-                          customNotes: "",
-                          shadeSystem: "vita-classic",
-                          shadeValue: "",
-                          teethNumbers: [],
-                          amount: "",
-                        });
-                        setFieldValue("selectedWorks", currentWorks);
-                      }}
-                    >
-                      Add Another Item
-                    </Button>
                   </Flex>
 
                   {values.selectedWorks.map((work: any, workIndex: number) => (
-                    <Box key={workIndex} p={5} bg="white" borderRadius="xl" shadow="sm" border="1px solid" borderColor="gray.100" position="relative">
+                    <Box key={workIndex} p={4} bg="white" borderRadius="lg" shadow="sm" border="1px solid" borderColor="gray.100" position="relative">
                       {values.selectedWorks.length > 1 && (
                         <IconButton
                           icon={<FiTrash2 />}
@@ -333,7 +282,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                         />
                       )}
 
-                      <VStack align="stretch" spacing={4}>
+                      <VStack align="stretch" spacing={3}>
                         {/* Dynamic Dropdown Sequence */}
                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
                           {(() => {
@@ -451,33 +400,36 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                       </VStack>
                     </Box>
                   ))}
+                  <Button
+                    leftIcon={<FiPlus />}
+                    size="md"
+                    colorScheme="blue"
+                    variant="outline"
+                    borderStyle="dashed"
+                    alignSelf="flex-end"
+                    mt={2}
+                    onClick={() => {
+                      const currentWorks = [...values.selectedWorks];
+                      currentWorks.push({
+                        selections: [],
+                        customNotes: "",
+                        shadeSystem: "vita-classic",
+                        shadeValue: "",
+                        teethNumbers: [],
+                        amount: "",
+                      });
+                      setFieldValue("selectedWorks", currentWorks);
+                    }}
+                  >
+                    Add Another Item
+                  </Button>
                 </VStack>
               </Box>
 
               <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4}>
                 {values.workType === "in-house" && (
                   <CustomInput
-                    key="in-house-send"
-                    label="Send Date"
-                    name="sendDate"
-                    type="date"
-                    value={values.sendDate}
-                    onChange={(e: any) => {
-                      const newSendDate = e.target.value;
-                      setFieldValue("sendDate", newSendDate);
-                      if (newSendDate && values.dueDate) {
-                        const s = new Date(newSendDate).getTime();
-                        const d = new Date(values.dueDate).getTime();
-                        setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
-                      } else {
-                        setFieldValue("delay", "");
-                      }
-                    }}
-                  />
-                )}
-                {values.workType !== "in-house" && (
-                  <CustomInput
-                    key="outside-received"
+                    key="in-house-received"
                     label="Received Date"
                     name="receivedDate"
                     type="date"
@@ -495,6 +447,26 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                     }}
                   />
                 )}
+                {values.workType !== "in-house" && (
+                  <CustomInput
+                    key="outside-send"
+                    label="Send Date"
+                    name="sendDate"
+                    type="date"
+                    value={values.sendDate}
+                    onChange={(e: any) => {
+                      const newSendDate = e.target.value;
+                      setFieldValue("sendDate", newSendDate);
+                      if (newSendDate && values.dueDate) {
+                        const s = new Date(newSendDate).getTime();
+                        const d = new Date(values.dueDate).getTime();
+                        setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
+                      } else {
+                        setFieldValue("delay", "");
+                      }
+                    }}
+                  />
+                )}
                 <CustomInput
                   key="due-date"
                   label="Due Date"
@@ -504,11 +476,11 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   onChange={(e: any) => {
                     const newDueDate = e.target.value;
                     setFieldValue("dueDate", newDueDate);
-                    if (values.workType === "outside" && values.receivedDate && newDueDate) {
+                    if (values.workType === "in-house" && values.receivedDate && newDueDate) {
                       const r = new Date(values.receivedDate).getTime();
                       const d = new Date(newDueDate).getTime();
                       setFieldValue("delay", Math.round((r - d) / (1000 * 3600 * 24)));
-                    } else if (values.workType === "in-house" && values.sendDate && newDueDate) {
+                    } else if (values.workType === "outside" && values.sendDate && newDueDate) {
                       const s = new Date(values.sendDate).getTime();
                       const d = new Date(newDueDate).getTime();
                       setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
@@ -519,25 +491,27 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 />
                 {values.workType === "in-house" && (
                   <CustomInput
-                    key="in-house-received"
-                    label="Received Date"
-                    name="receivedDate"
-                    type="date"
-                    value={values.receivedDate}
-                    onChange={(e: any) => {
-                      setFieldValue("receivedDate", e.target.value);
-                    }}
-                  />
-                )}
-                {values.workType !== "in-house" && (
-                  <CustomInput
-                    key="outside-send"
+                    key="in-house-send"
                     label="Send Date"
                     name="sendDate"
                     type="date"
                     value={values.sendDate}
                     onChange={(e: any) => {
-                      setFieldValue("sendDate", e.target.value);
+                      const newSendDate = e.target.value;
+                      setFieldValue("sendDate", newSendDate);
+                    }}
+                  />
+                )}
+                {values.workType !== "in-house" && (
+                  <CustomInput
+                    key="outside-received"
+                    label="Received Date"
+                    name="receivedDate"
+                    type="date"
+                    value={values.receivedDate}
+                    onChange={(e: any) => {
+                      const newReceivedDate = e.target.value;
+                      setFieldValue("receivedDate", newReceivedDate);
                     }}
                   />
                 )}
@@ -550,26 +524,10 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   onChange={(e: any) => setFieldValue("delay", e.target.value)}
                 />
               </Grid>
-              <Box bg="blue.50" p={5} borderRadius="2xl" border="1px solid" borderColor="blue.100">
+              <Box bg="blue.50" p={4} borderRadius="xl" border="1px solid" borderColor="blue.100">
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
                     <Heading size="sm" color="blue.700">Status Tracking History</Heading>
-                    <Button
-                      leftIcon={<FiPlus />}
-                      size="xs"
-                      colorScheme="blue"
-                      onClick={() => {
-                        const history = [...values.statusHistory];
-                        history.push({
-                          status: history[history.length - 1]?.status || "plan",
-                          date: new Date().toISOString().split('T')[0],
-                          note: ""
-                        });
-                        setFieldValue("statusHistory", history);
-                      }}
-                    >
-                      Add Status
-                    </Button>
                   </Flex>
 
                   <VStack align="stretch" spacing={3}>
@@ -615,6 +573,23 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                         )}
                       </HStack>
                     ))}
+                    <Button
+                      leftIcon={<FiPlus />}
+                      size="xs"
+                      colorScheme="blue"
+                      alignSelf="flex-end"
+                      onClick={() => {
+                        const history = [...values.statusHistory];
+                        history.push({
+                          status: history[history.length - 1]?.status || "plan",
+                          date: new Date().toISOString().split('T')[0],
+                          note: ""
+                        });
+                        setFieldValue("statusHistory", history);
+                      }}
+                    >
+                      Add Status
+                    </Button>
                   </VStack>
                 </VStack>
               </Box>

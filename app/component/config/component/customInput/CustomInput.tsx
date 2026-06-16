@@ -608,11 +608,11 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
                 ...styles,
                 backgroundColor:
                   isSelected
-                    ? "#D53F8C"
+                    ? "#FED7E2"
                     : isFocused
                       ? "#FED7E2"
                       : "transparent",
-                color: isSelected ? "white" : isFocused ? "#1A202C" : colorMode === "light" ? "#2D3748" : "white",
+                color: isSelected || isFocused ? "#1A202C" : colorMode === "light" ? "#2D3748" : "white",
                 fontWeight: isSelected || isFocused ? "700" : "500",
                 fontSize: "13px",
                 padding: "10px 12px",
@@ -626,25 +626,25 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: "#D53F8C",
+                backgroundColor: "#FED7E2",
                 borderRadius: "8px",
                 padding: "2px 4px",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: "white",
+                color: "#1A202C",
                 fontWeight: "700",
                 fontSize: "12px",
               }),
               multiValueRemove: (styles) => ({
                 ...styles,
-                color: "white",
-                ":hover": { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
+                color: "#1A202C",
+                ":hover": { backgroundColor: "rgba(0,0,0,0.1)", color: "#1A202C" }
               }),
               singleValue: (styles) => ({
                 ...styles,
-                color: "white",
-                backgroundColor: "#D53F8C",
+                color: "#1A202C",
+                backgroundColor: "#FED7E2",
                 borderRadius: "8px",
                 padding: "4px 12px",
                 fontWeight: "700",
@@ -875,11 +875,11 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
                 ...styles,
                 backgroundColor:
                   isSelected
-                    ? "#D53F8C"
+                    ? "#FED7E2"
                     : isFocused
                       ? "#FED7E2"
                       : "transparent",
-                color: isSelected ? "white" : isFocused ? "#1A202C" : colorMode === "light" ? "#4A5568" : "white",
+                color: isSelected || isFocused ? "#1A202C" : colorMode === "light" ? "#4A5568" : "white",
                 fontWeight: isSelected || isFocused ? "700" : "500",
                 fontSize: "13px",
                 padding: "10px 12px",
@@ -895,25 +895,25 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#6269ff" : "#4a5066", // brand.500/darkBrand.200
+                backgroundColor: "#FED7E2",
                 borderRadius: "8px",
                 padding: "2px 4px",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: "white",
+                color: "#1A202C",
                 fontWeight: "700",
                 fontSize: "12px",
               }),
               multiValueRemove: (styles) => ({
                 ...styles,
-                color: "white",
-                ":hover": { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
+                color: "#1A202C",
+                ":hover": { backgroundColor: "rgba(0,0,0,0.1)", color: "#1A202C" }
               }),
               singleValue: (styles) => ({
                 ...styles,
-                backgroundColor: "#D53F8C",
-                color: "white",
+                backgroundColor: "#FED7E2",
+                color: "#1A202C",
                 borderRadius: "8px",
                 padding: "4px 12px",
                 fontWeight: "700",

@@ -23,8 +23,8 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllTherapists = useCallback(
-    ({ page = 1, limit = tablePageLimit, reset = false }) => {
-      const query: any = { page, limit };
+    ({ page = 1, limit = tablePageLimit, reset = false, type }) => {
+      const query: any = { page, limit , type , userType : "admin"};
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -49,7 +49,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   );
 
   useEffect(() => {
-    applyGetAllTherapists({ page: currentPage, limit: tablePageLimit });
+    applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit });
   }, [currentPage, debouncedSearchQuery, applyGetAllTherapists]);
 
   const handleChangePage = (page: number) => {
@@ -59,7 +59,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
-    applyGetAllTherapists({ reset: true });
+    applyGetAllTherapists({ reset: true, type : 'superAdmin' });
   };
 
   const handleRowClick = (user: any) => {

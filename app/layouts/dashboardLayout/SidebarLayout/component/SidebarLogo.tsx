@@ -38,8 +38,10 @@ const SidebarLogo: React.FC = observer(() => {
         cursor="pointer"
         display="flex"
         alignItems="center"
-        justifyContent="center"
+        justifyContent={isCallapse ? "center" : "flex-start"}
         onClick={() => router.push(dashboard.home)}
+        width="100%"
+        overflow="hidden"
       >
         {isCallapse ? (
           <Text
@@ -53,12 +55,13 @@ const SidebarLogo: React.FC = observer(() => {
             ).toUpperCase()}`}
           </Text>
         ) : (
-          <Flex alignItems="center" columnGap={3} maxW="100%">
+          <Flex alignItems="center" columnGap={3} width="100%" overflow="hidden">
             {/* Company Logo */}
             <Box
               position="relative"
               width="40px"
               height="40px"
+              minWidth="40px"
               borderRadius="full"
               overflow="hidden"
               bg={useColorModeValue("white", "gray.800")}

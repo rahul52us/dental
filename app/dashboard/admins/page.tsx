@@ -38,7 +38,7 @@ const AdminPage = observer(() => {
       const values = { ...formData };
 
       // --- Convert Image ---
-      if (values.pic?.file) {
+      if (values.pic?.file && values.pic.file.name) {
         const buffer = await readFileAsBase64(values.pic.file);
 
         values.pic = {
@@ -61,11 +61,13 @@ const AdminPage = observer(() => {
         ...values,
         title: values.title,
         profileDetails,
+        role:"admin",
+        userType : "admin"
       });
 
       createAdmin(payload)
         .then(() => {
-          getAllUsers({ page: 1, limit: 30 });
+          getAllUsers({ page: 1, limit: 30, type : "superAdmin" });
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
 
           toast({
@@ -102,11 +104,12 @@ const AdminPage = observer(() => {
   };
 
   const handleEditSubmit = async (values: any) => {
+    setIsLoading(true);
     const formData: any = {
       ...values,
     };
 
-    if (formData?.pic?.file && formData?.pic?.isAdd) {
+    if (formData?.pic?.file && formData?.pic?.isAdd && formData.pic.file.name) {
       const buffer = await readFileAsBase64(formData?.pic?.file);
       const fileData = {
         buffer: buffer,
@@ -134,7 +137,7 @@ const AdminPage = observer(() => {
       profileDetails: { ...formData },
     })
       .then(() => {
-        getAllUsers({ page: 1, limit: 30 });
+        getAllUsers({ page: 1, limit: 30, type : "superAdmin" });
         setIsDrawerOpen({ isOpen: false, type: "add", data: null });
         toast({
           title: "User updated.",
@@ -143,8 +146,10 @@ const AdminPage = observer(() => {
           duration: 5000,
           isClosable: true,
         });
+        setIsLoading(false);
       })
       .catch((err: any) => {
+        setIsLoading(false);
         toast({
           title: "failed to update",
           description: `${err?.message}`,

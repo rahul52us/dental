@@ -53,31 +53,40 @@ const LabSheetView = observer(({ data }: { data: any }) => {
     doc.setFontSize(12);
     doc.text(`Order ID: ${data._id?.slice(-8).toUpperCase()}`, 14, 28);
 
-    const tableData: any[] = [
-      ["Patient", data.patient?.name || data.patientNameManual || "N/A"],
-      ["Doctor", data.primaryDoctor?.name || data.primaryDoctor?.labDoctorName || data.doctorNameManual || "N/A"]
-    ];
+    const tableData: any[] = [];
+    tableData.push([
+      "Patient", data.patient?.name || data.patientNameManual || "N/A",
+      "Doctor", data.primaryDoctor?.name || data.primaryDoctor?.labDoctorName || data.doctorNameManual || "N/A"
+    ]);
 
-    if (data.workType === "in-house") {
-      tableData.push(["Send Date", data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent"]);
-    } else {
-      tableData.push(["Received Date", data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"]);
-    }
+    const dateLabel = data.workType === "in-house" ? "Send Date" : "Received Date";
+    const dateVal = data.workType === "in-house" 
+      ? (data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent")
+      : (data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received");
 
-    tableData.push(
-      ["Due Date", data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"],
-      ["Status", data.status?.toUpperCase() || "N/A"],
-      ["Lab Instructions", data.labInstructions || "None"]
-    );
+    tableData.push([
+      dateLabel, dateVal,
+      "Due Date", data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"
+    ]);
+
+    tableData.push([
+      "Lab Instructions", data.labInstructions || "None",
+      "", ""
+    ]);
 
     autoTable(doc, {
       startY: 35,
-      head: [["Field", "Details"]],
+      head: [["Field", "Details", "Field", "Details"]],
       body: tableData,
       theme: 'grid',
-      headStyles: { fillColor: [49, 130, 206] },
-      styles: { fontSize: 11, cellPadding: 5 },
-      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } }
+      headStyles: { fillColor: [49, 130, 206], cellPadding: 1.5 },
+      styles: { fontSize: 10, cellPadding: 1.5 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 35 },
+        1: { cellWidth: 55 },
+        2: { fontStyle: 'bold', cellWidth: 35 },
+        3: { cellWidth: 55 }
+      }
     });
 
     let currentY = (doc as any).lastAutoTable.finalY + 10;
@@ -98,8 +107,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         head: [["Classification", "Teeth #", "Shade"]],
         body: worksData,
         theme: 'grid',
-        headStyles: { fillColor: [49, 130, 206] },
-        styles: { fontSize: 11, cellPadding: 5 },
+        headStyles: { fillColor: [49, 130, 206], cellPadding: 1.5 },
+        styles: { fontSize: 10, cellPadding: 1.5 },
       });
       currentY = (doc as any).lastAutoTable.finalY + 10;
     }
@@ -137,8 +146,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         head: [["Item Name", "Details"]],
         body: selectedReceivedItems,
         theme: 'grid',
-        headStyles: { fillColor: [49, 130, 206] },
-        styles: { fontSize: 11, cellPadding: 5 },
+        headStyles: { fillColor: [49, 130, 206], cellPadding: 1.5 },
+        styles: { fontSize: 10, cellPadding: 1.5 },
       });
       currentY = (doc as any).lastAutoTable.finalY + 10;
     }

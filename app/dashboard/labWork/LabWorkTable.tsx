@@ -33,8 +33,18 @@ import {
   Center,
   Spacer,
   Select,
+  Input,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
+  PopoverCloseButton,
+  IconButton,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
-import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
+import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw, FiUser } from "react-icons/fi";
 
 import stores from "../../store/stores";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
@@ -63,6 +73,12 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   const [activeTab, setActiveTab] = useState(defaultWorkType === "in-house" ? 1 : (defaultWorkType === "outside" ? 2 : 0));
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [tempFromDate, setTempFromDate] = useState("");
+  const [tempToDate, setTempToDate] = useState("");
+  const [doctorSearch, setDoctorSearch] = useState("");
+  const debouncedDoctorSearch = useDebounce(doctorSearch, 1000);
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
   const searchParams = useSearchParams();
   const toast = stores.auth.openNotification;
@@ -94,6 +110,12 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
       if (workType) query.workType = workType;
       if (patientId) query.patient = patientId;
       if (statusFilter !== "all") query.status = statusFilter;
+      if (fromDate) query.fromDate = fromDate;
+      if (toDate) query.toDate = toDate;
+
+      if (debouncedDoctorSearch?.trim()) {
+        query.doctorName = debouncedDoctorSearch.trim();
+      }
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -107,7 +129,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
           });
         });
     },
-    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, patientId, statusFilter]
+    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, debouncedDoctorSearch, patientId, statusFilter, fromDate, toDate]
   );
 
   const resetReportFilters = () => {
@@ -127,6 +149,11 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
     setCurrentPage(1);
     setSearchQuery("");
     setStatusFilter("all");
+    setFromDate("");
+    setToDate("");
+    setTempFromDate("");
+    setTempToDate("");
+    setDoctorSearch("");
     setActiveTab(0);
   };
 
@@ -143,7 +170,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
   useEffect(() => {
     fetchLabWorks(currentPage);
     labWorkHierarchyStore.getAllHierarchies();
-  }, [currentPage, activeTab, debouncedSearchQuery, statusFilter, fetchLabWorks, labWorkHierarchyStore]);
+  }, [currentPage, activeTab, debouncedSearchQuery, debouncedDoctorSearch, statusFilter, fromDate, toDate, fetchLabWorks, labWorkHierarchyStore]);
 
   useEffect(() => {
     labWorkStatusStore.getLabWorkStatuses();
@@ -284,7 +311,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
           component: (dt: any) => {
             const works = dt.selectedWorks?.map((w: any) => labWorkHierarchyStore.getNamePath(w.selections)) || [];
             if (works.length === 0) return <Text fontSize="xs" color="gray.400">None</Text>;
-  
+
             return (
               <Tooltip
                 label={
@@ -392,7 +419,7 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
       )}
       <Box mt={isDrawer ? 0 : 2}>
         <CustomTable
-          title={activeTab === 0 ? "All Lab Sheets" : (activeTab === 1 ? "In-house Work" : "Outside Work")}
+          title={activeTab === 0 ? "All Lab Sheets" : (activeTab === 1 ? "." : ".")}
           data={labWorkStore.labWorks.map((item, index) => ({
             ...item,
             sno: (currentPage - 1) * tablePageLimit + index + 1,
@@ -401,6 +428,77 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
           actions={{
             customComponent: (
               <HStack spacing={3}>
+                <HStack spacing={2}>
+                  <Input
+                    type="date"
+                    size="sm"
+                    borderRadius="xl"
+                    value={tempFromDate}
+                    onChange={(e) => setTempFromDate(e.target.value)}
+                    w="140px"
+                    bg={useColorModeValue("white", "gray.800")}
+                    borderColor={useColorModeValue("gray.300", "gray.600")}
+                  />
+                  <Input
+                    type="date"
+                    size="sm"
+                    borderRadius="xl"
+                    value={tempToDate}
+                    onChange={(e) => setTempToDate(e.target.value)}
+                    w="140px"
+                    bg={useColorModeValue("white", "gray.800")}
+                    borderColor={useColorModeValue("gray.300", "gray.600")}
+                  />
+                  <Button
+                    size="sm"
+                    colorScheme="blue"
+                    borderRadius="xl"
+                    onClick={() => {
+                      setFromDate(tempFromDate);
+                      setToDate(tempToDate);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    Apply
+                  </Button>
+                  {(fromDate || toDate) && (
+                    <IconButton
+                      aria-label="Clear Filter"
+                      icon={<FiRefreshCw />}
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="red"
+                      borderRadius="xl"
+                      onClick={() => {
+                        setTempFromDate("");
+                        setTempToDate("");
+                        setFromDate("");
+                        setToDate("");
+                        setCurrentPage(1);
+                      }}
+                    />
+                  )}
+                </HStack>
+
+                <Box w="220px">
+                  <InputGroup size="sm">
+                    <InputLeftElement pointerEvents="none">
+                      <FiUser color="gray.400" />
+                    </InputLeftElement>
+                    <Input
+                      placeholder="Search Doctor..."
+                      borderRadius="xl"
+                      value={doctorSearch}
+                      onChange={(e) => {
+                        setDoctorSearch(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      bg={useColorModeValue("white", "gray.800")}
+                      borderColor={useColorModeValue("gray.300", "gray.600")}
+                    />
+                  </InputGroup>
+                </Box>
+
                 <Select
                   size="sm"
                   borderRadius="xl"
@@ -409,12 +507,14 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                     setStatusFilter(e.target.value);
                     setCurrentPage(1);
                   }}
-                  w="150px"
+                  w="160px"
                   bg={useColorModeValue("white", "gray.800")}
                   borderColor={useColorModeValue("gray.300", "gray.600")}
                 >
                   <option value="all">All Statuses</option>
-                  {labWorkStatusStore.statuses.map((s: any) => (
+                  {labWorkStatusStore.statuses
+                    .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
+                    .map((s: any) => (
                     <option key={s._id} value={s.status}>
                       {s.status}
                     </option>
@@ -443,21 +543,21 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
               </HStack>
             ),
             actionBtn: {
-              addKey: { 
-                showAddButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'create'), 
-                function: handleAdd 
+              addKey: {
+                showAddButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'create'),
+                function: handleAdd
               },
-              editKey: { 
-                showEditButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'edit'), 
-                function: handleEdit 
+              editKey: {
+                showEditButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'edit'),
+                function: handleEdit
               },
-              deleteKey: { 
-                showDeleteButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'delete'), 
-                function: handleDelete 
+              deleteKey: {
+                showDeleteButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'delete'),
+                function: handleDelete
               },
-              viewKey: { 
-                showViewButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'view'), 
-                function: handleView 
+              viewKey: {
+                showViewButton: stores.auth.hasPermission(activeTab === 1 ? 'inhouse_lab' : activeTab === 2 ? 'outside_lab' : 'lab', 'view'),
+                function: handleView
               },
             },
             pagination: {
@@ -534,15 +634,18 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                     type="select"
                     isPortal
                     options={[
+                      { label: "All", value: "all" },
                       { label: "In-house", value: "in-house" },
                       { label: "Outside", value: "outside" },
                     ]}
                     value={{
-                      label: reportFilters.workType === "in-house" ? "In-house" : "Outside",
+                      label: reportFilters.workType === "all" ? "All" : reportFilters.workType === "in-house" ? "In-house" : "Outside",
                       value: reportFilters.workType
                     }}
                     onChange={(val: any) => {
-                      if (!val || val.value === "in-house") {
+                      if (!val || val.value === "all") {
+                        setReportFilters({ ...reportFilters, workType: "all", labDoctor: null, doctor: null });
+                      } else if (val.value === "in-house") {
                         setReportFilters({ ...reportFilters, workType: "in-house", labDoctor: null, dateType: "sendDate" });
                       } else {
                         setReportFilters({ ...reportFilters, workType: "outside", doctor: null, dateType: "receivedDate" });
@@ -577,13 +680,19 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                             reportFilters.workType === "in-house"
                               ? [
                                   { label: "Send Date", value: "sendDate" },
+                                  { label: "Due Date", value: "dueDate" },
+                                  { label: "Received Date", value: "receivedDate" },
+                                  { label: "Creation Date", value: "createdAt" },
                                 ]
                               : [
                                   { label: "Received Date", value: "receivedDate" },
+                                  { label: "Due Date", value: "dueDate" },
+                                  { label: "Send Date", value: "sendDate" },
+                                  { label: "Creation Date", value: "createdAt" },
                                 ]
                           }
                           value={{
-                            label: (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "receivedDate" ? "Received Date" : (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "sendDate" ? "Send Date" : "Due Date",
+                            label: (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "receivedDate" ? "Received Date" : (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "sendDate" ? "Send Date" : (Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType) === "createdAt" ? "Creation Date" : "Due Date",
                             value: Array.isArray(reportFilters.dateType) ? reportFilters.dateType[0] : reportFilters.dateType
                           }}
                           onChange={(val: any) => {
@@ -630,13 +739,17 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
                       label="Status"
                       isPortal
                       isMulti
-                      options={(labWorkStatusStore.statuses || []).map((s: any) => ({
-                        label: s.status,
-                        value: s.status,
-                      }))}
+                      options={(labWorkStatusStore.statuses || [])
+                        .filter((s: any) => reportFilters.workType === "all" || s.type === reportFilters.workType)
+                        .map((s: any) => ({
+                          label: s.status,
+                          value: s.status,
+                        }))}
                       value={
                         reportFilters.status === "all"
-                          ? (labWorkStatusStore.statuses || []).map((s: any) => ({ label: s.status, value: s.status }))
+                          ? (labWorkStatusStore.statuses || [])
+                              .filter((s: any) => reportFilters.workType === "all" || s.type === reportFilters.workType)
+                              .map((s: any) => ({ label: s.status, value: s.status }))
                           : Array.isArray(reportFilters.status)
                           ? reportFilters.status.map((s: string) => ({ label: s, value: s }))
                           : []
