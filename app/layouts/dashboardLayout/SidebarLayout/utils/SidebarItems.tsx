@@ -242,6 +242,43 @@ const sidebarDatas: SidebarItem[] = [
     url: "/dashboard/reports",
     permission: { module: "reports", action: "sidebar" },
   },
+  {
+    id: 43,
+    name: "Historical Records",
+    icon: <FaClipboardList />,
+    url: "#",
+    role: ["admin", "superAdmin", "staff"],
+    children: [
+      {
+        id: 44,
+        name: "Work Done",
+        icon: <FaClipboardList />,
+        url: "/dashboard/old-data/work-done",
+        role: ["admin", "superAdmin", "staff"],
+      },
+      {
+        id: 45,
+        name: "Tooth Work",
+        icon: <FaClipboardList />,
+        url: "/dashboard/old-data/tooth-work",
+        role: ["admin", "superAdmin", "staff"],
+      },
+      {
+        id: 46,
+        name: "Transactions",
+        icon: <FaClipboardList />,
+        url: "/dashboard/old-data/transactions",
+        role: ["admin", "superAdmin", "staff"],
+      },
+      {
+        id: 47,
+        name: "Fees",
+        icon: <FaClipboardList />,
+        url: "/dashboard/old-data/fees",
+        role: ["admin", "superAdmin", "staff"],
+      },
+    ],
+  },
 ];
 
 export const sidebarFooterData: SidebarItem[] = [

@@ -161,7 +161,6 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     setTempFromDate("");
     setTempToDate("");
     setDoctorSearch("");
-    setActiveTab(0);
   };
 
   // Sync tab with query param
@@ -480,23 +479,6 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   >
                     Apply
                   </Button>
-                  {(fromDate || toDate) && (
-                    <IconButton
-                      aria-label="Clear Filter"
-                      icon={<FiRefreshCw />}
-                      size="sm"
-                      variant="ghost"
-                      colorScheme="red"
-                      borderRadius="xl"
-                      onClick={() => {
-                        setTempFromDate("");
-                        setTempToDate("");
-                        setFromDate("");
-                        setToDate("");
-                        setCurrentPage(1);
-                      }}
-                    />
-                  )}
                 </HStack>
 
                 <Box w="220px">
@@ -518,27 +500,24 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   </InputGroup>
                 </Box>
 
-                <Select
-                  size="sm"
-                  borderRadius="xl"
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  w="160px"
-                  bg={useColorModeValue("white", "gray.800")}
-                  borderColor={useColorModeValue("gray.300", "gray.600")}
-                >
-                  <option value="all">All Statuses</option>
-                  {labWorkStatusStore.statuses
-                    .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
-                    .map((s: any) => (
-                    <option key={s._id} value={s.status}>
-                      {s.status}
-                    </option>
-                  ))}
-                </Select>
+                <Box w="200px" zIndex={10}>
+                  <CustomInput
+                    name="statusFilter"
+                    type="select"
+                    isPortal={true}
+                    options={[
+                      { label: "All Statuses", value: "all" },
+                      ...labWorkStatusStore.statuses
+                        .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
+                        .map((s: any) => ({ label: s.status, value: s.status }))
+                    ]}
+                    value={{ label: statusFilter === "all" ? "All Statuses" : statusFilter, value: statusFilter }}
+                    onChange={(val: any) => {
+                      setStatusFilter(val ? val.value : "all");
+                      setCurrentPage(1);
+                    }}
+                  />
+                </Box>
                 {hasTabPermission('download') && (
                   <Button
                     leftIcon={<FiDownload />}
@@ -559,6 +538,16 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     Download Report
                   </Button>
                 )}
+                
+                <IconButton
+                  aria-label="Reset All Filters"
+                  icon={<FiRefreshCw />}
+                  size="sm"
+                  colorScheme="red"
+                  borderRadius="xl"
+                  onClick={resetTableData}
+                  title="Reset All Filters"
+                />
               </HStack>
             ),
             actionBtn: {

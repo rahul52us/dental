@@ -28,7 +28,9 @@ import { workDoneStore } from "./workDoneStore/workDoneStore";
 import prescriptionStore from "./prescriptionStore/prescriptionStore";
 import accountabilityStore from "./accountabilityStore/accountabilityStore";
 import { doctorInventoryStore } from "./doctorInventoryStore/doctorInventoryStore";
+import OldDataStore from "./oldDataStore/oldData.store";
 
+const oldDataStore = new OldDataStore();
 
 const stores = {
   auth : authStore,
@@ -60,6 +62,7 @@ const stores = {
   prescriptionStore: prescriptionStore,
   accountabilityStore: accountabilityStore,
   doctorInventoryStore: doctorInventoryStore,
+  oldDataStore: oldDataStore,
 };
 
 
