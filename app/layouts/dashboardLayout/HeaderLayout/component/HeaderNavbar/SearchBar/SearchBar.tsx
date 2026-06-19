@@ -71,7 +71,7 @@ const SearchBar = () => {
 
 
   return (
-    <Box position="relative" width="300px" ref={dropdownRef}>
+    <Box position="relative" width={{ base: "100%", md: "350px", lg: "450px" }} maxW="450px" ref={dropdownRef}>
       <InputGroup>
         <InputLeftElement>
           <FaSearch color={useColorModeValue("brand.500", "brand.200")} />

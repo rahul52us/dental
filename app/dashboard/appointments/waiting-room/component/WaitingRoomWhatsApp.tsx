@@ -822,6 +822,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                 >
                     <LabWorkTable
                         patientId={openLab.data?._id}
+                        patientDetails={openLab.data}
                         isDrawer={true}
                         defaultWorkType={openLab.workType}
                     />

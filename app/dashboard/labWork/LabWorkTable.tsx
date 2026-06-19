@@ -59,11 +59,12 @@ import useDebounce from "../../component/config/component/customHooks/useDebounc
 
 interface LabWorkTableProps {
   patientId?: string;
+  patientDetails?: any;
   isDrawer?: boolean;
   defaultWorkType?: "in-house" | "outside" | "all";
 }
 
-const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWorkTableProps = {}) => {
+const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWorkType }: LabWorkTableProps = {}) => {
   const { labWorkStore, labWorkHierarchyStore, labWorkStatusStore, auth: { openNotification } } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
@@ -184,7 +185,19 @@ const LabWorkTable = observer(({ patientId, isDrawer, defaultWorkType }: LabWork
 
   const handleAdd = () => {
     const defaultWorkType = activeTab === 1 ? "in-house" : (activeTab === 2 ? "outside" : "outside");
-    setSelectedLabWork({ workType: defaultWorkType } as any);
+    const newLabWork: any = { workType: defaultWorkType };
+    
+    // Auto-populate patient if we have the details (e.g., from waiting room / patient view)
+    if (patientDetails) {
+      newLabWork.patient = {
+        label: patientDetails.name,
+        value: patientDetails._id,
+        _id: patientDetails._id,
+        name: patientDetails.name
+      };
+    }
+    
+    setSelectedLabWork(newLabWork);
     onOpen();
   };
 

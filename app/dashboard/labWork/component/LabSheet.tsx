@@ -253,7 +253,107 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   />
                 )}
               </Grid>
+              <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4}>
+                {values.workType === "in-house" && (
+                  <CustomInput
+                    key="in-house-send"
+                    label="Send Date"
+                    name="sendDate"
+                    type="date"
+                    value={values.sendDate}
+                    onChange={(e: any) => {
+                      const newSendDate = e.target.value;
+                      setFieldValue("sendDate", newSendDate);
+                    }}
+                  />
+                )}
+                {values.workType !== "in-house" && (
+                  <CustomInput
+                    key="outside-received"
+                    label="Received Date"
+                    name="receivedDate"
+                    type="date"
+                    value={values.receivedDate}
+                    onChange={(e: any) => {
+                      const newReceivedDate = e.target.value;
+                      setFieldValue("receivedDate", newReceivedDate);
+                    }}
+                  />
+                )}
+                <CustomInput
+                  key="due-date"
+                  label="Due Date"
+                  name="dueDate"
+                  type="date"
+                  value={values.dueDate}
+                  onChange={(e: any) => {
+                    const newDueDate = e.target.value;
+                    setFieldValue("dueDate", newDueDate);
+                    if (values.workType === "in-house" && values.receivedDate && newDueDate) {
+                      const r = new Date(values.receivedDate).getTime();
+                      const d = new Date(newDueDate).getTime();
+                      setFieldValue("delay", Math.round((r - d) / (1000 * 3600 * 24)));
+                    } else if (values.workType === "outside" && values.sendDate && newDueDate) {
+                      const s = new Date(values.sendDate).getTime();
+                      const d = new Date(newDueDate).getTime();
+                      setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
+                    } else {
+                      setFieldValue("delay", "");
+                    }
+                  }}
+                />
 
+                {values.workType === "in-house" && (
+                  <CustomInput
+                    key="in-house-received"
+                    label="Received Date"
+                    name="receivedDate"
+                    type="date"
+                    value={values.receivedDate}
+                    onChange={(e: any) => {
+                      const newReceivedDate = e.target.value;
+                      setFieldValue("receivedDate", newReceivedDate);
+                      if (newReceivedDate && values.dueDate) {
+                        const r = new Date(newReceivedDate).getTime();
+                        const d = new Date(values.dueDate).getTime();
+                        setFieldValue("delay", Math.round((r - d) / (1000 * 3600 * 24)));
+                      } else {
+                        setFieldValue("delay", "");
+                      }
+                    }}
+                  />
+                )}
+                {values.workType !== "in-house" && (
+                  <CustomInput
+                    key="outside-send"
+                    label="Send Date"
+                    name="sendDate"
+                    type="date"
+                    value={values.sendDate}
+                    onChange={(e: any) => {
+                      const newSendDate = e.target.value;
+                      setFieldValue("sendDate", newSendDate);
+                      if (newSendDate && values.dueDate) {
+                        const s = new Date(newSendDate).getTime();
+                        const d = new Date(values.dueDate).getTime();
+                        setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
+                      } else {
+                        setFieldValue("delay", "");
+                      }
+                    }}
+                  />
+                )}
+
+
+                <CustomInput
+                  label="Delay (Days)"
+                  name="delay"
+                  type="number"
+                  readOnly={true}
+                  value={values.delay}
+                  onChange={(e: any) => setFieldValue("delay", e.target.value)}
+                />
+              </Grid>
               <Box bg="gray.50" p={4} borderRadius="xl" border="1px dashed" borderColor="gray.300">
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
@@ -426,104 +526,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                 </VStack>
               </Box>
 
-              <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4}>
-                {values.workType === "in-house" && (
-                  <CustomInput
-                    key="in-house-received"
-                    label="Received Date"
-                    name="receivedDate"
-                    type="date"
-                    value={values.receivedDate}
-                    onChange={(e: any) => {
-                      const newReceivedDate = e.target.value;
-                      setFieldValue("receivedDate", newReceivedDate);
-                      if (newReceivedDate && values.dueDate) {
-                        const r = new Date(newReceivedDate).getTime();
-                        const d = new Date(values.dueDate).getTime();
-                        setFieldValue("delay", Math.round((r - d) / (1000 * 3600 * 24)));
-                      } else {
-                        setFieldValue("delay", "");
-                      }
-                    }}
-                  />
-                )}
-                {values.workType !== "in-house" && (
-                  <CustomInput
-                    key="outside-send"
-                    label="Send Date"
-                    name="sendDate"
-                    type="date"
-                    value={values.sendDate}
-                    onChange={(e: any) => {
-                      const newSendDate = e.target.value;
-                      setFieldValue("sendDate", newSendDate);
-                      if (newSendDate && values.dueDate) {
-                        const s = new Date(newSendDate).getTime();
-                        const d = new Date(values.dueDate).getTime();
-                        setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
-                      } else {
-                        setFieldValue("delay", "");
-                      }
-                    }}
-                  />
-                )}
-                <CustomInput
-                  key="due-date"
-                  label="Due Date"
-                  name="dueDate"
-                  type="date"
-                  value={values.dueDate}
-                  onChange={(e: any) => {
-                    const newDueDate = e.target.value;
-                    setFieldValue("dueDate", newDueDate);
-                    if (values.workType === "in-house" && values.receivedDate && newDueDate) {
-                      const r = new Date(values.receivedDate).getTime();
-                      const d = new Date(newDueDate).getTime();
-                      setFieldValue("delay", Math.round((r - d) / (1000 * 3600 * 24)));
-                    } else if (values.workType === "outside" && values.sendDate && newDueDate) {
-                      const s = new Date(values.sendDate).getTime();
-                      const d = new Date(newDueDate).getTime();
-                      setFieldValue("delay", Math.round((s - d) / (1000 * 3600 * 24)));
-                    } else {
-                      setFieldValue("delay", "");
-                    }
-                  }}
-                />
-                {values.workType === "in-house" && (
-                  <CustomInput
-                    key="in-house-send"
-                    label="Send Date"
-                    name="sendDate"
-                    type="date"
-                    value={values.sendDate}
-                    onChange={(e: any) => {
-                      const newSendDate = e.target.value;
-                      setFieldValue("sendDate", newSendDate);
-                    }}
-                  />
-                )}
-                {values.workType !== "in-house" && (
-                  <CustomInput
-                    key="outside-received"
-                    label="Received Date"
-                    name="receivedDate"
-                    type="date"
-                    value={values.receivedDate}
-                    onChange={(e: any) => {
-                      const newReceivedDate = e.target.value;
-                      setFieldValue("receivedDate", newReceivedDate);
-                    }}
-                  />
-                )}
-                <CustomInput
-                  label="Delay (Days)"
-                  name="delay"
-                  type="number"
-                  readOnly={true}
-                  value={values.delay}
-                  onChange={(e: any) => setFieldValue("delay", e.target.value)}
-                />
-              </Grid>
+
               <Box bg="blue.50" p={4} borderRadius="xl" border="1px solid" borderColor="blue.100">
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">

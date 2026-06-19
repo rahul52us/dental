@@ -28,9 +28,11 @@ import {
   Text,
   useToast,
   VStack,
+  HStack,
 } from "@chakra-ui/react";
+import { FiUpload } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import stores from "../../../../store/stores";
 import { getDefaultSchedule } from "../../utils/constant";
 import OperatingHours from "../OperatingHours/OperatingHours";
@@ -70,6 +72,124 @@ const ProfileDetailsModal = observer(({ user }: any) => {
 
   const handleClose = () => {
     setProfileModal(false, 0);
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  // We no longer need to fetch company details separately since it's populated in the me API
+  const companyLogo = user?.companyDetails?.logo || user?.companyDetail?.logo;
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    try {
+      const buffer = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const uploadResult = await stores.auth.uploadFile({
+        file: {
+          buffer: buffer,
+          filename: file.name,
+          type: file.type,
+        },
+        folder: "company-logos",
+      });
+      const newUrl = uploadResult?.data || uploadResult?.url || uploadResult;
+
+      // Update in backend using the new API
+      await stores.companyStore.updateCompanyLogo({
+        logoUrl: newUrl,
+      });
+
+      // Refresh user details (me API) to reflect new logo instantly
+      await stores.auth.fetchUser();
+
+      toast({
+        title: "Success",
+        description: "Company logo updated successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error?.message || error || "Failed to update company logo.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const buffer = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const uploadResult = await stores.auth.uploadFile({
+        file: {
+          buffer: buffer,
+          filename: file.name,
+          type: file.type,
+        },
+        folder: "profiles",
+      });
+      const newUrl = uploadResult?.data || uploadResult?.url || uploadResult;
+
+      if (!newUrl || typeof newUrl !== "string") throw new Error("Upload failed");
+
+      // Update in backend
+      await stores.userStore.updateUser({
+        ...user,
+        pic: { url: newUrl },
+      });
+
+      // Update in mobx store immediately
+      if (stores.auth.user) {
+        stores.auth.user.pic = { url: newUrl };
+      }
+
+      toast({
+        title: "Profile Picture Updated",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Upload Failed",
+        description: err?.message || "Could not upload image.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSave = async () => {
@@ -143,13 +263,47 @@ const ProfileDetailsModal = observer(({ user }: any) => {
             align="center"
             gap={5}
           >
-            <Avatar
-              size="lg"
-              src={pic?.url}
-              name={name}
-              border="4px solid white"
-              boxShadow="lg"
-            />
+            <Box position="relative" cursor="pointer" onClick={() => fileInputRef.current?.click()}>
+              <Avatar
+                size="lg"
+                src={pic?.url}
+                name={name}
+                border="4px solid white"
+                boxShadow="lg"
+                opacity={uploadingImage ? 0.5 : 1}
+              />
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                style={{ display: "none" }}
+              />
+              <Flex
+                position="absolute"
+                bottom={-1}
+                right={-1}
+                bg="blue.500"
+                color="white"
+                borderRadius="full"
+                w={6}
+                h={6}
+                align="center"
+                justify="center"
+                boxShadow="sm"
+                border="2px solid white"
+                _hover={{ bg: "blue.600" }}
+              >
+                {uploadingImage ? (
+                  <Icon as={CheckCircleIcon} opacity={0} boxSize={3} />
+                ) : (
+                  <Icon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" boxSize={3}>
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </Icon>
+                )}
+              </Flex>
+            </Box>
             <Box textAlign={{ base: "center", sm: "left" }}>
               <Flex
                 align="center"
@@ -191,6 +345,57 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               {/* TAB 1: Profile Overview */}
               <TabPanel p={6}>
                 <VStack spacing={6} align="stretch">
+                  <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                    <Flex align="center" justify="space-between">
+                      <HStack spacing={4}>
+                        <Avatar size="md" src={pic?.url} name={name} />
+                        <Box>
+                          <Text fontWeight="bold">Profile Picture</Text>
+                          <Text fontSize="sm" color="gray.500">Upload a new avatar to personalize your account</Text>
+                        </Box>
+                      </HStack>
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        leftIcon={<Icon as={FiUpload} />}
+                        onClick={() => fileInputRef.current?.click()}
+                        isLoading={uploadingImage}
+                      >
+                        Update Photo
+                      </Button>
+                    </Flex>
+                  </Box>
+
+                  {user?.role === "admin" && (
+                    <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                      <Flex align="center" justify="space-between">
+                        <HStack spacing={4}>
+                          <Avatar size="md" src={companyLogo?.url} name={user?.companyDetail?.company_name} borderRadius="md" />
+                          <Box>
+                            <Text fontWeight="bold">Company Logo</Text>
+                            <Text fontSize="sm" color="gray.500">Update the logo for your clinic/company</Text>
+                          </Box>
+                        </HStack>
+                        <Button
+                          size="sm"
+                          colorScheme="teal"
+                          leftIcon={<Icon as={FiUpload} />}
+                          onClick={() => logoInputRef.current?.click()}
+                          isLoading={uploadingLogo}
+                        >
+                          Update Logo
+                        </Button>
+                        <input
+                          type="file"
+                          ref={logoInputRef}
+                          onChange={handleLogoUpload}
+                          accept="image/*"
+                          style={{ display: "none" }}
+                        />
+                      </Flex>
+                    </Box>
+                  )}
+
                   <Divider />
                   {/* Details Grid */}
                   <Box>

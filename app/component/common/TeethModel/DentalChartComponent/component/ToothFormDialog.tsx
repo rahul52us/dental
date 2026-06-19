@@ -444,7 +444,7 @@ export const ToothFormDialog = observer(
                     </VStack>
 
                     <VStack align="start" spacing={2} w="full">
-                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. CLINICAL OBSERVATION</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. Treatment Advise</Text>
                       <Box position="relative" w="full">
                         <CustomInput
                           name="notes"

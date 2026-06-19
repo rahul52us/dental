@@ -191,7 +191,19 @@ const PatientLabWorkHistory = observer(({ patientDetails, workType = "all" }: Pa
               addKey: {
                 showAddButton: stores.auth.hasPermission('inhouse_lab', 'create') || stores.auth.hasPermission('outside_lab', 'create'),
                 text: "New Lab Order",
-                function: () => setSelectedWork({ open: true, type: "edit", data: { workType: workType === "outside" ? "outside" : "in-house", patient: patientDetails } })
+                function: () => setSelectedWork({ 
+                  open: true, 
+                  type: "edit", 
+                  data: { 
+                    workType: workType === "outside" ? "outside" : "in-house", 
+                    patient: patientDetails ? {
+                      label: patientDetails.name,
+                      value: patientDetails._id,
+                      _id: patientDetails._id,
+                      name: patientDetails.name
+                    } : null
+                  } 
+                })
               }
             },
             pagination: {

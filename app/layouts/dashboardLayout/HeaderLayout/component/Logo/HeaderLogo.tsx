@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import stores from "../../../../../store/stores";
 import SearchBar from "../HeaderNavbar/SearchBar/SearchBar";
+import { Avatar, Text, HStack, Image } from "@chakra-ui/react";
 
 const HeaderLogo = observer(() => {
   const isLargerThanXl = useBreakpointValue({ lg: true }) ?? false; // Added default value for SSR
@@ -15,45 +16,77 @@ const HeaderLogo = observer(() => {
 
   return (
     <Flex width="100%" alignItems="center" justifyContent="space-between" display="flex" ml={2}>
-      {isLargerThanXl && (
-        <Flex alignItems="center">
-          <IconButton
-            variant="ghost"
-            aria-label="Arrow"
-            fontSize="2xl"
-            color="white"
-            _hover={{ color: useColorModeValue("brand.500", "brand.200"), bg: useColorModeValue("brand.50", "gray.700") }}
-            _active={{ bg: useColorModeValue("brand.100", "gray.800") }}
-            icon={
-              isCallapse ? (
-                <BiRightArrowAlt fontSize={25} />
+      <Flex alignItems="center">
+        {isLargerThanXl && (
+          <Flex alignItems="center">
+            <IconButton
+              variant="ghost"
+              aria-label="Arrow"
+              fontSize="2xl"
+              color="white"
+              _hover={{ color: useColorModeValue("brand.500", "brand.200"), bg: useColorModeValue("brand.50", "gray.700") }}
+              _active={{ bg: useColorModeValue("brand.100", "gray.800") }}
+              icon={
+                isCallapse ? (
+                  <BiRightArrowAlt fontSize={25} />
+                ) : (
+                  <BiLeftArrowAlt fontSize={25} />
+                )
+              }
+              size="lg"
+              sx={{ marginRight: "1rem", marginTop: "2px" }}
+              onClick={() => {
+                openDashSidebarFun();
+              }}
+            />
+            <IconButton
+              icon={
+                fullScreenMode ? (
+                  <BiRightArrowAlt fontSize={25} />
+                ) : (
+                  <BiLeftArrowAlt fontSize={25} />
+                )
+              }
+              onClick={() => openDashSidebarFun()}
+              variant="ghost"
+              size="lg"
+              sx={{ marginRight: "1rem", marginTop: "2px" }}
+              aria-label="open the drawer button"
+              display="none"
+            />
+          </Flex>
+        )}
+
+        <HStack ml={isLargerThanXl ? 0 : 4} mr={4} spacing={3} display={{ base: "none", md: "flex" }}>
+          {(stores.auth.user?.companyDetail || stores.auth.user?.companyDetails) && (
+            <>
+              {stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url ? (
+                <Image 
+                  src={stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url} 
+                  alt={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
+                  boxSize="46px"
+                  objectFit="contain"
+                  bg="white"
+                  borderRadius="md"
+                  p={0}
+                />
               ) : (
-                <BiLeftArrowAlt fontSize={25} />
-              )
-            }
-            size="lg"
-            sx={{ marginRight: "1rem", marginTop: "2px" }}
-            onClick={() => {
-              openDashSidebarFun();
-            }}
-          />
-          <IconButton
-            icon={
-              fullScreenMode ? (
-                <BiRightArrowAlt fontSize={25} />
-              ) : (
-                <BiLeftArrowAlt fontSize={25} />
-              )
-            }
-            onClick={() => openDashSidebarFun()}
-            variant="ghost"
-            size="lg"
-            sx={{ marginRight: "1rem", marginTop: "2px" }}
-            aria-label="open the drawer button"
-            display="none"
-          />
-        </Flex>
-      )}
+                <Avatar 
+                  size="md" 
+                  name={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name} 
+                  bg="white"
+                  color="brand.500"
+                  borderRadius="md"
+                />
+              )}
+              <Text color="white" fontWeight="bold" fontSize="lg" whiteSpace="nowrap">
+                {stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
+              </Text>
+            </>
+          )}
+        </HStack>
+      </Flex>
+
       <SearchBar />
       <Box></Box>
       {/* <Input
