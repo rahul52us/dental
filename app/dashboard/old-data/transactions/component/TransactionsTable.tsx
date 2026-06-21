@@ -4,14 +4,30 @@ import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
 import {
   Box,
-  Text
+  Text,
+  Button,
+  useDisclosure,
+  Icon
 } from "@chakra-ui/react";
+import { FaEye } from "react-icons/fa";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
+import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
 
 
 const TransactionsTable = observer(() => {
   const { oldDataStore } = stores;
   const [searchQuery, setSearchQuery] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleOpenDrawer = (row: any) => {
+    oldDataStore.fetchLegacyRecordDetails(row.legacyWrkDoneId);
+    onOpen();
+  };
+
+  const handleCloseDrawer = () => {
+    onClose();
+    oldDataStore.clearSelectedRecord();
+  };
   
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -32,6 +48,14 @@ const TransactionsTable = observer(() => {
     { headerName: "Patient Name", function: (row: any) => row.patientId?.name || "Unknown" },
     { headerName: "Doctor", function: (row: any) => row.doctorId?.name || row.legacyDocCode },
     { headerName: "Fee Received", function: (row: any) => <Text fontWeight="bold" color="green.500">₹{row.fee_rec}</Text> },
+    { 
+      headerName: "Work Info", 
+      function: (row: any) => (
+        <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)}>
+          <Icon as={FaEye} />
+        </Button>
+      ) 
+    },
   ];
 
   return (
@@ -61,6 +85,8 @@ const TransactionsTable = observer(() => {
           }
         }}
       />
+
+      <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
     </Box>
   );
 });

@@ -3,14 +3,31 @@ import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
 import {
-  Box
+  Box,
+  Text,
+  Button,
+  useDisclosure,
+  Icon
 } from "@chakra-ui/react";
+import { FaEye } from "react-icons/fa";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
+import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
 
 
 const ToothWorkTable = observer(() => {
   const { oldDataStore } = stores;
   const [searchQuery, setSearchQuery] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleOpenDrawer = (row: any) => {
+    oldDataStore.fetchLegacyRecordDetails(row.legacyWrkDoneId);
+    onOpen();
+  };
+
+  const handleCloseDrawer = () => {
+    onClose();
+    oldDataStore.clearSelectedRecord();
+  };
   
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -32,6 +49,14 @@ const ToothWorkTable = observer(() => {
     { headerName: "Treatment Name", key: "name" },
     { headerName: "Description", key: "descript", type: "tooltip" },
     { headerName: "Tooth No", key: "ToothNoS" },
+    { 
+      headerName: "Work Info", 
+      function: (row: any) => (
+        <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)}>
+          <Icon as={FaEye} />
+        </Button>
+      ) 
+    },
   ];
 
   return (
@@ -61,6 +86,8 @@ const ToothWorkTable = observer(() => {
           }
         }}
       />
+
+      <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
     </Box>
   );
 });

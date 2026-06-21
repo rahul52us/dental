@@ -13,6 +13,8 @@ export default class OldDataStore {
   totalWorkFees = 0;
 
   loading = false;
+  detailsLoading = false;
+  selectedFullRecord: any = null;
   
   // Pagination & Search State
   workCompPage = 1;
@@ -102,5 +104,22 @@ export default class OldDataStore {
       this.loading = false;
       console.error(error);
     }
+  }
+
+  async fetchLegacyRecordDetails(legacyWrkDoneId: string) {
+    if (!legacyWrkDoneId) return;
+    try {
+      this.detailsLoading = true;
+      const res = await axios.get(`/old-data/legacy-record-details/${legacyWrkDoneId}`);
+      this.selectedFullRecord = res.data.data;
+      this.detailsLoading = false;
+    } catch (error) {
+      this.detailsLoading = false;
+      console.error(error);
+    }
+  }
+
+  clearSelectedRecord() {
+    this.selectedFullRecord = null;
   }
 }

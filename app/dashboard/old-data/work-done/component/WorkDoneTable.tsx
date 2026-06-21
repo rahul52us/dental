@@ -4,15 +4,31 @@ import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
 import {
   Box,
-  Badge
+  Badge,
+  Button,
+  useDisclosure,
+  Icon
 } from "@chakra-ui/react";
+import { FaEye } from "react-icons/fa";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
+import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
 
 
 const WorkDoneTable = observer(() => {
   const { oldDataStore } = stores;
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleOpenDrawer = (row: any) => {
+    oldDataStore.fetchLegacyRecordDetails(row.legacyWrkDoneId);
+    onOpen();
+  };
+
+  const handleCloseDrawer = () => {
+    onClose();
+    oldDataStore.clearSelectedRecord();
+  };
+
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       oldDataStore.setSearchQuery(searchQuery);
@@ -33,6 +49,14 @@ const WorkDoneTable = observer(() => {
     { headerName: "Fee Due", key: "fee_due" },
     { headerName: "Fee Dis", key: "fee_dis" },
     { headerName: "Stage", function: (row: any) => <Badge colorScheme="blue">{row.treat_stage}</Badge> },
+    { 
+      headerName: "Actions", 
+      function: (row: any) => (
+        <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)}>
+          <Icon as={FaEye} />
+        </Button>
+      ) 
+    },
   ];
 
   return (
@@ -62,6 +86,8 @@ const WorkDoneTable = observer(() => {
           }
         }}
       />
+
+      <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
     </Box>
   );
 });
