@@ -65,6 +65,7 @@ import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import moment from "moment";
 import CreatableSelect from "react-select/creatable";
+import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 
 const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const { accountabilityStore, workDoneStore, auth } = stores;
@@ -85,6 +86,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [editingPaymentIndex, setEditingPaymentIndex] = useState<number | null>(null);
   const [editAmount, setEditAmount] = useState<string>("");
   const [isSavingAmount, setIsSavingAmount] = useState(false);
+
+  // Edit Total Bill State
+  const [isEditBillModalOpen, setIsEditBillModalOpen] = useState(false);
+  const [editingBillRecord, setEditingBillRecord] = useState<any>(null);
+  const [editBillAmount, setEditBillAmount] = useState<string>("");
+  const [isSavingBill, setIsSavingBill] = useState(false);
 
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,7 +161,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       limit: 10,
       search: debouncedSearchQuery,
       fromDate: appliedStartDate || undefined,
-      toDate: appliedEndDate || undefined
+      toDate: appliedEndDate || undefined,
+      doctorId: doctorFilter !== "all" ? doctorFilter : undefined
     });
 
     // Fetch filtered stats (dynamic)
@@ -169,8 +177,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     });
   }, [workDoneStore, accountabilityStore, patientDetails._id, auth.company, doctorFilter, appliedStartDate, appliedEndDate, currentPage, debouncedSearchQuery]);
 
+  const [allCompanyDoctors, setAllCompanyDoctors] = useState<any[]>([]);
+
   useEffect(() => {
     fetchOverallStats();
+    // Fetch all doctors in the company so the user can filter by any doctor
+    stores.auth.getCompanyUsers({ type: "doctor" }).then((res: any) => {
+      setAllCompanyDoctors(res || []);
+    }).catch((err: any) => console.error(err));
   }, [fetchOverallStats]);
 
   const handleChangePage = (page: number) => {
@@ -181,25 +195,34 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     fetchData();
   }, [fetchData]);
 
-  // Derived Data: Doctors list for filtering (from current data)
+  // Derived Data: Doctors list for filtering (from backend response)
   const doctorsList = useMemo(() => {
-    const docs: Record<string, string> = {};
-    workDoneStore.workDone.data.forEach((wd: any) => {
-      if (wd.doctor?._id && wd.doctor?.name) {
-        docs[wd.doctor._id as string] = wd.doctor.name as string;
-      }
-    });
-    return Object.entries(docs).map(([id, name]) => ({ id, name }));
-  }, [workDoneStore.workDone.data]);
+    return allCompanyDoctors.map((doc: any) => ({
+      id: doc.user?._id,
+      name: doc.user?.name
+    }));
+  }, [allCompanyDoctors]);
 
-  // Filtered Data for Table
-  const filteredWork = useMemo(() => {
-    let data = workDoneStore.workDone.data;
-    if (doctorFilter !== "all") {
-      data = data.filter((wd: any) => wd.doctor?._id === doctorFilter);
+  // Filtered Data for Table (already paginated by backend based on doctor filter)
+  const filteredWork = workDoneStore.workDone.data;
+
+  const [isDownloadingReceipts, setIsDownloadingReceipts] = useState(false);
+
+  const handleDownloadReceiptsLog = async () => {
+    setIsDownloadingReceipts(true);
+    try {
+      const filtersToPass = { ...downloadFilters };
+      const base64 = await workDoneStore.fetchReceiptsLogBase64(patientDetails._id, filtersToPass);
+      setPreviewData(base64);
+      setPreviewFileName(`Receipts_Log_${patientDetails._id}.pdf`);
+      setIsPreviewOpen(true);
+      setIsDownloadModalOpen(false);
+    } catch (err) {
+      toast({ title: "Preview Error", description: "Failed to load receipts log preview.", status: "error" });
+    } finally {
+      setIsDownloadingReceipts(false);
     }
-    return data;
-  }, [workDoneStore.workDone.data, doctorFilter]);
+  };
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -330,6 +353,30 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     }
   };
 
+  const handleSaveTotalBill = async () => {
+    const newBillAmount = Number(editBillAmount);
+    if (isNaN(newBillAmount) || newBillAmount < 0) return;
+    setIsSavingBill(true);
+    try {
+      // Assuming no discount, set amount to the new bill amount. 
+      // If there's discount, we maintain discount and adjust amount to be newBillAmount + discount
+      const discount = editingBillRecord.discount || 0;
+      const newAmount = newBillAmount + discount;
+
+      // Use the dedicated new API
+      await workDoneStore.updateTotalBillAmount(editingBillRecord._id, newAmount);
+
+      toast({ title: "Total Bill Updated", status: "success" });
+      setIsEditBillModalOpen(false);
+      fetchData();
+      fetchOverallStats();
+    } catch (err: any) {
+      toast({ title: "Error Updating Bill", description: err.message, status: "error" });
+    } finally {
+      setIsSavingBill(false);
+    }
+  };
+
   const columns = [
     { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center", color: "gray.400", fontWeight: "bold" } } },
     {
@@ -365,11 +412,30 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         component: (dt: any) => {
           const val = dt.amount - (dt.discount || 0);
           return (
-            <Box px={3} py={1.5} bg="yellow.100" borderRadius="xl" display="inline-block" border="1px solid" borderColor="yellow.300" minW="80px" textAlign="center">
-              <Text fontWeight="1000" color="yellow.900" fontSize="md">
-                ₹{val.toLocaleString()}
-              </Text>
-            </Box>
+            <HStack justify="center" spacing={2}>
+              <Box px={3} py={1.5} bg="yellow.100" borderRadius="xl" display="inline-block" border="1px solid" borderColor="yellow.300" minW="80px" textAlign="center">
+                <Text fontWeight="1000" color="yellow.900" fontSize="md">
+                  ₹{val.toLocaleString()}
+                </Text>
+              </Box>
+              {stores.auth.hasPermission('workdone', 'edit') && (
+                <Tooltip label="Edit Bill Amount" hasArrow>
+                  <IconButton
+                    aria-label="Edit Bill"
+                    icon={<FiEdit2 />}
+                    size="xs"
+                    colorScheme="yellow"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingBillRecord(dt);
+                      setEditBillAmount(val.toString());
+                      setIsEditBillModalOpen(true);
+                    }}
+                  />
+                </Tooltip>
+              )}
+            </HStack>
           );
         }
       }
@@ -591,37 +657,32 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 />
               </HStack>
 
-              <HStack 
-                spacing={0} 
-                p={1} 
-                bg="white" 
-                borderRadius="2xl" 
-                border="1px solid" 
-                borderColor="gray.100" 
-                shadow="sm"
-                transition="all 0.2s"
-                _hover={{ borderColor: "blue.200", shadow: "md" }}
-              >
-                <Box px={3} borderRight="1px solid" borderColor="gray.100">
-                  <Icon as={FiFilter} color="blue.500" />
-                </Box>
-                <Select
-                  size="md"
-                  variant="unstyled"
-                  fontWeight="800"
-                  color="blue.600"
-                  w="220px"
-                  px={4}
-                  value={doctorFilter}
-                  onChange={(e) => setDoctorFilter(e.target.value)}
-                  cursor="pointer"
-                >
-                  <option value="all">Show All Doctors</option>
-                  {doctorsList.map(doc => (
-                    <option key={doc.id} value={doc.id}>Dr. {doc.name}</option>
-                  ))}
-                </Select>
-              </HStack>
+              <Box w="250px" zIndex={10}>
+                {(() => {
+                  const selectOptions = doctorsList.map(doc => ({
+                    label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`, // Prevent double "Dr. Dr."
+                    value: doc.id
+                  }));
+                  const selectedValue = doctorFilter !== "all" ? selectOptions.find(opt => opt.value === doctorFilter) : null;
+
+                  return (
+                    <CustomInput
+                      name="doctorFilter"
+                      type="select"
+                      placeholder="Filter by Doctor..."
+                      isClear={true}
+                      isSearchable={true}
+                      isPortal={true}
+                      value={selectedValue}
+                      onChange={(selectedOption: any) => {
+                        setDoctorFilter(selectedOption ? selectedOption.value : "all");
+                        setCurrentPage(1);
+                      }}
+                      options={selectOptions}
+                    />
+                  );
+                })()}
+              </Box>
 
               <HStack 
                 display="none"
@@ -988,6 +1049,24 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               Discard
             </Button>
             <Button 
+              bgGradient="linear(to-r, teal.500, teal.700)" 
+              color="white"
+              _hover={{ bgGradient: "linear(to-r, teal.600, teal.800)", shadow: "xl", transform: "scale(1.02)" }}
+              _active={{ transform: "scale(0.98)" }}
+              onClick={handleDownloadReceiptsLog} 
+              isLoading={isDownloadingReceipts} 
+              rightIcon={<FiEye />}
+              borderRadius="2xl"
+              px={6}
+              mr={4}
+              h="55px"
+              fontWeight="900"
+              fontSize="md"
+              shadow="lg"
+            >
+              Receipts Log
+            </Button>
+            <Button 
               bgGradient="linear(to-r, blue.500, blue.700)" 
               color="white"
               _hover={{ bgGradient: "linear(to-r, blue.600, blue.800)", shadow: "xl", transform: "scale(1.02)" }}
@@ -1281,6 +1360,46 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+      <Modal isOpen={isEditBillModalOpen} onClose={() => setIsEditBillModalOpen(false)} isCentered size="sm">
+        <ModalOverlay backdropFilter="blur(5px)" />
+        <ModalContent borderRadius="2xl" p={2}>
+          <ModalHeader borderBottom="1px solid" borderColor="gray.100">
+            <VStack align="start" spacing={0}>
+              <Text fontSize="xs" fontWeight="black" color="yellow.500" letterSpacing="0.1em">EDIT TOTAL BILL</Text>
+              <Text fontSize="md" fontWeight="bold">Modify Bill Amount</Text>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6}>
+            <FormControl>
+              <FormLabel fontSize="xs" fontWeight="bold" color="gray.500">New Total Bill Amount (₹)</FormLabel>
+              <Input
+                type="number"
+                value={editBillAmount}
+                onChange={(e) => setEditBillAmount(e.target.value)}
+                placeholder="Enter amount"
+                size="lg"
+                fontWeight="bold"
+                borderRadius="xl"
+                bg="gray.50"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter borderTop="1px solid" borderColor="gray.100">
+            <Button variant="ghost" mr={3} onClick={() => setIsEditBillModalOpen(false)} borderRadius="xl">Cancel</Button>
+            <Button
+              colorScheme="yellow"
+              onClick={handleSaveTotalBill}
+              isLoading={isSavingBill}
+              borderRadius="xl"
+              px={6}
+            >
+              Save Changes
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       <ReceiptPreviewDrawer 
         isOpen={isPreviewOpen} 
         onClose={() => {

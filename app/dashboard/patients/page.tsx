@@ -42,7 +42,7 @@ const PatientPage = () => {
         ...values,
         ...(replaceLabelValueObjects(values) || {}),
         pic: formData?.pic || {},
-        title: formData?.data,
+        title: formData?.title?.label || formData?.title?.value || formData?.title,
         mobileNumber:
           formData.phones.find((it: any) => it.primary === true).number ||
           undefined,
@@ -121,8 +121,8 @@ const PatientPage = () => {
         formData.emails.find((it: any) => it.primary === true).email ||
         undefined,
       pic: formData?.pic,
-      title: formData?.title?.label || titles[0].label,
-      gender: formData?.gender?.value || 1,
+      title: formData?.title?.label || formData?.title?.value || formData?.title,
+      gender: formData?.gender?.value || formData?.gender || 1,
     })
       .then(() => {
         getAllUsers({ page: 1, limit: tablePageLimit, type: "patient" });

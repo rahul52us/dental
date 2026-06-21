@@ -49,9 +49,6 @@ const LabSheetView = observer(({ data }: { data: any }) => {
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("Lab Order Details", 14, 20);
-    
-    doc.setFontSize(12);
-    doc.text(`Order ID: ${data._id?.slice(-8).toUpperCase()}`, 14, 28);
 
     const tableData: any[] = [];
     tableData.push([
@@ -70,7 +67,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
     ]);
 
     autoTable(doc, {
-      startY: 35,
+      startY: 25, // Adjusted to move the first table up slightly since Order ID is gone
       head: [["Field", "Details", "Field", "Details"]],
       body: tableData,
       theme: 'grid',
@@ -84,7 +81,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       }
     });
 
-    let currentY = (doc as any).lastAutoTable.finalY + 10;
+    let currentY = (doc as any).lastAutoTable.finalY + 5;
 
     // Selected Works & Specifications
     if (data.selectedWorks && data.selectedWorks.length > 0) {
@@ -98,7 +95,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       ]);
 
       autoTable(doc, {
-        startY: currentY + 5,
+        startY: currentY + 2,
         head: [["Classification", "Teeth #", "Shade"]],
         body: worksData,
         theme: 'grid',
@@ -106,7 +103,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         bodyStyles: { fontStyle: 'bold', fontSize: 10 },
         styles: { fontSize: 10, cellPadding: 1.5, textColor: [0, 0, 0] },
       });
-      currentY = (doc as any).lastAutoTable.finalY + 10;
+      currentY = (doc as any).lastAutoTable.finalY + 5;
     }
 
     // Received Items

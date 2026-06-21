@@ -26,9 +26,9 @@ export const generateIntialValues = (initialData: any = {}) => {
             refrenceNote: initialData?.refrenceNote || ""
           }]
         : [{ refrenceBy: null, refrenceNote: "" }],
-    gender:
-      genderOptions.find((it: any) => it.value === initialData?.gender) ||
-      genderOptions[0],
+    gender: initialData?.gender
+      ? genderOptions.find((it: any) => it.value === initialData?.gender) || null
+      : null,
     vaccinations: Array.isArray(initialData?.vaccinations)
       ? initialData.vaccinations.map((it: any) => ({
           ...it,
@@ -47,8 +47,11 @@ export const generateIntialValues = (initialData: any = {}) => {
           ...it
         }))
       : [],
-    title:
-     initialData?.title?.value  ?  titles[0] : {label : initialData?.title, value : initialData?.title},
+    title: initialData?.title
+      ? typeof initialData.title === "object"
+        ? initialData.title
+        : { label: initialData.title, value: initialData.title }
+      : null,
   };
 };
 

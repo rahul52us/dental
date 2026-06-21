@@ -190,6 +190,19 @@ class WorkDoneStore {
     }
   };
 
+  updateTotalBillAmount = async (id: string, amount: number) => {
+    try {
+      const { data } = await axios.put(`/workDone/update-amount/${id}`, { amount });
+      const index = this.workDone.data.findIndex(item => item._id === id);
+      if (index !== -1) {
+        this.workDone.data[index] = { ...this.workDone.data[index], amount };
+      }
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   deleteWorkDone = async (workDoneId: string) => {
     try {
       const { data } = await axios.delete(`/workDone/${workDoneId}`);
@@ -220,6 +233,25 @@ class WorkDoneStore {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  /**
+   * FETCH RECEIPTS LOG BASE64 (FOR PREVIEW)
+   */
+  fetchReceiptsLogBase64 = async (patientId: string, filters: any = {}) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.get(`/workDone/generate-receipts-log/${patientId}`, {
+        params: {
+          company: compId,
+          ...filters
+        }
+      });
+      return data.data; // Base64 string
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
     }
   };
 

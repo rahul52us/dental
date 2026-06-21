@@ -796,6 +796,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     <AppointmentList
                         isPatient={true}
                         patientDetails={openAppointment.data}
+                        defaultOpenCalendar={true}
                     />
                 </CustomDrawer>
             )}

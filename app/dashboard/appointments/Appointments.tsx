@@ -43,7 +43,7 @@ import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
 import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
 import { FaClipboardList } from "react-icons/fa";
 
-const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: any) => {
+const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, defaultOpenCalendar = false }: any) => {
   const {
     DoctorAppointment: {
       getDoctorAppointment,
@@ -56,7 +56,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails }: 
   const [createdAppointmentByCalender, setCreatedAppointmentByCalender] =
     useState(false);
   const [openReportModal, setOpenReportModal] = useState({
-    open: false,
+    open: defaultOpenCalendar,
     type: "add",
   });
 

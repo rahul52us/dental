@@ -12,7 +12,7 @@ export const initialValues = {
   name: "",
 
   dob:"",
-  gender:genderOptions[0],
+  gender: null,
   languages: ['english'],
   addresses: {
     residential: "",

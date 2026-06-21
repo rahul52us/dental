@@ -217,11 +217,11 @@ const Form = observer(
                         >
                           <Flex align={"end"} gap={2}>
                             <CustomInput
+                              type="select"
                               label="Title"
                               name="title"
-                              type="select"
+                              required={true}
                               options={getMasterOptions("titles")}
-                              required={false}
                               value={values.title}
                               onChange={(e: any) => setFieldValue("title", e)}
                               error={errors.title && touched.title}
