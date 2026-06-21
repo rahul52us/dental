@@ -192,6 +192,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
         if (type === "real-time-user-search") {
           const response: any = await stores.auth.getCompanyUsers({
             page: 1,
+            limit: 20,
             searchValue: searchValue,
             isActive: true,
             ...query

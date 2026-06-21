@@ -236,6 +236,35 @@ class WorkDoneStore {
     }
   };
 
+  fetchGlobalAccountability = async (filters: any = {}) => {
+    try {
+      this.workDone.loading = true;
+      const { data } = await axios.post(`/workDone/global-accountability`, filters);
+      if (data.status === "success") {
+        this.workDone.loading = false;
+        return data.data;
+      }
+      this.workDone.loading = false;
+      return null;
+    } catch (err: any) {
+      this.workDone.loading = false;
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  fetchGlobalAccountabilityReportBase64 = async (filters: any = {}) => {
+    try {
+      const { data } = await axios.post(`/workDone/generate-global-accountability-report`, filters);
+      if (data.status === "error") {
+        throw new Error(data.message || "Failed to fetch report");
+      }
+      return data.data; // Base64 string
+    } catch (error) {
+      console.error("Error fetching global accountability report:", error);
+      throw error;
+    }
+  };
+
   /**
    * FETCH RECEIPTS LOG BASE64 (FOR PREVIEW)
    */

@@ -243,6 +243,13 @@ const sidebarDatas: SidebarItem[] = [
     permission: { module: "reports", action: "sidebar" },
   },
   {
+    id: 48,
+    name: "Global Accountability",
+    icon: <FaListAlt />,
+    url: "/dashboard/global-accountability",
+    role: ["admin", "superAdmin", "staff"],
+  },
+  {
     id: 43,
     name: "Historical Records",
     icon: <FaClipboardList />,
