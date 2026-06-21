@@ -8,7 +8,7 @@ export const titles = [
 ]
 
 export const initialValues = {
-  title: titles[0],
+  title: null,
   name: "",
 
   dob:"",

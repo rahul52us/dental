@@ -60,23 +60,13 @@ const LabSheetView = observer(({ data }: { data: any }) => {
     ]);
 
     tableData.push([
-      "Work Type", data.workType ? data.workType.toUpperCase() : "N/A",
-      "Lab", data.lab?.name || data.labNameManual || "In-house"
-    ]);
-
-    const dateLabel = data.workType === "in-house" ? "Send Date" : "Received Date";
-    const dateVal = data.workType === "in-house" 
-      ? (data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent")
-      : (data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received");
-
-    tableData.push([
-      dateLabel, dateVal,
+      "Received Date", data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received",
       "Due Date", data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"
     ]);
 
     tableData.push([
       "Lab Instructions", data.labInstructions || "None",
-      "", ""
+      "Send Date", data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : ""
     ]);
 
     autoTable(doc, {
@@ -84,13 +74,13 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       head: [["Field", "Details", "Field", "Details"]],
       body: tableData,
       theme: 'grid',
-      headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], cellPadding: 1.5 },
+      headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], cellPadding: 1.5, fontStyle: 'normal' },
       styles: { fontSize: 10, cellPadding: 1.5, textColor: [0, 0, 0] },
       columnStyles: { 
-        0: { fontStyle: 'bold', cellWidth: 35 },
-        1: { cellWidth: 55 },
-        2: { fontStyle: 'bold', cellWidth: 35 },
-        3: { cellWidth: 55 }
+        0: { fontStyle: 'normal', cellWidth: 35 },
+        1: { fontStyle: 'bold', cellWidth: 55 },
+        2: { fontStyle: 'normal', cellWidth: 35 },
+        3: { fontStyle: 'bold', cellWidth: 55 }
       }
     });
 
@@ -98,7 +88,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
     // Selected Works & Specifications
     if (data.selectedWorks && data.selectedWorks.length > 0) {
-      doc.setFontSize(11);
+      doc.setFontSize(9);
       doc.text("Selected Works & Specifications", 14, currentY);
       
       const worksData = data.selectedWorks.map((work: any) => [
@@ -112,8 +102,9 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         head: [["Classification", "Teeth #", "Shade"]],
         body: worksData,
         theme: 'grid',
-        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], cellPadding: 1.5 },
-        styles: { fontSize: 8, cellPadding: 1.5, textColor: [0, 0, 0] },
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], cellPadding: 1.5, fontStyle: 'bold', fontSize: 10 },
+        bodyStyles: { fontStyle: 'bold', fontSize: 10 },
+        styles: { fontSize: 10, cellPadding: 1.5, textColor: [0, 0, 0] },
       });
       currentY = (doc as any).lastAutoTable.finalY + 10;
     }

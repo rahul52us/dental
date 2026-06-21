@@ -2,7 +2,7 @@
 import * as Yup from "yup";
 
 export const createValidationSchema = Yup.object({
-  title: Yup.mixed().required("Title is required"),
+  title: Yup.mixed().nullable(),
   pic: Yup.mixed(),
   gender: Yup.mixed().required("Gender is required"),
   dob: Yup.mixed(),
@@ -31,7 +31,7 @@ export const createValidationSchema = Yup.object({
 });
 
 export const updateValidationSchema = Yup.object({
-  title: Yup.mixed().required("Title is required"),
+  title: Yup.mixed().nullable(),
     name: Yup.string().required("Name is required"),
   pic: Yup.mixed(),
   gender: Yup.mixed().required("Gender is required"),

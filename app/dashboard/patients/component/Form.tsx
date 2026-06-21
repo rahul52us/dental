@@ -221,7 +221,7 @@ const Form = observer(
                               name="title"
                               type="select"
                               options={getMasterOptions("titles")}
-                              required={true}
+                              required={false}
                               value={values.title}
                               onChange={(e: any) => setFieldValue("title", e)}
                               error={errors.title && touched.title}
