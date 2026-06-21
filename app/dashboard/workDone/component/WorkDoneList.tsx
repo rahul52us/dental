@@ -181,7 +181,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [countSearch, setCountSearch] = useState("");
   const [backendCounts, setBackendCounts] = useState<any[]>([]);
   const [isCounting, setIsCounting] = useState(false);
-  
+
   const [searchTooth, setSearchTooth] = useState("");
   const [debouncedSearchTooth, setDebouncedSearchTooth] = useState("");
   const [sittingNoSearch, setSittingNoSearch] = useState<any[]>([]);
@@ -221,7 +221,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
     if (debouncedSittingNoSearch && debouncedSittingNoSearch.length > 0) {
       params.sittingNo = debouncedSittingNoSearch.map((s: any) => s.value || s).join(',');
     }
-    
+
     getWorkDone(params).catch((err) => {
       openNotification({
         type: "error",
@@ -615,8 +615,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               onChange={(val: any) => setSittingNoSearch(val)}
               options={[]}
               styles={{
-                control: (base) => ({ 
-                  ...base, 
+                control: (base) => ({
+                  ...base,
                   minHeight: '32px',
                   borderRadius: '12px',
                   fontSize: '11px',

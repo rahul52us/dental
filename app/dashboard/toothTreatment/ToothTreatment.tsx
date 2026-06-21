@@ -111,7 +111,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   const [sittingNoSearch, setSittingNoSearch] = useState<any[]>([]);
   const [complaintTypeFilter, setComplaintTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  
+
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
   const [backendCounts, setBackendCounts] = useState<any[]>([]);
@@ -488,6 +488,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             }
           };
 
+          if (dt.complaintType?.toUpperCase() === "EXISTING FINDING") {
+            return <Box px={3} py={1} fontSize="sm" color="gray.400">--</Box>;
+          }
+
           return (
             <Box
               px={3}
@@ -695,9 +699,11 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                   {dt.complaintType?.toUpperCase()}
                 </Badge>
               )}
-              <Badge colorScheme={color} variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
-                {dt.status?.toUpperCase() || "PENDING"}
-              </Badge>
+              {dt.complaintType?.toUpperCase() !== "EXISTING FINDING" && (
+                <Badge colorScheme={color} variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
+                  {dt.status?.toUpperCase() || "PENDING"}
+                </Badge>
+              )}
               {(dt.estimateMin || dt.estimateMax) && (
                 <Badge colorScheme="blue" variant="outline" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
                   ₹{dt.estimateMin || 0} - ₹{dt.estimateMax || 0}
