@@ -63,7 +63,7 @@ const WorkDoneTable = observer(() => {
     <Box p={4}>
       <CustomTable
         title="Work Done"
-        serial={{ show: true }}
+        serial={{ show: false }}
         columns={columns}
         data={oldDataStore.workComp}
         loading={oldDataStore.loading}

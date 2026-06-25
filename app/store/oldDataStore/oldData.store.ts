@@ -31,6 +31,7 @@ export default class OldDataStore {
   }
 
   setSearchQuery(query: string) {
+    if (this.searchQuery === query) return;
     this.searchQuery = query;
     // Reset pages when search changes
     this.workCompPage = 1;

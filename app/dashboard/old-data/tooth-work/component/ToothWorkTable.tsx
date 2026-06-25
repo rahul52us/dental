@@ -63,7 +63,7 @@ const ToothWorkTable = observer(() => {
     <Box p={4}>
       <CustomTable
         title="Tooth Work"
-        serial={{ show: true }}
+        serial={{ show: false }}
         columns={columns}
         data={oldDataStore.toothWork}
         loading={oldDataStore.loading}

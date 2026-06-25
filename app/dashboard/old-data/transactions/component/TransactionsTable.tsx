@@ -62,7 +62,7 @@ const TransactionsTable = observer(() => {
     <Box p={4}>
       <CustomTable
         title="Transactions"
-        serial={{ show: true }}
+        serial={{ show: false }}
         columns={columns}
         data={oldDataStore.transactions}
         loading={oldDataStore.loading}
