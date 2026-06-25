@@ -20,6 +20,7 @@ import { tablePageLimit } from "../../component/config/utils/variable";
 import { observer } from "mobx-react-lite";
 import CustomDrawer from "../../component/common/Drawer/CustomDrawer";
 import LineItems from "./component/LineItems/LineItems";
+import { useTranslation } from "react-i18next";
 
 const LabPage = observer(() => {
   const [formLoading, setFormLoading] = useState(false);
@@ -36,6 +37,7 @@ const LabPage = observer(() => {
   });
 
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleAddSubmit = async (formData: any) => {
     try {
@@ -48,16 +50,16 @@ const LabPage = observer(() => {
       getLabs({ page: 1, limit: tablePageLimit });
       setIsDrawerOpen({ isOpen: false, type: "add", data: null });
       toast({
-        title: "Lab Added",
-        description: `${formData.name} has been successfully added.`,
+        title: t("labs.page.labAdded"),
+        description: t("labs.page.hasBeenAdded", { name: formData.name }),
         status: "success",
         duration: 5000,
         isClosable: true,
       });
     } catch (err: any) {
       toast({
-        title: "Failed to create",
-        description: err?.message || "Something went wrong",
+        title: t("labs.page.failedToCreate"),
+        description: err?.message || t("labs.page.somethingWentWrong"),
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -77,16 +79,16 @@ const LabPage = observer(() => {
       getLabs({ page: 1, limit: tablePageLimit });
       setIsDrawerOpen({ isOpen: false, type: "add", data: null });
       toast({
-        title: "Lab Updated",
-        description: `${values.name} has been successfully updated.`,
+        title: t("labs.page.labUpdated"),
+        description: t("labs.page.hasBeenUpdated", { name: values.name }),
         status: "success",
         duration: 5000,
         isClosable: true,
       });
     } catch (err: any) {
       toast({
-        title: "Failed to update",
-        description: err?.message || "Something went wrong",
+        title: t("labs.page.failedToUpdate"),
+        description: err?.message || t("labs.page.somethingWentWrong"),
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -101,8 +103,8 @@ const LabPage = observer(() => {
     try {
       await deleteLab({ id : data._id, deleted: status });
       toast({
-        title: "Lab Deleted",
-        description: `${data?.name} has been deleted successfully.`,
+        title: t("labs.page.labDeleted"),
+        description: t("labs.page.hasBeenDeleted", { name: data?.name }),
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -111,8 +113,8 @@ const LabPage = observer(() => {
       setIsDrawerOpen({ isOpen: false, type: "add", data: null });
     } catch (err: any) {
       toast({
-        title: "Delete Failed",
-        description: err?.message || "Something went wrong",
+        title: t("labs.page.deleteFailed"),
+        description: err?.message || t("labs.page.somethingWentWrong"),
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -171,7 +173,7 @@ const LabPage = observer(() => {
                 fontWeight="bold"
                 textAlign="center"
               >
-                {isDrawerOpen?.type === "edit" ? "Edit Lab" : "Add Lab"}
+                {isDrawerOpen?.type === "edit" ? t("labs.page.editLab") : t("labs.page.addLab")}
               </DrawerHeader>
               <DrawerBody p={6} bg="gray.50">
                 <Form

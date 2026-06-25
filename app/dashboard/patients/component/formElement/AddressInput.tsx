@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, SimpleGrid, Text, useColorModeValue } from "@chakra-ui/react";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { useTranslation } from "react-i18next";
 
 interface AddressesInputProps {
   values: {
@@ -22,6 +23,7 @@ const AddressesInput = ({
 }: AddressesInputProps) => {
   const bgBox = useColorModeValue("white", "darkBrand.100");
   const textColor = useColorModeValue("black", "white");
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -33,31 +35,31 @@ const AddressesInput = ({
       p={4}
     >
       <Text fontWeight="bold" fontSize="lg" mb={4} color={textColor}>
-        Addresses
+        {t("patients.form.addresses")}
       </Text>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
         <CustomInput
-          label="Residential Address"
+          label={t("patients.form.residentialAddress")}
           name="addresses.residential"
-          placeholder="Enter Residential Address"
+          placeholder={t("patients.form.enterResidentialAddress")}
           value={values.addresses?.residential}
           onChange={handleChange}
           error={errors?.addresses?.residential}
           showError={errors?.addresses?.residential}
         />
         <CustomInput
-          label="Office Address"
+          label={t("patients.form.officeAddress")}
           name="addresses.office"
-          placeholder="Enter Office Address"
+          placeholder={t("patients.form.enterOfficeAddress")}
           value={values.addresses?.office}
           onChange={handleChange}
           error={errors?.addresses?.office}
           showError={errors?.addresses?.office}
         />
         <CustomInput
-          label="Other Address"
+          label={t("patients.form.otherAddress")}
           name="addresses.other"
-          placeholder="Enter Other Address (optional)"
+          placeholder={t("patients.form.enterOtherAddress")}
           value={values.addresses?.other || ""}
           onChange={handleChange}
           error={errors?.addresses?.other}

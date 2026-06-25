@@ -14,6 +14,7 @@ import {
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { useTranslation } from "react-i18next";
 
 interface Phone {
   number: string;
@@ -32,6 +33,7 @@ const PhoneNumbersInput = ({
   setFieldValue,
   errors,
 }: PhoneNumbersInputProps) => {
+  const { t } = useTranslation();
   const bgBox = useColorModeValue("white", "darkBrand.100");
   const borderColor = useColorModeValue("gray.200", "darkBrand.200");
   const textColor = useColorModeValue("black", "white");
@@ -55,9 +57,9 @@ const PhoneNumbersInput = ({
   return (
     <FieldArray name="phones">
       {({ remove, push }) => (
-        <Box bg={bgBox} p={4} borderRadius="md" boxShadow="md">
-          <Text fontWeight="bold" fontSize="lg" mb={4} color={textColor}>
-            Phone Numbers
+        <Box bg="white" p={4} borderRadius="md" boxShadow="md">
+          <Text fontWeight="bold" fontSize="lg" mb={4}>
+            {t("common.form.phoneNumbers")}
           </Text>
 
           <RadioGroup
@@ -88,7 +90,7 @@ const PhoneNumbersInput = ({
                     <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
                       <Flex gap={2}>
                         {" "}
-                        <Text> phone entered </Text>
+                        <Text> {t("common.form.phoneEntered")} </Text>
                         {phone.primary && (
                           <Text as="span" color="red">
                             {" "}
@@ -99,20 +101,20 @@ const PhoneNumbersInput = ({
                     </Text>
                     {phone.primary && (
                       <Badge
-                        colorScheme="brand"
+                        bg="#FED7E2" color="#1A202C"
                         ml={2}
                         fontSize="0.75rem"
                         py={1}
                         px={2}
                       >
-                        Primary
+                        {t("common.form.primary")}
                       </Badge>
                     )}
                   </Flex>
 
                   <CustomInput
                     name={`phones[${index}].number`}
-                    placeholder="Enter phone number"
+                    placeholder={t("common.form.enterPhoneNumber")}
                     type="text"
                     value={phone.number}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -132,7 +134,7 @@ const PhoneNumbersInput = ({
                     isDisabled={!canRemove(index)}
                     title={
                       !canRemove(index)
-                        ? "Cannot remove primary phone. Select another primary first."
+                        ? t("common.form.cannotRemovePrimaryPhone")
                         : undefined
                     }
                     float="right"
@@ -150,7 +152,7 @@ const PhoneNumbersInput = ({
               push({ number: "", primary: values.phones.length === 0 })
             }
           >
-            Add Phone
+            {t("common.form.addPhone")}
           </Button>
         </Box>
       )}

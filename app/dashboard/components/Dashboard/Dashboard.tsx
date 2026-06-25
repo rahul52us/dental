@@ -42,6 +42,7 @@ import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
 import stores from "../../../store/stores";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import DarkSkeleton from "../common/DarkSkeleton";
 import VideoUploader from "./VideoUpload";
@@ -105,16 +106,17 @@ const Dashboard = observer(() => {
     dashboardStore: { getDashboardCount, count },
     auth: { user }
   } = stores;
+  const { t } = useTranslation();
 
   useEffect(() => {
     getDashboardCount();
   }, [getDashboardCount]);
   const dashboardData = [
-    { label: "Doctors", value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors", show: stores.auth.hasPermission('doctor', 'view') },
-    { label: "Patients", value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients", show: stores.auth.hasPermission('patient', 'view') },
-    { label: "Appointments", value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments", show: stores.auth.hasPermission('appointment', 'view') },
-    { label: "Staff", value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs", show: stores.auth.hasPermission('staffs', 'view') },
-    { label: "Dealers", value: count?.data?.dealers || 0, icon: FaStore, color: "blue", href: "/dashboard/dealers", show: stores.auth.hasPermission('masters', 'view') },
+    { label: t("dashboard.doctors"), value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors", show: stores.auth.hasPermission('doctor', 'view') },
+    { label: t("dashboard.patients"), value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients", show: stores.auth.hasPermission('patient', 'view') },
+    { label: t("dashboard.appointments"), value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments", show: stores.auth.hasPermission('appointment', 'view') },
+    { label: t("dashboard.staff"), value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs", show: stores.auth.hasPermission('staffs', 'view') },
+    { label: t("dashboard.dealers"), value: count?.data?.dealers || 0, icon: FaStore, color: "blue", href: "/dashboard/dealers", show: stores.auth.hasPermission('masters', 'view') },
   ].filter(item => item.show !== false);
 
   const weeklyGrowthData = useMemo(() => {
@@ -125,7 +127,7 @@ const Dashboard = observer(() => {
         return date.toLocaleDateString('en-US', { weekday: 'short' });
       }),
       datasets: [{
-        label: "New Users",
+        label: t("dashboard.newUsers"),
         data: growth.map((g: any) => g.count),
         backgroundColor: stores.themeStore.themeConfig.colors.custom.light.primary + "CC",
         borderRadius: 8,
@@ -144,7 +146,7 @@ const Dashboard = observer(() => {
       }),
       datasets: [
         {
-          label: "Completed Appointments",
+          label: t("dashboard.completedAppointments"),
           data: trends.map((t: any) => t.count),
           borderColor: "#2D3748",
           backgroundColor: "rgba(49, 151, 149, 0.2)",
@@ -172,9 +174,9 @@ const Dashboard = observer(() => {
           <Box>
             <Text fontSize="xs" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} textTransform="uppercase" letterSpacing="widest" mb={1}>{currentDate}</Text>
             <Heading size="xl" letterSpacing="tight" color={useColorModeValue("gray.900", "white")}>
-              Welcome back, {user?.name?.split(' ')[0] || "Admin"}! 👋
+              {t("dashboard.welcomeBack", { name: user?.name?.split(' ')[0] || "Admin" })}
             </Heading>
-            <Text color="gray.500" fontWeight="600" mt={1}>Here is your clinic analytics overview.</Text>
+            <Text color="gray.500" fontWeight="600" mt={1}>{t("dashboard.analyticsOverview")}</Text>
           </Box>
         </Flex>
 
@@ -191,8 +193,8 @@ const Dashboard = observer(() => {
             <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
               <Flex justify="space-between" align="center" mb={8}>
                 <Box>
-                  <Text fontSize="xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary}>Weekly Growth</Text>
-                  <Text fontSize="xs" color="gray.500" fontWeight="700">New arrivals across all categories</Text>
+                  <Text fontSize="xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary}>{t("dashboard.weeklyGrowth")}</Text>
+                  <Text fontSize="xs" color="gray.500" fontWeight="700">{t("dashboard.newArrivals")}</Text>
                 </Box>
                 <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
                   <Icon as={FaClipboardList} boxSize={5} />
@@ -208,8 +210,8 @@ const Dashboard = observer(() => {
             <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
               <Flex justify="space-between" align="center" mb={8}>
                 <Box>
-                  <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Patient Retention</Text>
-                  <Text fontSize="xs" color="gray.500" fontWeight="700">Clinical performance trend</Text>
+                  <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">{t("dashboard.patientRetention")}</Text>
+                  <Text fontSize="xs" color="gray.500" fontWeight="700">{t("dashboard.performanceTrend")}</Text>
                 </Box>
                 <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
                   <Icon as={FaCalendarAlt} boxSize={5} />
@@ -224,11 +226,11 @@ const Dashboard = observer(() => {
         {/* <VideoUploader /> */}
         <DarkSkeleton isLoaded={!count?.loading}>
           <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
-            <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">REAL-TIME MONITOR</Box>
+            <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">{t("dashboard.realTimeMonitor")}</Box>
             <Flex justify="space-between" align="center" mb={12} pt={4}>
               <Box>
-                <Text fontSize="2xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>Live Clinic Activity</Text>
-                <Text fontSize="sm" color="gray.500" fontWeight="700">Detailed overview of latest user registrations and registrations times.</Text>
+                <Text fontSize="2xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>{t("dashboard.liveClinicActivity")}</Text>
+                <Text fontSize="sm" color="gray.500" fontWeight="700">{t("dashboard.detailedOverview")}</Text>
               </Box>
             </Flex>
 
@@ -286,7 +288,7 @@ const Dashboard = observer(() => {
                         <Divider my={4} opacity={0.3} />
                         <Flex align="center" gap={1}>
                           <Box boxSize={1.5} borderRadius="full" bg="green.400" boxShadow="0 0 8px #48BB78" />
-                          <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Status: Active</Text>
+                          <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">{t("dashboard.statusActive")}</Text>
                         </Flex>
                       </Box>
                     </Flex>

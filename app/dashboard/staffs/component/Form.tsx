@@ -37,6 +37,7 @@ import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import MasterDataForm from "../../masters/page";
 import { calculateAgeSafe } from "../../../config/utils/function";
 import PermissionsSelector, { MODULES } from "./staffs/PermissionsSelector";
+import { useTranslation } from "react-i18next";
 
 const getDefaultPermissions = () => {
   const perms: any = {};
@@ -65,6 +66,7 @@ const Form = observer(
 
     const bgBox = useColorModeValue("white", "darkBrand.100");
     const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+    const { t } = useTranslation();
 
     const handleCloseDrawer = async () => {
       setIsDrawerOpen(false);
@@ -113,7 +115,7 @@ const Form = observer(
                     <GridItem colSpan={2} display={{ base: "none", md: "block" }}>
                       <Flex justify="space-between" align="center" mb={4}>
                         <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-                          {isEdit ? "Edit Staff" : "New Staff"}
+                          {isEdit ? t("staffs.form.editStaff") : t("staffs.form.newStaff")}
                         </Text>
                         <HStack spacing={3}>
                           <Button
@@ -124,7 +126,7 @@ const Form = observer(
                             px={6}
                             borderRadius="xl"
                           >
-                            Cancel
+                            {t("staffs.form.cancel")}
                           </Button>
                           <Button
                             type="submit"
@@ -140,7 +142,7 @@ const Form = observer(
                               transform: "translateY(-1px)",
                             }}
                           >
-                            {initialData?._id || isEdit ? "Update" : "Save"}
+                            {initialData?._id || isEdit ? t("staffs.form.update") : t("staffs.form.save")}
                           </Button>
                         </HStack>
                       </Flex>
@@ -154,7 +156,7 @@ const Form = observer(
                         mb={4}
                         display={{ base: "block", md: "none" }}
                       >
-                        Personal Information
+                        {t("staffs.form.personalInformation")}
                       </Text>
 
                       <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
@@ -207,7 +209,7 @@ const Form = observer(
                         >
                           <Flex align={"end"} gap={2}>
                             <CustomInput
-                              label="Title"
+                              label={t("staffs.form.title")}
                               name="title"
                               type="select"
                               options={getMasterOptions("titles")}
@@ -226,9 +228,9 @@ const Form = observer(
                             />
                           </Flex>
                           <CustomInput
-                            label="Name"
+                            label={t("staffs.form.nameLabel")}
                             name="name"
-                            placeholder="Enter Name"
+                            placeholder={t("staffs.form.enterName")}
                             value={values.name}
                             required={true}
                             onChange={handleChange}
@@ -236,7 +238,7 @@ const Form = observer(
                             showError={errors.name && touched.name}
                           />
                           <CustomInput
-                            label="Date Of birth"
+                            label={t("staffs.form.dob")}
                             type="date"
                             name={`dob`}
                             value={values.dob || ""}
@@ -246,15 +248,15 @@ const Form = observer(
                             showError={errors?.dob}
                           />
                           <CustomInput
-                            label="Age"
+                            label={t("staffs.form.age")}
                             name="age"
                             type="number"
                             value={calculateAgeSafe(values?.dob) ?? ""}
                             disabled={true}
-                            placeholder="Auto calculated"
+                            placeholder={t("staffs.form.autoCalculated")}
                           />
                           <CustomInput
-                            label="Gender"
+                            label={t("staffs.form.gender")}
                             name="gender"
                             type="select"
                             options={genderOptions}
@@ -265,9 +267,9 @@ const Form = observer(
                             showError={errors.gender}
                           />
                           <CustomInput
-                            label="Languages"
+                            label={t("staffs.form.languages")}
                             name="languages"
-                            placeholder="Add Language"
+                            placeholder={t("staffs.form.addLanguage")}
                             value={values.languages}
                             onChange={(newTags: any) =>
                               setFieldValue("languages", newTags)
@@ -288,10 +290,10 @@ const Form = observer(
                           p={3}
                         >
                           <CustomInput
-                            label="Special Details"
+                            label={t("staffs.form.specialDetails")}
                             name="bio"
                             type="textarea"
-                            placeholder="Enter Special Details"
+                            placeholder={t("staffs.form.enterSpecialDetails")}
                             // required={true}
                             value={values.bio}
                             onChange={handleChange}
@@ -351,7 +353,7 @@ const Form = observer(
                     <GridItem colSpan={2}>
                       <Box p={4} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor}>
                         <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.800">
-                          Access & Permissions
+                          {t("staffs.form.accessAndPermissions")}
                         </Text>
                         <PermissionsSelector
                           permissions={values.permissions || getDefaultPermissions()}
@@ -375,7 +377,7 @@ const Form = observer(
                       flex={1}
                       borderRadius="xl"
                     >
-                      Cancel
+                      {t("staffs.form.cancel")}
                     </Button>
                     <Button
                       type="submit"
@@ -386,7 +388,7 @@ const Form = observer(
                       borderRadius="xl"
                       shadow="md"
                     >
-                      {initialData?._id || isEdit ? "Update" : "Save"}
+                      {initialData?._id || isEdit ? t("staffs.form.update") : t("staffs.form.save")}
                     </Button>
                   </HStack>
                 </FormikForm>

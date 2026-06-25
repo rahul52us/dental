@@ -18,16 +18,18 @@ import stores from "../../../../store/stores";
 import { status } from "../utils/constant";
 import { replaceLabelValueObjects } from "../../../../config/utils/function";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 /* -------------------------------------------------
    Validation
 ------------------------------------------------- */
 const RecallAppointmentValidation = Yup.object().shape({
-  patient: Yup.object().required("Patient is required"),
+  patient: Yup.object().required(i18next.t("recall.form.patientRequired")),
   doctor: Yup.object().nullable(),
   appointment: Yup.object().nullable(),
   recallDate: Yup.date().nullable(),
-  reason: Yup.string().required("Reason is required"),
+  reason: Yup.string().required(i18next.t("recall.form.reasonRequired")),
   status: Yup.mixed(),
   startTime: Yup.string().nullable(),
   endTime: Yup.string().nullable(),
@@ -53,6 +55,7 @@ const RecallAppointmentForm = observer(
       auth: { openNotification },
     } = stores;
     const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
 
     return (
       <Formik
@@ -73,8 +76,8 @@ const RecallAppointmentForm = observer(
                   setLoading(false);
                   openNotification({
                     type: "success",
-                    title: "Update SUCCESSFULLY",
-                    message: "Recall Appointment has been updated Successfully",
+                    title: t("recall.form.updateSuccessfully"),
+                    message: t("recall.form.updateMessage"),
                   });
                   if (onClose && applyGetAllRecords) {
                     applyGetAllRecords({});
@@ -86,7 +89,7 @@ const RecallAppointmentForm = observer(
                   setLoading(false);
                   openNotification({
                     type: "error",
-                    title: "Failed to update Recall Appointment",
+                    title: t("recall.form.failedToUpdate"),
                     message: err?.message,
                   });
                 })
@@ -98,8 +101,8 @@ const RecallAppointmentForm = observer(
 
                   openNotification({
                     type: "success",
-                    title: "CREATED SUCCESSFULLY",
-                    message: "Appointment has been Created Successfully",
+                    title: t("recall.form.createdSuccessfully"),
+                    message: t("recall.form.createMessage"),
                   });
                   if (onClose && applyGetAllRecords) {
                     applyGetAllRecords({});
@@ -111,7 +114,7 @@ const RecallAppointmentForm = observer(
                   setLoading(false);
                   openNotification({
                     type: "error",
-                    title: "Failed to Create Appointment",
+                    title: t("recall.form.failedToCreate"),
                     message: err?.message,
                   });
                 })
@@ -169,9 +172,9 @@ const RecallAppointmentForm = observer(
       <Box>
         <CustomInput
           name="patient"
-          label="Patient"
+          label={t("recall.form.patient")}
           type="real-time-user-search"
-          placeholder="Search Patient"
+          placeholder={t("recall.form.searchPatient")}
           required
           value={values.patient}
           onChange={(val: any) => setFieldValue("patient", val)}
@@ -196,9 +199,9 @@ const RecallAppointmentForm = observer(
       <Box>
         <CustomInput
           name="doctor"
-          label="Doctor"
+          label={t("recall.form.doctor")}
           type="real-time-user-search"
-          placeholder="Assign Doctor"
+          placeholder={t("recall.form.assignDoctor")}
           value={values.doctor}
           options={values?.doctor ? [values.doctor] : []}
           onChange={(val: any) => setFieldValue("doctor", val)}
@@ -212,7 +215,7 @@ const RecallAppointmentForm = observer(
       <Box>
         <CustomInput
           name="recallDate"
-          label="Recall Date"
+          label={t("recall.form.recallDate")}
           type="date"
           value={values.recallDate}
           onChange={handleChange}
@@ -224,9 +227,9 @@ const RecallAppointmentForm = observer(
       <Box>
         <CustomInput
           name="appointmentDate"
-          label="Appointment Date"
+          label={t("recall.form.appointmentDate")}
           type="date"
-          placeholder="Appointment Date"
+          placeholder={t("recall.form.appointmentDate")}
           value={values.appointmentDate}
           onChange={handleChange}
         />
@@ -236,7 +239,7 @@ const RecallAppointmentForm = observer(
       <Box>
         <CustomInput
           name="status"
-          label="Status"
+          label={t("recall.form.status")}
           type="select"
           options={status}
           value={values.status}
@@ -253,7 +256,7 @@ const RecallAppointmentForm = observer(
             width="100%"
             onClick={() => setOpenReportModal(values)}
           >
-            Show Appointment
+            {t("recall.form.showAppointment")}
           </Button>
         </Flex>
       )}
@@ -261,10 +264,10 @@ const RecallAppointmentForm = observer(
       {/* -------- Reason -------- */}
       <Box gridColumn={{ base: "span 1", md: "span 2" }}>
         <CustomInput
-          label="Reason"
+          label={t("recall.form.reason")}
           name="reason"
           type="textarea"
-          placeholder="Enter recall reason"
+          placeholder={t("recall.form.enterReason")}
           required
           value={values.reason}
           onChange={handleChange}
@@ -284,10 +287,10 @@ const RecallAppointmentForm = observer(
       borderColor="gray.100"
     >
       <Button variant="ghost" onClick={onClose}>
-        Cancel
+        {t("recall.form.cancel")}
       </Button>
       <Button type="submit" colorScheme="teal" isLoading={loading}>
-        {isEdit ? "Update Recall" : "Create Recall"}
+        {isEdit ? t("recall.form.updateRecall") : t("recall.form.createRecall")}
       </Button>
     </Flex>
   </Box>

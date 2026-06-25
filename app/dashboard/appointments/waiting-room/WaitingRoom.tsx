@@ -7,6 +7,7 @@ import moment from "moment";
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, RepeatIcon } from "@chakra-ui/icons";
 import { MdOutlineAirlineSeatReclineExtra } from "react-icons/md";
 import stores from "../../../store/stores";
+import { useTranslation } from "react-i18next";
 
 const WaitingRoomPage = observer((): any => {
     const {
@@ -22,6 +23,7 @@ const WaitingRoomPage = observer((): any => {
     const goToNextDate = () => {
         setSelectedDate((prev: any) => moment(prev).add(1, "day").toDate());
     };
+    const { t } = useTranslation();
 
     const bgColor = useColorModeValue("gray.50", "#0a0a0b");
     const containerBg = useColorModeValue("whiteAlpha.900", "whiteAlpha.50");
@@ -65,7 +67,7 @@ const WaitingRoomPage = observer((): any => {
                     </Box>
                     <VStack align="start" spacing={1}>
                         <HStack spacing={4}>
-                            <Heading size="lg" fontWeight="900" letterSpacing="-0.04em">Waiting Room</Heading>
+                            <Heading size="lg" fontWeight="900" letterSpacing="-0.04em">{t("waitingRoom.title")}</Heading>
                             <Badge
                                 variant="outline"
                                 colorScheme="green"
@@ -81,11 +83,11 @@ const WaitingRoomPage = observer((): any => {
                                 gap={1.5}
                             >
                                 <Box boxSize={1.5} bg="green.500" borderRadius="full" animation="pulse 1.5s infinite" />
-                                LIVE QUEUE
+                                {t("waitingRoom.liveQueue")}
                             </Badge>
                         </HStack>
                         <Text fontSize="xs" fontWeight="700" color="gray.500" letterSpacing="0.05em">
-                            MANAGE PATIENT WORKFLOW WITH PRECISION
+                            {t("waitingRoom.subtitle")}
                         </Text>
                     </VStack>
                 </HStack>
@@ -105,7 +107,7 @@ const WaitingRoomPage = observer((): any => {
                         height="48px"
                         _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
                     >
-                        TODAY
+                        {t("waitingRoom.today")}
                     </Button>
 
                     <HStack

@@ -17,6 +17,7 @@ import DentistScheduler from "../../../daily-report/component/DentistScheduler/D
 import { SLOT_DURATION } from "../../../daily-report/utils/constant";
 import EditAppointmentForm from "../../../appointments/component/EditForm";
 import AddAppointmentForm from "../../../appointments/component/AddForm";
+import { useTranslation } from "react-i18next";
 
 const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const {
@@ -27,6 +28,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const [havePatientDetails, setHavePatientDetails] = useState(patientDetails);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const { t } = useTranslation();
 
   const [formModal, setFormModal] = useState<any>({
     open: false,
@@ -90,7 +92,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to get Appointments",
+            title: t("recall.table.failedToGetAppointments"),
             message: err?.message,
           });
         });
@@ -119,7 +121,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const patientColumn = [
     {
-      headerName: "Patient Name",
+      headerName: t("recall.table.patientName"),
       key: "patientName",
       metaData: {
         component: (dt: any) => (
@@ -131,7 +133,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Patient Mobile Number",
+      headerName: t("recall.table.patientMobileNumber"),
       key: "patientMobileNumber",
       metaData: {
         component: (dt: any) => (
@@ -149,7 +151,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
     ,
     ...(!isPatient ? patientColumn : []),
     {
-      headerName: "Doctor",
+      headerName: t("recall.table.doctor"),
       key: "doctorName",
       metaData: {
         component: (dt: any) => (
@@ -161,7 +163,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Status",
+      headerName: t("recall.table.status"),
       key: "status",
       type: "component",
       metaData: {
@@ -213,7 +215,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
     },
     {
-      headerName: "Reason",
+      headerName: t("recall.table.reason"),
       key: "reason",
       type: "tooltip",
       metaData: {
@@ -225,7 +227,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
     },
     {
-      headerName: "Created By",
+      headerName: t("recall.table.createdBy"),
       key: "createdBy",
       type: "component",
       metaData: {
@@ -237,7 +239,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
     },
     {
-      headerName: "Recall Date",
+      headerName: t("recall.table.recallDate"),
       key: "recallDate",
       type: "component",
       metaData: {
@@ -251,7 +253,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       },
     },
     {
-      headerName: "Actions",
+      headerName: t("recall.table.actions"),
       key: "table-actions",
       type: "table-actions",
       props: {
@@ -290,7 +292,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
   return (
     <>
       <CustomTable
-        title="Recall Appointment"
+        title={t("recall.table.recallAppointment")}
         subTitle={patientDetails ? subTitle : undefined}
         data={recallAppointment?.data || []}
         columns={ContactTableColumn}
@@ -335,7 +337,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           },
           resetData: {
             show: false,
-            text: "Reset Data",
+            text: t("recall.table.resetData"),
             function: resetTableData,
           },
           pagination: {
@@ -353,7 +355,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         width={"80vw"}
         open={openView.open}
         close={() => setOpenView({ open: false, data: null })}
-        title="Recall Appointment Summary"
+        title={t("recall.table.recallAppointmentSummary")}
         isCentered
       >
         <RecallViewAppointment data={openView.data} />
@@ -371,8 +373,8 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           }
           title={
             formModal.type === "add"
-              ? "Create Recall Appointment"
-              : "Edit Recall Appointment"
+              ? t("recall.table.createRecallAppointment")
+              : t("recall.table.editRecallAppointment")
           }
           isCentered
         >
@@ -504,10 +506,8 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         }}
         title={
           selectedDate
-            ? `Appointment -> Selected: ${moment(selectedDate).format(
-                "DD MMM YYYY",
-              )}`
-            : "Select date"
+            ? t("recall.table.appointmentSelected", { date: moment(selectedDate).format("DD MMM YYYY") })
+            : t("recall.table.selectDate")
         }
         props={{ blockScrollOnMount: false }}
       >
@@ -557,10 +557,8 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         }}
         title={
   selectedDateAndTime
-    ? `Selected: ${moment(selectedDateAndTime.start).format(
-        "dddd, DD MMM YYYY"
-      )}`
-    : "Select a date"
+    ? t("recall.table.appointmentSelected", { date: moment(selectedDateAndTime.start).format("dddd, DD MMM YYYY") })
+    : t("recall.table.selectDate")
 }
 
       >

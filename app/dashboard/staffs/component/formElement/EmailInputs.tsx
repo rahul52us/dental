@@ -13,6 +13,7 @@ import {
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { useTranslation } from "react-i18next";
 
 interface Email {
   email: string;
@@ -31,6 +32,7 @@ const EmailsInput = ({
   setFieldValue,
   errors
 }: EmailsInputProps) => {
+  const { t } = useTranslation();
   const primaryIndex = values.emails.findIndex((e) => e.primary);
 
   const handlePrimaryChange = (val: string) => {
@@ -53,7 +55,7 @@ const EmailsInput = ({
       {({ remove, push }) => (
         <Box bg="white" p={4} borderRadius="md" boxShadow="md">
           <Text fontWeight="bold" fontSize="lg" mb={4}>
-            Email Addresses
+            {t("common.form.emailAddresses")}
           </Text>
 
           <RadioGroup
@@ -83,7 +85,7 @@ const EmailsInput = ({
                         }`}
                       />
                       <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
-                        <Flex gap={2}> <Text> email entered </Text>{email.primary && <Text as="span" color="red">
+                        <Flex gap={2}> <Text> {t("common.form.emailEntered")} </Text>{email.primary && <Text as="span" color="red">
                                 {" "}
                                 *
                               </Text>}</Flex>
@@ -97,14 +99,14 @@ const EmailsInput = ({
                           py={1}
                           px={2}
                         >
-                          Primary
+                          {t("common.form.primary")}
                         </Badge>
                       )}
                     </Flex>
 
                     <CustomInput
                       name={`emails[${index}].email`}
-                      placeholder="Enter email address"
+                      placeholder={t("common.form.enterEmail")}
                       type="text"
                       value={email.email}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -124,7 +126,7 @@ const EmailsInput = ({
                       isDisabled={!canRemove(index)}
                       title={
                         !canRemove(index)
-                          ? "Cannot remove primary email. Select another primary first."
+                          ? t("common.form.cannotRemovePrimaryEmail")
                           : undefined
                       }
                       float="right"
@@ -143,7 +145,7 @@ const EmailsInput = ({
               push({ email: "", primary: values.emails.length === 0 })
             }
           >
-            Add Email
+            {t("common.form.addEmail")}
           </Button>
         </Box>
       )}

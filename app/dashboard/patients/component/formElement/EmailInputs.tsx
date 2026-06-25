@@ -14,6 +14,7 @@ import {
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { useTranslation } from "react-i18next";
 
 interface Email {
   email: string;
@@ -35,6 +36,7 @@ const EmailsInput = ({
   const bgBox = useColorModeValue("white", "darkBrand.100");
   const borderColor = useColorModeValue("gray.200", "darkBrand.200");
   const textColor = useColorModeValue("black", "white");
+  const { t } = useTranslation();
 
   const primaryIndex = values.emails.findIndex((e) => e.primary);
 
@@ -58,7 +60,7 @@ const EmailsInput = ({
       {({ remove, push }) => (
         <Box bg={bgBox} p={4} borderRadius="md" boxShadow="md">
           <Text fontWeight="bold" fontSize="lg" mb={4} color={textColor}>
-            Email Addresses
+            {t("patients.form.emailAddresses")}
           </Text>
 
           <RadioGroup
@@ -88,7 +90,7 @@ const EmailsInput = ({
                           }`}
                       />
                       <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
-                        <Flex gap={2}> <Text> email entered </Text>{email.primary && <Text as="span" color="red">
+                        <Flex gap={2}> <Text> {t("patients.form.emailEntered")} </Text>{email.primary && <Text as="span" color="red">
                           {" "}
                           *
                         </Text>}</Flex>
@@ -96,20 +98,20 @@ const EmailsInput = ({
 
                       {email.primary && (
                         <Badge
-                          colorScheme="brand"
+                          bg="#FED7E2" color="#1A202C"
                           ml={2}
                           fontSize="0.75rem"
                           py={1}
                           px={2}
                         >
-                          Primary
+                          {t("patients.form.primary")}
                         </Badge>
                       )}
                     </Flex>
 
                     <CustomInput
                       name={`emails[${index}].email`}
-                      placeholder="Enter email address"
+                      placeholder={t("patients.form.enterEmail")}
                       type="text"
                       value={email.email}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -129,7 +131,7 @@ const EmailsInput = ({
                       isDisabled={!canRemove(index)}
                       title={
                         !canRemove(index)
-                          ? "Cannot remove primary email. Select another primary first."
+                          ? t("patients.form.cannotRemovePrimaryEmail")
                           : undefined
                       }
                       float="right"
@@ -148,7 +150,7 @@ const EmailsInput = ({
               push({ email: "", primary: values.emails.length === 0 })
             }
           >
-            Add Email
+            {t("patients.form.addEmail")}
           </Button>
         </Box>
       )}

@@ -19,6 +19,7 @@ import DeleteData from "./component/Doctors/component/DeleteUser";
 import DoctorsTable from "./component/Doctors/DoctorTable";
 import { replaceLabelValueObjects } from "../../config/utils/function";
 import { tablePageLimit } from "../../component/config/utils/variable";
+import { useTranslation } from "react-i18next";
 
 const DoctorsPage = observer(() => {
   const [formLoading, setFormLoading] = useState(false);
@@ -32,6 +33,7 @@ const DoctorsPage = observer(() => {
   });
   const [thumbnail, setThumbnail] = useState([]);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleAddSubmit = async (formData: any) => {
     try {
@@ -63,8 +65,8 @@ const DoctorsPage = observer(() => {
           setFormLoading(false);
           setIsDrawerOpen({ isOpen: false, type: "add", data: null });
           toast({
-            title: "Doctors Added.",
-            description: `${formData.name} has been successfully added.`,
+            title: t("doctors.page.doctorsAdded"),
+            description: t("doctors.page.hasBeenAdded", { name: formData.name }),
             status: "success",
             duration: 5000,
             isClosable: true,
@@ -73,7 +75,7 @@ const DoctorsPage = observer(() => {
         .catch((err: any) => {
           setFormLoading(false);
           toast({
-            title: "failed to create",
+            title: t("doctors.page.failedToCreate"),
             description: `${err?.message}`,
             status: "error",
             duration: 5000,
@@ -83,7 +85,7 @@ const DoctorsPage = observer(() => {
     } catch (err: any) {
       setFormLoading(false);
       toast({
-        title: "failed to create",
+        title: t("doctors.page.failedToCreate"),
         description: `${err?.message}`,
         status: "success",
         duration: 5000,
@@ -131,8 +133,8 @@ const DoctorsPage = observer(() => {
         setFormLoading(false);
         setIsDrawerOpen({ isOpen: false, type: "add", data: null });
         toast({
-          title: "User updated.",
-          description: `${formData.name} has been successfully added.`,
+          title: t("doctors.page.userUpdated"),
+          description: t("doctors.page.hasBeenAdded", { name: formData.name }),
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -141,7 +143,7 @@ const DoctorsPage = observer(() => {
       .catch((err: any) => {
         setFormLoading(false);
         toast({
-          title: "failed to update",
+          title: t("doctors.page.failedToUpdate"),
           description: `${err?.message}`,
           status: "error",
           duration: 5000,
@@ -195,7 +197,7 @@ const DoctorsPage = observer(() => {
                 fontWeight="bold"
                 textAlign="center"
               >
-                {isDrawerOpen?.type === "edit" ? "Edit Doctors" : "Add Doctors"}
+                {isDrawerOpen?.type === "edit" ? t("doctors.page.editDoctors") : t("doctors.page.addDoctors")}
               </DrawerHeader>
               <DrawerBody p={6} bg="gray.50">
                 <Form

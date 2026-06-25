@@ -11,8 +11,10 @@ import { FieldArray } from "formik";
 import React from "react";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import { useTranslation } from "react-i18next";
 
 const DegreeInfo = ({ errors, values, handleChange }: any) => {
+  const { t } = useTranslation();
   return (
     <Box
       p={4}
@@ -23,7 +25,7 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
       mt={3}
     >
       <Text fontWeight="bold" fontSize="xl" mb={4}>
-        Degree Information
+        {t("common.form.degreeInfo.title")}
       </Text>
 
       <FieldArray name="degreeInfo">
@@ -40,14 +42,14 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
               >
                 <Flex justify="space-between" align="center" mb={3}>
                   <Text fontWeight="semibold" fontSize="md">
-                    Degree {index + 1}
+                    {t("common.form.degreeInfo.degree")} {index + 1}
                   </Text>
                   {values.degreeInfo.length > 1 && (
                     <IconButton
                       icon={<DeleteIcon />}
                       size="sm"
                       colorScheme="red"
-                      aria-label="Remove Degree"
+                      aria-label={t("common.form.degreeInfo.removeDegree")}
                       onClick={() => remove(index)}
                     />
                   )}
@@ -55,9 +57,9 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
 
                 <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                   <CustomInput
-                    label="Degree Name"
+                    label={t("common.form.degreeInfo.degreeName")}
                     name={`degreeInfo[${index}].name`}
-                    placeholder="e.g., B.Sc Nursing"
+                    placeholder={t("common.form.degreeInfo.degreeNamePlaceholder")}
                     value={deg.name}
                     onChange={handleChange}
                     error={errors.degreeInfo && errors.degreeInfo[index]?.name}
@@ -66,9 +68,9 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
                     }
                   />
                   <CustomInput
-                    label="University / Institution"
+                    label={t("common.form.degreeInfo.university")}
                     name={`degreeInfo[${index}].university`}
-                    placeholder="e.g., Delhi University"
+                    placeholder={t("common.form.degreeInfo.universityPlaceholder")}
                     value={deg.university}
                     onChange={handleChange}
                     error={
@@ -79,10 +81,10 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
                     }
                   />
                   <CustomInput
-                    label="Year of Completion"
+                    label={t("common.form.degreeInfo.yearOfCompletion")}
                     name={`degreeInfo[${index}].year`}
                     type="text"
-                    placeholder="e.g., 2020"
+                    placeholder={t("common.form.degreeInfo.yearPlaceholder")}
                     value={deg.year}
                     onChange={handleChange}
                     error={errors.degreeInfo && errors.degreeInfo[index]?.year}
@@ -100,7 +102,7 @@ const DegreeInfo = ({ errors, values, handleChange }: any) => {
               mt={4}
               onClick={() => push({ name: "", university: "", year: "" })}
             >
-              Add Degree
+              {t("common.form.degreeInfo.addAnotherDegree")}
             </Button>
           </>
         )}

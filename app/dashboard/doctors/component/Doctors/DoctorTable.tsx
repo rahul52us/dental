@@ -31,6 +31,7 @@ import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
 import stores from "../../../../store/stores";
 import ViewDoctor from "./ViewDoctor";
+import { useTranslation } from "react-i18next";
 
 const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -43,6 +44,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [selectedTherapist, setSelectedTherapist] = useState<any>(null);
   const [statusUser, setStatusUser] = useState<any>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const { t } = useTranslation();
   const [openAccountDetails, setOpenAccountDetails] = useState({
     open: false,
     data: null as any,
@@ -70,7 +72,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to get therapists",
+            title: t("doctors.table.failedToGetUsers"),
             message: err?.message,
           });
         });
@@ -113,8 +115,8 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       if (res.data.status === "success") {
         openNotification({
           type: "success",
-          title: "Status Updated",
-          message: `${statusUser.name}'s status has been updated successfully.`,
+          title: t("doctors.table.statusUpdated"),
+          message: t("doctors.table.statusUpdatedDesc", { name: statusUser.name }),
         });
         applyGetAllTherapists({ page: currentPage, isActive: isActiveFilter });
         onStatusClose();
@@ -122,8 +124,8 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     } catch (err: any) {
       openNotification({
         type: "error",
-        title: "Update Failed",
-        message: err?.message || "Failed to update status",
+        title: t("doctors.table.updateFailed"),
+        message: err?.message || t("doctors.table.failedToUpdateStatus"),
       });
     } finally {
       setStatusLoading(false);
@@ -132,7 +134,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const TherapistTableColumns = [
     {
-      headerName: "Pic",
+      headerName: t("doctors.table.pic"),
       key: "user",
       type: "component",
       metaData: {
@@ -148,7 +150,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Name",
+      headerName: t("doctors.table.name"),
       key: "gender",
       type: "component",
       metaData: {
@@ -182,12 +184,12 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Code",
+      headerName: t("doctors.table.code"),
       key: "code",
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Mobile No.",
+      headerName: t("doctors.table.mobileNo"),
       key: "mobile",
       type: "component",
       metaData: {
@@ -217,18 +219,18 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Status",
+      headerName: t("doctors.table.status"),
       key: "is_active",
       type: "component",
       metaData: {
         component: (dt: any) => (
           <Flex justify="center" align="center" gap={2}>
             <Badge colorScheme={dt.is_active ? "green" : "red"} variant="subtle" px={2} borderRadius="full">
-              {dt.is_active ? "Active" : "Inactive"}
+              {dt.is_active ? t("doctors.table.active") : t("doctors.table.inactive")}
             </Badge>
-            <Tooltip label={dt.is_active ? "Deactivate" : "Activate"}>
+            <Tooltip label={dt.is_active ? t("doctors.table.deactivate") : t("doctors.table.activate")}>
               <IconButton
-                aria-label="Toggle Status"
+                aria-label={t("doctors.table.toggleStatus")}
                 icon={<FiPower />}
                 size="xs"
                 colorScheme={dt.is_active ? "red" : "green"}
@@ -245,7 +247,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Account",
+      headerName: t("doctors.table.account"),
       key: "account",
       type: "component",
       metaData: {
@@ -273,7 +275,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Actions",
+      headerName: t("doctors.table.actions"),
       key: "table-actions",
       type: "table-actions",
       props: {
@@ -290,7 +292,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   return (
     <Box p={1}>
       <CustomTable
-        title="Doctors"
+        title={t("doctors.table.doctors")}
         data={
           user.data?.map((t: any, index: number) => {
             return {
@@ -337,24 +339,24 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           },
             resetData: {
               show: true,
-              text: "Reset Data",
+              text: t("doctors.table.resetData"),
               function: resetTableData,
             },
             multidropdown: {
               show: true,
-              title: "Filter Status",
+              title: t("doctors.table.filterStatus"),
               dropdowns: [
                 {
-                  label: "Status",
+                  label: t("doctors.table.status"),
                   options: [
-                    { label: "Active", value: true },
-                    { label: "Inactive", value: false },
-                    { label: "All", value: "all" },
+                    { label: t("doctors.table.active"), value: true },
+                    { label: t("doctors.table.inactive"), value: false },
+                    { label: t("doctors.table.all"), value: "all" },
                   ],
                 },
               ],
               onDropdownChange: (selected: any, label: string) => {
-                if (label === "Status") {
+                if (label === t("doctors.table.status") || label === "Status") {
                   // Since MultiDropdown uses isMulti=true, selected will be an array
                   // But we only want the last selected or we can just take the first
                   const val = selected?.length > 0 ? selected[selected.length - 1].value : "all";
@@ -362,11 +364,16 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 }
               },
               selectedOptions: {
-                Status: isActiveFilter === "all" 
-                  ? [{ label: "All", value: "all" }] 
+                [t("doctors.table.status")]: isActiveFilter === "all" 
+                  ? [{ label: t("doctors.table.all"), value: "all" }] 
                   : (isActiveFilter === true 
-                    ? [{ label: "Active", value: true }] 
-                    : [{ label: "Inactive", value: false }])
+                    ? [{ label: t("doctors.table.active"), value: true }] 
+                    : [{ label: t("doctors.table.inactive"), value: false }]),
+                "Status": isActiveFilter === "all" 
+                  ? [{ label: t("doctors.table.all"), value: "all" }] 
+                  : (isActiveFilter === true 
+                    ? [{ label: t("doctors.table.active"), value: true }] 
+                    : [{ label: t("doctors.table.inactive"), value: false }])
               },
               onApply: () => {
                 setCurrentPage(1);
@@ -393,7 +400,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
-              User Profile
+              {t("doctors.table.userProfile")}
             </Flex>
           </DrawerHeader>
 
@@ -413,7 +420,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       <FormModel 
         open={isStatusOpen} 
         close={onStatusClose} 
-        title="Confirm Status Change"
+        title={t("doctors.table.confirmStatusChange")}
         isCentered
         size="md"
       >
@@ -421,7 +428,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Icon as={FiAlertCircle} w={12} h={12} color={statusUser?.is_active ? "orange.400" : "green.400"} />
           <Box>
             <Text fontSize="lg" fontWeight="medium">
-              You are about to {statusUser?.is_active ? "deactivate" : "activate"} 
+              {t("doctors.table.youAreAboutTo", { action: statusUser?.is_active ? t("doctors.table.deactivate").toLowerCase() : t("doctors.table.activate").toLowerCase() })}
             </Text>
             <Text fontSize="xl" fontWeight="bold" color="blue.600">
               {statusUser?.name}
@@ -429,13 +436,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Box>
           <Text color="gray.600">
             {statusUser?.is_active 
-              ? "Deactivating this user will prevent them from logging in and performing clinical actions." 
-              : "Activating this user will restore their access to the clinical dashboard."}
+              ? t("doctors.table.deactivatingDoctor")
+              : t("doctors.table.activatingDoctor")}
           </Text>
           
           <Flex gap={4} w="full" pt={4}>
             <Button variant="ghost" flex={1} onClick={onStatusClose}>
-              Cancel
+              {t("doctors.table.cancel")}
             </Button>
             <Button 
               colorScheme={statusUser?.is_active ? "orange" : "green"} 
@@ -444,7 +451,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               isLoading={statusLoading}
               leftIcon={<FiPower />}
             >
-              Confirm {statusUser?.is_active ? "Deactivation" : "Activation"}
+              {statusUser?.is_active ? t("doctors.table.confirmDeactivation") : t("doctors.table.confirmActivation")}
             </Button>
           </Flex>
         </VStack>

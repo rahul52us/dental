@@ -19,6 +19,7 @@ import {
 import ItemOrderingInput from "./formElement/ItemOrders";
 import BankDetailsInput from "./formElement/BankDetailsInput";
 import StaffInput from "./formElement/StaffInput";
+import { useTranslation } from "react-i18next";
 
 const Form = ({
   loading,
@@ -29,7 +30,7 @@ const Form = ({
   isEdit,
 }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
-
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (initialData) {
@@ -68,7 +69,7 @@ const Form = ({
                 {/* Section 1: Personal Info */}
                 <GridItem colSpan={2}>
                   <Text fontSize="lg" fontWeight="semibold" mb={4}>
-                    Lab Information
+                    {t("labs.form.labInformation")}
                   </Text>
 
                   <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
@@ -84,9 +85,9 @@ const Form = ({
                       mt={3}
                     >
                       <CustomInput
-                        label="Name"
+                        label={t("labs.form.nameLabel")}
                         name="name"
-                        placeholder="Enter Name"
+                        placeholder={t("labs.form.enterName")}
                         value={values.name}
                         required={true}
                         onChange={handleChange}
@@ -127,7 +128,7 @@ const Form = ({
                     _hover={{ bg: "red.500" }}
                     width="auto"
                   >
-                    Close
+                    {t("labs.form.cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -138,7 +139,7 @@ const Form = ({
                     _hover={{ bg: "teal.500" }}
                     width="auto"
                   >
-                    {initialData?.name ? "Update" : "Save"}
+                    {initialData?.name ? t("labs.form.update") : t("labs.form.save")}
                   </Button>
                 </Flex>
               </Flex>

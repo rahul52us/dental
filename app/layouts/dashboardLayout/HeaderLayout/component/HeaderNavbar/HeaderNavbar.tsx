@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import HeaderProfile from "./HeaderProfile/HeaderProfile";
 import HeaderNotification from "./HeaderNotification/HeaderNotification";
 import HeaderThemeSwitch from "./HeaderThemeSwitch/HeaderThemeSwitch";
+import HeaderLanguageSwitch from "./HeaderLanguageSwitch/HeaderLanguageSwitch";
 // import HeaderChatMessage from "./HeaderChatMessage/HeaderChatMessage";
 // import CartContainer from "./CartContainer/CartContainer";
 import stores from "../../../../../store/stores";
@@ -26,7 +27,7 @@ const HeaderNavbar = observer(() => {
     >
       {isLargerThan1020 ? (
         <>
-          {/* <HeaderLanguageSwitch /> */}
+          <HeaderLanguageSwitch />
           <HeaderThemeSwitch />
           {/* <HeaderChatMessage />
           <HeaderNotification />

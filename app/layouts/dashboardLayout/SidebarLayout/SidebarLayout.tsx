@@ -35,6 +35,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import SidebarLogo from "./component/SidebarLogo";
 import stores from "../../../store/stores";
 import { FaCircle } from "react-icons/fa"; // Added FaCircle
+import { useTranslation } from "react-i18next";
 import {
   mediumSidebarWidth,
   sidebarWidth,
@@ -120,6 +121,7 @@ const SidebarPopover = observer(
     } = stores;
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const { colorMode } = useColorMode();
+    const { t } = useTranslation();
 
     const handleMouseEnter = () => {
       if (item.children && item.children.length > 0 && isCollapsed) {
@@ -224,7 +226,7 @@ const SidebarPopover = observer(
           {depth > 0 && (
             <Flex flex={1} align={"center"} justify={"space-between"}>
               <Text ml={2} fontSize={"sm"}>
-                {item.name}
+                {t(`sidebar.${item.name}`)}
               </Text>
               {item.children && (
                 <ChevronRightIcon
@@ -256,7 +258,7 @@ const SidebarPopover = observer(
         <PopoverTrigger>
           <Box w="100%" display="inline-block"> {/* Ensure ref forwarding */}
             <Tooltip
-              label={item.name}
+              label={t(`sidebar.${item.name}`)}
               isDisabled={
                 !isCollapsed ||
                 (!!item.children && item.children.length > 0) ||
@@ -310,7 +312,7 @@ const SidebarPopover = observer(
                       fontWeight={600}
                       ml={5}
                     >
-                      {item.name}
+                      {t(`sidebar.${item.name}`)}
                     </Text>
                   </Flex>
                   {item.children && (
@@ -369,6 +371,7 @@ const SidebarAccordion = observer(
     } = stores;
 
     const { colorMode } = useColorMode();
+    const { t } = useTranslation();
 
     const activeBg = useColorModeValue(
       themeConfig.colors.custom.light.primary,
@@ -475,7 +478,7 @@ const SidebarAccordion = observer(
                           fontSize="sm"
                           ml={depth === 0 ? 3 : 2}
                         >
-                          {item.name}
+                          {t(`sidebar.${item.name}`)}
                         </Text>
                       </Flex>
                       {item.children && (

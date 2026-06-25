@@ -229,7 +229,7 @@ const GlobalAccountabilityPage = observer(() => {
         tooth: toothNumbers.length > 0 ? toothNumbers.map(t => t.value).join("|") : undefined,
         columns: selectedPrintColumns,
       };
-      
+
       const base64 = await stores.workDoneStore.fetchGlobalAccountabilityReportBase64(filters);
       setPreviewData(base64);
       setPreviewFileName(`Global_Accountability_${new Date().toISOString().split("T")[0]}.pdf`);
@@ -249,7 +249,7 @@ const GlobalAccountabilityPage = observer(() => {
 
   return (
     <Box p={{ base: 2, md: 4 }} minH="100vh" bg={useColorModeValue("gray.50", "gray.900")}>
-      
+
       {/* Premium Header */}
       <HStack mb={4} bgGradient="linear(to-r, blue.600, blue.800)" p={4} px={6} borderRadius="2xl" color="white" boxShadow="md" position="relative" overflow="hidden" justify="space-between">
         <Box position="relative" zIndex={1}>
@@ -261,13 +261,13 @@ const GlobalAccountabilityPage = observer(() => {
             </Text>
           </HStack>
         </Box>
-        <Button 
-          leftIcon={<FiPrinter />} 
-          colorScheme="whiteAlpha" 
-          variant="solid" 
-          size="sm" 
-          borderRadius="full" 
-          position="relative" 
+        <Button
+          leftIcon={<FiPrinter />}
+          colorScheme="whiteAlpha"
+          variant="solid"
+          size="sm"
+          borderRadius="full"
+          position="relative"
           zIndex={1}
           isLoading={isPrinting}
           onClick={() => setIsPrintModalOpen(true)}
@@ -505,26 +505,26 @@ const GlobalAccountabilityPage = observer(() => {
           </GridItem>
           <GridItem colSpan={{ base: 1, md: 2, lg: 3, xl: 4 }} display="flex" justifyContent="flex-end" pt={2}>
             <HStack spacing={4}>
-              <Button 
-                bgGradient="linear(to-r, blue.500, blue.600)" 
-                color="white" 
-                _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", transform: "translateY(-1px)", boxShadow: "md" }} 
+              <Button
+                bgGradient="linear(to-r, blue.500, blue.600)"
+                color="white"
+                _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", transform: "translateY(-1px)", boxShadow: "md" }}
                 _active={{ transform: "translateY(0)" }}
                 transition="all 0.2s"
-                onClick={handleApplyFilters} 
-                size="md" 
-                px={10} 
-                borderRadius="xl" 
+                onClick={handleApplyFilters}
+                size="md"
+                px={10}
+                borderRadius="xl"
                 fontWeight="bold"
               >
                 Apply Filters
               </Button>
-              <Button 
-                bg={useColorModeValue("red.50", "red.900")} 
-                color={useColorModeValue("red.600", "red.200")} 
-                _hover={{ bg: useColorModeValue("red.100", "red.800") }} 
-                onClick={handleClearFilters} 
-                size="md" 
+              <Button
+                bg={useColorModeValue("red.50", "red.900")}
+                color={useColorModeValue("red.600", "red.200")}
+                _hover={{ bg: useColorModeValue("red.100", "red.800") }}
+                onClick={handleClearFilters}
+                size="md"
                 px={8}
                 borderRadius="xl"
                 fontWeight="bold"
@@ -684,13 +684,13 @@ const GlobalAccountabilityPage = observer(() => {
                         if (modes.length === 0) {
                           return <Text color="gray.400" fontSize="sm">-</Text>;
                         }
-                        
+
                         const firstMode = modes[0] as string;
                         const hasMore = modes.length > 1;
 
                         return (
-                          <Tooltip 
-                            label={hasMore ? modes.join(", ") : ""} 
+                          <Tooltip
+                            label={hasMore ? modes.join(", ") : ""}
                             isDisabled={!hasMore}
                             hasArrow
                             bg="purple.600"
@@ -713,11 +713,11 @@ const GlobalAccountabilityPage = observer(() => {
                       })()}
                     </Td>
                     <Td>
-                      <Badge 
-                        colorScheme={row.balanceDue <= 0 ? "green" : "red"} 
-                        variant="solid" 
-                        px={3} 
-                        py={1} 
+                      <Badge
+                        colorScheme={row.balanceDue <= 0 ? "green" : "red"}
+                        variant="solid"
+                        px={3}
+                        py={1}
                         borderRadius="full"
                         textTransform="uppercase"
                         letterSpacing="wider"
@@ -777,8 +777,8 @@ const GlobalAccountabilityPage = observer(() => {
         </ModalContent>
       </Modal>
 
-      <ReceiptPreviewDrawer 
-        isOpen={isPreviewOpen} 
+      <ReceiptPreviewDrawer
+        isOpen={isPreviewOpen}
         onClose={() => {
           setIsPreviewOpen(false);
           setPreviewData(null);

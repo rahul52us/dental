@@ -19,6 +19,7 @@ import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDate } from "../../../../component/config/utils/dateUtils";
 import ViewDoctor from "./ViewLab";
+import { useTranslation } from "react-i18next";
 
 const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
   const {
@@ -31,6 +32,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+  const { t } = useTranslation();
 
   const applyGetAllTherapists = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false }) => {
@@ -50,7 +52,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to get patient",
+            title: t("labs.table.failedToGetLabs"),
             message: err?.message,
           });
         });
@@ -79,17 +81,17 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
 
   const TherapistTableColumns = [
     {
-      headerName: "S.No.",
+      headerName: t("labs.table.sno"),
       key: "sno",
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Name",
+      headerName: t("labs.table.name"),
       key: "name",
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "view Orders",
+      headerName: t("labs.table.actions"), // Previously "view Orders"
       key: "address",
       type: "component",
       metaData: {
@@ -127,7 +129,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
       },
     },
     {
-      headerName: "Actions",
+      headerName: t("labs.table.actions"),
       key: "table-actions",
       type: "table-actions",
       props: {
@@ -143,7 +145,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
   return (
     <Box p={4}>
       <CustomTable
-        title="Labs"
+        title={t("labs.table.labs")}
         data={
           labs.data?.map((t: any, index: number) => {
             return {
@@ -188,7 +190,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
           },
           resetData: {
             show: false,
-            text: "Reset Data",
+            text: t("labs.table.resetData"),
             function: resetTableData,
           },
           pagination: {
@@ -211,7 +213,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
           >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
-              User Profile
+              {t("labs.table.userProfile")}
             </Flex>
           </DrawerHeader>
 

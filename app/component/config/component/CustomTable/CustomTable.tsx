@@ -26,6 +26,7 @@ import {
   useColorModeValue,
   Text,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 import TableLoader from "./TableLoader";
 import Pagination from "../pagination/Pagination";
@@ -322,6 +323,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
 
   const boxBorder = useColorModeValue("brand.200", "darkBrand.200");
   const mainBox = useColorModeValue("white", "gray.900");
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -377,7 +379,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 <Icon as={FiSearch} color="gray.400" boxSize={4} />
               </InputLeftElement>
               <Input
-                placeholder={actions?.search?.placeholder || "Search..."}
+                placeholder={actions?.search?.placeholder || t("common.table.search")}
                 value={actions?.search?.searchValue}
                 onChange={actions?.search?.onSearchChange}
                 borderRadius="full"
@@ -471,7 +473,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                       textAlign="center"
                       transition="all 0.2s ease-in-out"
                     >
-                      Add
+                      {t("common.table.add")}
                     </MenuButton>
                     <MenuList
                       zIndex={15}
@@ -499,7 +501,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                           p="0.7rem"
                           fontSize="sm"
                         >
-                          Add
+                          {t("common.table.add")}
                         </MenuItem>
                       )}
                       {actions?.resetData?.show && (
@@ -513,7 +515,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                           p="0.7rem"
                           fontSize="sm"
                         >
-                          {actions?.resetData?.text || "Reset"}
+                          {actions?.resetData?.text || t("common.table.reset")}
                         </MenuItem>
                       )}
                     </MenuList>
@@ -545,7 +547,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                           actions?.actionBtn?.addKey?.function?.("add")
                         }
                       >
-                        Add
+                        {t("common.table.add")}
                       </Button>
                     )}
                     {actions?.resetData?.show && (
@@ -570,7 +572,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                         leftIcon={<FcClearFilters fontSize="18px" />}
                         onClick={actions?.resetData?.function}
                       >
-                        {actions?.resetData?.text || "Reset"}
+                        {actions?.resetData?.text || t("common.table.reset")}
                       </Button>
                     )}
                   </>
@@ -614,7 +616,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   letterSpacing="wider"
                   fontSize="xs"
                 >
-                  {serial?.text || "S.No."}
+                  {serial?.text || t("common.table.sno")}
                 </Th>
               )}
               {columns.map((column, colIndex) => (

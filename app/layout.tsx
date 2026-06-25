@@ -13,6 +13,7 @@ import stores from "./store/stores";
 import Notification from "./component/common/Notification/Notification";
 import { Montserrat } from "next/font/google";
 import { getMetadataForPath, PageMetadata } from "./metadata";
+import "./config/i18n";
 
 const montserrat = Montserrat({
   subsets: ["latin"],

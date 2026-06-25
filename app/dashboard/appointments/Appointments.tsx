@@ -42,6 +42,7 @@ import { toJS } from "mobx";
 import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
 import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
 import { FaClipboardList } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, defaultOpenCalendar = false }: any) => {
   const {
@@ -59,6 +60,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
     open: defaultOpenCalendar,
     type: "add",
   });
+  const { t } = useTranslation();
 
   const [selectedDateAndTime, setSelectedDateTime] = useState<any>({
     open: false,
@@ -98,7 +100,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
     } catch (err: any) {
       openNotification({
         type: "error",
-        title: "Failed to Fetch Appointments Status",
+        title: t("appointments.page.failedToFetchStatus"),
         message: err?.message,
       });
     }
@@ -175,7 +177,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to get Appointments",
+            title: t("appointments.page.failedToGetAppointments"),
             message: err?.message,
           });
         });
@@ -198,7 +200,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
   };
 
   const patientColumn = {
-    headerName: "Patient",
+    headerName: t("appointments.table.patient"),
     key: "patientName",
     metaData: {
       component: (dt: any) => (
@@ -213,7 +215,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
   // Define table columns
   const ContactTableColumn = [
     {
-      headerName: "Cause",
+      headerName: t("appointments.table.cause"),
       key: "description",
       type: "tooltip",
       metaData: {
@@ -227,7 +229,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
     },
     ...(!isPatient ? [patientColumn] : []),
     {
-      headerName: "Doctor",
+      headerName: t("appointments.table.doctor"),
       key: "doctorName",
       metaData: {
         component: (dt: any) => (
@@ -239,7 +241,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Status",
+      headerName: t("appointments.table.status"),
       key: "status",
       type: "component",
       metaData: {
@@ -291,7 +293,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
       },
     },
     {
-      headerName: "Appointment Date",
+      headerName: t("appointments.table.appointmentDate"),
       key: "appointmentDate",
       type: "component",
       metaData: {
@@ -305,7 +307,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
       },
     },
     {
-      headerName: "Start & End Time",
+      headerName: t("appointments.table.startEndTime"),
       key: "startTime",
       type: "component",
       metaData: {
@@ -319,7 +321,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
       },
     },
     {
-      headerName: "Created By",
+      headerName: t("appointments.table.createdBy"),
       key: "actionBy",
       type: "component",
       metaData: {
@@ -331,7 +333,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
       },
     },
     {
-      headerName: "History",
+      headerName: t("appointments.table.history"),
       key: "history",
       type: "component",
       metaData: {
@@ -350,7 +352,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                   patientName: dt.patientName || dt.patient?.name || "Patient"
                 })}
               >
-                View History
+                {t("appointments.table.viewHistory")}
               </Button>
             ) : <Text>--</Text>
           );
@@ -362,7 +364,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
       },
     },
     {
-      headerName: "Actions",
+      headerName: t("appointments.table.actions"),
       key: "table-actions",
       type: "table-actions",
       props: {
@@ -410,7 +412,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
   return (
     <>
       <CustomTable
-        title="Appointments"
+        title={t("appointments.table.appointments")}
         subTitle={patientDetails ? subTitle : undefined}
         data={appointments?.data || []}
         columns={ContactTableColumn}
@@ -452,7 +454,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
           },
           resetData: {
             show: false,
-            text: "Reset Data",
+            text: t("appointments.table.resetData"),
             function: resetTableData,
           },
           pagination: {
@@ -488,7 +490,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               })
             }
           >
-            History ({(patientStatus.shift || 0) + (patientStatus.cancelled || 0)})
+            {t("appointments.table.historyCount", { count: (patientStatus.shift || 0) + (patientStatus.cancelled || 0) })}
           </Button>
         </Box>
       )}
@@ -511,7 +513,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               </Button>
 
               <Text fontWeight="800" fontSize="xl">
-                Appointment {isPatient && patientDetails?.name ? `(${patientDetails.name}) ` : ""}→ {moment(selectedDate).format("dddd, DD MMM YYYY")}
+                {t("appointments.table.appointment")} {isPatient && patientDetails?.name ? `(${patientDetails.name}) ` : ""}→ {moment(selectedDate).format("dddd, DD MMM YYYY")}
               </Text>
 
               <Button size="md" onClick={goToNextDate} p={1}>
@@ -533,7 +535,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               >
                 <InfoIcon color="orange.500" />
                 <Text fontSize="sm" fontWeight="bold" color="orange.800">
-                  History: {(patientStatus.shift || 0) + (patientStatus.cancelled || 0)}
+                  {t("appointments.table.historyCount", { count: (patientStatus.shift || 0) + (patientStatus.cancelled || 0) })}
                 </Text>
                 <Button
                   size="xs"
@@ -549,7 +551,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                     });
                   }}
                 >
-                  View Details
+                  {t("appointments.table.viewDetails")}
                 </Button>
               </Flex>
             )}
@@ -611,11 +613,11 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
           <Flex align="center" gap={3}>
             <Icon as={FaClipboardList} boxSize={5} />
             <Text fontSize="xl" fontWeight="900">
-               {selectedDateAndTime?.type === "edit" ? "Edit Appointment" : "Add Appointment"}
+               {selectedDateAndTime?.type === "edit" ? t("appointments.table.editAppointment") : t("appointments.table.addAppointment")}
             </Text>
             <Divider orientation="vertical" h="20px" borderColor="whiteAlpha.400" />
             <Text fontSize="lg" fontWeight="700" color="whiteAlpha.900" noOfLines={1}>
-               {isPatient ? patientDetails?.name : (selectedDateAndTime?.data?.patientName || "Select Patient")}
+               {isPatient ? patientDetails?.name : (selectedDateAndTime?.data?.patientName || t("appointments.table.selectPatient"))}
             </Text>
           </Flex>
         }
@@ -672,7 +674,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
         <DrawerContent borderLeftRadius="xl" overflow="hidden">
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px" bg="gray.50" fontSize="md" fontWeight="800">
-            📋 Appointment Audit Trail
+            📋 {t("appointments.table.appointmentAuditTrail")}
           </DrawerHeader>
           <DrawerBody p={0} overflowY="auto">
             <Box p={5}>
@@ -780,7 +782,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                         </Box>
                       ) : (
                         <Text fontSize="xs" color="gray.300" fontStyle="italic" mt={0.5} ml={1}>
-                          No remarks provided.
+                          {t("appointments.table.noRemarks")}
                         </Text>
                       )}
                     </VStack>

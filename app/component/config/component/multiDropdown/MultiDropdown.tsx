@@ -16,6 +16,7 @@ import { debounce } from "lodash";
 import { MdFilterList } from "react-icons/md";
 import CustomDateRange from "../CustomDateRange/CustomDateRange";
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
 const CustomInput = dynamic(() => import('../../../../component/config/component/customInput/CustomInput'), { ssr: false });
 
 interface DropdownOption {
@@ -50,6 +51,7 @@ const MultiDropdown = ({
   resetFilters,
   actions,
 }: MultiDropdownProps) => {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState(search?.searchValue || "");
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -107,7 +109,7 @@ const MultiDropdown = ({
           size="md"
           leftIcon={<MdFilterList />}
         >
-          Filter
+          {t("common.table.filter")}
         </Button>
       </PopoverTrigger>
       <PopoverContent p={3} bg={popoverBg} borderColor={borderColor} boxShadow="md">
@@ -117,7 +119,7 @@ const MultiDropdown = ({
           borderBottomWidth="1px"
           color={buttonTextColor}
         >
-          Select Options
+          {t("common.table.selectOptions")}
         </PopoverHeader>
         <PopoverBody>
           <VStack rowGap={2} align="stretch">
@@ -145,7 +147,7 @@ const MultiDropdown = ({
             )}
             {search && search?.visible && (
               <Input
-                placeholder={search?.placeholder || "Search"}
+                placeholder={search?.placeholder || t("common.table.search")}
                 value={inputValue}
                 onChange={handleInputChange}
                 borderRadius="md"
@@ -165,7 +167,7 @@ const MultiDropdown = ({
                   isMulti={true}
                   key={index}
                   options={dropdown.options}
-                  placeholder={dropdown.placeholder || "Select Option"}
+                  placeholder={dropdown.placeholder || t("common.table.selectOptions")}
                   value={selectedOptions[dropdown.label] || null}
                   onChange={(selected: any) => {
                     onDropdownChange(selected, dropdown.label);
@@ -181,7 +183,7 @@ const MultiDropdown = ({
               }}
               mt={2}
             >
-              Apply
+              {t("common.table.apply")}
             </Button>
             {resetFilters && (
               <Button
@@ -191,7 +193,7 @@ const MultiDropdown = ({
                 border="2px solid"
                 colorScheme="red"
               >
-                Reset Filter
+                {t("common.table.resetFilter")}
               </Button>
             )}
           </VStack>

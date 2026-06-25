@@ -14,6 +14,7 @@ import {
   SimpleGrid,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 const MedicalHistorySection = ({ values, setFieldValue }: any) => {
   const bgBox = useColorModeValue("white", "darkBrand.100");
@@ -23,6 +24,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
   const borderActive = useColorModeValue("teal.300", "brand.500");
   const borderInactive = useColorModeValue("gray.200", "gray.600");
   const borderHover = useColorModeValue("teal.400", "brand.400");
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -34,12 +36,12 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
       p={6}
     >
       <Text fontSize="2xl" fontWeight="bold" mb={6} color={textColor}>
-        Medical History
+        {t("patients.form.medicalHistory.title")}
       </Text>
 
       {/* Conditions */}
       <Text fontSize="lg" fontWeight="semibold" mb={4} color="gray.700">
-        Conditions
+        {t("patients.form.medicalHistory.conditions")}
       </Text>
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
         {/* Allergies */}
@@ -72,13 +74,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   );
                 }}
               >
-                allergies?
+                {t("patients.form.medicalHistory.allergies")}
               </Checkbox>
               {values.medicalHistory?.allergies?.checked && (
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter allergy details"
+                  placeholder={t("patients.form.medicalHistory.enterAllergyDetails")}
                   value={values.medicalHistory?.allergies?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -113,7 +115,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Text fontWeight="medium" mb={2}>
-                Blood pressure issues?
+                {t("patients.form.medicalHistory.bloodPressureIssues")}
               </Text>
               <RadioGroup
                 value={values.medicalHistory?.bloodPressure?.option || ""}
@@ -123,17 +125,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               >
                 <Stack direction="row">
                   <Radio value="high" colorScheme="brand">
-                    High
+                    {t("patients.form.medicalHistory.high")}
                   </Radio>
                   <Radio value="low" colorScheme="brand">
-                    Low
+                    {t("patients.form.medicalHistory.low")}
                   </Radio>
                 </Stack>
               </RadioGroup>
               <Input
                 size="sm"
                 mt={3}
-                placeholder="Details (e.g., medication)"
+                placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                 value={values.medicalHistory?.bloodPressure?.text || ""}
                 onChange={(e) => {
                   setFieldValue(
@@ -178,13 +180,13 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   );
                 }}
               >
-                heart disease?
+                {t("patients.form.medicalHistory.heartDisease")}
               </Checkbox>
               {values.medicalHistory?.heartDisease?.checked && (
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.heartDisease?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -522,7 +524,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.asthma?.text || ""}
                   onChange={(e) => {
                     setFieldValue("medicalHistory.asthma.text", e.target.value);
@@ -581,7 +583,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   <Input
                     size="sm"
                     mt={3}
-                    placeholder="Enter details"
+                    placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                     value={
                       values.medicalHistory?.artificialJointOrValve?.text || ""
                     }
@@ -696,7 +698,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.kidneyDisease?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -752,7 +754,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.tuberculosis?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -808,7 +810,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.hepatitis?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -864,7 +866,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.bloodTransfusion?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -920,7 +922,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.cancer?.text || ""}
                   onChange={(e) => {
                     setFieldValue("medicalHistory.cancer.text", e.target.value);
@@ -976,7 +978,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.neurologicCondition?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -1032,7 +1034,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.epilepsy?.text || ""}
                   onChange={(e) => {
                     setFieldValue(
@@ -1088,7 +1090,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.aids?.text || ""}
                   onChange={(e) => {
                     setFieldValue("medicalHistory.aids.text", e.target.value);
@@ -1141,7 +1143,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.hiv?.text || ""}
                   onChange={(e) => {
                     setFieldValue("medicalHistory.hiv.text", e.target.value);
@@ -1194,7 +1196,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 <Input
                   size="sm"
                   mt={3}
-                  placeholder="Enter details"
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
                   value={values.medicalHistory?.anaemia?.text || ""}
                   onChange={(e) => {
                     setFieldValue(

@@ -36,6 +36,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import MasterDataForm from "../../masters/page";
 import { calculateAgeSafe } from "../../../config/utils/function";
+import { useTranslation } from "react-i18next";
 
 const Form = observer(
   ({
@@ -55,6 +56,7 @@ const Form = observer(
     const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [searchTimeout, setSearchTimeout] = useState<any>(null);
+    const { t } = useTranslation();
 
     const fetchNameSuggestions = async (query: string) => {
       if (query.length < 2) {
@@ -123,7 +125,7 @@ const Form = observer(
                     <GridItem colSpan={2} display={{ base: "none", md: "block" }}>
                       <Flex justify="space-between" align="center" mb={4}>
                         <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-                          {isEdit ? "Edit Patient" : "New Patient"}
+                          {isEdit ? t("patients.form.editPatient") : t("patients.form.newPatient")}
                         </Text>
                         <HStack spacing={3}>
                           <Button
@@ -134,7 +136,7 @@ const Form = observer(
                             px={6}
                             borderRadius="xl"
                           >
-                            Cancel
+                            {t("patients.form.cancel")}
                           </Button>
                           <Button
                             type="submit"
@@ -150,7 +152,7 @@ const Form = observer(
                               transform: "translateY(-1px)",
                             }}
                           >
-                            {initialData?._id || isEdit ? "Update" : "Save"}
+                            {initialData?._id || isEdit ? t("patients.form.update") : t("patients.form.save")}
                           </Button>
                         </HStack>
                       </Flex>
@@ -164,7 +166,7 @@ const Form = observer(
                         mb={4}
                         display={{ base: "block", md: "none" }}
                       >
-                        Personal Information
+                        {t("patients.form.personalInformation")}
                       </Text>
 
                       <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
@@ -218,7 +220,7 @@ const Form = observer(
                           <Flex align={"end"} gap={2}>
                             <CustomInput
                               type="select"
-                              label="Title"
+                              label={t("patients.form.title")}
                               name="title"
                               required={true}
                               options={getMasterOptions("titles")}
@@ -245,9 +247,9 @@ const Form = observer(
                             }}
                           >
                             <CustomInput
-                              label="Name"
+                              label={t("patients.form.name")}
                               name="name"
-                              placeholder="Enter Name"
+                              placeholder={t("patients.form.enterName")}
                               value={values.name}
                               required={true}
                               onChange={(e: any) => {
@@ -299,7 +301,7 @@ const Form = observer(
                             )}
                           </Box>
                           <CustomInput
-                            label="Date Of birth"
+                            label={t("patients.form.dob")}
                             type="date"
                             name={`dob`}
                             value={values.dob || ""}
@@ -308,15 +310,15 @@ const Form = observer(
                             showError={errors?.dob}
                           />
                           <CustomInput
-                            label="Age"
+                            label={t("patients.form.age")}
                             name="age"
                             type="number"
                             value={calculateAgeSafe(values?.dob) ?? ""}
                             disabled={true}
-                            placeholder="Auto calculated"
+                            placeholder={t("patients.form.autoCalculated")}
                           />
                           <CustomInput
-                            label="Gender"
+                            label={t("patients.form.gender")}
                             name="gender"
                             type="select"
                             options={genderOptions}
@@ -327,9 +329,9 @@ const Form = observer(
                             showError={errors.gender}
                           />
                           <CustomInput
-                            label="Languages"
+                            label={t("patients.form.languages")}
                             name="languages"
-                            placeholder="Add Language"
+                            placeholder={t("patients.form.addLanguage")}
                             value={values.languages}
                             onChange={(newTags: any) =>
                               setFieldValue("languages", newTags)
@@ -356,10 +358,10 @@ const Form = observer(
                           p={3}
                         >
                           <CustomInput
-                            label="Special Details"
+                            label={t("patients.form.specialDetails")}
                             name="bio"
                             type="textarea"
-                            placeholder="Enter Special Details"
+                            placeholder={t("patients.form.enterSpecialDetails")}
                             value={values.bio}
                             onChange={handleChange}
                             error={errors.bio}
@@ -427,7 +429,7 @@ const Form = observer(
                       flex={1}
                       borderRadius="xl"
                     >
-                      Cancel
+                      {t("patients.form.cancel")}
                     </Button>
                     <Button
                       type="submit"
@@ -438,7 +440,7 @@ const Form = observer(
                       borderRadius="xl"
                       shadow="md"
                     >
-                      {initialData?._id || isEdit ? "Update" : "Save"}
+                      {initialData?._id || isEdit ? t("patients.form.update") : t("patients.form.save")}
                     </Button>
                   </HStack>
                 </FormikForm>

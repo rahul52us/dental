@@ -14,6 +14,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { FiPlus } from "react-icons/fi";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import { insuranceTypeOptions } from "../../../../config/constant";
+import { useTranslation } from "react-i18next";
 
 const InsuranceDetailsSection = ({
   values,
@@ -25,6 +26,7 @@ const InsuranceDetailsSection = ({
   const borderColor = useColorModeValue("gray.200", "darkBrand.200");
   const bgInput = useColorModeValue("gray.50", "darkBrand.200");
   const textColor = useColorModeValue("teal.600", "white");
+  const { t } = useTranslation();
 
   return (
     <GridItem colSpan={2}>
@@ -38,7 +40,7 @@ const InsuranceDetailsSection = ({
         mt={3}
       >
         <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
-          Insurance Details
+          {t("patients.form.insuranceDetails")}
         </Text>
 
         <FieldArray name="insurances">
@@ -59,7 +61,7 @@ const InsuranceDetailsSection = ({
                       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                         {/* Insurance Type */}
                         <CustomInput
-                          label="Type"
+                          label={t("patients.form.type")}
                           name={`insurances[${index}].type`}
                           type="select"
                           options={insuranceTypeOptions}
@@ -76,7 +78,7 @@ const InsuranceDetailsSection = ({
 
                         {/* Start Date */}
                         <CustomInput
-                          label="Start Date"
+                          label={t("patients.form.startDate")}
                           type="date"
                           name={`insurances[${index}].startDate`}
                           value={insurance.startDate || ""}
@@ -87,7 +89,7 @@ const InsuranceDetailsSection = ({
 
                         {/* Renewal Date */}
                         <CustomInput
-                          label="Renewal Date"
+                          label={t("patients.form.renewalDate")}
                           type="date"
                           name={`insurances[${index}].renewalDate`}
                           value={insurance.renewalDate || ""}
@@ -98,24 +100,24 @@ const InsuranceDetailsSection = ({
 
                         {/* Amount Insured */}
                         <CustomInput
-                          label="Amount Insured"
+                          label={t("patients.form.amountInsured")}
                           type="number"
                           name={`insurances[${index}].amountInsured`}
                           value={insurance.amountInsured || ""}
                           onChange={handleChange}
-                          placeholder="Enter insured amount"
+                          placeholder={t("patients.form.enterInsuredAmount")}
                           error={errors?.insurances?.[index]?.amountInsured}
                           showError={errors?.insurances?.[index]?.amountInsured}
                         />
 
                         {/* Amount Paid */}
                         <CustomInput
-                          label="Amount Paid"
+                          label={t("patients.form.amountPaid")}
                           type="number"
                           name={`insurances[${index}].amountPaid`}
                           value={insurance.amountPaid || ""}
                           onChange={handleChange}
-                          placeholder="Enter amount paid"
+                          placeholder={t("patients.form.enterAmountPaid")}
                           error={errors?.insurances?.[index]?.amountPaid}
                           showError={errors?.insurances?.[index]?.amountPaid}
                         />
@@ -123,12 +125,12 @@ const InsuranceDetailsSection = ({
                         {/* Remarks - full width */}
                         <Grid gridColumn={{ base: "span 1", md: "span 3" }}>
                           <CustomInput
-                            label="Remarks"
+                            label={t("patients.form.remarks")}
                             name={`insurances[${index}].remarks`}
                             value={insurance.remarks || ""}
                             onChange={handleChange}
                             type="textarea"
-                            placeholder="Any additional notes"
+                            placeholder={t("patients.form.additionalNotesPlaceholder")}
                           />
                         </Grid>
 
@@ -162,7 +164,7 @@ const InsuranceDetailsSection = ({
                     position="relative"
                   >
                     <Text fontSize="md" color={textColor} mb={3}>
-                      No insurance records yet.
+                      {t("patients.form.noInsuranceRecords")}
                     </Text>
                     <Button
                       leftIcon={<FiPlus />}
@@ -178,7 +180,7 @@ const InsuranceDetailsSection = ({
                         })
                       }
                     >
-                      Add Your First Insurance
+                      {t("patients.form.addFirstInsurance")}
                     </Button>
                   </Box>
                 )}
@@ -201,7 +203,7 @@ const InsuranceDetailsSection = ({
                     })
                   }
                 >
-                  Add Insurance
+                  {t("patients.form.addInsurance")}
                 </Button>
               )}
             </>

@@ -36,6 +36,7 @@ import {
   updateValidationSchema,
 } from "./utils/validation";
 import { calculateAgeSafe } from "../../../config/utils/function";
+import { useTranslation } from "react-i18next";
 
 const Form = observer(
   ({ loading, initialData, onSubmit, isOpen, onClose, isEdit }: any) => {
@@ -47,6 +48,7 @@ const Form = observer(
 
     const bgBox = useColorModeValue("white", "darkBrand.100");
     const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+    const { t } = useTranslation();
 
     useEffect(() => {
       if (initialData) {
@@ -92,7 +94,7 @@ const Form = observer(
                     <GridItem colSpan={2} display={{ base: "none", md: "block" }}>
                       <Flex justify="space-between" align="center" mb={4}>
                         <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-                          {isEdit ? "Edit Doctor" : "New Doctor"}
+                          {isEdit ? t("doctors.form.editDoctor") : t("doctors.form.newDoctor")}
                         </Text>
                         <HStack spacing={3}>
                           <Button
@@ -103,7 +105,7 @@ const Form = observer(
                             px={6}
                             borderRadius="xl"
                           >
-                            Cancel
+                            {t("doctors.form.cancel")}
                           </Button>
                           <Button
                             type="submit"
@@ -119,7 +121,7 @@ const Form = observer(
                               transform: "translateY(-1px)",
                             }}
                           >
-                            {initialData?._id || isEdit ? "Update" : "Save"}
+                            {initialData?._id || isEdit ? t("doctors.form.update") : t("doctors.form.save")}
                           </Button>
                         </HStack>
                       </Flex>
@@ -133,7 +135,7 @@ const Form = observer(
                         mb={4}
                         display={{ base: "block", md: "none" }}
                       >
-                        Personal Information
+                        {t("doctors.form.personalInformation")}
                       </Text>
 
                       <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
@@ -186,7 +188,7 @@ const Form = observer(
                         >
                           <Flex gap={2} align={"end"}>
                             <CustomInput
-                              label="Title"
+                              label={t("doctors.form.title")}
                               name="title"
                               type="select"
                               options={getMasterOptions("titles")}
@@ -205,9 +207,9 @@ const Form = observer(
                             />
                           </Flex>
                           <CustomInput
-                            label="Name"
+                            label={t("doctors.form.nameLabel")}
                             name="name"
-                            placeholder="Enter Name"
+                            placeholder={t("doctors.form.enterName")}
                             value={values.name}
                             required={true}
                             onChange={handleChange}
@@ -215,7 +217,7 @@ const Form = observer(
                             showError={errors.name && touched.name}
                           />
                           <CustomInput
-                            label="Date Of birth"
+                            label={t("doctors.form.dob")}
                             type="date"
                             name={`dob`}
                             value={values.dob || ""}
@@ -225,15 +227,15 @@ const Form = observer(
                             showError={errors?.dob}
                           />
                           <CustomInput
-                            label="Age"
+                            label={t("doctors.form.age")}
                             name="age"
                             type="number"
                             value={calculateAgeSafe(values?.dob) ?? ""}
                             disabled={true}
-                            placeholder="Auto calculated"
+                            placeholder={t("doctors.form.autoCalculated")}
                           />
                           <CustomInput
-                            label="Gender"
+                            label={t("doctors.form.gender")}
                             name="gender"
                             type="select"
                             options={genderOptions}
@@ -244,9 +246,9 @@ const Form = observer(
                             showError={errors.gender}
                           />
                           <CustomInput
-                            label="Languages"
+                            label={t("doctors.form.languages")}
                             name="languages"
-                            placeholder="Add Language"
+                            placeholder={t("doctors.form.addLanguage")}
                             value={values.languages}
                             onChange={(newTags: any) =>
                               setFieldValue("languages", newTags)
@@ -267,10 +269,10 @@ const Form = observer(
                           p={3}
                         >
                           <CustomInput
-                            label="Special Details"
+                            label={t("doctors.form.specialDetails")}
                             name="bio"
                             type="textarea"
-                            placeholder="Enter Special Details"
+                            placeholder={t("doctors.form.enterSpecialDetails")}
                             // required={true}
                             value={values.bio}
                             onChange={handleChange}
@@ -289,11 +291,11 @@ const Form = observer(
                           p={3}
                         >
                           <CustomInput
-                            label="Medical History"
+                            label={t("patients.form.medicalHistory.title")}
                             name="medicalHistory"
                             type="textarea"
                             // required={true}
-                            placeholder="Enter your medical history here"
+                            placeholder={t("patients.form.medicalHistory.title")}
                             value={values.medicalHistory}
                             onChange={handleChange}
                             error={errors.medicalHistory}
@@ -366,7 +368,7 @@ const Form = observer(
                       flex={1}
                       borderRadius="xl"
                     >
-                      Cancel
+                      {t("doctors.form.cancel")}
                     </Button>
                     <Button
                       type="submit"
@@ -377,7 +379,7 @@ const Form = observer(
                       borderRadius="xl"
                       shadow="md"
                     >
-                      {initialData?._id || isEdit ? "Update" : "Save"}
+                      {initialData?._id || isEdit ? t("doctors.form.update") : t("doctors.form.save")}
                     </Button>
                   </HStack>
                 </FormikForm>

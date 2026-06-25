@@ -464,7 +464,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             <Wrap mt={2}>
               {value?.map((tag: string, index: number) => (
                 <WrapItem key={index}>
-                  <Tag size="md" borderRadius="full" colorScheme="brand">
+                  <Tag size="md" borderRadius="full" bg="#FED7E2" color="#1A202C">
                     <TagLabel>{tag}</TagLabel>
                     <TagCloseButton onClick={() => handleTagRemove(tag)} />
                   </Tag>

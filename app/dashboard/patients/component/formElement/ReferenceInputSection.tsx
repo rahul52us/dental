@@ -11,6 +11,7 @@ import {
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import { useTranslation } from "react-i18next";
 
 interface Reference {
   refrenceBy: any;
@@ -32,6 +33,7 @@ const ReferenceInputSection = ({
   const bgBox = useColorModeValue("white", "darkBrand.100");
   const borderColor = useColorModeValue("gray.200", "darkBrand.200");
   const textColor = useColorModeValue("black", "white");
+  const { t } = useTranslation();
 
   return (
     <FieldArray name="references">
@@ -39,7 +41,7 @@ const ReferenceInputSection = ({
         <Box borderTopWidth={1} pt={4} mt={4} borderColor={borderColor}>
           <Flex justify="space-between" align="center" mb={4}>
             <Text fontWeight="bold" fontSize="lg" color={textColor}>
-              References
+              {t("patients.form.references")}
             </Text>
             <Button
               leftIcon={<AddIcon />}
@@ -47,7 +49,7 @@ const ReferenceInputSection = ({
               colorScheme="brand"
               onClick={() => push({ refrenceBy: null, refrenceNote: "" })}
             >
-              Add Reference
+              {t("patients.form.addReference")}
             </Button>
           </Flex>
 
@@ -72,9 +74,9 @@ const ReferenceInputSection = ({
                 >
                   <CustomInput
                     name={`references[${index}].refrenceBy`}
-                    placeholder="Search Reference (Patient, Doctor, Staff)"
+                    placeholder={t("patients.form.searchReference")}
                     type="real-time-user-search"
-                    label="Reference By"
+                    label={t("patients.form.referenceBy")}
                     value={reference.refrenceBy}
                     options={
                       reference?.refrenceBy
@@ -90,8 +92,8 @@ const ReferenceInputSection = ({
                   
                   <CustomInput
                     name={`references[${index}].refrenceNote`}
-                    placeholder="e.g. Brother, Friend, Staff"
-                    label="Relation / Note"
+                    placeholder={t("patients.form.relationNotePlaceholder")}
+                    label={t("patients.form.relationNote")}
                     value={reference.refrenceNote}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFieldValue(`references[${index}].refrenceNote`, e.target.value)

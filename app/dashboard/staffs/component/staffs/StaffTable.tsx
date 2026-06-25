@@ -30,6 +30,7 @@ import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
 import stores from "../../../../store/stores";
 import ViewUser from "./ViewUser";
+import { useTranslation } from "react-i18next";
 
 const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -42,6 +43,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [selectedUser, setSelectedTherapist] = useState<any>(null);
   const [statusUser, setStatusUser] = useState<any>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const { t } = useTranslation();
   const [isPermOpen, setIsPermOpen] = useState(false);
   const [permUser, setPermUser] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,7 +69,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         .catch((err) => {
           openNotification({
             type: "error",
-            title: "Failed to get users",
+            title: t("staffs.table.failedToGetUsers"),
             message: err?.message,
           });
         });
@@ -110,8 +112,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       if (res.data.status === "success") {
         openNotification({
           type: "success",
-          title: "Status Updated",
-          message: `${statusUser.name}'s status has been updated successfully.`,
+          title: t("staffs.table.statusUpdated"),
+          message: t("staffs.table.statusUpdatedDesc", { name: statusUser.name }),
         });
         applyGetAllTherapists({ page: currentPage, isActive: isActiveFilter });
         onStatusClose();
@@ -119,8 +121,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     } catch (err: any) {
       openNotification({
         type: "error",
-        title: "Update Failed",
-        message: err?.message || "Failed to update status",
+        title: t("staffs.table.updateFailed"),
+        message: err?.message || t("staffs.table.failedToUpdateStatus"),
       });
     } finally {
       setStatusLoading(false);
@@ -129,12 +131,12 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const UserTableColumns = [
     {
-      headerName: "S.No.",
+      headerName: t("staffs.table.sno"),
       key: "sno",
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Pic",
+      headerName: t("staffs.table.pic"),
       key: "user",
       type: "component",
       metaData: {
@@ -150,7 +152,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Name",
+      headerName: t("staffs.table.name"),
       key: "gender",
       type: "component",
       metaData: {
@@ -184,12 +186,12 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Code",
+      headerName: t("staffs.table.code"),
       key: "code",
       props: { row: { textAlign: "center" } },
     },
     {
-      headerName: "Mobile No.",
+      headerName: t("staffs.table.mobileNo"),
       key: "mobile",
       type: "component",
       metaData: {
@@ -219,14 +221,14 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Permissions",
+      headerName: t("staffs.table.permissions"),
       key: "permissions",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Tooltip label="Manage Access Permissions">
+          <Tooltip label={t("staffs.table.managePermissions")}>
             <IconButton
-              aria-label="Manage Permissions"
+              aria-label={t("staffs.table.managePermissions")}
               icon={<FiLock />}
               size="sm"
               colorScheme="purple"
@@ -246,18 +248,18 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Status",
+      headerName: t("staffs.table.status"),
       key: "is_active",
       type: "component",
       metaData: {
         component: (dt: any) => (
           <Flex justify="center" align="center" gap={2}>
             <Badge colorScheme={dt.is_active ? "green" : "red"} variant="subtle" px={2} borderRadius="full">
-              {dt.is_active ? "Active" : "Inactive"}
+              {dt.is_active ? t("staffs.table.active") : t("staffs.table.inactive")}
             </Badge>
-            <Tooltip label={dt.is_active ? "Deactivate" : "Activate"}>
+            <Tooltip label={dt.is_active ? t("staffs.table.deactivate") : t("staffs.table.activate")}>
               <IconButton
-                aria-label="Toggle Status"
+                aria-label={t("staffs.table.toggleStatus")}
                 icon={<FiPower />}
                 size="xs"
                 colorScheme={dt.is_active ? "red" : "green"}
@@ -274,7 +276,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
-      headerName: "Actions",
+      headerName: t("staffs.table.actions"),
       key: "table-actions",
       type: "table-actions",
       props: {
@@ -291,7 +293,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   return (
     <Box p={4}>
       <CustomTable
-        title="Staffs"
+        title={t("staffs.table.staffs")}
         data={
           user.data?.map((t: any, index: number) => {
             return {
@@ -337,34 +339,39 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           },
             resetData: {
               show: true,
-              text: "Reset Data",
+              text: t("staffs.table.resetData"),
               function: resetTableData,
             },
             multidropdown: {
               show: true,
-              title: "Filter Status",
+              title: t("staffs.table.filterStatus"),
               dropdowns: [
                 {
-                  label: "Status",
+                  label: t("staffs.table.status"),
                   options: [
-                    { label: "Active", value: true },
-                    { label: "Inactive", value: false },
-                    { label: "All", value: "all" },
+                    { label: t("staffs.table.active"), value: true },
+                    { label: t("staffs.table.inactive"), value: false },
+                    { label: t("staffs.table.all"), value: "all" },
                   ],
                 },
               ],
               onDropdownChange: (selected: any, label: string) => {
-                if (label === "Status") {
+                if (label === t("staffs.table.status") || label === "Status") {
                   const val = selected?.length > 0 ? selected[selected.length - 1].value : "all";
                   setIsActiveFilter(val);
                 }
               },
               selectedOptions: {
-                Status: isActiveFilter === "all" 
-                  ? [{ label: "All", value: "all" }] 
+                [t("staffs.table.status")]: isActiveFilter === "all" 
+                  ? [{ label: t("staffs.table.all"), value: "all" }] 
                   : (isActiveFilter === true 
-                    ? [{ label: "Active", value: true }] 
-                    : [{ label: "Inactive", value: false }])
+                    ? [{ label: t("staffs.table.active"), value: true }] 
+                    : [{ label: t("staffs.table.inactive"), value: false }]),
+                "Status": isActiveFilter === "all" 
+                  ? [{ label: t("staffs.table.all"), value: "all" }] 
+                  : (isActiveFilter === true 
+                    ? [{ label: t("staffs.table.active"), value: true }] 
+                    : [{ label: t("staffs.table.inactive"), value: false }])
               },
               onApply: () => {
                 setCurrentPage(1);
@@ -391,7 +398,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
-              User Profile
+              {t("staffs.table.userProfile")}
             </Flex>
           </DrawerHeader>
 
@@ -411,7 +418,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       <FormModel 
         open={isStatusOpen} 
         close={onStatusClose} 
-        title="Confirm Status Change"
+        title={t("staffs.table.confirmStatusChange")}
         isCentered
         size="md"
       >
@@ -419,7 +426,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Icon as={FiAlertCircle} w={12} h={12} color={statusUser?.is_active ? "orange.400" : "green.400"} />
           <Box>
             <Text fontSize="lg" fontWeight="medium">
-              You are about to {statusUser?.is_active ? "deactivate" : "activate"} 
+              {t("staffs.table.youAreAboutTo", { action: statusUser?.is_active ? t("staffs.table.deactivate").toLowerCase() : t("staffs.table.activate").toLowerCase() })}
             </Text>
             <Text fontSize="xl" fontWeight="bold" color="blue.600">
               {statusUser?.name}
@@ -427,13 +434,13 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Box>
           <Text color="gray.600">
             {statusUser?.is_active 
-              ? "Deactivating this staff member will prevent them from logging in and accessing clinical data." 
-              : "Activating this staff member will restore their access to the system."}
+              ? t("staffs.table.deactivatingStaff")
+              : t("staffs.table.activatingStaff")}
           </Text>
           
           <Flex gap={4} w="full" pt={4}>
             <Button variant="ghost" flex={1} onClick={onStatusClose}>
-              Cancel
+              {t("staffs.table.cancel")}
             </Button>
             <Button 
               colorScheme={statusUser?.is_active ? "orange" : "green"} 
@@ -442,7 +449,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               isLoading={statusLoading}
               leftIcon={<FiPower />}
             >
-              Confirm {statusUser?.is_active ? "Deactivation" : "Activation"}
+              {statusUser?.is_active ? t("staffs.table.confirmDeactivation") : t("staffs.table.confirmActivation")}
             </Button>
           </Flex>
         </VStack>
