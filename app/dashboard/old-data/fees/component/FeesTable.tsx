@@ -74,6 +74,22 @@ const FeesTable = observer(() => {
             searchValue: searchQuery,
             onSearchChange: (e: any) => setSearchQuery(e.target.value),
           },
+          datePicker: {
+            show: true,
+            date: {
+              startDate: oldDataStore.startDate,
+              endDate: oldDataStore.endDate,
+            },
+            onDateChange: (date: any, type: string) => {
+              if (type === "startDate") oldDataStore.setStartDate(date);
+              else if (type === "endDate") oldDataStore.setEndDate(date);
+            },
+          },
+          customComponent: (
+            <Button size="sm" colorScheme="blue" onClick={() => oldDataStore.applyDateFilter("workFees")}>
+              Apply
+            </Button>
+          ),
           pagination: {
             show: true,
             currentPage: oldDataStore.workFeePage,
@@ -82,8 +98,11 @@ const FeesTable = observer(() => {
           },
           resetData: {
             show: true,
-            text: "Refresh",
-            function: () => oldDataStore.fetchWorkFees()
+            text: "Reset",
+            function: () => {
+              setSearchQuery("");
+              oldDataStore.resetDateFilter("workFees");
+            }
           }
         }}
       />

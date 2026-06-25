@@ -24,6 +24,11 @@ export default class OldDataStore {
   
   searchQuery = "";
 
+  startDate: Date = (() => { const d = new Date(); d.setFullYear(d.getFullYear() - 30); return d; })();
+  endDate: Date = new Date();
+  appliedStartDate: Date | null = null;
+  appliedEndDate: Date | null = null;
+
   limit = 20;
 
   constructor() {
@@ -47,12 +52,56 @@ export default class OldDataStore {
     if (tab === "workFees") this.workFeePage = page;
   }
 
+  setStartDate(date: Date) {
+    this.startDate = date;
+  }
+
+  setEndDate(date: Date) {
+    this.endDate = date;
+  }
+
+  applyDateFilter(tab: string) {
+    this.appliedStartDate = this.startDate;
+    this.appliedEndDate = this.endDate;
+    this.workCompPage = 1;
+    this.toothWorkPage = 1;
+    this.transactionPage = 1;
+    this.workFeePage = 1;
+    
+    if (tab === "workComp") this.fetchWorkComp();
+    if (tab === "toothWork") this.fetchToothWork();
+    if (tab === "transactions") this.fetchTransactions();
+    if (tab === "workFees") this.fetchWorkFees();
+  }
+
+  resetDateFilter(tab: string) {
+    this.appliedStartDate = null;
+    this.appliedEndDate = null;
+    const thirtyYearsAgo = new Date();
+    thirtyYearsAgo.setFullYear(thirtyYearsAgo.getFullYear() - 30);
+    this.startDate = thirtyYearsAgo;
+    this.endDate = new Date();
+    this.searchQuery = "";
+    
+    this.workCompPage = 1;
+    this.toothWorkPage = 1;
+    this.transactionPage = 1;
+    this.workFeePage = 1;
+    
+    if (tab === "workComp") this.fetchWorkComp();
+    if (tab === "toothWork") this.fetchToothWork();
+    if (tab === "transactions") this.fetchTransactions();
+    if (tab === "workFees") this.fetchWorkFees();
+  }
+
   async fetchWorkComp() {
     try {
       this.loading = true;
-      const res = await axios.get(
-        `/old-data/work-comp?page=${this.workCompPage}&limit=${this.limit}&search=${this.searchQuery}`
-      );
+      let url = `/old-data/work-comp?page=${this.workCompPage}&limit=${this.limit}&search=${this.searchQuery}`;
+      if (this.appliedStartDate && this.appliedEndDate) {
+        url += `&startDate=${this.appliedStartDate.toISOString()}&endDate=${this.appliedEndDate.toISOString()}`;
+      }
+      const res = await axios.get(url);
       this.workComp = res.data.data;
       this.totalWorkComp = res.data.totalCount;
       this.loading = false;
@@ -65,9 +114,11 @@ export default class OldDataStore {
   async fetchToothWork() {
     try {
       this.loading = true;
-      const res = await axios.get(
-        `/old-data/tooth-work?page=${this.toothWorkPage}&limit=${this.limit}&search=${this.searchQuery}`
-      );
+      let url = `/old-data/tooth-work?page=${this.toothWorkPage}&limit=${this.limit}&search=${this.searchQuery}`;
+      if (this.appliedStartDate && this.appliedEndDate) {
+        url += `&startDate=${this.appliedStartDate.toISOString()}&endDate=${this.appliedEndDate.toISOString()}`;
+      }
+      const res = await axios.get(url);
       this.toothWork = res.data.data;
       this.totalToothWork = res.data.totalCount;
       this.loading = false;
@@ -80,9 +131,11 @@ export default class OldDataStore {
   async fetchTransactions() {
     try {
       this.loading = true;
-      const res = await axios.get(
-        `/old-data/transactions?page=${this.transactionPage}&limit=${this.limit}&search=${this.searchQuery}`
-      );
+      let url = `/old-data/transactions?page=${this.transactionPage}&limit=${this.limit}&search=${this.searchQuery}`;
+      if (this.appliedStartDate && this.appliedEndDate) {
+        url += `&startDate=${this.appliedStartDate.toISOString()}&endDate=${this.appliedEndDate.toISOString()}`;
+      }
+      const res = await axios.get(url);
       this.transactions = res.data.data;
       this.totalTransactions = res.data.totalCount;
       this.loading = false;
@@ -95,9 +148,11 @@ export default class OldDataStore {
   async fetchWorkFees() {
     try {
       this.loading = true;
-      const res = await axios.get(
-        `/old-data/work-fees?page=${this.workFeePage}&limit=${this.limit}&search=${this.searchQuery}`
-      );
+      let url = `/old-data/work-fees?page=${this.workFeePage}&limit=${this.limit}&search=${this.searchQuery}`;
+      if (this.appliedStartDate && this.appliedEndDate) {
+        url += `&startDate=${this.appliedStartDate.toISOString()}&endDate=${this.appliedEndDate.toISOString()}`;
+      }
+      const res = await axios.get(url);
       this.workFees = res.data.data;
       this.totalWorkFees = res.data.totalCount;
       this.loading = false;
