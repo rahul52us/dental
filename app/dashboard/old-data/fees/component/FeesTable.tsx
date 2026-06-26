@@ -8,17 +8,22 @@ import {
   Text,
   Button,
   useDisclosure,
-  Icon
+  Icon,
+  HStack
 } from "@chakra-ui/react";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaList } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
+import LegacyPatientHistoryDrawer from "../../component/LegacyPatientHistoryDrawer";
 
 
 const FeesTable = observer(() => {
   const { oldDataStore } = stores;
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
 
   const handleOpenDrawer = (row: any) => {
     oldDataStore.fetchLegacyRecordDetails(row.legacyWrkDoneId);
@@ -28,6 +33,16 @@ const FeesTable = observer(() => {
   const handleCloseDrawer = () => {
     onClose();
     oldDataStore.clearSelectedRecord();
+  };
+  
+  const handleOpenHistoryDrawer = (row: any) => {
+    oldDataStore.fetchLegacyPatientHistory(row.legacyPatCode);
+    onHistoryOpen();
+  };
+
+  const handleCloseHistoryDrawer = () => {
+    onHistoryClose();
+    oldDataStore.clearPatientFullHistory();
   };
   
   useEffect(() => {
@@ -43,19 +58,24 @@ const FeesTable = observer(() => {
   };
 
   const columns = [
-    { headerName: "Work Date", function: (row: any) => new Date(row.wrk_date).toLocaleDateString() },
-    { headerName: "Patient Code", key: "legacyPatCode" },
-    { headerName: "Patient Name", function: (row: any) => row.patientId?.name || "Unknown" },
-    { headerName: "Doctor", function: (row: any) => row.doctorId?.name || row.legacyDocCode },
-    { headerName: "Fee Due", key: "fee_due" },
-    { headerName: "Fee Dis", key: "fee_dis" },
-    { headerName: "Stage", function: (row: any) => <Badge colorScheme="purple">{row.treat_stage}</Badge> },
-    { 
-      headerName: "Work Info", 
+    { headerName: t("Work Date"), function: (row: any) => new Date(row.wrk_date).toLocaleDateString() },
+    { headerName: t("Patient Code"), key: "legacyPatCode" },
+    { headerName: t("Patient Name"), function: (row: any) => row.patientId?.name || "Unknown" },
+    { headerName: t("Doctor"), function: (row: any) => row.doctorId?.name || row.legacyDocCode },
+    { headerName: t("Fee Due"), key: "fee_due" },
+    { headerName: t("Fee Dis"), key: "fee_dis" },
+    { headerName: t("Stage"), function: (row: any) => <Badge colorScheme="purple">{row.treat_stage}</Badge> },
+    {
+      headerName: t("Actions"), 
       function: (row: any) => (
-        <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)}>
-          <Icon as={FaEye} />
-        </Button>
+        <HStack spacing={2}>
+          <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)} title={t("View Single Record")}>
+            <Icon as={FaEye} />
+          </Button>
+          <Button size="sm" colorScheme="purple" variant="ghost" onClick={() => handleOpenHistoryDrawer(row)} title={t("View All History")}>
+            <Icon as={FaList} />
+          </Button>
+        </HStack>
       ) 
     },
   ];
@@ -63,7 +83,7 @@ const FeesTable = observer(() => {
   return (
     <Box p={4}>
       <CustomTable
-        title="Fees"
+        title={t("Fees")}
         serial={{ show: false }}
         columns={columns}
         data={oldDataStore.workFees}
@@ -108,6 +128,7 @@ const FeesTable = observer(() => {
       />
 
       <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
+      <LegacyPatientHistoryDrawer isOpen={isHistoryOpen} onClose={handleCloseHistoryDrawer} />
     </Box>
   );
 });

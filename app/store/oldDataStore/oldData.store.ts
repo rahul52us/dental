@@ -16,6 +16,9 @@ export default class OldDataStore {
   detailsLoading = false;
   selectedFullRecord: any = null;
   
+  patientFullHistoryLoading = false;
+  patientFullHistory: any = null;
+  
   // Pagination & Search State
   workCompPage = 1;
   toothWorkPage = 1;
@@ -177,5 +180,22 @@ export default class OldDataStore {
 
   clearSelectedRecord() {
     this.selectedFullRecord = null;
+  }
+
+  async fetchLegacyPatientHistory(legacyPatCode: string) {
+    if (!legacyPatCode) return;
+    try {
+      this.patientFullHistoryLoading = true;
+      const res = await axios.get(`/old-data/patient-history/${legacyPatCode}`);
+      this.patientFullHistory = res.data.data;
+      this.patientFullHistoryLoading = false;
+    } catch (error) {
+      this.patientFullHistoryLoading = false;
+      console.error(error);
+    }
+  }
+
+  clearPatientFullHistory() {
+    this.patientFullHistory = null;
   }
 }

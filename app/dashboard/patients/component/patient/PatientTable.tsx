@@ -187,6 +187,12 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 140, textAlign: "center" } },
     },
     {
+      headerName: "Code",
+      key: "code",
+      type: "text",
+      props: { row: { minW: 100, textAlign: "center" } },
+    },
+    {
       headerName: "Appointments",
       key: "appointments",
       type: "component",

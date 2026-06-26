@@ -27,6 +27,7 @@ import {
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
 import { FaTooth, FaHistory, FaRupeeSign, FaFileInvoiceDollar, FaUserAlt, FaCalendarAlt, FaUserMd } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface LegacyRecordDrawerProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ interface LegacyRecordDrawerProps {
 
 const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProps) => {
   const { oldDataStore } = stores;
+  const { t } = useTranslation();
   const loading = oldDataStore.detailsLoading;
   const record = oldDataStore.selectedFullRecord;
 
@@ -42,7 +44,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
     if (!record) return "N/A";
     if (record.workComp?.doctorId?.name) return record.workComp.doctorId.name;
     if (record.workComp?.legacyDocCode && record.workComp.legacyDocCode !== "0") return record.workComp.legacyDocCode;
-    
+
     // Fallback: Try to find a valid doctor name in the related ToothWorks
     const tw = record.toothWorks?.find((t: any) => t.doctorId?.name || (t.legacyDocCode && t.legacyDocCode !== "0"));
     if (tw) {
@@ -62,7 +64,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
             <Box p={2} bg="blue.500" color="white" rounded="lg" shadow="sm">
               <Icon as={FaTooth} boxSize={5} />
             </Box>
-            <Text fontSize="2xl" fontWeight="bold">Complete Work Record Details</Text>
+            <Text fontSize="2xl" fontWeight="bold">{t("Complete Work Record Details")}</Text>
           </HStack>
         </DrawerHeader>
         <DrawerBody p={0} bg="gray.50">
@@ -72,7 +74,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
             </Center>
           ) : !record || !record.workComp ? (
             <Center h="100%" minH="50vh">
-              <Text color="gray.500" fontSize="lg">No complete record found.</Text>
+              <Text color="gray.500" fontSize="lg">{t("No complete record found.")}</Text>
             </Center>
           ) : (
             <VStack align="stretch" spacing={0} h="100%">
@@ -84,7 +86,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                       <Icon as={FaCalendarAlt} boxSize={6} />
                     </Box>
                     <Box>
-                      <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide">Date</Text>
+                      <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide">{t("Date")}</Text>
                       <Text fontSize="lg" fontWeight="bold" color="gray.800">{new Date(record.workComp.wrk_date).toLocaleDateString()}</Text>
                     </Box>
                   </Flex>
@@ -93,7 +95,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                       <Icon as={FaUserAlt} boxSize={6} />
                     </Box>
                     <Box>
-                      <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide">Patient</Text>
+                      <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide">{t("Patient")}</Text>
                       <Text fontSize="lg" fontWeight="bold" color="gray.800">{record.workComp.patientId?.name || "Unknown"}</Text>
                       <Badge colorScheme="green" variant="subtle" mt={1}>{record.workComp.legacyPatCode}</Badge>
                     </Box>
@@ -109,7 +111,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                   </Flex>
                   <Flex align="center">
                     <Box w="100%" p={4} bg="gray.50" rounded="xl" border="1px dashed" borderColor="gray.300">
-                      <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide" mb={1}>Treatment Stage</Text>
+                      <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide" mb={1}>{t("Treatment Stage")}</Text>
                       <Badge colorScheme={record.workComp.treat_stage === 'Done' ? 'green' : 'blue'} px={3} py={1} rounded="md" fontSize="md">
                         {record.workComp.treat_stage}
                       </Badge>
@@ -121,38 +123,42 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
               {/* Tabs Section */}
               <Box flex={1} p={6} bg="gray.50">
                 <Tabs variant="unstyled" h="100%">
-                  <TabList mb={6} bg="white" p={2} rounded="full" shadow="sm" display="inline-flex">
-                    <Tab 
-                      rounded="full" fontWeight="bold" px={6} py={2} 
-                      _selected={{ bg: "blue.600", color: "white", shadow: "md" }}
+                  <TabList mb={6} bg="white" p={1.5} rounded="full" shadow="sm" display="flex" w="100%">
+                    <Tab
+                      flex={1} justifyContent="center"
+                      rounded="full" fontWeight="bold" px={4} py={1.5} fontSize="sm"
+                      _selected={{ bg: "blue.600", color: "white", shadow: "sm" }}
                       _hover={{ bg: "blue.50", color: "blue.700" }}
                       transition="all 0.2s"
                     >
-                      <Icon as={FaTooth} mr={2} />Work Details ({record.details?.length || 0})
+                      <Icon as={FaTooth} mr={2} />{t("Work Details")} ({record.details?.length || 0})
                     </Tab>
-                    <Tab 
-                      rounded="full" fontWeight="bold" px={6} py={2} 
-                      _selected={{ bg: "blue.600", color: "white", shadow: "md" }}
+                    <Tab
+                      flex={1} justifyContent="center"
+                      rounded="full" fontWeight="bold" px={4} py={1.5} fontSize="sm"
+                      _selected={{ bg: "blue.600", color: "white", shadow: "sm" }}
                       _hover={{ bg: "blue.50", color: "blue.700" }}
                       transition="all 0.2s"
                     >
-                      <Icon as={FaHistory} mr={2} />History ({record.toothWorks?.length || 0})
+                      <Icon as={FaHistory} mr={2} />{t("History")} ({record.toothWorks?.length || 0})
                     </Tab>
-                    <Tab 
-                      rounded="full" fontWeight="bold" px={6} py={2} 
-                      _selected={{ bg: "blue.600", color: "white", shadow: "md" }}
+                    <Tab
+                      flex={1} justifyContent="center"
+                      rounded="full" fontWeight="bold" px={4} py={1.5} fontSize="sm"
+                      _selected={{ bg: "blue.600", color: "white", shadow: "sm" }}
                       _hover={{ bg: "blue.50", color: "blue.700" }}
                       transition="all 0.2s"
                     >
-                      <Icon as={FaRupeeSign} mr={2} />Transactions ({record.transactions?.length || 0})
+                      <Icon as={FaRupeeSign} mr={2} />{t("Transactions")} ({record.transactions?.length || 0})
                     </Tab>
-                    <Tab 
-                      rounded="full" fontWeight="bold" px={6} py={2} 
-                      _selected={{ bg: "blue.600", color: "white", shadow: "md" }}
+                    <Tab
+                      flex={1} justifyContent="center"
+                      rounded="full" fontWeight="bold" px={4} py={1.5} fontSize="sm"
+                      _selected={{ bg: "blue.600", color: "white", shadow: "sm" }}
                       _hover={{ bg: "blue.50", color: "blue.700" }}
                       transition="all 0.2s"
                     >
-                      <Icon as={FaFileInvoiceDollar} mr={2} />Fees ({record.workFees?.length || 0})
+                      <Icon as={FaFileInvoiceDollar} mr={2} />{t("Fees")} ({record.workFees?.length || 0})
                     </Tab>
                   </TabList>
 
@@ -163,7 +169,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                         {record.details?.map((d: any, idx: number) => {
                           const hasToothInfo = d.ToothName || d.ToothNoS;
                           const toothDisplay = [d.ToothName, d.ToothNoS ? `(${d.ToothNoS})` : ""].filter(Boolean).join(" ");
-                          
+
                           return (
                             <Box key={idx} p={5} bg="white" border="1px" borderColor="gray.100" rounded="2xl" shadow="sm" _hover={{ shadow: 'md', transform: 'translateY(-2px)' }} transition="all 0.2s">
                               {hasToothInfo ? (
@@ -171,11 +177,11 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                               ) : (
                                 <Badge colorScheme="gray" mb={3} px={2} py={1} rounded="md">General Work</Badge>
                               )}
-                              
+
                               {d.Wrk_Done && (
                                 <Text fontSize="lg" fontWeight="semibold" color="gray.700" mb={3}>{d.Wrk_Done}</Text>
                               )}
-                              
+
                               {d.Sp_Notes && (
                                 <Box bg="gray.50" p={3} rounded="lg" borderLeft="4px solid" borderColor={hasToothInfo ? "teal.400" : "gray.400"}>
                                   <Text fontSize="sm" color="gray.600"><strong>Notes:</strong> {d.Sp_Notes}</Text>

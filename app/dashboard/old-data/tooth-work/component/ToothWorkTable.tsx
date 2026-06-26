@@ -12,10 +12,12 @@ import {
   Icon,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaList } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
+import LegacyPatientHistoryDrawer from "../../component/LegacyPatientHistoryDrawer";
 
 const toInputDate = (d: Date) => {
   try { return d.toISOString().split("T")[0]; } catch { return ""; }
@@ -23,8 +25,10 @@ const toInputDate = (d: Date) => {
 
 const ToothWorkTable = observer(() => {
   const { oldDataStore } = stores;
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const debounceRef = useRef<any>(null);
 
   const handleOpenDrawer = (row: any) => {
@@ -35,6 +39,16 @@ const ToothWorkTable = observer(() => {
   const handleCloseDrawer = () => {
     onClose();
     oldDataStore.clearSelectedRecord();
+  };
+
+  const handleOpenHistoryDrawer = (row: any) => {
+    oldDataStore.fetchLegacyPatientHistory(row.legacyPatCode);
+    onHistoryOpen();
+  };
+
+  const handleCloseHistoryDrawer = () => {
+    onHistoryClose();
+    oldDataStore.clearPatientFullHistory();
   };
 
   useEffect(() => {
@@ -56,19 +70,24 @@ const ToothWorkTable = observer(() => {
   };
 
   const columns = [
-    { headerName: "Date", function: (row: any) => new Date(row.wrkdate).toLocaleDateString() },
-    { headerName: "Patient Code", key: "legacyPatCode" },
-    { headerName: "Patient Name", function: (row: any) => row.patientId?.name || "Unknown" },
-    { headerName: "Doctor", function: (row: any) => row.doctorId?.name || row.legacyDocCode },
-    { headerName: "Treatment Name", key: "name" },
-    { headerName: "Description", key: "descript", type: "tooltip" },
-    { headerName: "Tooth No", key: "ToothNoS" },
+    { headerName: t("Date"), function: (row: any) => new Date(row.wrkdate).toLocaleDateString() },
+    { headerName: t("Patient Code"), key: "legacyPatCode" },
+    { headerName: t("Patient Name"), function: (row: any) => row.patientId?.name || "Unknown" },
+    { headerName: t("Doctor"), function: (row: any) => row.doctorId?.name || row.legacyDocCode },
+    { headerName: t("Treatment Name"), key: "name" },
+    { headerName: t("Description"), key: "descript", type: "tooltip" },
+    { headerName: t("Tooth No"), key: "ToothNoS" },
     {
-      headerName: "Work Info",
+      headerName: t("Actions"),
       function: (row: any) => (
-        <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)}>
-          <Icon as={FaEye} />
-        </Button>
+        <HStack spacing={2}>
+          <Button size="sm" colorScheme="blue" variant="ghost" onClick={() => handleOpenDrawer(row)} title={t("View Single Record")}>
+            <Icon as={FaEye} />
+          </Button>
+          <Button size="sm" colorScheme="purple" variant="ghost" onClick={() => handleOpenHistoryDrawer(row)} title={t("View All History")}>
+            <Icon as={FaList} />
+          </Button>
+        </HStack>
       )
     },
   ];
@@ -76,7 +95,7 @@ const ToothWorkTable = observer(() => {
   return (
     <Box p={4}>
       <CustomTable
-        title="Tooth Work"
+        title={t("Tooth Work")}
         serial={{ show: false }}
         columns={columns}
         data={oldDataStore.toothWork}
@@ -129,6 +148,7 @@ const ToothWorkTable = observer(() => {
       />
 
       <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
+      <LegacyPatientHistoryDrawer isOpen={isHistoryOpen} onClose={handleCloseHistoryDrawer} />
     </Box>
   );
 });

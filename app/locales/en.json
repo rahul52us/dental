@@ -501,5 +501,26 @@
     "statusActive": "Status: Active",
     "newUsers": "New Users",
     "completedAppointments": "Completed Appointments"
-  }
+  },
+  "Date": "Date",
+  "Work Date": "Work Date",
+  "Patient Code": "Patient Code",
+  "Patient Name": "Patient Name",
+  "Doctor": "Doctor",
+  "Fee Due": "Fee Due",
+  "Fee Dis": "Fee Dis",
+  "Stage": "Stage",
+  "Actions": "Actions",
+  "Treatment Name": "Treatment Name",
+  "Description": "Description",
+  "Tooth No": "Tooth No",
+  "Fee Received": "Fee Received",
+  "View Single Record": "View Single Record",
+  "View All History": "View All History",
+  "Work Details": "Work Details",
+  "History": "History",
+  "Transactions": "Transactions",
+  "Fees": "Fees",
+  "Treatment Stage": "Treatment Stage",
+  "Patient": "Patient"
 }
