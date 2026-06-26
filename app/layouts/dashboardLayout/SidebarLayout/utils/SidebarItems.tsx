@@ -145,6 +145,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <AppointmentIcon />,
     url: "/dashboard/appointments/book",
     role: ["patient", "doctor", "admin", "staff"],
+    permission: { module: "appointment", action: "sidebar" },
   },
   {
     id: 16,
@@ -152,6 +153,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <WaitingRoomIcon />,
     url: "/dashboard/appointments/waiting-room",
     role: ["patient", "doctor", "admin", "staff"],
+    permission: { module: "appointment", action: "sidebar" },
   },
   {
     id: 9,
@@ -225,7 +227,8 @@ const sidebarDatas: SidebarItem[] = [
     name: "Admins",
     icon: <FaUserAstronaut />,
     url: "/dashboard/admins",
-    role: ["superAdmin"],
+    role: ["superAdmin", "superadmin"],
+    permission: { module: "admins", action: "sidebar" },
   },
   {
     id: 42,
@@ -248,6 +251,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaListAlt />,
     url: "/dashboard/global-accountability",
     role: ["admin", "superAdmin", "staff"],
+    permission: { module: "globalAccountability", action: "sidebar" },
   },
   {
     id: 43,
@@ -255,6 +259,7 @@ const sidebarDatas: SidebarItem[] = [
     icon: <FaClipboardList />,
     url: "#",
     role: ["admin", "superAdmin", "staff"],
+    permission: { module: "historicalRecords", action: "sidebar" },
     children: [
       {
         id: 44,
@@ -262,6 +267,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaClipboardList />,
         url: "/dashboard/old-data/work-done",
         role: ["admin", "superAdmin", "staff"],
+        permission: { module: "historicalRecords", action: "sidebar" },
       },
       {
         id: 45,
@@ -269,6 +275,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaClipboardList />,
         url: "/dashboard/old-data/tooth-work",
         role: ["admin", "superAdmin", "staff"],
+        permission: { module: "historicalRecords", action: "sidebar" },
       },
       {
         id: 46,
@@ -276,6 +283,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaClipboardList />,
         url: "/dashboard/old-data/transactions",
         role: ["admin", "superAdmin", "staff"],
+        permission: { module: "historicalRecords", action: "sidebar" },
       },
       {
         id: 47,
@@ -283,6 +291,7 @@ const sidebarDatas: SidebarItem[] = [
         icon: <FaClipboardList />,
         url: "/dashboard/old-data/fees",
         role: ["admin", "superAdmin", "staff"],
+        permission: { module: "historicalRecords", action: "sidebar" },
       },
     ],
   },
@@ -302,8 +311,17 @@ const getSidebarDataByRole = (role: string[] = ["admin", "staff"]): SidebarItem[
   const filterByRoleAndPermission = (items: SidebarItem[]): SidebarItem[] => {
     return items
       .filter((item) => {
-        // First check role
-        const hasRole = !item.role || item.role.some((r) => role.includes(r));
+        // First check role (superAdmins pass the role check automatically)
+        const isSuperAdmin = role.includes("superAdmin") || role.includes("superadmin");
+        
+        // If the user is a superAdmin, they should ONLY see the Admins tab (and basic ones like Dashboard)
+        if (isSuperAdmin) {
+          if (item.name !== "Admins" && item.name !== "Settings") {
+            return false;
+          }
+        }
+
+        const hasRole = isSuperAdmin || !item.role || item.role.some((r) => role.includes(r));
         if (!hasRole) return false;
 
         // Then check permission
@@ -321,8 +339,8 @@ const getSidebarDataByRole = (role: string[] = ["admin", "staff"]): SidebarItem[
         children: item.children ? filterByRoleAndPermission(item.children) : undefined,
       }))
       .filter((item) => {
-        // If item has children but all were filtered out, hide parent too (unless it's a direct link)
-        if (item.children && item.children.length === 0 && item.url === "#") {
+        // If item has children but all were filtered out, hide parent too
+        if (item.children && item.children.length === 0) {
           return false;
         }
         return true;

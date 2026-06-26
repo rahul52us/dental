@@ -28,13 +28,15 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
   const { userStore } = stores;
 
   useEffect(() => {
-    if (staff && staff.permissions) {
-      setPermissions(toJS(staff.permissions));
+    const defaultPerms: any = {};
+    MODULES.forEach(m => {
+      defaultPerms[m.id] = { view: false, create: false, edit: false, delete: false, download: false, print: false, sidebar: false };
+    });
+
+    if (staff && staff.permissions && Object.keys(staff.permissions).length > 0) {
+      // Merge existing permissions with defaults so we never save an empty object
+      setPermissions({ ...defaultPerms, ...toJS(staff.permissions) });
     } else {
-      const defaultPerms: any = {};
-      MODULES.forEach(m => {
-        defaultPerms[m.id] = { view: false, create: false, edit: false, delete: false, download: false, print: false, sidebar: false };
-      });
       setPermissions(defaultPerms);
     }
   }, [staff, isOpen]);

@@ -599,7 +599,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
           stores.themeStore.setThemeConfig("sidebarColors", companyColors);
         }
       }
-    }, [user, themeConfig.sidebarColors]);
+    }, [user, user?.permissions, themeConfig.sidebarColors]);
 
     useEffect(() => {
       if (activeItemId !== null && typeof window !== "undefined") {

@@ -14,8 +14,9 @@ import * as Yup from "yup";
 import CustomInput from "../../../component/config/component/customInput/CustomInput";
 import ShowFileUploadFile from "../../../component/common/ShowFileUploadFile/ShowFileUploadFile";
 import { removeDataByIndex } from "../../../config/utils/utils";
-import { titles } from "./utils/constant";
+import { titles, genderOptions } from "./utils/constant";
 import { generateIntialValues } from "./utils/function";
+import { calculateAgeSafe } from "../../../config/utils/function";
 
 const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any) => {
   const [formData, setFormData] = useState<any>(initialData);
@@ -24,7 +25,8 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
 
   useEffect(() => {
     if (initialData) {
-      setFormData(generateIntialValues(initialData));
+      const generatedValues = generateIntialValues(initialData);
+      setFormData(generatedValues);
     }
   }, [initialData]);
 
@@ -32,12 +34,15 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
   const validationSchema = Yup.object({
     // Personal
     title: Yup.mixed().required("Title is required"),
-    pic: Yup.mixed(),
+    pic: Yup.mixed().required("Picture is required"),
 
     name: Yup.string().required("Name is required"),
     username: Yup.string().required("Username is required"),
 
     bio: Yup.string().required("Special Details is required"),
+    address: Yup.string().required("Address is required"),
+    dob: Yup.date().required("Date of Birth is required"),
+    gender: Yup.mixed().required("Gender is required"),
 
     phoneNumber: Yup.string()
       .matches(/^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/, "Phone number is not valid")
@@ -53,12 +58,13 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
       ? Yup.string().oneOf([Yup.ref("password"), null], "Passwords must match")
       : Yup.string().optional(),
 
-    code: Yup.string().optional(),
+    code: Yup.string().required("Code is required"),
+    link: Yup.string().required("Link is required"),
 
     // Company Fields
     companyName: Yup.string().required("Company name is required"),
-    companyCode: Yup.string().optional(),
-    companyType: Yup.string().optional(),
+    companyCode: Yup.string().required("Company code is required"),
+    companyType: Yup.string().required("Company type is required"),
   });
 
   if (!isOpen) return null;
@@ -180,6 +186,35 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                       onChange={handleChange}
                       error={errors.phoneNumber && touched.phoneNumber}
                       showError={errors.phoneNumber && touched.phoneNumber}
+                    />
+
+                    <CustomInput
+                      label="Date of Birth"
+                      type="date"
+                      name="dob"
+                      value={values.dob || ""}
+                      onChange={handleChange}
+                      error={errors?.dob && touched.dob}
+                      showError={errors?.dob && touched.dob}
+                    />
+                    <CustomInput
+                      label="Age"
+                      name="age"
+                      type="number"
+                      value={calculateAgeSafe(values?.dob) ?? ""}
+                      disabled={true}
+                      placeholder="Auto Calculated"
+                    />
+
+                    <CustomInput
+                      label="Gender"
+                      name="gender"
+                      type="select"
+                      options={genderOptions}
+                      value={values.gender}
+                      onChange={(e: any) => setFieldValue("gender", e)}
+                      error={errors.gender && touched.gender}
+                      showError={errors.gender && touched.gender}
                     />
 
                     <CustomInput

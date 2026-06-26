@@ -30,23 +30,26 @@ import {
 } from "react-icons/fi";
 
 export const MODULES = [
-  { id: "patient", label: "Patient Management", icon: FiUser, color: "blue", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print"] },
-  { id: "patient_documents", label: "Patient Documents", icon: FiFileText, color: "cyan", category: "Clinical", keys: ["view", "create", "delete"] },
-  { id: "treatment", label: "Treatments", icon: FiActivity, color: "teal", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print"] },
-  { id: "workdone", label: "Work Done / Clinical Records", icon: FiActivity, color: "green", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print"] },
-  { id: "doctor", label: "Doctor Management", icon: FiUserCheck, color: "teal", category: "Clinical", keys: ["view", "create", "edit", "delete"] },
-  { id: "appointment", label: "Appointments", icon: FiCalendar, color: "purple", category: "Clinical", keys: ["view", "create", "edit", "delete", "download"] },
-  { id: "recall", label: "Recalls", icon: FiRefreshCw, color: "orange", category: "Clinical", keys: ["view", "create", "edit", "delete"] },
-  { id: "lab", label: "Labs", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download"] },
-  { id: "inhouse_lab", label: "In-house Lab", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download"] },
-  { id: "outside_lab", label: "Outside Lab", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download"] },
-  { id: "lab_doctors", label: "Lab Doctors", icon: FiUserCheck, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete"] },
-  { id: "reports", label: "Financial Reports", icon: FiFileText, color: "red", category: "Admin", keys: ["view", "download", "print"] },
-  { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin", keys: ["view", "download", "print"] },
-  { id: "doctorInventory", label: "Doctor Inventory", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete"] },
-  { id: "masters", label: "Masters (Prescription/Procedure)", icon: FiSettings, color: "gray", category: "Admin", keys: ["view", "create", "edit", "delete"] },
-  { id: "staffs", label: "Staff Management", icon: FiUsers, color: "indigo", category: "Admin", keys: ["view", "create", "edit", "delete"] },
-  { id: "chairs", label: "Chair Management", icon: FiActivity, color: "yellow", category: "Clinical", keys: ["view", "create", "edit", "delete"] },
+  { id: "patient", label: "Patient Management", icon: FiUser, color: "blue", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
+  { id: "patient_documents", label: "Patient Documents", icon: FiFileText, color: "cyan", category: "Clinical", keys: ["view", "create", "delete", "sidebar"] },
+  { id: "treatment", label: "Treatments", icon: FiActivity, color: "teal", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
+  { id: "workdone", label: "Work Done / Clinical Records", icon: FiActivity, color: "green", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
+  { id: "historicalRecords", label: "Historical Records", icon: FiFileText, color: "gray", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "doctor", label: "Doctor Management", icon: FiUserCheck, color: "teal", category: "Clinical", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "appointment", label: "Appointments", icon: FiCalendar, color: "purple", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "sidebar"] },
+  { id: "recall", label: "Recalls", icon: FiRefreshCw, color: "orange", category: "Clinical", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "lab", label: "Labs", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download", "sidebar"] },
+  { id: "inhouse_lab", label: "In-house Lab", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download", "sidebar"] },
+  { id: "outside_lab", label: "Outside Lab", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download", "sidebar"] },
+  { id: "lab_doctors", label: "Lab Doctors", icon: FiUserCheck, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "reports", label: "Financial Reports", icon: FiFileText, color: "red", category: "Admin", keys: ["view", "download", "print", "sidebar"] },
+  { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin", keys: ["view", "download", "print", "sidebar"] },
+  { id: "globalAccountability", label: "Global Accountability", icon: FiDollarSign, color: "blue", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "doctorInventory", label: "Doctor Inventory", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "masters", label: "Masters (Prescription/Procedure)", icon: FiSettings, color: "gray", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "staffs", label: "Staff Management", icon: FiUsers, color: "blue", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "admins", label: "Admin Management", icon: FiUserCheck, color: "purple", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "chairs", label: "Chair Management", icon: FiActivity, color: "yellow", category: "Clinical", keys: ["view", "create", "edit", "delete", "sidebar"] },
 ];
 
 export const PERMISSIONS = [
@@ -56,6 +59,7 @@ export const PERMISSIONS = [
   { id: "delete", label: "Delete" },
   { id: "download", label: "Download" },
   { id: "print", label: "Print" },
+  { id: "sidebar", label: "Sidebar" },
 ];
 
 interface PermissionsSelectorProps {
@@ -66,7 +70,18 @@ interface PermissionsSelectorProps {
 const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, onChange }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
+  const stores = require("../../../../store/stores").default;
+  const user = stores.auth.user;
+  const isSuperAdmin = user?.role === "superadmin" || user?.userType === "superadmin" || user?.role === "superAdmin" || user?.userType === "superAdmin";
+
+  const hasSpecificPerm = (moduleId: string, permId: string) => {
+    if (isSuperAdmin) return true;
+    return user?.permissions?.[moduleId]?.[permId] === true;
+  };
+
   const handleToggle = (moduleId: string, permId: string) => {
+    if (!hasSpecificPerm(moduleId, permId)) return;
+    
     onChange({
       ...permissions,
       [moduleId]: {
@@ -80,9 +95,12 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
     const moduleInfo = MODULES.find(m => m.id === moduleId);
     const keys = moduleInfo?.keys || PERMISSIONS.map(p => p.id);
     
-    const allChecked = keys.every((k) => permissions[moduleId]?.[k]);
-    const newState: any = {};
-    keys.forEach((k) => {
+    const allowedKeys = keys.filter(k => hasSpecificPerm(moduleId, k));
+    if (allowedKeys.length === 0) return;
+    
+    const allChecked = allowedKeys.every((k) => permissions[moduleId]?.[k]);
+    const newState: any = { ...(permissions[moduleId] || {}) };
+    allowedKeys.forEach((k) => {
       newState[k] = !allChecked;
     });
     
@@ -93,12 +111,24 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
   };
 
   const filteredModules = useMemo(() => {
+    const hasModuleAccess = (moduleId: string) => {
+      if (isSuperAdmin) return true;
+      
+      // Admins (who give permissions to Staff) should not be able to give Staff Management access
+      if (moduleId === "staffs" || moduleId === "admins") return false;
+
+      const perms = user?.permissions;
+      if (!perms) return false;
+      return perms[moduleId] && Object.values(perms[moduleId]).some((v) => v === true);
+    };
+
     return MODULES.filter(
       (m) =>
-        m.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.category.toLowerCase().includes(searchQuery.toLowerCase())
+        (m.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         m.category.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        hasModuleAccess(m.id)
     );
-  }, [searchQuery]);
+  }, [searchQuery, isSuperAdmin, user]);
 
   return (
     <Box>
@@ -158,6 +188,8 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
               <SimpleGrid columns={2} spacing={3}>
                 {PERMISSIONS.filter(p => keysToRender.includes(p.id)).map((p) => {
                   const isChecked = permissions[m.id]?.[p.id] || false;
+                  const canToggle = hasSpecificPerm(m.id, p.id);
+                  
                   return (
                     <Box
                       key={p.id}
@@ -170,15 +202,17 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                       border="1px solid"
                       borderColor={isChecked ? `${m.color}.200` : "transparent"}
                       borderRadius="xl"
-                      cursor="pointer"
+                      cursor={canToggle ? "pointer" : "not-allowed"}
+                      opacity={canToggle ? 1 : 0.4}
                       transition="all 0.2s"
-                      _hover={{ bg: isChecked ? `${m.color}.100` : "gray.100" }}
+                      _hover={canToggle ? { bg: isChecked ? `${m.color}.100` : "gray.100" } : {}}
                     >
                       <Checkbox
                         colorScheme={m.color}
                         size="md"
                         isChecked={isChecked}
                         onChange={() => handleToggle(m.id, p.id)}
+                        isDisabled={!canToggle}
                         sx={{
                           "span.chakra-checkbox__control": {
                             borderRadius: "6px",

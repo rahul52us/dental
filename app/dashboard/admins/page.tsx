@@ -22,7 +22,7 @@ import { replaceLabelValueObjects } from "../../config/utils/function";
 const AdminPage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const {
-    userStore: { createAdmin, getAllUsers, updateUser },
+    userStore: { createAdmin, getAllUsers, updateUser, updateAdmin },
   } = stores;
   const [isDrawerOpen, setIsDrawerOpen] = useState<any>({
     isOpen: false,
@@ -129,7 +129,7 @@ const AdminPage = observer(() => {
       }
     }
 
-    updateUser({
+    updateAdmin({
       ...values,
       pic: formData?.pic,
       title: formData?.title?.label || titles[0].label,

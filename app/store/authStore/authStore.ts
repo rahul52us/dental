@@ -266,13 +266,20 @@ class AuthStore {
   };
 
   hasPermission = (moduleId: string, action: 'view' | 'create' | 'edit' | 'delete' | 'download' | 'sidebar' | string) => {
-    // Admin always has all permissions
-    if (this.user?.role === "admin" || this.user?.userType === "admin") {
+    const perms = this.user?.permissions;
+
+    // If SuperAdmin has NO custom permissions explicitly saved, give them full access for backward compatibility
+    if (
+      (this.user?.role === "superadmin" || 
+       this.user?.userType === "superadmin" || 
+       this.user?.role === "superAdmin" || 
+       this.user?.userType === "superAdmin") && 
+      (!perms || Object.keys(perms).length === 0)
+    ) {
       return true;
     }
 
-    // Check staff permissions
-    const perms = this.user?.permissions;
+    // Check custom permissions (for staff, and for admins who have a permissions object)
     if (!perms) return false;
 
     // If module exists in permissions, check the specific action

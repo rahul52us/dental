@@ -1,7 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
-import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure, IconButton } from "@chakra-ui/react";
 import { FaBrain, FaUserFriends, FaVideo } from "react-icons/fa";
+import { FiLock } from "react-icons/fi";
 import { GiPsychicWaves } from "react-icons/gi";
 import Link from "next/link";
 import stores from "../../../../store/stores";
@@ -9,6 +10,7 @@ import useDebounce from "../../../../component/config/component/customHooks/useD
 import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDateTime } from "../../../../component/config/utils/dateUtils";
+import StaffPermissionsModal from "../../../staffs/component/staffs/StaffPermissionsModal";
 
 const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const {
@@ -21,6 +23,8 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+  const [isPermOpen, setIsPermOpen] = useState(false);
+  const [permUser, setPermUser] = useState<any>(null);
 
   const applyGetAllTherapists = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false, type }) => {
@@ -137,6 +141,33 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
             column: { textAlign: "center" },
           },
         },
+    {
+      headerName: "Permissions",
+      key: "permissions",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Manage Permissions">
+            <IconButton
+              aria-label="Manage Permissions"
+              icon={<FiLock />}
+              size="sm"
+              colorScheme="purple"
+              variant="ghost"
+              borderRadius="xl"
+              onClick={() => {
+                setPermUser(dt);
+                setIsPermOpen(true);
+              }}
+            />
+          </Tooltip>
+        ),
+      },
+      props: {
+        row: { textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
     {
       headerName: "Actions",
       key: "table-actions",
@@ -300,6 +331,13 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
           )}
         </DrawerContent>
       </Drawer>
+
+      <StaffPermissionsModal
+        isOpen={isPermOpen}
+        onClose={() => setIsPermOpen(false)}
+        staff={permUser}
+        onUpdate={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
+      />
     </Box>
   );
 });

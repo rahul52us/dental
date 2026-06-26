@@ -5,10 +5,19 @@ export const titles = [
   { label: "Dr.", value: "Dr." },
 ];
 
+export const genderOptions = [
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+  { label: "Other", value: "Other" },
+];
+
 export const initialValues = {
   title: titles[0],
   name: "",
   username: "",
+  dob: "",
+  age: "",
+  gender: genderOptions[0],
   languages: [],
   address: "",
   bio: "",

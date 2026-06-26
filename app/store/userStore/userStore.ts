@@ -85,6 +85,21 @@ class UserStore {
     }
   };
 
+  updateAdmin = async (payload: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.put(`/user/admin/profile/${payload._id}`, {
+        ...payload,
+        company: authStore.company,
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   updatePermissions = async (userId: string, permissions: any) => {
     this.isLoading = true;
     try {
