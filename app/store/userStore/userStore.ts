@@ -100,6 +100,21 @@ class UserStore {
     }
   };
 
+  updateAdminStatus = async (userId: string, is_active: boolean) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.put(`/user/admin/status/${userId}`, {
+        is_active,
+        company: authStore.company,
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   updatePermissions = async (userId: string, permissions: any) => {
     this.isLoading = true;
     try {

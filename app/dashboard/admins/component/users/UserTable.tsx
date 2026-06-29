@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState, useCallback } from "react";
-import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure, IconButton } from "@chakra-ui/react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure, IconButton, Switch, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, Button } from "@chakra-ui/react";
 import { FaBrain, FaUserFriends, FaVideo } from "react-icons/fa";
-import { FiLock } from "react-icons/fi";
+import { FiLock, FiAlertCircle } from "react-icons/fi";
 import { GiPsychicWaves } from "react-icons/gi";
 import Link from "next/link";
 import stores from "../../../../store/stores";
@@ -14,7 +14,7 @@ import StaffPermissionsModal from "../../../staffs/component/staffs/StaffPermiss
 
 const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const {
-    userStore: { getAllUsers, user },
+    userStore: { getAllUsers, user, updateAdminStatus },
     auth: { openNotification },
   } = stores;
 
@@ -26,9 +26,39 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const [isPermOpen, setIsPermOpen] = useState(false);
   const [permUser, setPermUser] = useState<any>(null);
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<{id: string, newStatus: boolean} | null>(null);
+  const cancelRef = useRef<any>(null);
+
+  const confirmStatusChange = async () => {
+    if (pendingStatusUpdate) {
+      setIsUpdatingStatus(true);
+      try {
+        await updateAdminStatus(pendingStatusUpdate.id, pendingStatusUpdate.newStatus);
+        openNotification({
+          type: "success",
+          title: "Success",
+          message: "Admin status updated successfully",
+        });
+        applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit });
+      } catch (err: any) {
+        openNotification({
+          type: "error",
+          title: "Failed to update status",
+          message: err?.message || "An error occurred",
+        });
+      } finally {
+        setIsUpdatingStatus(false);
+      }
+    }
+    setIsConfirmOpen(false);
+    setPendingStatusUpdate(null);
+  };
+
   const applyGetAllTherapists = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false, type }) => {
-      const query: any = { page, limit , type , userType : "admin"};
+      const query: any = { page, limit , type , userType : "admin", isActive: "all" };
 
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
@@ -141,6 +171,27 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
             column: { textAlign: "center" },
           },
         },
+    {
+      headerName: "Status",
+      key: "is_active",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Switch
+            colorScheme="green"
+            isChecked={dt.is_active}
+            onChange={(e) => {
+              setPendingStatusUpdate({ id: dt._id, newStatus: e.target.checked });
+              setIsConfirmOpen(true);
+            }}
+          />
+        ),
+      },
+      props: {
+        row: { textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
     {
       headerName: "Permissions",
       key: "permissions",
@@ -338,6 +389,60 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
         staff={permUser}
         onUpdate={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
       />
+
+      <AlertDialog
+        isOpen={isConfirmOpen}
+        leastDestructiveRef={cancelRef}
+        isCentered
+        onClose={() => {
+          setIsConfirmOpen(false);
+          setPendingStatusUpdate(null);
+        }}
+      >
+        <AlertDialogOverlay backdropFilter="blur(4px)" bg="blackAlpha.300">
+          <AlertDialogContent borderRadius="2xl" boxShadow="2xl" p={2}>
+            <AlertDialogHeader fontSize="xl" fontWeight="bold" display="flex" alignItems="center" gap={3}>
+              <Box bg={pendingStatusUpdate?.newStatus ? "green.100" : "red.100"} p={2} borderRadius="full" color={pendingStatusUpdate?.newStatus ? "green.600" : "red.600"}>
+                <FiAlertCircle size={24} />
+              </Box>
+              {pendingStatusUpdate?.newStatus ? "Activate Admin" : "Deactivate Admin"}
+            </AlertDialogHeader>
+
+            <AlertDialogBody color="gray.600" fontSize="md">
+              Are you sure you want to {pendingStatusUpdate?.newStatus ? "activate" : "deactivate"} this admin? 
+              {pendingStatusUpdate?.newStatus 
+                ? " They will regain access to their account immediately." 
+                : " They will be logged out and lose access to the platform."}
+            </AlertDialogBody>
+
+            <AlertDialogFooter mt={4}>
+              <Button 
+                ref={cancelRef} 
+                onClick={() => {
+                  setIsConfirmOpen(false);
+                  setPendingStatusUpdate(null);
+                }}
+                variant="ghost"
+                borderRadius="full"
+              >
+                Cancel
+              </Button>
+              <Button 
+                colorScheme={pendingStatusUpdate?.newStatus ? "green" : "red"} 
+                onClick={confirmStatusChange} 
+                isLoading={isUpdatingStatus}
+                loadingText="Updating..."
+                ml={3}
+                borderRadius="full"
+                px={6}
+                boxShadow="md"
+              >
+                Yes, {pendingStatusUpdate?.newStatus ? "Activate" : "Deactivate"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 });

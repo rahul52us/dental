@@ -40,4 +40,7 @@ export const initialValues = {
       pinCode: "",
     },
   ],
+  subscriptionStartDate: "",
+  subscriptionEndDate: "",
+  is_active: true,
 };

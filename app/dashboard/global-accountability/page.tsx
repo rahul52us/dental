@@ -36,8 +36,16 @@ import {
   Tooltip,
   IconButton,
   Input,
+  Center,
+  Spinner,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerCloseButton
 } from "@chakra-ui/react";
-import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2 } from "react-icons/fi";
+import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2, FiList, FiEye, FiPlusCircle } from "react-icons/fi";
 import React, { useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
@@ -98,6 +106,40 @@ const GlobalAccountabilityPage = observer(() => {
   const [editBillAmount, setEditBillAmount] = useState<string>("");
   const [isSavingBill, setIsSavingBill] = useState(false);
 
+  // Add Payment State
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [tempValue, setTempValue] = useState<string>("");
+  const [receiveType, setReceiveType] = useState<string>("Cash");
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+
+  // Transaction History State
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+
+  // Edit Specific Payment Entry State
+  const [isEditAmountOpen, setIsEditAmountOpen] = useState(false);
+  const [editingPaymentIndex, setEditingPaymentIndex] = useState<number | null>(null);
+  const [editAmount, setEditAmount] = useState<string>("");
+  const [isSavingAmount, setIsSavingAmount] = useState(false);
+
+  // Downloading State
+  const [downloadingPaymentId, setDownloadingPaymentId] = useState<string | null>(null);
+  const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
+
+  const openPaymentModal = (record: any) => {
+    setSelectedRecord(record);
+    setTempValue("");
+    setReceiveType("Cash");
+    setIsPaymentOpen(true);
+  };
+
+  const openHistoryDrawer = (record: any) => {
+    setSelectedRecord(record);
+    setHistoryData([...(record.paymentHistory || [])].reverse());
+    setIsHistoryOpen(true);
+  };
+
   const handleSaveTotalBill = async () => {
     const newBillAmount = Number(editBillAmount);
     if (isNaN(newBillAmount) || newBillAmount < 0) return;
@@ -115,6 +157,39 @@ const GlobalAccountabilityPage = observer(() => {
       toast({ title: "Error Updating Bill", description: err.message, status: "error" });
     } finally {
       setIsSavingBill(false);
+    }
+  };
+
+  const handleSavePayment = async () => {
+    const paymentNow = Number(tempValue);
+    if (isNaN(paymentNow) || paymentNow <= 0) return;
+    setIsSaving(true);
+    try {
+      const bill = selectedRecord.amount - (selectedRecord.discount || 0);
+      const alreadyPaid = selectedRecord.totalPaid || 0;
+      const remaining = Math.max(0, bill - alreadyPaid);
+
+      if (paymentNow > remaining) {
+        setIsSaving(false);
+        return toast({
+          title: "Overpayment Error",
+          description: `Remaining: ₹${remaining.toLocaleString()}`,
+          status: "warning"
+        });
+      }
+
+      await stores.workDoneStore.updateWorkDone(selectedRecord._id, {
+        paymentAmount: paymentNow,
+        paymentMethod: receiveType,
+      });
+
+      toast({ title: "Payment Recorded", status: "success" });
+      setIsPaymentOpen(false);
+      fetchGlobalData(page);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, status: "error" });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -463,10 +538,11 @@ const GlobalAccountabilityPage = observer(() => {
                 onChange={(val: any) => setTreatmentCode(val?.value || "")}
                 placeholder="Search or type treatment..."
                 formatCreateLabel={(inputValue) => `Search for "${inputValue}"`}
+                menuPortalTarget={typeof document !== "undefined" ? document.body : null}
                 styles={{
                   control: (base, state) => ({
                     ...base,
-                    background: useColorModeValue("white", "gray.800"),
+                    background: useColorModeValue("white", "#1A202C"),
                     borderRadius: "15px",
                     borderColor: state.isFocused ? "#3182ce" : useColorModeValue("#BEE3F8", "#2A4365"),
                     boxShadow: state.isFocused ? "0 0 0 1px #3182ce" : "none",
@@ -479,9 +555,14 @@ const GlobalAccountabilityPage = observer(() => {
                   menu: (base) => ({
                     ...base,
                     zIndex: 9999,
-                    backgroundColor: useColorModeValue("white", "gray.800"),
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                    backgroundColor: useColorModeValue("white", "#2D3748"),
+                    border: useColorModeValue("1px solid #E2E8F0", "1px solid #4A5568"),
+                    boxShadow: useColorModeValue("0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)", "0 4px 12px rgba(0, 0, 0, 0.5)"),
                     borderRadius: "8px",
+                  }),
+                  menuPortal: (base) => ({
+                    ...base,
+                    zIndex: 9999,
                   }),
                   menuList: (base) => ({
                     ...base,
@@ -646,9 +727,16 @@ const GlobalAccountabilityPage = observer(() => {
                     <Td isNumeric>
                       <HStack justify="flex-end" spacing={2} minW="130px">
                         <Box px={3} py={1} bg="yellow.50" borderRadius="xl" display="inline-flex" alignItems="center" border="1px solid" borderColor="yellow.200" justifyContent="center">
-                          <Text fontWeight="900" color="yellow.800" fontSize="sm" whiteSpace="nowrap">
-                            {formatCurrency(row.amount)}
-                          </Text>
+                          <VStack spacing={0} align="end">
+                            <Text fontWeight="900" color="yellow.800" fontSize="sm" whiteSpace="nowrap">
+                              {formatCurrency(row.amount - (row.discount || 0))}
+                            </Text>
+                            {row.discount > 0 && (
+                              <Text fontSize="2xs" color="gray.400" textDecoration="line-through">
+                                {formatCurrency(row.amount)}
+                              </Text>
+                            )}
+                          </VStack>
                         </Box>
                         {stores.auth.hasPermission('workdone', 'edit') && (
                           <Tooltip label="Edit Bill Amount" hasArrow>
@@ -658,8 +746,7 @@ const GlobalAccountabilityPage = observer(() => {
                               size="xs"
                               colorScheme="yellow"
                               variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              onClick={() => {
                                 setEditingBillRecord(row);
                                 setEditBillAmount((row.amount - (row.discount || 0)).toString());
                                 setIsEditBillModalOpen(true);
@@ -670,61 +757,89 @@ const GlobalAccountabilityPage = observer(() => {
                       </HStack>
                     </Td>
                     <Td isNumeric>
-                      <Text color="green.500" fontWeight="900" fontSize="sm" whiteSpace="nowrap">{formatCurrency(row.totalPaid)}</Text>
+                      <HStack justify="flex-end" spacing={2}>
+                        <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="130px" maxW="max-content">
+                          <VStack align="start" spacing={0} flex={1}>
+                            <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
+                            <Text fontSize="md" fontWeight="1000" color="green.700" whiteSpace="nowrap">{formatCurrency(row.totalPaid)}</Text>
+                          </VStack>
+                          {stores.auth.hasPermission('workdone', 'edit') && (
+                            <Tooltip label="Add Payment" hasArrow>
+                              <IconButton
+                                aria-label="Add Payment"
+                                icon={<FiPlusCircle />}
+                                size="sm"
+                                colorScheme="blue"
+                                variant="solid"
+                                borderRadius="lg"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openPaymentModal(row);
+                                }}
+                              />
+                            </Tooltip>
+                          )}
+                        </HStack>
+                        {stores.auth.hasPermission('accountability', 'view') && (
+                          <Tooltip label="Transaction History" hasArrow>
+                            <IconButton
+                              aria-label="Transaction History"
+                              icon={<FiEye />}
+                              size="sm"
+                              colorScheme="blue"
+                              variant="ghost"
+                              borderRadius="full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openHistoryDrawer(row);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                      </HStack>
                     </Td>
                     <Td isNumeric>
-                      <Text color={row.balanceDue > 0 ? "red.500" : "gray.400"} fontWeight="900" fontSize="sm" whiteSpace="nowrap">{formatCurrency(row.balanceDue)}</Text>
+                      <HStack justify="flex-end">
+                        <Box px={4} py={1.5} bg={row.balanceDue > 0 ? "red.50" : "gray.50"} borderRadius="xl" border="1px dashed" borderColor={row.balanceDue > 0 ? "red.200" : "gray.200"} minW="100px" maxW="max-content" textAlign="center">
+                          <Text color={row.balanceDue > 0 ? "red.600" : "gray.500"} fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
+                            {formatCurrency(row.balanceDue)}
+                          </Text>
+                        </Box>
+                      </HStack>
                     </Td>
                     <Td>
                       {(() => {
-                        if (!row.paymentHistory || row.paymentHistory.length === 0) {
-                          return <Text color="gray.400" fontSize="sm">-</Text>;
-                        }
-                        const modes = Array.from(new Set(row.paymentHistory.map((p: any) => p.paymentMethod).filter(Boolean)));
-                        if (modes.length === 0) {
-                          return <Text color="gray.400" fontSize="sm">-</Text>;
-                        }
-
-                        const firstMode = modes[0] as string;
-                        const hasMore = modes.length > 1;
-
+                        const modes = Array.from(new Set((row.paymentHistory || []).map((h: any) => h.paymentMethod).filter(Boolean)));
+                        if (modes.length === 0) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
+                        const firstMode = String(modes[0]).toUpperCase();
                         return (
-                          <Tooltip
-                            label={hasMore ? modes.join(", ") : ""}
-                            isDisabled={!hasMore}
-                            hasArrow
-                            bg="purple.600"
-                            color="white"
-                            borderRadius="md"
-                            p={2}
-                          >
-                            <HStack spacing={1}>
-                              <Badge colorScheme="purple" variant="subtle" fontSize="10px" borderRadius="full" px={2}>
-                                {firstMode}
+                          <Tooltip label={modes.map(m => String(m).toUpperCase()).join(", ")} hasArrow bg="blue.600" color="white" placement="top" borderRadius="md">
+                            <Box cursor="help" display="inline-block">
+                              <Badge variant="subtle" colorScheme={firstMode === 'CASH' ? 'green' : 'blue'} fontSize="10px" borderRadius="md" px={2.5} py={1} border="1px solid" borderColor={firstMode === 'CASH' ? 'green.200' : 'blue.200'}>
+                                {modes.length === 1 ? firstMode : `${firstMode} +${modes.length - 1}`}
                               </Badge>
-                              {hasMore && (
-                                <Badge colorScheme="gray" variant="solid" fontSize="9px" borderRadius="full" px={1.5}>
-                                  +{modes.length - 1}
-                                </Badge>
-                              )}
-                            </HStack>
+                            </Box>
                           </Tooltip>
                         );
                       })()}
                     </Td>
                     <Td>
-                      <Badge
-                        colorScheme={row.balanceDue <= 0 ? "green" : "red"}
-                        variant="solid"
-                        px={3}
-                        py={1}
-                        borderRadius="full"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                        fontSize="10px"
-                      >
-                        {row.balanceDue <= 0 ? "Settled" : "Due"}
-                      </Badge>
+                      <HStack justify="flex-start">
+                        <Badge
+                          colorScheme={row.balanceDue <= 0 ? "green" : "red"}
+                          variant={row.balanceDue <= 0 ? "subtle" : "solid"}
+                          borderRadius="full"
+                          px={3.5}
+                          py={1}
+                          fontSize="10px"
+                          fontWeight="900"
+                          textTransform="uppercase"
+                          letterSpacing="0.5px"
+                          boxShadow={row.balanceDue > 0 ? "0 2px 5px rgba(229, 62, 62, 0.3)" : "none"}
+                        >
+                          {row.balanceDue <= 0 ? "SETTLED" : "DUE"}
+                        </Badge>
+                      </HStack>
                     </Td>
                   </Tr>
                 ))
@@ -745,56 +860,12 @@ const GlobalAccountabilityPage = observer(() => {
         </Flex>
       )}
 
-      <Modal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} isCentered>
-        <ModalOverlay backdropFilter="blur(4px)" />
-        <ModalContent borderRadius="2xl" overflow="hidden">
-          <ModalHeader bgGradient="linear(to-r, blue.600, blue.800)" color="white">
-            Select Report Columns
-          </ModalHeader>
-          <ModalCloseButton color="white" mt={1} />
-          <ModalBody py={6}>
-            <Text mb={4} color="gray.600" fontSize="sm">
-              Choose which columns to include in the generated PDF report. All columns are selected by default.
-            </Text>
-            <CheckboxGroup colorScheme="blue" value={selectedPrintColumns} onChange={(values: string[]) => setSelectedPrintColumns(values)}>
-              <SimpleGrid columns={2} spacing={4}>
-                {ALL_PRINT_COLUMNS.map((col) => (
-                  <Checkbox key={col.key} value={col.key} fontWeight="bold" color="gray.700">
-                    {col.label}
-                  </Checkbox>
-                ))}
-              </SimpleGrid>
-            </CheckboxGroup>
-          </ModalBody>
-          <ModalFooter bg="gray.50" borderTopWidth="1px" borderColor="gray.100">
-            <Button variant="ghost" mr={3} onClick={() => setIsPrintModalOpen(false)} borderRadius="xl">
-              Cancel
-            </Button>
-            <Button colorScheme="blue" onClick={handlePrintReport} isLoading={isPrinting} borderRadius="xl" px={6}>
-              Generate Report
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <ReceiptPreviewDrawer
-        isOpen={isPreviewOpen}
-        onClose={() => {
-          setIsPreviewOpen(false);
-          setPreviewData(null);
-        }}
-        pdfBase64={previewData}
-        fileName={previewFileName}
-      />
-
+      {/* Modals for Global Accountability */}
       <Modal isOpen={isEditBillModalOpen} onClose={() => setIsEditBillModalOpen(false)} isCentered size="sm">
         <ModalOverlay backdropFilter="blur(5px)" />
         <ModalContent borderRadius="2xl" p={2}>
           <ModalHeader borderBottom="1px solid" borderColor="gray.100">
-            <VStack align="start" spacing={0}>
-              <Text fontSize="xs" fontWeight="black" color="yellow.500" letterSpacing="0.1em">EDIT TOTAL BILL</Text>
-              <Text fontSize="md" fontWeight="bold">Modify Bill Amount</Text>
-            </VStack>
+            <Text fontSize="md" fontWeight="bold">Modify Bill Amount</Text>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody py={6}>
@@ -826,6 +897,242 @@ const GlobalAccountabilityPage = observer(() => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <Modal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.600" />
+        <ModalContent borderRadius="3xl" shadow="2xl" overflow="hidden">
+          <ModalHeader bgGradient="linear(to-r, blue.500, blue.700)" color="white" py={6}>
+            <Text fontSize="2xl" fontWeight="1000">Receive Amount</Text>
+          </ModalHeader>
+          <ModalCloseButton color="white" top={4} right={4} />
+          <ModalBody py={8} px={6}>
+            <VStack spacing={6} align="stretch">
+              <Box p={4} bg="blue.50" borderRadius="2xl" border="1px dashed" borderColor="blue.200">
+                <Text fontSize="sm" fontWeight="bold" color="blue.600" mb={1}>OUTSTANDING BALANCE</Text>
+                <Text fontSize="3xl" fontWeight="black" color="blue.700" letterSpacing="-1px">
+                  ₹{((selectedRecord?.amount - (selectedRecord?.discount || 0)) - (selectedRecord?.totalPaid || 0)).toLocaleString()}
+                </Text>
+              </Box>
+              <FormControl>
+                <FormLabel fontSize="xs" fontWeight="900" color="gray.500">ENTER AMOUNT (₹)</FormLabel>
+                <Input
+                  size="lg" h="60px" borderRadius="2xl" bg="white" borderWidth="2px"
+                  placeholder="0.00" fontWeight="1000" fontSize="2xl" textAlign="center"
+                  value={tempValue} onChange={(e) => setTempValue(e.target.value)} autoFocus
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" fontWeight="900" color="gray.500">PAYMENT MODE</FormLabel>
+                <Box as="select" p={3} w="full" h="60px" borderRadius="2xl" fontWeight="800" bg="white" borderWidth="2px" value={receiveType} onChange={(e: any) => setReceiveType(e.target.value)}>
+                  <option value="Cash">Cash</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Card">Card</option>
+                  <option value="Other">Other</option>
+                </Box>
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter bg="gray.50" borderTopWidth="1px" borderColor="gray.100" p={6}>
+            <Button variant="ghost" mr={3} onClick={() => setIsPaymentOpen(false)} borderRadius="xl" fontWeight="bold">Cancel</Button>
+            <Button colorScheme="blue" onClick={handleSavePayment} isLoading={isSaving} leftIcon={<FiCheckCircle />} borderRadius="xl" px={8} size="lg" w="full" shadow="md">
+              Confirm Entry
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Drawer isOpen={isHistoryOpen} placement="right" onClose={() => setIsHistoryOpen(false)} size="sm">
+        <DrawerOverlay backdropFilter="blur(4px)" />
+        <DrawerContent borderLeftRadius="3xl" bg="white">
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100">
+            <Text fontWeight="1000" fontSize="xl" color="blue.600">Transaction History</Text>
+          </DrawerHeader>
+          <DrawerBody py={6}>
+            {historyData.length > 0 ? (
+              <VStack align="stretch" spacing={3}>
+                <Box p={4} bg="blue.50" borderRadius="2xl">
+                  <VStack align="stretch" spacing={4}>
+                    <HStack justify="space-between" align="center">
+                      <VStack align="start" spacing={0}>
+                        <HStack align="center" spacing={2}>
+                          <Text fontSize="xs" fontWeight="bold" color="blue.600">TOTAL BILL</Text>
+                          {selectedRecord?.discount > 0 && (
+                            <Badge colorScheme="red" fontSize="2xs" borderRadius="full" px={2}>
+                              -₹{selectedRecord.discount.toLocaleString()} Discount
+                            </Badge>
+                          )}
+                        </HStack>
+                        <HStack align="baseline" spacing={2}>
+                          <Text fontWeight="1000" color="blue.700" fontSize="lg">₹{(selectedRecord?.amount - (selectedRecord?.discount || 0)).toLocaleString()}</Text>
+                          {selectedRecord?.discount > 0 && (
+                            <Text fontSize="xs" color="gray.400" textDecoration="line-through">
+                              ₹{(selectedRecord?.amount || 0).toLocaleString()}
+                            </Text>
+                          )}
+                        </HStack>
+                      </VStack>
+                      <Button
+                        size="xs" colorScheme="blue" leftIcon={downloadingRecordId === selectedRecord?._id ? undefined : <FiEye />}
+                        isLoading={downloadingRecordId === selectedRecord?._id}
+                        onClick={async () => {
+                          try {
+                            setDownloadingRecordId(selectedRecord._id);
+                            const base64 = await stores.workDoneStore.fetchSingleRecordReportBase64(selectedRecord._id);
+                            setPreviewData(base64);
+                            setPreviewFileName(`Summary_${selectedRecord._id}.pdf`);
+                            setIsPreviewOpen(true);
+                          } catch (error) {
+                            toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
+                          } finally {
+                            setDownloadingRecordId(null);
+                          }
+                        }}
+                        borderRadius="lg"
+                      >
+                        Download Summary
+                      </Button>
+                    </HStack>
+                    <Divider borderColor="blue.100" />
+                    <HStack justify="space-between">
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="xs" fontWeight="bold" color="green.600">TOTAL RECEIVED</Text>
+                        <Text fontWeight="1000" color="green.700" fontSize="md">₹{historyData.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0).toLocaleString()}</Text>
+                      </VStack>
+                      <VStack align="end" spacing={0}>
+                        <Text fontSize="xs" fontWeight="bold" color="orange.600">BALANCE DUE</Text>
+                        <Text fontWeight="1000" color="orange.700" fontSize="md">₹{Math.max(0, (selectedRecord?.amount - (selectedRecord?.discount || 0)) - historyData.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0)).toLocaleString()}</Text>
+                      </VStack>
+                    </HStack>
+                  </VStack>
+                </Box>
+                {historyData.map((h: any, i: number) => (
+                  <HStack key={i} justify="space-between" p={4} bg="gray.50" borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                    <VStack align="start" spacing={0}>
+                      <Text fontWeight="800" color="gray.700">Payment Entry {historyData.length - i}</Text>
+                      <Text fontSize="xs" color="gray.400">{new Date(h.date).toLocaleDateString()} {new Date(h.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                    </VStack>
+                    <HStack>
+                      <VStack align="end" spacing={0}>
+                        <Text fontWeight="1000" color="green.700" fontSize="lg">₹{h.amount.toLocaleString()}</Text>
+                        <Badge size="sm" colorScheme={h.paymentMethod === 'Cash' ? 'green' : 'blue'} variant="solid" fontSize="9px" borderRadius="lg" px={2}>
+                          {(h.paymentMethod || "CASH").toUpperCase()}
+                        </Badge>
+                      </VStack>
+                      {stores.auth.hasPermission('accountability', 'download') && (
+                        <IconButton aria-label="View Entry Receipt" icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiEye />} size="sm" colorScheme="green" variant="ghost" borderRadius="full" isDisabled={downloadingPaymentId !== null}
+                          onClick={async () => {
+                            try {
+                              setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
+                              const base64 = await stores.workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, i);
+                              setPreviewData(base64);
+                              setPreviewFileName(`Receipt_${selectedRecord._id}_${i}.pdf`);
+                              setIsPreviewOpen(true);
+                            } catch (error) {
+                              toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
+                            } finally {
+                              setDownloadingPaymentId(null);
+                            }
+                          }}
+                        />
+                      )}
+                      {stores.auth.hasPermission('accountability', 'edit') && (
+                        <IconButton aria-label="Edit Amount" icon={<FiEdit2 />} size="sm" colorScheme="orange" variant="ghost" borderRadius="full"
+                          onClick={() => {
+                            setEditingPaymentIndex(i);
+                            setEditAmount(String(h.amount));
+                            setIsEditAmountOpen(true);
+                          }}
+                        />
+                      )}
+                    </HStack>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : (
+              <VStack py={20} color="gray.400">
+                <Icon as={FiAlertCircle} boxSize={12} mb={4} opacity={0.3} />
+                <Text fontWeight="bold">No payment entries found.</Text>
+              </VStack>
+            )}
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer isOpen={isEditAmountOpen} placement="right" onClose={() => setIsEditAmountOpen(false)} size="sm">
+        <DrawerOverlay backdropFilter="blur(4px)" />
+        <DrawerContent borderLeftRadius="3xl" bg="white">
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100">
+            <VStack align="start" spacing={0}>
+              <Text fontWeight="1000" fontSize="xl" color="orange.500">Edit Payment Amount</Text>
+              <Text fontSize="xs" color="gray.400">
+                {editingPaymentIndex !== null ? `Payment Entry ${historyData.length - editingPaymentIndex}` : ""}
+              </Text>
+            </VStack>
+          </DrawerHeader>
+          <DrawerBody py={8}>
+            <VStack spacing={6} align="stretch">
+              <Box p={4} bg="orange.50" borderRadius="xl" border="1px solid" borderColor="orange.100">
+                <Text fontSize="xs" fontWeight="bold" color="orange.600" mb={1}>CURRENT AMOUNT</Text>
+                <Text fontWeight="1000" fontSize="2xl" color="orange.700">
+                  ₹{editingPaymentIndex !== null ? (historyData[editingPaymentIndex]?.amount || 0).toLocaleString() : 0}
+                </Text>
+              </Box>
+              <FormControl>
+                <FormLabel fontWeight="700" color="gray.700">New Amount (₹)</FormLabel>
+                <Input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} placeholder="Enter new amount" borderRadius="xl" size="lg" focusBorderColor="orange.400" />
+              </FormControl>
+              <Button colorScheme="orange" size="lg" borderRadius="xl" isLoading={isSavingAmount} leftIcon={<FiCheckCircle />}
+                onClick={async () => {
+                  if (editingPaymentIndex === null || !selectedRecord) return;
+                  const newAmt = Number(editAmount);
+                  if (isNaN(newAmt) || newAmt < 0) return toast({ title: "Invalid amount", status: "error", duration: 2000 });
+
+                  const updatedHistoryTest = historyData.map((p: any, idx: number) => idx === editingPaymentIndex ? { ...p, amount: newAmt } : p);
+                  const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                  const bill = selectedRecord.amount - (selectedRecord.discount || 0);
+
+                  if (proposedTotalReceived > bill) {
+                    return toast({ title: "Overpayment Error", description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`, status: "warning", duration: 3000 });
+                  }
+
+                  setIsSavingAmount(true);
+                  try {
+                    const reversedBackHistory = [...updatedHistoryTest].reverse();
+                    await stores.workDoneStore.updateWorkDone(selectedRecord._id, {
+                      paymentHistory: reversedBackHistory,
+                      receivedAmount: proposedTotalReceived,
+                    });
+
+                    setHistoryData(updatedHistoryTest);
+                    setIsEditAmountOpen(false);
+                    toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
+                    fetchGlobalData(page);
+                  } catch (err: any) {
+                    toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
+                  } finally {
+                    setIsSavingAmount(false);
+                  }
+                }}
+              >
+                Save Changes
+              </Button>
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      <ReceiptPreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={() => {
+          setIsPreviewOpen(false);
+          setPreviewData(null);
+        }}
+        pdfBase64={previewData}
+        fileName={previewFileName}
+      />
     </Box>
   );
 });

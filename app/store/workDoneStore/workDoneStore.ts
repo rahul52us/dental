@@ -158,8 +158,8 @@ class WorkDoneStore {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
-      const response = await axios.get(`/workDone/generate-filtered-table-pdf/${patientId}`, { 
-        params: { ...params, company: compId } 
+      const response = await axios.get(`/workDone/generate-filtered-table-pdf/${patientId}`, {
+        params: { ...params, company: compId }
       });
       return response.data;
     } catch (error: any) {

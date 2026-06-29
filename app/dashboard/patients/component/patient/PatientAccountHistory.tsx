@@ -314,34 +314,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         paymentMethod: receiveType,
       });
 
-      const existing = accountabilityStore.accountabilities.data.find((a: any) =>
-        (a.workDone?._id || a.workDone) === selectedRecord._id
-      );
-
-      const status = (alreadyPaid + paymentNow) >= bill ? "PAID" : "PENDING";
-
-      if (existing) {
-        await accountabilityStore.updatePayoutStatus(existing._id, {
-          payoutAmount: paymentNow,
-          status: status,
-          paymentMethod: receiveType,
-        });
-      } else {
-        await accountabilityStore.createAccountability({
-          workDone: selectedRecord._id,
-          doctor: selectedRecord.doctor?._id || selectedRecord.doctor,
-          patient: patientDetails._id,
-          company: auth.company,
-          tooth: selectedRecord.tooth,
-          treatmentName: selectedRecord.treatmentPlan || selectedRecord.treatmentCode || "General Procedure",
-          totalAmount: bill,
-          doctorShareAmount: paymentNow,
-          payoutHistory: [{ amount: paymentNow, date: new Date(), paymentMethod: receiveType }],
-          payoutStatus: status,
-          createdBy: auth.user?._id,
-        });
-      }
-
       toast({ title: "Payment Recorded", status: "success" });
       setIsPaymentOpen(false);
       fetchData();
@@ -358,7 +330,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     if (isNaN(newBillAmount) || newBillAmount < 0) return;
     setIsSavingBill(true);
     try {
-      // Assuming no discount, set amount to the new bill amount. 
+      // Assuming no discount, set amount to the new bill amount.
       // If there's discount, we maintain discount and adjust amount to be newBillAmount + discount
       const discount = editingBillRecord.discount || 0;
       const newAmount = newBillAmount + discount;
@@ -413,10 +385,15 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           const val = dt.amount - (dt.discount || 0);
           return (
             <HStack justify="center" spacing={2}>
-              <Box px={3} py={1.5} bg="yellow.100" borderRadius="xl" display="inline-block" border="1px solid" borderColor="yellow.300" minW="80px" textAlign="center">
+              <Box px={3} py={1.5} bg="yellow.100" borderRadius="xl" display="inline-flex" flexDirection="column" alignItems="center" border="1px solid" borderColor="yellow.300" minW="80px" textAlign="center">
                 <Text fontWeight="1000" color="yellow.900" fontSize="md">
                   ₹{val.toLocaleString()}
                 </Text>
+                {dt.discount > 0 && (
+                  <Text fontSize="2xs" color="gray.500" textDecoration="line-through">
+                    ₹{(dt.amount || 0).toLocaleString()}
+                  </Text>
+                )}
               </Box>
               {stores.auth.hasPermission('workdone', 'edit') && (
                 <Tooltip label="Edit Bill Amount" hasArrow>
@@ -448,23 +425,41 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         component: (dt: any) => {
           const modes = Array.from(new Set((dt.paymentHistory || []).map((h: any) => h.paymentMethod).filter(Boolean)));
           return (
-            <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="140px">
-              <VStack align="start" spacing={0} flex={1}>
-                <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
-                <Text fontSize="md" fontWeight="1000" color="green.700">₹{(dt.receivedAmount || 0).toLocaleString()}</Text>
-                {modes.length > 0 && (
-                  <HStack spacing={1} mt={1}>
-                    {modes.map((m: any, i: number) => (
-                      <Badge key={i} variant="subtle" colorScheme="blue" fontSize="8px" borderRadius="md" px={1}>{String(m).toUpperCase()}</Badge>
-                    ))}
-                  </HStack>
+            <HStack justify="flex-start" spacing={2}>
+              <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="140px">
+                <VStack align="start" spacing={0} flex={1}>
+                  <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
+                  <Text fontSize="md" fontWeight="1000" color="green.700">₹{(dt.receivedAmount || 0).toLocaleString()}</Text>
+                  {modes.length > 0 && (() => {
+                    const firstMode = String(modes[0]).toUpperCase();
+                    return (
+                      <Tooltip label={modes.map(m => String(m).toUpperCase()).join(", ")} hasArrow bg="blue.600" color="white" placement="top" borderRadius="md">
+                        <Box cursor="help" display="inline-block" mt={1}>
+                          <Badge variant="subtle" colorScheme="blue" fontSize="8px" borderRadius="md" px={1.5}>
+                            {modes.length === 1 ? firstMode : `${firstMode} +${modes.length - 1}`}
+                          </Badge>
+                        </Box>
+                      </Tooltip>
+                    );
+                  })()}
+                </VStack>
+                {stores.auth.hasPermission('accountability', 'create') && (
+                  <Tooltip label="Add Payment" hasArrow>
+                    <IconButton
+                      aria-label="Add" icon={<FiPlusCircle />} size="sm" colorScheme="green" variant="solid" borderRadius="lg"
+                      onClick={() => openPaymentModal(dt)}
+                    />
+                  </Tooltip>
                 )}
-              </VStack>
-              {stores.auth.hasPermission('accountability', 'create') && (
-                <Tooltip label="Add Payment" hasArrow>
+              </HStack>
+              {stores.auth.hasPermission('accountability', 'view') && (
+                <Tooltip label="View History" hasArrow>
                   <IconButton
-                    aria-label="Add" icon={<FiPlusCircle />} size="sm" colorScheme="green" variant="solid" borderRadius="lg"
-                    onClick={() => openPaymentModal(dt)}
+                    aria-label="History" icon={<FiEye />} size="sm" colorScheme="green" variant="ghost"
+                    borderRadius="full" onClick={(e) => {
+                      e.stopPropagation();
+                      openHistoryDrawer(dt);
+                    }}
                   />
                 </Tooltip>
               )}
@@ -513,17 +508,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     handleSingleDownload(dt._id);
                   }}
                   isDisabled={downloadingRecordId !== null}
-                />
-              </Tooltip>
-            )}
-            {stores.auth.hasPermission('accountability', 'view') && (
-              <Tooltip label="View History" hasArrow>
-                <IconButton
-                  aria-label="History" icon={<FiClock />} size="sm" colorScheme="gray" variant="ghost"
-                  borderRadius="lg" onClick={(e) => {
-                    e.stopPropagation(); // Prevent row click
-                    openHistoryDrawer(dt);
-                  }}
                 />
               </Tooltip>
             )}
@@ -684,14 +668,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 })()}
               </Box>
 
-              <HStack 
+              <HStack
                 display="none"
-                spacing={2} 
-                p={1} 
-                bg="white" 
-                borderRadius="2xl" 
-                border="1px solid" 
-                borderColor="gray.100" 
+                spacing={2}
+                p={1}
+                bg="white"
+                borderRadius="2xl"
+                border="1px solid"
+                borderColor="gray.100"
                 shadow="sm"
                 transition="all 0.2s"
                 _hover={{ borderColor: "blue.200", shadow: "md" }}
@@ -719,11 +703,11 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   fontWeight="800"
                   color="blue.600"
                 />
-                <Button 
-                  size="sm" 
-                  colorScheme="blue" 
-                  borderRadius="xl" 
-                  px={4} 
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  borderRadius="xl"
+                  px={4}
                   onClick={() => {
                     setAppliedStartDate(startDate);
                     setAppliedEndDate(endDate);
@@ -924,7 +908,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             </Box>
           </ModalHeader>
           <ModalCloseButton color="white" top={6} right={6} borderRadius="full" _hover={{ bg: "whiteAlpha.200" }} />
-          
+
           <ModalBody p={8}>
             <VStack spacing={6}>
               <Box w="full">
@@ -934,8 +918,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>START DATE</FormLabel>
                     <HStack bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
                       <Icon as={FiCalendar} color="gray.400" />
-                      <Input 
-                        type="date" 
+                      <Input
+                        type="date"
                         variant="unstyled"
                         fontSize="sm"
                         fontWeight="700"
@@ -948,8 +932,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>END DATE</FormLabel>
                     <HStack bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
                       <Icon as={FiCalendar} color="gray.400" />
-                      <Input 
-                        type="date" 
+                      <Input
+                        type="date"
                         variant="unstyled"
                         fontSize="sm"
                         fontWeight="700"
@@ -966,10 +950,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 <SimpleGrid columns={2} spacing={4}>
                   <FormControl>
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>ASSIGNED DOCTOR</FormLabel>
-                    <Select 
-                      bg="gray.50" 
-                      borderRadius="2xl" 
-                      border="1px solid" 
+                    <Select
+                      bg="gray.50"
+                      borderRadius="2xl"
+                      border="1px solid"
                       borderColor="gray.100"
                       fontSize="sm"
                       fontWeight="700"
@@ -985,10 +969,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   </FormControl>
                   <FormControl>
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>PAYMENT STATUS</FormLabel>
-                    <Select 
-                      bg="gray.50" 
-                      borderRadius="2xl" 
-                      border="1px solid" 
+                    <Select
+                      bg="gray.50"
+                      borderRadius="2xl"
+                      border="1px solid"
                       borderColor="gray.100"
                       fontSize="sm"
                       fontWeight="700"
@@ -1037,10 +1021,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           </ModalBody>
 
           <ModalFooter p={8} pt={0}>
-            <Button 
-              variant="ghost" 
-              mr={4} 
-              onClick={() => setIsDownloadModalOpen(false)} 
+            <Button
+              variant="ghost"
+              mr={4}
+              onClick={() => setIsDownloadModalOpen(false)}
               borderRadius="2xl"
               fontWeight="800"
               fontSize="sm"
@@ -1048,13 +1032,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             >
               Discard
             </Button>
-            <Button 
-              bgGradient="linear(to-r, teal.500, teal.700)" 
+            <Button
+              bgGradient="linear(to-r, teal.500, teal.700)"
               color="white"
               _hover={{ bgGradient: "linear(to-r, teal.600, teal.800)", shadow: "xl", transform: "scale(1.02)" }}
               _active={{ transform: "scale(0.98)" }}
-              onClick={handleDownloadReceiptsLog} 
-              isLoading={isDownloadingReceipts} 
+              onClick={handleDownloadReceiptsLog}
+              isLoading={isDownloadingReceipts}
               rightIcon={<FiEye />}
               borderRadius="2xl"
               px={6}
@@ -1066,13 +1050,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             >
               Receipts Log
             </Button>
-            <Button 
-              bgGradient="linear(to-r, blue.500, blue.700)" 
+            <Button
+              bgGradient="linear(to-r, blue.500, blue.700)"
               color="white"
               _hover={{ bgGradient: "linear(to-r, blue.600, blue.800)", shadow: "xl", transform: "scale(1.02)" }}
               _active={{ transform: "scale(0.98)" }}
-              onClick={handleDownload} 
-              isLoading={isDownloading} 
+              onClick={handleDownload}
+              isLoading={isDownloading}
               rightIcon={<FiEye />}
               borderRadius="2xl"
               px={10}
@@ -1147,34 +1131,61 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             ) : historyData.length > 0 ? (
               <VStack align="stretch" spacing={4}>
                 <Box p={4} bg="blue.50" borderRadius="2xl">
-                  <HStack justify="space-between" align="center">
-                    <VStack align="start" spacing={0}>
-                      <Text fontSize="xs" fontWeight="bold" color="blue.600">TOTAL BILL</Text>
-                      <Text fontWeight="1000" color="blue.700" fontSize="lg">₹{(selectedRecord?.amount - (selectedRecord?.discount || 0)).toLocaleString()}</Text>
-                    </VStack>
-                    <Button 
-                      size="xs" 
-                      colorScheme="blue" 
-                      leftIcon={downloadingRecordId === selectedRecord?._id ? undefined : <FiEye />} 
-                      isLoading={downloadingRecordId === selectedRecord?._id}
-                      onClick={async () => {
-                        try {
-                          setDownloadingRecordId(selectedRecord._id);
-                          const base64 = await workDoneStore.fetchSingleRecordReportBase64(selectedRecord._id);
-                          setPreviewData(base64);
-                          setPreviewFileName(`Summary_${selectedRecord._id}.pdf`);
-                          setIsPreviewOpen(true);
-                        } catch (error) {
-                          toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
-                        } finally {
-                          setDownloadingRecordId(null);
-                        }
-                      }}
-                      borderRadius="lg"
-                    >
-                      Download Summary
-                    </Button>
-                  </HStack>
+                  <VStack align="stretch" spacing={4}>
+                    <HStack justify="space-between" align="center">
+                      <VStack align="start" spacing={0}>
+                        <HStack align="center" spacing={2}>
+                          <Text fontSize="xs" fontWeight="bold" color="blue.600">TOTAL BILL</Text>
+                          {selectedRecord?.discount > 0 && (
+                            <Badge colorScheme="red" fontSize="2xs" borderRadius="full" px={2}>
+                              -₹{selectedRecord.discount.toLocaleString()} Discount
+                            </Badge>
+                          )}
+                        </HStack>
+                        <HStack align="baseline" spacing={2}>
+                          <Text fontWeight="1000" color="blue.700" fontSize="lg">₹{(selectedRecord?.amount - (selectedRecord?.discount || 0)).toLocaleString()}</Text>
+                          {selectedRecord?.discount > 0 && (
+                            <Text fontSize="xs" color="gray.400" textDecoration="line-through">
+                              ₹{(selectedRecord?.amount || 0).toLocaleString()}
+                            </Text>
+                          )}
+                        </HStack>
+                      </VStack>
+                      <Button
+                        size="xs"
+                        colorScheme="blue"
+                        leftIcon={downloadingRecordId === selectedRecord?._id ? undefined : <FiEye />}
+                        isLoading={downloadingRecordId === selectedRecord?._id}
+                        onClick={async () => {
+                          try {
+                            setDownloadingRecordId(selectedRecord._id);
+                            const base64 = await workDoneStore.fetchSingleRecordReportBase64(selectedRecord._id);
+                            setPreviewData(base64);
+                            setPreviewFileName(`Summary_${selectedRecord._id}.pdf`);
+                            setIsPreviewOpen(true);
+                          } catch (error) {
+                            toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
+                          } finally {
+                            setDownloadingRecordId(null);
+                          }
+                        }}
+                        borderRadius="lg"
+                      >
+                        Download Summary
+                      </Button>
+                    </HStack>
+                    <Divider borderColor="blue.100" />
+                    <HStack justify="space-between">
+                      <VStack align="start" spacing={0}>
+                        <Text fontSize="xs" fontWeight="bold" color="green.600">TOTAL RECEIVED</Text>
+                        <Text fontWeight="1000" color="green.700" fontSize="md">₹{historyData.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0).toLocaleString()}</Text>
+                      </VStack>
+                      <VStack align="end" spacing={0}>
+                        <Text fontSize="xs" fontWeight="bold" color="orange.600">BALANCE DUE</Text>
+                        <Text fontWeight="1000" color="orange.700" fontSize="md">₹{Math.max(0, (selectedRecord?.amount - (selectedRecord?.discount || 0)) - historyData.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0)).toLocaleString()}</Text>
+                      </VStack>
+                    </HStack>
+                  </VStack>
                 </Box>
                 <VStack align="stretch" spacing={3}>
                   <Text fontSize="xs" fontWeight="bold" color="gray.400" letterSpacing="0.1em">PAYMENT TIMELINE</Text>
@@ -1311,11 +1322,11 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   const bill = selectedRecord.amount - (selectedRecord.discount || 0);
 
                   if (proposedTotalReceived > bill) {
-                    toast({ 
-                      title: "Overpayment Error", 
+                    toast({
+                      title: "Overpayment Error",
                       description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`,
-                      status: "warning", 
-                      duration: 3000 
+                      status: "warning",
+                      duration: 3000
                     });
                     return;
                   }
@@ -1330,7 +1341,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       paymentHistory: reversedBackHistory,
                       receivedAmount: totalReceived,
                     });
-                    
+
                     const existingAcc = accountabilityStore.accountabilities.data.find((a: any) =>
                       (a.workDone?._id || a.workDone) === selectedRecord._id
                     );
@@ -1340,7 +1351,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         doctorShareAmount: totalReceived
                       });
                     }
-                    
+
                     setHistoryData(updatedHistory);
 
                     setIsEditAmountOpen(false);
@@ -1400,8 +1411,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         </ModalContent>
       </Modal>
 
-      <ReceiptPreviewDrawer 
-        isOpen={isPreviewOpen} 
+      <ReceiptPreviewDrawer
+        isOpen={isPreviewOpen}
         onClose={() => {
           setIsPreviewOpen(false);
           setPreviewData(null);

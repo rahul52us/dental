@@ -43,7 +43,7 @@ export const MODULES = [
   { id: "outside_lab", label: "Outside Lab", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "download", "sidebar"] },
   { id: "lab_doctors", label: "Lab Doctors", icon: FiUserCheck, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "reports", label: "Financial Reports", icon: FiFileText, color: "red", category: "Admin", keys: ["view", "download", "print", "sidebar"] },
-  { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin", keys: ["view", "download", "print", "sidebar"] },
+  { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
   { id: "globalAccountability", label: "Global Accountability", icon: FiDollarSign, color: "blue", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "doctorInventory", label: "Doctor Inventory", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "masters", label: "Masters (Prescription/Procedure)", icon: FiSettings, color: "gray", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
