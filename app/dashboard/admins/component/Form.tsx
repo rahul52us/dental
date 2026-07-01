@@ -339,25 +339,29 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                       showError={errors.companyType && touched.companyType}
                     />
 
-                    <CustomInput
-                      label="Subscription Start Date"
-                      type="date"
-                      name="subscriptionStartDate"
-                      value={values.subscriptionStartDate || ""}
-                      onChange={handleChange}
-                      error={errors.subscriptionStartDate && touched.subscriptionStartDate}
-                      showError={errors.subscriptionStartDate && touched.subscriptionStartDate}
-                    />
+                    {!isEdit && (
+                      <>
+                        <CustomInput
+                          label="Subscription Start Date"
+                          type="date"
+                          name="subscriptionStartDate"
+                          value={values.subscriptionStartDate || ""}
+                          onChange={handleChange}
+                          error={errors.subscriptionStartDate && touched.subscriptionStartDate}
+                          showError={errors.subscriptionStartDate && touched.subscriptionStartDate}
+                        />
 
-                    <CustomInput
-                      label="Subscription End Date"
-                      type="date"
-                      name="subscriptionEndDate"
-                      value={values.subscriptionEndDate || ""}
-                      onChange={handleChange}
-                      error={errors.subscriptionEndDate && touched.subscriptionEndDate}
-                      showError={errors.subscriptionEndDate && touched.subscriptionEndDate}
-                    />
+                        <CustomInput
+                          label="Subscription End Date"
+                          type="date"
+                          name="subscriptionEndDate"
+                          value={values.subscriptionEndDate || ""}
+                          onChange={handleChange}
+                          error={errors.subscriptionEndDate && touched.subscriptionEndDate}
+                          showError={errors.subscriptionEndDate && touched.subscriptionEndDate}
+                        />
+                      </>
+                    )}
 
                     <FormControl display="flex" alignItems="center" mt={6}>
                       <FormLabel htmlFor="is_active" mb="0">

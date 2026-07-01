@@ -395,7 +395,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   </Text>
                 )}
               </Box>
-              {stores.auth.hasPermission('workdone', 'edit') && (
+              {stores.auth.hasPermission('accountability', 'edit') && (
                 <Tooltip label="Edit Bill Amount" hasArrow>
                   <IconButton
                     aria-label="Edit Bill"
@@ -1301,72 +1301,74 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   focusBorderColor="orange.400"
                 />
               </FormControl>
-              <Button
-                colorScheme="orange"
-                size="lg"
-                borderRadius="xl"
-                isLoading={isSavingAmount}
-                leftIcon={<FiCheck />}
-                onClick={async () => {
-                  if (editingPaymentIndex === null || !selectedRecord) return;
-                  const newAmt = Number(editAmount);
-                  if (isNaN(newAmt) || newAmt < 0) {
-                    toast({ title: "Invalid amount", status: "error", duration: 2000 });
-                    return;
-                  }
-
-                  const updatedHistoryTest = historyData.map((p: any, idx: number) =>
-                    idx === editingPaymentIndex ? { ...p, amount: newAmt } : p
-                  );
-                  const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
-                  const bill = selectedRecord.amount - (selectedRecord.discount || 0);
-
-                  if (proposedTotalReceived > bill) {
-                    toast({
-                      title: "Overpayment Error",
-                      description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`,
-                      status: "warning",
-                      duration: 3000
-                    });
-                    return;
-                  }
-
-                  setIsSavingAmount(true);
-                  try {
-                    const updatedHistory = updatedHistoryTest;
-                    const totalReceived = proposedTotalReceived;
-
-                    const reversedBackHistory = [...updatedHistory].reverse();
-                    await workDoneStore.updateWorkDone(selectedRecord._id, {
-                      paymentHistory: reversedBackHistory,
-                      receivedAmount: totalReceived,
-                    });
-
-                    const existingAcc = accountabilityStore.accountabilities.data.find((a: any) =>
-                      (a.workDone?._id || a.workDone) === selectedRecord._id
-                    );
-                    if (existingAcc) {
-                      await accountabilityStore.updateAccountability(existingAcc._id, {
-                        payoutHistory: reversedBackHistory,
-                        doctorShareAmount: totalReceived
-                      });
+              {stores.auth.hasPermission('accountability', 'edit') && (
+                <Button
+                  colorScheme="orange"
+                  size="lg"
+                  borderRadius="xl"
+                  isLoading={isSavingAmount}
+                  leftIcon={<FiCheck />}
+                  onClick={async () => {
+                    if (editingPaymentIndex === null || !selectedRecord) return;
+                    const newAmt = Number(editAmount);
+                    if (isNaN(newAmt) || newAmt < 0) {
+                      toast({ title: "Invalid amount", status: "error", duration: 2000 });
+                      return;
                     }
 
-                    setHistoryData(updatedHistory);
+                    const updatedHistoryTest = historyData.map((p: any, idx: number) =>
+                      idx === editingPaymentIndex ? { ...p, amount: newAmt } : p
+                    );
+                    const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                    const bill = selectedRecord.amount - (selectedRecord.discount || 0);
 
-                    setIsEditAmountOpen(false);
-                    toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
-                    // Refresh the main table
-                    fetchData();
-                  } catch (err: any) {
-                    toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
-                  } finally {
-                    setIsSavingAmount(false);
-                  }
-                }}
-              >
-                Save Changes
-              </Button>
+                    if (proposedTotalReceived > bill) {
+                      toast({
+                        title: "Overpayment Error",
+                        description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`,
+                        status: "warning",
+                        duration: 3000
+                      });
+                      return;
+                    }
+
+                    setIsSavingAmount(true);
+                    try {
+                      const updatedHistory = updatedHistoryTest;
+                      const totalReceived = proposedTotalReceived;
+
+                      const reversedBackHistory = [...updatedHistory].reverse();
+                      await workDoneStore.updateWorkDone(selectedRecord._id, {
+                        paymentHistory: reversedBackHistory,
+                        receivedAmount: totalReceived,
+                      });
+
+                      const existingAcc = accountabilityStore.accountabilities.data.find((a: any) =>
+                        (a.workDone?._id || a.workDone) === selectedRecord._id
+                      );
+                      if (existingAcc) {
+                        await accountabilityStore.updateAccountability(existingAcc._id, {
+                          payoutHistory: reversedBackHistory,
+                          doctorShareAmount: totalReceived
+                        });
+                      }
+
+                      setHistoryData(updatedHistory);
+
+                      setIsEditAmountOpen(false);
+                      toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
+                      // Refresh the main table
+                      fetchData();
+                    } catch (err: any) {
+                      toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
+                    } finally {
+                      setIsSavingAmount(false);
+                    }
+                  }}
+                >
+                  Save Changes
+                </Button>
+              )}
             </VStack>
           </DrawerBody>
         </DrawerContent>

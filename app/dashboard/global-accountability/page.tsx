@@ -738,7 +738,7 @@ const GlobalAccountabilityPage = observer(() => {
                             )}
                           </VStack>
                         </Box>
-                        {stores.auth.hasPermission('workdone', 'edit') && (
+                        {stores.auth.hasPermission('accountability', 'edit') && (
                           <Tooltip label="Edit Bill Amount" hasArrow>
                             <IconButton
                               aria-label="Edit Bill"
@@ -763,7 +763,7 @@ const GlobalAccountabilityPage = observer(() => {
                             <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
                             <Text fontSize="md" fontWeight="1000" color="green.700" whiteSpace="nowrap">{formatCurrency(row.totalPaid)}</Text>
                           </VStack>
-                          {stores.auth.hasPermission('workdone', 'edit') && (
+                          {stores.auth.hasPermission('accountability', 'create') && (
                             <Tooltip label="Add Payment" hasArrow>
                               <IconButton
                                 aria-label="Add Payment"
@@ -935,9 +935,11 @@ const GlobalAccountabilityPage = observer(() => {
           </ModalBody>
           <ModalFooter bg="gray.50" borderTopWidth="1px" borderColor="gray.100" p={6}>
             <Button variant="ghost" mr={3} onClick={() => setIsPaymentOpen(false)} borderRadius="xl" fontWeight="bold">Cancel</Button>
-            <Button colorScheme="blue" onClick={handleSavePayment} isLoading={isSaving} leftIcon={<FiCheckCircle />} borderRadius="xl" px={8} size="lg" w="full" shadow="md">
-              Confirm Entry
-            </Button>
+            {stores.auth.hasPermission('accountability', 'create') && (
+              <Button colorScheme="blue" onClick={handleSavePayment} isLoading={isSaving} leftIcon={<FiCheckCircle />} borderRadius="xl" px={8} size="lg" w="full" shadow="md">
+                Confirm Entry
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -1084,41 +1086,43 @@ const GlobalAccountabilityPage = observer(() => {
                 <FormLabel fontWeight="700" color="gray.700">New Amount (₹)</FormLabel>
                 <Input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} placeholder="Enter new amount" borderRadius="xl" size="lg" focusBorderColor="orange.400" />
               </FormControl>
-              <Button colorScheme="orange" size="lg" borderRadius="xl" isLoading={isSavingAmount} leftIcon={<FiCheckCircle />}
-                onClick={async () => {
-                  if (editingPaymentIndex === null || !selectedRecord) return;
-                  const newAmt = Number(editAmount);
-                  if (isNaN(newAmt) || newAmt < 0) return toast({ title: "Invalid amount", status: "error", duration: 2000 });
+              {stores.auth.hasPermission('accountability', 'edit') && (
+                <Button colorScheme="orange" size="lg" borderRadius="xl" isLoading={isSavingAmount} leftIcon={<FiCheckCircle />}
+                  onClick={async () => {
+                    if (editingPaymentIndex === null || !selectedRecord) return;
+                    const newAmt = Number(editAmount);
+                    if (isNaN(newAmt) || newAmt < 0) return toast({ title: "Invalid amount", status: "error", duration: 2000 });
 
-                  const updatedHistoryTest = historyData.map((p: any, idx: number) => idx === editingPaymentIndex ? { ...p, amount: newAmt } : p);
-                  const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
-                  const bill = selectedRecord.amount - (selectedRecord.discount || 0);
+                    const updatedHistoryTest = historyData.map((p: any, idx: number) => idx === editingPaymentIndex ? { ...p, amount: newAmt } : p);
+                    const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                    const bill = selectedRecord.amount - (selectedRecord.discount || 0);
 
-                  if (proposedTotalReceived > bill) {
-                    return toast({ title: "Overpayment Error", description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`, status: "warning", duration: 3000 });
-                  }
+                    if (proposedTotalReceived > bill) {
+                      return toast({ title: "Overpayment Error", description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`, status: "warning", duration: 3000 });
+                    }
 
-                  setIsSavingAmount(true);
-                  try {
-                    const reversedBackHistory = [...updatedHistoryTest].reverse();
-                    await stores.workDoneStore.updateWorkDone(selectedRecord._id, {
-                      paymentHistory: reversedBackHistory,
-                      receivedAmount: proposedTotalReceived,
-                    });
+                    setIsSavingAmount(true);
+                    try {
+                      const reversedBackHistory = [...updatedHistoryTest].reverse();
+                      await stores.workDoneStore.updateWorkDone(selectedRecord._id, {
+                        paymentHistory: reversedBackHistory,
+                        receivedAmount: proposedTotalReceived,
+                      });
 
-                    setHistoryData(updatedHistoryTest);
-                    setIsEditAmountOpen(false);
-                    toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
-                    fetchGlobalData(page);
-                  } catch (err: any) {
-                    toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
-                  } finally {
-                    setIsSavingAmount(false);
-                  }
-                }}
-              >
-                Save Changes
-              </Button>
+                      setHistoryData(updatedHistoryTest);
+                      setIsEditAmountOpen(false);
+                      toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
+                      fetchGlobalData(page);
+                    } catch (err: any) {
+                      toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
+                    } finally {
+                      setIsSavingAmount(false);
+                    }
+                  }}
+                >
+                  Save Changes
+                </Button>
+              )}
             </VStack>
           </DrawerBody>
         </DrawerContent>

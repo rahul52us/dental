@@ -12,6 +12,8 @@ import CustomTable from "../../../../component/config/component/CustomTable/Cust
 import { formatDateTime } from "../../../../component/config/utils/dateUtils";
 import StaffPermissionsModal from "../../../staffs/component/staffs/StaffPermissionsModal";
 import ChangePasswordModal from "./ChangePasswordModal";
+import RenewSubscriptionModal from "./RenewSubscriptionModal";
+import { FiClock } from "react-icons/fi";
 
 const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const {
@@ -29,6 +31,9 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
   const [isPassModalOpen, setIsPassModalOpen] = useState(false);
   const [selectedPassUser, setSelectedPassUser] = useState<any>(null);
+
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [selectedSubscriptionUser, setSelectedSubscriptionUser] = useState<any>(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -255,6 +260,20 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
                 }}
               />
             </Tooltip>
+            <Tooltip label="Manage Subscription">
+              <IconButton
+                aria-label="Manage Subscription"
+                icon={<FiClock />}
+                size="sm"
+                colorScheme="teal"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setSelectedSubscriptionUser(dt);
+                  setIsSubscriptionModalOpen(true);
+                }}
+              />
+            </Tooltip>
             <Tooltip label="Delete Admin">
               <IconButton
                 aria-label="Delete"
@@ -280,6 +299,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
     return user.data?.map((t: any, index: number) => ({
       ...t,
       ...t.profileDetails?.personalInfo,
+      adminCompanyId: t.company, // Preserve the original company ID before personalInfo overwrites it
       permissions: t.permissions,
       sno: index + 1,
     })) || [];
@@ -427,12 +447,25 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
         </DrawerContent>
       </Drawer>
 
-      <StaffPermissionsModal
-        isOpen={isPermOpen}
-        onClose={() => setIsPermOpen(false)}
-        staff={permUser}
-        onUpdate={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
-      />
+      {/* Permissions Modal */}
+      {permUser && (
+        <StaffPermissionsModal
+          isOpen={isPermOpen}
+          onClose={() => setIsPermOpen(false)}
+          staff={permUser}
+          onUpdate={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
+        />
+      )}
+
+      {/* Subscription Modal */}
+      {selectedSubscriptionUser && (
+        <RenewSubscriptionModal
+          isOpen={isSubscriptionModalOpen}
+          onClose={() => setIsSubscriptionModalOpen(false)}
+          user={selectedSubscriptionUser}
+          onSuccess={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
+        />
+      )}
 
       {selectedPassUser && (
         <ChangePasswordModal
