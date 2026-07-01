@@ -78,7 +78,13 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
       validationSchema={validationSchema}
       enableReinitialize={true}
       onSubmit={async (values: any) => {
-        onSubmit(values);
+        const payload = { ...values };
+        // Do not send password if it's an edit or if the password is empty
+        if (isEdit || !payload.password) {
+          delete payload.password;
+          delete payload.confirmPassword;
+        }
+        onSubmit(payload);
       }}
     >
       {({
