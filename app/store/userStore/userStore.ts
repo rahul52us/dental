@@ -118,7 +118,7 @@ class UserStore {
   updateAdminPassword = async (userId: string, password: string) => {
     this.isLoading = true;
     try {
-      const response = await axios.put(`/user/admin/password/${userId}`, {
+      const response = await axios.put(`/User/admin/password/${userId}`, {
         password
       });
       return response;

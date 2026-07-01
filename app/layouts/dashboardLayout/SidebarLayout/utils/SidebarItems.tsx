@@ -231,6 +231,13 @@ const sidebarDatas: SidebarItem[] = [
     permission: { module: "admins", action: "sidebar" },
   },
   {
+    id: 99,
+    name: "Advertisements",
+    icon: <FaChartPie />,
+    url: "/dashboard/advertisements",
+    role: ["superAdmin", "superadmin"],
+  },
+  {
     id: 42,
     name: "Chairs",
     icon: <GiOfficeChair />,
@@ -314,9 +321,9 @@ const getSidebarDataByRole = (role: string[] = ["admin", "staff"]): SidebarItem[
         // First check role (superAdmins pass the role check automatically)
         const isSuperAdmin = role.includes("superAdmin") || role.includes("superadmin");
         
-        // If the user is a superAdmin, they should ONLY see the Admins tab (and basic ones like Dashboard)
+        // If the user is a superAdmin, they should ONLY see the Admins tab, Advertisements tab (and basic ones like Dashboard)
         if (isSuperAdmin) {
-          if (item.name !== "Admins" && item.name !== "Settings") {
+          if (item.name !== "Admins" && item.name !== "Settings" && item.name !== "Advertisements") {
             return false;
           }
         }

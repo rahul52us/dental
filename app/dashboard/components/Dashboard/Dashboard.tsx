@@ -40,10 +40,10 @@ import {
 } from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import stores from "../../../store/stores";
 import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import DarkSkeleton from "../common/DarkSkeleton";
 import VideoUploader from "./VideoUpload";
 
@@ -101,6 +101,8 @@ const lineChartOptions: any = {
   },
 };
 
+const marqueeStyle = `marqueeAnimation 20s linear infinite`;
+
 const Dashboard = observer(() => {
   const {
     dashboardStore: { getDashboardCount, count },
@@ -108,9 +110,23 @@ const Dashboard = observer(() => {
   } = stores;
   const { t } = useTranslation();
 
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const ads = stores.advertisementStore.activeAdvertisements?.data || [];
+
   useEffect(() => {
     getDashboardCount();
+    stores.advertisementStore.getActiveAdvertisements();
   }, [getDashboardCount]);
+
+  useEffect(() => {
+    if (ads.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentAdIndex((prev) => (prev + 1) % ads.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [ads.length]);
+
   const dashboardData = [
     { label: t("dashboard.doctors"), value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors", show: stores.auth.hasPermission('doctor', 'view') },
     { label: t("dashboard.patients"), value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients", show: stores.auth.hasPermission('patient', 'view') },
@@ -165,6 +181,14 @@ const Dashboard = observer(() => {
 
   return (
     <Box p={8} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
+      <style>
+        {`
+          @keyframes marqueeAnimation {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+          }
+        `}
+      </style>
       {/* Premium Background Glows */}
       <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
       <Box position="absolute" bottom="0" right="-10%" w="600px" h="600px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
@@ -179,6 +203,55 @@ const Dashboard = observer(() => {
             <Text color="gray.500" fontWeight="600" mt={1}>{t("dashboard.analyticsOverview")}</Text>
           </Box>
         </Flex>
+
+        {ads.length > 0 && (
+          <Box mb={10} position="relative" borderRadius="2xl" overflow="hidden" boxShadow="xl" bg="white">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentAdIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Box w="100%">
+                  <Box 
+                    bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}E6)`} 
+                    color="white" 
+                    py={4} 
+                    overflow="hidden" 
+                    whiteSpace="nowrap" 
+                    position="relative" 
+                    w="100%"
+                    boxShadow="md"
+                    borderBottomWidth={ads[currentAdIndex].image?.url ? "1px" : "0px"}
+                    borderColor="gray.100"
+                  >
+                    <Box
+                      display="inline-block"
+                      pl="100%"
+                      animation={marqueeStyle}
+                      fontSize="1.15rem"
+                      fontWeight="bold"
+                      letterSpacing="wide"
+                    >
+                      ✨ {ads[currentAdIndex].title} ✨
+                    </Box>
+                  </Box>
+                  {ads[currentAdIndex].image?.url && (
+                    ads[currentAdIndex].link ? (
+                      <a href={ads[currentAdIndex].link} target="_blank" rel="noopener noreferrer">
+                        <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", maxHeight: "350px", objectFit: "contain", backgroundColor: "#fafaf9", padding: "1rem" }} />
+                      </a>
+                    ) : (
+                      <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", maxHeight: "350px", objectFit: "contain", backgroundColor: "#fafaf9", padding: "1rem" }} />
+                    )
+                  )}
+                </Box>
+              </motion.div>
+            </AnimatePresence>
+          </Box>
+        )}
 
         <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={6} mb={12}>
           {dashboardData.map((item, index) => (

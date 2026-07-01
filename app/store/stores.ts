@@ -29,6 +29,7 @@ import prescriptionStore from "./prescriptionStore/prescriptionStore";
 import accountabilityStore from "./accountabilityStore/accountabilityStore";
 import { doctorInventoryStore } from "./doctorInventoryStore/doctorInventoryStore";
 import OldDataStore from "./oldDataStore/oldData.store";
+import { advertisementStore } from "./advertisementStore/advertisementStore";
 
 const oldDataStore = new OldDataStore();
 
@@ -63,6 +64,7 @@ const stores = {
   accountabilityStore: accountabilityStore,
   doctorInventoryStore: doctorInventoryStore,
   oldDataStore: oldDataStore,
+  advertisementStore: advertisementStore,
 };
 
 
