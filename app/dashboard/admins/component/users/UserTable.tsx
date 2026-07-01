@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure, IconButton, Switch, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, Button } from "@chakra-ui/react";
-import { FaBrain, FaUserFriends, FaVideo } from "react-icons/fa";
-import { FiLock, FiAlertCircle } from "react-icons/fi";
+import { FaBrain, FaUserFriends, FaVideo, FaEdit, FaTrash } from "react-icons/fa";
+import { FiLock, FiAlertCircle, FiKey } from "react-icons/fi";
 import { GiPsychicWaves } from "react-icons/gi";
 import Link from "next/link";
 import stores from "../../../../store/stores";
@@ -11,6 +11,7 @@ import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDateTime } from "../../../../component/config/utils/dateUtils";
 import StaffPermissionsModal from "../../../staffs/component/staffs/StaffPermissionsModal";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const {
@@ -25,6 +26,9 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
   const [isPermOpen, setIsPermOpen] = useState(false);
   const [permUser, setPermUser] = useState<any>(null);
+
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false);
+  const [selectedPassUser, setSelectedPassUser] = useState<any>(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -108,7 +112,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
     </Badge>
   );
 
-  const TherapistTableColumns = [
+  const TherapistTableColumns = useMemo(() => [
     {
       headerName: "S.No.",
       key: "sno",
@@ -221,70 +225,110 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
     },
     {
       headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
+      key: "table-actions-custom",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Flex gap={2} justify="center">
+            <Tooltip label="Edit Admin">
+              <IconButton
+                aria-label="Edit"
+                icon={<FaEdit />}
+                size="sm"
+                colorScheme="blue"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => onEdit(dt)}
+              />
+            </Tooltip>
+            <Tooltip label="Change Password">
+              <IconButton
+                aria-label="Change Password"
+                icon={<FiKey />}
+                size="sm"
+                colorScheme="orange"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setSelectedPassUser(dt);
+                  setIsPassModalOpen(true);
+                }}
+              />
+            </Tooltip>
+            <Tooltip label="Delete Admin">
+              <IconButton
+                aria-label="Delete"
+                icon={<FaTrash />}
+                size="sm"
+                colorScheme="red"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => onDelete(dt)}
+              />
+            </Tooltip>
+          </Flex>
+        ),
+      },
       props: {
         row: { minW: 180, textAlign: "center" },
         column: { textAlign: "center" },
       },
     },
-  ];
+  ], [onEdit, onDelete]);
+
+  const tableData = useMemo(() => {
+    return user.data?.map((t: any, index: number) => ({
+      ...t,
+      ...t.profileDetails?.personalInfo,
+      permissions: t.permissions,
+      sno: index + 1,
+    })) || [];
+  }, [user.data]);
+
+  const tableActions = useMemo(() => ({
+    actionBtn: {
+      addKey: {
+        showAddButton: true,
+        function: () => onAdd(),
+      },
+      editKey: {
+        showEditButton: true,
+        function: (e: any) => onEdit(e),
+      },
+      viewKey: {
+        showViewButton: false,
+        function: (e: any) => handleRowClick(e),
+      },
+      deleteKey: {
+        showDeleteButton: true,
+        function: (e: any) => onDelete(e),
+      },
+    },
+    search: {
+      show: true,
+      searchValue: searchQuery,
+      onSearchChange: (e: any) => setSearchQuery(e.target.value),
+    },
+    resetData: {
+      show: true,
+      text: "Reset Data",
+      function: resetTableData,
+    },
+    pagination: {
+      show: true,
+      onClick: handleChangePage,
+      currentPage: currentPage,
+      totalPages: user.totalPages || 1,
+    },
+  }), [onAdd, onEdit, onDelete, searchQuery, currentPage, user.totalPages]);
 
   return (
     <Box p={4}>
       <CustomTable
         title="Admins"
-        data={user.data?.map((t: any, index: number) => ({
-          ...t,
-          ...t.profileDetails?.personalInfo,
-          permissions: t.permissions,
-          sno: index + 1,
-        })) || []}
+        data={tableData}
         columns={TherapistTableColumns}
-        actions={{
-          actionBtn: {
-            addKey: {
-              showAddButton: true,
-              function: () => {
-                onAdd();
-              },
-            },
-            editKey: {
-              showEditButton: true,
-              function: (e : any) => {
-                onEdit(e);
-              },
-            },
-            viewKey: {
-              showViewButton: false,
-              function: (e: any) => {
-                handleRowClick(e);
-              },
-            },
-            deleteKey: {
-              showDeleteButton: true,
-              function: (e: any) => {
-                onDelete(e);
-              },
-            },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
-          resetData: {
-            show: true,
-            text: "Reset Data",
-            function: resetTableData,
-          },
-          pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage: currentPage,
-            totalPages: user.totalPages || 1,
-          },
-        }}
+        actions={tableActions}
         loading={user.loading}
       />
 
@@ -389,6 +433,15 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
         staff={permUser}
         onUpdate={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
       />
+
+      {selectedPassUser && (
+        <ChangePasswordModal
+          isOpen={isPassModalOpen}
+          onClose={() => setIsPassModalOpen(false)}
+          userId={selectedPassUser._id}
+          userName={selectedPassUser.name || selectedPassUser.username}
+        />
+      )}
 
       <AlertDialog
         isOpen={isConfirmOpen}

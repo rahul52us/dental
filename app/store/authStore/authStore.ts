@@ -162,7 +162,6 @@ class AuthStore {
     sessionStorage.removeItem(USER_SESSION_DATA!);
     sessionStorage.clear()
   };
-  // Login user
   login = async (payload: any) => {
     this.isLoading = true;
     try {
@@ -177,6 +176,7 @@ class AuthStore {
       return response?.data
     } catch (err: any) {
       this.error = err?.response?.data?.message || "Login failed.";
+      return Promise.reject(err?.response?.data || { message: err.message });
     } finally {
       this.isLoading = false;
     }
