@@ -42,65 +42,67 @@ const AdvertisementTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     {
       headerName: "S.No.",
       key: "sno",
-      props: { row: { textAlign: "center" } }
+      props: { row: { textAlign: "center", fontWeight: "700", color: "gray.500" } }
     },
     {
-      headerName: "Image",
+      headerName: "Advertisement",
       key: "image",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box m={1} display="flex" justifyContent="center">
+          <Flex m={2} justify="center" align="center">
             {dt.image?.url ? (
-              <Image src={dt.image?.url} alt="Advertisement" h="50px" w="auto" objectFit="cover" rounded="md" />
+              <Box position="relative" borderRadius="xl" overflow="hidden" boxShadow="md" _hover={{ transform: 'scale(1.05)', boxShadow: 'xl' }} transition="all 0.3s ease" bg="gray.100" p={1}>
+                <Image src={dt.image?.url} alt="Ad" h="60px" w="100px" objectFit="contain" rounded="lg" bg="white" />
+              </Box>
             ) : (
-              <Text fontSize="xs" color="gray.500">No Image</Text>
+              <Box h="60px" w="100px" bg="gray.50" rounded="lg" display="flex" alignItems="center" justifyContent="center" border="1px dashed" borderColor="gray.300">
+                <Text fontSize="xs" color="gray.400" fontWeight="600">No Image</Text>
+              </Box>
             )}
-          </Box>
+          </Flex>
         ),
       },
       props: {
-        row: { minW: 100, textAlign: "center" },
+        row: { minW: 120, textAlign: "center" },
         column: { textAlign: "center" },
       },
     },
     {
-      headerName: "Title",
+      headerName: "Details",
       key: "title",
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Valid From",
-      key: "validFrom",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Text>{moment(dt.validFrom).format("DD MMM YYYY")}</Text>
+          <Box textAlign="left" pl={4}>
+            <Text fontSize="md" fontWeight="800" color="gray.700" noOfLines={2} title={dt.title}>{dt.title}</Text>
+            {dt.link && (
+              <Text fontSize="xs" fontWeight="700" color="blue.500" mt={1} as="a" href={dt.link} target="_blank" rel="noreferrer" _hover={{ textDecoration: 'underline' }}>
+                🔗 Visit Link
+              </Text>
+            )}
+          </Box>
         )
       },
-      props: { row: { textAlign: "center" } }
+      props: { row: { textAlign: "left", minW: 200 } }
     },
     {
-      headerName: "Valid To",
-      key: "validTo",
+      headerName: "Validity",
+      key: "validity",
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Text>{moment(dt.validTo).format("DD MMM YYYY")}</Text>
+          <Flex direction="column" gap={2} align="center">
+            <Badge colorScheme="green" variant="subtle" borderRadius="full" px={3} py={1} fontSize="xs" fontWeight="700" textTransform="uppercase" letterSpacing="widest">
+              From: {moment(dt.validFrom).format("DD MMM YYYY")}
+            </Badge>
+            <Badge colorScheme="red" variant="subtle" borderRadius="full" px={3} py={1} fontSize="xs" fontWeight="700" textTransform="uppercase" letterSpacing="widest">
+              To: {moment(dt.validTo).format("DD MMM YYYY")}
+            </Badge>
+          </Flex>
         )
       },
-      props: { row: { textAlign: "center" } }
-    },
-    {
-      headerName: "Link",
-      key: "link",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          dt.link ? <a href={dt.link} target="_blank" rel="noreferrer" style={{color: 'blue'}}>Link</a> : <Text>-</Text>
-        )
-      },
-      props: { row: { textAlign: "center" } }
+      props: { row: { textAlign: "center", minW: 180 } }
     },
     {
       headerName: "Status",
@@ -108,17 +110,23 @@ const AdvertisementTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Switch
-            colorScheme="green"
-            isChecked={dt.status}
-            onChange={(e) => {
-              updateAdvertisement(dt._id, { status: e.target.checked });
-            }}
-          />
+          <Flex direction="column" align="center" gap={1}>
+            <Switch
+              colorScheme="blue"
+              size="lg"
+              isChecked={dt.status}
+              onChange={(e) => {
+                updateAdvertisement(dt._id, { status: e.target.checked });
+              }}
+            />
+            <Text fontSize="10px" fontWeight="800" color={dt.status ? "blue.500" : "gray.400"} textTransform="uppercase" letterSpacing="widest">
+              {dt.status ? "Active" : "Inactive"}
+            </Text>
+          </Flex>
         ),
       },
       props: {
-        row: { textAlign: "center" },
+        row: { textAlign: "center", minW: 100 },
         column: { textAlign: "center" },
       },
     },
@@ -128,34 +136,42 @@ const AdvertisementTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Flex gap={2} justify="center">
-            <Tooltip label="Edit Advertisement">
+          <Flex gap={3} justify="center">
+            <Tooltip label="Edit Advertisement" placement="top" hasArrow bg="blue.500">
               <IconButton
                 aria-label="Edit"
                 icon={<FaEdit />}
-                size="sm"
+                size="md"
                 colorScheme="blue"
-                variant="ghost"
+                variant="light"
+                bg="blue.50"
+                color="blue.500"
+                _hover={{ bg: "blue.100", transform: "translateY(-2px)" }}
                 borderRadius="xl"
                 onClick={() => onEdit(dt)}
+                transition="all 0.2s"
               />
             </Tooltip>
-            <Tooltip label="Delete Advertisement">
+            <Tooltip label="Delete Advertisement" placement="top" hasArrow bg="red.500">
               <IconButton
                 aria-label="Delete"
                 icon={<FaTrash />}
-                size="sm"
+                size="md"
                 colorScheme="red"
-                variant="ghost"
+                variant="light"
+                bg="red.50"
+                color="red.500"
+                _hover={{ bg: "red.100", transform: "translateY(-2px)" }}
                 borderRadius="xl"
                 onClick={() => onDelete(dt)}
+                transition="all 0.2s"
               />
             </Tooltip>
           </Flex>
         ),
       },
       props: {
-        row: { minW: 100, textAlign: "center" },
+        row: { minW: 120, textAlign: "center" },
         column: { textAlign: "center" },
       },
     },

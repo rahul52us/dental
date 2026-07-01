@@ -12,6 +12,7 @@ import HeaderLayout from './HeaderLayout/HeaderLayout';
 import { contentLargeBodyPadding, contentSmallBodyPadding, headerHeight, mediumSidebarWidth } from '../../component/config/utils/variable';
 import PageLoader from '../../component/common/Loader/PageLoader';
 import ProfileDetailsModal from '../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal';
+import AdvertisementBanner from './AdvertisementBanner';
 
 
 const DashboardLayout = observer(({ children }: { children: React.ReactNode }) => {
@@ -91,6 +92,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
             fullScreenMode={fullScreenMode}
             sizeStatus={sizeStatus}
           >
+            <AdvertisementBanner />
             {children}
           </ContentContainer>
         </Container>

@@ -106,7 +106,7 @@ const marqueeStyle = `marqueeAnimation 20s linear infinite`;
 const Dashboard = observer(() => {
   const {
     dashboardStore: { getDashboardCount, count },
-    auth: { user }
+    auth: { user, company }
   } = stores;
   const { t } = useTranslation();
 
@@ -180,7 +180,7 @@ const Dashboard = observer(() => {
   }, []);
 
   return (
-    <Box p={8} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
+    <Box p={{ base: 2, md: 8 }} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
       <style>
         {`
           @keyframes marqueeAnimation {
@@ -194,66 +194,8 @@ const Dashboard = observer(() => {
       <Box position="absolute" bottom="0" right="-10%" w="600px" h="600px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} filter="blur(150px)" opacity={0.08} borderRadius="full" pointerEvents="none" />
 
       <Box mx="auto" position="relative" zIndex={1}>
-        <Flex justify="space-between" align="center" mb={12}>
-          <Box>
-            <Text fontSize="xs" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} textTransform="uppercase" letterSpacing="widest" mb={1}>{currentDate}</Text>
-            <Heading size="xl" letterSpacing="tight" color={useColorModeValue("gray.900", "white")}>
-              {t("dashboard.welcomeBack", { name: user?.name?.split(' ')[0] || "Admin" })}
-            </Heading>
-            <Text color="gray.500" fontWeight="600" mt={1}>{t("dashboard.analyticsOverview")}</Text>
-          </Box>
-        </Flex>
-
-        {ads.length > 0 && (
-          <Box mb={10} position="relative" borderRadius="2xl" overflow="hidden" boxShadow="xl" bg="white">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentAdIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Box w="100%">
-                  <Box 
-                    bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}E6)`} 
-                    color="white" 
-                    py={4} 
-                    overflow="hidden" 
-                    whiteSpace="nowrap" 
-                    position="relative" 
-                    w="100%"
-                    boxShadow="md"
-                    borderBottomWidth={ads[currentAdIndex].image?.url ? "1px" : "0px"}
-                    borderColor="gray.100"
-                  >
-                    <Box
-                      display="inline-block"
-                      pl="100%"
-                      animation={marqueeStyle}
-                      fontSize="1.15rem"
-                      fontWeight="bold"
-                      letterSpacing="wide"
-                    >
-                      ✨ {ads[currentAdIndex].title} ✨
-                    </Box>
-                  </Box>
-                  {ads[currentAdIndex].image?.url && (
-                    ads[currentAdIndex].link ? (
-                      <a href={ads[currentAdIndex].link} target="_blank" rel="noopener noreferrer">
-                        <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", maxHeight: "350px", objectFit: "contain", backgroundColor: "#fafaf9", padding: "1rem" }} />
-                      </a>
-                    ) : (
-                      <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", maxHeight: "350px", objectFit: "contain", backgroundColor: "#fafaf9", padding: "1rem" }} />
-                    )
-                  )}
-                </Box>
-              </motion.div>
-            </AnimatePresence>
-          </Box>
-        )}
-
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={6} mb={12}>
+        <Box mb={4}></Box>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={{ base: 4, md: 6 }} mb={{ base: 8, md: 12 }}>
           {dashboardData.map((item, index) => (
             <DarkSkeleton isLoaded={!count?.loading} key={index}>
               <DashboardCard {...item} />
@@ -261,13 +203,13 @@ const Dashboard = observer(() => {
           ))}
         </SimpleGrid>
 
-        <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} mb={10}>
+        <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={{ base: 4, md: 8 }} mb={{ base: 8, md: 10 }}>
           <DarkSkeleton isLoaded={!count?.loading}>
-            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
-              <Flex justify="space-between" align="center" mb={8}>
+            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+              <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
                 <Box>
-                  <Text fontSize="xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary}>{t("dashboard.weeklyGrowth")}</Text>
-                  <Text fontSize="xs" color="gray.500" fontWeight="700">{t("dashboard.newArrivals")}</Text>
+                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, blue.400, purple.400)" bgClip="text">{t("dashboard.weeklyGrowth")}</Text>
+                  <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.revenueVsAppointments")}</Text>
                 </Box>
                 <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
                   <Icon as={FaClipboardList} boxSize={5} />
@@ -280,11 +222,11 @@ const Dashboard = observer(() => {
           </DarkSkeleton>
 
           <DarkSkeleton isLoaded={!count?.loading}>
-            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={8} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
-              <Flex justify="space-between" align="center" mb={8}>
+            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+              <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
                 <Box>
-                  <Text fontSize="xl" fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">{t("dashboard.patientRetention")}</Text>
-                  <Text fontSize="xs" color="gray.500" fontWeight="700">{t("dashboard.performanceTrend")}</Text>
+                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">{t("dashboard.patientRetention")}</Text>
+                  <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.performanceTrend")}</Text>
                 </Box>
                 <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
                   <Icon as={FaCalendarAlt} boxSize={5} />
@@ -298,16 +240,16 @@ const Dashboard = observer(() => {
         </Grid>
         {/* <VideoUploader /> */}
         <DarkSkeleton isLoaded={!count?.loading}>
-          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={10} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
-            <Box position="absolute" top="-20px" left="20px" bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize="xs" fontWeight="900" boxShadow="lg">{t("dashboard.realTimeMonitor")}</Box>
-            <Flex justify="space-between" align="center" mb={12} pt={4}>
+          <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 10 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
+            <Box position="absolute" top="-15px" left={{ base: "15px", md: "20px" }} bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize={{ base: "10px", md: "xs" }} fontWeight="900" boxShadow="lg">{t("dashboard.realTimeMonitor")}</Box>
+            <Flex justify="space-between" align="center" mb={{ base: 6, md: 12 }} pt={4}>
               <Box>
-                <Text fontSize="2xl" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>{t("dashboard.liveClinicActivity")}</Text>
-                <Text fontSize="sm" color="gray.500" fontWeight="700">{t("dashboard.detailedOverview")}</Text>
+                <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} mb={1}>{t("dashboard.liveClinicActivity")}</Text>
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500" fontWeight="700">{t("dashboard.detailedOverview")}</Text>
               </Box>
             </Flex>
 
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 8 }}>
               {count?.data?.recentUsers?.map((u: any, idx: number) => {
                 const regDate = new Date(u.createdAt);
                 const formattedDate = regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -332,36 +274,36 @@ const Dashboard = observer(() => {
                       ease: "easeInOut",
                       delay: idx * 0.1
                     }}
-                    p={6}
+                    p={{ base: 3, md: 6 }}
                     bg={useColorModeValue("gray.50", "whiteAlpha.50")}
                     borderRadius="2xl"
                     borderWidth="1px"
                     borderColor="transparent"
                     _hover={{ borderColor: style.color, transform: 'translateY(-4px)', boxShadow: 'xl', bg: useColorModeValue("white", "whiteAlpha.100") }}
                   >
-                    <Flex gap={5} align="start">
+                    <Flex gap={{ base: 3, md: 5 }} align="center">
                       <Box position="relative">
-                        <Avatar size="lg" src={u.pic?.url} name={u.name} borderRadius="2xl" border="3px solid" borderColor={style.color} />
-                        <Box position="absolute" bottom="-2px" right="-2px" boxSize={6} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={useColorModeValue("white", "gray.800")}>
-                          <Icon as={style.icon} boxSize={3} />
+                        <Avatar size={{ base: "md", md: "lg" }} src={u.pic?.url} name={u.name} borderRadius="2xl" border={{ base: "2px solid", md: "3px solid" }} borderColor={style.color} />
+                        <Box position="absolute" bottom="-2px" right="-2px" boxSize={{ base: 5, md: 6 }} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={useColorModeValue("white", "gray.800")}>
+                          <Icon as={style.icon} boxSize={{ base: 2.5, md: 3 }} />
                         </Box>
                       </Box>
-                      <Box flex={1}>
-                        <Flex justify="space-between" align="start">
-                          <Box>
-                            <Text fontSize="lg" fontWeight="900" color={useColorModeValue("gray.800", "white")} mb={1}>{u.name}</Text>
-                            <Badge variant="subtle" colorScheme={style.color.split('.')[0]} fontSize="10px" px={3} py={0.5} borderRadius="full" fontWeight="900" textTransform="uppercase" letterSpacing="1px">{u.userType}</Badge>
+                      <Box flex={1} minW={0}>
+                        <Flex direction="row" justify="space-between" align="center" gap={2}>
+                          <Box minW={0} flex={1}>
+                            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="900" color={useColorModeValue("gray.800", "white")} mb={0.5} noOfLines={1}>{u.name}</Text>
+                            <Badge variant="subtle" colorScheme={style.color.split('.')[0]} fontSize={{ base: "8px", md: "10px" }} px={2} py={0.5} borderRadius="full" fontWeight="900" textTransform="uppercase" letterSpacing="1px">{u.userType}</Badge>
                           </Box>
-                          <VStack align="end" spacing={0}>
-                            <Text fontSize="xs" fontWeight="900" color={style.color}>{dayName}</Text>
-                            <Text fontSize="14px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")}>{formattedTime}</Text>
-                            <Text fontSize="10px" fontWeight="700" color="gray.400">{formattedDate}</Text>
+                          <VStack align="flex-end" spacing={0}>
+                            <Text fontSize={{ base: "10px", md: "xs" }} fontWeight="900" color={style.color}>{dayName}</Text>
+                            <Text fontSize={{ base: "12px", md: "14px" }} fontWeight="800" color={useColorModeValue("gray.600", "gray.300")}>{formattedTime}</Text>
+                            <Text fontSize={{ base: "9px", md: "10px" }} fontWeight="700" color="gray.400">{formattedDate}</Text>
                           </VStack>
                         </Flex>
-                        <Divider my={4} opacity={0.3} />
+                        <Divider my={{ base: 2, md: 4 }} opacity={0.3} />
                         <Flex align="center" gap={1}>
                           <Box boxSize={1.5} borderRadius="full" bg="green.400" boxShadow="0 0 8px #48BB78" />
-                          <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">{t("dashboard.statusActive")}</Text>
+                          <Text fontSize={{ base: "8px", md: "10px" }} fontWeight="800" color="gray.500" textTransform="uppercase">{t("dashboard.statusActive")}</Text>
                         </Flex>
                       </Box>
                     </Flex>
