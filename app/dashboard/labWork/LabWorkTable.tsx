@@ -44,7 +44,7 @@ import {
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
-import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw, FiUser } from "react-icons/fi";
+import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw, FiUser, FiColumns } from "react-icons/fi";
 
 import stores from "../../store/stores";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
@@ -63,6 +63,20 @@ interface LabWorkTableProps {
   isDrawer?: boolean;
   defaultWorkType?: "in-house" | "outside" | "all";
 }
+const defaultLabWorkCols = [
+  { label: "Patient", value: "patientName" },
+  { label: "Doctor", value: "doctorName" },
+  { label: "Work Type", value: "workType" },
+  { label: "Lab", value: "labName" },
+  { label: "Creation Date", value: "createdAt" },
+  { label: "Send Date", value: "sendDate" },
+  { label: "Due Date", value: "dueDate" },
+  { label: "Received Date", value: "receivedDate" },
+  { label: "Status", value: "status" },
+  { label: "Price", value: "price" },
+  { label: "Selected Works", value: "works" },
+  { label: "Warranty Card", value: "warrantyCardNumber" },
+];
 
 const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWorkType }: LabWorkTableProps = {}) => {
   const { labWorkStore, labWorkHierarchyStore, labWorkStatusStore, auth: { openNotification } } = stores;
@@ -94,6 +108,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     doctor: null as any,
     labDoctor: null as any,
     status: "all" as string | string[],
+    selectedColumns: defaultLabWorkCols.map(c => c.value) as string[],
   });
 
   const handleTabChange = (index: number) => {
@@ -149,6 +164,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
       doctor: null,
       labDoctor: null,
       status: "all",
+      selectedColumns: defaultLabWorkCols.map(c => c.value),
     });
   };
 
@@ -232,6 +248,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         patientId: reportFilters.patient?._id || reportFilters.patient?.value || reportFilters.patient?.id,
         doctorId: reportFilters.doctor?._id || reportFilters.doctor?.value || reportFilters.doctor?.id || reportFilters.labDoctor?._id || reportFilters.labDoctor?.value || reportFilters.labDoctor?.id,
         search: debouncedSearchQuery?.trim() || undefined,
+        selectedColumns: reportFilters.selectedColumns,
       };
 
       const response = await stores.reportStore.getReportDownload({
@@ -808,6 +825,38 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         onChange={(val: any) => setReportFilters({ ...reportFilters, labDoctor: val, doctor: null })}
                       />
                     )}
+                  </VStack>
+                </Box>
+                <Divider />
+
+                {/* Columns Selection Section */}
+                <Box>
+                  <HStack mb={4} spacing={2}>
+                    <Icon as={FiColumns} color="blue.500" />
+                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">REPORT COLUMNS</Text>
+                  </HStack>
+                  <VStack spacing={4} align="stretch">
+                    <Box bg="gray.50" p={4} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                      <VStack align="stretch" spacing={3}>
+                        <Text fontSize="xs" color="gray.500">
+                          Select the columns you want to include in the report. The order you select them is the order they will appear in the exported file.
+                        </Text>
+                        <CustomInput
+                          name="selectedColumns"
+                          type="select"
+                          isPortal
+                          isMulti
+                          options={defaultLabWorkCols}
+                          value={reportFilters.selectedColumns.map(val => defaultLabWorkCols.find(c => c.value === val))}
+                          onChange={(val: any) => {
+                            setReportFilters({
+                              ...reportFilters,
+                              selectedColumns: val ? val.map((v: any) => v.value) : []
+                            });
+                          }}
+                        />
+                      </VStack>
+                    </Box>
                   </VStack>
                 </Box>
               </VStack>
