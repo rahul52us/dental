@@ -360,6 +360,28 @@ const Form = ({ initialData, onSubmit, isOpen, onClose, isEdit, isLoading }: any
                           error={errors.subscriptionEndDate && touched.subscriptionEndDate}
                           showError={errors.subscriptionEndDate && touched.subscriptionEndDate}
                         />
+
+                        <CustomInput
+                          label="Subscription Amount"
+                          name="amount"
+                          type="number"
+                          placeholder="e.g. 5000"
+                          value={values.amount || ""}
+                          onChange={handleChange}
+                          error={errors.amount && touched.amount}
+                          showError={errors.amount && touched.amount}
+                        />
+
+                        <CustomInput
+                          label="Subscription Description"
+                          name="description"
+                          type="text"
+                          placeholder="e.g. Premium Plan"
+                          value={values.description || ""}
+                          onChange={handleChange}
+                          error={errors.description && touched.description}
+                          showError={errors.description && touched.description}
+                        />
                       </>
                     )}
 

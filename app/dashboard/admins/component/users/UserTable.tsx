@@ -269,7 +269,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
                 variant="ghost"
                 borderRadius="xl"
                 onClick={() => {
-                  setSelectedSubscriptionUser(dt);
+                  setSelectedSubscriptionUser({...dt,company:dt.company});
                   setIsSubscriptionModalOpen(true);
                 }}
               />
@@ -301,6 +301,7 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
       ...t.profileDetails?.personalInfo,
       adminCompanyId: t.company, // Preserve the original company ID before personalInfo overwrites it
       permissions: t.permissions,
+      company:t.company,
       sno: index + 1,
     })) || [];
   }, [user.data]);
@@ -495,15 +496,15 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
             </AlertDialogHeader>
 
             <AlertDialogBody color="gray.600" fontSize="md">
-              Are you sure you want to {pendingStatusUpdate?.newStatus ? "activate" : "deactivate"} this admin? 
-              {pendingStatusUpdate?.newStatus 
-                ? " They will regain access to their account immediately." 
+              Are you sure you want to {pendingStatusUpdate?.newStatus ? "activate" : "deactivate"} this admin?
+              {pendingStatusUpdate?.newStatus
+                ? " They will regain access to their account immediately."
                 : " They will be logged out and lose access to the platform."}
             </AlertDialogBody>
 
             <AlertDialogFooter mt={4}>
-              <Button 
-                ref={cancelRef} 
+              <Button
+                ref={cancelRef}
                 onClick={() => {
                   setIsConfirmOpen(false);
                   setPendingStatusUpdate(null);
@@ -513,9 +514,9 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
               >
                 Cancel
               </Button>
-              <Button 
-                colorScheme={pendingStatusUpdate?.newStatus ? "green" : "red"} 
-                onClick={confirmStatusChange} 
+              <Button
+                colorScheme={pendingStatusUpdate?.newStatus ? "green" : "red"}
+                onClick={confirmStatusChange}
                 isLoading={isUpdatingStatus}
                 loadingText="Updating..."
                 ml={3}

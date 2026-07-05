@@ -20,8 +20,15 @@ import {
   HStack,
   Spinner,
   Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
-import { FiClock, FiCalendar, FiCheckCircle, FiShield, FiStar } from "react-icons/fi";
+import { FiClock, FiCalendar, FiCheckCircle, FiShield, FiStar, FiEdit2, FiPlus } from "react-icons/fi";
 import stores from "../../../../store/stores";
 import { formatDateTime } from "../../../../component/config/utils/dateUtils";
 import axios from "axios";
@@ -42,17 +49,25 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
   const [isFetching, setIsFetching] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
   const [subscriptionHistory, setSubscriptionHistory] = useState<any[]>([]);
+
+  // States for updating history
+  const [editingHistoryId, setEditingHistoryId] = useState<string | null>(null);
+  const [editAmount, setEditAmount] = useState<string>("");
+  const [editDescription, setEditDescription] = useState<string>("");
+  const [isUpdatingHistory, setIsUpdatingHistory] = useState(false);
 
   useEffect(() => {
     const fetchCompanyData = async () => {
-      if (!user?.adminCompanyId) return;
+      if (!user?.company) return;
       setIsFetching(true);
       try {
-        const { data } = await axios.get(`/company/subscription/${user.adminCompanyId}`);
+        const { data } = await axios.get(`/company/subscription/${user.company}`);
         const comp = data.data;
         if (comp) {
-          const start = comp.subscriptionStartDate 
+          const start = comp.subscriptionStartDate
             ? new Date(comp.subscriptionStartDate).toISOString().split('T')[0]
             : "";
           const end = comp.subscriptionEndDate
@@ -74,6 +89,8 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
     };
 
     if (isOpen && user) {
+      setAmount("");
+      setDescription("");
       fetchCompanyData();
     }
   }, [isOpen, user]);
@@ -88,7 +105,7 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
       return;
     }
 
-    if (!user?.adminCompanyId) {
+    if (!user?.company) {
        openNotification({
         type: "error",
         title: "Error",
@@ -100,11 +117,13 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
     setIsLoading(true);
     try {
       await axios.put(`/company/subscription/update`, {
-        companyId: user.adminCompanyId,
+        companyId: user.company,
         subscriptionStartDate: startDate,
-        subscriptionEndDate: endDate
+        subscriptionEndDate: endDate,
+        amount: amount ? Number(amount) : undefined,
+        description: description || undefined
       });
-      
+
       openNotification({
         type: "success",
         title: "Success",
@@ -123,14 +142,46 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
     }
   };
 
+  const handleUpdateHistory = async (historyId: string) => {
+    if (!user?.company || !historyId) return;
+    setIsUpdatingHistory(true);
+    try {
+      await axios.put(`/company/subscription/history/update`, {
+        companyId: user.company,
+        historyId: historyId,
+        amount: editAmount ? Number(editAmount) : undefined,
+        description: editDescription || undefined
+      });
+      openNotification({
+        type: "success",
+        title: "Success",
+        message: "History updated successfully",
+      });
+      setEditingHistoryId(null);
+      // Refresh the data to reflect changes
+      const { data } = await axios.get(`/company/subscription/${user.company}`);
+      if (data?.data) {
+        setSubscriptionHistory(data.data.subscriptionHistory || []);
+      }
+    } catch (err: any) {
+      openNotification({
+        type: "error",
+        title: "Update Failed",
+        message: err?.response?.data?.message || err.message || "Failed to update history",
+      });
+    } finally {
+      setIsUpdatingHistory(false);
+    }
+  };
+
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="lg">
       <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.300" />
       <DrawerContent bg="gray.50">
         <DrawerCloseButton top={8} right={6} color="white" _hover={{ bg: "whiteAlpha.200" }} zIndex={10} size="lg" />
-        <DrawerHeader 
-          borderBottomWidth="1px" 
-          bg="brand.600" 
+        <DrawerHeader
+          borderBottomWidth="1px"
+          bg="brand.600"
           color="white"
           pt={8}
           pb={6}
@@ -141,7 +192,7 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
               <Icon as={FiClock} boxSize={6} color="white" />
             </Box>
             <Box>
-              <Text fontSize="2xl" fontWeight="bold" letterSpacing="tight">Manage Subscription</Text>
+              <Text fontSize="2xl" fontWeight="bold" letterSpacing="tight">Manage Subscription {user?.company}</Text>
               <Text fontSize="md" fontWeight="medium" color="whiteAlpha.800" mt={1}>
                 {user?.name}
               </Text>
@@ -157,11 +208,11 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
             </Flex>
           ) : (
             <VStack spacing={8} align="stretch">
-              
-              <Box 
-                p={5} 
-                borderRadius="2xl" 
-                bg="white" 
+
+              <Box
+                p={5}
+                borderRadius="2xl"
+                bg="white"
                 boxShadow="sm"
                 borderWidth="1px"
                 borderColor="brand.100"
@@ -209,20 +260,54 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                       _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
                     />
                   </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontWeight="600" fontSize="sm" color="gray.700">Amount</FormLabel>
+                    <Input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="e.g. 5000"
+                      bg="gray.50"
+                      size="lg"
+                      borderRadius="xl"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      _hover={{ borderColor: "brand.300" }}
+                      _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontWeight="600" fontSize="sm" color="gray.700">Description / Modules</FormLabel>
+                    <Input
+                      type="text"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="e.g. Premium Plan + WhatsApp Module"
+                      bg="gray.50"
+                      size="lg"
+                      borderRadius="xl"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      _hover={{ borderColor: "brand.300" }}
+                      _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
+                    />
+                  </FormControl>
                 </VStack>
               </Box>
-              
+
               {subscriptionHistory.length > 0 && (
                 <Box>
                   <Flex align="center" gap={2} mb={4}>
                     <Icon as={FiClock} color="gray.400" />
                     <Text fontWeight="bold" color="gray.700" fontSize="md">Renewal History</Text>
                   </Flex>
-                  
-                  <VStack 
-                    spacing={3} 
-                    align="stretch" 
-                    maxH="280px" 
+
+                  <VStack
+                    spacing={3}
+                    align="stretch"
+                    maxH="280px"
                     overflowY="auto"
                     pr={2}
                     sx={{
@@ -232,12 +317,12 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                     }}
                   >
                     {subscriptionHistory.slice().reverse().map((history: any, idx: number) => (
-                      <Box 
-                        key={idx} 
-                        p={4} 
-                        bg="white" 
-                        borderRadius="xl" 
-                        borderWidth="1px" 
+                      <Box
+                        key={idx}
+                        p={4}
+                        bg="white"
+                        borderRadius="xl"
+                        borderWidth="1px"
                         borderColor="gray.100"
                         boxShadow="sm"
                         transition="all 0.2s"
@@ -251,7 +336,7 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                             {formatDateTime(history.updatedAt)}
                           </Text>
                         </Flex>
-                        
+
                         <Flex align="center" justify="space-between" mt={3}>
                           <Box>
                             <Text fontSize="xs" color="gray.500" mb={1} textTransform="uppercase" letterSpacing="wider">Start</Text>
@@ -262,9 +347,9 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                               </Text>
                             </Flex>
                           </Box>
-                          
+
                           <Divider orientation="horizontal" w="20px" borderColor="gray.300" />
-                          
+
                           <Box textAlign="right">
                             <Text fontSize="xs" color="gray.500" mb={1} textTransform="uppercase" letterSpacing="wider">End</Text>
                             <Flex align="center" gap={1.5} justify="flex-end">
@@ -275,6 +360,57 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                             </Flex>
                           </Box>
                         </Flex>
+
+                        <Box>
+                          {(history.amount !== undefined || history.description) && (
+                            <Box mt={3} p={3} bg="gray.50" borderRadius="md" borderWidth="1px" borderColor="gray.100" position="relative">
+                              <Flex justify="space-between" align="flex-start">
+                                <Box>
+                                  {history.amount !== undefined && (
+                                    <Text fontSize="sm" fontWeight="bold" color="gray.800">
+                                      Amount: ₹{history.amount}
+                                    </Text>
+                                  )}
+                                  {history.description && (
+                                    <Text fontSize="sm" color="gray.600" mt={history.amount !== undefined ? 1 : 0}>
+                                      {history.description}
+                                    </Text>
+                                  )}
+                                </Box>
+                                <Button
+                                  size="xs"
+                                  variant="ghost"
+                                  colorScheme="blue"
+                                  leftIcon={<FiEdit2 />}
+                                  onClick={() => {
+                                    setEditingHistoryId(history._id);
+                                    setEditAmount(history.amount !== undefined ? String(history.amount) : "");
+                                    setEditDescription(history.description || "");
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </Flex>
+                            </Box>
+                          )}
+                          {history.amount === undefined && !history.description && (
+                             <Flex justify="flex-end" mt={2}>
+                                <Button
+                                  size="xs"
+                                  variant="outline"
+                                  colorScheme="gray"
+                                  leftIcon={<FiPlus />}
+                                  onClick={() => {
+                                    setEditingHistoryId(history._id);
+                                    setEditAmount("");
+                                    setEditDescription("");
+                                  }}
+                                >
+                                  Add Amount/Desc
+                                </Button>
+                             </Flex>
+                          )}
+                        </Box>
                       </Box>
                     ))}
                   </VStack>
@@ -306,6 +442,55 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
           </Button>
         </DrawerFooter>
       </DrawerContent>
+
+      <Modal isOpen={!!editingHistoryId} onClose={() => setEditingHistoryId(null)} isCentered>
+        <ModalOverlay backdropFilter="blur(2px)" />
+        <ModalContent borderRadius="xl">
+          <ModalHeader color="brand.600">Update Subscription History</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <FormControl>
+                <FormLabel fontWeight="600" fontSize="sm" color="gray.700">Amount</FormLabel>
+                <Input
+                  type="number"
+                  value={editAmount}
+                  onChange={(e) => setEditAmount(e.target.value)}
+                  placeholder="Amount (e.g. 5000)"
+                  bg="gray.50"
+                  size="lg"
+                  borderRadius="xl"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontWeight="600" fontSize="sm" color="gray.700">Description / Modules</FormLabel>
+                <Input
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="e.g. Premium Plan"
+                  bg="gray.50"
+                  size="lg"
+                  borderRadius="xl"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={() => setEditingHistoryId(null)} isDisabled={isUpdatingHistory} borderRadius="xl">
+              Cancel
+            </Button>
+            <Button colorScheme="brand" onClick={() => editingHistoryId && handleUpdateHistory(editingHistoryId)} isLoading={isUpdatingHistory} borderRadius="xl">
+              Save Changes
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Drawer>
   );
 };
