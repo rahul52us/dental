@@ -31,7 +31,8 @@ import {
   TabPanel,
   Tooltip,
 } from '@chakra-ui/react';
-import { DeleteIcon, EditIcon, AddIcon } from '@chakra-ui/icons';
+import { DeleteIcon, EditIcon, AddIcon, SearchIcon } from '@chakra-ui/icons';
+import { InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import stores from '../../../store/stores';
 
@@ -40,6 +41,7 @@ const LabWorkStatusManager = observer(() => {
   const [status, setStatus] = useState('');
   const [type, setType] = useState<'in-house' | 'outside'>('outside');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const toast = useToast();
 
   useEffect(() => {
@@ -85,7 +87,9 @@ const LabWorkStatusManager = observer(() => {
     }
   };
 
-  const filteredStatuses = labWorkStatusStore.statuses.filter(s => s.type === type);
+  const filteredStatuses = labWorkStatusStore.statuses.filter(s => 
+    s.type === type && (searchQuery.trim() === '' || s.status.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <VStack spacing={6} align="stretch" h="full">
@@ -108,34 +112,56 @@ const LabWorkStatusManager = observer(() => {
       {/* Form Card */}
       <Card variant="outline" borderColor="blue.100" shadow="sm">
         <CardBody>
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-            <FormControl gridColumn={{ md: "span 2" }}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+            <Box>
+              <FormLabel fontWeight="bold" color="gray.700">Search Statuses</FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <SearchIcon color="gray.400" />
+                </InputLeftElement>
+                <Input 
+                  placeholder="Search statuses..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  bg="white"
+                  focusBorderColor="blue.400"
+                  borderRadius="xl"
+                  shadow="sm"
+                />
+              </InputGroup>
+            </Box>
+            <Box>
               <FormLabel fontWeight="bold" color="gray.700">Add New {type === 'outside' ? 'Outside' : 'In-House'} Status</FormLabel>
-              <Input
-                placeholder="e.g. Sent to Lab, Processing, etc."
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                focusBorderColor="blue.400"
-              />
-            </FormControl>
-            <Flex align="end">
               <HStack w="full">
+                <Input
+                  placeholder="e.g. Sent to Lab, Processing, etc."
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  focusBorderColor="blue.400"
+                  borderRadius="xl"
+                  shadow="sm"
+                />
                 <Button
-                  bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                  bgGradient="linear(to-r, blue.500, blue.600)"
                   color="white"
-                  _hover={{ filter: "brightness(0.9)" }}
+                  _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", transform: "translateY(-1px)", boxShadow: "md" }}
+                  _active={{ transform: "translateY(0)" }}
+                  transition="all 0.2s"
                   onClick={handleSubmit}
                   isLoading={labWorkStatusStore.loading}
-                  flex={1}
                   leftIcon={editingId ? <EditIcon /> : <AddIcon />}
+                  px={6}
+                  borderRadius="xl"
+                  fontWeight="bold"
+                  shadow="sm"
                 >
                   {editingId ? 'Update' : 'Add Status'}
                 </Button>
                 {editingId && (
-                  <Button variant="outline" onClick={() => { setEditingId(null); setStatus(''); }}>Cancel</Button>
+                  <Button variant="ghost" onClick={() => { setEditingId(null); setStatus(''); }} borderRadius="xl">Cancel</Button>
                 )}
               </HStack>
-            </Flex>
+            </Box>
           </SimpleGrid>
         </CardBody>
       </Card>

@@ -611,6 +611,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
       setActiveItemId(item.id);
       onLeafItemClick(item);
       router.push(item.url); // Replace navigate with router.push
+      setOpenMobileSideDrawer(false); // Auto-close drawer on mobile
     };
 
     useEffect(() => {
@@ -637,11 +638,13 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
           <DrawerContent>
             <DrawerCloseButton
               variant="ghost"
-              fontSize="xl"
-              color="white"
-              _hover={{ color: "blue.500", bg: "gray.700" }}
-              _active={{ bg: "gray.800" }}
-              mt={2}
+              size="lg"
+              color="gray.600"
+              _hover={{ color: "blue.600", bg: "gray.100" }}
+              _active={{ bg: "gray.200" }}
+              mt={3}
+              mr={2}
+              zIndex={10}
               _focus={{ boxShadow: "none" }}
             />
             <SidebarLogo />

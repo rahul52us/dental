@@ -65,6 +65,7 @@ const ALL_PRINT_COLUMNS = [
   { key: "doctor", label: "Doctor" },
   { key: "fees", label: "Fees" },
   { key: "paid", label: "Paid" },
+  { key: "lastPaid", label: "Last Paid" },
   { key: "due", label: "Due" },
   { key: "paymentMode", label: "Payment Mode" },
   { key: "status", label: "Status" }
@@ -664,6 +665,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th fontSize="10px" fontWeight="900" color="gray.500">DOCTOR</Th>
                 <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>FEES</Th>
                 <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>PAID</Th>
+                <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>LAST PAID</Th>
                 <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>DUE</Th>
                 <Th fontSize="10px" fontWeight="900" color="gray.500">PAYMENT MODE</Th>
                 <Th fontSize="10px" fontWeight="900" color="gray.500">STATUS</Th>
@@ -673,12 +675,12 @@ const GlobalAccountabilityPage = observer(() => {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <Tr key={i}>
-                    <Td colSpan={11}><Skeleton height="40px" borderRadius="lg" /></Td>
+                    <Td colSpan={12}><Skeleton height="40px" borderRadius="lg" /></Td>
                   </Tr>
                 ))
               ) : data.length === 0 ? (
                 <Tr>
-                  <Td colSpan={11} textAlign="center" py={16}>
+                  <Td colSpan={12} textAlign="center" py={16}>
                     <VStack spacing={3} opacity={0.5}>
                       <Icon as={FiAlertCircle} boxSize={10} color="gray.400" />
                       <Text color="gray.500" fontWeight="bold">No records found matching your filters.</Text>
@@ -799,6 +801,13 @@ const GlobalAccountabilityPage = observer(() => {
                       </HStack>
                     </Td>
                     <Td isNumeric>
+                      <Text fontWeight="800" color="blue.600" fontSize="sm">
+                        {row.paymentHistory && row.paymentHistory.length > 0
+                          ? formatCurrency(row.paymentHistory[row.paymentHistory.length - 1].amount)
+                          : "-"}
+                      </Text>
+                    </Td>
+                    <Td isNumeric>
                       <HStack justify="flex-end">
                         <Box px={4} py={1.5} bg={row.balanceDue > 0 ? "red.50" : "gray.50"} borderRadius="xl" border="1px dashed" borderColor={row.balanceDue > 0 ? "red.200" : "gray.200"} minW="100px" maxW="max-content" textAlign="center">
                           <Text color={row.balanceDue > 0 ? "red.600" : "gray.500"} fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
@@ -861,6 +870,40 @@ const GlobalAccountabilityPage = observer(() => {
       )}
 
       {/* Modals for Global Accountability */}
+      <Modal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(5px)" />
+        <ModalContent borderRadius="2xl">
+          <ModalHeader borderBottom="1px solid" borderColor="gray.100">
+            <Text fontSize="lg" fontWeight="bold">Customize Print Report</Text>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6}>
+            <Text fontSize="sm" color="gray.500" mb={4}>Select the columns you want to include in the PDF report:</Text>
+            <CheckboxGroup colorScheme="blue" value={selectedPrintColumns} onChange={(val) => setSelectedPrintColumns(val as string[])}>
+              <SimpleGrid columns={2} spacing={3}>
+                {ALL_PRINT_COLUMNS.map((col) => (
+                  <Checkbox key={col.key} value={col.key} fontWeight="bold" color="gray.700">
+                    {col.label}
+                  </Checkbox>
+                ))}
+              </SimpleGrid>
+            </CheckboxGroup>
+          </ModalBody>
+          <ModalFooter borderTop="1px solid" borderColor="gray.100" bg="gray.50" borderBottomRadius="2xl">
+            <Button variant="ghost" mr={3} onClick={() => setIsPrintModalOpen(false)} borderRadius="xl">Cancel</Button>
+            <Button
+              colorScheme="blue"
+              onClick={handlePrintReport}
+              isLoading={isPrinting}
+              borderRadius="xl"
+              px={6}
+              leftIcon={<FiPrinter />}
+            >
+              Generate PDF
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <Modal isOpen={isEditBillModalOpen} onClose={() => setIsEditBillModalOpen(false)} isCentered size="sm">
         <ModalOverlay backdropFilter="blur(5px)" />
         <ModalContent borderRadius="2xl" p={2}>

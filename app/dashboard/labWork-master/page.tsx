@@ -38,7 +38,10 @@ import {
   Textarea,
   Switch,
   Icon,
+  InputGroup,
+  InputLeftElement,
 } from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
 
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useMemo } from 'react';
@@ -55,6 +58,7 @@ const LabWorkHierarchyMaster = observer(() => {
   const [breadcrumb, setBreadcrumb] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState<{ name: string; isTextInput: boolean }>({
     name: '',
     isTextInput: false,
@@ -106,9 +110,10 @@ const LabWorkHierarchyMaster = observer(() => {
   const currentItems = useMemo(() => {
     return labWorkHierarchyStore.hierarchies.filter((h) => {
       const itemParentId = h.parent ? (typeof h.parent === 'object' ? (h.parent as any)._id : h.parent) : null;
-      return (itemParentId || null) === (currentParentId || null);
+      return (itemParentId || null) === (currentParentId || null) &&
+             (searchQuery.trim() === '' || h.name.toLowerCase().includes(searchQuery.toLowerCase()));
     });
-  }, [labWorkHierarchyStore.hierarchies, currentParentId]);
+  }, [labWorkHierarchyStore.hierarchies, currentParentId, searchQuery]);
 
   const handleEdit = (item: any) => {
     setEditingItem(item);
@@ -232,39 +237,57 @@ const LabWorkHierarchyMaster = observer(() => {
 
         <Card variant="outline" borderRadius="2xl" border="none" shadow="sm" bg="white">
           <CardBody p={4}>
-            <HStack spacing={4}>
-              {breadcrumb.length > 0 && (
-                <IconButton
-                  icon={<FiArrowLeft />}
-                  aria-label="Back"
-                  onClick={navigateBack}
-                  variant="ghost"
-                  borderRadius="full"
-                />
-              )}
-              <Breadcrumb spacing="8px" separator={<FiChevronRight color="gray.500" />}>
-                <BreadcrumbItem>
-                  <BreadcrumbLink 
-                    onClick={() => goToBreadcrumb(-1)} 
-                    fontWeight={currentParentId === null ? "bold" : "normal"}
-                    color={currentParentId === null ? "blue.600" : "gray.600"}
-                  >
-                    Root
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                {breadcrumb.map((item, index) => (
-                  <BreadcrumbItem key={item._id}>
+            <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
+              <HStack spacing={4}>
+                {breadcrumb.length > 0 && (
+                  <IconButton
+                    icon={<FiArrowLeft />}
+                    aria-label="Back"
+                    onClick={navigateBack}
+                    variant="ghost"
+                    borderRadius="full"
+                  />
+                )}
+                <Breadcrumb spacing="8px" separator={<FiChevronRight color="gray.500" />}>
+                  <BreadcrumbItem>
                     <BreadcrumbLink 
-                      onClick={() => goToBreadcrumb(index)}
-                      fontWeight={currentParentId === item._id ? "bold" : "normal"}
-                      color={currentParentId === item._id ? "blue.600" : "gray.600"}
+                      onClick={() => goToBreadcrumb(-1)} 
+                      fontWeight={currentParentId === null ? "bold" : "normal"}
+                      color={currentParentId === null ? "blue.600" : "gray.600"}
                     >
-                      {item.name}
+                      Root
                     </BreadcrumbLink>
                   </BreadcrumbItem>
-                ))}
-              </Breadcrumb>
-            </HStack>
+                  {breadcrumb.map((item, index) => (
+                    <BreadcrumbItem key={item._id}>
+                      <BreadcrumbLink 
+                        onClick={() => goToBreadcrumb(index)}
+                        fontWeight={currentParentId === item._id ? "bold" : "normal"}
+                        color={currentParentId === item._id ? "blue.600" : "gray.600"}
+                      >
+                        {item.name}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                  ))}
+                </Breadcrumb>
+              </HStack>
+
+              <InputGroup maxW="250px">
+                <InputLeftElement pointerEvents="none">
+                  <SearchIcon color="gray.400" />
+                </InputLeftElement>
+                <Input 
+                  placeholder="Search in this folder..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  bg="gray.50"
+                  borderRadius="full"
+                  border="1px solid"
+                  borderColor="gray.100"
+                  _focus={{ bg: "white", shadow: "sm", borderColor: "blue.300" }}
+                />
+              </InputGroup>
+            </Flex>
           </CardBody>
         </Card>
 
