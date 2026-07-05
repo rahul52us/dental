@@ -14,11 +14,11 @@ import {
   Spinner,
   Center,
   SimpleGrid,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
   Icon,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
@@ -120,48 +120,22 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                     </Box>
 
                     <Box p={4} bg="gray.50">
-                      <Tabs variant="unstyled">
-                        <TabList mb={4} bg="white" p={1.5} rounded="full" shadow="sm" display="flex" w="100%">
-                          <Tab
-                            flex={1} justifyContent="center"
-                            rounded="full" fontWeight="bold" px={3} py={1} fontSize="xs"
-                            _selected={{ bg: "purple.600", color: "white", shadow: "sm" }}
-                            _hover={{ bg: "purple.50", color: "purple.700" }}
-                            transition="all 0.2s"
-                          >
-                            <Icon as={FaTooth} mr={2} />{t("Work Details")} ({wDetails.length})
-                          </Tab>
-                          <Tab
-                            flex={1} justifyContent="center"
-                            rounded="full" fontWeight="bold" px={3} py={1} fontSize="xs"
-                            _selected={{ bg: "purple.600", color: "white", shadow: "sm" }}
-                            _hover={{ bg: "purple.50", color: "purple.700" }}
-                            transition="all 0.2s"
-                          >
-                            <Icon as={FaHistory} mr={2} />{t("History")} ({wToothWorks.length})
-                          </Tab>
-                          <Tab
-                            flex={1} justifyContent="center"
-                            rounded="full" fontWeight="bold" px={3} py={1} fontSize="xs"
-                            _selected={{ bg: "purple.600", color: "white", shadow: "sm" }}
-                            _hover={{ bg: "purple.50", color: "purple.700" }}
-                            transition="all 0.2s"
-                          >
-                            <Icon as={FaRupeeSign} mr={2} />{t("Transactions")} ({wTransactions.length})
-                          </Tab>
-                          <Tab
-                            flex={1} justifyContent="center"
-                            rounded="full" fontWeight="bold" px={3} py={1} fontSize="xs"
-                            _selected={{ bg: "purple.600", color: "white", shadow: "sm" }}
-                            _hover={{ bg: "purple.50", color: "purple.700" }}
-                            transition="all 0.2s"
-                          >
-                            <Icon as={FaFileInvoiceDollar} mr={2} />{t("Fees")} ({wFees.length})
-                          </Tab>
-                        </TabList>
-
-                        <TabPanels>
-                          <TabPanel px={0}>
+                      <Accordion defaultIndex={[0, 1, 2, 3]} allowMultiple>
+                        
+                        {/* Work Details Section */}
+                        <AccordionItem border="1px solid" borderColor="gray.200" rounded="xl" mb={4} bg="white" overflow="hidden">
+                          <h2>
+                            <AccordionButton p={4} _hover={{ bg: 'gray.50' }}>
+                              <Flex flex="1" align="center">
+                                <Icon as={FaTooth} color="purple.500" mr={3} boxSize={5} />
+                                <Text fontSize="md" fontWeight="bold" color="gray.800">
+                                  {t("Work Details")} <Badge ml={2} colorScheme="purple" rounded="full">{wDetails.length}</Badge>
+                                </Text>
+                              </Flex>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={4} bg="white">
                             <SimpleGrid columns={{ base: 1, lg: 2, xl: 3 }} spacing={4}>
                               {wDetails.map((d: any, idx: number) => {
                                 const hasToothInfo = d.ToothName || d.ToothNoS;
@@ -191,9 +165,23 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                                 <Text color="gray.500" fontStyle="italic">No work details available.</Text>
                               )}
                             </SimpleGrid>
-                          </TabPanel>
+                          </AccordionPanel>
+                        </AccordionItem>
 
-                          <TabPanel px={0}>
+                        {/* History Section */}
+                        <AccordionItem border="1px solid" borderColor="gray.200" rounded="xl" mb={4} bg="white" overflow="hidden">
+                          <h2>
+                            <AccordionButton p={4} _hover={{ bg: 'gray.50' }}>
+                              <Flex flex="1" align="center">
+                                <Icon as={FaHistory} color="blue.500" mr={3} boxSize={5} />
+                                <Text fontSize="md" fontWeight="bold" color="gray.800">
+                                  {t("History")} <Badge ml={2} colorScheme="blue" rounded="full">{wToothWorks.length}</Badge>
+                                </Text>
+                              </Flex>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={4} bg="white">
                             <SimpleGrid columns={{ base: 1, lg: 2, xl: 3 }} spacing={4}>
                               {wToothWorks.map((tw: any, idx: number) => (
                                 <Box key={idx} p={4} bg="white" borderTop="3px solid" borderColor="blue.400" rounded="xl" shadow="sm" _hover={{ shadow: 'md' }} transition="all 0.2s">
@@ -209,9 +197,23 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                                 <Text color="gray.500" fontStyle="italic">No tooth work history available.</Text>
                               )}
                             </SimpleGrid>
-                          </TabPanel>
+                          </AccordionPanel>
+                        </AccordionItem>
 
-                          <TabPanel px={0}>
+                        {/* Transactions Section */}
+                        <AccordionItem border="1px solid" borderColor="gray.200" rounded="xl" mb={4} bg="white" overflow="hidden">
+                          <h2>
+                            <AccordionButton p={4} _hover={{ bg: 'gray.50' }}>
+                              <Flex flex="1" align="center">
+                                <Icon as={FaRupeeSign} color="green.500" mr={3} boxSize={5} />
+                                <Text fontSize="md" fontWeight="bold" color="gray.800">
+                                  {t("Transactions")} <Badge ml={2} colorScheme="green" rounded="full">{wTransactions.length}</Badge>
+                                </Text>
+                              </Flex>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={4} bg="white">
                             <SimpleGrid columns={{ base: 1, lg: 3, xl: 4 }} spacing={4}>
                               {wTransactions.map((t: any, idx: number) => (
                                 <Box key={idx} p={4} bg="white" border="1px" borderColor="green.100" rounded="xl" shadow="sm" textAlign="center" _hover={{ shadow: 'md', borderColor: 'green.300' }} transition="all 0.2s">
@@ -227,9 +229,23 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                                 <Text color="gray.500" fontStyle="italic">No transactions available.</Text>
                               )}
                             </SimpleGrid>
-                          </TabPanel>
+                          </AccordionPanel>
+                        </AccordionItem>
 
-                          <TabPanel px={0}>
+                        {/* Fees Section */}
+                        <AccordionItem border="1px solid" borderColor="gray.200" rounded="xl" bg="white" overflow="hidden">
+                          <h2>
+                            <AccordionButton p={4} _hover={{ bg: 'gray.50' }}>
+                              <Flex flex="1" align="center">
+                                <Icon as={FaFileInvoiceDollar} color="orange.500" mr={3} boxSize={5} />
+                                <Text fontSize="md" fontWeight="bold" color="gray.800">
+                                  {t("Fees")} <Badge ml={2} colorScheme="orange" rounded="full">{wFees.length}</Badge>
+                                </Text>
+                              </Flex>
+                              <AccordionIcon />
+                            </AccordionButton>
+                          </h2>
+                          <AccordionPanel pb={4} bg="white">
                             <SimpleGrid columns={{ base: 1, lg: 2, xl: 3 }} spacing={4}>
                               {wFees.map((f: any, idx: number) => (
                                 <Box key={idx} p={4} bg="white" border="1px" borderColor="orange.100" rounded="xl" shadow="sm" _hover={{ shadow: 'md', borderColor: 'orange.300' }} transition="all 0.2s">
@@ -253,9 +269,10 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                                 <Text color="gray.500" fontStyle="italic">No fee records available.</Text>
                               )}
                             </SimpleGrid>
-                          </TabPanel>
-                        </TabPanels>
-                      </Tabs>
+                          </AccordionPanel>
+                        </AccordionItem>
+
+                      </Accordion>
                     </Box>
                   </Box>
                 );
