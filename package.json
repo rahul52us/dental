@@ -10,6 +10,9 @@
     "export": "next export"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^7.6.7",
+    "@capacitor/core": "^8.4.1",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^2.7.0",
     "@emotion/react": "^11.14.0",
