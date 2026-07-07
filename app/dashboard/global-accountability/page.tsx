@@ -79,6 +79,7 @@ const GlobalAccountabilityPage = observer(() => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({ totalBilled: 0, totalPaid: 0, totalDue: 0 });
+  const [todaySummary, setTodaySummary] = useState<any>({ todayBilled: 0, todayPaid: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -260,6 +261,11 @@ const GlobalAccountabilityPage = observer(() => {
         setData(result.records || []);
         setTotal(result.total || 0);
         setSummary(result.summary || { totalBilled: 0, totalPaid: 0, totalDue: 0 });
+      }
+
+      const todayResult = await stores.workDoneStore.fetchTodayGlobalAccountabilityStats(filters);
+      if (todayResult) {
+        setTodaySummary(todayResult || { todayBilled: 0, todayPaid: 0 });
       }
     } catch (err) {
       console.error("Failed to fetch global accountability:", err);
@@ -619,11 +625,11 @@ const GlobalAccountabilityPage = observer(() => {
       </Box>
 
       {/* Premium Summary Section */}
-      <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4} mb={4}>
+      <Grid templateColumns={{ base: "1fr", md: "repeat(5, 1fr)" }} gap={4} mb={4}>
         {/* BILLED */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="10px" color="gray.500" fontWeight="900" letterSpacing="widest">TOTAL BILLED</Text>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL BILLED</Text>
             <Box p={1.5} bg="blue.50" borderRadius="md"><Icon as={FiFileText} color="blue.500" boxSize={4} /></Box>
           </HStack>
           <Text fontSize="2xl" fontWeight="900" color="blue.600" position="relative" zIndex={1}>{formatCurrency(summary.totalBilled)}</Text>
@@ -633,17 +639,37 @@ const GlobalAccountabilityPage = observer(() => {
         {/* PAID */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="10px" color="gray.500" fontWeight="900" letterSpacing="widest">TOTAL RECEIVED</Text>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL RECEIVED</Text>
             <Box p={1.5} bg="green.50" borderRadius="md"><Icon as={FiCheckCircle} color="green.500" boxSize={4} /></Box>
           </HStack>
           <Text fontSize="2xl" fontWeight="900" color="green.500" position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
         </Box>
 
+        {/* TODAY BILLED */}
+        <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
+          <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TODAY BILLED</Text>
+            <Box p={1.5} bg="purple.50" borderRadius="md"><Icon as={FiFileText} color="purple.500" boxSize={4} /></Box>
+          </HStack>
+          <Text fontSize="2xl" fontWeight="900" color="purple.600" position="relative" zIndex={1}>{formatCurrency(todaySummary.todayBilled)}</Text>
+          <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiFileText} boxSize={20} /></Box>
+        </Box>
+
+        {/* TODAY RECEIVED */}
+        <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
+          <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TODAY RECEIVED</Text>
+            <Box p={1.5} bg="teal.50" borderRadius="md"><Icon as={FiCheckCircle} color="teal.500" boxSize={4} /></Box>
+          </HStack>
+          <Text fontSize="2xl" fontWeight="900" color="teal.500" position="relative" zIndex={1}>{formatCurrency(todaySummary.todayPaid)}</Text>
+          <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
+        </Box>
+
         {/* DUE */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="10px" color="gray.500" fontWeight="900" letterSpacing="widest">PENDING BALANCE</Text>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">PENDING BALANCE</Text>
             <Box p={1.5} bg="red.50" borderRadius="md"><Icon as={FiAlertCircle} color="red.500" boxSize={4} /></Box>
           </HStack>
           <Text fontSize="2xl" fontWeight="900" color="red.500" position="relative" zIndex={1}>{formatCurrency(summary.totalDue)}</Text>
@@ -652,35 +678,36 @@ const GlobalAccountabilityPage = observer(() => {
       </Grid>
 
       {/* Premium Table Section */}
-      <Box bg={bgCard} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} overflow="hidden">
-        <Box overflowX="auto">
-          <Table variant="simple" size="md">
-            <Thead bg={tableHeaderBg}>
+      <Box bg={bgCard} borderRadius="2xl" boxShadow="xl" borderWidth="1px" borderColor={borderColor} overflow="hidden">
+        <Box overflowX="auto" pb={2}>
+          <Table variant="simple" size="sm">
+            <Thead bgGradient="linear(to-r, gray.800, gray.700)">
               <Tr>
-                <Th fontSize="10px" fontWeight="900" color="gray.500" py={5}>DATE</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">PATIENT</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">TOOTH</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">TREATMENT CODE</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">TREATMENT</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">DOCTOR</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>FEES</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>PAID</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>LAST PAID</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500" isNumeric>DUE</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">PAYMENT MODE</Th>
-                <Th fontSize="10px" fontWeight="900" color="gray.500">STATUS</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="220px" whiteSpace="nowrap">PATIENT</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap">TREATMENT CODE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="200px" whiteSpace="nowrap">TREATMENT</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>PAID</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>TODAY PAID</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">LAST PAID DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
               </Tr>
             </Thead>
             <Tbody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <Tr key={i}>
-                    <Td colSpan={12}><Skeleton height="40px" borderRadius="lg" /></Td>
+                    <Td colSpan={13}><Skeleton height="40px" borderRadius="lg" /></Td>
                   </Tr>
                 ))
               ) : data.length === 0 ? (
                 <Tr>
-                  <Td colSpan={12} textAlign="center" py={16}>
+                  <Td colSpan={13} textAlign="center" py={16}>
                     <VStack spacing={3} opacity={0.5}>
                       <Icon as={FiAlertCircle} boxSize={10} color="gray.400" />
                       <Text color="gray.500" fontWeight="bold">No records found matching your filters.</Text>
@@ -802,8 +829,25 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td isNumeric>
                       <Text fontWeight="800" color="blue.600" fontSize="sm">
-                        {row.paymentHistory && row.paymentHistory.length > 0
-                          ? formatCurrency(row.paymentHistory[row.paymentHistory.length - 1].amount)
+                        {(() => {
+                          if (!row.paymentHistory || row.paymentHistory.length === 0) return "-";
+                          const todaySum = row.paymentHistory.reduce((acc: number, curr: any) => {
+                            if (!curr.date) return acc;
+                            const d = new Date(curr.date);
+                            const today = new Date();
+                            if (d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()) {
+                              return acc + (Number(curr.amount) || 0);
+                            }
+                            return acc;
+                          }, 0);
+                          return todaySum > 0 ? formatCurrency(todaySum) : "-";
+                        })()}
+                      </Text>
+                    </Td>
+                    <Td>
+                      <Text fontWeight="800" color="gray.600" fontSize="sm">
+                        {row.paymentHistory && row.paymentHistory.length > 0 && row.paymentHistory[row.paymentHistory.length - 1].date
+                          ? new Date(row.paymentHistory[row.paymentHistory.length - 1].date).toLocaleDateString("en-GB")
                           : "-"}
                       </Text>
                     </Td>
@@ -1082,7 +1126,7 @@ const GlobalAccountabilityPage = observer(() => {
                           }}
                         />
                       )}
-                      {stores.auth.hasPermission('accountability', 'edit') && (
+                      {stores.auth.hasPermission('accountability', 'edit') && new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") && (
                         <IconButton aria-label="Edit Amount" icon={<FiEdit2 />} size="sm" colorScheme="orange" variant="ghost" borderRadius="full"
                           onClick={() => {
                             setEditingPaymentIndex(i);

@@ -1238,7 +1238,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             }}
                           />
                         )}
-                        {stores.auth.hasPermission('accountability', 'edit') && (
+                        {stores.auth.hasPermission('accountability', 'edit') && new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") && (
                           <IconButton
                             aria-label="Edit Amount"
                             icon={<FiEdit2 />}

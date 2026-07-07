@@ -252,6 +252,18 @@ class WorkDoneStore {
     }
   };
 
+  fetchTodayGlobalAccountabilityStats = async (filters: any = {}) => {
+    try {
+      const { data } = await axios.post(`/workDone/global-accountability/today-stats`, filters);
+      if (data.status === "success") {
+        return data.data;
+      }
+      return null;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   fetchGlobalAccountabilityReportBase64 = async (filters: any = {}) => {
     try {
       const { data } = await axios.post(`/workDone/generate-global-accountability-report`, filters);
