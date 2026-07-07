@@ -108,8 +108,18 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     doctor: null as any,
     labDoctor: null as any,
     status: "all" as string | string[],
-    selectedColumns: defaultLabWorkCols.map(c => c.value) as string[],
+    selectedColumns: [] as string[],
   });
+
+  useEffect(() => {
+    const savedCols = localStorage.getItem("labReportColumns");
+    if (savedCols) {
+      try {
+        const cols = JSON.parse(savedCols);
+        setReportFilters((prev) => ({ ...prev, selectedColumns: cols }));
+      } catch (e) {}
+    }
+  }, []);
 
   const handleTabChange = (index: number) => {
     setActiveTab(index);
@@ -164,8 +174,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
       doctor: null,
       labDoctor: null,
       status: "all",
-      selectedColumns: defaultLabWorkCols.map(c => c.value),
+      selectedColumns: [],
     });
+    localStorage.removeItem("labReportColumns");
   };
 
   const resetTableData = () => {
@@ -849,10 +860,12 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                           options={defaultLabWorkCols}
                           value={reportFilters.selectedColumns.map(val => defaultLabWorkCols.find(c => c.value === val))}
                           onChange={(val: any) => {
+                            const newCols = val ? val.map((v: any) => v.value) : [];
                             setReportFilters({
                               ...reportFilters,
-                              selectedColumns: val ? val.map((v: any) => v.value) : []
+                              selectedColumns: newCols
                             });
+                            localStorage.setItem("labReportColumns", JSON.stringify(newCols));
                           }}
                         />
                       </VStack>
