@@ -57,7 +57,7 @@ import { FormControl, FormLabel } from "@chakra-ui/react";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 
 const ALL_PRINT_COLUMNS = [
-  { key: "date", label: "Date" },
+  { key: "date", label: "Billing Date" },
   { key: "patient", label: "Patient" },
   { key: "tooth", label: "Tooth" },
   { key: "treatmentCode", label: "Treatment Code" },
@@ -625,7 +625,7 @@ const GlobalAccountabilityPage = observer(() => {
       </Box>
 
       {/* Premium Summary Section */}
-      <Grid templateColumns={{ base: "1fr", md: "repeat(5, 1fr)" }} gap={4} mb={4}>
+      <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} mb={4}>
         {/* BILLED */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
@@ -646,24 +646,14 @@ const GlobalAccountabilityPage = observer(() => {
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
         </Box>
 
-        {/* TODAY BILLED */}
-        <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
-          <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TODAY BILLED</Text>
-            <Box p={1.5} bg="purple.50" borderRadius="md"><Icon as={FiFileText} color="purple.500" boxSize={4} /></Box>
-          </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="purple.600" position="relative" zIndex={1}>{formatCurrency(todaySummary.todayBilled)}</Text>
-          <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiFileText} boxSize={20} /></Box>
-        </Box>
-
         {/* TODAY RECEIVED */}
-        <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
+        <Box bgGradient="linear(to-br, blue.500, blue.600)" p={4} borderRadius="2xl" boxShadow="lg" borderWidth="0px" position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TODAY RECEIVED</Text>
-            <Box p={1.5} bg="teal.50" borderRadius="md"><Icon as={FiCheckCircle} color="teal.500" boxSize={4} /></Box>
+            <Text fontSize="sm" color="whiteAlpha.900" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TODAY RECEIVED</Text>
+            <Box p={1.5} bg="whiteAlpha.200" borderRadius="md"><Icon as={FiCheckCircle} color="white" boxSize={4} /></Box>
           </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="teal.500" position="relative" zIndex={1}>{formatCurrency(todaySummary.todayPaid)}</Text>
-          <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
+          <Text fontSize="2xl" fontWeight="900" color="white" position="relative" zIndex={1}>{formatCurrency(todaySummary.todayPaid)}</Text>
+          <Box position="absolute" bottom="-4" right="-4" opacity={0.1}><Icon as={FiCheckCircle} boxSize={20} color="white" /></Box>
         </Box>
 
         {/* DUE */}
@@ -683,7 +673,7 @@ const GlobalAccountabilityPage = observer(() => {
           <Table variant="simple" size="sm">
             <Thead bgGradient="linear(to-r, gray.800, gray.700)">
               <Tr>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">BILLING DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="220px" whiteSpace="nowrap">PATIENT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap">TREATMENT CODE</Th>
@@ -691,7 +681,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>PAID</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>TODAY PAID</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>TODAY RECEIVED</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">LAST PAID DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
@@ -828,9 +818,9 @@ const GlobalAccountabilityPage = observer(() => {
                       </HStack>
                     </Td>
                     <Td isNumeric>
-                      <Text fontWeight="800" color="blue.600" fontSize="sm">
+                      <HStack justify="flex-end">
                         {(() => {
-                          if (!row.paymentHistory || row.paymentHistory.length === 0) return "-";
+                          if (!row.paymentHistory || row.paymentHistory.length === 0) return <Text fontWeight="800" color="gray.400" fontSize="sm">-</Text>;
                           const todaySum = row.paymentHistory.reduce((acc: number, curr: any) => {
                             if (!curr.date) return acc;
                             const d = new Date(curr.date);
@@ -840,9 +830,15 @@ const GlobalAccountabilityPage = observer(() => {
                             }
                             return acc;
                           }, 0);
-                          return todaySum > 0 ? formatCurrency(todaySum) : "-";
+                          return todaySum > 0 ? (
+                            <Box px={4} py={1.5} bg="blue.50" borderRadius="xl" border="1px dashed" borderColor="blue.200" minW="100px" maxW="max-content" textAlign="center">
+                              <Text color="blue.600" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
+                                {formatCurrency(todaySum)}
+                              </Text>
+                            </Box>
+                          ) : <Text fontWeight="800" color="gray.400" fontSize="sm">-</Text>;
                         })()}
-                      </Text>
+                      </HStack>
                     </Td>
                     <Td>
                       <Text fontWeight="800" color="gray.600" fontSize="sm">

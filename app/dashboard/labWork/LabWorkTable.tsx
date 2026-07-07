@@ -75,6 +75,8 @@ const defaultLabWorkCols = [
   { label: "Status", value: "status" },
   { label: "Price", value: "price" },
   { label: "Selected Works", value: "works" },
+  { label: "Teeth Number", value: "teethNumber" },
+  { label: "Shade", value: "shade" },
   { label: "Warranty Card", value: "warrantyCardNumber" },
 ];
 
