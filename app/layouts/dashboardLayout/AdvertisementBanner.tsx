@@ -10,7 +10,10 @@ const marqueeStyle = `marqueeAnimation 20s linear infinite`;
 
 const AdvertisementBanner = observer(() => {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
-  const ads = stores.advertisementStore.activeAdvertisements?.data || [];
+  const ads = (stores.advertisementStore.activeAdvertisements?.data || []).filter((ad: any) => {
+    const now = new Date();
+    return ad.status !== false && (!ad.validTo || new Date(ad.validTo) >= now);
+  });
   const pathname = usePathname();
   const { t } = useTranslation();
   const user = stores.auth.user;
@@ -124,31 +127,33 @@ const AdvertisementBanner = observer(() => {
           )}
         </Flex>
 
-        <Box position="relative" borderRadius="2xl" overflow="hidden" boxShadow="xl" bg="white">
-          <Box w="100%">
-            <Box 
-              bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}E6)`} 
-              color="white" 
-              py={4} 
-              overflow="hidden" 
-              whiteSpace="nowrap" 
-              position="relative" 
-              w="100%"
-              boxShadow="md"
-            >
-              <Box
-                display="inline-block"
-                pl="100%"
-                animation={marqueeStyle}
-                fontSize="1.15rem"
-                fontWeight="bold"
-                letterSpacing="wide"
+        {ads.length > 0 && (
+          <Box position="relative" borderRadius="2xl" overflow="hidden" boxShadow="xl" bg="white">
+            <Box w="100%">
+              <Box 
+                bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}E6)`} 
+                color="white" 
+                py={4} 
+                overflow="hidden" 
+                whiteSpace="nowrap" 
+                position="relative" 
+                w="100%"
+                boxShadow="md"
               >
-                {ads.map((ad: any) => `✨ ${ad.title} ✨`).join(" ✦ ")}
+                <Box
+                  display="inline-block"
+                  pl="100%"
+                  animation={marqueeStyle}
+                  fontSize="1.15rem"
+                  fontWeight="bold"
+                  letterSpacing="wide"
+                >
+                  {ads.map((ad: any) => `✨ ${ad.title} ✨`).join(" ✦ ")}
+                </Box>
               </Box>
             </Box>
           </Box>
-        </Box>
+        )}
       </Flex>
     </Box>
   );
