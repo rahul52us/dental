@@ -748,7 +748,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
           >
             {(dt.status?.toLowerCase() === "pending" || dt.status?.toLowerCase() === "incomplete") && (
               <HStack align="center" spacing={2} bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
-                <Text fontSize="10px" fontWeight="bold" color="gray.500" textTransform="uppercase" pl={2}>SITTING NO:</Text>
+                <Text fontSize="10px" fontWeight="bold" color="gray.500" textTransform="uppercase" pl={2}>Plan TMT Sitting Wise :</Text>
                 <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
               </HStack>
             )}
@@ -864,7 +864,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               borderTopRadius: "lg",
             }}
           >
-            Create Treatment
+            Create Treatment Advise & Work Done
           </Tab>
           <Tab
             fontWeight="bold"
@@ -894,7 +894,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
               borderTopRadius: "lg",
             }}
           >
-            Work Done History
+            All Work Done History
           </Tab>
         </TabList>
 
@@ -1036,7 +1036,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                           setIsCountModalOpen(true);
                         }}
                       >
-                        VIEW HISTORY DATE WISE
+                        View Work Dates
                       </Button>
                     )}
                     {stores.auth.hasPermission('treatment', 'download') && (
@@ -1047,10 +1047,10 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                         isLoading={isDownloadingData}
                         onClick={handleDownloadTable}
                       >
-                        DOWNLOAD DATA
+                        ALL WORK DATA
                       </Button>
                     )}
-                    {isPatient && stores.auth.hasPermission('treatment', 'create') && (
+                    {/* {isPatient && stores.auth.hasPermission('treatment', 'create') && (
                       <Button
                         size="sm"
                         colorScheme="blue"
@@ -1058,7 +1058,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                       >
                         + ADD TREATMENT
                       </Button>
-                    )}
+                    )} */}
                     <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
                       {toothTreatment?.totalItems || 0}
                     </Circle>

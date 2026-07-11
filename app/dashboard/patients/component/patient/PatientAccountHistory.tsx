@@ -740,7 +740,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       setIsCountModalOpen(true);
                     }}
                   >
-                    VIEW HISTORY DATE WISE
+                    View Work Dates
                   </Button>
                 )}
                 <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">

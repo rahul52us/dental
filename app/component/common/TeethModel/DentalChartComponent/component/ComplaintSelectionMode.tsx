@@ -32,7 +32,7 @@ export const ComplaintSelectionMode = ({ onSelect }: ComplaintSelectionModeProps
         {
             id: "description",
             title: "CLINICAL NARRATIVE",
-            desc: "Detailed text-based clinical observation entry.",
+            desc: "Detailed text-based TREATMENT ADVISE entry.",
             icon: FaEdit,
             color: "blue.600",
             tag: "PROTOCOL B"

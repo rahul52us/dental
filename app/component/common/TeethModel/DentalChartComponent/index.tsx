@@ -124,7 +124,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
     "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
     "OTHER FINDING": { border: "orange.400", bg: "orange.50", label: "OTHER FINDING", iconColor: "orange.400" },
     "EXISTING FINDING": { border: "green.500", bg: "green.50", label: "EXISTING", iconColor: "green.500" },
-    "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
+    "default": { border: "blue.500", bg: "blue.50", label: "TREATMENT ADVISE", iconColor: "blue.500" }
   };
 
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -664,12 +664,12 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
             </Box>
           </VStack>
 
-          {/* Column 2: VIEW HISTORY DATE WISE */}
+          {/* Column 2: View Work Dates */}
           <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" boxShadow="md">
             <HStack justify="space-between" align="center" pb={2} borderBottom="1px dashed" borderColor="gray.100">
               <VStack align="start" spacing={0}>
                 <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">HISTORY PANELS</Text>
-                <Heading size="xs" fontWeight="1000" color="black">VIEW HISTORY DATE WISE</Heading>
+                <Heading size="xs" fontWeight="1000" color="black">View Work Dates</Heading>
               </VStack>
               <HStack spacing={2}>
                 <IconButton aria-label="Summary" icon={<FiCalendar />} size="sm" colorScheme="blue" borderRadius="2xl" onClick={fetchTreatmentCounts} />

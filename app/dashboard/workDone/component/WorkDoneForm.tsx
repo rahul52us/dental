@@ -284,7 +284,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   const initialValues = {
     complaintType: editData?.complaintType || treatmentDetails?.complaintType || "OTHER FINDING",
     doctor: (() => {
-      const doc = editData?.doctor || treatmentDetails?.doctorObj || treatmentDetails?.doctor; 
+      const doc = editData?.doctor || treatmentDetails?.doctorObj || treatmentDetails?.doctor;
       if (!doc) return "";
       if (typeof doc === 'object' && doc.label) return doc;
       if (typeof doc === 'object' && doc.name) return { label: doc.name, value: doc._id };
@@ -550,9 +550,9 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               </VStack>
                             </Grid>
 
-                            {/* Clinical Observation / Work Done Note (100% width) */}
+                            {/* TREATMENT ADVISE / Work Done Note (100% width) */}
                             <VStack align="start" spacing={2} w="full">
-                              <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                              <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATMENT ADVISE (WORK DONE NOTE)</Text>
                               <CustomInput
                                 name="workDoneNote"
                                 type="textarea"
@@ -735,7 +735,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         </Grid>
 
                         <VStack align="start" spacing={2} w="full">
-                          <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">CLINICAL OBSERVATION (WORK DONE NOTE)</Text>
+                          <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATMENT ADVISE (WORK DONE NOTE)</Text>
                           <CustomInput
                             name="workDoneNote"
                             type="textarea"

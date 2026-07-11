@@ -486,7 +486,7 @@ export const TreatmentProcedureForm = observer(
             "CHIEF COMPLAINT": { border: "red.500", bg: "red.50", label: "CHIEF COMPLAINT", iconColor: "red.500" },
             "OTHER FINDING": { border: "orange.400", bg: "orange.50", label: "OTHER FINDING", iconColor: "orange.400" },
             "EXISTING FINDING": { border: "green.400", bg: "green.50", label: "EXISTING", iconColor: "green.400" },
-            "default": { border: "blue.500", bg: "blue.50", label: "CLINICAL OBSERVATION", iconColor: "blue.500" }
+            "default": { border: "blue.500", bg: "blue.50", label: "TREATMENT ADVISE", iconColor: "blue.500" }
         };
 
         const renderClinicalFields = (activeId: string | "bulk", values: any, rawSetFieldValue: any) => {
@@ -676,9 +676,9 @@ export const TreatmentProcedureForm = observer(
 
                     </Grid>
 
-                    {/* 4. Clinical Observation - SEPARATE ROW */}
+                    {/* 4. TREATMENT ADVISE - SEPARATE ROW */}
                     <VStack align="start" spacing={2} w="full">
-                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. CLINICAL OBSERVATION</Text>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. TREATMENT ADVISE</Text>
                         <CustomInput
                             name={activeId === "bulk" ? `bulk.notes` : `treatments.${activeId}.notes`}
                             type="textarea"

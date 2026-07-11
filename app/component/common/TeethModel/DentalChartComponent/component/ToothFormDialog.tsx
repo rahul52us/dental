@@ -444,7 +444,7 @@ export const ToothFormDialog = observer(
                     </VStack>
 
                     <VStack align="start" spacing={2} w="full">
-                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. Treatment Advise</Text>
+                      <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">2. TREATMENT ADVISE</Text>
                       <Box position="relative" w="full">
                         <CustomInput
                           name="notes"
@@ -537,7 +537,7 @@ export const ToothFormDialog = observer(
 
                     <Divider />
 
-                    {/* 2. CLINICAL OBSERVATION */}
+                    {/* 2. TREATMENT ADVISE */}
                     {/* 3. CLINICAL PROCEDURE */}
                     <VStack align="start" spacing={3} w="full">
                       <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">3. CLINICAL PROCEDURE</Text>
