@@ -27,6 +27,7 @@ import {
   useBreakpointValue,
   useColorMode,
   Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
@@ -35,6 +36,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import SidebarLogo from "./component/SidebarLogo";
 import stores from "../../../store/stores";
 import { FaCircle } from "react-icons/fa"; // Added FaCircle
+import { FiX } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import {
   mediumSidebarWidth,
@@ -636,18 +638,31 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
         >
           <DrawerOverlay />
           <DrawerContent>
-            <DrawerCloseButton
-              variant="ghost"
-              size="lg"
-              color="gray.600"
-              _hover={{ color: "blue.600", bg: "gray.100" }}
-              _active={{ bg: "gray.200" }}
-              mt={3}
-              mr={2}
-              zIndex={10}
-              _focus={{ boxShadow: "none" }}
-            />
-            <SidebarLogo />
+            <Box position="relative">
+              <IconButton
+                aria-label="Close menu"
+                icon={<FiX size={20} strokeWidth={3} />}
+                bg="red.500"
+                size="md"
+                color="white"
+                _hover={{ bg: "red.600", transform: "translateY(-50%) scale(1.05)" }}
+                _active={{ bg: "red.700" }}
+                position="absolute"
+                top="50%"
+                transform="translateY(-50%)"
+                right={4}
+                zIndex={999999999}
+                _focus={{ boxShadow: "none" }}
+                onClick={() => setOpenMobileSideDrawer(false)}
+                borderRadius="full"
+                boxShadow="sm"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                lineHeight={0}
+              />
+              <SidebarLogo />
+            </Box>
             <DrawerBody px={2} className="customScrollBar">
               <SidebarAccordion
                 items={sidebarData}

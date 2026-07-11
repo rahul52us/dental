@@ -19,12 +19,12 @@ import { MdAccountBalance, MdVaccines, MdSecurity } from "react-icons/md";
 import ReferredPatientsList from "../../../patients/component/patient/ReferredPatientsList";
 
 const InfoItem = ({ label, value }: { label: string; value: any }) => (
-  <HStack align="start">
-    <Text fontWeight="semibold" minW="140px" color="gray.600">
+  <Stack direction={{ base: "column", md: "row" }} align={{ base: "stretch", md: "start" }} spacing={{ base: 0, md: 2 }} mb={{ base: 2, md: 0 }}>
+    <Text fontWeight="semibold" minW={{ md: "140px" }} color="gray.600">
       {label}:
     </Text>
-    <Text flex="1">{value || "—"}</Text>
-  </HStack>
+    <Text flex="1" wordBreak="break-word">{value || "—"}</Text>
+  </Stack>
 );
 
 const SectionCard = ({ icon, title, children }: any) => {

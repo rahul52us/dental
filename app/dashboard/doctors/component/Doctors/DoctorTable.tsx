@@ -392,7 +392,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
+        <DrawerContent minW={{ base: "100vw", md: "75vw" }} maxW={{ base: "100vw", md: "75vw" }}>
           <DrawerCloseButton />
           <DrawerHeader
             bg={stores.themeStore.themeConfig.colors.custom.light.primary}
