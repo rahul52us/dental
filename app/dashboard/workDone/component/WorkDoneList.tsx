@@ -488,19 +488,24 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 />
              )}
              {stores.auth.hasPermission('workdone', 'download') && (
-               <IconButton
+               <Button
                  size="sm"
                  variant="ghost"
                  colorScheme="gray"
-                 icon={<FiPrinter />}
-                 aria-label="Print Report"
                  onClick={() => setOpenPrintModal({
                    open: true,
                    id: dt._id,
                    patientId: patientDetails?._id,
                    date: getLocalDateString(dt.createdAt)
                  })}
-               />
+                 px={2}
+               >
+                 <HStack spacing={2}>
+                   <FiPrinter />
+                   <img src="/rx-tooth.jpeg" alt="Rx" style={{ width: "16px", height: "16px", borderRadius: "2px" }} />
+                   <Text fontSize="11px" fontWeight="bold">Prescription</Text>
+                 </HStack>
+               </Button>
              )}
              {stores.auth.hasPermission('workdone', 'edit') && (
                <IconButton
@@ -916,12 +921,10 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
                     {/* Print Action */}
                     {stores.auth.hasPermission('workdone', 'download') && (
-                      <IconButton
-                        size="sm"
+                      <Button
+                        size="xs"
                         variant="ghost"
                         colorScheme="gray"
-                        icon={<FiPrinter />}
-                        aria-label="Print Report"
                         onClick={() => setOpenPrintModal({
                           open: true,
                           id: record._id,
@@ -929,7 +932,15 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                           date: getLocalDateString(record.createdAt)
                         })}
                         borderRadius="full"
-                      />
+                        px={3}
+                        h="28px"
+                      >
+                        <HStack spacing={1.5}>
+                          <FiPrinter />
+                          <img src="/rx-tooth.jpeg" alt="Rx" style={{ width: "14px", height: "14px", borderRadius: "2px" }} />
+                          <Text fontSize="10px" fontWeight="bold">Prescription</Text>
+                        </HStack>
+                      </Button>
                     )}
 
                     {/* Edit Action */}

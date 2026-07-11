@@ -57,6 +57,15 @@ class RecallAppointmentStore {
     }
   };
 
+  getTodayPendingRecallAppointments = async () => {
+    try {
+      const companyId = authStore.company?._id || authStore.company;
+      const { data } = await axios.post("/recall-appointment/today-pending", { company: companyId });
+      return data?.data || [];
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
 
 }
 

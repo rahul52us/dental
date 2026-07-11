@@ -540,7 +540,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 size="sm"
                 variant="ghost"
                 colorScheme="orange"
-                icon={<FiCheckCircle />}
+                icon={<Text fontWeight="900" fontSize="15px">W</Text>}
                 aria-label="Work Done"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -766,7 +766,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                 size="sm"
                 variant="ghost"
                 colorScheme="orange"
-                icon={<FiCheckCircle />}
+                icon={<Text fontWeight="900" fontSize="15px">W</Text>}
                 aria-label="Work Done"
                 onClick={() => {
                   setWorkDoneTab(1);
