@@ -18,8 +18,9 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import FormModel from "../../../../component/common/FormModel/FormModel";
-import { FiPower, FiAlertCircle, FiLock } from "react-icons/fi";
+import { FiPower, FiAlertCircle, FiLock, FiKey } from "react-icons/fi";
 import StaffPermissionsModal from "./StaffPermissionsModal";
+import ChangePasswordModal from "./ChangePasswordModal";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { GiPsychicWaves } from "react-icons/gi";
@@ -46,6 +47,10 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const { t } = useTranslation();
   const [isPermOpen, setIsPermOpen] = useState(false);
   const [permUser, setPermUser] = useState<any>(null);
+  
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false);
+  const [selectedPassUser, setSelectedPassUser] = useState<any>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isActiveFilter, setIsActiveFilter] = useState<any>(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -226,20 +231,36 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Tooltip label={t("staffs.table.managePermissions")}>
-            <IconButton
-              aria-label={t("staffs.table.managePermissions")}
-              icon={<FiLock />}
-              size="sm"
-              colorScheme="purple"
-              variant="ghost"
-              borderRadius="xl"
-              onClick={() => {
-                setPermUser(dt);
-                setIsPermOpen(true);
-              }}
-            />
-          </Tooltip>
+          <Flex justify="center" align="center" gap={2}>
+            <Tooltip label={t("staffs.table.managePermissions") || "Manage Permissions"}>
+              <IconButton
+                aria-label="Manage Permissions"
+                icon={<FiLock />}
+                size="sm"
+                colorScheme="purple"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setPermUser(dt);
+                  setIsPermOpen(true);
+                }}
+              />
+            </Tooltip>
+            <Tooltip label="Change Password">
+              <IconButton
+                aria-label="Change Password"
+                icon={<FiKey />}
+                size="sm"
+                colorScheme="orange"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setSelectedPassUser(dt);
+                  setIsPassModalOpen(true);
+                }}
+              />
+            </Tooltip>
+          </Flex>
         ),
       },
       props: {
@@ -461,6 +482,15 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         staff={permUser}
         onUpdate={() => applyGetAllTherapists({ page: currentPage, isActive: isActiveFilter })}
       />
+
+      {selectedPassUser && (
+        <ChangePasswordModal
+          isOpen={isPassModalOpen}
+          onClose={() => setIsPassModalOpen(false)}
+          userId={selectedPassUser._id}
+          userName={selectedPassUser.name || selectedPassUser.username}
+        />
+      )}
     </Box>
   );
 });

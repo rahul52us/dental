@@ -18,9 +18,11 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import FormModel from "../../../../component/common/FormModel/FormModel";
-import { FiPower, FiRefreshCw, FiAlertCircle, FiDollarSign } from "react-icons/fi";
+import { FiPower, FiRefreshCw, FiAlertCircle, FiDollarSign, FiLock, FiKey } from "react-icons/fi";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import DoctorAccountHistory from "./DoctorAccountHistory";
+import StaffPermissionsModal from "../../../staffs/component/staffs/StaffPermissionsModal";
+import ChangePasswordModal from "../../../staffs/component/staffs/ChangePasswordModal";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { GiPsychicWaves } from "react-icons/gi";
@@ -45,6 +47,12 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [statusUser, setStatusUser] = useState<any>(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const { t } = useTranslation();
+  const [isPermOpen, setIsPermOpen] = useState(false);
+  const [permUser, setPermUser] = useState<any>(null);
+  
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false);
+  const [selectedPassUser, setSelectedPassUser] = useState<any>(null);
+
   const [openAccountDetails, setOpenAccountDetails] = useState({
     open: false,
     data: null as any,
@@ -247,6 +255,49 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
     {
+      headerName: t("doctors.table.permissions"),
+      key: "permissions",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Flex justify="center" align="center" gap={2}>
+            <Tooltip label={t("doctors.table.managePermissions") || "Manage Permissions"}>
+              <IconButton
+                aria-label="Manage Permissions"
+                icon={<FiLock />}
+                size="sm"
+                colorScheme="purple"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setPermUser(dt);
+                  setIsPermOpen(true);
+                }}
+              />
+            </Tooltip>
+            <Tooltip label="Change Password">
+              <IconButton
+                aria-label="Change Password"
+                icon={<FiKey />}
+                size="sm"
+                colorScheme="orange"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setSelectedPassUser(dt);
+                  setIsPassModalOpen(true);
+                }}
+              />
+            </Tooltip>
+          </Flex>
+        ),
+      },
+      props: {
+        row: { textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+    {
       headerName: t("doctors.table.account"),
       key: "account",
       type: "component",
@@ -284,6 +335,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
     },
   ].filter(col => {
+    if (col.key === 'permissions') return stores.auth.hasPermission('doctor', 'edit');
     if (col.key === 'account') return stores.auth.hasPermission('accountability', 'view');
     if (col.key === 'is_active') return stores.auth.hasPermission('doctor', 'edit');
     return true;
@@ -467,6 +519,22 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         >
           <DoctorAccountHistory doctorDetails={openAccountDetails.data} />
         </CustomDrawer>
+      )}
+
+      <StaffPermissionsModal
+        isOpen={isPermOpen}
+        onClose={() => setIsPermOpen(false)}
+        staff={permUser}
+        onUpdate={() => applyGetAllTherapists({ page: currentPage, isActive: isActiveFilter })}
+      />
+
+      {selectedPassUser && (
+        <ChangePasswordModal
+          isOpen={isPassModalOpen}
+          onClose={() => setIsPassModalOpen(false)}
+          userId={selectedPassUser._id}
+          userName={selectedPassUser.name || selectedPassUser.username}
+        />
       )}
     </Box>
   );
