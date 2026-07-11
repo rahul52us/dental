@@ -173,7 +173,7 @@ const BookAppointmentPage = observer(() => {
 
                 // Theme color: Modern clinic teal
                 const primaryColor = [13, 143, 159]; // RGB for #0D8F9F
-                
+
                 // 1. Draw top brand bar (No background to save ink)
                 // doc.setFillColor(13, 143, 159);
                 // doc.rect(0, 0, 210, 40, "F");
@@ -253,7 +253,7 @@ const BookAppointmentPage = observer(() => {
                         ...chairs.map((chair: any) => `${chair.chairName || `Chair ${chair.chairNo}`}\n(Chair ${chair.chairNo || ""})`)
                     ]
                 ];
-                
+
                 const totalWidth = 180; // Total printable area width in mm
                 const timeColWidth = 24; // 24mm for time column
                 const numChairs = chairs.length || 1;
@@ -263,37 +263,37 @@ const BookAppointmentPage = observer(() => {
                     const row = [
                         `${slot.startTime} - ${slot.endTime}\n(${toMinutes(slot.endTime) - toMinutes(slot.startTime)} min)`
                     ];
-                    
+
                     chairs.forEach((chair: any) => {
                         const apt = chair.appointments?.find((a: any) => a.startTime === slot.startTime);
                         if (apt) {
                             // Calculate dynamic text lines to let autoTable compute precise height of this cell
                             const availableWidth = chairColWidth - 12; // left padding (8) and right padding (4)
-                            
+
                             // Temporarily set font styling to get accurate splitting results
                             doc.setFont("helvetica", "bold");
                             doc.setFontSize(8.5);
                             const nameLines = doc.splitTextToSize(apt.patient?.name || "Unknown", availableWidth);
-                            
+
                             doc.setFont("helvetica", "normal");
                             doc.setFontSize(7);
                             const phoneLines = doc.splitTextToSize(apt.patient?.mobileNumber || "--", availableWidth);
-                            
+
                             doc.setFont("helvetica", "italic");
                             doc.setFontSize(7);
                             const treatmentLines = doc.splitTextToSize(apt.title || apt.description || "Consultation", availableWidth);
-                            
+
                             // Join all lines with newlines
                             const nameStr = nameLines.join("\n");
                             const phoneStr = phoneLines.join("\n");
                             const treatmentStr = treatmentLines.join("\n");
-                            
+
                             row.push(`${nameStr}\n${phoneStr}\n${treatmentStr}`);
                         } else {
                             row.push("");
                         }
                     });
-                    
+
                     return row;
                 });
 
@@ -343,7 +343,7 @@ const BookAppointmentPage = observer(() => {
                             if (data.cell.section === "body") {
                                 // Add extra bottom padding to allocate space for status pill badges
                                 data.cell.styles.cellPadding = { left: 8, right: 4, top: 4, bottom: 8 };
-                                
+
                                 // Apply soft pastel background of the chair color for appointment cells
                                 const slot = sortedTimeSlots[data.row.index];
                                 const chair = chairs[data.column.index - 1];
@@ -380,17 +380,17 @@ const BookAppointmentPage = observer(() => {
                             const chair = chairs[data.column.index - 1];
                             if (slot && chair) {
                                 const apt = chair.appointments?.find((a: any) => a && a.startTime === slot.startTime);
-                                
+
                                 if (apt) {
                                     const docInstance = data.doc;
                                     const { x, y, width, height } = data.cell;
-                                    
+
                                     const padLeft = 8;
                                     const startX = x + padLeft;
                                     const availableWidth = width - 12;
-                                    
+
                                     let currentY = y + 5.5; // starting y offset
-                                    
+
                                     // 1. Patient Name (Bold, Dark Charcoal)
                                     docInstance.setFont("helvetica", "bold");
                                     docInstance.setFontSize(8.5);
@@ -400,7 +400,7 @@ const BookAppointmentPage = observer(() => {
                                         docInstance.text(line, startX, currentY);
                                         currentY += 3.5;
                                     });
-                                    
+
                                     // 2. Patient Phone Number (Small, Muted Gray)
                                     docInstance.setFont("helvetica", "normal");
                                     docInstance.setFontSize(7);
@@ -410,7 +410,7 @@ const BookAppointmentPage = observer(() => {
                                         docInstance.text(line, startX, currentY);
                                         currentY += 3.2;
                                     });
-                                    
+
                                     // 4. Treatment description (Small, Italicized)
                                     docInstance.setFont("helvetica", "italic");
                                     docInstance.setFontSize(7);
@@ -420,7 +420,7 @@ const BookAppointmentPage = observer(() => {
                                         docInstance.text(line, startX, currentY);
                                         currentY += 3.2;
                                     });
-                                    
+
                                     // 5. Beautiful Status Badge (shifted slightly up and guaranteed to be well within bottom boundary)
                                     const status = (apt.status || "scheduled").toLowerCase();
                                     let bgR = 224, bgG = 242, bgB = 254; // Scheduled: soft blue
@@ -432,14 +432,14 @@ const BookAppointmentPage = observer(() => {
                                         bgR = 254; bgG = 226; bgB = 226; // Cancelled: soft red
                                         txR = 153; txG = 27; txB = 27;
                                     }
-                                    
+
                                     docInstance.setFillColor(bgR, bgG, bgB);
                                     const pillX = startX;
                                     const pillY = y + height - 7.5; // Mathematically bound relative to the actual cell bottom border
                                     const pillW = width - 16;
                                     const pillH = 4.5;
                                     docInstance.roundedRect(pillX, pillY, pillW, pillH, 1.1, 1.1, "F");
-                                    
+
                                     docInstance.setFont("helvetica", "bold");
                                     docInstance.setFontSize(6.5);
                                     docInstance.setTextColor(txR, txG, txB);
@@ -533,9 +533,19 @@ const BookAppointmentPage = observer(() => {
 
     return (
         <Box p={4} bg={bgColor} minH="100vh">
-            <Flex align="center" justify="space-between" mb={6} bg={useColorModeValue("white", "gray.800")} p={4} borderRadius="xl" boxShadow="sm">
-                <Heading size="lg">Book Appointment</Heading>
-                <Flex align="center" gap={4}>
+            <Flex
+                direction={{ base: "column", lg: "row" }}
+                align={{ base: "center", lg: "center" }}
+                justify="space-between"
+                gap={4}
+                mb={6}
+                bg={useColorModeValue("white", "gray.800")}
+                p={4}
+                borderRadius="xl"
+                boxShadow="sm"
+            >
+                <Heading size="lg" textAlign={{ base: "center", lg: "left" }}>Book Appointment</Heading>
+                <Flex direction={{ base: "column", sm: "row" }} align="center" gap={4} width={{ base: "100%", lg: "auto" }}>
                     {stores.auth.hasPermission('appointment', 'download') && (
                         <Button
                             leftIcon={<FiDownload />}
@@ -545,6 +555,7 @@ const BookAppointmentPage = observer(() => {
                             isLoading={isDownloading}
                             borderRadius="xl"
                             boxShadow="sm"
+                            width={{ base: "100%", sm: "auto" }}
                             _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
                             _active={{ transform: "translateY(0)" }}
                             transition="all 0.2s"
@@ -552,12 +563,12 @@ const BookAppointmentPage = observer(() => {
                             Download Schedule
                         </Button>
                     )}
-                    <Flex align="center" gap={3}>
+                    <Flex align="center" justify="center" gap={3} width={{ base: "100%", sm: "auto" }}>
                         <Button size="md" colorScheme="blue" onClick={goToPreviousDate} p={1}>
                             <ChevronLeftIcon fontSize={28} />
                         </Button>
-                        <Text fontWeight="700" fontSize="lg" minW="220px" textAlign="center">
-                            {moment(selectedDate).format("dddd, DD MMM YYYY")}
+                        <Text fontWeight="700" fontSize={{ base: "sm", sm: "lg" }} minW={{ base: "150px", sm: "220px" }} textAlign="center">
+                            {moment(selectedDate).format("ddd, DD MMM YYYY")}
                         </Text>
                         <Button size="md" colorScheme="blue" onClick={goToNextDate} p={1}>
                             <ChevronRightIcon fontSize={28} />
@@ -566,7 +577,7 @@ const BookAppointmentPage = observer(() => {
                 </Flex>
             </Flex>
 
-            <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2}>
+            <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2} overflowX="auto" w="100%">
                 <DentistScheduler
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}
@@ -576,7 +587,7 @@ const BookAppointmentPage = observer(() => {
             </Box>
 
             <CustomDrawer
-                width="90vw"
+                width={{ base: "100vw", md: "80vw", lg: "80vw" }}
                 open={selectedDateAndTime.open}
                 close={() =>
                     setSelectedDateTime({

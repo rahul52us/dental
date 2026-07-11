@@ -169,7 +169,7 @@ const AppointmentCard = ({
         left={`${leftOffset}%`}
         width={`${widthPercent}%`}
         height={heightStyle}
-        m="1x"
+        m={1}
         p={1.5}
         borderLeftWidth="6px"
         borderRadius="lg"
@@ -184,7 +184,7 @@ const AppointmentCard = ({
         }}
       >
         {/* Patient name (primary) */}
-        <Flex align="center" maxW="100%">
+        <Flex align="center" maxW="calc(100% - 24px)">
           <Text
             fontWeight="600"
             fontSize="sm"
@@ -198,14 +198,13 @@ const AppointmentCard = ({
           <Text
             fontSize="xs"
             color="gray.600"
-            // bg="gray.100"
             px={2}
             py="2px"
             borderRadius="full"
             fontWeight="500"
             whiteSpace="nowrap"
           >
-            ( {appointment?.patientMobileNumber} )
+            ({appointment?.patientMobileNumber})
           </Text>
         </Flex>
         {editable && (
@@ -385,20 +384,28 @@ const ScheduleGrid = ({
   };
 
   return (
-    <Box flex="1" px={1} pb={1} overflowX="auto">
-      <Box bg={bg} borderRadius="2xl" boxShadow="2xl" borderWidth="1px">
+    <Box flex="1" px={1} pb={1} overflowX="auto" overflowY="auto" maxH={{ base: "65vh", md: "calc(100vh - 180px)" }}>
+      <Box bg={bg} borderRadius="2xl" boxShadow="2xl" borderWidth="1px" minW="100%" w="max-content">
         <Grid
-          templateColumns={`100px repeat(${chairs.length}, 1fr)`}
+          templateColumns={`80px repeat(${chairs.length}, minmax(140px, 1fr))`}
           bg={headerBg}
           borderBottomWidth="2px"
+          position="sticky"
+          top={0}
+          zIndex={100}
         >
           <Flex
-            p={5}
+            p={2}
             w={"100%"}
             bg={timeHeaderBg}
             align="center"
             justify="center"
             borderRightWidth="2px"
+            borderBottomWidth="2px"
+            position="sticky"
+            left={0}
+            top={0}
+            zIndex={110}
           >
             <Flex>
               <Input
@@ -424,8 +431,8 @@ const ScheduleGrid = ({
                   }
                 }}
                 sx={{
-                  width: "80px",
-                  height: "100px",
+                  width: "60px",
+                  height: "80px",
                   padding: "0",
                   textIndent: "-9999px",
                   cursor: "pointer",
@@ -436,9 +443,9 @@ const ScheduleGrid = ({
 
                   "&::-webkit-calendar-picker-indicator": {
                     position: "absolute",
-                    right: "8px",
-                    width: "60px",
-                    height: "60px",
+                    right: "2px",
+                    width: "50px",
+                    height: "50px",
                     cursor: "pointer",
                   },
                 }}
@@ -447,11 +454,11 @@ const ScheduleGrid = ({
           </Flex>
 
           {chairs.map((chair: any) => (
-            <Box key={chair.id} p={4} textAlign="center">
+            <Box key={chair.id} p={4} textAlign="center" zIndex={1} bg={headerBg}>
               <Flex direction="column" align="center" gap={2}>
-                <Box w={12} h={12} borderRadius="full" bg={chair.color} />
-                <Text fontWeight="bold">{chair.name}</Text>
-                <Text fontSize="sm">Chair {chair.chairNo}</Text>
+                <Box w={10} h={10} borderRadius="full" bg={chair.color} />
+                <Text fontWeight="bold" fontSize="sm">{chair.name}</Text>
+                <Text fontSize="xs">Chair {chair.chairNo}</Text>
               </Flex>
             </Box>
           ))}
@@ -460,15 +467,19 @@ const ScheduleGrid = ({
         {timeSlots.map((time: string) => (
           <Grid
             key={time}
-            templateColumns={`100px repeat(${chairs.length}, 1fr)`}
+            templateColumns={`80px repeat(${chairs.length}, minmax(140px, 1fr))`}
           >
             <Box
               py={4}
-              px={3}
+              px={1}
               bg={timeHeaderBg}
               borderRightWidth="2px"
               textAlign="center"
               fontWeight="bold"
+              fontSize="sm"
+              position="sticky"
+              left={0}
+              zIndex={50}
             >
               {time}
             </Box>
@@ -561,6 +572,195 @@ const ScheduleGrid = ({
             })}
           </Grid>
         ))}
+      </Box>
+    </Box>
+  );
+};
+
+/* ---------------------- MOBILE TABBED GRID ---------------------- */
+
+const MobileScheduleView = ({
+  timeSlots,
+  chairs,
+  appointments,
+  handleTimeSlots,
+  selectedDate,
+  setSelectedDate,
+  allowedSlots,
+  onOpenDetails,
+  shouldNotEditIcon,
+  onRefresh
+}: any) => {
+  const [selectedChairIndex, setSelectedChairIndex] = useState(0);
+
+  const bg = useColorModeValue("white", "gray.800");
+  const timeHeaderBg = useColorModeValue("gray.50", "gray.900");
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPastDate = selectedDate < today;
+
+  if (!chairs || chairs.length === 0) return null;
+
+  const safeIndex = selectedChairIndex < chairs.length ? selectedChairIndex : 0;
+  const currentChair = chairs[safeIndex];
+
+  const getAppointmentsStartingAt = (time: string) =>
+    appointments.filter(
+      (apt: any) => apt.startTime === time && apt.chairId === currentChair.id
+    );
+
+  const isSlotOccupied = (time: string) => {
+    const slotMinutes = toMinutes(time);
+    return appointments.some((apt: any) => {
+      if (apt.chairId !== currentChair.id) return false;
+      const start = toMinutes(apt.startTime);
+      const end = start + apt.duration;
+      return slotMinutes >= start && slotMinutes < end;
+    });
+  };
+
+  const isSlotAllowed = (time: string) => {
+    if (isPastDate) return false;
+    const slotMinutes = toMinutes(time);
+    return allowedSlots.some((slot: any) => {
+      const start = toMinutes(slot.startTime);
+      const end = toMinutes(slot.endTime);
+      if (end > start) {
+        return slotMinutes >= start && slotMinutes < end;
+      }
+      return slotMinutes >= start && slotMinutes < 24 * 60;
+    });
+  };
+
+  return (
+    <Box flex="1" px={0} pb={4} overflowY="auto" maxH="calc(100vh - 160px)" bg={bg}>
+      {/* Doctor Tabs (Pill Style) */}
+      <Flex 
+        overflowX="auto" 
+        bg={bg} 
+        py={4} 
+        px={4} 
+        gap={3} 
+        position="sticky"
+        top={0}
+        zIndex={100}
+        borderBottomWidth="1px"
+        borderColor="gray.100"
+        css={{
+            '&::-webkit-scrollbar': { display: 'none' },
+            scrollbarWidth: 'none'
+        }}
+      >
+        {chairs.map((chair: any, index: number) => {
+          const isSelected = safeIndex === index;
+          return (
+            <Flex
+              key={chair.id}
+              direction="row"
+              align="center"
+              justify="center"
+              bg={isSelected ? chair.color : "gray.50"}
+              borderRadius="full"
+              py={2.5}
+              px={5}
+              minW="fit-content"
+              onClick={() => setSelectedChairIndex(index)}
+              cursor="pointer"
+              transition="all 0.2s"
+              boxShadow={isSelected ? "md" : "none"}
+            >
+              {!isSelected && <Box w={2.5} h={2.5} borderRadius="full" bg={chair.color} mr={2} />}
+              <Text fontWeight={isSelected ? "bold" : "semibold"} fontSize="sm" color={isSelected ? "white" : "gray.600"}>
+                {chair.name}
+              </Text>
+            </Flex>
+          );
+        })}
+      </Flex>
+
+      {/* Grid for selected chair */}
+      <Box bg={bg} mt={2} w="100%" minW="100%">
+        {timeSlots.map((time: string) => {
+          const startingAppointments = getAppointmentsStartingAt(time);
+          const occupied = isSlotOccupied(time);
+          const allowed = isSlotAllowed(time);
+
+          return (
+            <Flex
+              key={time}
+              w="100%"
+              minH="70px"
+              position="relative"
+            >
+              {/* Time Column */}
+              <Flex
+                w="65px"
+                justify="center"
+                pt={2}
+                bg={bg}
+                zIndex={50}
+              >
+                <Text fontWeight="600" fontSize="xs" color="gray.400">
+                  {time}
+                </Text>
+              </Flex>
+
+              {/* Slot Area */}
+              <Box
+                flex="1"
+                position="relative"
+                borderBottomWidth="1px"
+                borderColor="gray.200"
+                borderLeftWidth="2px"
+                borderLeftColor={allowed ? hexToRGBA(currentChair.color, 0.4) : "transparent"}
+                bg={allowed ? hexToRGBA(currentChair.color, 0.07) : "gray.100"}
+                opacity={allowed ? 1 : 0.45}
+                onClick={() => {
+                  if (!occupied && allowed) {
+                    handleTimeSlots({ open: true, time, chair: currentChair, selectedDate });
+                  }
+                }}
+                cursor={!occupied && allowed ? "pointer" : "default"}
+                _active={!occupied && allowed ? { bg: "gray.50" } : {}}
+              >
+                {/* Existing Appointments */}
+                {startingAppointments.map((apt: any, index: number) => (
+                  <AppointmentCard
+                    key={apt.id}
+                    appointment={apt}
+                    selectedDate={selectedDate}
+                    handleTimeSlots={handleTimeSlots}
+                    chairColor={currentChair.color}
+                    overlapIndex={index}
+                    totalOverlaps={startingAppointments.length}
+                    onOpenDetails={onOpenDetails}
+                    shouldNotEditIcon={shouldNotEditIcon}
+                    onRefresh={onRefresh}
+                  />
+                ))}
+
+                {/* Closed Slot Label */}
+                {!allowed && startingAppointments.length === 0 && (
+                  <Center h="100%">
+                    <Text fontSize="xs" color="gray.400" fontWeight="medium">
+                      Closed
+                    </Text>
+                  </Center>
+                )}
+
+                {/* Subtle Add Hint (Visible on touch, no hover needed) */}
+                {!occupied && allowed && (
+                  <Flex align="center" pl={4} h="100%" opacity={0.3}>
+                    <Text fontSize="xs" fontWeight="semibold" color="gray.500">
+                      + Tap to add
+                    </Text>
+                  </Flex>
+                )}
+              </Box>
+            </Flex>
+          );
+        })}
       </Box>
     </Box>
   );
@@ -679,21 +879,41 @@ export default observer(function DentistScheduler({
 
   return (
     <>
-      <ScheduleGrid
-        timeSlots={timeSlots}
-        chairs={chairs}
-        appointments={appointments}
-        handleTimeSlots={handleTimeSlots}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        allowedSlots={allowedSlots}
-        onOpenDetails={(apt: any) => {
-          setSelectedAppointment(apt);
-          setOpenDrawer(true);
-        }}
-        shouldNotEditIcon={shouldNotEditIcon}
-        onRefresh={fetchAppointments}
-      />
+      <Box display={{ base: "none", lg: "block" }}>
+        <ScheduleGrid
+          timeSlots={timeSlots}
+          chairs={chairs}
+          appointments={appointments}
+          handleTimeSlots={handleTimeSlots}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          allowedSlots={allowedSlots}
+          onOpenDetails={(apt: any) => {
+            setSelectedAppointment(apt);
+            setOpenDrawer(true);
+          }}
+          shouldNotEditIcon={shouldNotEditIcon}
+          onRefresh={fetchAppointments}
+        />
+      </Box>
+
+      <Box display={{ base: "block", lg: "none" }}>
+        <MobileScheduleView
+          timeSlots={timeSlots}
+          chairs={chairs}
+          appointments={appointments}
+          handleTimeSlots={handleTimeSlots}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          allowedSlots={allowedSlots}
+          onOpenDetails={(apt: any) => {
+            setSelectedAppointment(apt);
+            setOpenDrawer(true);
+          }}
+          shouldNotEditIcon={shouldNotEditIcon}
+          onRefresh={fetchAppointments}
+        />
+      </Box>
 
       {/* ✅ ONLY NEW UI */}
       <CustomDrawer

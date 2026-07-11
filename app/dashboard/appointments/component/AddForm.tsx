@@ -553,7 +553,7 @@ const AddAppointmentForm = observer(
                           query={{ type: "doctor" }}
                         />
                       </Grid>
-                      <Flex gap={4} mt={4}>
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mt={4}>
                         <CustomInput
                           name="additionalDoctors"
                           placeholder="Select Assisted By"
@@ -578,8 +578,8 @@ const AddAppointmentForm = observer(
                           }
                           query={{ type: "staff" }}
                         />
-                      </Flex>
-                      <Flex mt={4} gap={4}>
+                      </SimpleGrid>
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mt={4}>
                         <CustomInput
                           name="chair"
                           placeholder="Select Chair"
@@ -610,7 +610,7 @@ const AddAppointmentForm = observer(
                           error={errors.status as string}
                           showError={touched.status}
                         />
-                      </Flex>
+                      </SimpleGrid>
                       <Box mt={3}>
                         {(values.status === "shift" || values.status === "cancelled") && (
                           <CustomInput
