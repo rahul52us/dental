@@ -1110,9 +1110,10 @@ const GlobalAccountabilityPage = observer(() => {
                           onClick={async () => {
                             try {
                               setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
-                              const base64 = await stores.workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, i);
+                              const realIndex = (historyData.length - 1) - i;
+                              const base64 = await stores.workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, realIndex);
                               setPreviewData(base64);
-                              setPreviewFileName(`Receipt_${selectedRecord._id}_${i}.pdf`);
+                              setPreviewFileName(`Receipt_${selectedRecord._id}_${realIndex}.pdf`);
                               setIsPreviewOpen(true);
                             } catch (error) {
                               toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });

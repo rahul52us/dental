@@ -1192,7 +1192,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   {historyData.map((h: any, i: number) => (
                     <HStack key={i} justify="space-between" p={4} bg="gray.50" borderRadius="2xl" border="1px solid" borderColor="gray.100">
                       <VStack align="start" spacing={0}>
-                        <Text fontWeight="800" color="gray.700">Payment Entry {historyData.length - i}</Text>
+                        <HStack spacing={2}>
+                          <Text fontWeight="800" color="gray.700">Payment Entry {historyData.length - i}</Text>
+                          {h.receiptNumber && (
+                            <Badge colorScheme="blue" variant="subtle" fontSize="9px" borderRadius="md">
+                              {h.receiptNumber}
+                            </Badge>
+                          )}
+                        </HStack>
                         <Text fontSize="xs" color="gray.400">{moment(h.date).format("DD MMM YYYY, hh:mm A")}</Text>
                       </VStack>
                       <HStack>
@@ -1226,9 +1233,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             onClick={async () => {
                               try {
                                 setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
-                                const base64 = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, i);
+                                const realIndex = (historyData.length - 1) - i;
+                                const base64 = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, realIndex);
                                 setPreviewData(base64);
-                                setPreviewFileName(`Receipt_${selectedRecord._id}_${i}.pdf`);
+                                setPreviewFileName(`Receipt_${selectedRecord._id}_${realIndex}.pdf`);
                                 setIsPreviewOpen(true);
                               } catch (error) {
                                 toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
