@@ -646,13 +646,13 @@ const GlobalAccountabilityPage = observer(() => {
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
         </Box>
 
-        {/* TODAY RECEIVED */}
+        {/* PERIOD RECEIVED */}
         <Box bgGradient="linear(to-br, blue.500, blue.600)" p={4} borderRadius="2xl" boxShadow="lg" borderWidth="0px" position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="whiteAlpha.900" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TODAY RECEIVED</Text>
+            <Text fontSize="sm" color="whiteAlpha.900" fontWeight="900" textTransform="uppercase" letterSpacing="wide">PERIOD RECEIVED</Text>
             <Box p={1.5} bg="whiteAlpha.200" borderRadius="md"><Icon as={FiCheckCircle} color="white" boxSize={4} /></Box>
           </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="white" position="relative" zIndex={1}>{formatCurrency(todaySummary.todayPaid)}</Text>
+          <Text fontSize="2xl" fontWeight="900" color="white" position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.1}><Icon as={FiCheckCircle} boxSize={20} color="white" /></Box>
         </Box>
 
@@ -681,7 +681,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>PAID</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>TODAY RECEIVED</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>PERIOD RECEIVED</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">LAST PAID DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
@@ -821,19 +821,22 @@ const GlobalAccountabilityPage = observer(() => {
                       <HStack justify="flex-end">
                         {(() => {
                           if (!row.paymentHistory || row.paymentHistory.length === 0) return <Text fontWeight="800" color="gray.400" fontSize="sm">-</Text>;
-                          const todaySum = row.paymentHistory.reduce((acc: number, curr: any) => {
+                          const rangeStart = fromDate ? new Date(fromDate + "T00:00:00") : null;
+                          const rangeEnd = toDate ? new Date(toDate + "T23:59:59") : null;
+                          const periodSum = row.paymentHistory.reduce((acc: number, curr: any) => {
                             if (!curr.date) return acc;
                             const d = new Date(curr.date);
-                            const today = new Date();
-                            if (d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()) {
+                            const afterStart = rangeStart ? d >= rangeStart : true;
+                            const beforeEnd = rangeEnd ? d <= rangeEnd : true;
+                            if (afterStart && beforeEnd) {
                               return acc + (Number(curr.amount) || 0);
                             }
                             return acc;
                           }, 0);
-                          return todaySum > 0 ? (
+                          return periodSum > 0 ? (
                             <Box px={4} py={1.5} bg="blue.50" borderRadius="xl" border="1px dashed" borderColor="blue.200" minW="100px" maxW="max-content" textAlign="center">
                               <Text color="blue.600" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
-                                {formatCurrency(todaySum)}
+                                {formatCurrency(periodSum)}
                               </Text>
                             </Box>
                           ) : <Text fontWeight="800" color="gray.400" fontSize="sm">-</Text>;
