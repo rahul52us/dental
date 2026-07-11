@@ -37,16 +37,14 @@ const HeaderNavbar = observer(() => {
         </>
       ) : (
         <IconButton
-          aria-label="Arrow"
-          fontSize="xl"
-          _hover={{ color: useColorModeValue("brand.500", "brand.200"), bg: useColorModeValue("brand.50", "gray.700") }}
-          _active={{ bg: useColorModeValue("brand.100", "gray.800") }}
-          icon={
-            <FaBars
-              cursor="pointer"
-              onClick={() => setOpenMobileSideDrawer(true)}
-            />
-          }
+          aria-label="Menu"
+          variant="ghost"
+          color="white"
+          fontSize="2xl"
+          _hover={{ bg: "whiteAlpha.200" }}
+          _active={{ bg: "whiteAlpha.300" }}
+          onClick={() => setOpenMobileSideDrawer(true)}
+          icon={<FaBars />}
         />
       )}
     </Flex>

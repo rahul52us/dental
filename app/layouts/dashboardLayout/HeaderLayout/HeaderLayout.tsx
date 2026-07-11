@@ -1,11 +1,12 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Flex } from "@chakra-ui/react";
+import { Flex, IconButton } from "@chakra-ui/react";
 import { useMediaQuery } from "@chakra-ui/react";
 import HeaderNavbar from "./component/HeaderNavbar/HeaderNavbar";
 import HeaderLogo from "./component/Logo/HeaderLogo";
 import { observer } from "mobx-react-lite";
 import { headerHeight, headerPadding } from "../../../component/config/utils/variable";
+import { FaSearch } from "react-icons/fa";
 
 
 const HeaderLayout = observer(() => {
@@ -18,12 +19,17 @@ const HeaderLayout = observer(() => {
       justifyContent="space-between"
       height={headerHeight}
       padding={headerPadding}
-      boxShadow="2px 2px 4px rgba(0, 0, 0, 0.2)" // Moved styled-components shadow to Chakra UI prop
+      boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
+      borderBottom="1px solid rgba(255,255,255,0.1)"
+      position="relative"
     >
-      <Flex width={isLargerThan1020 ? "85%" : "95%"}>
+      <Flex flex={1}>
         <HeaderLogo />
       </Flex>
-      <HeaderNavbar />
+
+      <Flex zIndex={2} ml="auto">
+        <HeaderNavbar />
+      </Flex>
     </Flex>
   );
 });

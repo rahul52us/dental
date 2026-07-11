@@ -80,6 +80,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
               themeConfig.colors.custom.light.primary,
               themeConfig.colors.custom.dark.primary
             )}
+            style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%)" }}
           >
             <HeaderLayout />
           </HeaderContainer>

@@ -497,7 +497,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
 
       {/* Add / Calendar Drawer */}
       <CustomDrawer
-        width={"90vw"}
+        width={{ base: "100vw", md: "80vw", lg: "75vw" }}
         open={openReportModal.open}
         close={() =>
           setOpenReportModal({
@@ -506,18 +506,21 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
           })
         }
         title={
-          <Flex align="center" justify="space-between" width="100%" pr={10}>
-            <Flex align="center" gap={3}>
-              <Button size="md" onClick={goToPreviousDate} p={1}>
-                <ChevronLeftIcon color="white" fontSize={32} />
+          <Flex align={{ base: "flex-start", md: "center" }} justify="space-between" width="100%" pr={{ base: 8, md: 10 }} flexDir={{ base: "column", lg: "row" }} gap={{ base: 2, lg: 0 }}>
+            <Flex align="center" gap={{ base: 1, md: 3 }}>
+              <Button size={{ base: "sm", md: "md" }} onClick={goToPreviousDate} p={1}>
+                <ChevronLeftIcon color="white" fontSize={{ base: 24, md: 32 }} />
               </Button>
 
-              <Text fontWeight="800" fontSize="xl">
-                {t("appointments.table.appointment")} {isPatient && patientDetails?.name ? `(${patientDetails.name}) ` : ""}→ {moment(selectedDate).format("dddd, DD MMM YYYY")}
+              <Text fontWeight="800" fontSize={{ base: "md", md: "xl" }} textAlign="center" noOfLines={{ base: 2, md: 1 }}>
+                {t("appointments.table.appointment")} {isPatient && patientDetails?.name ? `(${patientDetails.name}) ` : ""} 
+                <Box as="span" display={{ base: "none", md: "inline" }}>→ </Box>
+                <Box as="span" display={{ base: "inline", md: "none" }}><br/></Box>
+                {moment(selectedDate).format("dddd, DD MMM YYYY")}
               </Text>
 
-              <Button size="md" onClick={goToNextDate} p={1}>
-                <ChevronRightIcon fontWeight="800" color="white" fontSize={32} />
+              <Button size={{ base: "sm", md: "md" }} onClick={goToNextDate} p={1}>
+                <ChevronRightIcon fontWeight="800" color="white" fontSize={{ base: 24, md: 32 }} />
               </Button>
             </Flex>
 

@@ -15,7 +15,7 @@ const HeaderLogo = observer(() => {
   } = stores;
 
   return (
-    <Flex width="100%" alignItems="center" justifyContent="space-between" display="flex" ml={2}>
+    <Flex width="100%" alignItems="center" justifyContent={{ base: "flex-start", md: "space-between" }} display="flex" ml={{ base: 0, md: 2 }}>
       <Flex alignItems="center">
         {isLargerThanXl && (
           <Flex alignItems="center">
@@ -57,29 +57,31 @@ const HeaderLogo = observer(() => {
           </Flex>
         )}
 
-        <HStack ml={isLargerThanXl ? 0 : 4} mr={4} spacing={3} display={{ base: "none", md: "flex" }}>
+        <HStack ml={isLargerThanXl ? 0 : 2} mr={2} spacing={4} display="flex">
           {(stores.auth.user?.companyDetail || stores.auth.user?.companyDetails) && (
             <>
               {stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url ? (
                 <Image 
                   src={stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url} 
                   alt={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
-                  boxSize="46px"
+                  boxSize={{ base: "36px", md: "36px" }}
                   objectFit="contain"
                   bg="white"
-                  borderRadius="md"
-                  p={0}
+                  borderRadius="full"
+                  p={1}
+                  boxShadow="sm"
                 />
               ) : (
                 <Avatar 
-                  size="md" 
+                  size="sm" 
                   name={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name} 
                   bg="white"
                   color="brand.500"
-                  borderRadius="md"
+                  borderRadius="full"
+                  boxShadow="sm"
                 />
               )}
-              <Text color="white" fontWeight="bold" fontSize="lg" whiteSpace="nowrap">
+              <Text color="white" fontWeight="800" letterSpacing="0.02em" fontSize={{ base: "lg", md: "xl" }} whiteSpace="nowrap" maxW={{ base: "150px", md: "none" }} isTruncated>
                 {stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
               </Text>
             </>
@@ -87,7 +89,9 @@ const HeaderLogo = observer(() => {
         </HStack>
       </Flex>
 
-      <SearchBar />
+      <Box display={{ base: "none", md: "block" }}>
+        <SearchBar />
+      </Box>
       <Box></Box>
       {/* <Input
         type="text"

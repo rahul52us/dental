@@ -74,15 +74,17 @@ const SearchBar = () => {
     <Box position="relative" width={{ base: "100%", md: "350px", lg: "450px" }} maxW="450px" ref={dropdownRef}>
       <InputGroup>
         <InputLeftElement>
-          <FaSearch color={useColorModeValue("brand.500", "brand.200")} />
+          <FaSearch color="rgba(255, 255, 255, 0.8)" />
         </InputLeftElement>
         <Input
-          placeholder="Start typing to search..."
-          bg={useColorModeValue("white", "darkBrand.50")}
+          placeholder="Search..."
+          bg={useColorModeValue("whiteAlpha.200", "whiteAlpha.100")}
           border="1px solid"
-          borderColor={useColorModeValue("brand.200", "darkBrand.200")}
-          _focus={{ borderColor: "brand.500", boxShadow: "0 0 4px brand.500" }}
-          _hover={{ borderColor: "brand.300" }}
+          borderColor={useColorModeValue("whiteAlpha.300", "whiteAlpha.200")}
+          color="white"
+          _placeholder={{ color: "whiteAlpha.800" }}
+          _focus={{ bg: "whiteAlpha.300", borderColor: "whiteAlpha.400", boxShadow: "0 0 10px rgba(255,255,255,0.2)" }}
+          _hover={{ bg: "whiteAlpha.300" }}
           borderRadius="full"
           px={4}
           py={2}
