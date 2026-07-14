@@ -111,10 +111,14 @@ const Dashboard = observer(() => {
   const { t } = useTranslation();
 
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const [timeSlotData, setTimeSlotData] = useState<any[]>([]);
   const ads = stores.advertisementStore.activeAdvertisements?.data || [];
 
   useEffect(() => {
     getDashboardCount();
+    stores.dashboardStore.getTimeSlotAnalytics().then(data => {
+      if (data) setTimeSlotData(data);
+    });
     stores.advertisementStore.getActiveAdvertisements();
   }, [getDashboardCount]);
 
@@ -152,28 +156,43 @@ const Dashboard = observer(() => {
     };
   }, [count?.data?.growth]);
 
-  const lineChartData = useMemo(() => {
-    const trends = count?.data?.appointmentTrends || [];
+  const timeSlotChartData = useMemo(() => {
     return {
-      labels: trends.map((t: any) => {
-        const [year, month] = (t._id || "").split("-");
-        const date = new Date(parseInt(year), parseInt(month) - 1);
-        return date.toLocaleDateString("en-US", { month: "short" });
-      }),
+      labels: timeSlotData.map((t: any) => t.slot),
       datasets: [
         {
-          label: t("dashboard.completedAppointments"),
-          data: trends.map((t: any) => t.count),
-          borderColor: "#2D3748",
-          backgroundColor: "rgba(49, 151, 149, 0.2)",
+          label: "Appointments",
+          data: timeSlotData.map((t: any) => t.appointmentsCount),
+          borderColor: "#3182ce",
+          backgroundColor: "rgba(49, 130, 206, 0.2)",
           fill: true,
           tension: 0.4,
           pointRadius: 4,
-          pointBackgroundColor: "#319795",
+          pointBackgroundColor: "#3182ce",
         },
+        {
+          label: "Patients",
+          data: timeSlotData.map((t: any) => t.patientsCount),
+          borderColor: "#38a169",
+          backgroundColor: "rgba(56, 161, 105, 0.2)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: "#38a169",
+        },
+        {
+          label: "Doctors",
+          data: timeSlotData.map((t: any) => t.doctorsCount),
+          borderColor: "#805ad5",
+          backgroundColor: "rgba(128, 90, 213, 0.2)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: "#805ad5",
+        }
       ],
     };
-  }, [count?.data?.appointmentTrends]);
+  }, [timeSlotData]);
 
   const currentDate = useMemo(() => {
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
@@ -225,15 +244,37 @@ const Dashboard = observer(() => {
             <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
               <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
                 <Box>
-                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">{t("dashboard.patientRetention")}</Text>
-                  <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.performanceTrend")}</Text>
+                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Time Slot Analytics</Text>
+                  <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">Daily Appointment Distribution</Text>
                 </Box>
                 <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
                   <Icon as={FaCalendarAlt} boxSize={5} />
                 </Box>
               </Flex>
               <AspectRatio ratio={16 / 9} width="100%">
-                <Line data={lineChartData} options={lineChartOptions} />
+                <Line 
+                  data={timeSlotChartData} 
+                  options={{ 
+                    ...lineChartOptions, 
+                    plugins: { 
+                      ...lineChartOptions.plugins, 
+                      legend: { display: true, position: 'top', labels: { boxWidth: 12, usePointStyle: true, font: { size: 10 } } },
+                      tooltip: {
+                        ...lineChartOptions.plugins?.tooltip,
+                        callbacks: {
+                          afterBody: (tooltipItems: any) => {
+                            const index = tooltipItems[0].dataIndex;
+                            const exactTimes = timeSlotData[index]?.exactTimes;
+                            if (exactTimes && exactTimes.length > 0) {
+                              return `\nExact Times:\n${exactTimes.join(', ')}`;
+                            }
+                            return '';
+                          }
+                        }
+                      }
+                    } 
+                  }} 
+                />
               </AspectRatio>
             </Box>
           </DarkSkeleton>
