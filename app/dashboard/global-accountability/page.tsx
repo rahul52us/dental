@@ -1099,7 +1099,7 @@ const GlobalAccountabilityPage = observer(() => {
                   <HStack key={i} justify="space-between" p={4} bg="gray.50" borderRadius="2xl" border="1px solid" borderColor="gray.100">
                     <VStack align="start" spacing={0}>
                       <Text fontWeight="800" color="gray.700">Payment Entry {historyData.length - i}</Text>
-                      <Text fontSize="xs" color="gray.400">{new Date(h.date).toLocaleDateString()} {new Date(h.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                      <Text fontSize="xs" color="gray.400">{new Date(h.date).toLocaleDateString('en-IN')} {new Date(h.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
                     </VStack>
                     <HStack>
                       <VStack align="end" spacing={0}>

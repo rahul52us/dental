@@ -238,7 +238,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const filteredCounts = useMemo(() => {
     if (!countSearch) return backendCounts;
     return backendCounts.filter(item => {
-      const dateStr = new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' }).toLowerCase();
+      const dateStr = new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'long' }).toLowerCase();
       return dateStr.includes(countSearch.toLowerCase()) || item.date.includes(countSearch);
     });
   }, [backendCounts, countSearch]);
@@ -1285,7 +1285,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       </Box>
                       <VStack align="start" spacing={0}>
                         <Text fontSize="sm" fontWeight="800" color="gray.700">
-                          {new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                          {new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'long' })}
                         </Text>
                         <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
                       </VStack>

@@ -86,7 +86,7 @@ const RecallViewAppointment = ({ data }: any) => {
           </Text>
           <Text fontWeight="bold" fontSize="sm">
             {recall.recallDate
-              ? new Date(recall.recallDate).toLocaleDateString()
+              ? new Date(recall.recallDate).toLocaleDateString('en-IN')
               : "--"}
           </Text>
         </Box>
@@ -96,7 +96,7 @@ const RecallViewAppointment = ({ data }: any) => {
             Created On
           </Text>
           <Text fontSize="xs">
-            {new Date(recall.createdAt).toLocaleDateString()}
+            {new Date(recall.createdAt).toLocaleDateString('en-IN')}
           </Text>
         </Box>
       </Flex>

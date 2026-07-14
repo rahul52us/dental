@@ -33,7 +33,7 @@ interface LegacyPatientHistoryDrawerProps {
   onClose: () => void;
 }
 
-const toDateString = (d: any) => d ? new Date(d).toLocaleDateString() : "--";
+const toDateString = (d: any) => d ? new Date(d).toLocaleDateString('en-IN') : "--";
 
 const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientHistoryDrawerProps) => {
   const { oldDataStore } = stores;
@@ -96,7 +96,7 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide">{t("Date")}</Text>
-                            <Text fontSize="lg" fontWeight="bold" color="gray.800">{new Date(work.wrk_date).toLocaleDateString()}</Text>
+                            <Text fontSize="lg" fontWeight="bold" color="gray.800">{new Date(work.wrk_date).toLocaleDateString('en-IN')}</Text>
                           </Box>
                         </Flex>
                         <Flex align="center">
@@ -187,7 +187,7 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                                 <Box key={idx} p={4} bg="white" borderTop="3px solid" borderColor="blue.400" rounded="xl" shadow="sm" _hover={{ shadow: 'md' }} transition="all 0.2s">
                                   <HStack justify="space-between" mb={2}>
                                     <Badge colorScheme="blue" px={2} py={0.5} rounded="md">Tooth: {tw.ToothNoS}</Badge>
-                                    <Text fontSize="xs" fontWeight="bold" color="blue.600">{new Date(tw.wrkdate).toLocaleDateString()}</Text>
+                                    <Text fontSize="xs" fontWeight="bold" color="blue.600">{new Date(tw.wrkdate).toLocaleDateString('en-IN')}</Text>
                                   </HStack>
                                   <Text fontSize="md" fontWeight="bold" color="gray.800" mb={1}>{tw.name}</Text>
                                   <Text fontSize="sm" color="gray.600">{tw.descript}</Text>
@@ -221,7 +221,7 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                                     <Icon as={FaRupeeSign} boxSize={4} />
                                   </Box>
                                   <Text fontSize="2xl" fontWeight="extrabold" color="green.600" mb={1}>₹{t.fee_rec}</Text>
-                                  <Text fontSize="xs" color="gray.500" fontWeight="medium">{new Date(t.date).toLocaleDateString()}</Text>
+                                  <Text fontSize="xs" color="gray.500" fontWeight="medium">{new Date(t.date).toLocaleDateString('en-IN')}</Text>
                                   <Badge colorScheme="green" mt={2} px={2} py={0.5} rounded="full" fontSize="xs">Amount Paid</Badge>
                                 </Box>
                               ))}
@@ -250,7 +250,7 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
                               {wFees.map((f: any, idx: number) => (
                                 <Box key={idx} p={4} bg="white" border="1px" borderColor="orange.100" rounded="xl" shadow="sm" _hover={{ shadow: 'md', borderColor: 'orange.300' }} transition="all 0.2s">
                                   <HStack justify="space-between" mb={3}>
-                                    <Text fontSize="xs" fontWeight="bold" color="gray.500">Date: {new Date(f.wrk_date).toLocaleDateString()}</Text>
+                                    <Text fontSize="xs" fontWeight="bold" color="gray.500">Date: {new Date(f.wrk_date).toLocaleDateString('en-IN')}</Text>
                                     <Badge colorScheme="orange" px={2} py={0.5} rounded="md" fontSize="xs">Fee Record</Badge>
                                   </HStack>
                                   <HStack spacing={6} divider={<Divider orientation="vertical" h="8" />}>

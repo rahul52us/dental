@@ -244,7 +244,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
     createdAt,
   } = user;
 
-  const joinedDate = createdAt ? new Date(createdAt).toLocaleDateString() : "-";
+  const joinedDate = createdAt ? new Date(createdAt).toLocaleDateString('en-IN') : "-";
 
   return (
     <Modal

@@ -255,7 +255,7 @@ const AppointmentHistoryModal = observer(
                                     {incident.action}
                                   </Badge>
                                   <Text fontSize="xs" fontWeight="800" color={secondaryTextColor}>
-                                    {new Date(incident.timestamp).toLocaleDateString(undefined, {
+                                    {new Date(incident.timestamp).toLocaleDateString('en-IN', {
                                       month: 'short',
                                       day: 'numeric',
                                       year: 'numeric'

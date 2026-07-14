@@ -152,7 +152,7 @@ const AppointmentDetailsView = observer(
     const color = statusColors[status] || "gray";
 
     const formattedDate = appointmentDate
-      ? new Date(appointmentDate).toLocaleDateString(undefined, {
+      ? new Date(appointmentDate).toLocaleDateString('en-IN', {
           year: "numeric",
           month: "long",
           day: "numeric",

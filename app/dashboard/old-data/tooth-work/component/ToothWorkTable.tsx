@@ -70,7 +70,7 @@ const ToothWorkTable = observer(() => {
   };
 
   const columns = [
-    { headerName: t("Date"), function: (row: any) => new Date(row.wrkdate).toLocaleDateString() },
+    { headerName: t("Date"), function: (row: any) => new Date(row.wrkdate).toLocaleDateString('en-IN') },
     { headerName: t("Patient Code"), key: "legacyPatCode" },
     { headerName: t("Patient Name"), function: (row: any) => row.patientId?.name || "Unknown" },
     { headerName: t("Doctor"), function: (row: any) => row.doctorId?.name || row.legacyDocCode },

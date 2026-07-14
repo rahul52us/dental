@@ -329,7 +329,7 @@ const LabWorkHierarchyMaster = observer(() => {
                               <Text fontWeight="bold" fontSize="md" color="gray.700">{item.name}</Text>
                               {item.isTextInput && <Badge colorScheme="purple" fontSize="10px">Text Input</Badge>}
                            </HStack>
-                           <Text fontSize="xs" color="gray.400">Created {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}</Text>
+                           <Text fontSize="xs" color="gray.400">Created {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'N/A'}</Text>
                         </VStack>
                       </HStack>
                     </Td>

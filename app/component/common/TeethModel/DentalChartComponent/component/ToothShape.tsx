@@ -106,7 +106,7 @@ export const ToothShape = ({
       {allTodayRecords.map((rec, i) => (
         <Box key={i} pb={i < allTodayRecords.length - 1 ? 2 : 0} borderBottom={i < allTodayRecords.length - 1 ? "1px solid" : "none"} borderColor="whiteAlpha.200">
           <Text fontSize="12px" fontWeight="800" color="whiteAlpha.600">
-            {new Date(rec.treatmentDate).toLocaleDateString()}
+            {new Date(rec.treatmentDate).toLocaleDateString('en-IN')}
           </Text>
           <Divider mt={2} mb={2} />
           <Text fontWeight="1000" fontSize="sm">"{rec.notes || "General Record"}"</Text>
@@ -116,7 +116,7 @@ export const ToothShape = ({
             </Badge>
             {rec.treatmentDate && isHistoryRecord && (
               <Text fontSize="8px" fontWeight="800" color="whiteAlpha.600">
-                {new Date(rec.treatmentDate).toLocaleDateString()}
+                {new Date(rec.treatmentDate).toLocaleDateString('en-IN')}
               </Text>
             )}
           </HStack>

@@ -58,7 +58,7 @@ const NewTestimonialCard = ({
                 {profession}
               </Text>
               <Text fontSize="xs" color="#063231">
-                {new Date(createdAt).toLocaleDateString()} {/* Properly formatted date */}
+                {new Date(createdAt).toLocaleDateString('en-IN')} {/* Properly formatted date */}
               </Text>
             </Box>
           </Flex>

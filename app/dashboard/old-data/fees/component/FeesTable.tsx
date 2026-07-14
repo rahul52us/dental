@@ -58,7 +58,7 @@ const FeesTable = observer(() => {
   };
 
   const columns = [
-    { headerName: t("Work Date"), function: (row: any) => new Date(row.wrk_date).toLocaleDateString() },
+    { headerName: t("Work Date"), function: (row: any) => new Date(row.wrk_date).toLocaleDateString('en-IN') },
     { headerName: t("Patient Code"), key: "legacyPatCode" },
     { headerName: t("Patient Name"), function: (row: any) => row.patientId?.name || "Unknown" },
     { headerName: t("Doctor"), function: (row: any) => row.doctorId?.name || row.legacyDocCode },

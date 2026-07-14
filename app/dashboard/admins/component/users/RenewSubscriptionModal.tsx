@@ -343,7 +343,7 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                             <Flex align="center" gap={1.5}>
                               <Icon as={FiCalendar} color="gray.400" boxSize={3} />
                               <Text fontSize="sm" fontWeight="600" color="gray.700">
-                                {new Date(history.startDate).toLocaleDateString()}
+                                {new Date(history.startDate).toLocaleDateString('en-IN')}
                               </Text>
                             </Flex>
                           </Box>
@@ -355,7 +355,7 @@ const RenewSubscriptionModal = ({ isOpen, onClose, user, onSuccess }: Props) => 
                             <Flex align="center" gap={1.5} justify="flex-end">
                               <Icon as={FiCalendar} color="gray.400" boxSize={3} />
                               <Text fontSize="sm" fontWeight="600" color="gray.700">
-                                {new Date(history.endDate).toLocaleDateString()}
+                                {new Date(history.endDate).toLocaleDateString('en-IN')}
                               </Text>
                             </Flex>
                           </Box>

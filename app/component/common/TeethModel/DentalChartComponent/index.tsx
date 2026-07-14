@@ -169,7 +169,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
   const filteredCounts = useMemo(() => {
     if (!countSearch) return treatmentCounts;
     return treatmentCounts.filter(item => {
-      const dateStr = new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' }).toLowerCase();
+      const dateStr = new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'long' }).toLowerCase();
       return dateStr.includes(countSearch.toLowerCase()) || item.date.includes(countSearch);
     });
   }, [treatmentCounts, countSearch]);
@@ -929,7 +929,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                 >
                   <HStack spacing={2}>
                     <Icon as={FiActivity} />
-                    <Text>{todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString().toUpperCase()}</Text>
+                    <Text>{todayToothTreatment.totalItems || 0} ITEMS ON {new Date(sessionDate).toLocaleDateString('en-IN').toUpperCase()}</Text>
                     <Badge variant="solid" colorScheme="blue" borderRadius="full">VIEW SUMMARY</Badge>
                   </HStack>
                 </Badge>
@@ -1053,7 +1053,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
 
                         return (
                           <Tr key={item._id} _hover={{ bg: "blue.50/30" }}>
-                            <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString()}</Td>
+                            <Td py={4} fontSize="12px" fontWeight="700">{new Date(item.treatmentDate).toLocaleDateString('en-IN')}</Td>
                             <Td py={4}><Badge borderRadius="full" px={2} colorScheme="blue">{item.tooth?.fdi === "General" ? "GEN" : item.tooth}</Badge></Td>
                             <Td py={4}>
                               <VStack align="start" spacing={1}>
@@ -1155,7 +1155,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                               </VStack>
                               <VStack align="start" spacing={2} flex={1}>
                                 <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">
-                                  {treatmentDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}
+                                  {treatmentDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}
                                 </Text>
                                 <HStack spacing={2} wrap="wrap">
                                   <Badge variant="subtle" colorScheme={style.iconColor.split('.')[0]} borderRadius="full" px={3} py={0.5} fontSize="10px" fontWeight="1000">
@@ -1271,7 +1271,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                             onClick={() => setActiveViewIndex(idx)}
                             px={4}
                           >
-                            {new Date(rec.treatmentDate || rec.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                            {new Date(rec.treatmentDate || rec.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                           </Button>
                         ))}
                       </HStack>
@@ -1283,7 +1283,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                   <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <VStack align="start" spacing={1}>
                       <Text fontSize="20px" fontWeight="900">
-                        {currentRec?.treatmentDate ? new Date(currentRec.treatmentDate).toLocaleDateString(undefined, { dateStyle: 'long' }) : "No Date"}
+                        {currentRec?.treatmentDate ? new Date(currentRec.treatmentDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) : "No Date"}
                       </Text>
                     </VStack>
                     <VStack align="start" spacing={1}>
@@ -1453,7 +1453,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                       </Box>
                       <VStack align="start" spacing={0}>
                         <Text fontSize="sm" fontWeight="800" color="gray.700">
-                          {new Date(item.date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                          {new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'long' })}
                         </Text>
                         <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
                       </VStack>

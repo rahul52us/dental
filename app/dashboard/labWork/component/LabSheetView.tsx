@@ -422,7 +422,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                               </HStack>
                             </Td>
                             <Td fontWeight={isDone ? "600" : "400"} color={isDone ? "gray.800" : "gray.400"}>
-                              {historyItem.date ? new Date(historyItem.date).toLocaleDateString() : "Not set"}
+                              {historyItem.date ? new Date(historyItem.date).toLocaleDateString('en-IN') : "Not set"}
                             </Td>
                             <Td color={isDone ? "gray.700" : "gray.400"} fontStyle={isDone ? "normal" : "italic"}>
                               {historyItem.note || "-"}

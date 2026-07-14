@@ -87,7 +87,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                     </Box>
                     <Box>
                       <Text fontSize="sm" color="gray.500" textTransform="uppercase" letterSpacing="wide">{t("Date")}</Text>
-                      <Text fontSize="lg" fontWeight="bold" color="gray.800">{new Date(record.workComp.wrk_date).toLocaleDateString()}</Text>
+                      <Text fontSize="lg" fontWeight="bold" color="gray.800">{new Date(record.workComp.wrk_date).toLocaleDateString('en-IN')}</Text>
                     </Box>
                   </Flex>
                   <Flex align="center">
@@ -203,7 +203,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                           <Box key={idx} p={5} bg="white" borderTop="4px solid" borderColor="blue.400" rounded="2xl" shadow="sm" _hover={{ shadow: 'md' }} transition="all 0.2s">
                             <HStack justify="space-between" mb={3}>
                               <Badge colorScheme="blue" px={2} py={1} rounded="md">Tooth: {tw.ToothNoS}</Badge>
-                              <Text fontSize="sm" fontWeight="bold" color="blue.600">{new Date(tw.wrkdate).toLocaleDateString()}</Text>
+                              <Text fontSize="sm" fontWeight="bold" color="blue.600">{new Date(tw.wrkdate).toLocaleDateString('en-IN')}</Text>
                             </HStack>
                             <Text fontSize="lg" fontWeight="bold" color="gray.800" mb={2}>{tw.name}</Text>
                             <Text fontSize="md" color="gray.600">{tw.descript}</Text>
@@ -224,7 +224,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                               <Icon as={FaRupeeSign} boxSize={5} />
                             </Box>
                             <Text fontSize="3xl" fontWeight="extrabold" color="green.600" mb={1}>₹{t.fee_rec}</Text>
-                            <Text fontSize="sm" color="gray.500" fontWeight="medium">{new Date(t.date).toLocaleDateString()}</Text>
+                            <Text fontSize="sm" color="gray.500" fontWeight="medium">{new Date(t.date).toLocaleDateString('en-IN')}</Text>
                             <Badge colorScheme="green" mt={3} px={3} py={1} rounded="full">Amount Paid</Badge>
                           </Box>
                         ))}
@@ -240,7 +240,7 @@ const LegacyRecordDrawer = observer(({ isOpen, onClose }: LegacyRecordDrawerProp
                         {record.workFees?.map((f: any, idx: number) => (
                           <Box key={idx} p={6} bg="white" border="1px" borderColor="orange.100" rounded="2xl" shadow="sm" _hover={{ shadow: 'md', borderColor: 'orange.300' }} transition="all 0.2s">
                             <HStack justify="space-between" mb={4}>
-                              <Text fontSize="sm" fontWeight="bold" color="gray.500">Date: {new Date(f.wrk_date).toLocaleDateString()}</Text>
+                              <Text fontSize="sm" fontWeight="bold" color="gray.500">Date: {new Date(f.wrk_date).toLocaleDateString('en-IN')}</Text>
                               <Badge colorScheme="orange" px={2} py={1} rounded="md">Fee Record</Badge>
                             </HStack>
                             <HStack spacing={8} divider={<Divider orientation="vertical" h="10" />}>

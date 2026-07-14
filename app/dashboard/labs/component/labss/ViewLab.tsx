@@ -85,7 +85,7 @@ const ViewLab = ({ data }: { data: any }) => {
               {data.isActive ? "Active" : "Inactive"}
             </Badge>
             <Text fontSize="sm" color="gray.400">
-              Created: {new Date(data.createdAt).toLocaleDateString()}
+              Created: {new Date(data.createdAt).toLocaleDateString('en-IN')}
             </Text>
           </HStack>
         </Box>
