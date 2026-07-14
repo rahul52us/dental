@@ -29,6 +29,7 @@ import {
   useToast,
   VStack,
   HStack,
+  Input,
 } from "@chakra-ui/react";
 import { FiUpload } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
@@ -78,6 +79,27 @@ const ProfileDetailsModal = observer(({ user }: any) => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [isEditingCompany, setIsEditingCompany] = useState(false);
+  const [companyName, setCompanyName] = useState(user?.companyDetails?.company_name || user?.companyDetail?.company_name || "");
+  const [isSavingCompany, setIsSavingCompany] = useState(false);
+
+  const handleUpdateCompanyName = async () => {
+    if (!companyName.trim()) {
+      toast({ title: "Error", description: "Company name cannot be empty", status: "error" });
+      return;
+    }
+    setIsSavingCompany(true);
+    try {
+      await stores.companyStore.updateCompanyName({ newCompanyName: companyName });
+      await stores.auth.fetchUser();
+      setIsEditingCompany(false);
+      toast({ title: "Success", description: "Company name updated successfully", status: "success", isClosable: true, position: "top-right", duration: 3000 });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to update company name", status: "error", isClosable: true, position: "top-right", duration: 3000 });
+    } finally {
+      setIsSavingCompany(false);
+    }
+  };
 
   // We no longer need to fetch company details separately since it's populated in the me API
   const companyLogo = user?.companyDetails?.logo || user?.companyDetail?.logo;
@@ -408,11 +430,39 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                         value={code}
                         icon={InfoIcon}
                       />
-                      <DetailItem
-                        label="Company"
-                        value={companyDetails?.company_name}
-                        icon={CheckCircleIcon}
-                      />
+                      {user?.role === "admin" ? (
+                        <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                          <Flex align="center" justify="space-between" mb={1}>
+                            <Flex align="center">
+                              <Icon as={CheckCircleIcon} color="blue.500" mr={2} boxSize={3} />
+                              <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500">
+                                Company
+                              </Text>
+                            </Flex>
+                            {!isEditingCompany ? (
+                              <Button size="xs" variant="ghost" colorScheme="blue" onClick={() => setIsEditingCompany(true)}>Edit</Button>
+                            ) : (
+                              <HStack spacing={1}>
+                                <Button size="xs" colorScheme="green" isLoading={isSavingCompany} onClick={handleUpdateCompanyName}>Save</Button>
+                                <Button size="xs" variant="ghost" onClick={() => { setIsEditingCompany(false); setCompanyName(user?.companyDetails?.company_name || user?.companyDetail?.company_name || ""); }}>Cancel</Button>
+                              </HStack>
+                            )}
+                          </Flex>
+                          {!isEditingCompany ? (
+                            <Text fontSize="md" fontWeight="medium" color="gray.700">
+                              {user?.companyDetails?.company_name || user?.companyDetail?.company_name || "-"}
+                            </Text>
+                          ) : (
+                            <Input size="sm" value={companyName} onChange={(e) => setCompanyName(e.target.value)} bg="white" />
+                          )}
+                        </Box>
+                      ) : (
+                        <DetailItem
+                          label="Company"
+                          value={companyDetails?.company_name}
+                          icon={CheckCircleIcon}
+                        />
+                      )}
                       <DetailItem
                         label="User Type"
                         value={user.userType}

@@ -74,6 +74,21 @@ class CompanyStores {
     }
   };
 
+  updateCompanyName = async (payload: { newCompanyName: string }) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.put("/company/updateName", {
+        ...payload,
+        companyId: authStore.company
+      });
+      return response.data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   getPageContent = (name : string) => {
     if(Object.keys(this.companyDetails || {}).length){
       const dt = this.companyDetails.details?.filter((it : any) => it.name === name)

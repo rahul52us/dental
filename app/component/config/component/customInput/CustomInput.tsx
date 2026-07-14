@@ -161,18 +161,22 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
 
   useEffect(() => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const defaultLabel = value.name || value.username ? `${value.name || value.username}${value.mobileNumber ? ` (${value.mobileNumber})` : ""}` : (value.labDoctorName || 'Selected');
       const option = {
-        label: value.label || value.name || value.username || value.labDoctorName || 'Selected',
+        label: value.label || defaultLabel,
         value: value.value || value._id || value
       };
       if (!userOptions.find(opt => opt.value === option.value)) {
         setUserOptions(prev => [...prev, option]);
       }
     } else if (Array.isArray(value) && isMulti) {
-      const newOpts = value.map(it => ({
-        label: it.label || it.name || it.username || it.labDoctorName || 'Selected',
-        value: it.value || it._id || it
-      })).filter(it => !userOptions.find(opt => opt.value === it.value));
+      const newOpts = value.map(it => {
+        const defaultLabel = it.name || it.username ? `${it.name || it.username}${it.mobileNumber ? ` (${it.mobileNumber})` : ""}` : (it.labDoctorName || 'Selected');
+        return {
+          label: it.label || defaultLabel,
+          value: it.value || it._id || it
+        };
+      }).filter(it => !userOptions.find(opt => opt.value === it.value));
       if (newOpts.length > 0) {
         setUserOptions(prev => [...prev, ...newOpts]);
       }
@@ -200,7 +204,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
 
           setUserOptions(
             response.map((it: any) => ({
-              label: `${it.user.username}`,
+              label: `${it.user.name || it.user.username}${it.user.mobileNumber ? ` (${it.user.mobileNumber})` : ""}`,
               value: it.user._id,
               ...it.user,
             }))
@@ -714,6 +718,7 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
                   : userOptions.find((opt: any) => opt?.value === (value?.value || value?._id || value)) || value || null
             }
             onChange={(selectedOption: any) => {
+              setSearchInput("");
               if (isMulti) {
                 // Always store an array of objects [{label, value}]
                 if (onChange) {
@@ -728,7 +733,11 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             }}
             inputValue={searchInput}
             onInputChange={(input, { action }) => {
-              if (action === "input-change") setSearchInput(input);
+              if (action === "input-change") {
+                setSearchInput(input);
+              } else if (action === "set-value" || action === "menu-close") {
+                setSearchInput("");
+              }
             }}
             placeholder={placeholder}
             isClearable={!!isClear}
