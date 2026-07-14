@@ -14,6 +14,10 @@ const HeaderLogo = observer(() => {
     layout: { fullScreenMode, openDashSidebarFun, isCallapse },
   } = stores;
 
+  const hoverColor = useColorModeValue("brand.500", "brand.200");
+  const hoverBg = useColorModeValue("brand.50", "gray.700");
+  const activeBg = useColorModeValue("brand.100", "gray.800");
+
   return (
     <Flex width="100%" alignItems="center" justifyContent={{ base: "flex-start", md: "space-between" }} display="flex" ml={{ base: 0, md: 2 }}>
       <Flex alignItems="center">
@@ -24,8 +28,8 @@ const HeaderLogo = observer(() => {
               aria-label="Arrow"
               fontSize="2xl"
               color="white"
-              _hover={{ color: useColorModeValue("brand.500", "brand.200"), bg: useColorModeValue("brand.50", "gray.700") }}
-              _active={{ bg: useColorModeValue("brand.100", "gray.800") }}
+              _hover={{ color: hoverColor, bg: hoverBg }}
+              _active={{ bg: activeBg }}
               icon={
                 isCallapse ? (
                   <BiRightArrowAlt fontSize={25} />

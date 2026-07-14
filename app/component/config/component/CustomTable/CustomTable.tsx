@@ -323,6 +323,10 @@ const CustomTable: React.FC<CustomTableProps> = ({
 
   const boxBorder = useColorModeValue("brand.200", "darkBrand.200");
   const mainBox = useColorModeValue("white", "gray.900");
+  const searchBg = useColorModeValue("gray.50", "gray.800");
+  const searchBorder = useColorModeValue("gray.200", "gray.600");
+  const searchHoverBg = useColorModeValue("white", "gray.700");
+  const searchFocusBg = useColorModeValue("white", "gray.800");
   const { t } = useTranslation();
 
   return (
@@ -383,12 +387,12 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 value={actions?.search?.searchValue}
                 onChange={actions?.search?.onSearchChange}
                 borderRadius="full"
-                bg={useColorModeValue("gray.50", "gray.800")}
+                bg={searchBg}
                 border="1px solid"
-                borderColor={useColorModeValue("gray.200", "gray.600")}
-                _hover={{ borderColor: "blue.300", bg: useColorModeValue("white", "gray.700") }}
+                borderColor={searchBorder}
+                _hover={{ borderColor: "blue.300", bg: searchHoverBg }}
                 _focus={{ 
-                  bg: useColorModeValue("white", "gray.800"),
+                  bg: searchFocusBg,
                   borderColor: "blue.500", 
                   boxShadow: "0 0 0 1px #3182ce" 
                 }}

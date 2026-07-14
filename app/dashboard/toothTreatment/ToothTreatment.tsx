@@ -616,7 +616,8 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
       PLANNED: "gray",
     };
     const color = statusColors[dt.status?.toUpperCase()] || "gray";
-    const toothValue = (typeof dt.tooth === 'object' && dt.tooth !== null) ? (dt.tooth.fdi || dt.tooth.id || "") : dt.tooth;
+    const displayToothFDI = typeof dt.toothFDI === 'object' && dt.toothFDI !== null ? (dt.toothFDI.fdi || dt.toothFDI.fd1 || dt.toothFDI.universal || "") : dt.toothFDI;
+    const toothValue = (typeof dt.tooth === 'object' && dt.tooth !== null) ? (dt.tooth.fdi || dt.tooth.fd1 || dt.tooth.id1 || dt.tooth.id || dt.tooth.universal || "") : dt.tooth;
 
     const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
       if (!toothId || toothId === "General") {
@@ -642,7 +643,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
     };
 
     const { line1, line2 } = getToothNameParts(
-      dt.toothFDI || toothValue,
+      displayToothFDI || toothValue,
       dt.position,
       dt.side
     );
@@ -676,7 +677,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
             _hover={{ bg: "blue.100", borderColor: "blue.400" }}
           >
             <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
-              {dt.toothFDI === "General" || toothValue === "General" ? "GEN" : (dt.toothFDI || toothValue || "??")}
+              {displayToothFDI === "General" || toothValue === "General" ? "GEN" : (displayToothFDI || toothValue || "??")}
             </Text>
             <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1} textTransform="uppercase" textAlign="center">
               {line1}

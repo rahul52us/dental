@@ -134,7 +134,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
       return { line1: line1 || "GENERAL", line2: "" };
     }
-    const idStr = String(toothId).trim();
+    const extractedToothId = typeof toothId === 'object' && toothId !== null ? (toothId as any).id1 || (toothId as any).universal || "" : toothId;
+    const idStr = String(extractedToothId).trim();
     const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
     if (!tooth) {
       const line1 = `${fallbackSide || ""} ${fallbackPosition || ""}`.trim().toUpperCase();
@@ -154,7 +155,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
   const getToothName = (toothId: string) => {
     if (!toothId) return "";
-    const idStr = String(toothId).trim();
+    const extractedToothId = typeof toothId === 'object' && toothId !== null ? (toothId as any).id1 || (toothId as any).universal || "" : toothId;
+    const idStr = String(extractedToothId).trim();
     const tooth = adultTeeth.find(t => t.id === idStr) || childTeeth.find(t => t.id === idStr);
     return tooth ? tooth.name : "";
   };
@@ -341,6 +343,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       metaData: {
         component: (dt: any) => {
           const toothId = dt.tooth || dt.treatment?.tooth;
+          const displayToothId = typeof toothId === 'object' && toothId !== null ? toothId.id1 || toothId.universal || "" : toothId;
           const { line1, line2 } = getToothNameParts(
             toothId,
             dt.position || dt.treatment?.position,
@@ -349,7 +352,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           return (
             <Box textAlign="center">
               <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2}>
-                {toothId || "GEN"}
+                {displayToothId || "GEN"}
               </Badge>
               <Text fontSize="xs" color="gray.500" mt={1}>
                 {line1}

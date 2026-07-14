@@ -650,7 +650,8 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                     // If there is data (editing/view plan mode), show standard linear layout
                     const doctorName = values.doctor?.label || values.doctor || data.doctor?.name || (typeof data.doctor === 'string' ? data.doctor : "N/A");
                     const examDrName = values.examiningDoctor?.label || values.examiningDoctor || data.examiningDoctor?.name || (typeof data.examiningDoctor === 'string' ? data.examiningDoctor : "N/A");
-                    const toothVal = values.tooth || data.tooth || data.toothNo || "GENERAL";
+                    const rawToothVal = values.tooth || data.tooth || data.toothNo || "GENERAL";
+                    const toothVal = typeof rawToothVal === 'object' && rawToothVal !== null ? (rawToothVal.fdi || rawToothVal.fd1 || rawToothVal.id1 || rawToothVal.id || rawToothVal.universal || "GENERAL") : rawToothVal;
                     const estimate = values.amount || data.estimateMin || data.amount || 0;
                     const received = data.receivedAmount || 0;
 
