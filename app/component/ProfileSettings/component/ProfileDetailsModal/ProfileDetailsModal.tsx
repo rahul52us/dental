@@ -30,6 +30,7 @@ import {
   VStack,
   HStack,
   Input,
+  Image,
 } from "@chakra-ui/react";
 import { FiUpload } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
@@ -474,6 +475,29 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                         icon={CalendarIcon}
                       />
                     </SimpleGrid>
+                  </Box>
+
+                  <Divider />
+                  {/* Payment Section */}
+                  <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                    <Flex align="center" justify="space-between" mb={4}>
+                      <Box>
+                        <Text fontWeight="bold">Make a Payment</Text>
+                        <Text fontSize="sm" color="gray.500">Scan this QR code or use the details below to make a payment</Text>
+                      </Box>
+                    </Flex>
+                    <Box textAlign="center">
+                      <Image 
+                        src="/images/payment-ss.png" 
+                        alt="Payment Details" 
+                        maxW={{ base: "100%", md: "400px" }} 
+                        mx="auto" 
+                        borderRadius="md" 
+                        border="1px solid"
+                        borderColor="gray.200"
+                        boxShadow="sm"
+                      />
+                    </Box>
                   </Box>
                 </VStack>
               </TabPanel>

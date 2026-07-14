@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Box, Flex, Text, Heading, Badge, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, Text, Heading, Badge, useColorModeValue, Tooltip } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { usePathname } from 'next/navigation';
@@ -70,14 +70,26 @@ const AdvertisementBanner = observer(() => {
                     <Badge colorScheme="purple" variant="subtle" borderRadius="md" px={3} py={1} fontSize="xs">
                       PRO PLAN
                     </Badge>
-                    <Text fontSize="sm" color="gray.500" fontWeight="600">
-                      Valid until <Text as="span" color="gray.700" fontWeight="bold">{new Date(user.companyDetails.subscriptionEndDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text> 
-                      <Text as="span" color={
-                        Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) > 7 ? "green.500" : "red.500"
-                      } ml={2} display={{ base: "block", md: "inline" }} mt={{ base: 1, md: 0 }}>
-                        ({Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining)
+                    <Tooltip 
+                      label="Renew your plan from Profile Settings to extend your subscription validity and continue enjoying uninterrupted access." 
+                      placement="bottom-start" 
+                      hasArrow 
+                      bg="blue.500"
+                      color="white"
+                      px={3}
+                      py={2}
+                      borderRadius="md"
+                      fontSize="xs"
+                    >
+                      <Text fontSize="sm" color="gray.500" fontWeight="600" cursor="help">
+                        Valid until <Text as="span" color="gray.700" fontWeight="bold">{new Date(user.companyDetails.subscriptionEndDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text> 
+                        <Text as="span" color={
+                          Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) > 7 ? "green.500" : "red.500"
+                        } ml={2} display={{ base: "block", md: "inline" }} mt={{ base: 1, md: 0 }}>
+                          ({Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining)
+                        </Text>
                       </Text>
-                    </Text>
+                    </Tooltip>
                   </Flex>
                 )}
               </Box>
