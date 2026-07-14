@@ -11,6 +11,7 @@ import {
     HStack,
     Tooltip,
     useColorModeValue,
+    useColorMode,
     Spinner,
     Center,
     Divider,
@@ -113,6 +114,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     };
 
     const [openMedicalHistory, setOpenMedicalHistory] = useState({ open: false, data: null as any });
+    const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
+    const { colorMode } = useColorMode();
 
     const fetchArrivedAppointments = async () => {
         setLoading(true);
@@ -168,7 +171,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             <Center py={32} flexDir="column" textAlign="center">
                 <Box
                     p={8}
-                    bg={useColorModeValue("blue.50", "whiteAlpha.50")}
+                    bg={colorMode === 'light' ? "blue.50" : "whiteAlpha.50"}
                     borderRadius="3xl"
                     mb={6}
                     position="relative"
@@ -229,8 +232,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     const balancePendingAmount = patient?.patientPendingBalance;
                     const totalBalanceAmount = patient?.totalBill
                     // Silk & Chair Color Aesthetics
-                    const silkBg = useColorModeValue(`${chairColor}11`, `${chairColor}15`); // Very soft silk tint
-                    const borderHover = useColorModeValue(`${chairColor}44`, `${chairColor}66`);
+                    const silkBg = colorMode === 'light' ? `${chairColor}11` : `${chairColor}15`; 
+                    const borderHover = colorMode === 'light' ? `${chairColor}44` : `${chairColor}66`;
 
                     const history = personalInfo?.medicalHistory;
                     let hasAlert = false;
@@ -261,10 +264,10 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             boxShadow={softShadow}
                             transition="all 0.5s cubic-bezier(0.19, 1, 0.22, 1)"
                             _hover={{
-                                boxShadow: useColorModeValue(`0 35px 70px -15px ${chairColor}33`, `0 45px 90px -20px black`),
+                                boxShadow: colorMode === 'light' ? `0 35px 70px -15px ${chairColor}33` : `0 45px 90px -20px black`,
                                 transform: "translateY(-12px)",
                                 borderColor: borderHover,
-                                bg: useColorModeValue(`${chairColor}15`, `${chairColor}22`) // Subtle lift on hover
+                                bg: colorMode === 'light' ? `${chairColor}15` : `${chairColor}22` // Subtle lift on hover
                             }}
                             position="relative"
                             overflow="hidden"
@@ -415,14 +418,14 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
                                     {/* Glass Content Panel */}
                                     <Box
-                                        bg={useColorModeValue("whiteAlpha.700", "whiteAlpha.100")}
+                                        bg={colorMode === 'light' ? "whiteAlpha.700" : "whiteAlpha.100"}
                                         p={4}
                                         borderRadius="2xl"
                                         borderLeft="4px solid"
                                         borderLeftColor={chairColor}
                                         backdropFilter="blur(8px)"
                                         borderWidth="1px"
-                                        borderColor={useColorModeValue("whiteAlpha.500", "whiteAlpha.100")}
+                                        borderColor={colorMode === 'light' ? "whiteAlpha.500" : "whiteAlpha.100"}
                                         boxShadow="sm"
                                         w="100%"
                                     >
@@ -436,18 +439,18 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             p={2.5}
                                             borderRadius="xl"
                                             w="100%"
-                                            bg={useColorModeValue(
-                                                balancePendingAmount > 0 ? "red.50" : "green.50",
-                                                balancePendingAmount > 0 ? "rgba(254,178,178,0.08)" : "rgba(154,230,180,0.08)"
-                                            )}
+                                            bg={colorMode === 'light' 
+                                                ? (balancePendingAmount > 0 ? "red.50" : "green.50")
+                                                : (balancePendingAmount > 0 ? "rgba(254,178,178,0.08)" : "rgba(154,230,180,0.08)")
+                                            }
                                             border="1px solid"
-                                            borderColor={useColorModeValue(
-                                                balancePendingAmount > 0 ? "red.100" : "green.100",
-                                                balancePendingAmount > 0 ? "red.800" : "green.800"
-                                            )}
+                                            borderColor={colorMode === 'light'
+                                                ? (balancePendingAmount > 0 ? "red.100" : "green.100")
+                                                : (balancePendingAmount > 0 ? "red.800" : "green.800")
+                                            }
                                         >
                                                 <HStack justify="space-between" mb={1.5}>
-                                                    <Text fontSize="10px" fontWeight="700" textTransform="uppercase" letterSpacing="0.05em" color={useColorModeValue("gray.500", "gray.400")}>
+                                                    <Text fontSize="10px" fontWeight="700" textTransform="uppercase" letterSpacing="0.05em" color={colorMode === 'light' ? "gray.500" : "gray.400"}>
                                                         💰 Account Summary
                                                     </Text>
                                                     {balancePendingAmount > 0 ? (
@@ -478,25 +481,25 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                 </HStack>
                                                 <HStack justify="space-between" spacing={3}>
                                                     <VStack spacing={0} align="start">
-                                                        <Text fontSize="9px" color={useColorModeValue("gray.400", "gray.500")} fontWeight="600">Total Bill</Text>
-                                                        <Text fontSize="13px" fontWeight="800" color={useColorModeValue("gray.700", "gray.200")}>
+                                                        <Text fontSize="9px" color={colorMode === 'light' ? "gray.400" : "gray.500"} fontWeight="600">Total Bill</Text>
+                                                        <Text fontSize="13px" fontWeight="800" color={colorMode === 'light' ? "gray.700" : "gray.200"}>
                                                             ₹{totalBalanceAmount?.toLocaleString("en-IN") || 0}
                                                         </Text>
                                                     </VStack>
                                                     <VStack spacing={0} align="center">
-                                                        <Text fontSize="9px" color={useColorModeValue("gray.400", "gray.500")} fontWeight="600">Received</Text>
-                                                        <Text fontSize="13px" fontWeight="800" color={useColorModeValue("blue.600", "blue.300")}>
+                                                        <Text fontSize="9px" color={colorMode === 'light' ? "gray.400" : "gray.500"} fontWeight="600">Received</Text>
+                                                        <Text fontSize="13px" fontWeight="800" color={colorMode === 'light' ? "blue.600" : "blue.300"}>
                                                             ₹{(totalBalanceAmount - balancePendingAmount)?.toLocaleString("en-IN") || 0}
                                                         </Text>
                                                     </VStack>
                                                     <VStack spacing={0} align="end">
-                                                        <Text fontSize="9px" color={useColorModeValue("gray.400", "gray.500")} fontWeight="600">Outstanding</Text>
+                                                        <Text fontSize="9px" color={colorMode === 'light' ? "gray.400" : "gray.500"} fontWeight="600">Outstanding</Text>
                                                         <Text
                                                             fontSize="13px"
                                                             fontWeight="900"
                                                             color={balancePendingAmount > 0
-                                                                ? useColorModeValue("red.600", "red.300")
-                                                                : useColorModeValue("green.600", "green.300")
+                                                                ? (colorMode === 'light' ? "red.600" : "red.300")
+                                                                : (colorMode === 'light' ? "green.600" : "green.300")
                                                             }
                                                         >
                                                             ₹{balancePendingAmount?.toLocaleString("en-IN") || 0}
@@ -722,6 +725,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             borderRadius="xl"
                                             fontSize="xs"
                                             fontWeight="800"
+                                            position="relative"
                                             boxShadow="0 4px 12px rgba(229, 62, 62, 0.25)"
                                             _hover={{
                                                 bgGradient: "linear(to-r, red.500, red.700)",
@@ -734,6 +738,23 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             }}
                                         >
                                             In-House Lab
+                                            {patient?.pendingInHouseLabCount > 0 && (
+                                                <Badge
+                                                    position="absolute"
+                                                    top="-2px"
+                                                    right="-2px"
+                                                    colorScheme="red"
+                                                    variant="solid"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                    py={0.5}
+                                                    fontSize="9px"
+                                                    transform="translate(25%, -25%)"
+                                                    boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                                >
+                                                    {patient.pendingInHouseLabCount}
+                                                </Badge>
+                                            )}
                                         </Button>
                                     )}
                                 </SimpleGrid>
@@ -919,9 +940,9 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             </Text>
                         </Box>
 
-                        <AlertDialogBody py={8} px={8} fontWeight="700" color="gray.600" bg={useColorModeValue("white", "gray.800")}>
+                        <AlertDialogBody py={8} px={8} fontWeight="700" color="gray.600" bg={colorMode === 'light' ? "white" : "gray.800"}>
                             <VStack align="start" spacing={3}>
-                                <Text fontSize="md" color={useColorModeValue("gray.800", "white")}>
+                                <Text fontSize="md" color={colorMode === 'light' ? "gray.800" : "white"}>
                                     Are you ready to mark this visit as finished?
                                 </Text>
                                 <Text fontSize="sm" fontWeight="500" color="gray.500">
@@ -930,7 +951,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             </VStack>
                         </AlertDialogBody>
 
-                        <AlertDialogFooter px={8} py={6} gap={3} bg={useColorModeValue("gray.50", "gray.900/50")} borderTopWidth="1px" borderColor={borderColor}>
+                        <AlertDialogFooter px={8} py={6} gap={3} bg={colorMode === 'light' ? "gray.50" : "gray.900/50"} borderTopWidth="1px" borderColor={borderColor}>
                             <Button
                                 ref={cancelRef}
                                 onClick={() => setOpenConfirm({ open: false, id: "" })}

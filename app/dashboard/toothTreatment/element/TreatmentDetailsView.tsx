@@ -149,6 +149,9 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   const toothObj = allTeeth.find(t => t.id === tooth);
 
   const toothDisplayNumber = (() => {
+    if (typeof tooth === "object" && tooth !== null) {
+      return tooth[notation] || tooth.fdi || "--";
+    }
     if (!toothObj) return tooth || "--";
     if (notation === "universal") return toothObj.universal;
     if (notation === "palmer") return toothObj.palmer;

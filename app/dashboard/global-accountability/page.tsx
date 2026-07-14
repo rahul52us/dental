@@ -625,7 +625,7 @@ const GlobalAccountabilityPage = observer(() => {
       </Box>
 
       {/* Premium Summary Section */}
-      <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4} mb={4}>
+      <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4} mb={4}>
         {/* BILLED */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
@@ -647,14 +647,14 @@ const GlobalAccountabilityPage = observer(() => {
         </Box>
 
         {/* PERIOD RECEIVED */}
-        <Box bgGradient="linear(to-br, blue.500, blue.600)" p={4} borderRadius="2xl" boxShadow="lg" borderWidth="0px" position="relative" overflow="hidden">
+        {/* <Box bgGradient="linear(to-br, blue.500, blue.600)" p={4} borderRadius="2xl" boxShadow="lg" borderWidth="0px" position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
             <Text fontSize="sm" color="whiteAlpha.900" fontWeight="900" textTransform="uppercase" letterSpacing="wide">PERIOD RECEIVED</Text>
             <Box p={1.5} bg="whiteAlpha.200" borderRadius="md"><Icon as={FiCheckCircle} color="white" boxSize={4} /></Box>
           </HStack>
           <Text fontSize="2xl" fontWeight="900" color="white" position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.1}><Icon as={FiCheckCircle} boxSize={20} color="white" /></Box>
-        </Box>
+        </Box> */}
 
         {/* DUE */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">

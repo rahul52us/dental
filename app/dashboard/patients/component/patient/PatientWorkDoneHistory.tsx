@@ -75,9 +75,11 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
               >
                 <option value="all">All Treatments</option>
                 {treatments.map((t: any) => {
+                  const toothStr = (typeof t.tooth === 'object' && t.tooth !== null) ? (t.tooth.fdi || t.tooth.id || "") : (t.toothFDI || t.tooth);
+                  const notationStr = (t.toothNotation || 'FDI').toUpperCase();
                   return (
                     <option key={t._id} value={t._id}>
-                      {t.treatmentPlan} ({t.tooth} {t.toothNotation.toUpperCase()})
+                      {t.treatmentPlan} {toothStr && toothStr !== "General" ? `(${toothStr} ${notationStr})` : ''}
                     </option>
                   )
                 })}

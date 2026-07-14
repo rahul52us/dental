@@ -87,7 +87,16 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const { isOpen: isReportOpen, onOpen: onReportOpen, onClose: onReportClose } = useDisclosure();
   const [selectedLabWork, setSelectedLabWork] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState(defaultWorkType === "in-house" ? 1 : (defaultWorkType === "outside" ? 2 : 0));
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => {
+    if (isDrawer) {
+      return defaultWorkType === "in-house" ? 1 : (defaultWorkType === "outside" ? 2 : 0);
+    }
+    const type = searchParams.get("type");
+    if (type === "in-house") return 1;
+    if (type === "outside") return 2;
+    return 0;
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [fromDate, setFromDate] = useState("");
@@ -97,7 +106,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const [doctorSearch, setDoctorSearch] = useState("");
   const debouncedDoctorSearch = useDebounce(doctorSearch, 1000);
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
-  const searchParams = useSearchParams();
+
   const toast = stores.auth.openNotification;
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -539,6 +548,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       { label: "All Statuses", value: "all" },
                       ...labWorkStatusStore.statuses
                         .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
+                        .sort((a: any, b: any) => a.status.localeCompare(b.status))
                         .map((s: any) => ({ label: s.status, value: s.status }))
                     ]}
                     value={{ label: statusFilter === "all" ? "All Statuses" : statusFilter, value: statusFilter }}
@@ -779,6 +789,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       isMulti
                       options={(labWorkStatusStore.statuses || [])
                         .filter((s: any) => reportFilters.workType === "all" || s.type === reportFilters.workType)
+                        .sort((a: any, b: any) => a.status.localeCompare(b.status))
                         .map((s: any) => ({
                           label: s.status,
                           value: s.status,
@@ -787,6 +798,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         reportFilters.status === "all"
                           ? (labWorkStatusStore.statuses || [])
                               .filter((s: any) => reportFilters.workType === "all" || s.type === reportFilters.workType)
+                              .sort((a: any, b: any) => a.status.localeCompare(b.status))
                               .map((s: any) => ({ label: s.status, value: s.status }))
                           : Array.isArray(reportFilters.status)
                           ? reportFilters.status.map((s: string) => ({ label: s, value: s }))
