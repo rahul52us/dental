@@ -14,8 +14,10 @@
 }
 
 .pagination a {
-  padding: 6px 12px;
-  line-height: 28px;
+  padding: 4px 10px;
+  line-height: 24px;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
 .paginationItem {
@@ -40,9 +42,12 @@
   }
 }
 
-.paginationActive {
-  color: #38B2AC !important;
+.paginationActive a {
+  background-color: #38B2AC;
+  color: white !important;
   font-weight: bold !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(56, 178, 172, 0.4);
 }
 
 .paginationDisabled {

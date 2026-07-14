@@ -403,7 +403,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   return (
     <>
-      <Box p={4}>
+      <Box p={{ base: 2, md: 4 }}>
         <CustomTable
           title="Patients"
           data={

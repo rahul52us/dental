@@ -341,9 +341,11 @@ const CustomTable: React.FC<CustomTableProps> = ({
         justifyContent="space-between"
         alignItems="center"
         p={title ? 3 : 0}
+        flexWrap="wrap"
+        gap={3}
       >
         {(title || subTitle) && (
-          <Flex direction="column" gap={1}>
+          <Flex direction="column" gap={1} order={{ base: 1, md: 1 }}>
             {title && (
               <Heading
                 color={titleColor}
@@ -373,12 +375,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </Flex>
         )}
 
-        <Flex alignItems="center" columnGap={2} ml="auto">
-          {actions?.customComponent && (
-            <Box>{actions.customComponent}</Box>
-          )}
-          {!isMobile && actions?.search && actions?.search?.show && (
-            <InputGroup maxW="20rem" size="md">
+        {actions?.search && actions?.search?.show && (
+          <Box w={{ base: "100%", md: "20rem" }} order={{ base: 3, md: 2 }} flex={{ base: "1 1 100%", md: "none" }} ml={{ base: 0, md: "auto" }}>
+            <InputGroup size="md" w="100%">
               <InputLeftElement pointerEvents="none" h="100%">
                 <Icon as={FiSearch} color="gray.400" boxSize={4} />
               </InputLeftElement>
@@ -419,6 +418,17 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 </InputRightElement>
               )}
             </InputGroup>
+          </Box>
+        )}
+
+        <Flex 
+          alignItems="center" 
+          columnGap={2} 
+          order={{ base: 2, md: 3 }}
+          ml={{ base: "auto", md: 0 }}
+        >
+          {actions?.customComponent && (
+            <Box>{actions.customComponent}</Box>
           )}
           {actions?.datePicker?.show && actions?.datePicker?.date && (
             <Box display={isMobile ? "none" : undefined}>
@@ -592,7 +602,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         minH={"65vh"}
         maxH={"65vh"}
         rounded={2}
-        px={2}
+        px={{ base: 0, md: 2 }}
         {...tableProps.tableBox}
       >
         <Table
@@ -683,18 +693,20 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </TableLoader>
         </Table>
       </Box>
-      {actions?.pagination?.show && (
-        <Pagination
-          currentPage={actions?.pagination?.currentPage || 1}
-          onPageChange={(e) => {
-            if (actions?.pagination?.onClick) {
-              actions?.pagination?.onClick(e);
-            }
-          }}
-          totalPages={actions?.pagination?.totalPages || 1}
-          props={{ style: { marginTop: "15px" } }}
-        />
-      )}
+      <Box px={{ base: 2, md: 0 }} pb={{ base: 2, md: 0 }}>
+        {actions?.pagination?.show && (
+          <Pagination
+            currentPage={actions?.pagination?.currentPage || 1}
+            onPageChange={(e) => {
+              if (actions?.pagination?.onClick) {
+                actions?.pagination?.onClick(e);
+              }
+            }}
+            totalPages={actions?.pagination?.totalPages || 1}
+            props={{ style: { marginTop: "15px" } }}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

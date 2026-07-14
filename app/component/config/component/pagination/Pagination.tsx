@@ -1,6 +1,6 @@
 'use client'
 import ReactPaginate from "react-paginate";
-import { Box, Flex, IconButton, useColorMode } from "@chakra-ui/react";
+import { Box, Flex, IconButton, useColorMode, useBreakpointValue } from "@chakra-ui/react";
 import { MdFirstPage, MdLastPage, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import "./pagination.css";
 
@@ -18,6 +18,7 @@ const Pagination = ({
   props,
 }: PaginationProps) => {
   const { colorMode } = useColorMode();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const handlePageChange = (selectedItem: { selected: number }) => {
     onPageChange(selectedItem.selected + 1);
@@ -34,11 +35,15 @@ const Pagination = ({
       <Flex alignItems="center" gridColumnGap="5px">
         <IconButton
           aria-label="First page"
-          icon={<MdFirstPage />}
+          icon={<MdFirstPage size={20} />}
           onClick={() => onPageChange(1)}
           isDisabled={currentPage === 1}
-          color={colorMode === "light" ? "gray.700" : "whiteAlpha.700"}
-          _disabled={{ color: colorMode === "light" ? "gray.700" : "whiteAlpha.700" }}
+          color={colorMode === "light" ? "gray.600" : "whiteAlpha.700"}
+          variant="ghost"
+          size="sm"
+          _hover={{ bg: "teal.50", color: "teal.600" }}
+          _disabled={{ color: colorMode === "light" ? "gray.400" : "whiteAlpha.400", bg: "transparent" }}
+          display={{ base: "none", md: "flex" }}
         />
         <ReactPaginate
           previousLabel={<MdNavigateBefore />}
@@ -54,16 +59,20 @@ const Pagination = ({
           activeClassName="paginationActive"
           pageClassName="paginationItem"
           pageLinkClassName="paginationLink"
-          pageRangeDisplayed={5} // Show 5 pages at a time
+          pageRangeDisplayed={isMobile ? 1 : 5}
           marginPagesDisplayed={1}
         />
         <IconButton
           aria-label="Last page"
-          icon={<MdLastPage />}
+          icon={<MdLastPage size={20} />}
           onClick={() => onPageChange(totalPages)}
           isDisabled={currentPage === totalPages}
-          color={colorMode === "light" ? "gray.700" : "whiteAlpha.700"}
-          _disabled={{ color: colorMode === "light" ? "gray.700" : "whiteAlpha.700" }}
+          color={colorMode === "light" ? "gray.600" : "whiteAlpha.700"}
+          variant="ghost"
+          size="sm"
+          _hover={{ bg: "teal.50", color: "teal.600" }}
+          _disabled={{ color: colorMode === "light" ? "gray.400" : "whiteAlpha.400", bg: "transparent" }}
+          display={{ base: "none", md: "flex" }}
         />
       </Flex>
     </Box>

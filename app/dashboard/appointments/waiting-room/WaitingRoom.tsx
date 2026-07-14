@@ -15,6 +15,21 @@ const WaitingRoomPage = observer((): any => {
     } = stores;
 
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [currentAdIndex, setCurrentAdIndex] = useState(0);
+    const ads = stores.advertisementStore.activeAdvertisements?.data || [];
+
+    React.useEffect(() => {
+        stores.advertisementStore.getActiveAdvertisements();
+    }, []);
+
+    React.useEffect(() => {
+        if (ads.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentAdIndex((prev) => (prev + 1) % ads.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [ads.length]);
 
     const goToPreviousDate = () => {
         setSelectedDate((prev: any) => moment(prev).subtract(1, "day").toDate());
@@ -92,59 +107,73 @@ const WaitingRoomPage = observer((): any => {
                     </VStack>
                 </HStack>
 
-                <Flex align="center" gap={4} wrap="wrap" display="none">
-                    <Button
-                        size="md"
-                        leftIcon={<RepeatIcon />}
-                        onClick={resetToToday}
-                        variant="subtle"
-                        colorScheme="blue"
-                        bg={todayBtnBg}
-                        borderRadius="2xl"
-                        fontWeight="900"
-                        fontSize="xs"
-                        px={6}
-                        height="48px"
-                        _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
-                    >
-                        {t("waitingRoom.today")}
-                    </Button>
-
-                    <HStack
-                        bg={datePillBg}
-                        p={1.5}
-                        borderRadius="2xl"
-                        spacing={0}
-                        border="1px solid"
-                        borderColor={borderColor}
-                        boxShadow="inner"
-                    >
-                        <IconButton
-                            aria-label="Previous day"
-                            icon={<ChevronLeftIcon fontSize="24px" />}
-                            onClick={goToPreviousDate}
-                            variant="ghost"
-                            size="md"
-                            borderRadius="xl"
-                        />
-
-                        <HStack px={8} spacing={4}>
-                            <Icon as={CalendarIcon} color="blue.500" boxSize={4} />
-                            <Text fontWeight="900" fontSize="md" color={useColorModeValue("gray.800", "white")} letterSpacing="-0.02em">
-                                {moment(selectedDate).format("dddd, DD MMM YYYY")}
-                            </Text>
-                        </HStack>
-
-                        <IconButton
-                            aria-label="Next day"
-                            icon={<ChevronRightIcon fontSize="24px" />}
-                            onClick={goToNextDate}
-                            variant="ghost"
-                            size="md"
-                            borderRadius="xl"
-                        />
-                    </HStack>
-                </Flex>
+                <Box
+                    w={{ base: "100%", lg: "400px", xl: "500px" }}
+                    h={{ base: "80px", md: "100px" }}
+                    borderRadius="xl"
+                    overflow="hidden"
+                    position="relative"
+                    boxShadow="inset 0 0 20px rgba(0,0,0,0.05)"
+                    bg={useColorModeValue("gray.50", "whiteAlpha.100")}
+                    border="1px solid"
+                    borderColor={borderColor}
+                >
+                    <style>
+                        {`
+                          @keyframes adMarquee {
+                            0% { transform: translateX(100%); }
+                            100% { transform: translateX(-100%); }
+                          }
+                        `}
+                    </style>
+                    {ads.length > 0 ? (
+                        <Box position="relative" w="100%" h="100%" borderRadius="xl" overflow="hidden">
+                            <Box
+                                as="img"
+                                src={ads[currentAdIndex]?.image?.url}
+                                w="100%"
+                                h="100%"
+                                objectFit="cover"
+                                transition="opacity 0.5s ease-in-out"
+                                cursor={ads[currentAdIndex]?.link ? "pointer" : "default"}
+                                onClick={() => {
+                                    if (ads[currentAdIndex]?.link) {
+                                        window.open(ads[currentAdIndex].link, "_blank");
+                                    }
+                                }}
+                            />
+                            {ads[currentAdIndex]?.title && (
+                                <Box
+                                    position="absolute"
+                                    bottom={0}
+                                    w="100%"
+                                    bgGradient="linear(to-r, rgba(49, 130, 206, 0.85), rgba(49, 151, 149, 0.85))"
+                                    color="white"
+                                    px={4}
+                                    py={1.5}
+                                    whiteSpace="nowrap"
+                                    overflow="hidden"
+                                    backdropFilter="blur(8px)"
+                                    pointerEvents="none"
+                                >
+                                    <Box
+                                        display="inline-block"
+                                        animation="adMarquee 15s linear infinite"
+                                        fontSize="sm"
+                                        fontWeight="800"
+                                        letterSpacing="wide"
+                                    >
+                                        {ads[currentAdIndex].title}
+                                    </Box>
+                                </Box>
+                            )}
+                        </Box>
+                    ) : (
+                        <Flex w="100%" h="100%" align="center" justify="center" color="gray.400" fontSize="sm">
+                            Waiting Room Console
+                        </Flex>
+                    )}
+                </Box>
             </Flex>
 
             <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2}>
