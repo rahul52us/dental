@@ -254,12 +254,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     }
   };
 
-  const handlePaymentDownload = async (recordId: string, paymentIndex: number) => {
-    setDownloadingPaymentId(`${recordId}-${paymentIndex}`);
+  const handlePaymentDownload = async (recordId: string, paymentId: string) => {
+    setDownloadingPaymentId(`${recordId}-${paymentId}`);
     try {
-      const base64 = await workDoneStore.fetchPaymentReceiptBase64(recordId, paymentIndex);
+      const base64 = await workDoneStore.fetchPaymentReceiptBase64(recordId, paymentId);
       setPreviewData(base64);
-      setPreviewFileName(`Payment_Receipt_${recordId}_Part${paymentIndex + 1}.pdf`);
+      setPreviewFileName(`Payment_Receipt_${recordId}_${paymentId}.pdf`);
       setIsPreviewOpen(true);
     } catch (err) {
       toast({ title: "Preview Error", description: "Failed to load payment receipt preview.", status: "error" });
@@ -280,10 +280,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     setIsHistoryOpen(true);
     setIsLoadingHistory(true);
     try {
-      const acc = accountabilityStore.accountabilities.data.find((a: any) =>
-        (a.workDone?._id || a.workDone) === record._id
-      );
-      setHistoryData([...(acc?.payoutHistory || [])].reverse());
+      setHistoryData([...(record?.paymentHistory || [])].reverse());
     } catch (err) {
       toast({ title: "History error", status: "error" });
     } finally {
@@ -309,9 +306,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         });
       }
 
-      await workDoneStore.updateWorkDone(selectedRecord._id, {
-        paymentAmount: paymentNow,
+      await workDoneStore.addPayment({
+        workDone: selectedRecord._id,
+        patient: selectedRecord.patient?._id || selectedRecord.patient,
+        amount: paymentNow,
         paymentMethod: receiveType,
+        date: new Date()
       });
 
       toast({ title: "Payment Recorded", status: "success" });
@@ -1232,14 +1232,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             isDisabled={downloadingPaymentId !== null}
                             onClick={async () => {
                               try {
-                                setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
-                                const realIndex = (historyData.length - 1) - i;
-                                const base64 = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, realIndex);
-                                setPreviewData(base64);
-                                setPreviewFileName(`Receipt_${selectedRecord._id}_${realIndex}.pdf`);
+                                setDownloadingPaymentId(h._id);
+                                const base64Data = await workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, h._id);
+                                setPreviewData(base64Data);
+                                setPreviewFileName(`Payment_Receipt_${selectedRecord._id}_${h._id}.pdf`);
                                 setIsPreviewOpen(true);
-                              } catch (error) {
-                                toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
+                              } catch (err: any) {
+                                toast({ title: "Preview Error", description: err.message, status: "error" });
                               } finally {
                                 setDownloadingPaymentId(null);
                               }
@@ -1340,28 +1339,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       return;
                     }
 
-                    setIsSavingAmount(true);
-                    try {
-                      const updatedHistory = updatedHistoryTest;
-                      const totalReceived = proposedTotalReceived;
-
-                      const reversedBackHistory = [...updatedHistory].reverse();
-                      await workDoneStore.updateWorkDone(selectedRecord._id, {
-                        paymentHistory: reversedBackHistory,
-                        receivedAmount: totalReceived,
-                      });
-
-                      const existingAcc = accountabilityStore.accountabilities.data.find((a: any) =>
-                        (a.workDone?._id || a.workDone) === selectedRecord._id
-                      );
-                      if (existingAcc) {
-                        await accountabilityStore.updateAccountability(existingAcc._id, {
-                          payoutHistory: reversedBackHistory,
-                          doctorShareAmount: totalReceived
-                        });
-                      }
-
-                      setHistoryData(updatedHistory);
+                      setIsSavingAmount(true);
+                      try {
+                        const paymentToEdit = historyData[editingPaymentIndex];
+                        await workDoneStore.updatePayment(paymentToEdit._id, { amount: newAmt });
+                        
+                        const updatedHistory = updatedHistoryTest;
+                        setHistoryData(updatedHistory);
 
                       setIsEditAmountOpen(false);
                       toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });

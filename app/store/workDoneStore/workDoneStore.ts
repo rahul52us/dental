@@ -203,6 +203,35 @@ class WorkDoneStore {
     }
   };
 
+  addPayment = async (sendData: any) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/payment`, { ...sendData, company: compId });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  updatePayment = async (id: string, sendData: any) => {
+    try {
+      const { data } = await axios.put(`/payment/${id}`, sendData);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  deletePayment = async (id: string) => {
+    try {
+      const { data } = await axios.delete(`/payment/${id}`);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   deleteWorkDone = async (workDoneId: string) => {
     try {
       const { data } = await axios.delete(`/workDone/${workDoneId}`);
@@ -440,11 +469,11 @@ class WorkDoneStore {
   /**
    * FETCH PAYMENT RECEIPT BASE64 (FOR PREVIEW)
    */
-  fetchPaymentReceiptBase64 = async (workDoneId: string, paymentIndex: number) => {
+  fetchPaymentReceiptBase64 = async (workDoneId: string, paymentId: string) => {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
-      const { data } = await axios.get(`/workDone/generate-payment-receipt/${workDoneId}/${paymentIndex}`, {
+      const { data } = await axios.get(`/workDone/generate-payment-receipt/${workDoneId}/${paymentId}`, {
         params: { company: compId }
       });
 
@@ -642,9 +671,9 @@ class WorkDoneStore {
   /**
    * DOWNLOAD A RECEIPT FOR A SPECIFIC PAYMENT INSTALLMENT
    */
-  downloadPaymentReceipt = async (workDoneId: string, paymentIndex: number) => {
+  downloadPaymentReceipt = async (workDoneId: string, paymentId: string) => {
     try {
-      const base64Data = await this.fetchPaymentReceiptBase64(workDoneId, paymentIndex);
+      const base64Data = await this.fetchPaymentReceiptBase64(workDoneId, paymentId);
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -656,7 +685,7 @@ class WorkDoneStore {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `Payment_Receipt_${workDoneId}_${paymentIndex}.pdf`);
+      link.setAttribute("download", `Payment_Receipt_${workDoneId}_${paymentId}.pdf`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

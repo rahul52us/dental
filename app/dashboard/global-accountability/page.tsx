@@ -64,8 +64,8 @@ const ALL_PRINT_COLUMNS = [
   { key: "treatment", label: "Treatment" },
   { key: "doctor", label: "Doctor" },
   { key: "fees", label: "Fees" },
-  { key: "paid", label: "Paid" },
-  { key: "lastPaid", label: "Last Paid" },
+  { key: "paid", label: "Txn Paid" },
+  { key: "lastPaid", label: "Payment Date" },
   { key: "due", label: "Due" },
   { key: "paymentMode", label: "Payment Mode" },
   { key: "status", label: "Status" }
@@ -138,7 +138,9 @@ const GlobalAccountabilityPage = observer(() => {
 
   const openHistoryDrawer = (record: any) => {
     setSelectedRecord(record);
-    setHistoryData([...(record.paymentHistory || [])].reverse());
+    // Sort the full history by date descending
+    const sortedHistory = (record.fullPaymentHistory || []).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    setHistoryData(sortedHistory);
     setIsHistoryOpen(true);
   };
 
@@ -167,9 +169,7 @@ const GlobalAccountabilityPage = observer(() => {
     if (isNaN(paymentNow) || paymentNow <= 0) return;
     setIsSaving(true);
     try {
-      const bill = selectedRecord.amount - (selectedRecord.discount || 0);
-      const alreadyPaid = selectedRecord.totalPaid || 0;
-      const remaining = Math.max(0, bill - alreadyPaid);
+      const remaining = selectedRecord.balanceDue || 0;
 
       if (paymentNow > remaining) {
         setIsSaving(false);
@@ -180,9 +180,12 @@ const GlobalAccountabilityPage = observer(() => {
         });
       }
 
-      await stores.workDoneStore.updateWorkDone(selectedRecord._id, {
-        paymentAmount: paymentNow,
+      await stores.workDoneStore.addPayment({
+        workDone: selectedRecord._id,
+        patient: selectedRecord.patientInfo?._id || selectedRecord.patient?._id || selectedRecord.patient,
+        amount: paymentNow,
         paymentMethod: receiveType,
+        date: new Date()
       });
 
       toast({ title: "Payment Recorded", status: "success" });
@@ -241,6 +244,24 @@ const GlobalAccountabilityPage = observer(() => {
   }, [stores.procedureStore.procedures.data]);
 
   const fetchGlobalData = useCallback(async (currentPage: number = 1) => {
+    if (fromDate && toDate) {
+      const start = new Date(fromDate);
+      const end = new Date(toDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 40) {
+        toast({
+          title: "Date Limit Exceeded",
+          description: "You can only search for a maximum of 40 days at a time for the best performance.",
+          status: "error",
+          duration: 4000,
+          isClosable: true,
+        });
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const filters = {
@@ -680,9 +701,9 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="200px" whiteSpace="nowrap">TREATMENT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>PAID</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>PERIOD RECEIVED</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">LAST PAID DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>TOTAL RECEIVED</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
@@ -706,7 +727,7 @@ const GlobalAccountabilityPage = observer(() => {
                 </Tr>
               ) : (
                 data.map((row: any) => (
-                  <Tr key={row._id} _hover={{ bg: useColorModeValue("blue.50", "blue.900") }} transition="all 0.2s">
+                  <Tr key={row.uniqueRowId || row._id} _hover={{ bg: useColorModeValue("blue.50", "blue.900") }} transition="all 0.2s">
                     <Td>
                       <HStack>
                         <Icon as={FiCalendar} color="gray.400" />
@@ -779,7 +800,7 @@ const GlobalAccountabilityPage = observer(() => {
                       <HStack justify="flex-end" spacing={2}>
                         <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="130px" maxW="max-content">
                           <VStack align="start" spacing={0} flex={1}>
-                            <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
+                            <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TXN PAID</Text>
                             <Text fontSize="md" fontWeight="1000" color="green.700" whiteSpace="nowrap">{formatCurrency(row.totalPaid)}</Text>
                           </VStack>
                           {stores.auth.hasPermission('accountability', 'create') && (
@@ -819,34 +840,17 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end">
-                        {(() => {
-                          if (!row.paymentHistory || row.paymentHistory.length === 0) return <Text fontWeight="800" color="gray.400" fontSize="sm">-</Text>;
-                          const rangeStart = fromDate ? new Date(fromDate + "T00:00:00") : null;
-                          const rangeEnd = toDate ? new Date(toDate + "T23:59:59") : null;
-                          const periodSum = row.paymentHistory.reduce((acc: number, curr: any) => {
-                            if (!curr.date) return acc;
-                            const d = new Date(curr.date);
-                            const afterStart = rangeStart ? d >= rangeStart : true;
-                            const beforeEnd = rangeEnd ? d <= rangeEnd : true;
-                            if (afterStart && beforeEnd) {
-                              return acc + (Number(curr.amount) || 0);
-                            }
-                            return acc;
-                          }, 0);
-                          return periodSum > 0 ? (
-                            <Box px={4} py={1.5} bg="blue.50" borderRadius="xl" border="1px dashed" borderColor="blue.200" minW="100px" maxW="max-content" textAlign="center">
-                              <Text color="blue.600" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
-                                {formatCurrency(periodSum)}
-                              </Text>
-                            </Box>
-                          ) : <Text fontWeight="800" color="gray.400" fontSize="sm">-</Text>;
-                        })()}
+                        <Box px={4} py={1.5} bg="green.50" borderRadius="xl" border="1px dashed" borderColor="green.200" minW="100px" maxW="max-content" textAlign="center">
+                          <Text color="green.700" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
+                            {formatCurrency(Math.max(0, (row.amount - (row.discount || 0)) - row.balanceDue))}
+                          </Text>
+                        </Box>
                       </HStack>
                     </Td>
                     <Td>
                       <Text fontWeight="800" color="gray.600" fontSize="sm">
-                        {row.paymentHistory && row.paymentHistory.length > 0 && row.paymentHistory[row.paymentHistory.length - 1].date
-                          ? new Date(row.paymentHistory[row.paymentHistory.length - 1].date).toLocaleDateString("en-GB")
+                        {row.paymentHistory && row.paymentHistory.date
+                          ? new Date(row.paymentHistory.date).toLocaleDateString("en-GB")
                           : "-"}
                       </Text>
                     </Td>
@@ -861,17 +865,12 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td>
                       {(() => {
-                        const modes = Array.from(new Set((row.paymentHistory || []).map((h: any) => h.paymentMethod).filter(Boolean)));
-                        if (modes.length === 0) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
-                        const firstMode = String(modes[0]).toUpperCase();
+                        if (!row.paymentHistory || !row.paymentHistory.paymentMethod) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
+                        const mode = String(row.paymentHistory.paymentMethod).toUpperCase();
                         return (
-                          <Tooltip label={modes.map(m => String(m).toUpperCase()).join(", ")} hasArrow bg="blue.600" color="white" placement="top" borderRadius="md">
-                            <Box cursor="help" display="inline-block">
-                              <Badge variant="subtle" colorScheme={firstMode === 'CASH' ? 'green' : 'blue'} fontSize="10px" borderRadius="md" px={2.5} py={1} border="1px solid" borderColor={firstMode === 'CASH' ? 'green.200' : 'blue.200'}>
-                                {modes.length === 1 ? firstMode : `${firstMode} +${modes.length - 1}`}
-                              </Badge>
-                            </Box>
-                          </Tooltip>
+                          <Badge variant="subtle" colorScheme={mode === 'CASH' ? 'green' : 'blue'} fontSize="10px" borderRadius="md" px={2.5} py={1} border="1px solid" borderColor={mode === 'CASH' ? 'green.200' : 'blue.200'}>
+                            {mode}
+                          </Badge>
                         );
                       })()}
                     </Td>
@@ -993,12 +992,20 @@ const GlobalAccountabilityPage = observer(() => {
           <ModalCloseButton color="white" top={4} right={4} />
           <ModalBody py={8} px={6}>
             <VStack spacing={6} align="stretch">
-              <Box p={4} bg="blue.50" borderRadius="2xl" border="1px dashed" borderColor="blue.200">
-                <Text fontSize="sm" fontWeight="bold" color="blue.600" mb={1}>OUTSTANDING BALANCE</Text>
-                <Text fontSize="3xl" fontWeight="black" color="blue.700" letterSpacing="-1px">
-                  ₹{((selectedRecord?.amount - (selectedRecord?.discount || 0)) - (selectedRecord?.totalPaid || 0)).toLocaleString()}
-                </Text>
-              </Box>
+              <SimpleGrid columns={2} spacing={4}>
+                <Box p={4} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200">
+                  <Text fontSize="sm" fontWeight="bold" color="green.600" mb={1}>TOTAL RECEIVED</Text>
+                  <Text fontSize="2xl" fontWeight="black" color="green.700" letterSpacing="-1px">
+                    ₹{Math.max(0, (selectedRecord?.amount - (selectedRecord?.discount || 0)) - (selectedRecord?.balanceDue || 0)).toLocaleString()}
+                  </Text>
+                </Box>
+                <Box p={4} bg="blue.50" borderRadius="2xl" border="1px dashed" borderColor="blue.200">
+                  <Text fontSize="sm" fontWeight="bold" color="blue.600" mb={1}>BALANCE DUE</Text>
+                  <Text fontSize="2xl" fontWeight="black" color="blue.700" letterSpacing="-1px">
+                    ₹{Math.max(0, selectedRecord?.balanceDue || 0).toLocaleString()}
+                  </Text>
+                </Box>
+              </SimpleGrid>
               <FormControl>
                 <FormLabel fontSize="xs" fontWeight="900" color="gray.500">ENTER AMOUNT (₹)</FormLabel>
                 <Input
@@ -1086,11 +1093,15 @@ const GlobalAccountabilityPage = observer(() => {
                     <HStack justify="space-between">
                       <VStack align="start" spacing={0}>
                         <Text fontSize="xs" fontWeight="bold" color="green.600">TOTAL RECEIVED</Text>
-                        <Text fontWeight="1000" color="green.700" fontSize="md">₹{historyData.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0).toLocaleString()}</Text>
+                        <Text fontWeight="1000" color="green.700" fontSize="md">
+                          ₹{Math.max(0, (selectedRecord?.amount - (selectedRecord?.discount || 0)) - (selectedRecord?.balanceDue || 0)).toLocaleString()}
+                        </Text>
                       </VStack>
                       <VStack align="end" spacing={0}>
                         <Text fontSize="xs" fontWeight="bold" color="orange.600">BALANCE DUE</Text>
-                        <Text fontWeight="1000" color="orange.700" fontSize="md">₹{Math.max(0, (selectedRecord?.amount - (selectedRecord?.discount || 0)) - historyData.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0)).toLocaleString()}</Text>
+                        <Text fontWeight="1000" color="orange.700" fontSize="md">
+                          ₹{(selectedRecord?.balanceDue || 0).toLocaleString()}
+                        </Text>
                       </VStack>
                     </HStack>
                   </VStack>
@@ -1112,11 +1123,10 @@ const GlobalAccountabilityPage = observer(() => {
                         <IconButton aria-label="View Entry Receipt" icon={downloadingPaymentId === `${selectedRecord?._id}-${i}` ? <Spinner size="xs" /> : <FiEye />} size="sm" colorScheme="green" variant="ghost" borderRadius="full" isDisabled={downloadingPaymentId !== null}
                           onClick={async () => {
                             try {
-                              setDownloadingPaymentId(`${selectedRecord._id}-${i}`);
-                              const realIndex = (historyData.length - 1) - i;
-                              const base64 = await stores.workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, realIndex);
+                              setDownloadingPaymentId(`${selectedRecord._id}-${h._id}`);
+                              const base64 = await stores.workDoneStore.fetchPaymentReceiptBase64(selectedRecord._id, h._id);
                               setPreviewData(base64);
-                              setPreviewFileName(`Receipt_${selectedRecord._id}_${realIndex}.pdf`);
+                              setPreviewFileName(`Receipt_${selectedRecord._id}_${h._id}.pdf`);
                               setIsPreviewOpen(true);
                             } catch (error) {
                               toast({ title: "Error", description: "Failed to load preview.", status: "error", duration: 3000 });
@@ -1190,11 +1200,8 @@ const GlobalAccountabilityPage = observer(() => {
 
                     setIsSavingAmount(true);
                     try {
-                      const reversedBackHistory = [...updatedHistoryTest].reverse();
-                      await stores.workDoneStore.updateWorkDone(selectedRecord._id, {
-                        paymentHistory: reversedBackHistory,
-                        receivedAmount: proposedTotalReceived,
-                      });
+                      const paymentToEdit = historyData[editingPaymentIndex];
+                      await stores.workDoneStore.updatePayment(paymentToEdit._id, { amount: newAmt });
 
                       setHistoryData(updatedHistoryTest);
                       setIsEditAmountOpen(false);
