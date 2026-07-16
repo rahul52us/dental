@@ -109,6 +109,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
   const toast = stores.auth.openNotification;
   const [isDownloading, setIsDownloading] = useState(false);
+  const [noReceivedDate, setNoReceivedDate] = useState(false);
 
   const [reportFilters, setReportFilters] = useState({
     dateType: "receivedDate" as string | string[],
@@ -163,6 +164,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
       if (debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
       }
+      if (noReceivedDate) {
+        query.noReceivedDate = true;
+      }
       labWorkStore.getAllLabWorks(query)
         .catch((err: any) => {
           openNotification({
@@ -172,7 +176,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           });
         });
     },
-    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, debouncedDoctorSearch, patientId, statusFilter, fromDate, toDate]
+    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, debouncedDoctorSearch, patientId, statusFilter, fromDate, toDate, noReceivedDate]
   );
 
   const resetReportFilters = () => {
@@ -199,6 +203,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     setTempFromDate("");
     setTempToDate("");
     setDoctorSearch("");
+    setNoReceivedDate(false);
   };
 
   // Sync tab with query param
@@ -214,7 +219,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   useEffect(() => {
     fetchLabWorks(currentPage);
     labWorkHierarchyStore.getAllHierarchies();
-  }, [currentPage, activeTab, debouncedSearchQuery, debouncedDoctorSearch, statusFilter, fromDate, toDate, fetchLabWorks, labWorkHierarchyStore]);
+  }, [currentPage, activeTab, debouncedSearchQuery, debouncedDoctorSearch, statusFilter, fromDate, toDate, noReceivedDate, fetchLabWorks, labWorkHierarchyStore]);
 
   useEffect(() => {
     labWorkStatusStore.getLabWorkStatuses();
@@ -484,62 +489,84 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           columns={columns}
           actions={{
             customComponent: (
-              <HStack spacing={3}>
-                <HStack spacing={2}>
-                  <Input
-                    type="date"
-                    size="sm"
-                    borderRadius="xl"
-                    value={tempFromDate}
-                    onChange={(e) => setTempFromDate(e.target.value)}
-                    w="140px"
-                    bg={useColorModeValue("white", "gray.800")}
-                    borderColor={useColorModeValue("gray.300", "gray.600")}
-                  />
-                  <Input
-                    type="date"
-                    size="sm"
-                    borderRadius="xl"
-                    value={tempToDate}
-                    onChange={(e) => setTempToDate(e.target.value)}
-                    w="140px"
-                    bg={useColorModeValue("white", "gray.800")}
-                    borderColor={useColorModeValue("gray.300", "gray.600")}
-                  />
-                  <Button
-                    size="sm"
-                    colorScheme="blue"
-                    borderRadius="xl"
-                    onClick={() => {
-                      setFromDate(tempFromDate);
-                      setToDate(tempToDate);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    Apply
-                  </Button>
-                </HStack>
-
-                <Box w="220px">
-                  <InputGroup size="sm">
-                    <InputLeftElement pointerEvents="none">
-                      <FiUser color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Search Doctor..."
+              <Flex gap={3} align="center" justify="flex-start" wrap="nowrap" overflowX="auto" pb={1} className="customScrollBar">
+                {/* Advanced Filters Popover */}
+                <Popover placement="bottom-start" closeOnBlur={true}>
+                  <PopoverTrigger>
+                    <Button
+                      size="sm"
                       borderRadius="xl"
-                      value={doctorSearch}
-                      onChange={(e) => {
-                        setDoctorSearch(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      bg={useColorModeValue("white", "gray.800")}
-                      borderColor={useColorModeValue("gray.300", "gray.600")}
-                    />
-                  </InputGroup>
-                </Box>
+                      colorScheme="blue"
+                      variant="outline"
+                      leftIcon={<FiList />}
+                    >
+                      Filters
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent p={2} w="300px" boxShadow="xl" borderRadius="xl" border="1px solid" borderColor="gray.200">
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverBody>
+                      <VStack spacing={4} align="stretch" mt={4}>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="bold" mb={2} color="gray.500">DATE RANGE</Text>
+                          <VStack spacing={2}>
+                            <Input
+                              type="date"
+                              size="sm"
+                              borderRadius="md"
+                              value={tempFromDate}
+                              onChange={(e) => setTempFromDate(e.target.value)}
+                              bg={useColorModeValue("white", "gray.800")}
+                            />
+                            <Input
+                              type="date"
+                              size="sm"
+                              borderRadius="md"
+                              value={tempToDate}
+                              onChange={(e) => setTempToDate(e.target.value)}
+                              bg={useColorModeValue("white", "gray.800")}
+                            />
+                            <Button
+                              size="sm"
+                              colorScheme="blue"
+                              w="full"
+                              onClick={() => {
+                                setFromDate(tempFromDate);
+                                setToDate(tempToDate);
+                                setCurrentPage(1);
+                              }}
+                            >
+                              Apply Date Filter
+                            </Button>
+                          </VStack>
+                        </Box>
 
-                <Box w="200px" zIndex={10}>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="bold" mb={2} color="gray.500">DOCTOR</Text>
+                          <InputGroup size="sm">
+                            <InputLeftElement pointerEvents="none">
+                              <FiUser color="gray.400" />
+                            </InputLeftElement>
+                            <Input
+                              placeholder="Search Doctor..."
+                              borderRadius="md"
+                              value={doctorSearch}
+                              onChange={(e) => {
+                                setDoctorSearch(e.target.value);
+                                setCurrentPage(1);
+                              }}
+                              bg={useColorModeValue("white", "gray.800")}
+                            />
+                          </InputGroup>
+                        </Box>
+
+                      </VStack>
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+
+                <Box w="180px" zIndex={10}>
                   <CustomInput
                     name="statusFilter"
                     type="select"
@@ -558,6 +585,24 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     }}
                   />
                 </Box>
+
+                {activeTab === 2 && (
+                  <Button
+                    size="sm"
+                    borderRadius="xl"
+                    colorScheme={noReceivedDate ? "orange" : "gray"}
+                    variant={noReceivedDate ? "solid" : "outline"}
+                    onClick={() => {
+                      setNoReceivedDate(prev => !prev);
+                      setCurrentPage(1);
+                    }}
+                    leftIcon={<FiClock />}
+                    flexShrink={0}
+                  >
+                    {noReceivedDate ? "✓ No Received Date" : "No Received Date"}
+                  </Button>
+                )}
+
                 {hasTabPermission('download') && (
                   <Button
                     leftIcon={<FiDownload />}
@@ -574,21 +619,25 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     }}
                     isLoading={isDownloading}
                     loadingText="Downloading..."
+                    flexShrink={0}
                   >
                     Download Report
                   </Button>
                 )}
-                
-                <IconButton
-                  aria-label="Reset All Filters"
-                  icon={<FiRefreshCw />}
-                  size="sm"
-                  colorScheme="red"
-                  borderRadius="xl"
-                  onClick={resetTableData}
-                  title="Reset All Filters"
-                />
-              </HStack>
+
+                {(fromDate || toDate || doctorSearch || statusFilter !== "all" || noReceivedDate) && (
+                  <IconButton
+                    aria-label="Reset All Filters"
+                    icon={<FiRefreshCw />}
+                    size="sm"
+                    colorScheme="red"
+                    borderRadius="xl"
+                    onClick={resetTableData}
+                    title="Reset All Filters"
+                    flexShrink={0}
+                  />
+                )}
+              </Flex>
             ),
             actionBtn: {
               addKey: {
