@@ -189,7 +189,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
           <DrawerBody p={0}>
             {pdfUrl ? (
               <iframe 
-                src={pdfUrl} 
+                src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`} 
                 width="100%" 
                 height="100%" 
                 style={{ border: 'none' }}

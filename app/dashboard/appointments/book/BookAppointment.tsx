@@ -636,7 +636,7 @@ const BookAppointmentPage = observer(() => {
             >
                 <Flex direction="column" h="full" p={1}>
                     <Box flex="1" bg="gray.100" p={0} borderRadius="md" overflow="hidden">
-                        <iframe src={pdfPreview.url} style={{ width: '100%', height: '80vh', border: 'none', borderRadius: '8px', display: 'block' }} title="Schedule Preview" />
+                        <iframe src={`${pdfPreview.url}#toolbar=1&navpanes=0`} style={{ width: '100%', height: '80vh', border: 'none', borderRadius: '8px', display: 'block' }} title="Schedule Preview" />
                     </Box>
                     <Flex justify="flex-end" pt={4} gap={3}>
                         <Button variant="ghost" onClick={() => setPdfPreview({ ...pdfPreview, isOpen: false })}>

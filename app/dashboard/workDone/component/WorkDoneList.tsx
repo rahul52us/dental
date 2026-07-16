@@ -1213,7 +1213,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             </Button>
           </HStack>
           <Box height="calc(100vh - 150px)" bg="gray.50" borderRadius="xl" overflow="hidden" border="1px solid" borderColor="gray.200">
-            <iframe src={tablePreviewDrawer.url} width="100%" height="100%" style={{ border: 'none' }} title="Table Preview" />
+            <iframe src={`${tablePreviewDrawer.url}#toolbar=1&navpanes=0`} width="100%" height="100%" style={{ border: 'none' }} title="Table Preview" />
           </Box>
         </Box>
       </CustomDrawer>
@@ -1881,7 +1881,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
       >
         <Box p={4} h="calc(100vh - 100px)">
           <iframe
-            src={`${previewDrawer.url}#view=FitH`}
+            src={`${previewDrawer.url}#toolbar=1&navpanes=0&view=FitH`}
             width="100%"
             height="100%"
             style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }}
@@ -2059,7 +2059,7 @@ const FilteredWorkDoneModal = observer(({ isOpen, onClose, patientId, treatmentI
       >
         <Box p={4} h="calc(100vh - 100px)">
           <iframe
-            src={`${previewDrawer.url}#view=FitH`}
+            src={`${previewDrawer.url}#toolbar=1&navpanes=0&view=FitH`}
             width="100%"
             height="100%"
             style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }}
@@ -2586,7 +2586,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
         }
       >
         <Box p={4} h="calc(100vh - 100px)">
-          <iframe src={`${previewDrawer.url}#view=FitH`} width="100%" height="100%" style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }} title="PDF Preview" />
+          <iframe src={`${previewDrawer.url}#toolbar=1&navpanes=0&view=FitH`} width="100%" height="100%" style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }} title="PDF Preview" />
         </Box>
       </CustomDrawer>
     </CustomDrawer>
