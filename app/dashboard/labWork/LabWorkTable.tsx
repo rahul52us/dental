@@ -56,6 +56,7 @@ import DashPageHeader from "../../component/common/DashPageHeader/DashPageHeader
 import DashPageTitle from "../../component/common/DashPageTitle/DashPageTitle";
 import CustomInput from "../../component/config/component/customInput/CustomInput";
 import useDebounce from "../../component/config/component/customHooks/useDebounce";
+import ReportPreviewDrawer from "../../component/ReportPreviewDrawer/ReportPreviewDrawer";
 
 interface LabWorkTableProps {
   patientId?: string;
@@ -110,6 +111,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const toast = stores.auth.openNotification;
   const [isDownloading, setIsDownloading] = useState(false);
   const [noReceivedDate, setNoReceivedDate] = useState(false);
+
+  const [previewData, setPreviewData] = useState<{ columns: any[]; rows: any[] } | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const [reportFilters, setReportFilters] = useState({
     dateType: "receivedDate" as string | string[],
@@ -262,7 +266,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     }
   };
 
-  const handleDownloadReport = async () => {
+  const handleDownloadReport = async (isPreview = false) => {
     setIsDownloading(true);
     try {
       let workType: any = "all";
@@ -281,10 +285,15 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
       const response = await stores.reportStore.getReportDownload({
         reportType: "labWork",
         filters: payloadFilters,
+        isPreview
       });
 
       if (response?.status === "success" && response.data) {
-        const { fileName, fileData } = response.data;
+        if (isPreview) {
+          setPreviewData(response.data);
+          setIsPreviewOpen(true);
+        } else {
+          const { fileName, fileData } = response.data;
         const byteCharacters = atob(fileData);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
@@ -309,9 +318,11 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           title: "Success",
           message: "Report downloaded successfully!",
         });
+        setIsPreviewOpen(false);
         onReportClose();
       }
-    } catch (err: any) {
+    }
+  } catch (err: any) {
       toast({
         type: "error",
         title: "Error",
@@ -954,14 +965,14 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 </Button>
                 <Button
                   colorScheme="blue"
-                  leftIcon={<FiDownload />}
-                  onClick={handleDownloadReport}
+                  leftIcon={<FiList />}
+                  onClick={() => handleDownloadReport(true)}
                   isLoading={isDownloading}
                   px={8}
                   borderRadius="xl"
                   shadow="md"
                 >
-                  Generate Report
+                  Preview Report
                 </Button>
               </HStack>
             </DrawerFooter>
@@ -981,6 +992,17 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             </DrawerBody>
           </DrawerContent>
         </Drawer>
+
+        {/* Report Preview Drawer */}
+        <ReportPreviewDrawer
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          title="Lab Work Report Preview"
+          columns={previewData?.columns || []}
+          rows={previewData?.rows || []}
+          onDownload={() => handleDownloadReport(false)}
+          isDownloading={isDownloading}
+        />
       </Box>
     </Box>
   );

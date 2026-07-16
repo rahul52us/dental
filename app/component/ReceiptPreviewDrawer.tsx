@@ -122,7 +122,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
             >
               <iframe
                 title="Receipt Preview"
-                src={`${blobUrl}#toolbar=0&navpanes=0&view=FitH`}
+                src={`${blobUrl}#toolbar=1&navpanes=0&view=FitH`}
                 width="100%"
                 height="100%"
                 style={{ border: 'none' }}
