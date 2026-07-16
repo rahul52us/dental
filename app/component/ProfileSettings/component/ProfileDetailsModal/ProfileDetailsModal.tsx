@@ -31,6 +31,8 @@ import {
   HStack,
   Input,
   Image,
+  Select,
+  Textarea
 } from "@chakra-ui/react";
 import { FiUpload } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
@@ -83,6 +85,50 @@ const ProfileDetailsModal = observer(({ user }: any) => {
   const [isEditingCompany, setIsEditingCompany] = useState(false);
   const [companyName, setCompanyName] = useState(user?.companyDetails?.company_name || user?.companyDetail?.company_name || "");
   const [isSavingCompany, setIsSavingCompany] = useState(false);
+
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    title: user?.title || user?.profileDetails?.personalInfo?.title || user?.profile_details?.personalInfo?.title || "",
+    name: user?.name || "",
+    username: user?.username || "",
+    mobile: user?.mobileNumber || user?.mobile || user?.phone || "",
+    dob: user?.profileDetails?.personalInfo?.dob || user?.profile_details?.personalInfo?.dob || "",
+    gender: user?.profileDetails?.personalInfo?.gender || user?.profile_details?.personalInfo?.gender || "",
+    bio: user?.bio || user?.profileDetails?.personalInfo?.bio || user?.profile_details?.personalInfo?.bio || "",
+    address: user?.profileDetails?.personalInfo?.addresses?.residential || user?.profile_details?.personalInfo?.addresses?.residential || ""
+  });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true);
+    try {
+      const payload = {
+        ...user,
+        title: profileData.title,
+        name: profileData.name,
+        username: profileData.username,
+        mobileNumber: profileData.mobile,
+        dob: profileData.dob,
+        gender: profileData.gender ? Number(profileData.gender) : undefined,
+        bio: profileData.bio,
+        addresses: {
+          residential: profileData.address,
+          office: user?.profileDetails?.personalInfo?.addresses?.office || "",
+          other: user?.profileDetails?.personalInfo?.addresses?.other || ""
+        }
+      };
+
+      await stores.userStore.updatePersonalDetails(payload);
+
+      await stores.auth.fetchUser();
+      setIsEditingProfile(false);
+      toast({ title: "Success", description: "Profile updated successfully", status: "success", isClosable: true, position: "top-right", duration: 3000 });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to update profile", status: "error", isClosable: true, position: "top-right", duration: 3000 });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   const handleUpdateCompanyName = async () => {
     if (!companyName.trim()) {
@@ -418,6 +464,95 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                       </Flex>
                     </Box>
                   )}
+
+                  <Divider />
+                  
+                  {/* Personal Details */}
+                  <Box>
+                    <Flex align="center" justify="space-between" mb={3}>
+                      <Text fontWeight="bold">Personal Details</Text>
+                      {!isEditingProfile ? (
+                        <Button size="xs" variant="outline" colorScheme="blue" onClick={() => {
+                          setProfileData({
+                            title: user?.title || user?.profileDetails?.personalInfo?.title || user?.profile_details?.personalInfo?.title || "",
+                            name: user?.name || "",
+                            username: user?.username || "",
+                            mobile: user?.mobileNumber || user?.mobile || user?.phone || "",
+                            dob: user?.profileDetails?.personalInfo?.dob || user?.profile_details?.personalInfo?.dob || "",
+                            gender: user?.profileDetails?.personalInfo?.gender || user?.profile_details?.personalInfo?.gender || "",
+                            bio: user?.bio || user?.profileDetails?.personalInfo?.bio || user?.profile_details?.personalInfo?.bio || "",
+                            address: user?.profileDetails?.personalInfo?.addresses?.residential || user?.profile_details?.personalInfo?.addresses?.residential || ""
+                          });
+                          setIsEditingProfile(true);
+                        }}>Edit</Button>
+                      ) : (
+                        <HStack spacing={2}>
+                          <Button size="xs" colorScheme="green" isLoading={isSavingProfile} onClick={handleSaveProfile}>Save</Button>
+                          <Button size="xs" variant="ghost" onClick={() => setIsEditingProfile(false)}>Cancel</Button>
+                        </HStack>
+                      )}
+                    </Flex>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                      {!isEditingProfile ? (
+                        <>
+                          <DetailItem label="Title" value={user?.title || user?.profileDetails?.personalInfo?.title || user?.profile_details?.personalInfo?.title} icon={InfoIcon} />
+                          <DetailItem label="Name" value={user?.name} icon={InfoIcon} />
+                          <DetailItem label="Email" value={user?.username} icon={InfoIcon} />
+                          <DetailItem label="Mobile" value={user?.mobileNumber || user?.mobile || user?.phone} icon={InfoIcon} />
+                          <DetailItem label="DOB" value={user?.profileDetails?.personalInfo?.dob || user?.profile_details?.personalInfo?.dob} icon={CalendarIcon} />
+                          <DetailItem label="Gender" value={(user?.profileDetails?.personalInfo?.gender || user?.profile_details?.personalInfo?.gender) === 1 ? "Male" : (user?.profileDetails?.personalInfo?.gender || user?.profile_details?.personalInfo?.gender) === 2 ? "Female" : (user?.profileDetails?.personalInfo?.gender || user?.profile_details?.personalInfo?.gender) === 3 ? "Other" : "-"} icon={InfoIcon} />
+                          <DetailItem label="Address" value={user?.profileDetails?.personalInfo?.addresses?.residential || user?.profile_details?.personalInfo?.addresses?.residential} icon={InfoIcon} />
+                          <DetailItem label="Bio" value={user?.bio || user?.profileDetails?.personalInfo?.bio || user?.profile_details?.personalInfo?.bio} icon={InfoIcon} />
+                        </>
+                      ) : (
+                        <>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Title</Text>
+                            <Select size="sm" bg="white" value={profileData.title} onChange={(e) => setProfileData({...profileData, title: e.target.value})}>
+                              <option value="">Select Title</option>
+                              <option value="Mr.">Mr.</option>
+                              <option value="Ms.">Ms.</option>
+                              <option value="Mrs.">Mrs.</option>
+                              <option value="Dr.">Dr.</option>
+                            </Select>
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Name</Text>
+                            <Input size="sm" bg="white" value={profileData.name} onChange={(e) => setProfileData({...profileData, name: e.target.value})} />
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Email</Text>
+                            <Input size="sm" bg="white" value={profileData.username} onChange={(e) => setProfileData({...profileData, username: e.target.value})} />
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Mobile</Text>
+                            <Input size="sm" bg="white" value={profileData.mobile} onChange={(e) => setProfileData({...profileData, mobile: e.target.value})} />
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>DOB</Text>
+                            <Input size="sm" type="date" bg="white" value={profileData.dob} onChange={(e) => setProfileData({...profileData, dob: e.target.value})} />
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Gender</Text>
+                            <Select size="sm" bg="white" value={profileData.gender} onChange={(e) => setProfileData({...profileData, gender: e.target.value})}>
+                              <option value="">Select Gender</option>
+                              <option value="1">Male</option>
+                              <option value="2">Female</option>
+                              <option value="3">Other</option>
+                            </Select>
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Address</Text>
+                            <Input size="sm" bg="white" value={profileData.address} onChange={(e) => setProfileData({...profileData, address: e.target.value})} />
+                          </Box>
+                          <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500" mb={1}>Bio</Text>
+                            <Textarea size="sm" bg="white" value={profileData.bio} onChange={(e) => setProfileData({...profileData, bio: e.target.value})} />
+                          </Box>
+                        </>
+                      )}
+                    </SimpleGrid>
+                  </Box>
 
                   <Divider />
                   {/* Details Grid */}

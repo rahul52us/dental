@@ -100,6 +100,21 @@ class UserStore {
     }
   };
 
+  updatePersonalDetails = async (payload: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.put(`/user/personal-details/${payload._id}`, {
+        ...payload,
+        company: authStore.company,
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   updateAdminStatus = async (userId: string, is_active: boolean) => {
     this.isLoading = true;
     try {

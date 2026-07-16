@@ -198,6 +198,15 @@ const Dashboard = observer(() => {
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
   }, []);
 
+  const hasPatientPerm = stores.auth.hasPermission('patient', 'view');
+  const hasAppointmentPerm = stores.auth.hasPermission('appointment', 'view');
+  const hasStaffPerm = stores.auth.hasPermission('staffs', 'view');
+  const hasReportsPerm = stores.auth.hasPermission('reports', 'view');
+
+  const showWeeklyGrowth = hasPatientPerm || hasReportsPerm;
+  const showTimeSlot = hasAppointmentPerm;
+  const showLiveActivity = hasStaffPerm || hasPatientPerm;
+
   return (
     <Box p={{ base: 2, md: 8 }} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
       <style>
@@ -223,64 +232,69 @@ const Dashboard = observer(() => {
         </SimpleGrid>
 
         <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={{ base: 4, md: 8 }} mb={{ base: 8, md: 10 }}>
-          <DarkSkeleton isLoaded={!count?.loading}>
-            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
-              <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
-                <Box>
-                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, blue.400, purple.400)" bgClip="text">{t("dashboard.weeklyGrowth")}</Text>
-                  <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.revenueVsAppointments")}</Text>
-                </Box>
-                <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
-                  <Icon as={FaClipboardList} boxSize={5} />
-                </Box>
-              </Flex>
-              <AspectRatio ratio={16 / 9} width="100%">
-                <Bar data={weeklyGrowthData} options={barChartOptions} />
-              </AspectRatio>
-            </Box>
-          </DarkSkeleton>
+          {showWeeklyGrowth && (
+            <DarkSkeleton isLoaded={!count?.loading}>
+              <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+                <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
+                  <Box>
+                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, blue.400, purple.400)" bgClip="text">{t("dashboard.weeklyGrowth")}</Text>
+                    <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.revenueVsAppointments")}</Text>
+                  </Box>
+                  <Box p={2.5} bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"} color={stores.themeStore.themeConfig.colors.custom.light.primary} borderRadius="xl">
+                    <Icon as={FaClipboardList} boxSize={5} />
+                  </Box>
+                </Flex>
+                <AspectRatio ratio={16 / 9} width="100%">
+                  <Bar data={weeklyGrowthData} options={barChartOptions} />
+                </AspectRatio>
+              </Box>
+            </DarkSkeleton>
+          )}
 
-          <DarkSkeleton isLoaded={!count?.loading}>
-            <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
-              <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
-                <Box>
-                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Time Slot Analytics</Text>
-                  <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">Daily Appointment Distribution</Text>
-                </Box>
-                <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
-                  <Icon as={FaCalendarAlt} boxSize={5} />
-                </Box>
-              </Flex>
-              <AspectRatio ratio={16 / 9} width="100%">
-                <Line 
-                  data={timeSlotChartData} 
-                  options={{ 
-                    ...lineChartOptions, 
-                    plugins: { 
-                      ...lineChartOptions.plugins, 
-                      legend: { display: true, position: 'top', labels: { boxWidth: 12, usePointStyle: true, font: { size: 10 } } },
-                      tooltip: {
-                        ...lineChartOptions.plugins?.tooltip,
-                        callbacks: {
-                          afterBody: (tooltipItems: any) => {
-                            const index = tooltipItems[0].dataIndex;
-                            const exactTimes = timeSlotData[index]?.exactTimes;
-                            if (exactTimes && exactTimes.length > 0) {
-                              return `\nExact Times:\n${exactTimes.join(', ')}`;
+          {showTimeSlot && (
+            <DarkSkeleton isLoaded={!count?.loading}>
+              <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+                <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
+                  <Box>
+                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Time Slot Analytics</Text>
+                    <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">Daily Appointment Distribution</Text>
+                  </Box>
+                  <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
+                    <Icon as={FaCalendarAlt} boxSize={5} />
+                  </Box>
+                </Flex>
+                <AspectRatio ratio={16 / 9} width="100%">
+                  <Line 
+                    data={timeSlotChartData} 
+                    options={{ 
+                      ...lineChartOptions, 
+                      plugins: { 
+                        ...lineChartOptions.plugins, 
+                        legend: { display: true, position: 'top', labels: { boxWidth: 12, usePointStyle: true, font: { size: 10 } } },
+                        tooltip: {
+                          ...lineChartOptions.plugins?.tooltip,
+                          callbacks: {
+                            afterBody: (tooltipItems: any) => {
+                              const index = tooltipItems[0].dataIndex;
+                              const exactTimes = timeSlotData[index]?.exactTimes;
+                              if (exactTimes && exactTimes.length > 0) {
+                                return `\nExact Times:\n${exactTimes.join(', ')}`;
+                              }
+                              return '';
                             }
-                            return '';
                           }
                         }
-                      }
-                    } 
-                  }} 
-                />
-              </AspectRatio>
-            </Box>
-          </DarkSkeleton>
+                      } 
+                    }} 
+                  />
+                </AspectRatio>
+              </Box>
+            </DarkSkeleton>
+          )}
         </Grid>
         {/* <VideoUploader /> */}
-        <DarkSkeleton isLoaded={!count?.loading}>
+        {showLiveActivity && (
+          <DarkSkeleton isLoaded={!count?.loading}>
           <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 10 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)" position="relative">
             <Box position="absolute" top="-15px" left={{ base: "15px", md: "20px" }} bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" px={4} py={1} borderRadius="full" fontSize={{ base: "10px", md: "xs" }} fontWeight="900" boxShadow="lg">{t("dashboard.realTimeMonitor")}</Box>
             <Flex justify="space-between" align="center" mb={{ base: 6, md: 12 }} pt={4}>
@@ -354,6 +368,7 @@ const Dashboard = observer(() => {
             </SimpleGrid>
           </Box>
         </DarkSkeleton>
+        )}
       </Box>
     </Box>
   );
