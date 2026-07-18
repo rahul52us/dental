@@ -65,6 +65,7 @@ const ALL_PRINT_COLUMNS = [
   { key: "doctor", label: "Doctor" },
   { key: "fees", label: "Fees" },
   { key: "paid", label: "Txn Paid" },
+  { key: "receiptNumber", label: "Receipt No." },
   { key: "lastPaid", label: "Payment Date" },
   { key: "due", label: "Due" },
   { key: "paymentMode", label: "Payment Mode" },
@@ -702,7 +703,8 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>TOTAL RECEIVED</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">RECEIPT NO.</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
@@ -837,6 +839,11 @@ const GlobalAccountabilityPage = observer(() => {
                           </Tooltip>
                         )}
                       </HStack>
+                    </Td>
+                    <Td>
+                      <Text fontWeight="800" color="gray.600" fontSize="sm">
+                        {row.paymentHistory?.receiptNumber || "-"}
+                      </Text>
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end">

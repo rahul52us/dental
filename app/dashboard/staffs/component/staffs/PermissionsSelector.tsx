@@ -81,7 +81,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
 
   const handleToggle = (moduleId: string, permId: string) => {
     if (!hasSpecificPerm(moduleId, permId)) return;
-    
+
     onChange({
       ...permissions,
       [moduleId]: {
@@ -94,16 +94,16 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
   const handleRowToggle = (moduleId: string) => {
     const moduleInfo = MODULES.find(m => m.id === moduleId);
     const keys = moduleInfo?.keys || PERMISSIONS.map(p => p.id);
-    
+
     const allowedKeys = keys.filter(k => hasSpecificPerm(moduleId, k));
     if (allowedKeys.length === 0) return;
-    
+
     const allChecked = allowedKeys.every((k) => permissions[moduleId]?.[k]);
     const newState: any = { ...(permissions[moduleId] || {}) };
     allowedKeys.forEach((k) => {
       newState[k] = !allChecked;
     });
-    
+
     onChange({
       ...permissions,
       [moduleId]: newState,
@@ -113,7 +113,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
   const filteredModules = useMemo(() => {
     const hasModuleAccess = (moduleId: string) => {
       if (isSuperAdmin) return true;
-      
+
       // Admins (who give permissions to Staff) should not be able to give Staff Management access
       if (moduleId === "staffs" || moduleId === "admins") return false;
 
@@ -152,15 +152,15 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
         {filteredModules.map((m) => {
           const keysToRender = m.keys || PERMISSIONS.map(p => p.id);
           const allChecked = keysToRender.every((k) => permissions[m.id]?.[k]);
-          
+
           return (
-            <Box 
-              key={m.id} 
-              p={5} 
-              bg="white" 
-              border="2px solid" 
-              borderColor={allChecked ? `${m.color}.200` : "gray.100"} 
-              borderRadius="2xl" 
+            <Box
+              key={m.id}
+              p={5}
+              bg="white"
+              border="2px solid"
+              borderColor={allChecked ? `${m.color}.200` : "gray.100"}
+              borderRadius="2xl"
               shadow="sm"
               transition="all 0.2s"
               _hover={{ shadow: "md", borderColor: `${m.color}.300` }}
@@ -177,8 +177,8 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                     </Badge>
                   </VStack>
                 </HStack>
-                <Checkbox 
-                  colorScheme={m.color} 
+                <Checkbox
+                  colorScheme={m.color}
                   size="lg"
                   isChecked={allChecked}
                   onChange={() => handleRowToggle(m.id)}
@@ -189,7 +189,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                 {PERMISSIONS.filter(p => keysToRender.includes(p.id)).map((p) => {
                   const isChecked = permissions[m.id]?.[p.id] || false;
                   const canToggle = hasSpecificPerm(m.id, p.id);
-                  
+
                   return (
                     <Box
                       key={p.id}

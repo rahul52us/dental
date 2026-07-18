@@ -74,7 +74,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
         bg="gray.100" 
         borderLeftRadius="2xl" 
         shadow="2xl"
-        minW={{ base: "100vw", md: "85vw", lg: "75vw", xl: "70vw" }}
+        minW={{ base: "100vw", md: "85vw", lg: "85vw", xl: "85vw" }}
       >
         <DrawerCloseButton zIndex={10} />
         

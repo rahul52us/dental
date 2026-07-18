@@ -111,6 +111,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const toast = stores.auth.openNotification;
   const [isDownloading, setIsDownloading] = useState(false);
   const [noReceivedDate, setNoReceivedDate] = useState(false);
+  const [noSendDate, setNoSendDate] = useState(false);
 
   const [previewData, setPreviewData] = useState<{ columns: any[]; rows: any[] } | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -171,6 +172,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
       if (noReceivedDate) {
         query.noReceivedDate = true;
       }
+      if (noSendDate) {
+        query.noSendDate = true;
+      }
       labWorkStore.getAllLabWorks(query)
         .catch((err: any) => {
           openNotification({
@@ -180,7 +184,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           });
         });
     },
-    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, debouncedDoctorSearch, patientId, statusFilter, fromDate, toDate, noReceivedDate]
+    [labWorkStore, openNotification, activeTab, debouncedSearchQuery, debouncedDoctorSearch, patientId, statusFilter, fromDate, toDate, noReceivedDate, noSendDate]
   );
 
   const resetReportFilters = () => {
@@ -208,6 +212,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     setTempToDate("");
     setDoctorSearch("");
     setNoReceivedDate(false);
+    setNoSendDate(false);
   };
 
   // Sync tab with query param
@@ -223,7 +228,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   useEffect(() => {
     fetchLabWorks(currentPage);
     labWorkHierarchyStore.getAllHierarchies();
-  }, [currentPage, activeTab, debouncedSearchQuery, debouncedDoctorSearch, statusFilter, fromDate, toDate, noReceivedDate, fetchLabWorks, labWorkHierarchyStore]);
+  }, [currentPage, activeTab, debouncedSearchQuery, debouncedDoctorSearch, statusFilter, fromDate, toDate, noReceivedDate, noSendDate, fetchLabWorks, labWorkHierarchyStore]);
 
   useEffect(() => {
     labWorkStatusStore.getLabWorkStatuses();
@@ -597,7 +602,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   />
                 </Box>
 
-                {activeTab === 2 && (
+                {activeTab === 1 && (
                   <Button
                     size="sm"
                     borderRadius="xl"
@@ -605,12 +610,31 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     variant={noReceivedDate ? "solid" : "outline"}
                     onClick={() => {
                       setNoReceivedDate(prev => !prev);
+                      setNoSendDate(false);
                       setCurrentPage(1);
                     }}
                     leftIcon={<FiClock />}
                     flexShrink={0}
                   >
                     {noReceivedDate ? "✓ No Received Date" : "No Received Date"}
+                  </Button>
+                )}
+
+                {activeTab === 2 && (
+                  <Button
+                    size="sm"
+                    borderRadius="xl"
+                    colorScheme={noSendDate ? "orange" : "gray"}
+                    variant={noSendDate ? "solid" : "outline"}
+                    onClick={() => {
+                      setNoSendDate(prev => !prev);
+                      setNoReceivedDate(false);
+                      setCurrentPage(1);
+                    }}
+                    leftIcon={<FiClock />}
+                    flexShrink={0}
+                  >
+                    {noSendDate ? "✓ No Send Date" : "No Send Date"}
                   </Button>
                 )}
 
@@ -636,7 +660,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   </Button>
                 )}
 
-                {(fromDate || toDate || doctorSearch || statusFilter !== "all" || noReceivedDate) && (
+                {(fromDate || toDate || doctorSearch || statusFilter !== "all" || noReceivedDate || noSendDate) && (
                   <IconButton
                     aria-label="Reset All Filters"
                     icon={<FiRefreshCw />}

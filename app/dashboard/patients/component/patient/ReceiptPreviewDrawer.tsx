@@ -70,18 +70,18 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
       <DrawerOverlay backdropFilter="blur(4px)" />
-      <DrawerContent 
-        bg="gray.100" 
-        borderLeftRadius="2xl" 
+      <DrawerContent
+        bg="gray.100"
+        borderLeftRadius="2xl"
         shadow="2xl"
-        minW={{ base: "100vw", md: "85vw", lg: "75vw", xl: "70vw" }}
+        minW={{ base: "100vw", md: "85vw", lg: "75vw", xl: "85vw" }}
       >
         <DrawerCloseButton zIndex={10} />
-        
-        <DrawerHeader 
-          px={6} 
-          py={5} 
-          bg="white" 
+
+        <DrawerHeader
+          px={6}
+          py={5}
+          bg="white"
           borderBottom="1px solid"
           borderColor="gray.200"
           borderTopLeftRadius="2xl"
@@ -91,7 +91,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
               <Text fontSize="md" fontWeight="800" color="gray.700">Receipt Preview</Text>
               <Text fontSize="xs" color="gray.400">{fileName}</Text>
             </VStack>
-            
+
             <HStack spacing={3} pr={10}>
               <Button
                 leftIcon={<FiDownload />}
@@ -105,11 +105,11 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
             </HStack>
           </HStack>
         </DrawerHeader>
- 
+
         <DrawerBody p={8} display="flex" flexDirection="column" alignItems="center" bg="gray.100">
           {blobUrl ? (
-            <Box 
-              w="100%" 
+            <Box
+              w="100%"
               maxW="1000px" // Allows A4 reports to look large and clear
               bg="white"
               borderRadius="xl"
@@ -134,7 +134,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
               <Skeleton h="500px" w="100%" borderRadius="xl" />
             </VStack>
           )}
-          
+
           <Text mt={4} fontSize="10px" color="gray.400" fontWeight="bold">
             OFFICIAL CLINICAL RECORD
           </Text>

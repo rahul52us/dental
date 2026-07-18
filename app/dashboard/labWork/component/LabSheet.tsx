@@ -71,6 +71,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
           shadeSystem: "vita-classic",
           shadeValue: "",
           teethNumbers: [],
+          unit: "",
           amount: "",
         },
       ],
@@ -460,7 +461,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
                         <Divider />
 
-                        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }} gap={4}>
+                        <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={4}>
                           <CustomInput
                             label="Teeth Numbers"
                             placeholder="e.g. 11, 12, 13"
@@ -478,6 +479,13 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                             name={`selectedWorks.${workIndex}.shadeValue`}
                             value={work.shadeValue}
                             onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.shadeValue`, e.target.value)}
+                          />
+                          <CustomInput
+                            label="Unit"
+                            placeholder="e.g. 1"
+                            name={`selectedWorks.${workIndex}.unit`}
+                            value={work.unit}
+                            onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.unit`, e.target.value)}
                           />
                           <CustomInput
                             label="Amount"
@@ -516,6 +524,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                         shadeSystem: "vita-classic",
                         shadeValue: "",
                         teethNumbers: [],
+                        unit: "",
                         amount: "",
                       });
                       setFieldValue("selectedWorks", currentWorks);

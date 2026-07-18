@@ -91,12 +91,13 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       const worksData = data.selectedWorks.map((work: any) => [
         labWorkHierarchyStore.getNamePath(work.selections),
         work.teethNumbers?.join(", ") || "-",
-        work.shadeValue || "-"
+        work.shadeValue || "-",
+        work.unit || "-"
       ]);
 
       autoTable(doc, {
         startY: currentY + 2,
-        head: [["Classification", "Teeth #", "Shade"]],
+        head: [["Classification", "Teeth #", "Shade", "Unit"]],
         body: worksData,
         theme: 'grid',
         headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], cellPadding: 1.5, fontStyle: 'bold', fontSize: 10 },
@@ -275,6 +276,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                   <Th>Classification</Th>
                   <Th>Teeth #</Th>
                   <Th>Shade</Th>
+                  <Th>Unit</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -285,6 +287,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                     </Td>
                     <Td>{work.teethNumbers?.join(", ") || "-"}</Td>
                     <Td>{work.shadeValue || "-"}</Td>
+                    <Td>{work.unit || "-"}</Td>
                   </Tr>
                 ))}
               </Tbody>
