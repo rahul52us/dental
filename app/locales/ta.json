@@ -500,6 +500,12 @@
     "detailedOverview": "சமீபத்திய பயனர் பதிவுகள் மற்றும் பதிவு நேரங்களின் விரிவான கண்ணோட்டம்.",
     "statusActive": "நிலை: செயலில்",
     "newUsers": "புதிய பயனர்கள்",
-    "completedAppointments": "பூர்த்தி செய்யப்பட்ட நியமனங்கள்"
+    "completedAppointments": "பூர்த்தி செய்யப்பட்ட நியமனங்கள்",
+    "timeSlotAnalytics": "டைம் ஸ்லாட் அனலிட்டிக்ஸ்",
+    "dailyAppointmentDistribution": "தினசரி நியமனம் விநியோகம்",
+    "treatmentTrends": "சிகிச்சை போக்குகள்",
+    "top10Treatments": "சிறந்த 10 சிகிச்சைகள் (கடந்த 6 மாதங்கள்)",
+    "appointmentTrends": "நியமனப் போக்குகள்",
+    "sixMonthsGrowthHistory": "6 மாத வளர்ச்சி வரலாறு"
   }
 }

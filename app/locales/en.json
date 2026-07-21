@@ -505,7 +505,13 @@
     "detailedOverview": "Detailed overview of latest user registrations and registrations times.",
     "statusActive": "Status: Active",
     "newUsers": "New Users",
-    "completedAppointments": "Completed Appointments"
+    "completedAppointments": "Completed Appointments",
+    "timeSlotAnalytics": "Time Slot Analytics",
+    "dailyAppointmentDistribution": "Daily Appointment Distribution",
+    "treatmentTrends": "Treatment Trends",
+    "top10Treatments": "Top 10 Treatments (Last 6 Months)",
+    "appointmentTrends": "Appointment Trends",
+    "sixMonthsGrowthHistory": "6 Months Growth History"
   },
   "Date": "Date",
   "Work Date": "Work Date",

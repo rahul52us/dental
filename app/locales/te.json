@@ -500,6 +500,12 @@
     "detailedOverview": "తాజా వినియోగదారు రిజిస్ట్రేషన్‌లు మరియు రిజిస్ట్రేషన్‌ల సమయాల వివరణాత్మక అవలోకనం.",
     "statusActive": "స్థితి: సక్రియంగా ఉంది",
     "newUsers": "కొత్త వినియోగదారులు",
-    "completedAppointments": "అపాయింట్‌మెంట్‌లు పూర్తయ్యాయి"
+    "completedAppointments": "అపాయింట్‌మెంట్‌లు పూర్తయ్యాయి",
+    "timeSlotAnalytics": "టైమ్ స్లాట్ అనలిటిక్స్",
+    "dailyAppointmentDistribution": "రోజువారీ అపాయింట్‌మెంట్ పంపిణీ",
+    "treatmentTrends": "చికిత్స పోకడలు",
+    "top10Treatments": "టాప్ 10 చికిత్సలు (గత 6 నెలలు)",
+    "appointmentTrends": "అపాయింట్‌మెంట్ ట్రెండ్‌లు",
+    "sixMonthsGrowthHistory": "6 నెలల వృద్ధి చరిత్ర"
   }
 }

@@ -500,6 +500,12 @@
     "detailedOverview": "नवीनतम वापरकर्ता नोंदणी आणि नोंदणी वेळेचे तपशीलवार विहंगावलोकन.",
     "statusActive": "स्थिती: सक्रिय",
     "newUsers": "नवीन वापरकर्ते",
-    "completedAppointments": "भेटी पूर्ण केल्या"
+    "completedAppointments": "भेटी पूर्ण केल्या",
+    "timeSlotAnalytics": "वेळ स्लॉट विश्लेषण",
+    "dailyAppointmentDistribution": "दैनंदिन भेटीचे वितरण",
+    "treatmentTrends": "उपचार ट्रेंड",
+    "top10Treatments": "शीर्ष 10 उपचार (गेले 6 महिने)",
+    "appointmentTrends": "अपॉइंटमेंट ट्रेंड",
+    "sixMonthsGrowthHistory": "6 महिन्यांचा वाढीचा इतिहास"
   }
 }

@@ -501,6 +501,12 @@
     "detailedOverview": "नवीनतम उपयोगकर्ता पंजीकरण और पंजीकरण समय का विस्तृत अवलोकन।",
     "statusActive": "स्थिति: सक्रिय",
     "newUsers": "नए उपयोगकर्ता",
-    "completedAppointments": "पूरी की गई अपॉइंटमेंट्स"
+    "completedAppointments": "पूरी की गई अपॉइंटमेंट्स",
+    "timeSlotAnalytics": "टाइम स्लॉट एनालिटिक्स",
+    "dailyAppointmentDistribution": "दैनिक नियुक्ति वितरण",
+    "treatmentTrends": "उपचार के रुझान",
+    "top10Treatments": "शीर्ष 10 उपचार (पिछले 6 महीने)",
+    "appointmentTrends": "नियुक्ति रुझान",
+    "sixMonthsGrowthHistory": "6 महीने का विकास इतिहास"
   }
 }

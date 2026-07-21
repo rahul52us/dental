@@ -36,7 +36,9 @@ import {
   FaStore,
   FaCalendarAlt,
   FaClipboardList,
-  FaArrowRight
+  FaArrowRight,
+  FaNotesMedical,
+  FaChartLine
 } from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
@@ -101,6 +103,31 @@ const lineChartOptions: any = {
   },
 };
 
+const horizontalBarOptions: any = {
+  indexAxis: 'y' as const,
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#1A202C',
+      padding: 12,
+      cornerRadius: 12,
+    }
+  },
+  scales: {
+    x: {
+      beginAtZero: true,
+      grid: { color: '#E2E8F0', borderDash: [5, 5], drawBorder: false },
+      ticks: { font: { size: 11 }, color: '#718096', precision: 0 }
+    },
+    y: {
+      grid: { display: false },
+      ticks: { font: { size: 11 }, color: '#718096' }
+    },
+  },
+};
+
 const marqueeStyle = `marqueeAnimation 20s linear infinite`;
 
 const Dashboard = observer(() => {
@@ -155,6 +182,37 @@ const Dashboard = observer(() => {
       }]
     };
   }, [count?.data?.growth]);
+
+  const treatmentTrendsData = useMemo(() => {
+    const trends = count?.data?.treatmentTrends || [];
+    return {
+      labels: trends.map((t: any) => t.label),
+      datasets: [{
+        label: "Treatments",
+        data: trends.map((t: any) => t.count),
+        backgroundColor: "rgba(56, 161, 105, 0.7)", // green-ish
+        borderRadius: 4,
+        barThickness: 20,
+      }]
+    };
+  }, [count?.data?.treatmentTrends]);
+
+  const appointmentTrendsData = useMemo(() => {
+    const trends = count?.data?.appointmentTrends || [];
+    return {
+      labels: trends.map((t: any) => t._id),
+      datasets: [{
+        label: "Appointments",
+        data: trends.map((t: any) => t.count),
+        borderColor: "#ed8936", // orange-400
+        backgroundColor: "rgba(237, 137, 54, 0.2)",
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: "#ed8936",
+      }]
+    };
+  }, [count?.data?.appointmentTrends]);
 
   const timeSlotChartData = useMemo(() => {
     return {
@@ -256,20 +314,20 @@ const Dashboard = observer(() => {
               <Box bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
                 <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
                   <Box>
-                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">Time Slot Analytics</Text>
-                    <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">Daily Appointment Distribution</Text>
+                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, green.400, teal.400)" bgClip="text">{t("dashboard.timeSlotAnalytics")}</Text>
+                    <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.dailyAppointmentDistribution")}</Text>
                   </Box>
                   <Box p={2.5} bg="green.50" color="green.500" borderRadius="xl">
                     <Icon as={FaCalendarAlt} boxSize={5} />
                   </Box>
                 </Flex>
                 <AspectRatio ratio={16 / 9} width="100%">
-                  <Line 
-                    data={timeSlotChartData} 
-                    options={{ 
-                      ...lineChartOptions, 
-                      plugins: { 
-                        ...lineChartOptions.plugins, 
+                  <Line
+                    data={timeSlotChartData}
+                    options={{
+                      ...lineChartOptions,
+                      plugins: {
+                        ...lineChartOptions.plugins,
                         legend: { display: true, position: 'top', labels: { boxWidth: 12, usePointStyle: true, font: { size: 10 } } },
                         tooltip: {
                           ...lineChartOptions.plugins?.tooltip,
@@ -284,10 +342,48 @@ const Dashboard = observer(() => {
                             }
                           }
                         }
-                      } 
-                    }} 
+                      }
+                    }}
                   />
                 </AspectRatio>
+              </Box>
+            </DarkSkeleton>
+          )}
+
+          {showWeeklyGrowth && (
+            <DarkSkeleton isLoaded={!count?.loading}>
+              <Box minW={0} bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+                <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
+                  <Box>
+                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, purple.400, pink.400)" bgClip="text">{t("dashboard.treatmentTrends")}</Text>
+                    <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.top10Treatments")}</Text>
+                  </Box>
+                  <Box p={2.5} bg="purple.50" color="purple.500" borderRadius="xl">
+                    <Icon as={FaNotesMedical} boxSize={5} />
+                  </Box>
+                </Flex>
+                <Box position="relative" height={{ base: "300px", md: "400px" }} width="100%">
+                  <Bar data={treatmentTrendsData} options={horizontalBarOptions} />
+                </Box>
+              </Box>
+            </DarkSkeleton>
+          )}
+
+          {showTimeSlot && (
+            <DarkSkeleton isLoaded={!count?.loading}>
+              <Box minW={0} bg={useColorModeValue("white", "rgba(255, 255, 255, 0.03)")} p={{ base: 4, md: 8 }} borderRadius="3xl" boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} backdropFilter="blur(20px)">
+                <Flex justify="space-between" align="center" mb={{ base: 4, md: 8 }}>
+                  <Box>
+                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="900" bgGradient="linear(to-r, orange.400, red.400)" bgClip="text">{t("dashboard.appointmentTrends")}</Text>
+                    <Text fontSize={{ base: "10px", md: "xs" }} color="gray.500" fontWeight="700">{t("dashboard.sixMonthsGrowthHistory")}</Text>
+                  </Box>
+                  <Box p={2.5} bg="orange.50" color="orange.500" borderRadius="xl">
+                    <Icon as={FaChartLine} boxSize={5} />
+                  </Box>
+                </Flex>
+                <Box position="relative" height={{ base: "300px", md: "400px" }} width="100%">
+                  <Line data={appointmentTrendsData} options={lineChartOptions} />
+                </Box>
               </Box>
             </DarkSkeleton>
           )}

@@ -13,6 +13,7 @@ import {
   Tooltip,
   useDisclosure,
   IconButton,
+  Image,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -292,7 +293,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Tooltip label="View Work Done" hasArrow borderRadius="xl">
             <IconButton
               aria-label="Work Done"
-              icon={<FiFileText />}
+              icon={<Box as="span" fontSize="lg" fontWeight="900">W</Box>}
               colorScheme="blue"
               bg="blue.50"
               color="blue.600"
@@ -317,11 +318,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Tooltip label="Laboratory History" hasArrow borderRadius="xl">
             <IconButton
               aria-label="Lab Sheet"
-              icon={<FaFlask />}
+              icon={<Image src="/images/lab.jpeg" alt="Lab" boxSize="32px" borderRadius="full" objectFit="cover" />}
               colorScheme="teal"
               bg="teal.50"
-              color="teal.600"
-              _hover={{ bg: "teal.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              _hover={{ bg: "teal.100", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
               borderRadius="2xl"
@@ -339,14 +339,13 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Tooltip label="Accountability Management" hasArrow borderRadius="xl">
+          <Tooltip label="Account Management" hasArrow borderRadius="xl">
             <IconButton
               aria-label="Account"
-              icon={<FiDollarSign />}
+              icon={<Image src="/images/coin.jpeg" alt="Account" boxSize="32px" borderRadius="full" objectFit="cover" />}
               colorScheme="purple"
               bg="purple.50"
-              color="purple.600"
-              _hover={{ bg: "purple.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              _hover={{ bg: "purple.100", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
               borderRadius="2xl"
