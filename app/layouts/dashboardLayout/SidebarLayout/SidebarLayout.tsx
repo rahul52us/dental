@@ -60,16 +60,14 @@ interface SidebarProps {
   setOpenMobileSideDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const renderIcon = (depth: number, icon: any, colorMode: string) => {
-  const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
-
+const renderIcon = (depth: number, icon: any, colorMode: string, isCustomWhite?: boolean) => {
   if (depth === 1) {
-    return <Icon as={FaCircle} boxSize={2} mr={2} color={iconColor} opacity={0.6} />;
+    return <Icon as={FaCircle} boxSize={2} mr={2} color="currentColor" opacity={isCustomWhite ? 1 : 0.6} />;
   }
   if (depth > 1) {
-    return <Icon as={FaCircle} boxSize={1.5} mr={2} color={iconColor} opacity={0.4} />;
+    return <Icon as={FaCircle} boxSize={1.5} mr={2} color="currentColor" opacity={isCustomWhite ? 1 : 0.4} />;
   }
-  return <Icon as={icon.type} boxSize={5} color={iconColor} />;
+  return <Icon as={icon.type} boxSize={5} color="currentColor" />;
 };
 
 const findPathToActiveItem = (
@@ -186,11 +184,13 @@ const SidebarPopover = observer(
               : "transparent")
           }
           color={
-            itemIsActive
+            customBg
+              ? "black"
+              : itemIsActive
               ? useColorModeValue(
-                themeConfig.colors.custom.light.primary,
-                themeConfig.colors.custom.dark.primary
-              )
+                  themeConfig.colors.custom.light.primary,
+                  themeConfig.colors.custom.dark.primary
+                )
               : "inherit"
           }
           fontWeight={itemIsActive ? "700" : "inherit"}
@@ -198,10 +198,12 @@ const SidebarPopover = observer(
           _hover={{
             bg: customBg || useColorModeValue("brand.50", "darkBrand.100"),
             filter: customBg ? "brightness(0.92)" : "none",
-            color: useColorModeValue(
-              themeConfig.colors.custom.light.primary,
-              themeConfig.colors.custom.dark.primary
-            ),
+            color: customBg
+              ? "white"
+              : useColorModeValue(
+                  themeConfig.colors.custom.light.primary,
+                  themeConfig.colors.custom.dark.primary
+                ),
             boxShadow: "sm",
           }}
           borderLeft={itemIsActive && depth > 0 ? "4px solid" : "4px solid transparent"}
@@ -221,9 +223,9 @@ const SidebarPopover = observer(
             display="flex"
             alignItems="center"
             filter={itemIsActive ? "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" : "none"} // Icon glow
-            color={itemIsActive ? useColorModeValue(themeConfig.colors.custom.light.primary, themeConfig.colors.custom.dark.primary) : "currentColor"}
+            color="currentColor"
           >
-            {renderIcon(depth, item.icon, colorMode)}
+            {renderIcon(depth, item.icon, colorMode, !!customBg)}
           </Box>
           {depth > 0 && (
             <Flex flex={1} align={"center"} justify={"space-between"}>
@@ -424,7 +426,7 @@ const SidebarAccordion = observer(
                         "linear-gradient(to right, var(--chakra-colors-brand-50), transparent)",
                         "linear-gradient(to right, var(--chakra-colors-darkBrand-200), transparent)"
                       ) : "transparent")}
-                    color={itemIsActive ? primaryColor : "inherit"}
+                    color={customBg ? "black" : itemIsActive ? primaryColor : "inherit"}
                     fontWeight={itemIsActive ? "700" : "inherit"}
                     transition="all 0.2s ease"
                     position="relative"
@@ -432,7 +434,7 @@ const SidebarAccordion = observer(
                     _hover={{
                       bg: customBg || hoverBg,
                       filter: customBg ? "brightness(0.92)" : "none",
-                      color: hoverColor,
+                      color: customBg ? "white" : hoverColor,
                       fontWeight: "700",
                       boxShadow: "sm",
                     }}
@@ -459,7 +461,9 @@ const SidebarAccordion = observer(
                       my={0}
                       cursor="pointer"
                       color={
-                        activeItemId === item.id
+                        customBg
+                          ? "inherit"
+                          : activeItemId === item.id
                           ? (colorMode === "light"
                             ? themeConfig.colors.custom.light.primary
                             : themeConfig.colors.custom.dark.primary)
@@ -474,7 +478,7 @@ const SidebarAccordion = observer(
                           alignItems="center"
                           filter={itemIsActive ? "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" : "none"} // Icon glow
                         >
-                          {renderIcon(depth, item.icon, colorMode)}
+                          {renderIcon(depth, item.icon, colorMode, !!customBg)}
                         </Box>
                         <Text
                           fontSize="sm"

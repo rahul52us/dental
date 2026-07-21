@@ -291,6 +291,21 @@ class UserStore {
       return Promise.reject(err?.response?.data || err.message);
     }
   };
+
+  cloneCompanyDatabase = async (companyId: string, email?: string) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.post("/database/clone-company", {
+        companyId,
+        email
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
 }
 
 export const userStore = new UserStore();

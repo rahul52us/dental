@@ -72,7 +72,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                 <GridItem>
                   <Flex justify="space-between" align="center" mb={6}>
                     <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-                      {isEdit ? "Edit Doctor Inventory" : "New Doctor Inventory"}
+                      {isEdit ? "Edit In & Out Ledger" : "New In & Out Ledger"}
                     </Text>
                     <HStack spacing={3}>
                       <Button

@@ -13,6 +13,7 @@ import {
   FaPrescription,
   FaClipboardList,
   FaStethoscope,
+  FaArrowsAltH,
 } from "react-icons/fa";
 
 import { FaVial } from "react-icons/fa"; // correct icon
@@ -132,7 +133,7 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 37,
     name: "Doctor Inventory",
-    icon: <FaStethoscope />,
+    icon: <FaArrowsAltH />,
     url: "/dashboard/doctorInventory",
     role: ["superAdmin", "patient", "doctor", "admin", "staff"],
     permission: { module: "doctorInventory", action: "sidebar" },

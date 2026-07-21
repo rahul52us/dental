@@ -45,7 +45,7 @@ export const MODULES = [
   { id: "reports", label: "Financial Reports", icon: FiFileText, color: "red", category: "Admin", keys: ["view", "download", "print", "sidebar"] },
   { id: "accountability", label: "Financial Accountability", icon: FiDollarSign, color: "pink", category: "Admin", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
   { id: "globalAccountability", label: "Global Accountability", icon: FiDollarSign, color: "blue", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
-  { id: "doctorInventory", label: "Doctor Inventory", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "sidebar"] },
+  { id: "doctorInventory", label: "In & Out Ledger", icon: FiBox, color: "cyan", category: "Lab", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "masters", label: "Masters (Prescription/Procedure)", icon: FiSettings, color: "gray", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "staffs", label: "Staff Management", icon: FiUsers, color: "blue", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "admins", label: "Admin Management", icon: FiUserCheck, color: "purple", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },

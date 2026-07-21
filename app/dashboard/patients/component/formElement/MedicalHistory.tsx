@@ -148,6 +148,62 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
           </FormControl>
         </GridItem>
 
+        {/* Cholesterol */}
+        <GridItem>
+          <FormControl id="cholesterol">
+            <Box
+              p={4}
+              borderWidth={1}
+              borderRadius="md"
+              bg={
+                values.medicalHistory?.cholesterol?.option ||
+                  values.medicalHistory?.cholesterol?.text
+                  ? bgActive
+                  : bgInactive
+              }
+              borderColor={
+                values.medicalHistory?.cholesterol?.option ||
+                  values.medicalHistory?.cholesterol?.text
+                  ? borderActive
+                  : borderInactive
+              }
+            >
+              <Text fontWeight="medium" mb={2}>
+                {t("patients.form.medicalHistory.cholesterol")}
+              </Text>
+              <RadioGroup
+                value={values.medicalHistory?.cholesterol?.option || ""}
+                onChange={(val) => {
+                  setFieldValue("medicalHistory.cholesterol.option", val);
+                }}
+              >
+                <Stack direction="row">
+                  <Radio value="yes" colorScheme="brand">
+                    {t("patients.form.medicalHistory.yes")}
+                  </Radio>
+                  <Radio value="no" colorScheme="brand">
+                    {t("patients.form.medicalHistory.no")}
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+              {values.medicalHistory?.cholesterol?.option === "yes" && (
+                <Input
+                  size="sm"
+                  mt={3}
+                  placeholder={t("patients.form.medicalHistory.detailsPlaceholder")}
+                  value={values.medicalHistory?.cholesterol?.text || ""}
+                  onChange={(e) => {
+                    setFieldValue(
+                      "medicalHistory.cholesterol.text",
+                      e.target.value
+                    );
+                  }}
+                />
+              )}
+            </Box>
+          </FormControl>
+        </GridItem>
+
         {/* Heart Disease */}
         <GridItem>
           <FormControl id="heartDisease">

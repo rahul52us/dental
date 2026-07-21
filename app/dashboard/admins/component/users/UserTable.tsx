@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Avatar, Box, Badge, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Image, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, useDisclosure, IconButton, Switch, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, Button } from "@chakra-ui/react";
-import { FaBrain, FaUserFriends, FaVideo, FaEdit, FaTrash } from "react-icons/fa";
+import { FaBrain, FaUserFriends, FaVideo, FaEdit, FaTrash, FaDatabase } from "react-icons/fa";
 import { FiLock, FiAlertCircle, FiKey } from "react-icons/fi";
 import { GiPsychicWaves } from "react-icons/gi";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import { formatDateTime } from "../../../../component/config/utils/dateUtils";
 import StaffPermissionsModal from "../../../staffs/component/staffs/StaffPermissionsModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import RenewSubscriptionModal from "./RenewSubscriptionModal";
+import CloneDatabaseModal from "./CloneDatabaseModal";
 import { FiClock } from "react-icons/fi";
 
 const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
@@ -34,6 +35,9 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
 
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [selectedSubscriptionUser, setSelectedSubscriptionUser] = useState<any>(null);
+
+  const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
+  const [selectedCloneUser, setSelectedCloneUser] = useState<any>(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -274,6 +278,20 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
                 }}
               />
             </Tooltip>
+            <Tooltip label="Clone Database">
+              <IconButton
+                aria-label="Clone Database"
+                icon={<FaDatabase />}
+                size="sm"
+                colorScheme="purple"
+                variant="ghost"
+                borderRadius="xl"
+                onClick={() => {
+                  setSelectedCloneUser(dt);
+                  setIsCloneModalOpen(true);
+                }}
+              />
+            </Tooltip>
             <Tooltip label="Delete Admin">
               <IconButton
                 aria-label="Delete"
@@ -465,6 +483,15 @@ const UserTable = observer(({onAdd, onEdit, onDelete} : any) => {
           onClose={() => setIsSubscriptionModalOpen(false)}
           user={selectedSubscriptionUser}
           onSuccess={() => applyGetAllTherapists({ type: "superAdmin", page: currentPage, limit: tablePageLimit })}
+        />
+      )}
+
+      {/* Clone Database Modal */}
+      {selectedCloneUser && (
+        <CloneDatabaseModal
+          isOpen={isCloneModalOpen}
+          onClose={() => setIsCloneModalOpen(false)}
+          adminUser={selectedCloneUser}
         />
       )}
 

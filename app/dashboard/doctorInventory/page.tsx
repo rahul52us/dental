@@ -42,7 +42,7 @@ const DoctorInventoryPage = observer(() => {
       getDoctorInventories({ page: 1, limit: tablePageLimit });
       setIsDrawerOpen({ isOpen: false, type: "add", data: null });
       toast({
-        title: "Doctor Inventory Added",
+        title: "In & Out Ledger Added",
         description: `Item has been successfully added.`,
         status: "success",
         duration: 5000,
@@ -68,7 +68,7 @@ const DoctorInventoryPage = observer(() => {
       getDoctorInventories({ page: 1, limit: tablePageLimit });
       setIsDrawerOpen({ isOpen: false, type: "add", data: null });
       toast({
-        title: "Doctor Inventory Updated",
+        title: "In & Out Ledger Updated",
         description: `Item has been successfully updated.`,
         status: "success",
         duration: 5000,
@@ -92,7 +92,7 @@ const DoctorInventoryPage = observer(() => {
     try {
       await deleteDoctorInventory({ id : data._id });
       toast({
-        title: "Doctor Inventory Deleted",
+        title: "In & Out Ledger Deleted",
         description: `Item has been deleted successfully.`,
         status: "success",
         duration: 5000,
@@ -166,7 +166,7 @@ const DoctorInventoryPage = observer(() => {
                 fontWeight="bold"
                 textAlign="center"
               >
-                {isDrawerOpen?.type === "edit" ? "Edit Doctor Inventory" : "Add Doctor Inventory"}
+                {isDrawerOpen?.type === "edit" ? "Edit In & Out Ledger" : "Add In & Out Ledger"}
               </DrawerHeader>
               <DrawerBody p={6} bg="gray.50">
                 <Form

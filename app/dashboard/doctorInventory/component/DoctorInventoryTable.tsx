@@ -69,7 +69,7 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   return (
     <Box>
       <CustomTable
-        title="Doctor Inventory"
+        title="In & Out Ledger"
         columns={columns}
         data={doctorInventories.data || []}
         loading={doctorInventories.loading}
