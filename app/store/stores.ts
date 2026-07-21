@@ -30,8 +30,10 @@ import accountabilityStore from "./accountabilityStore/accountabilityStore";
 import { doctorInventoryStore } from "./doctorInventoryStore/doctorInventoryStore";
 import OldDataStore from "./oldDataStore/oldData.store";
 import { advertisementStore } from "./advertisementStore/advertisementStore";
+import GlobalConfigStore from "./globalConfigStore";
 
 const oldDataStore = new OldDataStore();
+const globalConfigStore = new GlobalConfigStore();
 
 const stores = {
   auth : authStore,
@@ -65,7 +67,7 @@ const stores = {
   doctorInventoryStore: doctorInventoryStore,
   oldDataStore: oldDataStore,
   advertisementStore: advertisementStore,
+  globalConfigStore: globalConfigStore,
 };
-
 
 export default stores;

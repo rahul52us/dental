@@ -239,6 +239,13 @@ const sidebarDatas: SidebarItem[] = [
     role: ["superAdmin", "superadmin"],
   },
   {
+    id: 100,
+    name: "Global Settings",
+    icon: <FaCog />,
+    url: "/dashboard/global-settings",
+    role: ["superAdmin", "superadmin"],
+  },
+  {
     id: 42,
     name: "Chairs",
     icon: <GiOfficeChair />,
@@ -324,7 +331,7 @@ const getSidebarDataByRole = (role: string[] = ["admin", "staff"]): SidebarItem[
 
         // If the user is a superAdmin, they should ONLY see the Admins tab, Advertisements tab (and basic ones like Dashboard)
         if (isSuperAdmin) {
-          if (item.name !== "Admins" && item.name !== "Settings" && item.name !== "Advertisements") {
+          if (item.name !== "Admins" && item.name !== "Settings" && item.name !== "Advertisements" && item.name !== "Global Settings") {
             return false;
           }
         }

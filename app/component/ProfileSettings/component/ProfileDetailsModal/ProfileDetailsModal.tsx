@@ -70,9 +70,15 @@ const ProfileDetailsModal = observer(({ user }: any) => {
       : getDefaultSchedule()
   );
   const [isSaving, setIsSaving] = useState(false);
-  const { themeStore, companyStore } = stores;
+  const { themeStore, companyStore, globalConfigStore } = stores;
   const { profileModal, setProfileModal } = themeStore;
   const toast = useToast();
+
+  useEffect(() => {
+    if (profileModal.isOpen) {
+      globalConfigStore.fetchGlobalConfig();
+    }
+  }, [profileModal.isOpen]);
 
   const handleClose = () => {
     setProfileModal(false, 0);
@@ -623,7 +629,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                     </Flex>
                     <Box textAlign="center">
                       <Image 
-                        src="/images/payment-ss.png" 
+                        src={globalConfigStore.config?.paymentQrCode || "/images/payment-ss.png"} 
                         alt="Payment Details" 
                         maxW={{ base: "100%", md: "400px" }} 
                         mx="auto" 
