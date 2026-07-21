@@ -614,31 +614,33 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
              />
           </HStack>
 
-          <Box w="150px" zIndex={10}>
-            <CreatableSelect
-              isMulti
-              isClearable
-              placeholder="Sit. No..."
-              value={sittingNoSearch}
-              onChange={(val: any) => setSittingNoSearch(val)}
-              options={[]}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  minHeight: '32px',
-                  borderRadius: '12px',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  borderColor: '#E2E8F0',
-                  '&:hover': { borderColor: '#CBD5E1' }
-                }),
-                valueContainer: (base) => ({ ...base, padding: '0 8px' }),
-                clearIndicator: (base) => ({ ...base, padding: '4px' }),
-                dropdownIndicator: (base) => ({ ...base, padding: '4px' }),
-                multiValue: (base) => ({ ...base, backgroundColor: '#E2E8F0' }),
-              }}
-            />
-          </Box>
+          <Tooltip label="Sitting Number" hasArrow placement="top">
+            <Box w="150px" zIndex={10}>
+              <CreatableSelect
+                isMulti
+                isClearable
+                placeholder="Sit. No..."
+                value={sittingNoSearch}
+                onChange={(val: any) => setSittingNoSearch(val)}
+                options={[]}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: '32px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    borderColor: '#E2E8F0',
+                    '&:hover': { borderColor: '#CBD5E1' }
+                  }),
+                  valueContainer: (base) => ({ ...base, padding: '0 8px' }),
+                  clearIndicator: (base) => ({ ...base, padding: '4px' }),
+                  dropdownIndicator: (base) => ({ ...base, padding: '4px' }),
+                  multiValue: (base) => ({ ...base, backgroundColor: '#E2E8F0' }),
+                }}
+              />
+            </Box>
+          </Tooltip>
 
           <Select
             value={statusFilter}

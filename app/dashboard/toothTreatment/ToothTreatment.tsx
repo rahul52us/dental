@@ -956,32 +956,34 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
                     />
                   </HStack>
 
-                  <Box w="150px" zIndex={10}>
-                    <CreatableSelect
-                      isMulti
-                      placeholder="Sitting No"
-                      value={sittingNoSearch}
-                      onChange={(newVal) => setSittingNoSearch(newVal as any)}
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          borderRadius: 'full',
-                          borderColor: '#E2E8F0',
-                          minHeight: '40px',
-                          fontSize: '14px',
-                          boxShadow: 'none',
-                          '&:hover': {
-                            borderColor: '#CBD5E1'
-                          }
-                        }),
-                        multiValue: (base) => ({
-                          ...base,
-                          backgroundColor: '#EBF8FF',
-                          borderRadius: '4px'
-                        })
-                      }}
-                    />
-                  </Box>
+                  <Tooltip label="Sitting Number" hasArrow placement="top">
+                    <Box w="150px" zIndex={10}>
+                      <CreatableSelect
+                        isMulti
+                        placeholder="Sitting No"
+                        value={sittingNoSearch}
+                        onChange={(newVal) => setSittingNoSearch(newVal as any)}
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            borderRadius: 'full',
+                            borderColor: '#E2E8F0',
+                            minHeight: '40px',
+                            fontSize: '14px',
+                            boxShadow: 'none',
+                            '&:hover': {
+                              borderColor: '#CBD5E1'
+                            }
+                          }),
+                          multiValue: (base) => ({
+                            ...base,
+                            backgroundColor: '#EBF8FF',
+                            borderRadius: '4px'
+                          })
+                        }}
+                      />
+                    </Box>
+                  </Tooltip>
 
                   <Box w="220px">
                     <select

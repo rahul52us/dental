@@ -418,21 +418,21 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           columns={PatientTableColumns}
           actions={{
             actionBtn: {
-              addKey: { 
-                showAddButton: stores.auth.hasPermission('patient', 'create'), 
-                function: onAdd 
+              addKey: {
+                showAddButton: stores.auth.hasPermission('patient', 'create'),
+                function: onAdd
               },
-              editKey: { 
-                showEditButton: stores.auth.hasPermission('patient', 'edit'), 
-                function: onEdit 
+              editKey: {
+                showEditButton: stores.auth.hasPermission('patient', 'edit'),
+                function: onEdit
               },
-              viewKey: { 
-                showViewButton: stores.auth.hasPermission('patient', 'view'), 
-                function: handleRowClick 
+              viewKey: {
+                showViewButton: stores.auth.hasPermission('patient', 'view'),
+                function: handleRowClick
               },
-              deleteKey: { 
-                showDeleteButton: stores.auth.hasPermission('patient', 'delete'), 
-                function: onDelete 
+              deleteKey: {
+                showDeleteButton: stores.auth.hasPermission('patient', 'delete'),
+                function: onDelete
               },
             },
             search: {
