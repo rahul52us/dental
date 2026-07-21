@@ -45,6 +45,7 @@ import { formatDate } from "../../../component/config/utils/dateUtils";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import TreatmentDetailsView from "../../toothTreatment/element/TreatmentDetailsView";
 import WorkDoneForm from "./WorkDoneForm";
+import AppointmentList from "../../appointments/Appointments";
 import CreatableSelect from 'react-select/creatable';
 import { adultTeeth, childTeeth } from "../../../component/common/TeethModel/DentalChartComponent/utils/teethData";
 import PatientAccountHistory from "../../patients/component/patient/PatientAccountHistory";
@@ -175,6 +176,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
   const [openFilteredReportModal, setOpenFilteredReportModal] = useState({ open: false });
   const [openAccountDetails, setOpenAccountDetails] = useState({ open: false });
+  const [openAppointment, setOpenAppointment] = useState({ open: false, data: null as any });
   const [tablePreviewDrawer, setTablePreviewDrawer] = useState({ open: false, url: "" });
   const [isDownloadingData, setIsDownloadingData] = useState(false);
 
@@ -555,6 +557,21 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           >
             DOWNLOAD DAILY PRESCRIPTION
           </Button>
+
+          {stores.auth.hasPermission('appointment', 'view') && (
+            <Button
+              size="sm"
+              colorScheme="blue"
+              variant="solid"
+              leftIcon={<FiCalendar />}
+              borderRadius="xl"
+              fontSize="11px"
+              fontWeight="bold"
+              onClick={() => setOpenAppointment({ open: true, data: patientDetails })}
+            >
+              Appointment
+            </Button>
+          )}
 
           <Button
             size="sm"
@@ -1325,6 +1342,22 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Appointment Drawer */}
+      {openAppointment.open && (
+        <CustomDrawer
+          width="92%"
+          title={`Patient Appointments: ${openAppointment.data?.name || "Patient"}`}
+          open={openAppointment.open}
+          close={() => setOpenAppointment({ open: false, data: null })}
+        >
+          <AppointmentList
+            isPatient={true}
+            patientDetails={openAppointment.data}
+            defaultOpenCalendar={true}
+          />
+        </CustomDrawer>
+      )}
     </Box>
   );
 });
@@ -2591,6 +2624,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
           <iframe src={`${previewDrawer.url}#toolbar=1&navpanes=0&view=FitH`} width="100%" height="100%" style={{ borderRadius: '16px', border: '1px solid #E2E8F0' }} title="PDF Preview" />
         </Box>
       </CustomDrawer>
+
     </CustomDrawer>
   );
 });

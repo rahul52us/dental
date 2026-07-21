@@ -384,7 +384,7 @@ const ScheduleGrid = ({
   };
 
   return (
-    <Box flex="1" px={1} pb={1} overflowX="auto" overflowY="auto" maxH={{ base: "65vh", md: "calc(100vh - 180px)" }}>
+    <Box flex="1" px={1} pb={1} overflowX="auto" overflowY="auto" maxH={{ base: "75vh", md: "calc(100vh - 100px)" }}>
       <Box bg={bg} borderRadius="2xl" boxShadow="2xl" borderWidth="1px" minW="100%" w="max-content">
         <Grid
           templateColumns={`80px repeat(${chairs.length}, minmax(140px, 1fr))`}
@@ -634,7 +634,7 @@ const MobileScheduleView = ({
   };
 
   return (
-    <Box flex="1" px={0} pb={4} overflowY="auto" maxH="calc(100vh - 160px)" bg={bg}>
+    <Box flex="1" px={0} pb={4} overflowY="auto" maxH={{ base: "75vh", md: "calc(100vh - 100px)" }} bg={bg}>
       {/* Doctor Tabs (Pill Style) */}
       <Flex 
         overflowX="auto" 
