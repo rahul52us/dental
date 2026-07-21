@@ -230,7 +230,7 @@ const SidebarPopover = observer(
           {depth > 0 && (
             <Flex flex={1} align={"center"} justify={"space-between"}>
               <Text ml={2} fontSize={"sm"}>
-                {t(`sidebar.${item.name}`)}
+                {t(`sidebar.${item.name}`, item.name)}
               </Text>
               {item.children && (
                 <ChevronRightIcon
@@ -262,7 +262,7 @@ const SidebarPopover = observer(
         <PopoverTrigger>
           <Box w="100%" display="inline-block"> {/* Ensure ref forwarding */}
             <Tooltip
-              label={t(`sidebar.${item.name}`)}
+              label={t(`sidebar.${item.name}`, item.name)}
               isDisabled={
                 !isCollapsed ||
                 (!!item.children && item.children.length > 0) ||
