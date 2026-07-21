@@ -78,8 +78,10 @@ const defaultLabWorkCols = [
   { label: "Selected Works", value: "works" },
   { label: "Teeth Number", value: "teethNumber" },
   { label: "Shade", value: "shade" },
+  { label: "Unit", value: "unit" },
   { label: "Warranty Card", value: "warrantyCardNumber" },
 ];
+
 
 const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWorkType }: LabWorkTableProps = {}) => {
   const { labWorkStore, labWorkHierarchyStore, labWorkStatusStore, auth: { openNotification } } = stores;
