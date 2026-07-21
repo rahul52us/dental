@@ -26,7 +26,7 @@ const WaitingRoomPage = observer((): any => {
         if (ads.length > 1) {
             const interval = setInterval(() => {
                 setCurrentAdIndex((prev) => (prev + 1) % ads.length);
-            }, 5000);
+            }, 8000);
             return () => clearInterval(interval);
         }
     }, [ads.length]);
@@ -108,68 +108,158 @@ const WaitingRoomPage = observer((): any => {
                 </HStack>
 
                 <Box
-                    w={{ base: "100%", lg: "400px", xl: "500px" }}
-                    h={{ base: "80px", md: "100px" }}
-                    borderRadius="xl"
+                    w={{ base: "100%", lg: "400px", xl: "450px" }}
+                    h={{ base: "85px", md: "110px" }}
+                    borderRadius="2xl"
                     overflow="hidden"
                     position="relative"
-                    boxShadow="inset 0 0 20px rgba(0,0,0,0.05)"
-                    bg={useColorModeValue("gray.50", "whiteAlpha.100")}
+                    bg={useColorModeValue("white", "gray.800")}
                     border="1px solid"
-                    borderColor={borderColor}
+                    borderColor={useColorModeValue("gray.100", "gray.700")}
+                    boxShadow="0 10px 30px -10px rgba(0,0,0,0.1)"
+                    _hover={{ 
+                        boxShadow: "0 15px 35px -5px rgba(0,0,0,0.15)", 
+                        transform: "translateY(-3px)",
+                        "& .ad-image": { transform: "scale(1.05)" },
+                        "& .ad-shine": { left: "100%" }
+                    }}
+                    transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                    cursor={ads[currentAdIndex]?.link ? "pointer" : "default"}
+                    onClick={() => {
+                        if (ads[currentAdIndex]?.link) window.open(ads[currentAdIndex].link, "_blank");
+                    }}
+                    role="group"
                 >
-                    <style>
-                        {`
-                          @keyframes adMarquee {
-                            0% { transform: translateX(100%); }
-                            100% { transform: translateX(-100%); }
-                          }
-                        `}
-                    </style>
+                    {/* Shimmer effect on hover */}
+                    <Box
+                        className="ad-shine"
+                        position="absolute"
+                        top={0}
+                        left="-100%"
+                        w="50%"
+                        h="100%"
+                        bgGradient="linear(to-r, transparent, whiteAlpha.400, transparent)"
+                        transform="skewX(-20deg)"
+                        transition="left 0.7s ease"
+                        zIndex={10}
+                        pointerEvents="none"
+                    />
+
                     {ads.length > 0 ? (
-                        <Box position="relative" w="100%" h="100%" borderRadius="xl" overflow="hidden">
-                            <Box
-                                as="img"
-                                src={ads[currentAdIndex]?.image?.url}
-                                w="100%"
-                                h="100%"
-                                objectFit="cover"
-                                transition="opacity 0.5s ease-in-out"
-                                cursor={ads[currentAdIndex]?.link ? "pointer" : "default"}
-                                onClick={() => {
-                                    if (ads[currentAdIndex]?.link) {
-                                        window.open(ads[currentAdIndex].link, "_blank");
-                                    }
-                                }}
-                            />
-                            {ads[currentAdIndex]?.title && (
+                        <Flex h="100%" align="stretch" position="relative" zIndex={1}>
+                            {/* Left Side: Premium Image */}
+                            <Box 
+                                w={{ base: "85px", md: "110px" }} 
+                                position="relative"
+                                overflow="hidden"
+                            >
                                 <Box
-                                    position="absolute"
-                                    bottom={0}
+                                    className="ad-image"
+                                    as="img"
+                                    src={ads[currentAdIndex]?.image?.url}
                                     w="100%"
-                                    bgGradient="linear(to-r, rgba(49, 130, 206, 0.85), rgba(49, 151, 149, 0.85))"
+                                    h="100%"
+                                    objectFit="cover"
+                                    transition="transform 0.5s ease"
+                                />
+                                {/* Glass Ad Badge */}
+                                <Badge 
+                                    position="absolute" 
+                                    top={2} 
+                                    left={2} 
+                                    fontSize="7px" 
+                                    bg="rgba(17, 24, 39, 0.7)"
                                     color="white"
-                                    px={4}
-                                    py={1.5}
-                                    whiteSpace="nowrap"
-                                    overflow="hidden"
-                                    backdropFilter="blur(8px)"
-                                    pointerEvents="none"
+                                    backdropFilter="blur(4px)"
+                                    px={1.5}
+                                    py={0.5}
+                                    borderRadius="md"
+                                    fontWeight="800"
+                                    letterSpacing="widest"
+                                    border="1px solid rgba(255,255,255,0.2)"
                                 >
-                                    <Box
-                                        display="inline-block"
-                                        animation="adMarquee 15s linear infinite"
-                                        fontSize="sm"
-                                        fontWeight="800"
-                                        letterSpacing="wide"
-                                    >
-                                        {ads[currentAdIndex].title}
+                                    AD
+                                </Badge>
+                                {/* Gradient blend to the right */}
+                                <Box 
+                                    position="absolute"
+                                    top={0}
+                                    right={0}
+                                    w="20px"
+                                    h="100%"
+                                    bgGradient={`linear(to-l, ${useColorModeValue('white', '#1A202C')}, transparent)`}
+                                />
+                            </Box>
+                            
+                            {/* Right Side: Elegant Text Content with Vibrant Colors & Marquee */}
+                            <Box 
+                                flex={1} 
+                                p={{ base: 3, md: 4 }} 
+                                display="flex" 
+                                flexDirection="column" 
+                                justifyContent="center"
+                                position="relative"
+                                overflow="hidden"
+                                bgGradient="linear(to-r, #2B6CB0, #319795)"
+                                color="white"
+                            >
+                                <style>
+                                    {`
+                                      @keyframes textMarquee {
+                                        0% { transform: translateX(100%); }
+                                        100% { transform: translateX(-150%); }
+                                      }
+                                    `}
+                                </style>
+
+                                {ads[currentAdIndex]?.title ? (
+                                    <Box position="relative" w="100%" h="20px" overflow="hidden">
+                                        <Text 
+                                            key={currentAdIndex}
+                                            position="absolute"
+                                            whiteSpace="nowrap"
+                                            fontSize={{ base: "sm", md: "md" }} 
+                                            fontWeight="800" 
+                                            color="white"
+                                            animation="textMarquee 8s linear infinite"
+                                            letterSpacing="-0.01em"
+                                        >
+                                            {ads[currentAdIndex].title}
+                                        </Text>
                                     </Box>
-                                </Box>
-                            )}
-                        </Box>
+                                ) : (
+                                    <Text fontSize="sm" color="whiteAlpha.800" fontStyle="italic">Sponsored Content</Text>
+                                )}
+                                
+                                {ads[currentAdIndex]?.link && (
+                                    <Flex 
+                                        align="center"
+                                        mt={2}
+                                        zIndex={2}
+                                    >
+                                        <Text 
+                                            fontSize="10px" 
+                                            color="whiteAlpha.900" 
+                                            fontWeight="800" 
+                                            textTransform="uppercase"
+                                            letterSpacing="0.05em"
+                                        >
+                                            Learn More
+                                        </Text>
+                                        <Box 
+                                            as={ChevronRightIcon} 
+                                            color="white"
+                                            boxSize={4}
+                                            ml={0.5}
+                                            transition="transform 0.2s ease"
+                                            _groupHover={{ transform: "translateX(4px)" }}
+                                        />
+                                    </Flex>
+                                )}
+                            </Box>
+                        </Flex>
                     ) : (
-                        <Flex w="100%" h="100%" align="center" justify="center" color="gray.400" fontSize="sm">
+                        <Flex w="100%" h="100%" align="center" justify="center" color="gray.400" fontSize="sm" bg={useColorModeValue("gray.50", "whiteAlpha.50")}>
                             Waiting Room Console
                         </Flex>
                     )}
