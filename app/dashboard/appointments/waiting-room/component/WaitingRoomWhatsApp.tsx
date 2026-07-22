@@ -690,7 +690,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                 setOpenAppointment({ open: true, data: patient });
                                             }}
                                         >
-                                            Appointment
+                                            App. History
                                         </Button>
                                     )}
                                     {stores.auth.hasPermission('recall', 'view') && (

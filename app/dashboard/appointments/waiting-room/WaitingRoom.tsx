@@ -26,7 +26,7 @@ const WaitingRoomPage = observer((): any => {
         if (ads.length > 1) {
             const interval = setInterval(() => {
                 setCurrentAdIndex((prev) => (prev + 1) % ads.length);
-            }, 8000);
+            }, 15000);
             return () => clearInterval(interval);
         }
     }, [ads.length]);
@@ -149,9 +149,10 @@ const WaitingRoomPage = observer((): any => {
                         <Flex h="100%" align="stretch" position="relative" zIndex={1}>
                             {/* Left Side: Premium Image */}
                             <Box 
-                                w={{ base: "85px", md: "110px" }} 
+                                w={{ base: "100px", md: "140px" }} 
                                 position="relative"
                                 overflow="hidden"
+                                bg="white"
                             >
                                 <Box
                                     className="ad-image"
@@ -159,8 +160,9 @@ const WaitingRoomPage = observer((): any => {
                                     src={ads[currentAdIndex]?.image?.url}
                                     w="100%"
                                     h="100%"
-                                    objectFit="cover"
+                                    objectFit="contain"
                                     transition="transform 0.5s ease"
+                                    p={1}
                                 />
                                 {/* Glass Ad Badge */}
                                 <Badge 
@@ -221,7 +223,7 @@ const WaitingRoomPage = observer((): any => {
                                             fontSize={{ base: "sm", md: "md" }} 
                                             fontWeight="800" 
                                             color="white"
-                                            animation="textMarquee 8s linear infinite"
+                                            animation="textMarquee 15s linear infinite"
                                             letterSpacing="-0.01em"
                                         >
                                             {ads[currentAdIndex].title}
