@@ -387,11 +387,11 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             <HStack justify="center" spacing={2}>
               <Box px={3} py={1.5} bg="yellow.100" borderRadius="xl" display="inline-flex" flexDirection="column" alignItems="center" border="1px solid" borderColor="yellow.300" minW="80px" textAlign="center">
                 <Text fontWeight="1000" color="yellow.900" fontSize="md">
-                  ₹{val.toLocaleString()}
+                  ₹{val.toLocaleString('en-IN')}
                 </Text>
                 {dt.discount > 0 && (
                   <Text fontSize="2xs" color="gray.500" textDecoration="line-through">
-                    ₹{(dt.amount || 0).toLocaleString()}
+                    ₹{(dt.amount || 0).toLocaleString('en-IN')}
                   </Text>
                 )}
               </Box>
@@ -429,7 +429,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="140px">
                 <VStack align="start" spacing={0} flex={1}>
                   <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TOTAL PAID</Text>
-                  <Text fontSize="md" fontWeight="1000" color="green.700">₹{(dt.receivedAmount || 0).toLocaleString()}</Text>
+                  <Text fontSize="md" fontWeight="1000" color="green.700">₹{(dt.receivedAmount || 0).toLocaleString('en-IN')}</Text>
                   {modes.length > 0 && (() => {
                     const firstMode = String(modes[0]).toUpperCase();
                     return (
@@ -479,7 +479,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           return (
             <VStack align="start" spacing={0}>
               <Text fontSize="lg" fontWeight="1000" color={remaining < 0 ? "purple.500" : remaining > 0 ? "orange.500" : "green.500"} letterSpacing="-1px">
-                ₹{Math.abs(remaining).toLocaleString()}
+                ₹{Math.abs(remaining).toLocaleString('en-IN')}
               </Text>
               <Text fontSize="8px" fontWeight="bold" color="gray.400">{remaining < 0 ? "OVERPAID" : remaining > 0 ? "OUTSTANDING" : "SETTLED"}</Text>
             </VStack>
@@ -561,7 +561,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               <VStack align="start" spacing={0}>
                 <Text fontSize="10px" fontWeight="bold" color={`${item.color}.600`} textTransform="uppercase">{item.label}</Text>
                 {workDoneStore.overallStats.loading ? <Spinner size="xs" /> : (
-                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString()}</Text>
+                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
                 )}
                 <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
               </VStack>
@@ -590,7 +590,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               <VStack align="start" spacing={0}>
                 <Text fontSize="10px" fontWeight="bold" color={`${item.color}.600`} textTransform="uppercase">{item.label}</Text>
                 {workDoneStore.patientStats.loading ? <Spinner size="xs" /> : (
-                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString()}</Text>
+                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
                 )}
                 <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
               </VStack>

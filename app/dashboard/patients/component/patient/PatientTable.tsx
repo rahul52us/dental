@@ -342,7 +342,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Tooltip label="Account Management" hasArrow borderRadius="xl">
             <IconButton
               aria-label="Account"
-              icon={<Image src="/images/coin.jpeg" alt="Account" boxSize="32px" borderRadius="full" objectFit="cover" />}
+              icon={<Image src="/images/coin.png" alt="Account" boxSize="32px" borderRadius="full" objectFit="cover" />}
               colorScheme="purple"
               bg="purple.50"
               _hover={{ bg: "purple.100", transform: "translateY(-2px)", shadow: "lg" }}

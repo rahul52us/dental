@@ -68,7 +68,7 @@ const ALL_PRINT_COLUMNS = [
   { key: "paid", label: "Txn Paid" },
   { key: "lastPaid", label: "Payment Date" },
   { key: "due", label: "Due" },
-  { key: "overpay", label: "Overpay" },
+  { key: "overpay", label: "Advance" },
   { key: "paymentMode", label: "Payment Mode" },
   { key: "status", label: "Status" }
 ];
@@ -80,7 +80,7 @@ const GlobalAccountabilityPage = observer(() => {
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
-  const [summary, setSummary] = useState<any>({ totalBilled: 0, totalPaid: 0, totalDue: 0 });
+  const [summary, setSummary] = useState<any>({ totalBilled: 0, totalPaid: 0, totalDue: 0, totalAdvance: 0 });
   const [todaySummary, setTodaySummary] = useState<any>({ todayBilled: 0, todayPaid: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -283,7 +283,7 @@ const GlobalAccountabilityPage = observer(() => {
       if (result) {
         setData(result.records || []);
         setTotal(result.total || 0);
-        setSummary(result.summary || { totalBilled: 0, totalPaid: 0, totalDue: 0 });
+        setSummary(result.summary || { totalBilled: 0, totalPaid: 0, totalDue: 0, totalAdvance: 0 });
       }
 
       const todayResult = await stores.workDoneStore.fetchTodayGlobalAccountabilityStats(filters);
@@ -649,7 +649,7 @@ const GlobalAccountabilityPage = observer(() => {
       </Box>
 
       {/* Premium Summary Section */}
-      <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4} mb={4}>
+      <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} mb={4}>
         {/* BILLED */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
@@ -670,24 +670,24 @@ const GlobalAccountabilityPage = observer(() => {
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
         </Box>
 
-        {/* PERIOD RECEIVED */}
-        {/* <Box bgGradient="linear(to-br, blue.500, blue.600)" p={4} borderRadius="2xl" boxShadow="lg" borderWidth="0px" position="relative" overflow="hidden">
-          <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="whiteAlpha.900" fontWeight="900" textTransform="uppercase" letterSpacing="wide">PERIOD RECEIVED</Text>
-            <Box p={1.5} bg="whiteAlpha.200" borderRadius="md"><Icon as={FiCheckCircle} color="white" boxSize={4} /></Box>
-          </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="white" position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
-          <Box position="absolute" bottom="-4" right="-4" opacity={0.1}><Icon as={FiCheckCircle} boxSize={20} color="white" /></Box>
-        </Box> */}
-
         {/* DUE */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">PENDING BALANCE</Text>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL DUE</Text>
             <Box p={1.5} bg="red.50" borderRadius="md"><Icon as={FiAlertCircle} color="red.500" boxSize={4} /></Box>
           </HStack>
           <Text fontSize="2xl" fontWeight="900" color="red.500" position="relative" zIndex={1}>{formatCurrency(summary.totalDue)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiAlertCircle} boxSize={20} /></Box>
+        </Box>
+
+        {/* ADVANCE */}
+        <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
+          <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
+            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL ADVANCE</Text>
+            <Box p={1.5} bg="purple.50" borderRadius="md"><Icon as={FiDollarSign} color="purple.500" boxSize={4} /></Box>
+          </HStack>
+          <Text fontSize="2xl" fontWeight="900" color="purple.500" position="relative" zIndex={1}>{formatCurrency(summary.totalAdvance || 0)}</Text>
+          <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiDollarSign} boxSize={20} /></Box>
         </Box>
       </Grid>
 
@@ -706,7 +706,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>BALANCE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
@@ -740,8 +740,10 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td>
                       <HStack>
-                        <Text fontSize="sm" fontWeight="800" color={row.paymentHistory?.receiptNumber ? "blue.600" : "gray.400"} cursor={row.paymentHistory?.receiptNumber ? "pointer" : "default"}>
-                          {row.paymentHistory?.receiptNumber || "-"}
+                        <Text fontSize="sm" fontWeight="800" color={(Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0) ? "blue.600" : "gray.400"}>
+                          {Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0 
+                            ? Array.from(new Set(row.paymentHistory.map((p: any) => p.receiptNumber).filter(Boolean))).join(", ") || "-"
+                            : (row.paymentHistory?.receiptNumber || "-")}
                         </Text>
                       </HStack>
                     </Td>
@@ -833,39 +835,39 @@ const GlobalAccountabilityPage = observer(() => {
                             </Tooltip>
                           )}
                         </HStack>
-                        {stores.auth.hasPermission('accountability', 'view') && (
-                          <Tooltip label="Transaction History" hasArrow>
-                            <IconButton
-                              aria-label="Transaction History"
-                              icon={<FiEye />}
-                              size="sm"
-                              colorScheme="blue"
-                              variant="ghost"
-                              borderRadius="full"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openHistoryDrawer(row);
-                              }}
-                            />
-                          </Tooltip>
-                        )}
                       </HStack>
                     </Td>
 
                     <Td isNumeric>
                       <HStack justify="flex-end">
-                        <Box px={4} py={1.5} bg="green.50" borderRadius="xl" border="1px dashed" borderColor="green.200" minW="100px" maxW="max-content" textAlign="center">
-                          <Text color="green.700" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
+                        <HStack px={3} py={1.5} bg="green.50" borderRadius="xl" border="1px dashed" borderColor="green.200" minW="100px" maxW="max-content" spacing={2}>
+                          <Text color="green.700" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap" textAlign="center" flex={1}>
                             {formatCurrency(Math.max(0, (row.amount - (row.discount || 0)) - row.balanceDue))}
                           </Text>
-                        </Box>
+                          {stores.auth.hasPermission('accountability', 'view') && (
+                            <Tooltip label="Transaction History" hasArrow>
+                              <IconButton
+                                aria-label="Transaction History"
+                                icon={<FiEye />}
+                                size="xs"
+                                colorScheme="blue"
+                                variant="ghost"
+                                borderRadius="full"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openHistoryDrawer(row);
+                                }}
+                              />
+                            </Tooltip>
+                          )}
+                        </HStack>
                       </HStack>
                     </Td>
                     <Td>
                       <Text fontWeight="800" color="gray.600" fontSize="sm">
-                        {row.paymentHistory && row.paymentHistory.date
-                          ? new Date(row.paymentHistory.date).toLocaleDateString("en-GB")
-                          : "-"}
+                        {Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0
+                          ? new Date(row.paymentHistory[row.paymentHistory.length - 1].date).toLocaleDateString("en-GB")
+                          : (row.paymentHistory && row.paymentHistory.date ? new Date(row.paymentHistory.date).toLocaleDateString("en-GB") : "-")}
                       </Text>
                     </Td>
                     <Td isNumeric>
@@ -888,7 +890,7 @@ const GlobalAccountabilityPage = observer(() => {
                               color={row.balanceDue > 0 ? "red.600" : row.balanceDue < 0 ? "purple.600" : "green.600"}
                               opacity={0.8}
                             >
-                              {row.balanceDue > 0 ? "DUE" : row.balanceDue < 0 ? "OVERPAID" : "SETTLED"}
+                              {row.balanceDue > 0 ? "DUE" : row.balanceDue < 0 ? "ADVANCE" : "SETTLED"}
                             </Text>
                             <Text
                               color={row.balanceDue > 0 ? "red.600" : row.balanceDue < 0 ? "purple.600" : "green.700"}
@@ -905,8 +907,9 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td>
                       {(() => {
-                        if (!row.paymentHistory || !row.paymentHistory.paymentMethod) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
-                        const mode = String(row.paymentHistory.paymentMethod).toUpperCase();
+                        const history = Array.isArray(row.paymentHistory) ? row.paymentHistory : (row.paymentHistory ? [row.paymentHistory] : []);
+                        if (history.length === 0 || !history[history.length - 1].paymentMethod) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
+                        const mode = String(history[history.length - 1].paymentMethod).toUpperCase();
                         return (
                           <Badge variant="subtle" colorScheme={mode === 'CASH' ? 'green' : 'blue'} fontSize="10px" borderRadius="md" px={2.5} py={1} border="1px solid" borderColor={mode === 'CASH' ? 'green.200' : 'blue.200'}>
                             {mode}

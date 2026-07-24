@@ -106,8 +106,7 @@ export const insertUniqueFile = (setState : any, state : any[], newFiles : any[]
         return `${currency} 0.00`;
       }
 
-      // Format the amount with commas and two decimal places
-      return `${currency} ${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+      return `${currency} ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     } catch{
       // Return a default value in case of error
       return `${currency} 0.00`;
