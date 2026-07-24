@@ -58,6 +58,7 @@ import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDr
 
 const ALL_PRINT_COLUMNS = [
   { key: "date", label: "Billing Date" },
+  { key: "receiptNumber", label: "Receipt No." },
   { key: "patient", label: "Patient" },
   { key: "tooth", label: "Tooth" },
   { key: "treatmentCode", label: "Treatment Code" },
@@ -65,7 +66,6 @@ const ALL_PRINT_COLUMNS = [
   { key: "doctor", label: "Doctor" },
   { key: "fees", label: "Fees" },
   { key: "paid", label: "Txn Paid" },
-  { key: "receiptNumber", label: "Receipt No." },
   { key: "lastPaid", label: "Payment Date" },
   { key: "due", label: "Due" },
   { key: "paymentMode", label: "Payment Mode" },
@@ -696,6 +696,7 @@ const GlobalAccountabilityPage = observer(() => {
             <Thead bgGradient="linear(to-r, gray.800, gray.700)">
               <Tr>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">BILLING DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">RECEIPT NO.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="220px" whiteSpace="nowrap">PATIENT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap">TREATMENT CODE</Th>
@@ -703,7 +704,6 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">RECEIPT NO.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
@@ -734,6 +734,13 @@ const GlobalAccountabilityPage = observer(() => {
                       <HStack>
                         <Icon as={FiCalendar} color="gray.400" />
                         <Text fontSize="sm" fontWeight="700" color="gray.600">{new Date(row.createdAt).toLocaleDateString("en-GB")}</Text>
+                      </HStack>
+                    </Td>
+                    <Td>
+                      <HStack>
+                        <Text fontSize="sm" fontWeight="800" color={row.paymentHistory?.receiptNumber ? "blue.600" : "gray.400"} onClick={() => { if (row.paymentHistory?.receiptNumber) { setDownloadingRecordId(row._id); setIsPreviewOpen(true); } }} cursor={row.paymentHistory?.receiptNumber ? "pointer" : "default"} _hover={row.paymentHistory?.receiptNumber ? { textDecoration: "underline" } : {}}>
+                          {row.paymentHistory?.receiptNumber || "-"}
+                        </Text>
                       </HStack>
                     </Td>
                     <Td>
@@ -840,11 +847,7 @@ const GlobalAccountabilityPage = observer(() => {
                         )}
                       </HStack>
                     </Td>
-                    <Td>
-                      <Text fontWeight="800" color="gray.600" fontSize="sm">
-                        {row.paymentHistory?.receiptNumber || "-"}
-                      </Text>
-                    </Td>
+
                     <Td isNumeric>
                       <HStack justify="flex-end">
                         <Box px={4} py={1.5} bg="green.50" borderRadius="xl" border="1px dashed" borderColor="green.200" minW="100px" maxW="max-content" textAlign="center">
