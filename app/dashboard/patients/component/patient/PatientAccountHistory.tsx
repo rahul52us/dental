@@ -297,14 +297,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       const alreadyPaid = selectedRecord.receivedAmount || 0;
       const remaining = Math.max(0, bill - alreadyPaid);
 
-      if (paymentNow > remaining) {
-        setIsSaving(false);
-        return toast({
-          title: "Overpayment Error",
-          description: `Remaining: ₹${remaining.toLocaleString()}`,
-          status: "warning"
-        });
-      }
+      // if (paymentNow > remaining) {
+      //   setIsSaving(false);
+      //   return toast({
+      //     title: "Overpayment Error",
+      //     description: `Remaining: ₹${remaining.toLocaleString()}`,
+      //     status: "warning"
+      //   });
+      // }
 
       await workDoneStore.addPayment({
         workDone: selectedRecord._id,
@@ -475,13 +475,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       metaData: {
         component: (dt: any) => {
           const bill = dt.amount - (dt.discount || 0);
-          const remaining = Math.max(0, bill - (dt.receivedAmount || 0));
+          const remaining = bill - (dt.receivedAmount || 0);
           return (
             <VStack align="start" spacing={0}>
-              <Text fontSize="lg" fontWeight="1000" color={remaining > 0 ? "orange.500" : "green.500"} letterSpacing="-1px">
-                ₹{remaining.toLocaleString()}
+              <Text fontSize="lg" fontWeight="1000" color={remaining < 0 ? "purple.500" : remaining > 0 ? "orange.500" : "green.500"} letterSpacing="-1px">
+                ₹{Math.abs(remaining).toLocaleString()}
               </Text>
-              <Text fontSize="8px" fontWeight="bold" color="gray.400">{remaining > 0 ? "OUTSTANDING" : "SETTLED"}</Text>
+              <Text fontSize="8px" fontWeight="bold" color="gray.400">{remaining < 0 ? "OVERPAID" : remaining > 0 ? "OUTSTANDING" : "SETTLED"}</Text>
             </VStack>
           );
         }
@@ -522,10 +522,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       metaData: {
         component: (dt: any) => {
           const bill = dt.amount - (dt.discount || 0);
-          const isSettled = (dt.receivedAmount || 0) >= bill;
+          const received = dt.receivedAmount || 0;
+          const isOverpaid = received > bill;
+          const isSettled = received === bill;
           return (
-            <Badge px={3} py={1} borderRadius="xl" fontSize="9px" fontWeight="800" bg={isSettled ? "green.500" : "orange.400"} color="white" shadow="sm">
-              {isSettled ? "SETTLED" : "PENDING"}
+            <Badge px={3} py={1} borderRadius="xl" fontSize="9px" fontWeight="800" bg={isOverpaid ? "purple.500" : isSettled ? "green.500" : "orange.400"} color="white" shadow="sm">
+              {isOverpaid ? "OVERPAID" : isSettled ? "SETTLED" : "PENDING"}
             </Badge>
           );
         }
@@ -1329,15 +1331,15 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
                     const bill = selectedRecord.amount - (selectedRecord.discount || 0);
 
-                    if (proposedTotalReceived > bill) {
-                      toast({
-                        title: "Overpayment Error",
-                        description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`,
-                        status: "warning",
-                        duration: 3000
-                      });
-                      return;
-                    }
+                    // if (proposedTotalReceived > bill) {
+                    //   toast({
+                    //     title: "Overpayment Error",
+                    //     description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`,
+                    //     status: "warning",
+                    //     duration: 3000
+                    //   });
+                    //   return;
+                    // }
 
                       setIsSavingAmount(true);
                       try {

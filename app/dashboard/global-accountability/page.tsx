@@ -68,6 +68,7 @@ const ALL_PRINT_COLUMNS = [
   { key: "paid", label: "Txn Paid" },
   { key: "lastPaid", label: "Payment Date" },
   { key: "due", label: "Due" },
+  { key: "overpay", label: "Overpay" },
   { key: "paymentMode", label: "Payment Mode" },
   { key: "status", label: "Status" }
 ];
@@ -172,14 +173,14 @@ const GlobalAccountabilityPage = observer(() => {
     try {
       const remaining = selectedRecord.balanceDue || 0;
 
-      if (paymentNow > remaining) {
-        setIsSaving(false);
-        return toast({
-          title: "Overpayment Error",
-          description: `Remaining: ₹${remaining.toLocaleString()}`,
-          status: "warning"
-        });
-      }
+      // if (paymentNow > remaining) {
+      //   setIsSaving(false);
+      //   return toast({
+      //     title: "Overpayment Error",
+      //     description: `Remaining: ₹${remaining.toLocaleString()}`,
+      //     status: "warning"
+      //   });
+      // }
 
       await stores.workDoneStore.addPayment({
         workDone: selectedRecord._id,
@@ -511,6 +512,7 @@ const GlobalAccountabilityPage = observer(() => {
                 { label: "All", value: "all" },
                 { label: "Due", value: "due" },
                 { label: "Settled", value: "settled" },
+                { label: "Overpaid", value: "overpaid" },
               ]}
               value={status}
               onChange={(v: any) => setStatus(v?.value || "all")}
@@ -707,6 +709,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>OVERPAY</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
               </Tr>
@@ -715,12 +718,12 @@ const GlobalAccountabilityPage = observer(() => {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <Tr key={i}>
-                    <Td colSpan={13}><Skeleton height="40px" borderRadius="lg" /></Td>
+                    <Td colSpan={14}><Skeleton height="40px" borderRadius="lg" /></Td>
                   </Tr>
                 ))
               ) : data.length === 0 ? (
                 <Tr>
-                  <Td colSpan={13} textAlign="center" py={16}>
+                  <Td colSpan={14} textAlign="center" py={16}>
                     <VStack spacing={3} opacity={0.5}>
                       <Icon as={FiAlertCircle} boxSize={10} color="gray.400" />
                       <Text color="gray.500" fontWeight="bold">No records found matching your filters.</Text>
@@ -875,6 +878,15 @@ const GlobalAccountabilityPage = observer(() => {
                         </Box>
                       </HStack>
                     </Td>
+                    <Td isNumeric>
+                      <HStack justify="flex-end">
+                        <Box px={4} py={1.5} bg={row.balanceDue < 0 ? "purple.50" : "transparent"} borderRadius="xl" border={row.balanceDue < 0 ? "1px dashed" : "none"} borderColor="purple.200" minW="100px" maxW="max-content" textAlign="center">
+                          <Text color={row.balanceDue < 0 ? "purple.600" : "gray.400"} fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
+                            {formatCurrency(Math.max(0, -row.balanceDue))}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    </Td>
                     <Td>
                       {(() => {
                         if (!row.paymentHistory || !row.paymentHistory.paymentMethod) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
@@ -889,7 +901,7 @@ const GlobalAccountabilityPage = observer(() => {
                     <Td>
                       <HStack justify="flex-start">
                         <Badge
-                          colorScheme={row.balanceDue <= 0 ? "green" : "red"}
+                          colorScheme={row.balanceDue < 0 ? "purple" : row.balanceDue === 0 ? "green" : "red"}
                           variant={row.balanceDue <= 0 ? "subtle" : "solid"}
                           borderRadius="full"
                           px={3.5}
@@ -900,7 +912,7 @@ const GlobalAccountabilityPage = observer(() => {
                           letterSpacing="0.5px"
                           boxShadow={row.balanceDue > 0 ? "0 2px 5px rgba(229, 62, 62, 0.3)" : "none"}
                         >
-                          {row.balanceDue <= 0 ? "SETTLED" : "DUE"}
+                          {row.balanceDue < 0 ? "OVERPAID" : row.balanceDue === 0 ? "SETTLED" : "DUE"}
                         </Badge>
                       </HStack>
                     </Td>
@@ -1206,9 +1218,9 @@ const GlobalAccountabilityPage = observer(() => {
                     const proposedTotalReceived = updatedHistoryTest.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
                     const bill = selectedRecord.amount - (selectedRecord.discount || 0);
 
-                    if (proposedTotalReceived > bill) {
-                      return toast({ title: "Overpayment Error", description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`, status: "warning", duration: 3000 });
-                    }
+                    // if (proposedTotalReceived > bill) {
+                    //   return toast({ title: "Overpayment Error", description: `Total payments (₹${proposedTotalReceived.toLocaleString()}) cannot exceed total bill (₹${bill.toLocaleString()}).`, status: "warning", duration: 3000 });
+                    // }
 
                     setIsSavingAmount(true);
                     try {
