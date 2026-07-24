@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  output: 'export',
+  // output: 'export',
   images: {
     unoptimized: true,
     domains: ["www.facebook.com", "res.cloudinary.com"],

@@ -1,5 +1,9 @@
+import ClientPage from './page-client';
+
 export function generateStaticParams() {
   return [];
 }
-import ClientPage from './page-client';
-export default ClientPage;
+
+export default function Page() {
+  return <ClientPage />;
+}

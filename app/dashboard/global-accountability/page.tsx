@@ -708,8 +708,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>DUE</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="120px" whiteSpace="nowrap" isNumeric>OVERPAY</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>BALANCE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
               </Tr>
@@ -871,19 +870,36 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end">
-                        <Box px={4} py={1.5} bg={row.balanceDue > 0 ? "red.50" : "gray.50"} borderRadius="xl" border="1px dashed" borderColor={row.balanceDue > 0 ? "red.200" : "gray.200"} minW="100px" maxW="max-content" textAlign="center">
-                          <Text color={row.balanceDue > 0 ? "red.600" : "gray.500"} fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
-                            {formatCurrency(row.balanceDue)}
-                          </Text>
-                        </Box>
-                      </HStack>
-                    </Td>
-                    <Td isNumeric>
-                      <HStack justify="flex-end">
-                        <Box px={4} py={1.5} bg={row.balanceDue < 0 ? "purple.50" : "transparent"} borderRadius="xl" border={row.balanceDue < 0 ? "1px dashed" : "none"} borderColor="purple.200" minW="100px" maxW="max-content" textAlign="center">
-                          <Text color={row.balanceDue < 0 ? "purple.600" : "gray.400"} fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap">
-                            {formatCurrency(Math.max(0, -row.balanceDue))}
-                          </Text>
+                        <Box
+                          px={4}
+                          py={1.5}
+                          bg={row.balanceDue > 0 ? "red.50" : row.balanceDue < 0 ? "purple.50" : "green.50"}
+                          borderRadius="xl"
+                          border="1px dashed"
+                          borderColor={row.balanceDue > 0 ? "red.200" : row.balanceDue < 0 ? "purple.200" : "green.200"}
+                          minW="110px"
+                          maxW="max-content"
+                          textAlign="center"
+                        >
+                          <VStack spacing={0} align="end">
+                            <Text
+                              fontSize="xs"
+                              fontWeight="bold"
+                              color={row.balanceDue > 0 ? "red.600" : row.balanceDue < 0 ? "purple.600" : "green.600"}
+                              opacity={0.8}
+                            >
+                              {row.balanceDue > 0 ? "DUE" : row.balanceDue < 0 ? "OVERPAID" : "SETTLED"}
+                            </Text>
+                            <Text
+                              color={row.balanceDue > 0 ? "red.600" : row.balanceDue < 0 ? "purple.600" : "green.700"}
+                              fontWeight="1000"
+                              fontSize="md"
+                              letterSpacing="-0.5px"
+                              whiteSpace="nowrap"
+                            >
+                              {formatCurrency(Math.abs(row.balanceDue))}
+                            </Text>
+                          </VStack>
                         </Box>
                       </HStack>
                     </Td>
