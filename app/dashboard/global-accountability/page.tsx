@@ -250,7 +250,7 @@ const GlobalAccountabilityPage = observer(() => {
       const end = new Date(toDate);
       const diffTime = Math.abs(end.getTime() - start.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays > 40) {
         toast({
           title: "Date Limit Exceeded",
@@ -738,7 +738,7 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td>
                       <HStack>
-                        <Text fontSize="sm" fontWeight="800" color={row.paymentHistory?.receiptNumber ? "blue.600" : "gray.400"} onClick={() => { if (row.paymentHistory?.receiptNumber) { setDownloadingRecordId(row._id); setIsPreviewOpen(true); } }} cursor={row.paymentHistory?.receiptNumber ? "pointer" : "default"} _hover={row.paymentHistory?.receiptNumber ? { textDecoration: "underline" } : {}}>
+                        <Text fontSize="sm" fontWeight="800" color={row.paymentHistory?.receiptNumber ? "blue.600" : "gray.400"} cursor={row.paymentHistory?.receiptNumber ? "pointer" : "default"}>
                           {row.paymentHistory?.receiptNumber || "-"}
                         </Text>
                       </HStack>
@@ -763,9 +763,11 @@ const GlobalAccountabilityPage = observer(() => {
                       </Tooltip>
                     </Td>
                     <Td>
-                      <Text noOfLines={2} maxW="200px" fontSize="sm" fontWeight="600" color="gray.600">
-                        {row.treatmentInfo?.name || row.workDoneNote || "-"}
-                      </Text>
+                      <Tooltip label={row.treatmentInfo?.name || row.workDoneNote || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
+                        <Text noOfLines={2} maxW="200px" fontSize="sm" fontWeight="600" color="gray.600">
+                          {row.treatmentInfo?.name || row.workDoneNote || "-"}
+                        </Text>
+                      </Tooltip>
                     </Td>
                     <Td>
                       <HStack>
