@@ -9,13 +9,16 @@ import {
   Button,
   useDisclosure,
   Icon,
-  HStack
+  HStack,
+  useToast
 } from "@chakra-ui/react";
 import { FaEye, FaList } from "react-icons/fa";
+import { FiPrinter } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
 import LegacyPatientHistoryDrawer from "../../component/LegacyPatientHistoryDrawer";
+import ReceiptPreviewDrawer from "../../../patients/component/patient/ReceiptPreviewDrawer";
 
 
 const FeesTable = observer(() => {
@@ -24,6 +27,26 @@ const FeesTable = observer(() => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
+  const { isOpen: isPreviewOpen, onOpen: onPreviewOpen, onClose: onPreviewClose } = useDisclosure();
+  const toast = useToast();
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState("");
+
+  const handlePreviewReport = async () => {
+    setIsPrinting(true);
+    const base64 = await oldDataStore.generateWorkFeeReportBase64();
+    setIsPrinting(false);
+    if (base64) {
+      setPdfBase64(base64);
+      onPreviewOpen();
+    } else {
+      toast({
+        title: "Failed to generate report",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
 
   const handleOpenDrawer = (row: any) => {
     oldDataStore.fetchLegacyRecordDetails(row.legacyWrkDoneId);
@@ -106,9 +129,14 @@ const FeesTable = observer(() => {
             },
           },
           customComponent: (
-            <Button size="sm" colorScheme="blue" onClick={() => oldDataStore.applyDateFilter("workFees")}>
-              Apply
-            </Button>
+            <HStack spacing={2}>
+              <Button size="sm" colorScheme="blue" onClick={() => oldDataStore.applyDateFilter("workFees")}>
+                Apply
+              </Button>
+              <Button size="sm" colorScheme="purple" leftIcon={<FiPrinter />} isLoading={isPrinting} onClick={handlePreviewReport}>
+                Preview Report
+              </Button>
+            </HStack>
           ),
           pagination: {
             show: true,
@@ -129,6 +157,12 @@ const FeesTable = observer(() => {
 
       <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
       <LegacyPatientHistoryDrawer isOpen={isHistoryOpen} onClose={handleCloseHistoryDrawer} />
+      <ReceiptPreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={onPreviewClose}
+        pdfBase64={pdfBase64}
+        fileName="historical_fees_report.pdf"
+      />
     </Box>
   );
 });

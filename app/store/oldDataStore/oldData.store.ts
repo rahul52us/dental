@@ -198,4 +198,76 @@ export default class OldDataStore {
   clearPatientFullHistory() {
     this.patientFullHistory = null;
   }
+
+  async generateWorkCompReportBase64() {
+    try {
+      const payload: any = { search: this.searchQuery };
+      if (this.appliedStartDate && this.appliedEndDate) {
+        payload.startDate = this.appliedStartDate.toISOString();
+        payload.endDate = this.appliedEndDate.toISOString();
+      }
+      const res = await axios.post("/old-data/generate-work-comp-report", payload);
+      if (res.data && res.data.data) {
+        return res.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async generateToothWorkReportBase64() {
+    try {
+      const payload: any = { search: this.searchQuery };
+      if (this.appliedStartDate && this.appliedEndDate) {
+        payload.startDate = this.appliedStartDate.toISOString();
+        payload.endDate = this.appliedEndDate.toISOString();
+      }
+      const res = await axios.post("/old-data/generate-tooth-work-report", payload);
+      if (res.data && res.data.data) {
+        return res.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async generateTransactionReportBase64() {
+    try {
+      const payload: any = { search: this.searchQuery };
+      if (this.appliedStartDate && this.appliedEndDate) {
+        payload.startDate = this.appliedStartDate.toISOString();
+        payload.endDate = this.appliedEndDate.toISOString();
+      }
+      const res = await axios.post("/old-data/generate-transactions-report", payload);
+      if (res.data && res.data.data) {
+        return res.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async generateWorkFeeReportBase64() {
+    try {
+      const payload: any = { search: this.searchQuery };
+      if (this.appliedStartDate && this.appliedEndDate) {
+        payload.startDate = this.appliedStartDate.toISOString();
+        payload.endDate = this.appliedEndDate.toISOString();
+      }
+      const res = await axios.post("/old-data/generate-work-fees-report", payload);
+      if (res.data && res.data.data) {
+        return res.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 }

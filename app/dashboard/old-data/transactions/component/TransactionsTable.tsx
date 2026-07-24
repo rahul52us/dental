@@ -12,13 +12,15 @@ import {
   InputLeftElement,
   Icon,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { FaEye, FaList } from "react-icons/fa";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiPrinter } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import LegacyRecordDrawer from "../../component/LegacyRecordDrawer";
 import LegacyPatientHistoryDrawer from "../../component/LegacyPatientHistoryDrawer";
+import ReceiptPreviewDrawer from "../../../patients/component/patient/ReceiptPreviewDrawer";
 
 const toInputDate = (d: Date) => {
   try { return d.toISOString().split("T")[0]; } catch { return ""; }
@@ -30,7 +32,27 @@ const TransactionsTable = observer(() => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
+  const { isOpen: isPreviewOpen, onOpen: onPreviewOpen, onClose: onPreviewClose } = useDisclosure();
   const debounceRef = useRef<any>(null);
+  const toast = useToast();
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState("");
+
+  const handlePreviewReport = async () => {
+    setIsPrinting(true);
+    const base64 = await oldDataStore.generateTransactionReportBase64();
+    setIsPrinting(false);
+    if (base64) {
+      setPdfBase64(base64);
+      onPreviewOpen();
+    } else {
+      toast({
+        title: "Failed to generate report",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
 
   const handleOpenDrawer = (row: any) => {
     oldDataStore.fetchLegacyRecordDetails(row.legacyWrkDoneId);
@@ -136,6 +158,9 @@ const TransactionsTable = observer(() => {
               <Button size="sm" variant="outline" colorScheme="red" onClick={handleReset}>
                 Reset
               </Button>
+              <Button size="sm" colorScheme="purple" leftIcon={<FiPrinter />} isLoading={isPrinting} onClick={handlePreviewReport}>
+                Preview Report
+              </Button>
             </HStack>
           ),
           pagination: {
@@ -149,6 +174,12 @@ const TransactionsTable = observer(() => {
 
       <LegacyRecordDrawer isOpen={isOpen} onClose={handleCloseDrawer} />
       <LegacyPatientHistoryDrawer isOpen={isHistoryOpen} onClose={handleCloseHistoryDrawer} />
+      <ReceiptPreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={onPreviewClose}
+        pdfBase64={pdfBase64}
+        fileName="historical_transactions_report.pdf"
+      />
     </Box>
   );
 });
