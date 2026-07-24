@@ -32,7 +32,7 @@ const HeaderNavbar = observer(() => {
           {/* <HeaderChatMessage />
           <HeaderNotification />
           <CartContainer /> */}
-          <HeaderNotification />
+          {/* <HeaderNotification /> */}
           <HeaderProfile />
         </>
       ) : (

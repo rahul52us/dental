@@ -13,12 +13,12 @@ import {
   Flex,
   Heading,
   Icon,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalOverlay,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerOverlay,
   SimpleGrid,
   Tab,
   TabList,
@@ -42,6 +42,7 @@ import { getDefaultSchedule } from "../../utils/constant";
 import OperatingHours from "../OperatingHours/OperatingHours";
 import ProfileSettings from "../../ProfileSettings"; // Adjust path if needed
 import ThemeSettings from "../ThemeSettings/ThemeSettings";
+import WhatsappSettings from './WhatsappSettings';
 
 // Helper component for consistent key-value display
 const DetailItem = ({ label, value, icon }) => (
@@ -322,17 +323,17 @@ const ProfileDetailsModal = observer(({ user }: any) => {
   const joinedDate = createdAt ? new Date(createdAt).toLocaleDateString('en-IN') : "-";
 
   return (
-    <Modal
+    <Drawer
       isOpen={profileModal.isOpen}
+      placement="right"
       onClose={handleClose}
-      size={"3xl"}
-      scrollBehavior="inside"
+      size={"xl"}
     >
-      <ModalOverlay backdropFilter="blur(2px)" />
-      <ModalContent borderRadius="xl" overflow="hidden">
+      <DrawerOverlay backdropFilter="blur(2px)" />
+      <DrawerContent maxW="85vw">
         {/* Header Section: Identity */}
         <Box bg="blue.600" p={5} color="white" position="relative">
-          <ModalCloseButton color="white" onClick={handleClose} />
+          <DrawerCloseButton color="white" onClick={handleClose} />
           <Flex
             direction={{ base: "column", sm: "row" }}
             align="center"
@@ -407,13 +408,14 @@ const ProfileDetailsModal = observer(({ user }: any) => {
           </Flex>
         </Box>
 
-        <ModalBody p={0}>
+        <DrawerBody p={0}>
           <Tabs isFitted variant="enclosed" colorScheme="blue" index={profileModal.defaultTab} onChange={(index) => setProfileModal(true, index)}>
             <TabList px={4} pt={4}>
               <Tab fontWeight="bold">Profile</Tab>
               <Tab fontWeight="bold">Operating Hours</Tab>
               <Tab fontWeight="bold">Sidebar</Tab>
               <Tab fontWeight="bold">Theme</Tab>
+              <Tab fontWeight="bold">WhatsApp</Tab>
             </TabList>
 
             <TabPanels>
@@ -656,11 +658,16 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               <TabPanel p={0}>
                 <ThemeSettings />
               </TabPanel>
+
+              {/* TAB 5: WhatsApp Settings */}
+              <TabPanel p={6}>
+                <WhatsappSettings user={user} />
+              </TabPanel>
             </TabPanels>
           </Tabs>
-        </ModalBody>
+        </DrawerBody>
 
-        <ModalFooter bg="gray.50">
+        <DrawerFooter bg="gray.50">
           <Button variant="ghost" mr={3} onClick={handleClose}>
             Close
           </Button>
@@ -673,9 +680,9 @@ const ProfileDetailsModal = observer(({ user }: any) => {
           >
             Save Changes
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 });
 

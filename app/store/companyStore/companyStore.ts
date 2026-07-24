@@ -59,6 +59,36 @@ class CompanyStores {
     }
   };
 
+  updateCompanyPreferences = async (payload: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.post("/company/updateOperatingHours", {
+        ...payload,
+        company: authStore.company
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
+  updateWhatsappConfig = async (payload: any) => {
+    this.isLoading = true;
+    try {
+      const response = await axios.post("/company/whatsapp-config", {
+        ...payload,
+        company: authStore.company
+      });
+      return response;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.isLoading = false;
+    }
+  };
+
   updateCompanyLogo = async (payload: any) => {
     this.isLoading = true;
     try {
