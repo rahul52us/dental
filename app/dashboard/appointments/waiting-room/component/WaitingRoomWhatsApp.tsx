@@ -591,18 +591,18 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     )}
                                     {stores.auth.hasPermission('accountability', 'view') && (
                                         <Button
-                                            bgGradient="linear(to-r, teal.400, teal.600)"
+                                            bgGradient="linear(to-r, blue.400, blue.600)"
                                             color="white"
                                             leftIcon={<FiDollarSign />}
                                             size="sm"
                                             borderRadius="xl"
                                             fontSize="xs"
                                             fontWeight="800"
-                                            boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
+                                            boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
                                             _hover={{
-                                                bgGradient: "linear(to-r, teal.500, teal.700)",
+                                                bgGradient: "linear(to-r, blue.500, blue.700)",
                                                 transform: "translateY(-2px)",
-                                                boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
+                                                boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
                                             }}
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -672,18 +672,18 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     )}
                                     {stores.auth.hasPermission('appointment', 'view') && (
                                         <Button
-                                            bgGradient="linear(to-r, blue.400, blue.600)"
+                                            bgGradient="linear(to-r, teal.400, teal.600)"
                                             color="white"
                                             leftIcon={<CalendarIcon />}
                                             size="sm"
                                             borderRadius="xl"
                                             fontSize="xs"
                                             fontWeight="800"
-                                            boxShadow="0 4px 12px rgba(49, 130, 206, 0.25)"
+                                            boxShadow="0 4px 12px rgba(49, 151, 149, 0.25)"
                                             _hover={{
-                                                bgGradient: "linear(to-r, blue.500, blue.700)",
+                                                bgGradient: "linear(to-r, teal.500, teal.700)",
                                                 transform: "translateY(-2px)",
-                                                boxShadow: "0 6px 15px rgba(49, 130, 206, 0.4)"
+                                                boxShadow: "0 6px 15px rgba(49, 151, 149, 0.4)"
                                             }}
                                             onClick={(e) => {
                                                 e.stopPropagation();

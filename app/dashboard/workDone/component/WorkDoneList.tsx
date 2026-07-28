@@ -561,7 +561,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           {stores.auth.hasPermission('appointment', 'view') && (
             <Button
               size="sm"
-              colorScheme="blue"
+              colorScheme="green"
               variant="solid"
               leftIcon={<FiCalendar />}
               borderRadius="xl"

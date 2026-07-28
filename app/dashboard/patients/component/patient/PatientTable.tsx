@@ -209,7 +209,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             px={3}
             py={1}
             borderRadius="md"
-            colorScheme="teal"
+            colorScheme="green"
             variant="solid"
             cursor="pointer"
             fontWeight="600"
@@ -217,7 +217,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             display="flex"
             alignItems="center"
             gap={1}
-            _hover={{ bg: "teal.600", shadow: "sm" }}
+            _hover={{ bg: "green.600", shadow: "sm" }}
             transition="all 0.2s"
             onClick={() => setOpenAppointmentDetails({ open: true, data: dt })}
           >
