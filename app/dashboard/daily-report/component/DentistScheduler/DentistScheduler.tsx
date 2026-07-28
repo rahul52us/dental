@@ -153,9 +153,10 @@ const AppointmentCard = ({
           </Text>
 
           {/* Full Description */}
-          {appointment.description && (
+          {(appointment.title || appointment.description || appointment.shiftOrCancelledReason) && (
             <Text fontSize="xs" mt={1} opacity={0.85} whiteSpace="pre-wrap">
-              📝 {appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description}
+              📝 {[appointment.title, appointment.description].filter(Boolean).join(" - ")}
+              {appointment.status === "scheduled" && appointment.shiftOrCancelledReason ? `\n🔄 Shift Reason: ${appointment.shiftOrCancelledReason}` : ""}
             </Text>
           )}
         </Box>
@@ -288,9 +289,10 @@ const AppointmentCard = ({
 
         {/* Treatment */}
         <Text fontSize="xs" mt={1}>
-          {(appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description || "Consultation").length > 15
-            ? (appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description || "Consultation").slice(0, 15) + "..."
-            : appointment.status === "scheduled" ? appointment.shiftOrCancelledReason || appointment.description : appointment.description || "Consultation"}
+          {(() => {
+            const displayStr = [appointment.title, appointment.description].filter(Boolean).join(" - ") || "Consultation";
+            return displayStr.length > 30 ? displayStr.slice(0, 30) + "..." : displayStr;
+          })()}
         </Text>
 
 
