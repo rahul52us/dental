@@ -214,6 +214,35 @@ class WorkDoneStore {
     }
   };
 
+  transferAdvanceToWallet = async (workDoneId: string, amount: number) => {
+    try {
+      const { data } = await axios.post(`/wallet/transfer`, { workDoneId, amount });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  getPatientWalletHistory = async (patientId: string) => {
+    try {
+      const { data } = await axios.get(`/wallet/history/${patientId}`);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  addManualWalletCredit = async (payload: { patientId: string; amount: number; description: string }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/wallet/add-credit`, { ...payload, company: compId });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   updatePayment = async (id: string, sendData: any) => {
     try {
       const { data } = await axios.put(`/payment/${id}`, sendData);

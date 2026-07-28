@@ -43,9 +43,11 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerBody,
-  DrawerCloseButton
+  DrawerCloseButton,
+  InputGroup,
+  InputLeftElement
 } from "@chakra-ui/react";
-import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2, FiList, FiEye, FiPlusCircle } from "react-icons/fi";
+import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2, FiList, FiEye, FiPlusCircle, FiCreditCard, FiArrowDownLeft, FiArrowUpRight } from "react-icons/fi";
 import React, { useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
@@ -55,6 +57,7 @@ import { formatCurrency } from "../../config/utils/utils";
 import CreatableSelect from "react-select/creatable";
 import { FormControl, FormLabel } from "@chakra-ui/react";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
+import WalletHistoryDrawer from "../../component/WalletHistoryDrawer";
 
 const ALL_PRINT_COLUMNS = [
   { key: "date", label: "Billing Date" },
@@ -127,6 +130,18 @@ const GlobalAccountabilityPage = observer(() => {
   const [editAmount, setEditAmount] = useState<string>("");
   const [isSavingAmount, setIsSavingAmount] = useState(false);
 
+  // Wallet Transfer State
+  const [isTransferingWallet, setIsTransferingWallet] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [walletTransferAmount, setWalletTransferAmount] = useState<string>("");
+  const [selectedWalletRecord, setSelectedWalletRecord] = useState<any>(null);
+
+  // Wallet History State
+  const [isWalletHistoryOpen, setIsWalletHistoryOpen] = useState(false);
+  const [walletHistoryData, setWalletHistoryData] = useState<any[]>([]);
+  const [isWalletHistoryLoading, setIsWalletHistoryLoading] = useState(false);
+  const [selectedWalletPatient, setSelectedWalletPatient] = useState<any>(null);
+
   // Downloading State
   const [downloadingPaymentId, setDownloadingPaymentId] = useState<string | null>(null);
   const [downloadingRecordId, setDownloadingRecordId] = useState<string | null>(null);
@@ -146,6 +161,21 @@ const GlobalAccountabilityPage = observer(() => {
     setIsHistoryOpen(true);
   };
 
+  const openWalletHistoryDrawer = async (patient: any) => {
+    if (!patient?._id) return;
+    setSelectedWalletPatient(patient);
+    setIsWalletHistoryOpen(true);
+    setIsWalletHistoryLoading(true);
+    try {
+      const res = await stores.workDoneStore.getPatientWalletHistory(patient._id);
+      setWalletHistoryData(res.history || []);
+    } catch (err: any) {
+      toast({ title: "Error fetching wallet history", description: err?.message, status: "error", duration: 3000 });
+    } finally {
+      setIsWalletHistoryLoading(false);
+    }
+  };
+
   const handleSaveTotalBill = async () => {
     const newBillAmount = Number(editBillAmount);
     if (isNaN(newBillAmount) || newBillAmount < 0) return;
@@ -163,6 +193,37 @@ const GlobalAccountabilityPage = observer(() => {
       toast({ title: "Error Updating Bill", description: err.message, status: "error" });
     } finally {
       setIsSavingBill(false);
+    }
+  };
+
+  const handleMoveToWalletClick = (record: any) => {
+    if (record.balanceDue >= 0) return;
+    const amountToTransfer = Math.abs(record.balanceDue);
+    setSelectedWalletRecord(record);
+    setWalletTransferAmount(amountToTransfer.toString());
+    setIsWalletModalOpen(true);
+  };
+
+  const confirmMoveToWallet = async () => {
+    if (!selectedWalletRecord) return;
+    const amount = Number(walletTransferAmount);
+    const maxAmount = Math.abs(selectedWalletRecord.balanceDue);
+
+    if (isNaN(amount) || amount <= 0 || amount > maxAmount) {
+      toast({ title: "Invalid amount", description: `Amount must be between 1 and ${maxAmount}`, status: "error" });
+      return;
+    }
+
+    setIsTransferingWallet(true);
+    try {
+      await stores.workDoneStore.transferAdvanceToWallet(selectedWalletRecord._id, amount);
+      toast({ title: "Advance moved to wallet", status: "success" });
+      setIsWalletModalOpen(false);
+      fetchGlobalData(page);
+    } catch (err: any) {
+      toast({ title: "Error moving to wallet", description: err.message, status: "error" });
+    } finally {
+      setIsTransferingWallet(false);
     }
   };
 
@@ -712,18 +773,48 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td>
                       <HStack>
-                        <Text fontSize="sm" fontWeight="800" color={(Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0) ? "blue.600" : "gray.400"}>
-                          {Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0 
-                            ? Array.from(new Set(row.paymentHistory.map((p: any) => p.receiptNumber).filter(Boolean))).join(", ") || "-"
-                            : (row.paymentHistory?.receiptNumber || "-")}
-                        </Text>
+                        {(() => {
+                          let receiptNumbers: string[] = [];
+                          if (Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0) {
+                            receiptNumbers = Array.from(new Set(row.paymentHistory.map((p: any) => p.receiptNumber).filter(Boolean))) as string[];
+                          } else if (row.paymentHistory?.receiptNumber) {
+                            receiptNumbers = [row.paymentHistory.receiptNumber];
+                          }
+                          const displayStr = receiptNumbers.length > 0 ? (receiptNumbers[0] + (receiptNumbers.length > 1 ? "..." : "")) : "-";
+                          const fullStr = receiptNumbers.length > 0 ? receiptNumbers.join(", ") : "-";
+                          const hasMultiple = receiptNumbers.length > 1;
+
+                          return (
+                            <Tooltip
+                              label={fullStr}
+                              isDisabled={!hasMultiple}
+                              placement="top"
+                              hasArrow
+                              bg="blue.600"
+                              color="white"
+                              borderRadius="md"
+                              p={2}
+                            >
+                              <Text
+                                fontSize="sm"
+                                fontWeight="800"
+                                color={receiptNumbers.length > 0 ? "blue.600" : "gray.400"}
+                                cursor={hasMultiple ? "help" : "default"}
+                              >
+                                {displayStr}
+                              </Text>
+                            </Tooltip>
+                          );
+                        })()}
                       </HStack>
                     </Td>
                     <Td>
                       <HStack>
                         <Avatar size="sm" name={row.patientInfo?.name || "Unknown"} bg="blue.500" color="white" />
                         <Box>
-                          <Text fontWeight="800" fontSize="sm">{row.patientInfo?.name || "Unknown"}</Text>
+                          <HStack spacing={2}>
+                            <Text fontWeight="800" fontSize="sm">{row.patientInfo?.name || "Unknown"}</Text>
+                          </HStack>
                           {row.patientInfo?.code && <Text fontSize="10px" fontWeight="bold" color="gray.400">{row.patientInfo.code}</Text>}
                         </Box>
                       </HStack>
@@ -875,6 +966,39 @@ const GlobalAccountabilityPage = observer(() => {
                             </Text>
                           </VStack>
                         </Box>
+                        {row.balanceDue < 0 && stores.auth.hasPermission('accountability', 'edit') && (
+                          <Tooltip label="Move Advance to Wallet" hasArrow>
+                            <IconButton
+                              aria-label="Move to Wallet"
+                              icon={<FiPlusCircle />}
+                              size="sm"
+                              colorScheme="purple"
+                              variant="solid"
+                              borderRadius="full"
+                              isLoading={isTransferingWallet && selectedWalletRecord?._id === row._id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMoveToWalletClick(row);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                        {row.patientInfo?.walletBalance > 0 && (
+                          <Tooltip label="View Wallet History" hasArrow bg="purple.600">
+                            <IconButton
+                              aria-label="Wallet History"
+                              icon={<FiCreditCard />}
+                              size="sm"
+                              colorScheme="purple"
+                              variant="ghost"
+                              borderRadius="full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openWalletHistoryDrawer(row.patientInfo);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
                       </HStack>
                     </Td>
                     <Td>
@@ -1002,7 +1126,14 @@ const GlobalAccountabilityPage = observer(() => {
         <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.600" />
         <ModalContent borderRadius="3xl" shadow="2xl" overflow="hidden">
           <ModalHeader bgGradient="linear(to-r, blue.500, blue.700)" color="white" py={6}>
-            <Text fontSize="2xl" fontWeight="1000">Receive Amount</Text>
+            <HStack justify="space-between">
+              <Text fontSize="2xl" fontWeight="1000">Receive Amount</Text>
+              {selectedRecord?.patientInfo?.walletBalance > 0 && (
+                <Badge colorScheme="purple" p={2} borderRadius="xl" fontSize="xs">
+                  Wallet: ₹{selectedRecord.patientInfo.walletBalance}
+                </Badge>
+              )}
+            </HStack>
           </ModalHeader>
           <ModalCloseButton color="white" top={4} right={4} />
           <ModalBody py={8} px={6}>
@@ -1036,6 +1167,9 @@ const GlobalAccountabilityPage = observer(() => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
+                  {selectedRecord?.patientInfo?.walletBalance > 0 && (
+                    <option value="Wallet">Wallet (Bal: ₹{selectedRecord.patientInfo.walletBalance})</option>
+                  )}
                   <option value="Other">Other</option>
                 </Box>
               </FormControl>
@@ -1246,6 +1380,71 @@ const GlobalAccountabilityPage = observer(() => {
         pdfBase64={previewData}
         fileName={previewFileName}
       />
+      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
+        <ModalContent borderRadius="3xl" shadow="2xl" overflow="hidden" bg="white">
+          <Box bgGradient="linear(to-br, purple.500, purple.700)" px={6} py={8} position="relative" overflow="hidden">
+            <Box position="absolute" top="-20%" right="-10%" opacity={0.1}>
+              <Icon as={FiCreditCard} boxSize="150px" color="white" transform="rotate(-15deg)" />
+            </Box>
+            <VStack align="start" spacing={2} position="relative" zIndex={10}>
+              <Text fontSize="2xl" fontWeight="1000" color="white" letterSpacing="tight">Transfer to Wallet</Text>
+              <Text fontSize="sm" color="purple.100" fontWeight="600">Move excess advance amount directly to the patient's wallet.</Text>
+            </VStack>
+            <ModalCloseButton color="white" top={4} right={4} bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.300" }} />
+          </Box>
+          <ModalBody py={8} px={6}>
+            <VStack spacing={8}>
+              <Box bg="purple.50" p={5} borderRadius="2xl" w="full" border="2px dashed" borderColor="purple.200" position="relative">
+                <HStack justify="space-between" align="center">
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="xs" color="purple.600" fontWeight="800" textTransform="uppercase" letterSpacing="wider">Available Advance</Text>
+                    <Text fontSize="2xl" color="purple.800" fontWeight="900">
+                      ₹{selectedWalletRecord ? formatCurrency(Math.abs(selectedWalletRecord.balanceDue)).replace('₹','') : 0}
+                    </Text>
+                  </VStack>
+                  <Center w="48px" h="48px" bg="purple.100" borderRadius="xl" color="purple.600">
+                    <Icon as={FiArrowDownLeft} boxSize={6} />
+                  </Center>
+                </HStack>
+              </Box>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>TRANSFER AMOUNT</FormLabel>
+                <InputGroup size="lg">
+                  <InputLeftElement pointerEvents="none" color="purple.500" h="full" px={4} fontSize="xl" fontWeight="900">₹</InputLeftElement>
+                  <Input
+                    type="number"
+                    value={walletTransferAmount}
+                    onChange={(e) => setWalletTransferAmount(e.target.value)}
+                    h="70px"
+                    pl={12}
+                    borderRadius="2xl"
+                    fontWeight="900"
+                    fontSize="2xl"
+                    color="gray.800"
+                    bg="gray.50"
+                    borderWidth="2px"
+                    borderColor="gray.200"
+                    _focus={{ borderColor: "purple.500", bg: "white", shadow: "0 0 0 1px var(--chakra-colors-purple-500)" }}
+                    max={selectedWalletRecord ? Math.abs(selectedWalletRecord.balanceDue) : 0}
+                  />
+                </InputGroup>
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter bg="gray.50" py={6} px={6} borderTop="1px solid" borderColor="gray.100">
+            <Button variant="ghost" mr={3} onClick={() => setIsWalletModalOpen(false)} borderRadius="xl" fontWeight="bold" size="lg">Cancel</Button>
+            <Button colorScheme="purple" borderRadius="xl" px={8} py={6} fontSize="lg" fontWeight="bold" isLoading={isTransferingWallet} onClick={confirmMoveToWallet} shadow="xl" _hover={{ shadow: '2xl', transform: 'translateY(-2px)' }} transition="all 0.2s">Transfer Now</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <WalletHistoryDrawer
+        isOpen={isWalletHistoryOpen}
+        onClose={() => setIsWalletHistoryOpen(false)}
+        patient={selectedWalletPatient}
+      />
+
     </Box>
   );
 });

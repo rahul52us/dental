@@ -18,7 +18,8 @@ import {
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
-import { FiFileText, FiDollarSign, FiPaperclip } from "react-icons/fi";
+import { FiFileText, FiDollarSign, FiPaperclip, FiCreditCard } from "react-icons/fi";
+import WalletHistoryDrawer from "../../../../component/WalletHistoryDrawer";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
 import { FaFlask } from "react-icons/fa";
 import LabSheet from "../../../labWork/component/LabSheet";
@@ -80,6 +81,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  
+  const [isWalletHistoryOpen, setIsWalletHistoryOpen] = useState(false);
+  const [selectedWalletPatient, setSelectedWalletPatient] = useState<any>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
@@ -358,6 +363,34 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
+      headerName: "Wallet",
+      key: "wallet",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Wallet History" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Wallet History"
+              icon={<FiCreditCard />}
+              colorScheme="pink"
+              bg="pink.50"
+              color="pink.600"
+              _hover={{ bg: "pink.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => {
+                setSelectedWalletPatient(dt);
+                setIsWalletHistoryOpen(true);
+              }}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 100, textAlign: "center" } },
+    },
+    {
       headerName: "Documents",
       key: "documents",
       type: "component",
@@ -572,6 +605,12 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <PatientDocuments patientDetails={openDocumentsDetails.data} />
           </CustomDrawer>
         )}
+
+        <WalletHistoryDrawer
+          isOpen={isWalletHistoryOpen}
+          onClose={() => setIsWalletHistoryOpen(false)}
+          patient={selectedWalletPatient}
+        />
       </Box>
     </>
   );

@@ -58,9 +58,11 @@ import {
   FiChevronRight,
   FiFileText,
   FiEye,
-  FiEdit2
+  FiEdit2,
+  FiCreditCard
 } from "react-icons/fi";
 import ReceiptPreviewDrawer from "./ReceiptPreviewDrawer";
+import WalletHistoryDrawer from "../../../../component/WalletHistoryDrawer";
 import stores from "../../../../store/stores";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import moment from "moment";
@@ -80,6 +82,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  const [isWalletHistoryOpen, setIsWalletHistoryOpen] = useState(false);
+  const [selectedWalletPatient, setSelectedWalletPatient] = useState<any>(null);
 
   // Edit Amount State
   const [isEditAmountOpen, setIsEditAmountOpen] = useState(false);
@@ -619,6 +624,22 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 </Button>
               )}
 
+              <Button
+                leftIcon={<FiCreditCard />}
+                bgGradient="linear(to-r, pink.500, pink.600)"
+                color="white"
+                _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                _active={{ transform: "translateY(0)" }}
+                size="md"
+                borderRadius="2xl"
+                fontWeight="800"
+                px={6}
+                shadow="md"
+                onClick={() => { setSelectedWalletPatient(patientDetails); setIsWalletHistoryOpen(true); }}
+              >
+                Wallet
+              </Button>
+
               <HStack
                 spacing={0}
                 p={1}
@@ -1105,6 +1126,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
+                  <option value="Wallet">Wallet</option>
                   <option value="Other">Other</option>
                 </Select>
               </FormControl>
@@ -1415,6 +1437,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         }}
         pdfBase64={previewData}
         fileName={previewFileName}
+      />
+
+      <WalletHistoryDrawer
+        isOpen={isWalletHistoryOpen}
+        onClose={() => setIsWalletHistoryOpen(false)}
+        patient={selectedWalletPatient}
       />
     </Box>
   );
