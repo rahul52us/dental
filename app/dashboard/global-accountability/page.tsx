@@ -210,36 +210,8 @@ const GlobalAccountabilityPage = observer(() => {
   const procedureOptions = React.useMemo(() => {
     const optionsSet = new Set<string>();
     stores.procedureStore.procedures.data.forEach((p: any) => {
-      const parts = [];
       if (p.category && p.category !== "None") {
-        const cat = p.category.trim();
-        parts.push(cat);
-        optionsSet.add(parts.join(" · "));
-        optionsSet.add(cat);
-      }
-      if (p.subcategory && p.subcategory !== "None") {
-        const sub = p.subcategory.trim();
-        parts.push(sub);
-        optionsSet.add(parts.join(" · "));
-        optionsSet.add(sub);
-      }
-      if (p.name && p.name !== "None") {
-        const n1 = p.name.trim();
-        parts.push(n1);
-        optionsSet.add(parts.join(" · "));
-        optionsSet.add(n1);
-      }
-      if (p.name2 && p.name2 !== "None") {
-        const n2 = p.name2.trim();
-        parts.push(n2);
-        optionsSet.add(parts.join(" · "));
-        optionsSet.add(n2);
-      }
-      if (p.name3 && p.name3 !== "None") {
-        const n3 = p.name3.trim();
-        parts.push(n3);
-        optionsSet.add(parts.join(" · "));
-        optionsSet.add(n3);
+        optionsSet.add(p.category.trim());
       }
     });
     return Array.from(optionsSet).filter(Boolean).map(opt => ({ label: opt, value: opt }));
