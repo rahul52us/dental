@@ -58,7 +58,8 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
     if (
       pathname === "/login" ||
       pathname === "/register" ||
-      pathname === "/forgot-password"
+      pathname === "/forgot-password" ||
+      pathname?.startsWith("/reset-password")
     ) {
       return AuthenticationLayout;
     } else if (pathname?.startsWith("/dashboard")) {

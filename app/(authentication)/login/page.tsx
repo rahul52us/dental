@@ -19,7 +19,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { RiEyeLine, RiEyeOffLine, RiUserSmileLine } from "react-icons/ri";
 import { FaTooth } from "react-icons/fa";
@@ -27,6 +27,7 @@ import CustomButton from "../../component/common/CustomButton/CustomButton";
 import { useRouter } from "next/navigation";
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
+
 
 const Login = observer(() => {
   const {
@@ -193,10 +194,15 @@ const Login = observer(() => {
                 </InputGroup>
               </FormControl>
 
-              <Flex justify="flex-start" align="center" fontSize="sm" mt={2} mb={2}>
+              <Flex justify="space-between" align="center" fontSize="sm" mt={2} mb={2}>
                 <Checkbox colorScheme="teal" size="md">
                   <Text color="gray.600" fontWeight="500">Remember me</Text>
                 </Checkbox>
+                <Link href="/forgot-password">
+                  <Text color="teal.600" fontWeight="600" _hover={{ textDecoration: "underline" }}>
+                    Forgot Password?
+                  </Text>
+                </Link>
               </Flex>
 
               {/* Sign in button */}

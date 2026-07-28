@@ -87,6 +87,15 @@ class AuthStore {
     }
   };
 
+  resetPasswordStore = async (value: { token: string; password: string }) => {
+    try {
+      const { data } = await axios.post("/auth/reset-password", value);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err?.message);
+    }
+  };
+
   openNotification = (data: {
     title: any;
     message: string;
