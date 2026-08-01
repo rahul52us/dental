@@ -67,6 +67,7 @@ const ALL_PRINT_COLUMNS = [
   { key: "treatmentCode", label: "Treatment Code" },
   { key: "treatment", label: "Treatment" },
   { key: "doctor", label: "Doctor" },
+  { key: "walletBalance", label: "Wallet Balance" },
   { key: "fees", label: "Fees" },
   { key: "paid", label: "Txn Paid" },
   { key: "lastPaid", label: "Payment Date" },
@@ -682,7 +683,7 @@ const GlobalAccountabilityPage = observer(() => {
       </Box>
 
       {/* Premium Summary Section */}
-      <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} mb={4}>
+      <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4} mb={4}>
         {/* BILLED */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
@@ -712,16 +713,6 @@ const GlobalAccountabilityPage = observer(() => {
           <Text fontSize="2xl" fontWeight="900" color="red.500" position="relative" zIndex={1}>{formatCurrency(summary.totalDue)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiAlertCircle} boxSize={20} /></Box>
         </Box>
-
-        {/* ADVANCE */}
-        <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
-          <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL ADVANCE</Text>
-            <Box p={1.5} bg="purple.50" borderRadius="md"><Icon as={FiDollarSign} color="purple.500" boxSize={4} /></Box>
-          </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="purple.500" position="relative" zIndex={1}>{formatCurrency(summary.totalAdvance || 0)}</Text>
-          <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiDollarSign} boxSize={20} /></Box>
-        </Box>
       </Grid>
 
       {/* Premium Table Section */}
@@ -733,10 +724,8 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">BILLING DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">RECEIPT NO.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="220px" whiteSpace="nowrap">PATIENT</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap">TREATMENT CODE</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="200px" whiteSpace="nowrap">TREATMENT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap" isNumeric>WALLET BAL.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
@@ -744,6 +733,9 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>BALANCE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap">TREATMENT CODE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="200px" whiteSpace="nowrap">TREATMENT</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -819,28 +811,17 @@ const GlobalAccountabilityPage = observer(() => {
                         </Box>
                       </HStack>
                     </Td>
-                    <Td>
-                      {row.tooth ? <Badge colorScheme="blue" variant="subtle" px={2} py={1} borderRadius="lg">{row.tooth}</Badge> : <Text color="gray.400">-</Text>}
-                    </Td>
-                    <Td>
-                      <Tooltip label={row.treatmentCode || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
-                        <Text fontSize="sm" fontWeight="700" color="gray.700" noOfLines={1} maxW="180px">
-                          {row.treatmentCode || "-"}
-                        </Text>
-                      </Tooltip>
-                    </Td>
-                    <Td>
-                      <Tooltip label={row.treatmentInfo?.name || row.workDoneNote || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
-                        <Text noOfLines={2} maxW="200px" fontSize="sm" fontWeight="600" color="gray.600">
-                          {row.treatmentInfo?.name || row.workDoneNote || "-"}
-                        </Text>
-                      </Tooltip>
-                    </Td>
+
                     <Td>
                       <HStack>
                         <Icon as={FiUser} color="gray.400" />
                         <Text fontSize="sm" fontWeight="700">{row.doctorInfo?.name || "Unknown"}</Text>
                       </HStack>
+                    </Td>
+                    <Td isNumeric>
+                      <Text fontWeight="900" color="purple.600" fontSize="sm">
+                        {formatCurrency(row.patientInfo?.walletBalance || 0)}
+                      </Text>
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end" spacing={2} minW="130px">
@@ -1030,6 +1011,23 @@ const GlobalAccountabilityPage = observer(() => {
                           {row.balanceDue < 0 ? "OVERPAID" : row.balanceDue === 0 ? "SETTLED" : "DUE"}
                         </Badge>
                       </HStack>
+                    </Td>
+                    <Td>
+                      {row.tooth ? <Badge colorScheme="blue" variant="subtle" px={2} py={1} borderRadius="lg">{row.tooth}</Badge> : <Text color="gray.400">-</Text>}
+                    </Td>
+                    <Td>
+                      <Tooltip label={row.treatmentCode || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
+                        <Text fontSize="sm" fontWeight="700" color="gray.700" noOfLines={1} maxW="180px">
+                          {row.treatmentCode || "-"}
+                        </Text>
+                      </Tooltip>
+                    </Td>
+                    <Td>
+                      <Tooltip label={row.treatmentInfo?.name || row.workDoneNote || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
+                        <Text noOfLines={2} maxW="200px" fontSize="sm" fontWeight="600" color="gray.600">
+                          {row.treatmentInfo?.name || row.workDoneNote || "-"}
+                        </Text>
+                      </Tooltip>
                     </Td>
                   </Tr>
                 ))
