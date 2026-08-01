@@ -322,7 +322,7 @@ export const sidebarFooterData: SidebarItem[] = [
   },
 ];
 
-const getSidebarDataByRole = (role: string[] = ["admin", "staff"]): SidebarItem[] => {
+const getSidebarDataByRole = (role: string[] = ["admin", "staff","doctor"]): SidebarItem[] => {
   const filterByRoleAndPermission = (items: SidebarItem[]): SidebarItem[] => {
     return items
       .filter((item) => {

@@ -37,7 +37,7 @@ const Page = observer(() => {
       case "patient":
         return <PatientDashboard />;
       case "doctor":
-        return <DoctorDashboard />;
+        return <Dashboard />;
       case "staff":
         return <Dashboard />;
       case "admin":
