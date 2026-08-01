@@ -73,6 +73,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
           teethNumbers: [],
           unit: "",
           amount: "",
+          technicianName: "",
         },
       ],
     labInstructions: initialData?.labInstructions || "",
@@ -457,6 +458,16 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
                             return dropdowns;
                           })()}
+
+                            <GridItem>
+                              <CustomInput
+                                label="Technician Name"
+                                placeholder="Enter technician name..."
+                                name={`selectedWorks.${workIndex}.technicianName`}
+                                value={work.technicianName}
+                                onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.technicianName`, e.target.value)}
+                              />
+                            </GridItem>
                         </Grid>
 
                         <Divider />
@@ -526,6 +537,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                         teethNumbers: [],
                         unit: "",
                         amount: "",
+                        technicianName: "",
                       });
                       setFieldValue("selectedWorks", currentWorks);
                     }}

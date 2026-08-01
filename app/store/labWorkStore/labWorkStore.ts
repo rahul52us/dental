@@ -6,6 +6,7 @@ class LabWorkStore {
   labWorks: any[] = [];
   totalCount: number = 0;
   loading: boolean = false;
+  reportLoading: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -72,6 +73,43 @@ class LabWorkStore {
       return error.response.data;
     } finally {
       this.loading = false;
+    }
+  };
+
+  fetchTechnicianReport = async (filters: any) => {
+    try {
+      this.reportLoading = true;
+      const response = await axios.get("/lab-work/technician-report", { 
+        params: { ...filters, company: stores.auth.company, download: false } 
+      });
+      return response.data;
+    } catch (error: any) {
+      return error.response?.data || { status: "error" };
+    } finally {
+      this.reportLoading = false;
+    }
+  };
+
+  downloadTechnicianReport = async (filters: any) => {
+    try {
+      this.reportLoading = true;
+      const response = await axios.get("/lab-work/technician-report", { 
+        params: { ...filters, company: stores.auth.company, download: true } 
+      });
+      
+      if (response.data.status === "success" && response.data.data) {
+        const linkSource = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${response.data.data}`;
+        const downloadLink = document.createElement("a");
+        const fileName = "Technician_Report.xlsx";
+        downloadLink.href = linkSource;
+        downloadLink.download = fileName;
+        downloadLink.click();
+      }
+      return response.data;
+    } catch (error: any) {
+      return error.response?.data || { status: "error" };
+    } finally {
+      this.reportLoading = false;
     }
   };
 }

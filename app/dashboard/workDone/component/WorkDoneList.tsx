@@ -1379,6 +1379,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
   const categories = prescriptionStore.categories || [];
   const basicSalts = prescriptionStore.basicSalts || [];
   const forms = prescriptionStore.forms || [];
+  const companyNames = prescriptionStore.companyNames || [];
   const prescriptionsData = prescriptionStore.prescriptionsData || [];
   const suggestionsLoading = prescriptionStore.suggestionsLoading;
   const prescriptionsLoading = prescriptionStore.prescriptionsLoading;
@@ -1672,7 +1673,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                               />
                             </Box>
 
-                            <SimpleGrid columns={2} spacing={3} w="full">
+                            <SimpleGrid columns={3} spacing={3} w="full">
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>BASIC SALT</Text>
                                 <CreatableSelect
@@ -1694,6 +1695,18 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                   options={forms.map((f: string) => ({ label: f, value: f }))}
                                   value={localFormData.form ? { label: localFormData.form, value: localFormData.form } : null}
                                   onChange={(val: any) => setLocalFormData({ ...localFormData, form: val?.value || '' })}
+                                  styles={selectStyles}
+                                />
+                              </Box>
+                              <Box>
+                                <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>COMPANY NAME</Text>
+                                <CreatableSelect
+                                  isClearable
+                                  isLoading={suggestionsLoading}
+                                  placeholder="Company..."
+                                  options={companyNames.map((c: string) => ({ label: c, value: c }))}
+                                  value={localFormData.companyName ? { label: localFormData.companyName, value: localFormData.companyName } : null}
+                                  onChange={(val: any) => setLocalFormData({ ...localFormData, companyName: val?.value || '' })}
                                   styles={selectStyles}
                                 />
                               </Box>

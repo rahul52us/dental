@@ -118,6 +118,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const [previewData, setPreviewData] = useState<{ columns: any[]; rows: any[] } | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  const [technicianPreviewData, setTechnicianPreviewData] = useState<{ columns: any[]; rows: any[] } | null>(null);
+  const [isTechnicianPreviewOpen, setIsTechnicianPreviewOpen] = useState(false);
+
   const [reportFilters, setReportFilters] = useState({
     dateType: "receivedDate" as string | string[],
     fromDate: "",
@@ -128,6 +131,14 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
     labDoctor: null as any,
     status: "all" as string | string[],
     selectedColumns: [] as string[],
+  });
+
+  const [isTechnicianReportOpen, setIsTechnicianReportOpen] = useState(false);
+  const [technicianReportFilters, setTechnicianReportFilters] = useState({
+    technicianName: "",
+    fromDate: "",
+    toDate: "",
+    dateType: "receivedDate",
   });
 
   useEffect(() => {
@@ -662,6 +673,20 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   </Button>
                 )}
 
+                {hasTabPermission('download') && (
+                  <Button
+                    leftIcon={<FiDownload />}
+                    colorScheme="teal"
+                    variant="outline"
+                    size="sm"
+                    borderRadius="xl"
+                    onClick={() => setIsTechnicianReportOpen(true)}
+                    flexShrink={0}
+                  >
+                    Technician Report
+                  </Button>
+                )}
+
                 {(fromDate || toDate || doctorSearch || statusFilter !== "all" || noReceivedDate || noSendDate) && (
                   <IconButton
                     aria-label="Reset All Filters"
@@ -1029,6 +1054,118 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           onDownload={() => handleDownloadReport(false)}
           isDownloading={isDownloading}
         />
+        
+        {/* Technician Report Preview Drawer */}
+        <ReportPreviewDrawer
+          isOpen={isTechnicianPreviewOpen}
+          onClose={() => setIsTechnicianPreviewOpen(false)}
+          title="Technician Report Preview"
+          columns={technicianPreviewData?.columns || []}
+          rows={technicianPreviewData?.rows || []}
+          onDownload={async () => {
+            setIsDownloading(true);
+            await stores.labWorkStore.downloadTechnicianReport(technicianReportFilters);
+            setIsDownloading(false);
+          }}
+          isDownloading={isDownloading}
+        />
+
+        <Drawer isOpen={isTechnicianReportOpen} onClose={() => setIsTechnicianReportOpen(false)} size="lg" placement="right">
+          <DrawerOverlay backdropFilter="blur(5px)" />
+          <DrawerContent borderLeftRadius="2xl" shadow="2xl">
+            <DrawerHeader bg="blue.600" color="white" py={6}>
+              <HStack spacing={3}>
+                <Icon as={FiDownload} boxSize={6} />
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="xl" fontWeight="bold">Technician Report</Text>
+                  <Text fontSize="xs" fontWeight="normal" opacity={0.8}>Download report grouped by technician</Text>
+                </VStack>
+              </HStack>
+              <DrawerCloseButton color="white" mt={4} />
+            </DrawerHeader>
+            <DrawerBody p={6}>
+              <VStack spacing={6} align="stretch">
+                <CustomInput
+                  name="technicianName"
+                  label="Technician Name"
+                  placeholder="Enter technician name..."
+                  value={technicianReportFilters.technicianName}
+                  onChange={(e: any) => setTechnicianReportFilters(prev => ({ ...prev, technicianName: e.target.value }))}
+                />
+                <SimpleGrid columns={3} spacing={4}>
+                  <CustomInput
+                    name="techDateType"
+                    label="Date Filter"
+                    type="select"
+                    options={[
+                      { label: "Created Date", value: "createdAt" },
+                      { label: "Send Date", value: "sendDate" },
+                      { label: "Received Date", value: "receivedDate" },
+                    ]}
+                    value={technicianReportFilters.dateType}
+                    onChange={(val: any) => setTechnicianReportFilters(prev => ({ ...prev, dateType: val.value }))}
+                  />
+                  <CustomInput
+                    name="techFromDate"
+                    label="From Date"
+                    type="date"
+                    value={technicianReportFilters.fromDate}
+                    onChange={(e: any) => setTechnicianReportFilters(prev => ({ ...prev, fromDate: e.target.value }))}
+                  />
+                  <CustomInput
+                    name="techToDate"
+                    label="To Date"
+                    type="date"
+                    value={technicianReportFilters.toDate}
+                    onChange={(e: any) => setTechnicianReportFilters(prev => ({ ...prev, toDate: e.target.value }))}
+                  />
+                </SimpleGrid>
+              </VStack>
+            </DrawerBody>
+            <DrawerFooter bg="gray.50" borderTopWidth="1px">
+              <Button variant="ghost" mr={3} onClick={() => {
+                setTechnicianReportFilters({ technicianName: "", fromDate: "", toDate: "", dateType: "receivedDate" });
+              }}>
+                Reset
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={async () => {
+                  const res = await stores.labWorkStore.fetchTechnicianReport(technicianReportFilters);
+                  if (res?.status === "success" && res.data) {
+                    const columns = [
+                      { key: "date", header: "Date" },
+                      { key: "patientName", header: "Patient Name" },
+                      { key: "category", header: "Category" },
+                      { key: "teeth", header: "Teeth" },
+                      { key: "unit", header: "Unit" },
+                      { key: "shade", header: "Shade" },
+                      { key: "status", header: "Status" },
+                      { key: "amount", header: "Amount" }
+                    ];
+                    
+                    const formattedRows = res.data.map((r: any) => {
+                      let dateStr = "-";
+                      if (r.date) {
+                        try {
+                          const d = new Date(r.date);
+                          dateStr = ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
+                        } catch (e) {}
+                      }
+                      return { ...r, date: dateStr };
+                    });
+                    setTechnicianPreviewData({ columns, rows: formattedRows });
+                    setIsTechnicianReportOpen(false);
+                    setIsTechnicianPreviewOpen(true);
+                  }
+                }}
+                isLoading={stores.labWorkStore.reportLoading}
+              >
+                Generate Report
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </Box>
     </Box>
   );
