@@ -76,7 +76,7 @@ const DashboardCard = ({ label, value, icon, color, href }: any) => {
             <Icon as={icon} boxSize={7} />
           </Box>
 
-          <Badge
+          {/* <Badge
             variant="subtle"
             colorScheme={isPositive ? "green" : "red"}
             borderRadius="full"
@@ -89,7 +89,7 @@ const DashboardCard = ({ label, value, icon, color, href }: any) => {
             gap={1}
           >
             {trend}
-          </Badge>
+          </Badge> */}
         </Flex>
 
         <Box mt="auto">
