@@ -757,7 +757,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>BALANCE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
+                <Th display="none" color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap">TREATMENT CODE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="200px" whiteSpace="nowrap">TREATMENT</Th>
@@ -1019,7 +1019,7 @@ const GlobalAccountabilityPage = observer(() => {
                         );
                       })()}
                     </Td>
-                    <Td>
+                    <Td display="none">
                       <HStack justify="flex-start">
                         <Badge
                           colorScheme={row.balanceDue < 0 ? "purple" : row.balanceDue === 0 ? "green" : "red"}

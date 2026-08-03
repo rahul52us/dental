@@ -69,6 +69,7 @@ const defaultLabWorkCols = [
   { label: "Doctor", value: "doctorName" },
   { label: "Work Type", value: "workType" },
   { label: "Lab", value: "labName" },
+  { label: "Technician Name", value: "technicianName" },
   { label: "Creation Date", value: "createdAt" },
   { label: "Send Date", value: "sendDate" },
   { label: "Due Date", value: "dueDate" },
@@ -203,15 +204,15 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
   const resetReportFilters = () => {
     setReportFilters({
-      dateType: "receivedDate",
+      dateType: activeTab === 1 ? "sendDate" : "receivedDate",
       fromDate: "",
       toDate: "",
-      workType: "in-house",
+      workType: activeTab === 1 ? "in-house" : "outside",
       patient: null,
       doctor: null,
       labDoctor: null,
       status: "all",
-      selectedColumns: [],
+      selectedColumns: defaultLabWorkCols.map((c) => c.value),
     });
     localStorage.removeItem("labReportColumns");
   };
@@ -251,7 +252,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const handleAdd = () => {
     const defaultWorkType = activeTab === 1 ? "in-house" : (activeTab === 2 ? "outside" : "outside");
     const newLabWork: any = { workType: defaultWorkType };
-    
+
     // Auto-populate patient if we have the details (e.g., from waiting room / patient view)
     if (patientDetails) {
       newLabWork.patient = {
@@ -261,7 +262,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         name: patientDetails.name
       };
     }
-    
+
     setSelectedLabWork(newLabWork);
     onOpen();
   };
@@ -660,10 +661,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     size="sm"
                     borderRadius="xl"
                     onClick={() => {
-                      let workType: any = "all";
-                      if (activeTab === 1) workType = "in-house";
-                      else if (activeTab === 2) workType = "outside";
-                      setReportFilters(prev => ({ ...prev, workType }));
+                      const workType = activeTab === 1 ? "in-house" : "outside";
+                      const dateType = activeTab === 1 ? "sendDate" : "receivedDate";
+                      setReportFilters(prev => ({ ...prev, workType, dateType }));
                       onReportOpen();
                     }}
                     isLoading={isDownloading}
@@ -783,38 +783,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
             <DrawerBody p={8}>
               <VStack spacing={8} align="stretch">
-                {/* Work Type Section */}
-                <Box>
-                  <HStack mb={4} spacing={2}>
-                    <Icon as={FiList} color="blue.500" />
-                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">WORK TYPE</Text>
-                  </HStack>
-                  <CustomInput
-                    name="workType"
-                    type="select"
-                    isPortal
-                    options={[
-                      { label: "All", value: "all" },
-                      { label: "In-house", value: "in-house" },
-                      { label: "Outside", value: "outside" },
-                    ]}
-                    value={{
-                      label: reportFilters.workType === "all" ? "All" : reportFilters.workType === "in-house" ? "In-house" : "Outside",
-                      value: reportFilters.workType
-                    }}
-                    onChange={(val: any) => {
-                      if (!val || val.value === "all") {
-                        setReportFilters({ ...reportFilters, workType: "all", labDoctor: null, doctor: null });
-                      } else if (val.value === "in-house") {
-                        setReportFilters({ ...reportFilters, workType: "in-house", labDoctor: null, dateType: "sendDate" });
-                      } else {
-                        setReportFilters({ ...reportFilters, workType: "outside", doctor: null, dateType: "receivedDate" });
-                      }
-                    }}
-                  />
-                </Box>
 
-                <Divider />
 
                 {/* Date Filters Section */}
                 <Box>
@@ -1058,7 +1027,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           onDownload={() => handleDownloadReport(false)}
           isDownloading={isDownloading}
         />
-        
+
         {/* Technician Report Preview Drawer */}
         <ReportPreviewDrawer
           isOpen={isTechnicianPreviewOpen}
@@ -1164,7 +1133,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       { key: "status", header: "Status" },
                       { key: "amount", header: "Amount" }
                     ];
-                    
+
                     const formattedRows = res.data.map((r: any) => {
                       let dateStr = "-";
                       if (r.date) {
