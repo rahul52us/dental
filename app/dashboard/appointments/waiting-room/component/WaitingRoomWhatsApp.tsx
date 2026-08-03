@@ -650,7 +650,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                     {patient.incompleteWorkDoneCount}
                                                 </Badge>
                                             )}
-                                            Work Done
+                                            Work History
                                             {patient?.pendingWorkDoneCount > 0 && (
                                                 <Badge
                                                     position="absolute"

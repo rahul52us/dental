@@ -58,6 +58,7 @@ import CreatableSelect from "react-select/creatable";
 import { FormControl, FormLabel } from "@chakra-ui/react";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 import WalletHistoryDrawer from "../../component/WalletHistoryDrawer";
+import { toJS } from "mobx";
 
 const ALL_PRINT_COLUMNS = [
   { key: "date", label: "Billing Date" },
@@ -78,6 +79,7 @@ const ALL_PRINT_COLUMNS = [
 ];
 
 const GlobalAccountabilityPage = observer(() => {
+  const user = stores?.auth?.user;
   const bgCard = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const tableHeaderBg = useColorModeValue("gray.50", "gray.700");
@@ -93,7 +95,18 @@ const GlobalAccountabilityPage = observer(() => {
   const [fromDate, setFromDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [toDate, setToDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [selectedPatients, setSelectedPatients] = useState<any[]>([]);
-  const [selectedDoctors, setSelectedDoctors] = useState<any[]>([]);
+  const [selectedDoctors, setSelectedDoctors] = useState<any[]>(() => {
+    const user = stores?.auth?.user;
+    if (user?.role === "Doctor" || user?.userType === "Doctor" || user?.userType === "doctor") {
+      return [{
+        _id: user._id || user.userId,
+        id: user._id || user.userId,
+        value: user._id || user.userId,
+        label: `${user.username || user.name || user.firstName || 'Doctor'}-${user?.mobileNumber}`
+      }];
+    }
+    return [];
+  });
   const [status, setStatus] = useState("all");
   const [paymentMode, setPaymentMode] = useState("all");
   const [treatmentCode, setTreatmentCode] = useState("");
@@ -345,7 +358,19 @@ const GlobalAccountabilityPage = observer(() => {
     setFromDate(todayStr);
     setToDate(todayStr);
     setSelectedPatients([]);
-    setSelectedDoctors([]);
+
+    const user = stores.auth.user;
+    if (user?.role === "Doctor" || user?.userType === "Doctor" || user?.userType === "doctor") {
+      setSelectedDoctors([{
+        _id: user._id || user.userId,
+        id: user._id || user.userId,
+        value: user._id || user.userId,
+        label: user.username || user.name || user.firstName || "Doctor"
+      }]);
+    } else {
+      setSelectedDoctors([]);
+    }
+
     setStatus("all");
     setPaymentMode("all");
     setTreatmentCode("");
@@ -437,7 +462,7 @@ const GlobalAccountabilityPage = observer(() => {
               onChange={setSelectedPatients}
             />
           </Box>
-          <Box>
+          <Box display={user.userType === "doctor" ? "none" : "block"}>
             <CustomInput
               name="doctors"
               label="Select Doctors"
