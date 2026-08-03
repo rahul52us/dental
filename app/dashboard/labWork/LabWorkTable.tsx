@@ -136,6 +136,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const [isTechnicianReportOpen, setIsTechnicianReportOpen] = useState(false);
   const [technicianReportFilters, setTechnicianReportFilters] = useState({
     technicianName: "",
+    category: "all",
     fromDate: "",
     toDate: "",
     dateType: "receivedDate",
@@ -929,6 +930,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       type="real-time-user-search"
                       label="Filter by Patient"
                       isPortal
+                      isClear
                       value={reportFilters.patient}
                       onChange={(val: any) => setReportFilters({ ...reportFilters, patient: val })}
                       query={{ type: "patient" }}
@@ -940,6 +942,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         type="real-time-user-search"
                         label="Filter by Doctor (In-house)"
                         isPortal
+                        isClear
                         value={reportFilters.doctor}
                         onChange={(val: any) => setReportFilters({ ...reportFilters, doctor: val, labDoctor: null })}
                         query={{ type: "doctor" }}
@@ -957,6 +960,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         }}
                         label="Filter by Lab Doctor (Outside)"
                         isPortal
+                        isClear
                         value={reportFilters.labDoctor}
                         onChange={(val: any) => setReportFilters({ ...reportFilters, labDoctor: val, doctor: null })}
                       />
@@ -1085,13 +1089,29 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             </DrawerHeader>
             <DrawerBody p={6}>
               <VStack spacing={6} align="stretch">
-                <CustomInput
-                  name="technicianName"
-                  label="Technician Name"
-                  placeholder="Enter technician name..."
-                  value={technicianReportFilters.technicianName}
-                  onChange={(e: any) => setTechnicianReportFilters(prev => ({ ...prev, technicianName: e.target.value }))}
-                />
+                <SimpleGrid columns={2} spacing={4}>
+                  <CustomInput
+                    name="technicianName"
+                    label="Technician Name"
+                    placeholder="Enter technician name..."
+                    value={technicianReportFilters.technicianName}
+                    onChange={(e: any) => setTechnicianReportFilters(prev => ({ ...prev, technicianName: e.target.value }))}
+                  />
+                  <CustomInput
+                    name="techCategory"
+                    label="Category"
+                    type="select"
+                    options={[
+                      { label: "All Categories", value: "all" },
+                      ...stores.labWorkHierarchyStore.hierarchies
+                        .filter((h: any) => !h.parentId)
+                        .filter((h: any, index: number, self: any[]) => self.findIndex((t: any) => t.name === h.name) === index)
+                        .map((h: any) => ({ label: h.name, value: h.name }))
+                    ]}
+                    value={{ label: technicianReportFilters.category === "all" ? "All Categories" : technicianReportFilters.category, value: technicianReportFilters.category }}
+                    onChange={(val: any) => setTechnicianReportFilters(prev => ({ ...prev, category: val ? val.value : "all" }))}
+                  />
+                </SimpleGrid>
                 <SimpleGrid columns={3} spacing={4}>
                   <CustomInput
                     name="techDateType"
@@ -1124,7 +1144,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             </DrawerBody>
             <DrawerFooter bg="gray.50" borderTopWidth="1px">
               <Button variant="ghost" mr={3} onClick={() => {
-                setTechnicianReportFilters({ technicianName: "", fromDate: "", toDate: "", dateType: "receivedDate" });
+                setTechnicianReportFilters({ technicianName: "", category: "all", fromDate: "", toDate: "", dateType: "receivedDate" });
               }}>
                 Reset
               </Button>
@@ -1135,6 +1155,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   if (res?.status === "success" && res.data) {
                     const columns = [
                       { key: "date", header: "Date" },
+                      { key: "technicianName", header: "Technician Name" },
                       { key: "patientName", header: "Patient Name" },
                       { key: "category", header: "Category" },
                       { key: "teeth", header: "Teeth" },
