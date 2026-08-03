@@ -390,10 +390,10 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 border="1px solid"
                 borderColor={searchBorder}
                 _hover={{ borderColor: "blue.300", bg: searchHoverBg }}
-                _focus={{ 
+                _focus={{
                   bg: searchFocusBg,
-                  borderColor: "blue.500", 
-                  boxShadow: "0 0 0 1px #3182ce" 
+                  borderColor: "blue.500",
+                  boxShadow: "0 0 0 1px #3182ce"
                 }}
                 pl={10}
                 pr={10}
@@ -421,9 +421,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </Box>
         )}
 
-        <Flex 
-          alignItems="center" 
-          columnGap={2} 
+        <Flex
+          alignItems="center"
+          columnGap={2}
           order={{ base: 2, md: 3 }}
           ml={{ base: "auto", md: 0 }}
         >
