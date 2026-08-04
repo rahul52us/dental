@@ -3,6 +3,7 @@ import {
   CheckCircleIcon,
   CheckIcon,
   InfoIcon,
+  DownloadIcon
 } from "@chakra-ui/icons"; // Assuming standard chakra icons
 import {
   Avatar,
@@ -71,9 +72,26 @@ const ProfileDetailsModal = observer(({ user }: any) => {
       : getDefaultSchedule()
   );
   const [isSaving, setIsSaving] = useState(false);
-  const { themeStore, companyStore, globalConfigStore } = stores;
+  const { globalConfigStore, themeStore, userStore, companyStore } = stores;
   const { profileModal, setProfileModal } = themeStore;
   const toast = useToast();
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportDatabase = async () => {
+    try {
+      setIsExporting(true);
+      await userStore.cloneCompanyDatabase(
+        user?.company?._id || user?.company,
+        user?.username || user?.email
+      );
+      toast({ title: 'Export Started', description: 'You will receive an email shortly with the backup.', status: 'success', duration: 5000, isClosable: true });
+    } catch (err: any) {
+      toast({ title: 'Export Failed', description: err.message || 'Something went wrong', status: 'error', duration: 5000, isClosable: true });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (profileModal.isOpen) {
@@ -619,6 +637,31 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                       />
                     </SimpleGrid>
                   </Box>
+
+                  {user?.role === "admin" && (
+                    <>
+                      <Divider />
+                      {/* Database Export Section */}
+                      <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                        <Flex align={{ base: "flex-start", sm: "center" }} justify="space-between" direction={{ base: "column", sm: "row" }}>
+                          <Box mb={{ base: 3, sm: 0 }} mr={4}>
+                            <Text fontWeight="bold">Database Backup</Text>
+                            <Text fontSize="sm" color="gray.500">Download a complete readable export of all your records to your email.</Text>
+                          </Box>
+                          <Button 
+                            size="sm" 
+                            colorScheme="blue" 
+                            leftIcon={<DownloadIcon />}
+                            isLoading={isExporting}
+                            onClick={handleExportDatabase}
+                            flexShrink={0}
+                          >
+                            Export Database
+                          </Button>
+                        </Flex>
+                      </Box>
+                    </>
+                  )}
 
                   <Divider />
                   {/* Payment Section */}
