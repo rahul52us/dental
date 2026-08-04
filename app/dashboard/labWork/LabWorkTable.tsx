@@ -135,12 +135,17 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   });
 
   const [isTechnicianReportOpen, setIsTechnicianReportOpen] = useState(false);
-  const [technicianReportFilters, setTechnicianReportFilters] = useState({
-    technicianName: "",
-    category: "all",
-    fromDate: "",
-    toDate: "",
-    dateType: "receivedDate",
+  const [technicianReportFilters, setTechnicianReportFilters] = useState(() => {
+    const today = new Date();
+    const last40Days = new Date();
+    last40Days.setDate(today.getDate() - 40);
+    return {
+      technicianName: "",
+      category: "all",
+      fromDate: last40Days.toISOString().split('T')[0],
+      toDate: today.toISOString().split('T')[0],
+      dateType: "receivedDate",
+    };
   });
 
   useEffect(() => {
@@ -1036,8 +1041,24 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           columns={technicianPreviewData?.columns || []}
           rows={technicianPreviewData?.rows || []}
           onDownload={async () => {
+            const { fromDate, toDate } = technicianReportFilters;
+            if (!fromDate || !toDate) {
+              toast({ type: "error", title: "Error", message: "Please select both From and To dates." });
+              return;
+            }
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+            const diffDays = Math.ceil(Math.abs(to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
+            if (diffDays > 40) {
+              toast({ type: "error", title: "Error", message: "You can only filter a maximum of 40 days at a time." });
+              return;
+            }
+            
             setIsDownloading(true);
-            await stores.labWorkStore.downloadTechnicianReport(technicianReportFilters);
+            await stores.labWorkStore.downloadTechnicianReport({
+              ...technicianReportFilters,
+              workType: activeTab === 1 ? "in-house" : activeTab === 2 ? "outside" : "all",
+            });
             setIsDownloading(false);
           }}
           isDownloading={isDownloading}
@@ -1113,20 +1134,46 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             </DrawerBody>
             <DrawerFooter bg="gray.50" borderTopWidth="1px">
               <Button variant="ghost" mr={3} onClick={() => {
-                setTechnicianReportFilters({ technicianName: "", category: "all", fromDate: "", toDate: "", dateType: "receivedDate" });
+                const today = new Date();
+                const last40Days = new Date();
+                last40Days.setDate(today.getDate() - 40);
+                setTechnicianReportFilters({ 
+                  technicianName: "", 
+                  category: "all", 
+                  fromDate: last40Days.toISOString().split('T')[0], 
+                  toDate: today.toISOString().split('T')[0], 
+                  dateType: "receivedDate" 
+                });
               }}>
                 Reset
               </Button>
               <Button
                 colorScheme="blue"
                 onClick={async () => {
-                  const res = await stores.labWorkStore.fetchTechnicianReport(technicianReportFilters);
+                  const { fromDate, toDate } = technicianReportFilters;
+                  if (!fromDate || !toDate) {
+                    toast({ type: "error", title: "Error", message: "Please select both From and To dates." });
+                    return;
+                  }
+                  const from = new Date(fromDate);
+                  const to = new Date(toDate);
+                  const diffDays = Math.ceil(Math.abs(to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
+                  if (diffDays > 40) {
+                    toast({ type: "error", title: "Error", message: "You can only filter a maximum of 40 days at a time." });
+                    return;
+                  }
+
+                  const res = await stores.labWorkStore.fetchTechnicianReport({
+                    ...technicianReportFilters,
+                    workType: activeTab === 1 ? "in-house" : activeTab === 2 ? "outside" : "all",
+                  });
                   if (res?.status === "success" && res.data) {
                     const columns = [
                       { key: "date", header: "Date" },
                       { key: "technicianName", header: "Technician Name" },
                       { key: "patientName", header: "Patient Name" },
                       { key: "category", header: "Category" },
+                      { key: "workType", header: "Work Type" },
                       { key: "teeth", header: "Teeth" },
                       { key: "unit", header: "Unit" },
                       { key: "shade", header: "Shade" },
