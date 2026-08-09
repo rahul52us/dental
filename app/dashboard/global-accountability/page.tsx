@@ -415,7 +415,7 @@ const GlobalAccountabilityPage = observer(() => {
     <Box p={{ base: 2, md: 4 }} minH="100vh" bg={useColorModeValue("gray.50", "gray.900")}>
 
       {/* Premium Header */}
-      <HStack mb={4} bgGradient="linear(to-r, blue.600, blue.800)" p={4} px={6} borderRadius="2xl" color="white" boxShadow="md" position="relative" overflow="hidden" justify="space-between">
+      <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "flex-start", md: "center" }} gap={{ base: 4, md: 0 }} mb={6} bgGradient="linear(to-r, blue.600, blue.800)" p={6} borderRadius="2xl" color="white" boxShadow="xl" position="relative" overflow="hidden">
         <Box position="relative" zIndex={1}>
           <HStack spacing={3}>
             <Icon as={FiActivity} boxSize={5} color="blue.200" />
@@ -436,12 +436,13 @@ const GlobalAccountabilityPage = observer(() => {
           isLoading={isPrinting}
           onClick={() => setIsPrintModalOpen(true)}
           _hover={{ bg: "whiteAlpha.300" }}
+          w={{ base: "100%", md: "auto" }}
         >
           Print Report
         </Button>
         <Box position="absolute" right="-2%" top="-50%" boxSize="150px" bg="whiteAlpha.100" borderRadius="full" />
         <Box position="absolute" right="10%" bottom="-50%" boxSize="100px" bg="blue.500" opacity={0.5} borderRadius="full" filter="blur(20px)" />
-      </HStack>
+      </Flex>
 
       {/* Filter Section */}
       <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} mb={4}>
@@ -475,8 +476,8 @@ const GlobalAccountabilityPage = observer(() => {
             />
           </Box>
           <GridItem colSpan={{ base: 1, md: 2, lg: 2, xl: 2 }}>
-            <HStack spacing={4} align="end" width="100%">
-              <Box flex="1">
+            <Flex direction={{ base: "column", md: "row" }} gap={4} align="end" width="100%">
+              <Box flex="1" w="100%">
                 <CustomInput
                   name="fromDate"
                   label="From Date"
@@ -485,7 +486,7 @@ const GlobalAccountabilityPage = observer(() => {
                   onChange={(e: any) => setFromDate(e.target.value)}
                 />
               </Box>
-              <Box flex="1">
+              <Box flex="1" w="100%">
                 <CustomInput
                   name="toDate"
                   label="To Date"
@@ -494,7 +495,7 @@ const GlobalAccountabilityPage = observer(() => {
                   onChange={(e: any) => setToDate(e.target.value)}
                 />
               </Box>
-            </HStack>
+            </Flex>
           </GridItem>
           <Box>
             <FormControl>
@@ -675,7 +676,7 @@ const GlobalAccountabilityPage = observer(() => {
             </FormControl>
           </GridItem>
           <GridItem colSpan={{ base: 1, md: 2, lg: 3, xl: 4 }} display="flex" justifyContent="flex-end" pt={2}>
-            <HStack spacing={4}>
+            <Flex direction={{ base: "column", md: "row" }} gap={4} w={{ base: "100%", md: "auto" }}>
               <Button
                 bgGradient="linear(to-r, blue.500, blue.600)"
                 color="white"
@@ -687,6 +688,7 @@ const GlobalAccountabilityPage = observer(() => {
                 px={10}
                 borderRadius="xl"
                 fontWeight="bold"
+                w={{ base: "100%", md: "auto" }}
               >
                 Apply Filters
               </Button>
@@ -699,10 +701,11 @@ const GlobalAccountabilityPage = observer(() => {
                 px={8}
                 borderRadius="xl"
                 fontWeight="bold"
+                w={{ base: "100%", md: "auto" }}
               >
                 Clear
               </Button>
-            </HStack>
+            </Flex>
           </GridItem>
         </Grid>
       </Box>
@@ -713,32 +716,32 @@ const GlobalAccountabilityPage = observer(() => {
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
             <VStack align="start" spacing={0}>
-              <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL BILLED</Text>
-              <Text fontSize="10px" color="gray.500" mt={1}>* Covers patients with billing recorded on previous dates also</Text>
+              <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL BILLED</Text>
+              <Text fontSize="10px" color={useColorModeValue("gray.500", "gray.400")} mt={1}>* Covers patients with billing recorded on previous dates also</Text>
             </VStack>
-            <Box p={1.5} bg="blue.50" borderRadius="md"><Icon as={FiFileText} color="blue.500" boxSize={4} /></Box>
+            <Box p={1.5} bg={useColorModeValue("blue.50", "blue.900")} borderRadius="md"><Icon as={FiFileText} color={useColorModeValue("blue.500", "blue.300")} boxSize={4} /></Box>
           </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="blue.600" position="relative" zIndex={1}>{formatCurrency(summary.totalBilled)}</Text>
+          <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("blue.600", "blue.300")} position="relative" zIndex={1}>{formatCurrency(summary.totalBilled)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiFileText} boxSize={20} /></Box>
         </Box>
 
         {/* PAID */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL RECEIVED</Text>
-            <Box p={1.5} bg="green.50" borderRadius="md"><Icon as={FiCheckCircle} color="green.500" boxSize={4} /></Box>
+            <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL RECEIVED</Text>
+            <Box p={1.5} bg={useColorModeValue("green.50", "green.900")} borderRadius="md"><Icon as={FiCheckCircle} color={useColorModeValue("green.500", "green.300")} boxSize={4} /></Box>
           </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="green.500" position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
+          <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("green.600", "green.400")} position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
         </Box>
 
         {/* DUE */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL DUE</Text>
-            <Box p={1.5} bg="red.50" borderRadius="md"><Icon as={FiAlertCircle} color="red.500" boxSize={4} /></Box>
+            <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL DUE</Text>
+            <Box p={1.5} bg={useColorModeValue("red.50", "red.900")} borderRadius="md"><Icon as={FiAlertCircle} color={useColorModeValue("red.500", "red.300")} boxSize={4} /></Box>
           </HStack>
-          <Text fontSize="2xl" fontWeight="900" color="red.500" position="relative" zIndex={1}>{formatCurrency(summary.totalDue)}</Text>
+          <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("red.600", "red.400")} position="relative" zIndex={1}>{formatCurrency(summary.totalDue)}</Text>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiAlertCircle} boxSize={20} /></Box>
         </Box>
       </Grid>
@@ -777,8 +780,8 @@ const GlobalAccountabilityPage = observer(() => {
                 <Tr>
                   <Td colSpan={14} textAlign="center" py={16}>
                     <VStack spacing={3} opacity={0.5}>
-                      <Icon as={FiAlertCircle} boxSize={10} color="gray.400" />
-                      <Text color="gray.500" fontWeight="bold">No records found matching your filters.</Text>
+                      <Icon as={FiAlertCircle} boxSize={10} color={useColorModeValue("gray.400", "gray.600")} />
+                      <Text color={useColorModeValue("gray.500", "gray.400")} fontWeight="bold">No records found matching your filters.</Text>
                     </VStack>
                   </Td>
                 </Tr>
@@ -787,8 +790,8 @@ const GlobalAccountabilityPage = observer(() => {
                   <Tr key={row.uniqueRowId || row._id} _hover={{ bg: useColorModeValue("blue.50", "blue.900") }} transition="all 0.2s">
                     <Td>
                       <HStack>
-                        <Icon as={FiCalendar} color="gray.400" />
-                        <Text fontSize="sm" fontWeight="700" color="gray.600">{new Date(row.createdAt).toLocaleDateString("en-GB")}</Text>
+                        <Icon as={FiCalendar} color={useColorModeValue("gray.400", "gray.500")} />
+                        <Text fontSize="sm" fontWeight="700" color={useColorModeValue("gray.600", "gray.300")}>{new Date(row.createdAt).toLocaleDateString("en-GB")}</Text>
                       </HStack>
                     </Td>
                     <Td>
@@ -810,15 +813,15 @@ const GlobalAccountabilityPage = observer(() => {
                               isDisabled={!hasMultiple}
                               placement="top"
                               hasArrow
-                              bg="blue.600"
-                              color="white"
+                              bg={useColorModeValue("blue.600", "blue.400")}
+                              color={useColorModeValue("white", "gray.900")}
                               borderRadius="md"
                               p={2}
                             >
                               <Text
                                 fontSize="sm"
                                 fontWeight="800"
-                                color={receiptNumbers.length > 0 ? "blue.600" : "gray.400"}
+                                color={receiptNumbers.length > 0 ? useColorModeValue("blue.600", "blue.300") : useColorModeValue("gray.400", "gray.600")}
                                 cursor={hasMultiple ? "help" : "default"}
                               >
                                 {displayStr}
@@ -833,33 +836,33 @@ const GlobalAccountabilityPage = observer(() => {
                         <Avatar size="sm" name={row.patientInfo?.name || "Unknown"} bg="blue.500" color="white" />
                         <Box>
                           <HStack spacing={2}>
-                            <Text fontWeight="800" fontSize="sm">{row.patientInfo?.name || "Unknown"}</Text>
+                            <Text fontWeight="800" fontSize="sm" color={useColorModeValue("gray.800", "white")}>{row.patientInfo?.name || "Unknown"}</Text>
                           </HStack>
-                          {row.patientInfo?.code && <Text fontSize="10px" fontWeight="bold" color="gray.400">{row.patientInfo.code}</Text>}
+                          {row.patientInfo?.code && <Text fontSize="10px" fontWeight="bold" color={useColorModeValue("gray.400", "gray.500")}>{row.patientInfo.code}</Text>}
                         </Box>
                       </HStack>
                     </Td>
 
                     <Td>
                       <HStack>
-                        <Icon as={FiUser} color="gray.400" />
-                        <Text fontSize="sm" fontWeight="700">{row.doctorInfo?.name || "Unknown"}</Text>
+                        <Icon as={FiUser} color={useColorModeValue("gray.400", "gray.500")} />
+                        <Text fontSize="sm" fontWeight="700" color={useColorModeValue("gray.700", "gray.200")}>{row.doctorInfo?.name || "Unknown"}</Text>
                       </HStack>
                     </Td>
                     <Td isNumeric>
-                      <Text fontWeight="900" color="purple.600" fontSize="sm">
+                      <Text fontWeight="900" color={useColorModeValue("purple.600", "purple.300")} fontSize="sm">
                         {formatCurrency(row.patientInfo?.walletBalance || 0)}
                       </Text>
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end" spacing={2} minW="130px">
-                        <Box px={3} py={1} bg="yellow.50" borderRadius="xl" display="inline-flex" alignItems="center" border="1px solid" borderColor="yellow.200" justifyContent="center">
+                        <Box px={3} py={1} bg={useColorModeValue("yellow.50", "yellow.900")} borderRadius="xl" display="inline-flex" alignItems="center" border="1px solid" borderColor={useColorModeValue("yellow.200", "yellow.700")} justifyContent="center">
                           <VStack spacing={0} align="end">
-                            <Text fontWeight="900" color="yellow.800" fontSize="sm" whiteSpace="nowrap">
+                            <Text fontWeight="900" color={useColorModeValue("yellow.800", "yellow.200")} fontSize="sm" whiteSpace="nowrap">
                               {formatCurrency(row.amount - (row.discount || 0))}
                             </Text>
                             {row.discount > 0 && (
-                              <Text fontSize="2xs" color="gray.400" textDecoration="line-through">
+                              <Text fontSize="2xs" color={useColorModeValue("gray.400", "gray.500")} textDecoration="line-through">
                                 {formatCurrency(row.amount)}
                               </Text>
                             )}
@@ -885,10 +888,10 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end" spacing={2}>
-                        <HStack spacing={2} p={2} bg="green.50" borderRadius="2xl" border="1px dashed" borderColor="green.200" minW="130px" maxW="max-content">
+                        <HStack spacing={2} p={2} bg={useColorModeValue("green.50", "green.900")} borderRadius="2xl" border="1px dashed" borderColor={useColorModeValue("green.200", "green.700")} minW="130px" maxW="max-content">
                           <VStack align="start" spacing={0} flex={1}>
-                            <Text fontSize="xs" fontWeight="bold" color="green.600" opacity={0.7}>TXN PAID</Text>
-                            <Text fontSize="md" fontWeight="1000" color="green.700" whiteSpace="nowrap">{formatCurrency(row.totalPaid)}</Text>
+                            <Text fontSize="xs" fontWeight="bold" color={useColorModeValue("green.600", "green.300")} opacity={0.7}>TXN PAID</Text>
+                            <Text fontSize="md" fontWeight="1000" color={useColorModeValue("green.700", "green.200")} whiteSpace="nowrap">{formatCurrency(row.totalPaid)}</Text>
                           </VStack>
                           {stores.auth.hasPermission('accountability', 'create') && (
                             <Tooltip label="Add Payment" hasArrow>
@@ -912,8 +915,8 @@ const GlobalAccountabilityPage = observer(() => {
 
                     <Td isNumeric>
                       <HStack justify="flex-end">
-                        <HStack px={3} py={1.5} bg="green.50" borderRadius="xl" border="1px dashed" borderColor="green.200" minW="100px" maxW="max-content" spacing={2}>
-                          <Text color="green.700" fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap" textAlign="center" flex={1}>
+                        <HStack px={3} py={1.5} bg={useColorModeValue("green.50", "green.900")} borderRadius="xl" border="1px dashed" borderColor={useColorModeValue("green.200", "green.700")} minW="100px" maxW="max-content" spacing={2}>
+                          <Text color={useColorModeValue("green.700", "green.200")} fontWeight="1000" fontSize="md" letterSpacing="-0.5px" whiteSpace="nowrap" textAlign="center" flex={1}>
                             {formatCurrency(Math.max(0, (row.amount - (row.discount || 0)) - row.balanceDue))}
                           </Text>
                           {stores.auth.hasPermission('accountability', 'view') && (
@@ -936,7 +939,7 @@ const GlobalAccountabilityPage = observer(() => {
                       </HStack>
                     </Td>
                     <Td>
-                      <Text fontWeight="800" color="gray.600" fontSize="sm">
+                      <Text fontWeight="800" color={useColorModeValue("gray.600", "gray.300")} fontSize="sm">
                         {Array.isArray(row.paymentHistory) && row.paymentHistory.length > 0
                           ? new Date(row.paymentHistory[row.paymentHistory.length - 1].date).toLocaleDateString("en-GB")
                           : (row.paymentHistory && row.paymentHistory.date ? new Date(row.paymentHistory.date).toLocaleDateString("en-GB") : "-")}
@@ -947,10 +950,10 @@ const GlobalAccountabilityPage = observer(() => {
                         <Box
                           px={4}
                           py={1.5}
-                          bg={row.balanceDue > 0 ? "red.50" : row.balanceDue < 0 ? "purple.50" : "green.50"}
+                          bg={row.balanceDue > 0 ? useColorModeValue("red.50", "red.900") : row.balanceDue < 0 ? useColorModeValue("purple.50", "purple.900") : useColorModeValue("green.50", "green.900")}
                           borderRadius="xl"
                           border="1px dashed"
-                          borderColor={row.balanceDue > 0 ? "red.200" : row.balanceDue < 0 ? "purple.200" : "green.200"}
+                          borderColor={row.balanceDue > 0 ? useColorModeValue("red.200", "red.700") : row.balanceDue < 0 ? useColorModeValue("purple.200", "purple.700") : useColorModeValue("green.200", "green.700")}
                           minW="110px"
                           maxW="max-content"
                           textAlign="center"
@@ -959,13 +962,13 @@ const GlobalAccountabilityPage = observer(() => {
                             <Text
                               fontSize="xs"
                               fontWeight="bold"
-                              color={row.balanceDue > 0 ? "red.600" : row.balanceDue < 0 ? "purple.600" : "green.600"}
+                              color={row.balanceDue > 0 ? useColorModeValue("red.600", "red.300") : row.balanceDue < 0 ? useColorModeValue("purple.600", "purple.300") : useColorModeValue("green.600", "green.300")}
                               opacity={0.8}
                             >
                               {row.balanceDue > 0 ? "DUE" : row.balanceDue < 0 ? "ADVANCE" : "SETTLED"}
                             </Text>
                             <Text
-                              color={row.balanceDue > 0 ? "red.600" : row.balanceDue < 0 ? "purple.600" : "green.700"}
+                              color={row.balanceDue > 0 ? useColorModeValue("red.600", "red.300") : row.balanceDue < 0 ? useColorModeValue("purple.600", "purple.300") : useColorModeValue("green.700", "green.200")}
                               fontWeight="1000"
                               fontSize="md"
                               letterSpacing="-0.5px"
@@ -1041,18 +1044,18 @@ const GlobalAccountabilityPage = observer(() => {
                       </HStack>
                     </Td>
                     <Td>
-                      {row.tooth ? <Badge colorScheme="blue" variant="subtle" px={2} py={1} borderRadius="lg">{row.tooth}</Badge> : <Text color="gray.400">-</Text>}
+                      {row.tooth ? <Badge colorScheme="blue" variant="subtle" px={2} py={1} borderRadius="lg">{row.tooth}</Badge> : <Text color={useColorModeValue("gray.400", "gray.500")}>-</Text>}
                     </Td>
                     <Td>
-                      <Tooltip label={row.treatmentCode || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
-                        <Text fontSize="sm" fontWeight="700" color="gray.700" noOfLines={1} maxW="180px">
+                      <Tooltip label={row.treatmentCode || ""} placement="top" hasArrow bg={useColorModeValue("blue.600", "blue.400")} color={useColorModeValue("white", "gray.900")} borderRadius="md" p={2}>
+                        <Text fontSize="sm" fontWeight="700" color={useColorModeValue("gray.700", "gray.200")} noOfLines={1} maxW="180px">
                           {row.treatmentCode || "-"}
                         </Text>
                       </Tooltip>
                     </Td>
                     <Td>
-                      <Tooltip label={row.treatmentInfo?.name || row.workDoneNote || ""} placement="top" hasArrow bg="blue.600" color="white" borderRadius="md" p={2}>
-                        <Text noOfLines={2} maxW="200px" fontSize="sm" fontWeight="600" color="gray.600">
+                      <Tooltip label={row.treatmentInfo?.name || row.workDoneNote || ""} placement="top" hasArrow bg={useColorModeValue("blue.600", "blue.400")} color={useColorModeValue("white", "gray.900")} borderRadius="md" p={2}>
+                        <Text noOfLines={2} maxW="200px" fontSize="sm" fontWeight="600" color={useColorModeValue("gray.600", "gray.300")}>
                           {row.treatmentInfo?.name || row.workDoneNote || "-"}
                         </Text>
                       </Tooltip>

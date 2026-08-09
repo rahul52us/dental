@@ -432,6 +432,8 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             readOnly={readOnly}
             style={style}
             bg={inputBg}
+            color={colorMode === "dark" ? "white" : "inherit"}
+            sx={{ colorScheme: colorMode === "dark" ? "dark" : "light" }}
             type="datetime-local"
             placeholder={placeholder}
             value={value}
@@ -559,6 +561,8 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             readOnly={readOnly}
             style={style}
             bg={inputBg}
+            color={colorMode === "dark" ? "white" : "inherit"}
+            sx={{ colorScheme: colorMode === "dark" ? "dark" : "light" }}
             type="date"
             placeholder={placeholder}
             value={value}
