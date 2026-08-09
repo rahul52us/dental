@@ -13,12 +13,14 @@ import {
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
-import CustomInput from "../../../../component/config/component/customInput/CustomInput";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { useTranslation } from "react-i18next";
 
 interface Phone {
   number: string;
   primary: boolean;
+  countryCode?: string;
 }
 
 interface PhoneNumbersInputProps {
@@ -78,14 +80,12 @@ const PhoneNumbersInput = ({
                   p={3}
                   position="relative"
                   borderColor={borderColor}
-                // bg={phone.primary ? "teal.50" : "white"}
                 >
                   <Flex align="center" mb={2}>
                     <Radio
                       value={index.toString()}
                       mr={2}
-                      aria-label={`Select primary phone ${phone.number || index + 1
-                        }`}
+                      aria-label={`Select primary phone ${phone.number || index + 1}`}
                     />
                     <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
                       <Flex gap={2}>
@@ -112,17 +112,49 @@ const PhoneNumbersInput = ({
                     )}
                   </Flex>
 
-                  <CustomInput
-                    name={`phones[${index}].number`}
-                    placeholder={t("common.form.enterPhoneNumber")}
-                    type="text"
-                    value={phone.number}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFieldValue(`phones[${index}].number`, e.target.value)
-                    }
-                    error={errors?.phones?.[index]?.number}
-                    showError={errors?.phones?.[index]?.number}
-                  />
+                  <Box mt={1}>
+                    <PhoneInput
+                      country={"in"}
+                      value={(phone.countryCode?.replace("+", "") || "91") + phone.number}
+                      onChange={(value, countryData: any) => {
+                        const dialCode = countryData?.dialCode || "91";
+                        const localNumber = value.startsWith(dialCode)
+                          ? value.slice(dialCode.length)
+                          : value;
+                        setFieldValue(`phones[${index}].number`, localNumber);
+                        setFieldValue(`phones[${index}].countryCode`, `+${dialCode}`);
+                      }}
+                      inputStyle={{
+                        width: "100%",
+                        height: "40px",
+                        fontSize: "14px",
+                        borderRadius: "8px",
+                        border: errors?.phones?.[index]?.number || (typeof errors?.phones === "string" && phone.primary)
+                          ? "1px solid red"
+                          : "1px solid #E2E8F0",
+                      }}
+                      buttonStyle={{
+                        borderRadius: "8px 0 0 8px",
+                        border: "1px solid #E2E8F0",
+                        background: "transparent",
+                      }}
+                      containerStyle={{
+                        width: "100%",
+                      }}
+                      enableSearch
+                      searchPlaceholder="Search country..."
+                    />
+                    {errors?.phones?.[index]?.number && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {errors.phones[index].number}
+                      </Text>
+                    )}
+                    {typeof errors?.phones === "string" && phone.primary && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {errors.phones}
+                      </Text>
+                    )}
+                  </Box>
 
                   <IconButton
                     aria-label="Remove phone"
@@ -149,7 +181,7 @@ const PhoneNumbersInput = ({
             mt={4}
             colorScheme="brand"
             onClick={() =>
-              push({ number: "", primary: values.phones.length === 0 })
+              push({ number: "", primary: values.phones.length === 0, countryCode: "+91" })
             }
           >
             {t("common.form.addPhone")}

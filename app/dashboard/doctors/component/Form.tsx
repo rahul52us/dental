@@ -217,6 +217,16 @@ const Form = observer(
                             showError={errors.name && touched.name}
                           />
                           <CustomInput
+                            label="Code"
+                            name="code"
+                            placeholder="Enter code"
+                            value={values.code}
+                            required={true}
+                            onChange={handleChange}
+                            error={errors?.code}
+                            showError={errors.code && touched.code}
+                          />
+                          <CustomInput
                             label={t("doctors.form.dob")}
                             type="date"
                             name={`dob`}

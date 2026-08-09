@@ -10,7 +10,7 @@ export const titles = [
 export const initialValues = {
   title: null,
   name: "",
-
+  code: "",
   dob:"",
   gender: null,
   languages: ['english'],
@@ -26,10 +26,10 @@ export const initialValues = {
   ],
   confirmPassword: "",
   phones: [
-    { number: "", primary: true },
-    { number: "", primary: false },
-    { number: "", primary: false },
-    { number: "", primary: false },
+    { number: "", primary: true, countryCode: "+91" },
+    { number: "", primary: false, countryCode: "+91" },
+    { number: "", primary: false, countryCode: "+91" },
+    { number: "", primary: false, countryCode: "+91" },
   ],
   emails: [
     { email: "", primary: true },

@@ -90,10 +90,7 @@ const EmailsInput = ({
                           }`}
                       />
                       <Text fontWeight="medium" flexGrow={1} noOfLines={1}>
-                        <Flex gap={2}> <Text> {t("common.form.emailEntered")} </Text>{email.primary && <Text as="span" color="red">
-                          {" "}
-                          *
-                        </Text>}</Flex>
+                        <Flex gap={2}> <Text> {t("common.form.emailEntered")} </Text></Flex>
                       </Text>
 
                       {email.primary && (

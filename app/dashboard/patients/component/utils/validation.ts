@@ -9,7 +9,11 @@ export const createValidationSchema = Yup.object({
   name: Yup.string().required("Name is required"),
   phones: Yup.array().of(
     Yup.object().shape({
-      number: Yup.string(),
+      number: Yup.string().when("primary", {
+        is: true,
+        then: (schema) => schema.required("Primary phone number is required"),
+      }),
+      primary: Yup.boolean(),
     })
   ),
   emails: Yup.array().of(
@@ -27,19 +31,24 @@ export const createValidationSchema = Yup.object({
   medicalHistory: Yup.mixed(),
   password: Yup.string(),
   confirmPassword: Yup.string(),
-  code: Yup.string().optional(),
+  code: Yup.string().min(6, "Code must be at least 6 characters").required("Code is required"),
 });
 
 export const updateValidationSchema = Yup.object({
   title: Yup.mixed().required("Title is required"),
-    name: Yup.string().required("Name is required"),
+  name: Yup.string().required("Name is required"),
+  code: Yup.string().min(6, "Code must be at least 6 characters").required("Code is required"),
   pic: Yup.mixed(),
   gender: Yup.mixed().required("Gender is required"),
-  phones: Yup.array()
-    .of(
-      Yup.object().shape({
-        number: Yup.string()})
-    ),
+  phones: Yup.array().of(
+    Yup.object().shape({
+      number: Yup.string().when("primary", {
+        is: true,
+        then: (schema) => schema.required("Primary phone number is required"),
+      }),
+      primary: Yup.boolean(),
+    })
+  ),
   emails: Yup.array().of(
     Yup.object().shape({
       email: Yup.string(),

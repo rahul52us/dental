@@ -7,6 +7,7 @@ export const createValidationSchema = Yup.object({
   gender: Yup.mixed().required("Gender is required"),
   dob: Yup.mixed().required("dob  is required"),
   name: Yup.string().required("Name is required"),
+  code: Yup.string().min(6, "Code must be at least 6 characters").required("Code is required"),
   degreeInfo: Yup.array()
     .of(
       Yup.object().shape({
@@ -16,41 +17,15 @@ export const createValidationSchema = Yup.object({
           ,
       })
     ),
-  phones: Yup.array()
-    .of(
-      Yup.object().shape({
-        number: Yup.string()})
-    //     .when("primary", {
-    //       is: true,
-    //       then: (schema) =>
-    //         schema
-    //           .matches(
-    //             /^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/,
-    //             "Phone number is not valid"
-    //           )
-    //           .required("Phone number is required"),
-    //       otherwise: (schema) =>
-    //         schema
-    //           .matches(/^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/, {
-    //             message: "Phone number is not valid",
-    //             excludeEmptyString: true, // Skip regex validation for empty strings
-    //           })
-    //           .optional() // Explicitly optional
-    //           .nullable(), // Allow null
-    //     }),
-    //     primary: Yup.boolean().required("Primary field is required"),
-    //   })
-    // )
-    // .required("At least one phone number is required")
-    // .min(1, "At least one phone number is required")
-    // .test(
-    //   "one-primary-phone",
-    //   "Exactly one phone must be marked as primary",
-    //   (phones) => {
-    //     if (!phones || phones.length === 0) return false;
-    //     return phones.filter((p) => p.primary).length === 1;
-    //   }
-    ),
+  phones: Yup.array().of(
+    Yup.object().shape({
+      number: Yup.string().when("primary", {
+        is: true,
+        then: (schema) => schema.required("Primary phone number is required"),
+      }),
+      primary: Yup.boolean(),
+    })
+  ),
   emails: Yup.array()
     .of(
       Yup.object().shape({
@@ -142,6 +117,7 @@ export const updateValidationSchema = Yup.object({
   title: Yup.mixed().required("Title is required"),
   pic: Yup.mixed(),
   gender: Yup.mixed().required("Gender is required"),
+  code: Yup.string().min(6, "Code must be at least 6 characters").required("Code is required"),
   // degreeInfo: Yup.array()
   //   .of(
   //     Yup.object().shape({
@@ -152,40 +128,15 @@ export const updateValidationSchema = Yup.object({
   //     })
   //   )
   //   .min(1, "At least one degree is required"),
-  // phones: Yup.array()
-  //   .of(
-  //     Yup.object().shape({
-  //       number: Yup.string().when("primary", {
-  //         is: true,
-  //         then: (schema) =>
-  //           schema
-  //             .matches(
-  //               /^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/,
-  //               "Phone number is not valid"
-  //             )
-  //             .required("Phone number is required"),
-  //         otherwise: (schema) =>
-  //           schema
-  //             .matches(/^(?:\+?[0-9]{1,3})?[-.\s]?[0-9]{10}$/, {
-  //               message: "Phone number is not valid",
-  //               excludeEmptyString: true, // Skip regex validation for empty strings
-  //             })
-  //             .optional() // Explicitly optional
-  //             .nullable(), // Allow null
-  //       }),
-  //       primary: Yup.boolean().required("Primary field is required"),
-  //     })
-  //   )
-  //   .required("At least one phone number is required")
-  //   .min(1, "At least one phone number is required")
-  //   .test(
-  //     "one-primary-phone",
-  //     "Exactly one phone must be marked as primary",
-  //     (phones) => {
-  //       if (!phones || phones.length === 0) return false;
-  //       return phones.filter((p) => p.primary).length === 1;
-  //     }
-  //   ),
+  phones: Yup.array().of(
+    Yup.object().shape({
+      number: Yup.string().when("primary", {
+        is: true,
+        then: (schema) => schema.required("Primary phone number is required"),
+      }),
+      primary: Yup.boolean(),
+    })
+  ),
   // emails: Yup.array()
   //   .of(
   //     Yup.object().shape({
