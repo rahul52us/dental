@@ -445,6 +445,9 @@ const AddAppointmentForm = observer(
                           borderRadius="lg"
                           mb={4}
                           boxShadow="sm"
+                          flexDirection={{ base: "column", md: "row" }}
+                          alignItems={{ base: "flex-start", md: "center" }}
+                          gap={{ base: 3, md: 0 }}
                         >
                           <AlertIcon />
                           <Box flex="1">
@@ -459,7 +462,9 @@ const AddAppointmentForm = observer(
                             size="sm"
                             colorScheme="orange"
                             variant="solid"
-                            ml={3}
+                            ml={{ md: 3 }}
+                            mt={{ base: 2, md: 0 }}
+                            w={{ base: "100%", md: "auto" }}
                             onClick={() =>
                               setHistoryModal({
                                 isOpen: true,

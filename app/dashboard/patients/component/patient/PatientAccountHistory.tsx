@@ -39,6 +39,8 @@ import {
   Circle,
   Grid,
   Heading,
+  useColorModeValue,
+  Flex,
 } from "@chakra-ui/react";
 import {
   FiActivity,
@@ -72,6 +74,11 @@ import CustomInput from "../../../../component/config/component/customInput/Cust
 const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const { accountabilityStore, workDoneStore, auth } = stores;
   const toast = useToast();
+  const bgOuter = useColorModeValue("gray.50", "transparent");
+  const bgInner = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("gray.100", "darkBrand.200");
+  const bgCardBox = useColorModeValue("white", "darkBrand.200");
+  const inputBg = useColorModeValue("white", "darkBrand.200");
 
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
@@ -545,8 +552,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const serverReceived = totalBill - patientPending;
 
   return (
-    <Box p={4} bg="gray.50" minH="100vh">
-      <Box bg="white" borderRadius="3xl" shadow="2xl" border="1px solid" borderColor="gray.100" overflow="hidden" p={6}>
+    <Box p={4} bg={bgOuter} minH="100vh">
+      <Box bg={bgInner} borderRadius="3xl" shadow="2xl" border="1px solid" borderColor={borderColor} overflow="hidden" p={{ base: 3, md: 6 }}>
         <VStack align="start" spacing={1} mb={3}>
           <HStack w="full" justify="space-between" align="center">
             <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em">OVERALL PATIENT SUMMARY</Text>
@@ -561,12 +568,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             { label: 'Total Collected', val: workDoneStore.overallStats.totalBill - workDoneStore.overallStats.patientPending, icon: FiDownloadCloud, color: 'cyan', sub: 'Total Cash Received' },
             { label: 'Total Outstanding', val: workDoneStore.overallStats.patientPending, icon: FiTrendingUp, color: 'pink', sub: 'Patient Balance' }
           ].map((item, i) => (
-            <HStack key={i} p={3} bg={`${item.color}.50`} borderRadius="xl" border="1px solid" borderColor={`${item.color}.100`} shadow="sm" spacing={3}>
-              <Box p={2.5} bg="white" borderRadius="lg" shadow="sm"><Icon as={item.icon} color={`${item.color}.400`} boxSize="18px" /></Box>
+            <HStack key={i} p={3} bg={useColorModeValue(`${item.color}.50`, `${item.color}.900`)} borderRadius="xl" border="1px solid" borderColor={useColorModeValue(`${item.color}.100`, `${item.color}.800`)} shadow="sm" spacing={3}>
+              <Box p={2.5} bg={bgCardBox} borderRadius="lg" shadow="sm"><Icon as={item.icon} color={useColorModeValue(`${item.color}.400`, `${item.color}.300`)} boxSize="18px" /></Box>
               <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="bold" color={`${item.color}.600`} textTransform="uppercase">{item.label}</Text>
+                <Text fontSize="10px" fontWeight="bold" color={useColorModeValue(`${item.color}.600`, `${item.color}.300`)} textTransform="uppercase">{item.label}</Text>
                 {workDoneStore.overallStats.loading ? <Spinner size="xs" /> : (
-                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
+                  <Text fontSize="md" fontWeight="800" color={useColorModeValue(`${item.color}.700`, `${item.color}.200`)} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
                 )}
                 <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
               </VStack>
@@ -590,12 +597,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             { label: 'Collected', val: serverReceived, icon: FiDownloadCloud, color: 'green', sub: 'Cash Received' },
             { label: 'Outstanding', val: patientPending, icon: FiTrendingUp, color: 'orange', sub: 'Balance Due' }
           ].map((item, i) => (
-            <HStack key={i} p={3} bg={`${item.color}.50`} borderRadius="xl" border="1px solid" borderColor={`${item.color}.100`} shadow="sm" spacing={3}>
-              <Box p={2.5} bg="white" borderRadius="lg" shadow="sm"><Icon as={item.icon} color={`${item.color}.400`} boxSize="18px" /></Box>
+            <HStack key={i} p={3} bg={useColorModeValue(`${item.color}.50`, `${item.color}.900`)} borderRadius="xl" border="1px solid" borderColor={useColorModeValue(`${item.color}.100`, `${item.color}.800`)} shadow="sm" spacing={3}>
+              <Box p={2.5} bg={bgCardBox} borderRadius="lg" shadow="sm"><Icon as={item.icon} color={useColorModeValue(`${item.color}.400`, `${item.color}.300`)} boxSize="18px" /></Box>
               <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="bold" color={`${item.color}.600`} textTransform="uppercase">{item.label}</Text>
+                <Text fontSize="10px" fontWeight="bold" color={useColorModeValue(`${item.color}.600`, `${item.color}.300`)} textTransform="uppercase">{item.label}</Text>
                 {workDoneStore.patientStats.loading ? <Spinner size="xs" /> : (
-                  <Text fontSize="md" fontWeight="800" color={`${item.color}.700`} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
+                  <Text fontSize="md" fontWeight="800" color={useColorModeValue(`${item.color}.700`, `${item.color}.200`)} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
                 )}
                 <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
               </VStack>
@@ -603,9 +610,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           ))}
         </SimpleGrid>
 
-        <HStack px={2} mb={6} justify="flex-end">
-          <Box maxW="100%" overflowX="auto" css={{ '&::-webkit-scrollbar': { height: '6px' }, '&::-webkit-scrollbar-thumb': { background: '#CBD5E0', borderRadius: '4px' } }} pb={2}>
-            <HStack spacing={2} minW="max-content">
+        <Flex px={{ base: 0, md: 2 }} mb={6} justify={{ base: "center", md: "flex-end" }}>
+          <Flex wrap="wrap" gap={2} justify={{ base: "center", md: "flex-end" }}>
               {stores.auth.hasPermission('accountability', 'download') && (
                 <Button
                   leftIcon={<FiEye />}
@@ -643,10 +649,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               <HStack
                 spacing={0}
                 p={1}
-                bg="white"
+                bg={inputBg}
                 borderRadius="2xl"
                 border="1px solid"
-                borderColor="gray.100"
+                borderColor={borderColor}
                 shadow="sm"
                 transition="all 0.2s"
                 _hover={{ borderColor: "blue.200", shadow: "md" }}
@@ -658,13 +664,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   variant="unstyled"
                   placeholder="Search tooth or note..."
                   size="md"
-                  w="220px"
+                  w={{ base: "100%", sm: "220px" }}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </HStack>
 
-              <Box w="250px" zIndex={10}>
+              <Box w={{ base: "100%", sm: "250px" }} zIndex={10}>
                 {(() => {
                   const selectOptions = doctorsList.map(doc => ({
                     label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`, // Prevent double "Dr. Dr."
@@ -695,10 +701,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 display="none"
                 spacing={2}
                 p={1}
-                bg="white"
+                bg={inputBg}
                 borderRadius="2xl"
                 border="1px solid"
-                borderColor="gray.100"
+                borderColor={borderColor}
                 shadow="sm"
                 transition="all 0.2s"
                 _hover={{ borderColor: "blue.200", shadow: "md" }}
@@ -792,9 +798,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               >
                 RESET FILTERS
               </Button>
-            </HStack>
-          </Box>
-        </HStack>
+            </Flex>
+        </Flex>
 
         <CustomTable
           data={filteredWork.map((wd: any, i: number) => ({

@@ -182,8 +182,8 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
 
   return (
     <Box p={4} bg="gray.50" minH="80vh">
-      <Box bg="white" borderRadius="3xl" shadow="xl" p={6}>
-        <SimpleGrid columns={3} gap={6} mb={10}>
+      <Box bg="white" borderRadius="3xl" shadow="xl" p={{ base: 3, md: 6 }} overflowX="auto">
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mb={10}>
             <VStack align="start" p={5} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="blue.500" letterSpacing="0.05em">TOTAL BILLED</Text>
@@ -219,7 +219,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
         </SimpleGrid>
 
         <Box px={2} mb={6}>
-            <HStack justify="space-between" align="end">
+            <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "flex-start", md: "flex-end" }} gap={4}>
                 <VStack align="start" spacing={0}>
                     <Text fontSize="xl" fontWeight="900" color="gray.800">Doctor's Financial Ledger</Text>
                     <Text fontSize="xs" color="gray.400">Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
@@ -237,7 +237,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                       View Report (PDF)
                   </Button>
                 )}
-            </HStack>
+            </Flex>
         </Box>
 
         <Divider mb={8} />
@@ -268,14 +268,22 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
             bg="purple.600" 
             color="white" 
             py={6}
+            pr={14}
             display="flex"
             alignItems="center"
             gap={3}
           >
             <FiFileText size={24} />
-            <Text>Report Download Options</Text>
+            <Text fontSize={{ base: "md", md: "xl" }} noOfLines={2}>Report Download Options</Text>
           </ModalHeader>
-          <ModalCloseButton color="white" top={6} />
+          <ModalCloseButton
+            bg="red.500"
+            color="white"
+            borderRadius="full"
+            _hover={{ bg: "red.600" }}
+            top={4}
+            right={4}
+          />
           
           <ModalBody p={8}>
             <VStack spacing={8} align="stretch">
@@ -293,7 +301,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                 />
               </Box>
 
-              <SimpleGrid columns={2} spacing={6}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                 <Box>
                   <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">FROM DATE</Text>
                   <CustomInput
@@ -336,10 +344,11 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
           </ModalBody>
 
           <ModalFooter bg="gray.50" p={6} borderTop="1px solid" borderColor="gray.100">
-            <HStack spacing={4} w="full">
+            <Flex direction={{ base: "column", md: "row" }} gap={4} w="full">
               <Button 
                 variant="ghost" 
-                flex={1} 
+                w={{ base: "100%", md: "auto" }}
+                flex={{ md: 1 }}
                 borderRadius="full" 
                 onClick={resetModalFilters}
                 leftIcon={<FiX />}
@@ -348,7 +357,8 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
               </Button>
               <Button 
                 colorScheme="purple" 
-                flex={2} 
+                w={{ base: "100%", md: "auto" }}
+                flex={{ md: 2 }}
                 borderRadius="full" 
                 size="lg"
                 leftIcon={<FiEye />}
@@ -358,7 +368,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
               >
                 View PDF Report
               </Button>
-            </HStack>
+            </Flex>
           </ModalFooter>
         </ModalContent>
       </Modal>

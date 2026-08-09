@@ -627,7 +627,7 @@ export default function WaitingRoomScheduler({
 
             {/* ✅ ONLY NEW UI */}
             <CustomDrawer
-                width={"80vw"}
+                width={{ base: "100%", md: "80%" }}
                 open={openDrawer}
                 close={() => setOpenDrawer(false)}
                 title="Appointment Details"

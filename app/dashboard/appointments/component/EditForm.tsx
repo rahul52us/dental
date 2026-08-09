@@ -519,6 +519,9 @@ const EditAppointmentForm = observer(
                           borderRadius="lg"
                           mb={4}
                           boxShadow="sm"
+                          flexDirection={{ base: "column", md: "row" }}
+                          alignItems={{ base: "flex-start", md: "center" }}
+                          gap={{ base: 3, md: 0 }}
                         >
                           <AlertIcon />
                           <Box flex="1">
@@ -533,7 +536,9 @@ const EditAppointmentForm = observer(
                             size="sm"
                             colorScheme="orange"
                             variant="solid"
-                            ml={3}
+                            ml={{ md: 3 }}
+                            mt={{ base: 2, md: 0 }}
+                            w={{ base: "100%", md: "auto" }}
                             onClick={() =>
                               setHistoryModal({
                                 isOpen: true,
@@ -616,7 +621,7 @@ const EditAppointmentForm = observer(
                           query={{ type: "doctor" }}
                         />
                       </Grid>
-                      <Flex gap={4} mt={4}>
+                      <Flex gap={4} mt={4} direction={{ base: "column", md: "row" }}>
                         <CustomInput
                           name="additionalDoctors"
                           placeholder="Select Assisted By"
@@ -642,7 +647,7 @@ const EditAppointmentForm = observer(
                           query={{ type: "staff" }}
                         />
                       </Flex>
-                      <Flex gap={4} mt={4} align="flex-end">
+                      <Flex gap={4} mt={4} align={{ md: "flex-end" }} direction={{ base: "column", md: "row" }}>
                         {/* Chair */}
                         <Box flex="1">
                           <CustomInput

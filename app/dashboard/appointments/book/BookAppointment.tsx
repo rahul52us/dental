@@ -587,7 +587,7 @@ const BookAppointmentPage = observer(() => {
             </Box>
 
             <CustomDrawer
-                width={{ base: "100vw", md: "80vw", lg: "80vw" }}
+                width={{ base: "100%", md: "80%" }}
                 open={selectedDateAndTime.open}
                 close={() =>
                     setSelectedDateTime({
@@ -629,7 +629,7 @@ const BookAppointmentPage = observer(() => {
             </CustomDrawer>
 
             <CustomDrawer
-                width="80vw"
+                width={{ base: "100%", md: "80%" }}
                 open={pdfPreview.isOpen}
                 close={() => setPdfPreview({ ...pdfPreview, isOpen: false })}
                 title="Preview Schedule"

@@ -155,25 +155,32 @@ const DealerPage = observer(() => {
           }
           autoFocus={false}
         >
-          <DrawerOverlay>
+          <DrawerOverlay backdropFilter="blur(5px)">
             <DrawerContent
               bg="white"
-              borderRadius="lg"
-              boxShadow="xl"
-              maxW={{ base: "100%", md: "93%" }}
-              width={{ base: "100%", md: "95%" }}
+              borderLeftRadius={{ base: "none", md: "3xl" }}
+              boxShadow="2xl"
+              maxW={{ base: "100%", md: "80%" }}
             >
-              <DrawerCloseButton />
               <DrawerHeader
                 bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                 color="white"
                 fontSize="lg"
                 fontWeight="bold"
                 textAlign="center"
+                py={6}
+                px={{ base: 4, md: 8 }}
               >
                 {isDrawerOpen?.type === "edit" ? "Edit Dealer" : "Add Dealer"}
               </DrawerHeader>
-              <DrawerBody p={6} bg="gray.50">
+              <DrawerCloseButton 
+                color="white" 
+                bg="red.500" 
+                borderRadius="full" 
+                _hover={{ bg: "red.600" }} 
+                mt={4}
+              />
+              <DrawerBody p={{ base: 4, md: 6 }} bg="gray.50">
                 <Form
                   initialData={
                     isDrawerOpen?.type === "edit"

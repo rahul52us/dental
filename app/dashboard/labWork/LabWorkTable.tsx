@@ -503,7 +503,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   }, [activeTab, labWorkHierarchyStore]);
 
   return (
-    <Box p={isDrawer ? 0 : 4}>
+    <Box p={isDrawer ? 0 : { base: 2, md: 4 }}>
       {!isDrawer && (
         <>
           <Box display="none">
@@ -517,7 +517,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
       )}
       <Box mt={isDrawer ? 0 : 2}>
         <CustomTable
-          title={activeTab === 0 ? "All Lab Sheets" : (activeTab === 1 ? "." : ".")}
+          title={activeTab === 0 ? "All Lab Sheets" : undefined}
           data={labWorkStore.labWorks.map((item, index) => ({
             ...item,
             sno: (currentPage - 1) * tablePageLimit + index + 1,
@@ -525,7 +525,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           columns={columns}
           actions={{
             customComponent: (
-              <Flex gap={3} align="center" justify="flex-start" wrap="nowrap" overflowX="auto" pb={1} className="customScrollBar">
+              <Flex gap={3} align="center" justify="flex-start" wrap="wrap" pb={1}>
                 {/* Advanced Filters Popover */}
                 <Popover placement="bottom-start" closeOnBlur={true}>
                   <PopoverTrigger>
@@ -748,19 +748,25 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         {/* Edit/Add Drawer */}
         <Drawer isOpen={isOpen} onClose={onClose} size="full" placement="right">
           <DrawerOverlay />
-          <DrawerContent maxW="85%">
+          <DrawerContent maxW={{ base: "100%", md: "85%", lg: "50%" }}>
             <DrawerHeader
-              bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}EE, ${stores.themeStore.themeConfig.colors.custom.light.primary}CC)`}
+              bg={useColorModeValue(stores.themeStore.themeConfig.colors.custom.light.primary, "darkBrand.200")}
               color="white"
               fontWeight="700"
-              fontSize="xl"
+              fontSize={{ base: "lg", md: "xl" }}
               boxShadow="md"
             >
               {selectedLabWork && (selectedLabWork as any)._id ? "Update Lab Order" : "New Lab Order"}
             </DrawerHeader>
-            <DrawerCloseButton color="white" />
-            <DrawerBody pb={6}>
-              <Box mt={4}>
+            <DrawerCloseButton 
+              color="white" 
+              bg="red.500" 
+              borderRadius="full" 
+              _hover={{ bg: "red.600" }} 
+              mt={2}
+            />
+            <DrawerBody p={{ base: 2, md: 6 }}>
+              <Box mt={{ base: 2, md: 4 }}>
                 <LabSheet
                   initialData={selectedLabWork}
                   onClose={onClose}
@@ -774,19 +780,25 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         {/* Report Filter Drawer */}
         <Drawer isOpen={isReportOpen} onClose={onReportClose} size="full" placement="right">
           <DrawerOverlay backdropFilter="blur(5px)" />
-          <DrawerContent maxW="75%" borderLeftRadius="3xl" shadow="2xl">
-            <DrawerHeader bg="blue.600" color="white" py={6} px={8}>
+          <DrawerContent maxW={{ base: "100%", md: "75%", lg: "50%" }} borderLeftRadius={{ base: "none", md: "3xl" }} shadow="2xl">
+            <DrawerHeader bg="blue.600" color="white" py={6} px={{ base: 4, md: 8 }}>
               <HStack spacing={3}>
                 <Icon as={FiDownload} boxSize={6} />
                 <VStack align="start" spacing={0}>
-                  <Text fontSize="xl" fontWeight="bold">Report Configuration</Text>
+                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">Report Configuration</Text>
                   <Text fontSize="xs" fontWeight="normal" opacity={0.8}>Fine-tune your lab work export</Text>
                 </VStack>
               </HStack>
-              <DrawerCloseButton color="white" mt={4} />
+              <DrawerCloseButton 
+                color="white" 
+                bg="red.500" 
+                borderRadius="full" 
+                _hover={{ bg: "red.600" }} 
+                mt={4} 
+              />
             </DrawerHeader>
 
-            <DrawerBody p={8}>
+            <DrawerBody p={{ base: 4, md: 8 }}>
               <VStack spacing={8} align="stretch">
 
 
@@ -1010,12 +1022,18 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
         {/* View Drawer */}
         <Drawer isOpen={isViewOpen} onClose={onViewClose} size="full" placement="right">
-          <DrawerOverlay />
-          <DrawerContent maxW="75%">
-            <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white">
+          <DrawerOverlay backdropFilter="blur(5px)" />
+          <DrawerContent maxW={{ base: "100%", md: "80%" }} borderLeftRadius={{ base: "none", md: "3xl" }} shadow="2xl">
+            <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white" py={6} px={{ base: 4, md: 8 }}>
               Lab Order Details
             </DrawerHeader>
-            <DrawerCloseButton color="white" />
+            <DrawerCloseButton 
+              color="white" 
+              bg="red.500" 
+              borderRadius="full" 
+              _hover={{ bg: "red.600" }} 
+              mt={4} 
+            />
             <DrawerBody p={0}>
               {selectedLabWork && <LabSheetView data={selectedLabWork} />}
             </DrawerBody>
@@ -1066,8 +1084,8 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
         <Drawer isOpen={isTechnicianReportOpen} onClose={() => setIsTechnicianReportOpen(false)} size="xl" placement="right">
           <DrawerOverlay backdropFilter="blur(5px)" />
-          <DrawerContent borderLeftRadius="2xl" shadow="2xl">
-            <DrawerHeader bg="blue.600" color="white" py={6}>
+          <DrawerContent maxW={{ base: "100%", md: "75%", lg: "50%" }} borderLeftRadius={{ base: "none", md: "3xl" }} shadow="2xl">
+            <DrawerHeader bg="blue.600" color="white" py={6} px={{ base: 4, md: 8 }}>
               <HStack spacing={3}>
                 <Icon as={FiDownload} boxSize={6} />
                 <VStack align="start" spacing={0}>
@@ -1075,11 +1093,17 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   <Text fontSize="xs" fontWeight="normal" opacity={0.8}>Download report grouped by technician</Text>
                 </VStack>
               </HStack>
-              <DrawerCloseButton color="white" mt={4} />
+              <DrawerCloseButton 
+                color="white" 
+                bg="red.500" 
+                borderRadius="full" 
+                _hover={{ bg: "red.600" }} 
+                mt={4} 
+              />
             </DrawerHeader>
-            <DrawerBody p={6}>
+            <DrawerBody p={{ base: 4, md: 6 }}>
               <VStack spacing={6} align="stretch">
-                <SimpleGrid columns={2} spacing={4}>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                   <CustomInput
                     name="technicianName"
                     label="Technician Name"
@@ -1119,7 +1143,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     }}
                   />
                 </SimpleGrid>
-                <SimpleGrid columns={3} spacing={4}>
+                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                   <CustomInput
                     name="techDateType"
                     label="Date Filter"

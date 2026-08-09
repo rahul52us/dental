@@ -184,9 +184,15 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       {/* PDF Preview Drawer */}
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>PDF Preview</DrawerHeader>
-          <DrawerCloseButton />
+        <DrawerContent maxW={{ base: "100%", md: "80%" }}>
+          <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white">PDF Preview</DrawerHeader>
+          <DrawerCloseButton 
+            color="white" 
+            bg="red.500" 
+            borderRadius="full" 
+            _hover={{ bg: "red.600" }} 
+            mt={2} 
+          />
           <DrawerBody p={0}>
             {pdfUrl ? (
               <iframe 
@@ -218,12 +224,12 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       <VStack align="stretch" spacing={6}>
         {/* Header Information */}
         <Box p={5} borderRadius="2xl" border="1px solid" borderColor={borderColor} bg={headerBg}>
-          <Flex justify="space-between" align="center" mb={4}>
+          <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "flex-start", md: "center" }} mb={4} gap={4}>
             <VStack align="start" spacing={0}>
               <Heading size="md" color="blue.700">Lab Work Order Summary</Heading>
               <Text fontSize="sm" color="gray.500">Order ID: {data._id?.slice(-8).toUpperCase()}</Text>
             </VStack>
-            <HStack>
+            <HStack w={{ base: "100%", md: "auto" }} justify={{ base: "space-between", md: "flex-end" }} flexWrap="wrap" gap={2}>
               <Button size="sm" colorScheme="blue" variant="outline" leftIcon={<Icon as={FiEye} />} onClick={() => generatePDF(false)}>
                 Preview PDF
               </Button>
@@ -269,7 +275,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
           <Heading size="sm" mb={3} display="flex" alignItems="center">
             <Icon as={FiActivity} mr={2} /> Selected Works & Specifications
           </Heading>
-          <Box borderRadius="xl" border="1px solid" borderColor={borderColor} overflow="hidden">
+          <Box borderRadius="xl" border="1px solid" borderColor={borderColor} overflowX="auto">
             <Table variant="simple" size="sm">
               <Thead bg="gray.50">
                 <Tr>
@@ -391,7 +397,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                   <Text fontSize="xs" color="blue.600">Complete milestone tracking for this lab order</Text>
                 </VStack>
               </HStack>
-              <Box borderRadius="xl" border="1px solid" borderColor="blue.200" overflow="hidden" bg="white">
+              <Box borderRadius="xl" border="1px solid" borderColor="blue.200" overflowX="auto" bg="white">
                 <Table variant="simple" size="sm">
                   <Thead bg="blue.50">
                     <Tr>

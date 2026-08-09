@@ -9,6 +9,7 @@ import {
   Heading,
   VStack,
   HStack,
+  Stack,
   Divider,
   useColorModeValue,
   IconButton,
@@ -159,21 +160,21 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
 
   return (
-    <Box p={6} borderRadius="xl" bg={bgColor} border="1px" borderColor={borderColor}>
+    <Box p={{ base: 3, md: 6 }} borderRadius="xl" bg={bgColor} border="1px" borderColor={borderColor}>
       <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
         {({ values, setFieldValue, isSubmitting, resetForm }) => (
           <Form>
             <VStack spacing={6} align="stretch">
               {/* Top Header Actions */}
-              <Flex justify="space-between" align="center" pb={2}>
+              <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "flex-start", md: "center" }} pb={2} gap={4}>
                 <VStack align="start" spacing={0}>
                   <Heading size="md" color="blue.700">
                     {initialData?._id ? "Edit Lab Order" : "New Lab Order"}
                   </Heading>
                   <Text fontSize="xs" color="gray.500">Please fill in the laboratory specifications below</Text>
                 </VStack>
-                <HStack spacing={3}>
-                  <Button variant="outline" colorScheme="red" size="md" px={6} borderRadius="xl" onClick={onClose}>
+                <HStack spacing={3} w={{ base: "100%", md: "auto" }} justify={{ base: "space-between", md: "flex-end" }}>
+                  <Button variant="outline" colorScheme="red" size="md" px={6} borderRadius="xl" onClick={onClose} w={{ base: "full", md: "auto" }}>
                     Cancel
                   </Button>
                   <Button
@@ -185,6 +186,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                     borderRadius="xl"
                     shadow="md"
                     isLoading={isSubmitting}
+                    w={{ base: "full", md: "auto" }}
                     _hover={{ filter: "brightness(0.9)", transform: "translateY(-1px)", shadow: "lg" }}
                   >
                     {initialData?._id ? "Update" : "Save"}
@@ -556,7 +558,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
 
                   <VStack align="stretch" spacing={3}>
                     {values.statusHistory?.map((h: any, i: number) => (
-                      <HStack key={i} spacing={4} align="end" bg="white" p={3} borderRadius="lg" shadow="sm" position="relative">
+                      <Stack direction={{ base: "column", md: "row" }} key={i} spacing={4} align={{ base: "stretch", md: "end" }} bg="white" p={3} borderRadius="lg" shadow="sm" position="relative" w="100%">
                         <CustomInput
                           label="Status"
                           name={`statusHistory.${i}.status`}
@@ -585,9 +587,10 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                           <IconButton
                             icon={<FiTrash2 />}
                             aria-label="Remove"
-                            size="xs"
+                            size={{ base: "sm", md: "xs" }}
                             colorScheme="red"
                             variant="ghost"
+                            alignSelf={{ base: "flex-end", md: "auto" }}
                             onClick={() => {
                               const history = [...values.statusHistory];
                               history.splice(i, 1);
@@ -595,7 +598,7 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                             }}
                           />
                         )}
-                      </HStack>
+                      </Stack>
                     ))}
                     <Button
                       leftIcon={<FiPlus />}

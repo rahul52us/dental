@@ -16,6 +16,7 @@ import {
   useDisclosure,
   VStack,
   Icon,
+  Image,
 } from "@chakra-ui/react";
 import FormModel from "../../../../component/common/FormModel/FormModel";
 import { FiPower, FiRefreshCw, FiAlertCircle, FiDollarSign, FiLock, FiKey } from "react-icons/fi";
@@ -306,14 +307,14 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Tooltip label="Doctor Payouts & Stats" hasArrow borderRadius="xl">
             <IconButton
               aria-label="Account"
-              icon={<FiDollarSign />}
+              icon={<Image src="/images/coin.png" alt="Account" boxSize="32px" borderRadius="full" objectFit="cover" />}
               colorScheme="purple"
               bg="purple.50"
               color="purple.600"
               _hover={{ bg: "purple.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
-              size="sm"
-              borderRadius="lg"
+              size="md"
+              borderRadius="2xl"
               transition="all 0.3s"
               onClick={() => setOpenAccountDetails({ open: true, data: dt })}
             />
@@ -515,7 +516,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           open={openAccountDetails.open}
           close={() => setOpenAccountDetails({ open: false, data: null })}
           title={`Doctor Accountability: ${openAccountDetails.data?.name}`}
-          width="90vw"
+          width={{ base: "100%", md: "80%" }}
         >
           <DoctorAccountHistory doctorDetails={openAccountDetails.data} />
         </CustomDrawer>

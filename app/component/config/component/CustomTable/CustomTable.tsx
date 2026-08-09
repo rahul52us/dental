@@ -340,7 +340,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
       <Flex
         justifyContent="space-between"
         alignItems="center"
-        p={title ? 3 : 0}
+        p={(title || subTitle || actions) ? 3 : 0}
         flexWrap="wrap"
         gap={3}
       >
@@ -646,6 +646,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   color="white"
                   fontWeight="bold"
                   border="none" // No borders on header cells
+                  whiteSpace="nowrap"
                   {...column?.props?.column}
                 >
                   {column.headerName}
