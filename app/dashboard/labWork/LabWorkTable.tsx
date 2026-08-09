@@ -1064,7 +1064,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           isDownloading={isDownloading}
         />
 
-        <Drawer isOpen={isTechnicianReportOpen} onClose={() => setIsTechnicianReportOpen(false)} size="lg" placement="right">
+        <Drawer isOpen={isTechnicianReportOpen} onClose={() => setIsTechnicianReportOpen(false)} size="xl" placement="right">
           <DrawerOverlay backdropFilter="blur(5px)" />
           <DrawerContent borderLeftRadius="2xl" shadow="2xl">
             <DrawerHeader bg="blue.600" color="white" py={6}>
@@ -1089,8 +1089,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   />
                   <CustomInput
                     name="techCategory"
-                    label="Category"
+                    label="Category (Multiple allowed)"
                     type="select"
+                    isMulti={true}
                     options={[
                       { label: "All Categories", value: "all" },
                       ...stores.labWorkHierarchyStore.hierarchies
@@ -1098,8 +1099,24 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         .filter((h: any, index: number, self: any[]) => self.findIndex((t: any) => t.name === h.name) === index)
                         .map((h: any) => ({ label: h.name, value: h.name }))
                     ]}
-                    value={{ label: technicianReportFilters.category === "all" ? "All Categories" : technicianReportFilters.category, value: technicianReportFilters.category }}
-                    onChange={(val: any) => setTechnicianReportFilters(prev => ({ ...prev, category: val ? val.value : "all" }))}
+                    value={
+                      Array.isArray(technicianReportFilters.category) && technicianReportFilters.category.length > 0 && !technicianReportFilters.category.includes("all")
+                        ? technicianReportFilters.category.map((c: string) => ({ label: c, value: c }))
+                        : [{ label: "All Categories", value: "all" }]
+                    }
+                    onChange={(val: any) => {
+                      if (Array.isArray(val)) {
+                        const justAddedAll = val[val.length - 1]?.value === "all";
+                        if (justAddedAll || val.length === 0) {
+                          setTechnicianReportFilters((prev: any) => ({ ...prev, category: ["all"] }))
+                        } else {
+                          const withoutAll = val.filter(v => v.value !== "all").map(v => v.value);
+                          setTechnicianReportFilters((prev: any) => ({ ...prev, category: withoutAll }))
+                        }
+                      } else {
+                        setTechnicianReportFilters((prev: any) => ({ ...prev, category: ["all"] }))
+                      }
+                    }}
                   />
                 </SimpleGrid>
                 <SimpleGrid columns={3} spacing={4}>
@@ -1169,27 +1186,33 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   });
                   if (res?.status === "success" && res.data) {
                     const columns = [
-                      { key: "date", header: "Date" },
+                      { key: "sendDate", header: "Send Date" },
+                      { key: "receivedDate", header: "Received Date" },
                       { key: "technicianName", header: "Technician Name" },
                       { key: "patientName", header: "Patient Name" },
                       { key: "category", header: "Category" },
-                      { key: "workType", header: "Work Type" },
                       { key: "teeth", header: "Teeth" },
                       { key: "unit", header: "Unit" },
                       { key: "shade", header: "Shade" },
-                      { key: "status", header: "Status" },
                       { key: "amount", header: "Amount" }
                     ];
 
                     const formattedRows = res.data.map((r: any) => {
-                      let dateStr = "-";
-                      if (r.date) {
+                      let sendDateStr = "-";
+                      let receivedDateStr = "-";
+                      if (r.sendDate && r.sendDate !== "-") {
                         try {
-                          const d = new Date(r.date);
-                          dateStr = ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
+                          const d = new Date(r.sendDate);
+                          sendDateStr = ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
                         } catch (e) {}
                       }
-                      return { ...r, date: dateStr };
+                      if (r.receivedDate && r.receivedDate !== "-") {
+                        try {
+                          const d = new Date(r.receivedDate);
+                          receivedDateStr = ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
+                        } catch (e) {}
+                      }
+                      return { ...r, sendDate: sendDateStr, receivedDate: receivedDateStr };
                     });
                     setTechnicianPreviewData({ columns, rows: formattedRows });
                     setIsTechnicianReportOpen(false);

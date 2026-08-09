@@ -588,7 +588,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             open={openAccountDetails.open}
             close={() => setOpenAccountDetails({ open: false, data: null })}
             title={`Accountability Management: ${openAccountDetails.data?.name}`}
-            width="90vw"
+            width="92vw"
           >
             <PatientAccountHistory patientDetails={openAccountDetails.data} />
           </CustomDrawer>

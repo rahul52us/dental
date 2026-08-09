@@ -637,7 +637,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 shadow="md"
                 onClick={() => { setSelectedWalletPatient(patientDetails); setIsWalletHistoryOpen(true); }}
               >
-                Wallet
+                Wallet (₹{patientDetails?.walletBalance || 0})
               </Button>
 
               <HStack
@@ -1126,7 +1126,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
-                  <option value="Wallet">Wallet</option>
+                  <option value="Wallet">Wallet (Avail. ₹{patientDetails?.walletBalance || 0})</option>
                   <option value="Other">Other</option>
                 </Select>
               </FormControl>

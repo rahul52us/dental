@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import {
+    useToast,
     Box,
     Flex,
     Text,
@@ -46,6 +48,8 @@ import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import AppointmentDetailsView from "../../element/AppointmentDetailsView";
 import AppointmentList from "../../Appointments";
 import ViewPatient, { RenderMedicalHistory } from "../../../patients/component/patient/ViewPatient";
+import AddPatientDrawer from "../../../patients/component/patient/component/AddPatientDrawer";
+import { readFileAsBase64 } from "../../../../config/utils/utils";
 import PatientWorkDoneHistory from "../../../patients/component/patient/PatientWorkDoneHistory";
 import LabWorkTable from "../../../labWork/LabWorkTable";
 import Treatment from "../../../toothTreatment/page";
@@ -70,6 +74,10 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
     const [appointments, setAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const toast = useToast();
+    const [isPatientDrawerOpen, setIsPatientDrawerOpen] = useState<any>({ isOpen: false, type: "edit", data: null });
+    const [thumbnail, setThumbnail] = useState([]);
+    const [formLoading, setFormLoading] = useState(false);
 
     // Dialog/Drawer states
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
@@ -87,7 +95,9 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     // Confirmation for "Complete" (Close)
     const [openConfirm, setOpenConfirm] = useState({ open: false, id: "" });
     const [isCompleting, setIsCompleting] = useState(false);
-    const cancelRef = React.useRef<any>(null);
+    const [loadingEditPatientId, setLoadingEditPatientId] = useState<string | null>(null);
+
+    const cancelRef = React.useRef<HTMLButtonElement>(null);
 
     const handleComplete = async () => {
         setIsCompleting(true);
@@ -360,22 +370,70 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     </Box>
 
                                     <Box overflow="hidden">
-                                        <Text
-                                            fontWeight="800"
-                                            fontSize="lg"
-                                            color={labelTextColor}
-                                            noOfLines={1}
-                                            letterSpacing="-0.03em"
-                                            cursor="pointer"
-                                            _hover={{ textDecoration: "underline", color: "teal.600" }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedUser(patient);
-                                                setOpenProfile(true);
-                                            }}
-                                        >
-                                            {patient?.name || "Unknown"}
-                                        </Text>
+                                        <HStack spacing={2} align="center">
+                                            <Text
+                                                fontWeight="800"
+                                                fontSize="lg"
+                                                color={labelTextColor}
+                                                noOfLines={1}
+                                                letterSpacing="-0.03em"
+                                                cursor="pointer"
+                                                _hover={{ textDecoration: "underline", color: "teal.600" }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedUser(patient);
+                                                    setOpenProfile(true);
+                                                }}
+                                            >
+                                                {patient?.name || "Unknown"}
+                                            </Text>
+                                            {stores.auth.hasPermission('patient', 'edit') && (
+                                                <Tooltip label="Edit Patient Details" placement="top" hasArrow>
+                                                    <IconButton
+                                                        aria-label="Edit Patient"
+                                                        icon={<EditIcon boxSize={3.5} />}
+                                                        size="sm"
+                                                        isRound
+                                                        bg={colorMode === 'light' ? "blue.50" : "blue.900"}
+                                                        color={colorMode === 'light' ? "blue.600" : "blue.200"}
+                                                        _hover={{
+                                                            bg: colorMode === 'light' ? "blue.100" : "blue.800",
+                                                            transform: "scale(1.1)"
+                                                        }}
+                                                        transition="all 0.2s"
+                                                        isLoading={loadingEditPatientId === patient._id}
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        setLoadingEditPatientId(patient._id);
+                                                        try {
+                                                            const res = await axios.post("/user", {
+                                                                _id: patient._id,
+                                                                company: stores.auth.company,
+                                                                type: "patient",
+                                                                limit: 1,
+                                                                page: 1
+                                                            });
+                                                            const populatedPatient = res?.data?.data?.data?.[0] || patient;
+                                                            const { profileDetails, ...rest } = populatedPatient;
+                                                            setIsPatientDrawerOpen({
+                                                                isOpen: true,
+                                                                type: "edit",
+                                                                data: {
+                                                                    ...rest,
+                                                                    ...profileDetails?.personalInfo,
+                                                                    references: rest?.references,
+                                                                },
+                                                            });
+                                                        } catch (error) {
+                                                            console.error("Failed to fetch patient details:", error);
+                                                        } finally {
+                                                            setLoadingEditPatientId(null);
+                                                        }
+                                                    }}
+                                                />
+                                                </Tooltip>
+                                            )}
+                                        </HStack>
                                         <HStack spacing={2} mt={1}>
                                             {hasAlert ? (
                                                 <Badge
@@ -547,7 +605,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                 setOpenTreatment({
                                                     open: true,
                                                     data: patient,
-                                                    defaultTab: patient?.pendingTreatmentCount > 0 ? 1 : 0,
+                                                    defaultTab: 1,
                                                     defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
                                                 });
                                             }}
@@ -630,7 +688,12 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             }}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setOpenWorkDone({ open: true, data: patient });
+                                                setOpenTreatment({
+                                                    open: true,
+                                                    data: patient,
+                                                    defaultTab: 2,
+                                                    defaultStatusFilter: "all"
+                                                });
                                             }}
                                         >
                                             {patient?.incompleteWorkDoneCount > 0 && (
@@ -872,7 +935,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     open={openAccountDetails.open}
                     close={() => setOpenAccountDetails({ open: false, data: null })}
                     title={`Accountability Management: ${openAccountDetails.data?.name}`}
-                    width="90vw"
+                    width="92vw"
                 >
                     <PatientAccountHistory patientDetails={openAccountDetails.data} />
                 </CustomDrawer>
@@ -984,6 +1047,53 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
+
+            {isPatientDrawerOpen.isOpen && (
+                <AddPatientDrawer
+                    isDrawerOpen={isPatientDrawerOpen}
+                    setIsDrawerOpen={setIsPatientDrawerOpen}
+                    handleAddSubmit={() => {}}
+                    handleEditSubmit={async (values: any) => {
+                        const formData: any = { ...values };
+                        setFormLoading(true);
+                        if (formData?.pic?.file && formData?.pic?.isAdd) {
+                            const buffer = await readFileAsBase64(formData?.pic?.file);
+                            formData.pic = {
+                                buffer: buffer,
+                                filename: formData?.pic?.file?.name,
+                                type: formData?.pic?.file?.type,
+                                isDeleted: formData?.pic?.isDeleted || 0,
+                                isAdd: formData?.pic?.isAdd || 0,
+                            };
+                        } else if (formData?.pic?.isDeleted) {
+                            formData.pic = {
+                                isDeleted: formData?.pic?.isDeleted || 0,
+                                isAdd: formData?.pic?.isAdd || 0,
+                            };
+                        }
+
+                        stores.userStore.updateUser({
+                            ...values,
+                            mobileNumber: formData.phones.find((it: any) => it.primary === true)?.number || undefined,
+                            username: formData.emails.find((it: any) => it.primary === true)?.email || undefined,
+                            pic: formData?.pic,
+                            title: formData?.title?.label || formData?.title?.value || formData?.title,
+                            gender: formData?.gender?.value || formData?.gender || 1,
+                        }).then(() => {
+                            setFormLoading(false);
+                            setIsPatientDrawerOpen({ isOpen: false, type: "edit", data: null });
+                            toast({ title: "Patient updated.", status: "success", duration: 5000, isClosable: true });
+                        }).catch((err: any) => {
+                            setFormLoading(false);
+                            toast({ title: "Failed to update", description: `${err?.message}`, status: "error", duration: 5000, isClosable: true });
+                        });
+                    }}
+                    thumbnail={thumbnail}
+                    setThumbnail={setThumbnail}
+                    formLoading={formLoading}
+                    getAllUsers={() => {}}
+                />
+            )}
         </Box>
     );
 });

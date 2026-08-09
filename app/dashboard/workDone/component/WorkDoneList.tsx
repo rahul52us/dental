@@ -1242,7 +1242,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           open={openAccountDetails.open}
           close={() => setOpenAccountDetails({ open: false })}
           title={`Accountability Management: ${patientDetails?.name}`}
-          width="90vw"
+          width="92vw"
         >
           <PatientAccountHistory patientDetails={patientDetails} />
         </CustomDrawer>

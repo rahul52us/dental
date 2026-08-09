@@ -88,7 +88,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
   );
 };
 
-const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
+const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) => {
   const {
     toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
     auth: { openNotification, userType },
@@ -835,7 +835,7 @@ const TreatmentList = observer(({ isPatient, patientDetails }: any) => {
   };
 
 
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(defaultTab !== undefined ? defaultTab : 1);
 
   return (
     <>

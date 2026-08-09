@@ -26,6 +26,9 @@ import ReferredPatientsList from "./ReferredPatientsList";
 
 // --- Info Item Component ---
 export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, activeHoverBg }: any) => {
+  // Extract label if value is an object like { label, value }
+  const displayValue = typeof value === 'object' && value !== null && 'label' in value ? value.label : value;
+
   return (
     <Box
       p={3}
@@ -52,7 +55,7 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
             borderRadius="full"
             fontSize="sm"
           >
-            {value || "N/A"}
+            {displayValue || "N/A"}
           </Badge>
         </HStack>
       </SimpleGrid>

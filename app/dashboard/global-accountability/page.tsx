@@ -712,7 +712,10 @@ const GlobalAccountabilityPage = observer(() => {
         {/* BILLED */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL BILLED</Text>
+            <VStack align="start" spacing={0}>
+              <Text fontSize="sm" color="gray.700" fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL BILLED</Text>
+              <Text fontSize="10px" color="gray.500" mt={1}>* Covers patients with billing recorded on previous dates also</Text>
+            </VStack>
             <Box p={1.5} bg="blue.50" borderRadius="md"><Icon as={FiFileText} color="blue.500" boxSize={4} /></Box>
           </HStack>
           <Text fontSize="2xl" fontWeight="900" color="blue.600" position="relative" zIndex={1}>{formatCurrency(summary.totalBilled)}</Text>

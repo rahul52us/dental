@@ -5,7 +5,7 @@ import DashPageHeader from "../../component/common/DashPageHeader/DashPageHeader
 import DashPageTitle from "../../component/common/DashPageTitle/DashPageTitle";
 import TreatmentList from "./ToothTreatment";
 
-const Treatment = observer(({isPatient,patientDetails}: any) => {
+const Treatment = observer(({isPatient, patientDetails, defaultTab}: any) => {
   return (
     <Box>
       <Box display="none">
@@ -13,7 +13,7 @@ const Treatment = observer(({isPatient,patientDetails}: any) => {
       </Box>
       <DashPageTitle title={`Treatment ${isPatient && patientDetails?.name ? `(${patientDetails.name})` : ""}`} />
       <Box>
-        <TreatmentList isPatient={isPatient} patientDetails={patientDetails} />
+        <TreatmentList isPatient={isPatient} patientDetails={patientDetails} defaultTab={defaultTab} />
       </Box>
     </Box>
   );
