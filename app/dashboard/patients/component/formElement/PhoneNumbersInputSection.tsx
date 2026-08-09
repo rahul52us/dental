@@ -57,8 +57,8 @@ const PhoneNumbersInput = ({
   return (
     <FieldArray name="phones">
       {({ remove, push }) => (
-        <Box bg="white" p={4} borderRadius="md" boxShadow="md">
-          <Text fontWeight="bold" fontSize="lg" mb={4}>
+        <Box bg={bgBox} p={4} borderRadius="md" boxShadow="md">
+          <Text fontWeight="bold" fontSize="lg" mb={4} color={textColor}>
             {t("common.form.phoneNumbers")}
           </Text>
 

@@ -10,6 +10,7 @@ import { initialValues } from "../../utils/constant";
 import Form from "../../Form";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../../store/stores";
+import { useColorModeValue } from "@chakra-ui/react";
 
 const AddPatientDrawer = observer(({
   isDrawerOpen,
@@ -33,7 +34,7 @@ const AddPatientDrawer = observer(({
     >
       <DrawerOverlay>
         <DrawerContent
-          bg="white"
+          bg={useColorModeValue("white", "gray.800")}
           borderRadius="lg"
           boxShadow="xl"
           maxW={{ base: "100%", md: "92%" }}
@@ -41,7 +42,7 @@ const AddPatientDrawer = observer(({
         >
           <DrawerCloseButton />
           <DrawerHeader
-            bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+            bg={useColorModeValue(stores.themeStore.themeConfig.colors.custom.light.primary, stores.themeStore.themeConfig.colors.custom.dark.primary)}
             color="white"
             fontSize="lg"
             fontWeight="bold"
@@ -49,7 +50,7 @@ const AddPatientDrawer = observer(({
           >
             {isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
           </DrawerHeader>
-          <DrawerBody p={6} bg="gray.50">
+          <DrawerBody p={6} bg={useColorModeValue("gray.50", "gray.900")}>
             <Form
               initialData={
                 isDrawerOpen?.type === "edit"

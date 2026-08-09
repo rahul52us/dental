@@ -29,20 +29,26 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
   // Extract label if value is an object like { label, value }
   const displayValue = typeof value === 'object' && value !== null && 'label' in value ? value.label : value;
 
+  const textColor = useColorModeValue("gray.600", "gray.300");
+  const bgIdle = bg || useColorModeValue("white", "gray.800");
+  const bgHover = useColorModeValue("gray.100", "gray.700");
+  const bgActive = useColorModeValue("teal.50", "teal.900");
+  const bgActiveHover = activeHoverBg || useColorModeValue("teal.100", "teal.800");
+
   return (
     <Box
       p={3}
       borderRadius="lg"
-      bg={isActive ? "teal.50" : bg}
+      bg={isActive ? bgActive : bgIdle}
       _hover={{
-        bg: isActive ? activeHoverBg : "gray.200",
+        bg: isActive ? bgActiveHover : bgHover,
         transform: "scale(1.02)",
         transition: "all 0.3s ease",
       }}
       transition="all 0.3s ease"
     >
-      <SimpleGrid columns={2} spacing={4} alignItems="center">
-        <Text fontWeight="medium" fontSize="sm" color="gray.600">
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} alignItems={{ base: "start", md: "center" }}>
+        <Text fontWeight="medium" fontSize="sm" color={textColor}>
           {label}
         </Text>
         <HStack spacing={2}>
@@ -54,16 +60,19 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
             py={1}
             borderRadius="full"
             fontSize="sm"
+            whiteSpace="normal"
+            textAlign="left"
+            wordBreak="break-word"
           >
             {displayValue || "N/A"}
           </Badge>
         </HStack>
       </SimpleGrid>
       {subItems?.length > 0 && (
-        <VStack align="start" spacing={2} pl={6} mt={2}>
+        <VStack align="start" spacing={2} pl={{ base: 0, md: 6 }} mt={2}>
           {subItems.map((subItem: any, idx: number) => (
-            <SimpleGrid key={idx} columns={2} spacing={4} w="full">
-              <Text fontSize="sm" color="gray.600">
+            <SimpleGrid key={idx} columns={{ base: 1, md: 2 }} spacing={4} w="full">
+              <Text fontSize="sm" color={textColor}>
                 {subItem.label}
               </Text>
               <Badge
@@ -73,6 +82,9 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
                 py={1}
                 borderRadius="full"
                 fontSize="sm"
+                whiteSpace="normal"
+                textAlign="left"
+                wordBreak="break-word"
               >
                 {subItem.value || "N/A"}
               </Badge>
@@ -86,12 +98,16 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
 
 // --- Section Card Component ---
 const SectionCard = ({ icon, title, children, bg }: any) => {
+  const cardBg = bg || useColorModeValue("white", "gray.800");
+  const titleColor = useColorModeValue("gray.700", "gray.200");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+
   return (
-    <Card bg={bg} borderWidth="1px" borderRadius="lg" shadow="md" mb={6}>
+    <Card bg={cardBg} borderWidth="1px" borderColor={borderColor} borderRadius="lg" shadow="md" mb={6}>
       <CardHeader pb={2}>
         <HStack spacing={3}>
           {icon && <Icon as={icon} boxSize={6} color="teal.500" />}
-          <Heading size="md" color="gray.700">
+          <Heading size="md" color={titleColor}>
             {title}
           </Heading>
         </HStack>
@@ -350,7 +366,7 @@ export const RenderMedicalHistory = ({
                   {group.label}
                 </Text>
                 {group.isActive && (
-                  <Badge colorScheme="teal" borderRadius="full" px={3} py={1} fontSize="sm">
+                  <Badge colorScheme="teal" borderRadius="full" px={2} py={0.5} fontSize="xs" flexShrink={0}>
                     Active
                   </Badge>
                 )}
@@ -534,7 +550,7 @@ const ViewPatient = ({ user }: any) => {
             activeHoverBg={activeHoverBg}
           />
           <Box>
-            <Text fontWeight="semibold" mb={3} color="gray.600" fontSize="lg">
+            <Text fontWeight="semibold" mb={3} color={useColorModeValue("gray.700", "gray.200")} fontSize="lg">
               Medical History:
             </Text>
             <RenderMedicalHistory

@@ -30,6 +30,12 @@ const Pagination = ({
       alignItems="center"
       justifyContent="center"
       mb={2}
+      color={colorMode === "light" ? "gray.700" : "gray.200"}
+      sx={{
+        ".paginationLink": {
+          color: colorMode === "light" ? "gray.700" : "gray.200",
+        }
+      }}
       {...props}
     >
       <Flex alignItems="center" gridColumnGap="5px">

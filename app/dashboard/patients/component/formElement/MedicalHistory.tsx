@@ -40,7 +40,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
       </Text>
 
       {/* Conditions */}
-      <Text fontSize="lg" fontWeight="semibold" mb={4} color="gray.700">
+      <Text fontSize="lg" fontWeight="semibold" mb={4} color={useColorModeValue("gray.700", "gray.200")}>
         {t("patients.form.medicalHistory.conditions")}
       </Text>
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
@@ -65,6 +65,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 colorScheme="brand"
                 isChecked={values.medicalHistory?.allergies?.checked || false}
                 onChange={(e) => {
@@ -114,7 +115,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 {t("patients.form.medicalHistory.bloodPressureIssues")}
               </Text>
               <RadioGroup
@@ -124,10 +125,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="high" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="high" colorScheme="brand">
                     {t("patients.form.medicalHistory.high")}
                   </Radio>
-                  <Radio value="low" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="low" colorScheme="brand">
                     {t("patients.form.medicalHistory.low")}
                   </Radio>
                 </Stack>
@@ -168,7 +169,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 {t("patients.form.medicalHistory.cholesterol")}
               </Text>
               <RadioGroup
@@ -178,10 +179,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     {t("patients.form.medicalHistory.yes")}
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     {t("patients.form.medicalHistory.no")}
                   </Radio>
                 </Stack>
@@ -225,6 +226,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }
             >
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 colorScheme="brand"
                 isChecked={
                   values.medicalHistory?.heartDisease?.checked || false
@@ -282,6 +284,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }}
             >
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 colorScheme="brand"
                 size="md"
                 iconColor="white"
@@ -335,7 +338,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                     e.target.value
                   );
                 }}
-                bg="white"
+                bg={useColorModeValue("white", "gray.800")}
+                color={useColorModeValue("gray.800", "white")}
                 borderColor="teal.400"
                 _focus={{
                   borderColor: "teal.500",
@@ -363,7 +367,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
           fontSize="md"
           fontWeight="semibold"
           mb={4}
-        // color={useColorModeValue("gray.700", "gray.100")}
+          color={useColorModeValue("gray.700", "gray.100")}
         >
           Are you taking any of the following pacemaker-related medications?{" "}
         </Text>
@@ -381,9 +385,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               size="md"
               fontWeight="medium"
               iconColor="white"
-              // borderColor={useColorModeValue("gray.300", "gray.600")}
+              color={useColorModeValue("gray.800", "white")}
+              borderColor={useColorModeValue("gray.300", "gray.600")}
               _hover={{
-                // bg: useColorModeValue("teal.50", "teal.900"),
+                bg: useColorModeValue("teal.50", "teal.900"),
                 borderColor: "teal.400",
               }}
               isChecked={
@@ -442,6 +447,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               }}
             >
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 colorScheme="brand"
                 size="md"
                 iconColor="white"
@@ -493,7 +499,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   onChange={(e) => {
                     setFieldValue("medicalHistory.diabetes.text", e.target.value);
                   }}
-                  bg="white"
+                  bg={useColorModeValue("white", "gray.800")}
+                  color={useColorModeValue("gray.800", "white")}
                   borderColor="teal.400"
                   _focus={{
                     borderColor: "teal.500",
@@ -501,6 +508,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   }}
                 />
                 <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                   colorScheme="brand"
                   size="sm"
                   sx={{
@@ -558,7 +566,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Asthma?
               </Text>
               <RadioGroup
@@ -568,10 +576,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -611,7 +619,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 An artificial joint or valve?
               </Text>
               <RadioGroup
@@ -626,10 +634,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -676,7 +684,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Thyroid condition?
               </Text>
               <RadioGroup
@@ -686,10 +694,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -732,7 +740,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Kidney disease?
               </Text>
               <RadioGroup
@@ -742,10 +750,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -788,7 +796,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Tuberculosis or other lung problems?
               </Text>
               <RadioGroup
@@ -798,10 +806,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -844,7 +852,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Hepatitis or other liver disease?
               </Text>
               <RadioGroup
@@ -854,10 +862,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -900,7 +908,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Blood transfusion?
               </Text>
               <RadioGroup
@@ -910,10 +918,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -956,7 +964,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Cancer or a tumour?
               </Text>
               <RadioGroup
@@ -966,10 +974,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1009,7 +1017,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Neurologic condition?
               </Text>
               <RadioGroup
@@ -1022,10 +1030,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1068,7 +1076,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Epilepsy, seizures, or fainting spells?
               </Text>
               <RadioGroup
@@ -1078,10 +1086,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1124,7 +1132,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 AIDS positive?
               </Text>
               <RadioGroup
@@ -1134,10 +1142,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1177,7 +1185,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 HIV positive?
               </Text>
               <RadioGroup
@@ -1187,10 +1195,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1230,7 +1238,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Anaemia or blood disorders?
               </Text>
               <RadioGroup
@@ -1240,10 +1248,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1298,10 +1306,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }
               >
                 <Stack direction="row" spacing={6}>
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1320,7 +1328,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                         e.target.value
                       )
                     }
-                    bg="white"
+                    bg={useColorModeValue("white", "gray.800")}
+                    color={useColorModeValue("gray.800", "white")}
                     borderColor="gray.300"
                     _focus={{
                       borderColor: "teal.400",
@@ -1378,6 +1387,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               { key: "osteoporosisMeds", label: "Osteoporosis Medicine" },
             ].map((med) => (
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 key={med.key}
                 colorScheme="brand"
                 isChecked={
@@ -1410,7 +1420,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   e.target.value
                 )
               }
-              bg="white"
+              bg={useColorModeValue("white", "gray.800")}
+              color={useColorModeValue("gray.800", "white")}
               borderColor="gray.300"
               _focus={{
                 borderColor: "teal.400",
@@ -1428,7 +1439,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                   e.target.value
                 )
               }
-              bg="white"
+              bg={useColorModeValue("white", "gray.800")}
+              color={useColorModeValue("gray.800", "white")}
               borderColor="gray.300"
               _focus={{
                 borderColor: "teal.400",
@@ -1443,7 +1455,7 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
       <Divider my={8} />
 
       {/* Habits */}
-      <Text fontSize="lg" fontWeight="semibold" mb={4} color="gray.700">
+      <Text fontSize="lg" fontWeight="semibold" mb={4} color={useColorModeValue("gray.700", "gray.200")}>
         Habits
       </Text>
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
@@ -1457,17 +1469,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               bg={
                 values.medicalHistory?.smoking?.option ||
                   values.medicalHistory?.smoking?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.smoking?.option ||
                   values.medicalHistory?.smoking?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  ? borderActive
+                  : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Smoke? (Habitual)
               </Text>
               <RadioGroup
@@ -1477,10 +1489,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1513,17 +1525,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               bg={
                 values.medicalHistory?.chewingTobacco?.option ||
                   values.medicalHistory?.chewingTobacco?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.chewingTobacco?.option ||
                   values.medicalHistory?.chewingTobacco?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  ? borderActive
+                  : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Chew tobacco? (Habitual)
               </Text>
               <RadioGroup
@@ -1533,10 +1545,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>
@@ -1569,17 +1581,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               bg={
                 values.medicalHistory?.alcohol?.option ||
                   values.medicalHistory?.alcohol?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.alcohol?.option ||
                   values.medicalHistory?.alcohol?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  ? borderActive
+                  : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Consume alcohol?
               </Text>
               <RadioGroup
@@ -1589,10 +1601,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="occasional" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="occasional" colorScheme="brand">
                     Occasional
                   </Radio>
-                  <Radio value="habitual" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="habitual" colorScheme="brand">
                     Habitual
                   </Radio>
                 </Stack>
@@ -1615,8 +1627,8 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
       <Divider my={8} />
 
       {/* Women-specific */}
-      {/* Women-specific */}
-      <Text fontSize="lg" fontWeight="semibold" mb={4} color="gray.700">
+      {/* Women */}
+      <Text fontSize="lg" fontWeight="semibold" mb={4} color={useColorModeValue("gray.700", "gray.200")}>
         Women
       </Text>
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
@@ -1630,17 +1642,18 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               bg={
                 values.medicalHistory?.women?.pregnant ||
                   values.medicalHistory?.women?.dueDate
-                  ? "teal.50"
-                  : "gray.50"
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.women?.pregnant ||
                   values.medicalHistory?.women?.dueDate
-                  ? "teal.300"
-                  : "gray.200"
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 colorScheme="brand"
                 isChecked={values.medicalHistory?.women?.pregnant || false}
                 onChange={(e) => {
@@ -1679,16 +1692,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               borderRadius="md"
               bg={
                 values.medicalHistory?.women?.breastFeeding
-                  ? "teal.50"
-                  : "gray.50"
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.women?.breastFeeding
-                  ? "teal.300"
-                  : "gray.200"
+                  ? borderActive
+                  : borderInactive
               }
             >
               <Checkbox
+                color={useColorModeValue("gray.800", "white")}
                 colorScheme="brand"
                 isChecked={values.medicalHistory?.women?.breastFeeding || false}
                 onChange={(e) => {
@@ -1714,17 +1728,17 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
               bg={
                 values.medicalHistory?.women?.pcodPcos?.option ||
                   values.medicalHistory?.women?.pcodPcos?.text
-                  ? "teal.50"
-                  : "gray.50"
+                  ? bgActive
+                  : bgInactive
               }
               borderColor={
                 values.medicalHistory?.women?.pcodPcos?.option ||
                   values.medicalHistory?.women?.pcodPcos?.text
-                  ? "teal.300"
-                  : "gray.200"
+                  ? borderActive
+                  : borderInactive
               }
             >
-              <Text fontWeight="medium" mb={2}>
+              <Text fontWeight="medium" mb={2} color={useColorModeValue("gray.800", "white")}>
                 Diagnosed with PCOD/PCOS?
               </Text>
               <RadioGroup
@@ -1734,10 +1748,10 @@ const MedicalHistorySection = ({ values, setFieldValue }: any) => {
                 }}
               >
                 <Stack direction="row">
-                  <Radio value="yes" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="yes" colorScheme="brand">
                     Yes
                   </Radio>
-                  <Radio value="no" colorScheme="brand">
+                  <Radio color={useColorModeValue("gray.800", "white")} value="no" colorScheme="brand">
                     No
                   </Radio>
                 </Stack>

@@ -124,7 +124,7 @@ const Form = observer(
                     {/* Header with Desktop Actions */}
                     <GridItem colSpan={2} display={{ base: "none", md: "block" }}>
                       <Flex justify="space-between" align="center" mb={4}>
-                        <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                        <Text fontSize="2xl" fontWeight="bold" color={useColorModeValue("gray.800", "white")}>
                           {isEdit ? t("patients.form.editPatient") : t("patients.form.newPatient")}
                         </Text>
                         <HStack spacing={3}>
@@ -165,6 +165,7 @@ const Form = observer(
                         fontWeight="semibold"
                         mb={4}
                         display={{ base: "block", md: "none" }}
+                        color={useColorModeValue("gray.700", "gray.200")}
                       >
                         {t("patients.form.personalInformation")}
                       </Text>

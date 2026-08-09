@@ -51,6 +51,6 @@
 }
 
 .paginationDisabled {
-  color: #2D3748;
+  opacity: 0.5;
   cursor: not-allowed;
 }

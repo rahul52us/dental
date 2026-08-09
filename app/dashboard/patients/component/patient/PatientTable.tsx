@@ -14,6 +14,7 @@ import {
   useDisclosure,
   IconButton,
   Image,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -131,6 +132,16 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     onOpen();
   };
 
+  const blueTextColor = useColorModeValue("blue.600", "blue.300");
+  const grayTextColor = useColorModeValue("gray.500", "gray.400");
+  const bgBlue = useColorModeValue("blue.50", "blue.900");
+  const bgTeal = useColorModeValue("teal.50", "teal.900");
+  const bgPurple = useColorModeValue("purple.50", "purple.900");
+  const bgPink = useColorModeValue("pink.50", "pink.900");
+  const bgCyan = useColorModeValue("cyan.50", "cyan.900");
+  const bgGreen = useColorModeValue("green.50", "green.900");
+  const bgOrange = useColorModeValue("orange.50", "orange.900");
+
   const PatientTableColumns = [
     {
       headerName: "Name",
@@ -181,7 +192,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               <Box
                 cursor={number !== "--" ? "pointer" : "default"}
                 onClick={() => number !== "--" && copyToClipboard(number)}
-                color={number !== "--" ? "blue.600" : "gray.500"}
+                color={number !== "--" ? blueTextColor : grayTextColor}
                 fontWeight="medium"
               >
                 {masked}
@@ -217,7 +228,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             display="flex"
             alignItems="center"
             gap={1}
-            _hover={{ bg: "green.600", shadow: "sm" }}
+            _hover={{ bg: bgGreen, color: "green.600", shadow: "sm" }}
             transition="all 0.2s"
             onClick={() => setOpenAppointmentDetails({ open: true, data: dt })}
           >
@@ -247,7 +258,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             display="flex"
             alignItems="center"
             gap={1}
-            _hover={{ bg: "purple.600", shadow: "sm" }}
+            _hover={{ bg: bgPurple, color: "purple.600", shadow: "sm" }}
             transition="all 0.2s"
             onClick={() => setOpenTreatmentDetails({ open: true, data: dt })}
           >
@@ -277,7 +288,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             display="flex"
             alignItems="center"
             gap={1}
-            _hover={{ bg: "orange.600", shadow: "sm" }}
+            _hover={{ bg: bgOrange, color: "orange.600", shadow: "sm" }}
             transition="all 0.2s"
             onClick={() => setOpenRecallDetails({ open: true, data: dt })}
           >
@@ -300,8 +311,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               aria-label="Work Done"
               icon={<Box as="span" fontSize="lg" fontWeight="900">W</Box>}
               colorScheme="blue"
-              bg="blue.50"
-              color="blue.600"
+              bg={bgBlue}
+              color={blueTextColor}
               _hover={{ bg: "blue.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
@@ -325,8 +336,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               aria-label="Lab Sheet"
               icon={<Image src="/images/lab.jpeg" alt="Lab" boxSize="32px" borderRadius="full" objectFit="cover" />}
               colorScheme="teal"
-              bg="teal.50"
-              _hover={{ bg: "teal.100", transform: "translateY(-2px)", shadow: "lg" }}
+              bg={bgTeal}
+              _hover={{ bg: "teal.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
               borderRadius="2xl"
@@ -349,8 +360,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               aria-label="Account"
               icon={<Image src="/images/coin.png" alt="Account" boxSize="32px" borderRadius="full" objectFit="cover" />}
               colorScheme="purple"
-              bg="purple.50"
-              _hover={{ bg: "purple.100", transform: "translateY(-2px)", shadow: "lg" }}
+              bg={bgPurple}
+              _hover={{ bg: "purple.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
               borderRadius="2xl"
@@ -373,8 +384,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               aria-label="Wallet History"
               icon={<FiCreditCard />}
               colorScheme="pink"
-              bg="pink.50"
-              color="pink.600"
+              bg={bgPink}
+              color={useColorModeValue("pink.600", "pink.300")}
               _hover={{ bg: "pink.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
@@ -401,8 +412,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               aria-label="Documents"
               icon={<FiPaperclip />}
               colorScheme="cyan"
-              bg="cyan.50"
-              color="cyan.600"
+              bg={bgCyan}
+              color={useColorModeValue("cyan.600", "cyan.300")}
               _hover={{ bg: "cyan.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
               variant="ghost"
               size="md"
@@ -435,7 +446,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   return (
     <>
-      <Box p={{ base: 2, md: 4 }}>
+      <Box p={{ base: 2, md: 4 }} overflowX="auto" maxW="100vw">
         <CustomTable
           title="Patients"
           data={

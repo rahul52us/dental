@@ -493,7 +493,9 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleFileDrop}
           >
-            <p>Drag & drop files here or click to browse</p>
+            <p style={{ color: colorMode === "light" ? "#4a5568" : "#e2e8f0" }}>
+              Drag & drop files here or click to browse
+            </p>
             <input
               type="file"
               name={name}
