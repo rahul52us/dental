@@ -67,7 +67,7 @@ const WaitingRoomPage = observer((): any => {
                 borderColor={borderColor}
                 gap={6}
             >
-                <HStack spacing={6}>
+                <HStack spacing={6} flexWrap="wrap" align="center">
                     <Box
                         p={4}
                         bgGradient="linear(to-br, blue.400, teal.400)"
@@ -81,8 +81,10 @@ const WaitingRoomPage = observer((): any => {
                         <MdOutlineAirlineSeatReclineExtra size={32} />
                     </Box>
                     <VStack align="start" spacing={1}>
-                        <HStack spacing={4}>
-                            <Heading size="lg" fontWeight="900" letterSpacing="-0.04em">{t("waitingRoom.title")}</Heading>
+                        <HStack spacing={4} flexWrap="wrap">
+                            <Heading size="lg" fontWeight="900" letterSpacing="-0.04em" color={useColorModeValue("gray.800", "white")}>
+                                {t("waitingRoom.title")}
+                            </Heading>
                             <Badge
                                 variant="outline"
                                 colorScheme="green"
@@ -101,7 +103,7 @@ const WaitingRoomPage = observer((): any => {
                                 {t("waitingRoom.liveQueue")}
                             </Badge>
                         </HStack>
-                        <Text fontSize="xs" fontWeight="700" color="gray.500" letterSpacing="0.05em">
+                        <Text fontSize="xs" fontWeight="700" color={useColorModeValue("gray.500", "gray.300")} letterSpacing="0.05em">
                             {t("waitingRoom.subtitle")}
                         </Text>
                     </VStack>
