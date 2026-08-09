@@ -135,7 +135,7 @@ const Login = observer(() => {
                   borderRadius="xl"
                 >
                   <option value="email">Email</option>
-                  {/* <option value="code">User Code</option> */}
+                  <option value="code">User Code</option>
                 </Select>
 
                 <Input
