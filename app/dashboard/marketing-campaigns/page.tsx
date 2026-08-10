@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
 import {
   Box,
@@ -23,7 +23,13 @@ import {
   Select,
   Checkbox,
   CheckboxGroup,
-  Stack
+  Stack,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
 import moment from "moment";
 import { FaTrashAlt, FaBullhorn, FaPlus, FaTimes, FaEdit } from "react-icons/fa";
@@ -37,6 +43,7 @@ const MarketingCampaigns = () => {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const [editingId, setEditingId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState("");
@@ -44,6 +51,9 @@ const MarketingCampaigns = () => {
   const [audience, setAudience] = useState<string[]>(["patient"]);
   const [companies, setCompanies] = useState<string[]>([]);
   const [companyOptions, setCompanyOptions] = useState<any[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const cancelRef = useRef<any>(null);
 
   const fetchCampaigns = async () => {
     try {
@@ -141,16 +151,26 @@ const MarketingCampaigns = () => {
     onOpen();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this campaign?")) return;
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
-      const res = await axios.delete(`/marketing-campaign/${id}`);
+      setIsDeleting(true);
+      const res = await axios.delete(`/marketing-campaign/${deleteId}`);
       if (res.data.success) {
         toast({ title: "Campaign deleted", status: "success", duration: 3000, isClosable: true });
         fetchCampaigns();
       }
     } catch (error) {
       toast({ title: "Failed to delete campaign", status: "error", duration: 3000, isClosable: true });
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+      setDeleteId(null);
     }
   };
 
@@ -232,7 +252,7 @@ const MarketingCampaigns = () => {
               colorScheme="red"
               variant="ghost"
               borderRadius="xl"
-              onClick={() => handleDelete(dt._id)}
+              onClick={() => confirmDelete(dt._id)}
             />
           </Flex>
         ),
@@ -403,6 +423,34 @@ const MarketingCampaigns = () => {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      <AlertDialog
+        isOpen={isDeleteDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        isCentered
+      >
+        <AlertDialogOverlay backdropFilter="blur(4px)" bg="blackAlpha.300">
+          <AlertDialogContent borderRadius="2xl" p={4} boxShadow="2xl">
+            <AlertDialogHeader fontSize="xl" fontWeight="bold" color="red.600" display="flex" alignItems="center" gap={3}>
+              <FaTrashAlt /> Delete Campaign
+            </AlertDialogHeader>
+
+            <AlertDialogBody color="gray.600" fontSize="md">
+              Are you sure you want to delete this campaign? This action cannot be undone and will permanently remove all scheduled dates.
+            </AlertDialogBody>
+
+            <AlertDialogFooter mt={4}>
+              <Button ref={cancelRef} onClick={() => setIsDeleteDialogOpen(false)} variant="ghost" borderRadius="xl" isDisabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleDelete} ml={3} borderRadius="xl" shadow="md" _hover={{ shadow: "lg", transform: "translateY(-1px)" }} transition="all 0.2s" isLoading={isDeleting} loadingText="Deleting...">
+                Delete Permanently
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };

@@ -2,6 +2,7 @@ import { BiCalendarEvent } from "react-icons/bi";
 import {
   FaCalendarCheck,
   FaChartPie,
+  FaBullhorn,
   FaCog,
   FaListAlt,
   FaNotesMedical,
@@ -241,7 +242,7 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 101,
     name: "Marketing Campaigns",
-    icon: <FaChartPie />,
+    icon: <FaBullhorn />,
     url: "/dashboard/marketing-campaigns",
     role: ["superAdmin", "superadmin"],
   },
