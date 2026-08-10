@@ -13,8 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
-import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import { useTranslation } from "react-i18next";
+import CustomInput from "../../config/component/customInput/CustomInput";
 
 interface Email {
   email: string;
