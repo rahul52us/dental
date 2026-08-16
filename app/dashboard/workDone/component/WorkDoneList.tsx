@@ -492,7 +492,6 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                   aria-label="View"
                 />
              )}
-             {stores.auth.hasPermission('workdone', 'download') && (
                <Button
                  size="sm"
                  variant="ghost"
@@ -511,7 +510,6 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                    <Text fontSize="11px" fontWeight="bold">Prescription</Text>
                  </HStack>
                </Button>
-             )}
              {stores.auth.hasPermission('workdone', 'edit') && (
                <IconButton
                  size="sm"
@@ -942,7 +940,6 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     </Menu>
 
                     {/* Print Action */}
-                    {stores.auth.hasPermission('workdone', 'download') && (
                       <Button
                         size="xs"
                         variant="ghost"
@@ -963,7 +960,6 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                           <Text fontSize="10px" fontWeight="bold">Prescription</Text>
                         </HStack>
                       </Button>
-                    )}
 
                     {/* Edit Action */}
                     {stores.auth.hasPermission('workdone', 'edit') && (
