@@ -202,7 +202,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSittingNoSearch(sittingNoSearch);
+      setDebouncedSittingNoSearch((prev) => {
+        // Prevent state update if both are empty arrays to avoid re-renders on mount
+        if (prev?.length === 0 && sittingNoSearch?.length === 0) return prev;
+        return sittingNoSearch;
+      });
     }, 500);
     return () => clearTimeout(handler);
   }, [sittingNoSearch]);
