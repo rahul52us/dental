@@ -22,8 +22,9 @@ import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
 import { FiFileText, FiDollarSign, FiPaperclip, FiCreditCard } from "react-icons/fi";
 import WalletHistoryDrawer from "../../../../component/WalletHistoryDrawer";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
-import { FaFlask } from "react-icons/fa";
+import { FaFlask, FaHistory } from "react-icons/fa";
 import LabSheet from "../../../labWork/component/LabSheet";
+import LegacyPatientHistoryDrawer from "../../../old-data/component/LegacyPatientHistoryDrawer";
 import PatientLabWorkHistory from "./PatientLabWorkHistory";
 import PatientAccountHistory from "./PatientAccountHistory";
 import PatientDocuments from "./PatientDocuments";
@@ -43,6 +44,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
     userStore: { getAllUsers, user },
     auth: { openNotification },
+    oldDataStore,
   } = stores;
 
   const [openAppointmentDetails, setOpenAppointmentDetails] = useState({
@@ -81,7 +83,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  const handleOpenHistoryDrawer = (row: any) => {
+    oldDataStore.fetchLegacyPatientHistory(row.code);
+    onHistoryOpen();
+  };
+
+  const handleCloseHistoryDrawer = () => {
+    onHistoryClose();
+    oldDataStore.clearPatientFullHistory();
+  };
   
   const [isWalletHistoryOpen, setIsWalletHistoryOpen] = useState(false);
   const [selectedWalletPatient, setSelectedWalletPatient] = useState<any>(null);
@@ -427,6 +440,31 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
+      headerName: "Old Records",
+      key: "legacyHistory",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="Legacy Historical Records" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Old Records"
+              icon={<FaHistory />}
+              colorScheme="orange"
+              bg={useColorModeValue("orange.50", "orange.900")}
+              color={useColorModeValue("orange.600", "orange.300")}
+              _hover={{ bg: "orange.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => handleOpenHistoryDrawer(dt)}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 120, textAlign: "center" } },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -622,6 +660,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           onClose={() => setIsWalletHistoryOpen(false)}
           patient={selectedWalletPatient}
         />
+
+        <LegacyPatientHistoryDrawer isOpen={isHistoryOpen} onClose={handleCloseHistoryDrawer} />
       </Box>
     </>
   );

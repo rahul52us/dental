@@ -17,13 +17,19 @@ import {
   Accordion,
   AccordionItem,
   AccordionButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Checkbox,
   AccordionPanel,
   AccordionIcon,
   Icon,
+  Button,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
-import { FaTooth, FaHistory, FaRupeeSign, FaFileInvoiceDollar, FaCalendarAlt, FaUserMd } from "react-icons/fa";
+import { FaTooth, FaHistory, FaRupeeSign, FaFileInvoiceDollar, FaCalendarAlt, FaUserMd, FaChevronDown } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { Divider, Flex } from "@chakra-ui/react";
 import CustomTable from "../../../component/config/component/CustomTable/CustomTable";
@@ -40,6 +46,32 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
   const { t } = useTranslation();
   const loading = oldDataStore.patientFullHistoryLoading;
   const history = oldDataStore.patientFullHistory;
+
+  const [selectedIndices, setSelectedIndices] = React.useState<number[]>([]);
+
+  React.useEffect(() => {
+    if (isOpen && history?.workComp?.length > 0) {
+      setSelectedIndices(history.workComp.map((_: any, idx: number) => idx));
+    } else {
+      setSelectedIndices([]);
+    }
+  }, [isOpen, history]);
+
+  const handleSelectAll = () => {
+    if (history?.workComp) {
+      setSelectedIndices(history.workComp.map((_: any, idx: number) => idx));
+    }
+  };
+
+  const handleClearAll = () => {
+    setSelectedIndices([]);
+  };
+
+  const toggleIndex = (idx: number) => {
+    setSelectedIndices((prev) => 
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+    );
+  };
 
   const patientCode = history?.workComp?.[0]?.legacyPatCode || history?.toothWorks?.[0]?.legacyPatCode || "N/A";
   const patientName = history?.workComp?.[0]?.patientId?.name || history?.toothWorks?.[0]?.patientId?.name || "Unknown Patient";
@@ -80,7 +112,72 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
             </Center>
           ) : (
             <VStack align="stretch" spacing={4} p={4} bg="gray.100">
-              {history.workComp?.map((work: any, wIdx: number) => {
+              <Flex justify="flex-end" pb={2} px={2} mb={2}>
+                <Menu closeOnSelect={false}>
+                  <MenuButton 
+                    as={Button} 
+                    rightIcon={<Icon as={FaChevronDown} />} 
+                    colorScheme="purple" 
+                    variant="outline"
+                    bg="white" 
+                    color="purple.600"
+                    shadow="sm" 
+                    border="2px solid" 
+                    borderColor="purple.200" 
+                    rounded="full" 
+                    px={6} 
+                    _hover={{ bg: "purple.50", borderColor: "purple.300" }}
+                    _active={{ bg: "purple.100" }}
+                    fontWeight="bold"
+                  >
+                    {selectedIndices.length === 0 
+                      ? "Select Dates" 
+                      : selectedIndices.length === history.workComp.length
+                        ? `All Dates Selected (${selectedIndices.length})`
+                        : `${selectedIndices.length} Date(s) Selected`}
+                  </MenuButton>
+                  <MenuList maxH="350px" overflowY="auto" shadow="2xl" rounded="xl" p={2} border="1px solid" borderColor="gray.100" zIndex={10} minW="220px">
+                    <Flex justify="space-between" mb={2} px={2}>
+                      <Button size="xs" colorScheme="purple" variant="ghost" onClick={handleSelectAll}>Select All</Button>
+                      <Button size="xs" colorScheme="red" variant="ghost" onClick={handleClearAll}>Clear</Button>
+                    </Flex>
+                    <Divider mb={2} />
+                    <VStack align="stretch" spacing={1}>
+                      {history.workComp?.map((work: any, idx: number) => (
+                        <MenuItem 
+                          key={idx} 
+                          as="div" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleIndex(idx);
+                          }}
+                          _hover={{ bg: "purple.50", color: "purple.700" }} 
+                          rounded="md"
+                          px={3}
+                          py={2}
+                          cursor="pointer"
+                        >
+                          <Checkbox 
+                            colorScheme="purple" 
+                            isChecked={selectedIndices.includes(idx)}
+                            onChange={() => {}} 
+                            pointerEvents="none" 
+                            fontWeight="medium"
+                            size="md"
+                          >
+                            {new Date(work.wrk_date).toLocaleDateString('en-IN')}
+                          </Checkbox>
+                        </MenuItem>
+                      ))}
+                    </VStack>
+                  </MenuList>
+                </Menu>
+              </Flex>
+
+              {selectedIndices.sort((a, b) => a - b).map((selectedIndex) => {
+                const work = history.workComp?.[selectedIndex];
+                if (!work) return null;
+                const wIdx = selectedIndex;
                 const wDetails = history.details?.filter((d: any) => d.legacyWrkDoneId === work.legacyWrkDoneId) || [];
                 const wToothWorks = history.toothWorks?.filter((tw: any) => tw.legacyWrkDoneId === work.legacyWrkDoneId || (tw.wrkdate && work.wrk_date && new Date(tw.wrkdate).getTime() === new Date(work.wrk_date).getTime())) || [];
                 const wTransactions = history.transactions?.filter((t: any) => t.legacyWrkDoneId === work.legacyWrkDoneId || (t.date && work.wrk_date && new Date(t.date).getTime() === new Date(work.wrk_date).getTime())) || [];
