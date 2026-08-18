@@ -58,9 +58,9 @@ const ReportPreviewDrawer: React.FC<ReportPreviewDrawerProps> = ({
         head,
         body,
         startY: 20,
-        theme: "striped",
-        headStyles: { fillColor: [30, 58, 138] },
-        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+        theme: "grid",
+        headStyles: { fillColor: [30, 58, 138], textColor: 255 },
+        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak', lineColor: [200, 200, 200], lineWidth: 0.1 },
       });
 
       const pdfBlob = doc.output('blob');
