@@ -162,6 +162,19 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [previewData, setPreviewData] = useState<string | null>(null);
   const [previewFileName, setPreviewFileName] = useState("");
 
+  const [walletBalance, setWalletBalance] = useState<number>(patientDetails?.walletBalance || 0);
+
+  const fetchWalletBalance = useCallback(async () => {
+    if(patientDetails?._id){
+    try {
+      const res = await workDoneStore.getPatientWalletHistory(patientDetails._id);
+      setWalletBalance(res.walletBalance || 0);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  }, [workDoneStore, patientDetails._id]);
+
   const fetchOverallStats = useCallback(async () => {
     await workDoneStore.getOverallPatientStats(patientDetails._id);
   }, [workDoneStore, patientDetails._id]);
@@ -193,11 +206,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
   useEffect(() => {
     fetchOverallStats();
+    fetchWalletBalance();
     // Fetch all doctors in the company so the user can filter by any doctor
     stores.auth.getCompanyUsers({ type: "doctor" }).then((res: any) => {
       setAllCompanyDoctors(res || []);
     }).catch((err: any) => console.error(err));
-  }, [fetchOverallStats]);
+  }, [fetchOverallStats, fetchWalletBalance]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -330,6 +344,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       setIsPaymentOpen(false);
       fetchData();
       fetchOverallStats();
+      fetchWalletBalance();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, status: "error" });
     } finally {
@@ -641,9 +656,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 fontWeight="800"
                 px={6}
                 shadow="md"
-                onClick={() => { setSelectedWalletPatient(patientDetails); setIsWalletHistoryOpen(true); }}
+                onClick={() => { setSelectedWalletPatient({ ...patientDetails, walletBalance }); setIsWalletHistoryOpen(true); }}
               >
-                Wallet (₹{patientDetails?.walletBalance || 0})
+                Wallet (₹{walletBalance})
               </Button>
 
               <HStack
@@ -1131,7 +1146,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
-                  <option value="Wallet">Wallet (Avail. ₹{patientDetails?.walletBalance || 0})</option>
+                  <option value="Wallet">Wallet (Avail. ₹{walletBalance})</option>
                   <option value="Other">Other</option>
                 </Select>
               </FormControl>
@@ -1372,7 +1387,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       try {
                         const paymentToEdit = historyData[editingPaymentIndex];
                         await workDoneStore.updatePayment(paymentToEdit._id, { amount: newAmt });
-                        
+
                         const updatedHistory = updatedHistoryTest;
                         setHistoryData(updatedHistory);
 
