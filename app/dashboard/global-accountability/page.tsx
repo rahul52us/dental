@@ -86,7 +86,7 @@ const GlobalAccountabilityPage = observer(() => {
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
-  const [summary, setSummary] = useState<any>({ totalBilled: 0, totalPaid: 0, totalDue: 0, totalAdvance: 0 });
+  const [summary, setSummary] = useState<any>({ totalBilled: 0, totalPaid: 0, totalDue: 0, totalAdvance: 0, totalWalletReceived: 0 });
   const [todaySummary, setTodaySummary] = useState<any>({ todayBilled: 0, todayPaid: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -330,7 +330,7 @@ const GlobalAccountabilityPage = observer(() => {
       if (result) {
         setData(result.records || []);
         setTotal(result.total || 0);
-        setSummary(result.summary || { totalBilled: 0, totalPaid: 0, totalDue: 0, totalAdvance: 0 });
+        setSummary(result.summary || { totalBilled: 0, totalPaid: 0, totalDue: 0, totalAdvance: 0, totalWalletReceived: 0 });
       }
 
       const todayResult = await stores.workDoneStore.fetchTodayGlobalAccountabilityStats(filters);
@@ -717,7 +717,7 @@ const GlobalAccountabilityPage = observer(() => {
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
             <VStack align="start" spacing={0}>
               <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL BILLED</Text>
-              <Text fontSize="10px" color={useColorModeValue("gray.500", "gray.400")} mt={1}>* Covers patients with billing recorded on previous dates also</Text>
+              <Text fontSize="11px" color={useColorModeValue("gray.600", "gray.300")} fontWeight="800" mt={1}>* Covers patients with billing recorded on previous dates also</Text>
             </VStack>
             <Box p={1.5} bg={useColorModeValue("blue.50", "blue.900")} borderRadius="md"><Icon as={FiFileText} color={useColorModeValue("blue.500", "blue.300")} boxSize={4} /></Box>
           </HStack>
@@ -725,13 +725,36 @@ const GlobalAccountabilityPage = observer(() => {
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiFileText} boxSize={20} /></Box>
         </Box>
 
-        {/* PAID */}
+        {/* COMBINED PAID & WALLET */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
             <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL RECEIVED</Text>
             <Box p={1.5} bg={useColorModeValue("green.50", "green.900")} borderRadius="md"><Icon as={FiCheckCircle} color={useColorModeValue("green.500", "green.300")} boxSize={4} /></Box>
           </HStack>
-          <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("green.600", "green.400")} position="relative" zIndex={1}>{formatCurrency(summary.totalPaid)}</Text>
+          
+          <Flex direction="column" position="relative" zIndex={1}>
+            <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("green.600", "green.400")}>
+              {formatCurrency((summary.totalPaid || 0) + (summary.totalWalletReceived || 0))}
+            </Text>
+            
+            <Flex mt={3} gap={2} align="center" flexWrap="wrap">
+              <Box bg={useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)")} px={{ base: 2, md: 3 }} py={1.5} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.200", "green.700")}>
+                <HStack spacing={1.5} whiteSpace="nowrap">
+                  <Text fontSize="11px" fontWeight="800" color={useColorModeValue("green.700", "green.400")} textTransform="uppercase">Txn:</Text>
+                  <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="900" color={useColorModeValue("green.800", "green.200")}>{formatCurrency(summary.totalPaid)}</Text>
+                </HStack>
+              </Box>
+              
+              <Text color={useColorModeValue("gray.700", "gray.200")} fontSize="2xl" fontWeight="900">+</Text>
+              
+              <Box bg={useColorModeValue("purple.50", "rgba(159, 122, 234, 0.1)")} px={{ base: 2, md: 3 }} py={1.5} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("purple.200", "purple.700")}>
+                <HStack spacing={1.5} whiteSpace="nowrap">
+                  <Text fontSize="11px" fontWeight="800" color={useColorModeValue("purple.700", "purple.400")} textTransform="uppercase">Wallet:</Text>
+                  <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="900" color={useColorModeValue("purple.800", "purple.200")}>{formatCurrency(summary.totalWalletReceived)}</Text>
+                </HStack>
+              </Box>
+            </Flex>
+          </Flex>
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiCheckCircle} boxSize={20} /></Box>
         </Box>
 
