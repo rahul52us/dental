@@ -19,12 +19,13 @@ import {
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
-import { FiFileText, FiDollarSign, FiPaperclip, FiCreditCard } from "react-icons/fi";
+import { FiFileText, FiDollarSign, FiPaperclip, FiCreditCard, FiDatabase } from "react-icons/fi";
 import WalletHistoryDrawer from "../../../../component/WalletHistoryDrawer";
 import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
 import { FaFlask, FaHistory } from "react-icons/fa";
 import LabSheet from "../../../labWork/component/LabSheet";
 import LegacyPatientHistoryDrawer from "../../../old-data/component/LegacyPatientHistoryDrawer";
+import PatientOldDataDrawer from "../../../old-data/component/PatientOldDataDrawer";
 import PatientLabWorkHistory from "./PatientLabWorkHistory";
 import PatientAccountHistory from "./PatientAccountHistory";
 import PatientDocuments from "./PatientDocuments";
@@ -94,6 +95,22 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const handleCloseHistoryDrawer = () => {
     onHistoryClose();
     oldDataStore.clearPatientFullHistory();
+  };
+
+  // New OldData drawer
+  const [isOldDataDrawerOpen, setIsOldDataDrawerOpen] = useState(false);
+  const [selectedOldDataPatient, setSelectedOldDataPatient] = useState<any>(null);
+
+  const handleOpenOldDataDrawer = (row: any) => {
+    setSelectedOldDataPatient(row);
+    oldDataStore.fetchPatientOldData(row._id);
+    setIsOldDataDrawerOpen(true);
+  };
+
+  const handleCloseOldDataDrawer = () => {
+    setIsOldDataDrawerOpen(false);
+    setSelectedOldDataPatient(null);
+    oldDataStore.clearPatientOldData();
   };
   
   const [isWalletHistoryOpen, setIsWalletHistoryOpen] = useState(false);
@@ -465,6 +482,31 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
+      headerName: "Import Data",
+      key: "importedOldData",
+      type: "component",
+      metaData: {
+        component: (dt: any) => (
+          <Tooltip label="View Imported Patient History" hasArrow borderRadius="xl">
+            <IconButton
+              aria-label="Imported Old Data"
+              icon={<FiDatabase />}
+              colorScheme="blue"
+              bg={useColorModeValue("blue.50", "blue.900")}
+              color={useColorModeValue("blue.600", "blue.300")}
+              _hover={{ bg: "blue.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
+              variant="ghost"
+              size="md"
+              borderRadius="2xl"
+              transition="all 0.3s"
+              onClick={() => handleOpenOldDataDrawer(dt)}
+            />
+          </Tooltip>
+        ),
+      },
+      props: { row: { minW: 120, textAlign: "center" } },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -662,6 +704,12 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         />
 
         <LegacyPatientHistoryDrawer isOpen={isHistoryOpen} onClose={handleCloseHistoryDrawer} />
+
+        <PatientOldDataDrawer
+          isOpen={isOldDataDrawerOpen}
+          onClose={handleCloseOldDataDrawer}
+          patient={selectedOldDataPatient}
+        />
       </Box>
     </>
   );

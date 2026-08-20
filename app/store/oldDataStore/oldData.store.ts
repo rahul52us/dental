@@ -18,6 +18,11 @@ export default class OldDataStore {
   
   patientFullHistoryLoading = false;
   patientFullHistory: any = null;
+
+  // New OldData schema (imported from Excel)
+  patientOldDataLoading = false;
+  patientOldData: any[] = [];
+  patientOldDataTotal = 0;
   
   // Pagination & Search State
   workCompPage = 1;
@@ -197,6 +202,26 @@ export default class OldDataStore {
 
   clearPatientFullHistory() {
     this.patientFullHistory = null;
+  }
+
+  async fetchPatientOldData(userId: string) {
+    if (!userId) return;
+    try {
+      this.patientOldDataLoading = true;
+      this.patientOldData = [];
+      const res = await axios.get(`/old-data/by-patient/${userId}`);
+      this.patientOldData = res.data.data || [];
+      this.patientOldDataTotal = res.data.totalCount || 0;
+      this.patientOldDataLoading = false;
+    } catch (error) {
+      this.patientOldDataLoading = false;
+      console.error(error);
+    }
+  }
+
+  clearPatientOldData() {
+    this.patientOldData = [];
+    this.patientOldDataTotal = 0;
   }
 
   async generateWorkCompReportBase64() {
