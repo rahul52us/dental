@@ -30,7 +30,7 @@ import {
   InputLeftElement,
   InputRightElement
 } from "@chakra-ui/react";
-import { FiCreditCard, FiArrowDownLeft, FiArrowUpRight, FiAlertCircle, FiUser, FiPlus } from "react-icons/fi";
+import { FiCreditCard, FiArrowDownLeft, FiArrowUpRight, FiAlertCircle, FiUser, FiPlus, FiMinus } from "react-icons/fi";
 import stores from "../store/stores";
 
 interface WalletHistoryDrawerProps {
@@ -49,6 +49,11 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
   const [creditValue, setCreditValue] = useState("");
   const [creditDescription, setCreditDescription] = useState("");
   const [isAddingCredit, setIsAddingCredit] = useState(false);
+
+  const [isDeductModalOpen, setIsDeductModalOpen] = useState(false);
+  const [deductAmount, setDeductAmount] = useState("");
+  const [deductDescription, setDeductDescription] = useState("");
+  const [isDeductingCredit, setIsDeductingCredit] = useState(false);
 
   const toast = useToast();
 
@@ -83,6 +88,43 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
     }
   };
 
+  const handleDeductCredit = async () => {
+    const amount = Number(deductAmount);
+    
+    if (!amount || amount <= 0) {
+      toast({ title: "Validation Error", description: "Please enter a valid amount.", status: "error", duration: 3000 });
+      return;
+    }
+
+    if (!deductDescription || deductDescription.trim() === "") {
+      toast({ title: "Validation Error", description: "Description is mandatory.", status: "error", duration: 3000 });
+      return;
+    }
+
+    if (amount > walletBalance) {
+      toast({ title: "Validation Error", description: "Insufficient wallet balance.", status: "error", duration: 3000 });
+      return;
+    }
+
+    setIsDeductingCredit(true);
+    try {
+      await stores.workDoneStore.deductManualWalletCredit({
+        patientId: patient._id,
+        amount: amount,
+        description: deductDescription
+      });
+      toast({ title: "Credit Deducted", description: `Successfully deducted ₹${amount} from wallet.`, status: "success", duration: 3000 });
+      setIsDeductModalOpen(false);
+      setDeductAmount("");
+      setDeductDescription("");
+      fetchWalletHistory(patient._id); // Refresh data
+    } catch (err: any) {
+      toast({ title: "Error deducting credit", description: err?.message || "Failed to deduct credit", status: "error", duration: 3000 });
+    } finally {
+      setIsDeductingCredit(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen && patient?._id) {
       fetchWalletHistory(patient._id);
@@ -112,27 +154,29 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
         <DrawerOverlay backdropFilter="blur(8px)" bg="blackAlpha.400" />
         <DrawerContent borderLeftRadius="3xl" bg="gray.50" shadow="2xl">
-          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100" bg="white" py={6} px={8}>
-            <HStack justify="space-between" align="start">
-              <VStack align="start" spacing={4}>
-                <VStack align="start" spacing={0}>
-                  <HStack>
-                    <Icon as={FiCreditCard} color="purple.500" boxSize={6} />
-                    <Text fontWeight="900" fontSize="2xl" color="gray.800">Wallet History</Text>
-                  </HStack>
-                  <Text fontSize="sm" color="gray.500" fontWeight="bold" pl={8}>
-                    {patient?.name || "Patient"}
-                  </Text>
-                </VStack>
-                
-                <HStack spacing={4}>
-                  <Box bg="purple.50" px={5} py={3} borderRadius="2xl" border="1px dashed" borderColor="purple.200" shadow="sm">
-                    <VStack align="start" spacing={0}>
-                      <Text fontSize="xs" fontWeight="800" color="purple.600" textTransform="uppercase" letterSpacing="wider">Current Balance</Text>
-                      <Text fontSize="2xl" fontWeight="900" color="purple.800">₹{walletBalance.toLocaleString()}</Text>
-                    </VStack>
-                  </Box>
+          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100" bg="white" py={6} px={8} position="relative">
+            <DrawerCloseButton position="absolute" top={6} right={6} bg="gray.100" color="gray.600" borderRadius="full" size="md" _hover={{ bg: "red.100", color: "red.500", transform: "scale(1.1)" }} transition="all 0.2s" />
+            <VStack align="start" spacing={5} w="full" mt={2}>
+              <VStack align="start" spacing={0}>
+                <HStack>
+                  <Icon as={FiCreditCard} color="purple.500" boxSize={6} />
+                  <Text fontWeight="900" fontSize="2xl" color="gray.800">Wallet History</Text>
+                </HStack>
+                <Text fontSize="sm" color="gray.500" fontWeight="bold" pl={8}>
+                  {patient?.name || "Patient"}
+                </Text>
+              </VStack>
+              
+              <VStack spacing={4} align="stretch" w="full">
+                <Box bg="purple.50" px={5} py={3} borderRadius="2xl" border="1px dashed" borderColor="purple.200" shadow="sm" w="full">
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="xs" fontWeight="800" color="purple.600" textTransform="uppercase" letterSpacing="wider">Current Balance</Text>
+                    <Text fontSize="2xl" fontWeight="900" color="purple.800">₹{walletBalance.toLocaleString()}</Text>
+                  </VStack>
+                </Box>
+                <HStack spacing={4} w="full">
                   <Button 
+                    flex={1}
                     leftIcon={<FiPlus />} 
                     colorScheme="purple" 
                     variant="solid" 
@@ -143,10 +187,21 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                   >
                     Add Credit
                   </Button>
+                  <Button 
+                    flex={1}
+                    leftIcon={<FiMinus />} 
+                    colorScheme="orange" 
+                    variant="outline" 
+                    borderRadius="xl" 
+                    onClick={() => setIsDeductModalOpen(true)}
+                    shadow="sm"
+                    _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                  >
+                    Deduct Credit
+                  </Button>
                 </HStack>
               </VStack>
-              <DrawerCloseButton position="relative" top={0} right={0} bg="gray.100" color="gray.600" borderRadius="full" size="md" _hover={{ bg: "red.100", color: "red.500", transform: "scale(1.1)" }} transition="all 0.2s" />
-            </HStack>
+            </VStack>
           </DrawerHeader>
           <DrawerBody p={6} bg="gray.50">
             {isWalletHistoryLoading ? (
@@ -298,6 +353,73 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Deduct Credit Modal */}
+      <Modal isOpen={isDeductModalOpen} onClose={() => setIsDeductModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
+        <ModalContent borderRadius="3xl" shadow="2xl" overflow="hidden" bg="white">
+          <Box bgGradient="linear(to-br, orange.400, orange.600)" px={6} py={8} position="relative" overflow="hidden">
+            <Box position="absolute" top="-20%" right="-10%" opacity={0.1}>
+              <Icon as={FiMinus} boxSize="150px" color="white" transform="rotate(-15deg)" />
+            </Box>
+            <VStack align="start" spacing={2} position="relative" zIndex={10}>
+              <Text fontSize="2xl" fontWeight="1000" color="white" letterSpacing="tight">Deduct Wallet Credit</Text>
+              <Text fontSize="sm" color="orange.100" fontWeight="600">Manually deduct credits from {patient?.name}'s wallet.</Text>
+            </VStack>
+            <ModalCloseButton color="white" top={4} right={4} bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.300" }} />
+          </Box>
+          <ModalBody py={8} px={6}>
+            <VStack spacing={6}>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>AMOUNT TO DEDUCT</FormLabel>
+                <InputGroup size="lg">
+                  <InputLeftElement pointerEvents="none" color="orange.500" h="full" px={4} fontSize="lg" fontWeight="900">₹</InputLeftElement>
+                  <Input
+                    type="number"
+                    value={deductAmount}
+                    onChange={(e) => setDeductAmount(e.target.value)}
+                    h="60px"
+                    pl={12}
+                    borderRadius="xl"
+                    fontWeight="900"
+                    fontSize="xl"
+                    color="gray.800"
+                    bg="gray.50"
+                    borderWidth="2px"
+                    borderColor="gray.200"
+                    _focus={{ borderColor: "orange.500", bg: "white", shadow: "0 0 0 1px var(--chakra-colors-orange-500)" }}
+                    placeholder="e.g. 1000"
+                  />
+                </InputGroup>
+              </FormControl>
+              
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>DESCRIPTION (MANDATORY)</FormLabel>
+                <Input
+                  type="text"
+                  value={deductDescription}
+                  onChange={(e) => setDeductDescription(e.target.value)}
+                  h="60px"
+                  borderRadius="xl"
+                  fontWeight="600"
+                  fontSize="md"
+                  color="gray.800"
+                  bg="gray.50"
+                  borderWidth="2px"
+                  borderColor="gray.200"
+                  _focus={{ borderColor: "orange.500", bg: "white", shadow: "0 0 0 1px var(--chakra-colors-orange-500)" }}
+                  placeholder="e.g. Adjusted balance"
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter bg="gray.50" py={6} px={6} borderTop="1px solid" borderColor="gray.100">
+            <Button variant="ghost" mr={3} onClick={() => setIsDeductModalOpen(false)} borderRadius="xl" fontWeight="bold" size="lg">Cancel</Button>
+            <Button colorScheme="orange" borderRadius="xl" px={10} py={6} fontSize="lg" fontWeight="bold" isLoading={isDeductingCredit} onClick={handleDeductCredit} shadow="xl" _hover={{ shadow: '2xl', transform: 'translateY(-2px)' }} transition="all 0.2s">Deduct Credit</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
     </React.Fragment>
   );
 };

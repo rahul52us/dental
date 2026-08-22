@@ -243,6 +243,17 @@ class WorkDoneStore {
     }
   };
 
+  deductManualWalletCredit = async (payload: { patientId: string; amount: number; description: string }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/wallet/deduct-credit`, { ...payload, company: compId });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   updatePayment = async (id: string, sendData: any) => {
     try {
       const { data } = await axios.put(`/payment/${id}`, sendData);
