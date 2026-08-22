@@ -197,7 +197,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                     shadow="sm"
                     _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
                   >
-                    Deduct Credit
+                    Adjust Amount
                   </Button>
                 </HStack>
               </VStack>
