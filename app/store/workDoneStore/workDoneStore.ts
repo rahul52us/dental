@@ -801,14 +801,17 @@ class WorkDoneStore {
   /**
    * FETCH WORK DONE COUNTS GROUPED BY DATE
    */
-  getWorkDoneCountByDate = async (sendData: { patientId: any }) => {
+  getWorkDoneCountByDate = async (sendData: { patientId: any, treatmentId?: any }) => {
     try {
       const companyId = localStorage.getItem("companyId");
       const compId = authStore.company?._id || authStore.company || companyId;
-      const params = {
+      const params: any = {
         company: compId,
         patientId: sendData.patientId,
       };
+      if (sendData.treatmentId) {
+        params.treatmentId = sendData.treatmentId;
+      }
       const { data } = await axios.get("/workDone/count-by-date", { params });
       return data;
     } catch (err: any) {

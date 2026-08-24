@@ -599,7 +599,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               fontWeight="bold"
               onClick={() => {
                 setIsCounting(true);
-                getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                getWorkDoneCountByDate({ patientId: patientDetails?._id, treatmentId })
                   .then((res: any) => {
                     if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
                       setBackendCounts(res.data || []);
@@ -612,9 +612,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             >
               View Work Dates
             </Button>
-            <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
-              {displayedRecords.length || 0}
-            </Circle>
+
           </HStack>
         </HStack>
 
@@ -1254,8 +1252,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           <ModalHeader borderBottom="1px solid" borderColor="gray.50">
             <VStack align="start" spacing={3}>
               <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">PATIENT TRENDS</Text>
-                <Heading size="md" fontWeight="1000">Clinical Activity Summary</Heading>
+                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">WORK DONE TRENDS</Text>
+                <Heading size="md" fontWeight="1000">Work Done Activity Summary</Heading>
               </VStack>
               {backendCounts.length > 0 && (
                 <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
@@ -1264,7 +1262,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalVisits}</Text>
                   </Box>
                   <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
-                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL TREATMENTS</Text>
+                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL ENTRIES</Text>
                     <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalTreatments}</Text>
                   </Box>
                 </Grid>

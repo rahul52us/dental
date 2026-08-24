@@ -190,6 +190,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
       complaintTypeFilter,
       statusFilter,
       sittingNoSearch,
+      selectedDateFilter,
     ]
   );
 
@@ -1022,6 +1023,16 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   </Box>
 
                   <HStack spacing={2}>
+                    {selectedDateFilter && (
+                      <Button
+                        size="sm"
+                        colorScheme="red"
+                        variant="outline"
+                        onClick={() => setSelectedDateFilter(null)}
+                      >
+                        Clear Date Filter
+                      </Button>
+                    )}
                     {stores.auth.hasPermission('treatment', 'view') && (
                       <Button
                         size="sm"
