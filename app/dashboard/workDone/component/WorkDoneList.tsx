@@ -1282,7 +1282,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             </VStack>
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody py={6} maxH="500px" overflowY="auto">
+          <ModalBody py={6} maxH="350px" overflowY="auto">
             {filteredCounts.length > 0 ? (
               <VStack align="stretch" spacing={3}>
                 {filteredCounts.map((item, idx) => (

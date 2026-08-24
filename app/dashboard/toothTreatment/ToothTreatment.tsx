@@ -1251,7 +1251,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             </VStack>
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody py={6} maxH="500px" overflowY="auto">
+          <ModalBody py={6} maxH="350px" overflowY="auto">
             {filteredCounts.length > 0 ? (
               <VStack align="stretch" spacing={3}>
                 {filteredCounts.map((item: any, idx: number) => (

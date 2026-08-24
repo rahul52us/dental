@@ -1412,7 +1412,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
             </VStack>
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody py={6} maxH="500px" overflowY="auto">
+          <ModalBody py={6} maxH="350px" overflowY="auto">
             {isCountsLoading ? (
               <VStack align="stretch" spacing={3}>
                 {[1, 2, 3, 4, 5].map(i => (

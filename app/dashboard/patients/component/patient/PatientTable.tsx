@@ -56,6 +56,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const [openTreatmentDetails, setOpenTreatmentDetails] = useState({
     open: false,
     data: null as any,
+    defaultTab: 0,
+    defaultStatusFilter: "all",
   });
 
   const [openRecallDetails, setOpenRecallDetails] = useState({
@@ -63,10 +65,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     data: null as any,
   });
 
-  const [openWorkDoneDetails, setOpenWorkDoneDetails] = useState({
-    open: false,
-    data: null as any,
-  });
+
 
   const [openLabSheetDetails, setOpenLabSheetDetails] = useState({
     open: false,
@@ -290,7 +289,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             gap={1}
             _hover={{ bg: bgPurple, color: "purple.600", shadow: "sm" }}
             transition="all 0.2s"
-            onClick={() => setOpenTreatmentDetails({ open: true, data: dt })}
+            onClick={() => setOpenTreatmentDetails({ open: true, data: dt, defaultTab: 1, defaultStatusFilter: dt?.pendingTreatmentCount > 0 ? "pending" : "all" })}
           >
             <GiMedicalDrip size={14} />
             Treatment
@@ -348,7 +347,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               size="md"
               borderRadius="2xl"
               transition="all 0.3s"
-              onClick={() => setOpenWorkDoneDetails({ open: true, data: dt })}
+              onClick={() => setOpenTreatmentDetails({ open: true, data: dt, defaultTab: 2, defaultStatusFilter: "all" })}
             />
           </Tooltip>
         ),
@@ -623,11 +622,13 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             width="92%"
             title={`Treatment History ${openTreatmentDetails.data?.name ? `(${openTreatmentDetails.data.name})` : ""}`}
             open={openTreatmentDetails.open}
-            close={() => setOpenTreatmentDetails({ open: false, data: null })}
+            close={() => setOpenTreatmentDetails({ open: false, data: null, defaultTab: 0, defaultStatusFilter: "all" })}
           >
             <Treatment
               isPatient={true}
               patientDetails={openTreatmentDetails.data}
+              defaultTab={openTreatmentDetails.defaultTab}
+              defaultStatusFilter={openTreatmentDetails.defaultStatusFilter}
             />
           </CustomDrawer>
         )}
@@ -647,17 +648,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </CustomDrawer>
         )}
 
-        {/* Work Done History Drawer */}
-        {openWorkDoneDetails.open && (
-          <CustomDrawer
-            open={openWorkDoneDetails.open}
-            close={() => setOpenWorkDoneDetails({ open: false, data: null })}
-            title={`${openWorkDoneDetails.data?.name}'s Work Done`}
-            width="85vw"
-          >
-            <PatientWorkDoneHistory patientDetails={openWorkDoneDetails.data} />
-          </CustomDrawer>
-        )}
+
 
         {/* Lab Sheet History Drawer */}
         {openLabSheetDetails.open && (
