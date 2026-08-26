@@ -272,6 +272,15 @@ class WorkDoneStore {
     }
   };
 
+  secureDeletePayment = async (id: string) => {
+    try {
+      const { data } = await axios.delete(`/payment/secure/${id}`);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   deleteWorkDone = async (workDoneId: string) => {
     try {
       const { data } = await axios.delete(`/workDone/${workDoneId}`);

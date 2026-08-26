@@ -47,7 +47,7 @@ import {
   InputGroup,
   InputLeftElement
 } from "@chakra-ui/react";
-import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2, FiList, FiEye, FiPlusCircle, FiCreditCard, FiArrowDownLeft, FiArrowUpRight } from "react-icons/fi";
+import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2, FiList, FiEye, FiPlusCircle, FiCreditCard, FiArrowDownLeft, FiArrowUpRight, FiTrash2 } from "react-icons/fi";
 import React, { useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
@@ -143,6 +143,12 @@ const GlobalAccountabilityPage = observer(() => {
   const [editingPaymentIndex, setEditingPaymentIndex] = useState<number | null>(null);
   const [editAmount, setEditAmount] = useState<string>("");
   const [isSavingAmount, setIsSavingAmount] = useState(false);
+
+  // Delete Specific Payment Entry State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [paymentToDelete, setPaymentToDelete] = useState<any>(null);
+  const [isDeletingPayment, setIsDeletingPayment] = useState(false);
 
   // Wallet Transfer State
   const [isTransferingWallet, setIsTransferingWallet] = useState(false);
@@ -1337,14 +1343,23 @@ const GlobalAccountabilityPage = observer(() => {
                           }}
                         />
                       )}
-                      {stores.auth.hasPermission('accountability', 'edit') && new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") && (
-                        <IconButton aria-label="Edit Amount" icon={<FiEdit2 />} size="sm" colorScheme="orange" variant="ghost" borderRadius="full"
-                          onClick={() => {
-                            setEditingPaymentIndex(i);
-                            setEditAmount(String(h.amount));
-                            setIsEditAmountOpen(true);
-                          }}
-                        />
+                      {stores.auth.hasPermission('accountability', 'edit') && new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") && h.paymentMethod !== 'Transferred to Wallet' && (
+                        <>
+                          <IconButton aria-label="Edit Amount" icon={<FiEdit2 />} size="sm" colorScheme="orange" variant="ghost" borderRadius="full"
+                            onClick={() => {
+                              setEditingPaymentIndex(i);
+                              setEditAmount(String(h.amount));
+                              setIsEditAmountOpen(true);
+                            }}
+                          />
+                          <IconButton aria-label="Delete Payment" icon={<FiTrash2 />} size="sm" colorScheme="red" variant="ghost" borderRadius="full"
+                            onClick={() => {
+                              setPaymentToDelete({ payment: h, index: i });
+                              setDeleteConfirmText("");
+                              setIsDeleteModalOpen(true);
+                            }}
+                          />
+                        </>
                       )}
                     </HStack>
                   </HStack>
@@ -1404,9 +1419,25 @@ const GlobalAccountabilityPage = observer(() => {
                       const paymentToEdit = historyData[editingPaymentIndex];
                       await stores.workDoneStore.updatePayment(paymentToEdit._id, { amount: newAmt });
 
-                      setHistoryData(updatedHistoryTest);
                       setIsEditAmountOpen(false);
                       toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
+                      
+                      const filters = {
+                        page: 1, // Simplify for refresh
+                        limit: 50,
+                      };
+                      const result = await stores.workDoneStore.fetchGlobalAccountability(filters);
+                      
+                      if (result && result.records) {
+                        const freshRecordData = result.records.find((wd: any) => wd._id === selectedRecord._id);
+                        if (freshRecordData) {
+                          setHistoryData([...(freshRecordData.paymentHistory || [])].reverse());
+                          setSelectedRecord(freshRecordData);
+                        } else {
+                          setIsHistoryOpen(false); // If record vanished, close drawer
+                        }
+                      }
+                      
                       fetchGlobalData(page);
                     } catch (err: any) {
                       toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
@@ -1496,6 +1527,98 @@ const GlobalAccountabilityPage = observer(() => {
         onClose={() => setIsWalletHistoryOpen(false)}
         patient={selectedWalletPatient}
       />
+
+      {/* Secure Delete Payment Modal */}
+      <Modal isOpen={isDeleteModalOpen} onClose={() => !isDeletingPayment && setIsDeleteModalOpen(false)} isCentered size="md">
+        <ModalOverlay backdropFilter="blur(5px)" />
+        <ModalContent borderRadius="2xl" p={2}>
+          <ModalHeader borderBottom="1px solid" borderColor="red.100">
+            <VStack align="start" spacing={1}>
+              <Text fontSize="xs" fontWeight="black" color="red.500" letterSpacing="0.1em">WARNING</Text>
+              <Text fontSize="lg" fontWeight="bold">Secure Delete Payment</Text>
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton isDisabled={isDeletingPayment} />
+          <ModalBody py={6}>
+            <VStack spacing={4} align="stretch">
+              <Box p={4} bg="red.50" borderRadius="xl" border="1px solid" borderColor="red.200">
+                <Text fontSize="sm" color="red.700" fontWeight="medium">
+                  You are about to delete a payment of <b>₹{paymentToDelete?.payment?.amount?.toLocaleString()}</b>.
+                </Text>
+                <Text fontSize="sm" color="red.600" mt={2} fontWeight="bold">
+                  This action may also deduct funds from the patient's wallet if this payment originally generated an advance.
+                </Text>
+              </Box>
+              
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="bold" color="gray.700">
+                  Type <Text as="span" color="red.500">DELETE</Text> to confirm
+                </FormLabel>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  size="lg"
+                  fontWeight="bold"
+                  borderRadius="xl"
+                  focusBorderColor="red.400"
+                  isDisabled={isDeletingPayment}
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter borderTop="1px solid" borderColor="gray.100">
+            <Button variant="ghost" mr={3} onClick={() => setIsDeleteModalOpen(false)} borderRadius="xl" isDisabled={isDeletingPayment}>Cancel</Button>
+            <Button
+              colorScheme="red"
+              isDisabled={deleteConfirmText !== "DELETE"}
+              isLoading={isDeletingPayment}
+              borderRadius="xl"
+              px={6}
+              onClick={async () => {
+                if (!paymentToDelete) return;
+                setIsDeletingPayment(true);
+                try {
+                  await stores.workDoneStore.secureDeletePayment(paymentToDelete.payment._id);
+                  toast({ title: "Payment deleted securely!", status: "success", duration: 2000 });
+                  setIsDeleteModalOpen(false);
+                  
+                  // Fetch fresh data for main table first
+                  const filters = {
+                    page: 1, // Simplify for refresh
+                    limit: 50,
+                  };
+                  const result = await stores.workDoneStore.fetchGlobalAccountability(filters);
+                  
+                  if (result && result.records) {
+                    const freshRecordData = result.records.find((wd: any) => wd._id === selectedRecord._id);
+                    if (freshRecordData) {
+                      setHistoryData([...(freshRecordData.paymentHistory || [])].reverse());
+                      setSelectedRecord(freshRecordData);
+                    } else {
+                      setIsHistoryOpen(false); // If record vanished, close drawer
+                    }
+                  }
+                  
+                  fetchGlobalData(page); // Also update the state for the main page
+                  
+                } catch (err: any) {
+                  toast({ 
+                    title: "Failed to delete payment", 
+                    description: err?.message || "An error occurred", 
+                    status: "error", 
+                    duration: 5000 
+                  });
+                } finally {
+                  setIsDeletingPayment(false);
+                }
+              }}
+            >
+              Confirm Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
     </Box>
   );
