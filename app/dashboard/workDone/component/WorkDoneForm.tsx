@@ -652,8 +652,15 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                     const examDrName = values.examiningDoctor?.label || values.examiningDoctor || data.examiningDoctor?.name || (typeof data.examiningDoctor === 'string' ? data.examiningDoctor : "N/A");
                     const rawToothVal = values.tooth || data.tooth || data.toothNo || "GENERAL";
                     const toothVal = typeof rawToothVal === 'object' && rawToothVal !== null ? (rawToothVal.fdi || rawToothVal.fd1 || rawToothVal.id1 || rawToothVal.id || rawToothVal.universal || "GENERAL") : rawToothVal;
-                    const estimate = values.amount || data.estimateMin || data.amount || 0;
-                    const received = data.receivedAmount || 0;
+                    const baseEstimate = data.estimateMin || 0;
+                    let oldBilled = data.receivedAmount || 0;
+                    if (editData) {
+                      const oldNet = (Number(editData.amount) || 0) - (Number(editData.discount) || 0);
+                      oldBilled -= oldNet;
+                    }
+                    const currentNet = (Number(values.amount) || 0) - (Number(values.discount) || 0);
+                    const realTimeBilled = oldBilled + currentNet;
+                    const realTimeBalance = baseEstimate - realTimeBilled;
 
                     return (
                       <VStack align="stretch" spacing={4} w="full">
@@ -700,10 +707,10 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               ₹{data.estimateMin?.toLocaleString()} - ₹{data.estimateMax?.toLocaleString()}
                             </Text>
                             <Text fontSize="9px" fontWeight="800" color="gray.500" mt={1}>
-                              BILLED: ₹{received.toLocaleString()}
+                              BILLED: ₹{realTimeBilled.toLocaleString()}
                             </Text>
-                            <Text fontSize="9px" fontWeight="900" color="red.500">
-                              BALANCE: ₹{(estimate - received).toLocaleString()}
+                            <Text fontSize="9px" fontWeight="900" color={realTimeBalance < 0 ? "green.500" : "red.500"}>
+                              BALANCE: ₹{realTimeBalance.toLocaleString()}
                             </Text>
                           </VStack>
                         </Grid>

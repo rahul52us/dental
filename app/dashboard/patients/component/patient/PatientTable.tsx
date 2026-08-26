@@ -481,7 +481,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Import Data",
+      headerName: "Old Data",
       key: "importedOldData",
       type: "component",
       metaData: {

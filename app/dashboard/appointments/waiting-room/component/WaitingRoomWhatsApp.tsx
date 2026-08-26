@@ -58,7 +58,8 @@ import { FaFlask } from "react-icons/fa";
 import { FiDollarSign } from "react-icons/fi";
 import PatientAccountHistory from "../../../patients/component/patient/PatientAccountHistory";
 import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw, FiDatabase } from "react-icons/fi";
+import PatientOldDataDrawer from "../../../old-data/component/PatientOldDataDrawer";
 
 const pulse = keyframes`
   0% { transform: translateY(-50%) scale(1); opacity: 0.6; }
@@ -91,6 +92,22 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openRecall, setOpenRecall] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
+
+    // New OldData drawer
+    const [isOldDataDrawerOpen, setIsOldDataDrawerOpen] = useState(false);
+    const [selectedOldDataPatient, setSelectedOldDataPatient] = useState<any>(null);
+
+    const handleOpenOldDataDrawer = (row: any) => {
+        setSelectedOldDataPatient(row);
+        stores.oldDataStore.fetchPatientOldData(row._id);
+        setIsOldDataDrawerOpen(true);
+    };
+
+    const handleCloseOldDataDrawer = () => {
+        setIsOldDataDrawerOpen(false);
+        setSelectedOldDataPatient(null);
+        stores.oldDataStore.clearPatientOldData();
+    };
 
     // Confirmation for "Complete" (Close)
     const [openConfirm, setOpenConfirm] = useState({ open: false, id: "" });
@@ -288,6 +305,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 setOpenDetails(true);
                             }}
                         >
+
+
                             {/* Premium Complete (Close) Action */}
                             <Tooltip label="Mark as Completed" hasArrow placement="top">
                                 <IconButton
@@ -387,52 +406,6 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             >
                                                 {patient?.name || "Unknown"}
                                             </Text>
-                                            {stores.auth.hasPermission('patient', 'edit') && (
-                                                <Tooltip label="Edit Patient Details" placement="top" hasArrow>
-                                                    <IconButton
-                                                        aria-label="Edit Patient"
-                                                        icon={<EditIcon boxSize={3.5} />}
-                                                        size="sm"
-                                                        isRound
-                                                        bg={colorMode === 'light' ? "blue.50" : "blue.900"}
-                                                        color={colorMode === 'light' ? "blue.600" : "blue.200"}
-                                                        _hover={{
-                                                            bg: colorMode === 'light' ? "blue.100" : "blue.800",
-                                                            transform: "scale(1.1)"
-                                                        }}
-                                                        transition="all 0.2s"
-                                                        isLoading={loadingEditPatientId === patient._id}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation();
-                                                        setLoadingEditPatientId(patient._id);
-                                                        try {
-                                                            const res = await axios.post("/user", {
-                                                                _id: patient._id,
-                                                                company: stores.auth.company,
-                                                                type: "patient",
-                                                                limit: 1,
-                                                                page: 1
-                                                            });
-                                                            const populatedPatient = res?.data?.data?.data?.[0] || patient;
-                                                            const { profileDetails, ...rest } = populatedPatient;
-                                                            setIsPatientDrawerOpen({
-                                                                isOpen: true,
-                                                                type: "edit",
-                                                                data: {
-                                                                    ...rest,
-                                                                    ...profileDetails?.personalInfo,
-                                                                    references: rest?.references,
-                                                                },
-                                                            });
-                                                        } catch (error) {
-                                                            console.error("Failed to fetch patient details:", error);
-                                                        } finally {
-                                                            setLoadingEditPatientId(null);
-                                                        }
-                                                    }}
-                                                />
-                                                </Tooltip>
-                                            )}
                                         </HStack>
                                         <HStack spacing={2} mt={1}>
                                             {hasAlert ? (
@@ -820,6 +793,77 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                             )}
                                         </Button>
                                     )}
+                                    <Button
+                                        bgGradient="linear(to-r, blue.400, blue.600)"
+                                        color="white"
+                                        leftIcon={<FiDatabase />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        position="relative"
+                                        boxShadow="0 4px 12px rgba(0, 181, 216, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, blue.500, blue.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(0, 181, 216, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenOldDataDrawer(patient);
+                                        }}
+                                    >
+                                        Old Data
+                                    </Button>
+                                    {stores.auth.hasPermission('patient', 'edit') && (
+                                        <Button
+                                            bgGradient="linear(to-r, gray.400, gray.600)"
+                                            color="white"
+                                            leftIcon={<EditIcon />}
+                                            size="sm"
+                                            borderRadius="xl"
+                                            fontSize="xs"
+                                            fontWeight="800"
+                                            position="relative"
+                                            boxShadow="0 4px 12px rgba(160, 174, 192, 0.25)"
+                                            _hover={{
+                                                bgGradient: "linear(to-r, gray.500, gray.700)",
+                                                transform: "translateY(-2px)",
+                                                boxShadow: "0 6px 15px rgba(160, 174, 192, 0.4)"
+                                            }}
+                                            isLoading={loadingEditPatientId === patient._id}
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                setLoadingEditPatientId(patient._id);
+                                                try {
+                                                    const res = await axios.post("/user", {
+                                                        _id: patient._id,
+                                                        company: stores.auth.company,
+                                                        type: "patient",
+                                                        limit: 1,
+                                                        page: 1
+                                                    });
+                                                    const populatedPatient = res?.data?.data?.data?.[0] || patient;
+                                                    const { profileDetails, ...rest } = populatedPatient;
+                                                    setIsPatientDrawerOpen({
+                                                        isOpen: true,
+                                                        type: "edit",
+                                                        data: {
+                                                            ...rest,
+                                                            ...profileDetails?.personalInfo,
+                                                            references: rest?.references,
+                                                        },
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Failed to fetch patient details:", error);
+                                                } finally {
+                                                    setLoadingEditPatientId(null);
+                                                }
+                                            }}
+                                        >
+                                            Edit Profile
+                                        </Button>
+                                    )}
                                 </SimpleGrid>
                             </Flex>
                         </Box>
@@ -1047,6 +1091,12 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
+
+            <PatientOldDataDrawer
+                isOpen={isOldDataDrawerOpen}
+                onClose={handleCloseOldDataDrawer}
+                patient={selectedOldDataPatient}
+            />
 
             {isPatientDrawerOpen.isOpen && (
                 <AddPatientDrawer
