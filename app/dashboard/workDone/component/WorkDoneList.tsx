@@ -585,7 +585,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             fontWeight="bold"
             onClick={() => setOpenFilteredReportModal({ open: true })}
           >
-            FILTERED WORK AND PRESCRIPTION
+            PRINT WORK AND PRESCRIPTION
           </Button>
 
           <HStack spacing={1}>
@@ -733,7 +733,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               }
             }}
           >
-            DOWNLOAD DATA
+            PRINT WORK SHEET
           </Button>
 
           <HStack bg="gray.100" p={1} borderRadius="xl" ml={2}>
@@ -1551,7 +1551,7 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                             fontWeight="bold"
                             onClick={onOpenFilteredReport}
                           >
-                            FILTERED WORK AND PRESCRIPTION
+                            PRINT WORK AND PRESCRIPTION
                           </Button>
 
                           <Button

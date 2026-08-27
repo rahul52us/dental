@@ -1062,7 +1062,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                         isLoading={isDownloadingData}
                         onClick={handleDownloadTable}
                       >
-                        ALL WORK DATA
+                        PRINT ALL TMT DATA
                       </Button>
                     )}
                     {/* {isPatient && stores.auth.hasPermission('treatment', 'create') && (
