@@ -60,6 +60,7 @@ import PatientAccountHistory from "../../../patients/component/patient/PatientAc
 import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
 import { FiRefreshCw, FiDatabase } from "react-icons/fi";
 import PatientOldDataDrawer from "../../../old-data/component/PatientOldDataDrawer";
+import WalletHistoryDrawer from "../../../../component/WalletHistoryDrawer";
 
 const pulse = keyframes`
   0% { transform: translateY(-50%) scale(1); opacity: 0.6; }
@@ -89,6 +90,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     const [openWorkDone, setOpenWorkDone] = useState({ open: false, data: null as any });
     const [openLab, setOpenLab] = useState({ open: false, data: null as any, workType: "all" as any });
     const [openAccountDetails, setOpenAccountDetails] = useState({ open: false, data: null as any });
+    const [openWalletHistory, setOpenWalletHistory] = useState({ open: false, data: null as any });
     const [openRecall, setOpenRecall] = useState({ open: false, data: null as any });
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [openProfile, setOpenProfile] = useState(false);
@@ -558,67 +560,69 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 <SimpleGrid columns={2} spacing={3} width="100%" px={4} pb={4} onClick={(e) => e.stopPropagation()}>
 
                                     {stores.auth.hasPermission('treatment', 'view') && (
-                                        <Button
-                                            bgGradient="linear(to-r, purple.400, purple.600)"
-                                            color="white"
-                                            leftIcon={<GiMedicalDrip />}
-                                            size="sm"
-                                            borderRadius="xl"
-                                            fontSize="xs"
-                                            fontWeight="800"
-                                            position="relative"
-                                            boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
-                                            _hover={{
-                                                bgGradient: "linear(to-r, purple.500, purple.700)",
-                                                transform: "translateY(-2px)",
-                                                boxShadow: "0 6px 15px rgba(128, 0, 128, 0.4)"
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setOpenTreatment({
-                                                    open: true,
-                                                    data: patient,
-                                                    defaultTab: 1,
-                                                    defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
-                                                });
-                                            }}
-                                        >
-                                            {patient?.incompleteTreatmentCount > 0 && (
-                                                <Badge
-                                                    position="absolute"
-                                                    top="-2px"
-                                                    left="-2px"
-                                                    bg="yellow.400"
-                                                    color="black"
-                                                    borderRadius="full"
-                                                    px={2}
-                                                    py={0.5}
-                                                    fontSize="9px"
-                                                    transform="translate(-25%, -25%)"
-                                                    boxShadow="0 0 10px rgba(236,201,75,0.8)"
-                                                >
-                                                    {patient.incompleteTreatmentCount}
-                                                </Badge>
-                                            )}
-                                            Tmt Plan
-                                            {patient?.pendingTreatmentCount > 0 && (
-                                                <Badge
-                                                    position="absolute"
-                                                    top="-2px"
-                                                    right="-2px"
-                                                    colorScheme="red"
-                                                    variant="solid"
-                                                    borderRadius="full"
-                                                    px={2}
-                                                    py={0.5}
-                                                    fontSize="9px"
-                                                    transform="translate(25%, -25%)"
-                                                    boxShadow="0 0 10px rgba(229,62,62,0.8)"
-                                                >
-                                                    {patient.pendingTreatmentCount}
-                                                </Badge>
-                                            )}
-                                        </Button>
+                                        <Tooltip label={`Incomplete: ${patient?.incompleteTreatmentCount || 0} | Pending: ${patient?.pendingTreatmentCount || 0}`} hasArrow placement="top" isDisabled={!patient?.incompleteTreatmentCount && !patient?.pendingTreatmentCount}>
+                                            <Button
+                                                bgGradient="linear(to-r, purple.400, purple.600)"
+                                                color="white"
+                                                leftIcon={<GiMedicalDrip />}
+                                                size="sm"
+                                                borderRadius="xl"
+                                                fontSize="xs"
+                                                fontWeight="800"
+                                                position="relative"
+                                                boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
+                                                _hover={{
+                                                    bgGradient: "linear(to-r, purple.500, purple.700)",
+                                                    transform: "translateY(-2px)",
+                                                    boxShadow: "0 6px 15px rgba(128, 0, 128, 0.4)"
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setOpenTreatment({
+                                                        open: true,
+                                                        data: patient,
+                                                        defaultTab: 1,
+                                                        defaultStatusFilter: patient?.pendingTreatmentCount > 0 ? "pending" : "all"
+                                                    });
+                                                }}
+                                            >
+                                                {patient?.incompleteTreatmentCount > 0 && (
+                                                    <Badge
+                                                        position="absolute"
+                                                        top="-2px"
+                                                        left="-2px"
+                                                        bg="yellow.400"
+                                                        color="black"
+                                                        borderRadius="full"
+                                                        px={2}
+                                                        py={0.5}
+                                                        fontSize="9px"
+                                                        transform="translate(-25%, -25%)"
+                                                        boxShadow="0 0 10px rgba(236,201,75,0.8)"
+                                                    >
+                                                        {patient.incompleteTreatmentCount}
+                                                    </Badge>
+                                                )}
+                                                Tmt Plan
+                                                {patient?.pendingTreatmentCount > 0 && (
+                                                    <Badge
+                                                        position="absolute"
+                                                        top="-2px"
+                                                        right="-2px"
+                                                        colorScheme="red"
+                                                        variant="solid"
+                                                        borderRadius="full"
+                                                        px={2}
+                                                        py={0.5}
+                                                        fontSize="9px"
+                                                        transform="translate(25%, -25%)"
+                                                        boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                                    >
+                                                        {patient.pendingTreatmentCount}
+                                                    </Badge>
+                                                )}
+                                            </Button>
+                                        </Tooltip>
                                     )}
                                     {stores.auth.hasPermission('accountability', 'view') && (
                                         <Button
@@ -644,67 +648,69 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         </Button>
                                     )}
                                     {stores.auth.hasPermission('workdone', 'view') && (
-                                        <Button
-                                            bgGradient="linear(to-r, orange.400, orange.600)"
-                                            color="white"
-                                            leftIcon={<CheckIcon />}
-                                            size="sm"
-                                            borderRadius="xl"
-                                            fontSize="xs"
-                                            fontWeight="800"
-                                            position="relative"
-                                            boxShadow="0 4px 12px rgba(237, 137, 54, 0.25)"
-                                            _hover={{
-                                                bgGradient: "linear(to-r, orange.500, orange.700)",
-                                                transform: "translateY(-2px)",
-                                                boxShadow: "0 6px 15px rgba(237, 137, 54, 0.4)"
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setOpenTreatment({
-                                                    open: true,
-                                                    data: patient,
-                                                    defaultTab: 2,
-                                                    defaultStatusFilter: "all"
-                                                });
-                                            }}
-                                        >
-                                            {patient?.incompleteWorkDoneCount > 0 && (
-                                                <Badge
-                                                    position="absolute"
-                                                    top="-2px"
-                                                    left="-2px"
-                                                    bg="yellow.400"
-                                                    color="black"
-                                                    borderRadius="full"
-                                                    px={2}
-                                                    py={0.5}
-                                                    fontSize="9px"
-                                                    transform="translate(-25%, -25%)"
-                                                    boxShadow="0 0 10px rgba(236,201,75,0.8)"
-                                                >
-                                                    {patient.incompleteWorkDoneCount}
-                                                </Badge>
-                                            )}
-                                            Work History
-                                            {patient?.pendingWorkDoneCount > 0 && (
-                                                <Badge
-                                                    position="absolute"
-                                                    top="-2px"
-                                                    right="-2px"
-                                                    colorScheme="red"
-                                                    variant="solid"
-                                                    borderRadius="full"
-                                                    px={2}
-                                                    py={0.5}
-                                                    fontSize="9px"
-                                                    transform="translate(25%, -25%)"
-                                                    boxShadow="0 0 10px rgba(229,62,62,0.8)"
-                                                >
-                                                    {patient.pendingWorkDoneCount}
-                                                </Badge>
-                                            )}
-                                        </Button>
+                                        <Tooltip label={`Incomplete: ${patient?.incompleteWorkDoneCount || 0} | Pending: ${patient?.pendingWorkDoneCount || 0}`} hasArrow placement="top" isDisabled={!patient?.incompleteWorkDoneCount && !patient?.pendingWorkDoneCount}>
+                                            <Button
+                                                bgGradient="linear(to-r, orange.400, orange.600)"
+                                                color="white"
+                                                leftIcon={<CheckIcon />}
+                                                size="sm"
+                                                borderRadius="xl"
+                                                fontSize="xs"
+                                                fontWeight="800"
+                                                position="relative"
+                                                boxShadow="0 4px 12px rgba(237, 137, 54, 0.25)"
+                                                _hover={{
+                                                    bgGradient: "linear(to-r, orange.500, orange.700)",
+                                                    transform: "translateY(-2px)",
+                                                    boxShadow: "0 6px 15px rgba(237, 137, 54, 0.4)"
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setOpenTreatment({
+                                                        open: true,
+                                                        data: patient,
+                                                        defaultTab: 2,
+                                                        defaultStatusFilter: "all"
+                                                    });
+                                                }}
+                                            >
+                                                {patient?.incompleteWorkDoneCount > 0 && (
+                                                    <Badge
+                                                        position="absolute"
+                                                        top="-2px"
+                                                        left="-2px"
+                                                        bg="yellow.400"
+                                                        color="black"
+                                                        borderRadius="full"
+                                                        px={2}
+                                                        py={0.5}
+                                                        fontSize="9px"
+                                                        transform="translate(-25%, -25%)"
+                                                        boxShadow="0 0 10px rgba(236,201,75,0.8)"
+                                                    >
+                                                        {patient.incompleteWorkDoneCount}
+                                                    </Badge>
+                                                )}
+                                                Work History
+                                                {patient?.pendingWorkDoneCount > 0 && (
+                                                    <Badge
+                                                        position="absolute"
+                                                        top="-2px"
+                                                        right="-2px"
+                                                        colorScheme="red"
+                                                        variant="solid"
+                                                        borderRadius="full"
+                                                        px={2}
+                                                        py={0.5}
+                                                        fontSize="9px"
+                                                        transform="translate(25%, -25%)"
+                                                        boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                                    >
+                                                        {patient.pendingWorkDoneCount}
+                                                    </Badge>
+                                                )}
+                                            </Button>
+                                        </Tooltip>
                                     )}
                                     {stores.auth.hasPermission('appointment', 'view') && (
                                         <Button
@@ -726,7 +732,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                 setOpenAppointment({ open: true, data: patient });
                                             }}
                                         >
-                                            App. History
+                                            Appointments
                                         </Button>
                                     )}
                                     {stores.auth.hasPermission('recall', 'view') && (
@@ -753,45 +759,47 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         </Button>
                                     )}
                                     {(stores.auth.hasPermission('inhouse_lab', 'view') || stores.auth.hasPermission('outside_lab', 'view')) && (
-                                        <Button
-                                            bgGradient="linear(to-r, red.400, red.600)"
-                                            color="white"
-                                            leftIcon={<FaFlask />}
-                                            size="sm"
-                                            borderRadius="xl"
-                                            fontSize="xs"
-                                            fontWeight="800"
-                                            position="relative"
-                                            boxShadow="0 4px 12px rgba(229, 62, 62, 0.25)"
-                                            _hover={{
-                                                bgGradient: "linear(to-r, red.500, red.700)",
-                                                transform: "translateY(-2px)",
-                                                boxShadow: "0 6px 15px rgba(229, 62, 62, 0.4)"
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setOpenLab({ open: true, data: patient, workType: "in-house" });
-                                            }}
-                                        >
-                                            In-House Lab
-                                            {patient?.pendingInHouseLabCount > 0 && (
-                                                <Badge
-                                                    position="absolute"
-                                                    top="-2px"
-                                                    right="-2px"
-                                                    colorScheme="red"
-                                                    variant="solid"
-                                                    borderRadius="full"
-                                                    px={2}
-                                                    py={0.5}
-                                                    fontSize="9px"
-                                                    transform="translate(25%, -25%)"
-                                                    boxShadow="0 0 10px rgba(229,62,62,0.8)"
-                                                >
-                                                    {patient.pendingInHouseLabCount}
-                                                </Badge>
-                                            )}
-                                        </Button>
+                                        <Tooltip label={`Pending: ${patient?.pendingInHouseLabCount || 0}`} hasArrow placement="top" isDisabled={!patient?.pendingInHouseLabCount}>
+                                            <Button
+                                                bgGradient="linear(to-r, red.400, red.600)"
+                                                color="white"
+                                                leftIcon={<FaFlask />}
+                                                size="sm"
+                                                borderRadius="xl"
+                                                fontSize="xs"
+                                                fontWeight="800"
+                                                position="relative"
+                                                boxShadow="0 4px 12px rgba(229, 62, 62, 0.25)"
+                                                _hover={{
+                                                    bgGradient: "linear(to-r, red.500, red.700)",
+                                                    transform: "translateY(-2px)",
+                                                    boxShadow: "0 6px 15px rgba(229, 62, 62, 0.4)"
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setOpenLab({ open: true, data: patient, workType: "in-house" });
+                                                }}
+                                            >
+                                                In-House Lab
+                                                {patient?.pendingInHouseLabCount > 0 && (
+                                                    <Badge
+                                                        position="absolute"
+                                                        top="-2px"
+                                                        right="-2px"
+                                                        colorScheme="red"
+                                                        variant="solid"
+                                                        borderRadius="full"
+                                                        px={2}
+                                                        py={0.5}
+                                                        fontSize="9px"
+                                                        transform="translate(25%, -25%)"
+                                                        boxShadow="0 0 10px rgba(229,62,62,0.8)"
+                                                    >
+                                                        {patient.pendingInHouseLabCount}
+                                                    </Badge>
+                                                )}
+                                            </Button>
+                                        </Tooltip>
                                     )}
                                     <Button
                                         bgGradient="linear(to-r, blue.400, blue.600)"
@@ -814,6 +822,28 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         }}
                                     >
                                         Old Data
+                                    </Button>
+                                    <Button
+                                        bgGradient="linear(to-r, purple.400, purple.600)"
+                                        color="white"
+                                        leftIcon={<FiDollarSign />}
+                                        size="sm"
+                                        borderRadius="xl"
+                                        fontSize="xs"
+                                        fontWeight="800"
+                                        position="relative"
+                                        boxShadow="0 4px 12px rgba(128, 0, 128, 0.25)"
+                                        _hover={{
+                                            bgGradient: "linear(to-r, purple.500, purple.700)",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 6px 15px rgba(128, 0, 128, 0.4)"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenWalletHistory({ open: true, data: patient });
+                                        }}
+                                    >
+                                        Wallet (₹{(patient?.walletBalance || 0).toLocaleString("en-IN")})
                                     </Button>
                                     {stores.auth.hasPermission('patient', 'edit') && (
                                         <Button
@@ -1096,6 +1126,12 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                 isOpen={isOldDataDrawerOpen}
                 onClose={handleCloseOldDataDrawer}
                 patient={selectedOldDataPatient}
+            />
+            
+            <WalletHistoryDrawer
+                isOpen={openWalletHistory.open}
+                onClose={() => setOpenWalletHistory({ open: false, data: null })}
+                patient={openWalletHistory.data}
             />
 
             {isPatientDrawerOpen.isOpen && (
