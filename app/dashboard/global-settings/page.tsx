@@ -4,7 +4,8 @@ import { Box, Heading, VStack, FormControl, FormLabel, Input, Button, Image, Fle
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 import stores from '../../store/stores';
-import { FiCamera, FiUpload, FiSave } from 'react-icons/fi';
+import { FiCamera, FiUpload, FiSave, FiFileText } from 'react-icons/fi';
+import axios from 'axios';
 
 const GlobalSettingsPage = observer(() => {
   const { globalConfigStore, auth } = stores;
@@ -15,11 +16,14 @@ const GlobalSettingsPage = observer(() => {
   const [hour, setHour] = useState('07');
   const [minute, setMinute] = useState('00');
   const [amPm, setAmPm] = useState('AM');
+  const [tutorialPreview, setTutorialPreview] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
+  const [uploadingTutorial, setUploadingTutorial] = useState(false);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
+  const tutorialInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Only superadmins should access this page
@@ -34,6 +38,7 @@ const GlobalSettingsPage = observer(() => {
       if (config) {
         setPaymentQrCodePreview(config.paymentQrCode || '');
         setGlobalLogoPreview(config.globalLogo || '');
+        setTutorialPreview(config.tutorialDoc || '');
         
         if (config.cronTime) {
           const [hoursStr, minutesStr] = config.cronTime.split(':');
@@ -104,6 +109,29 @@ const GlobalSettingsPage = observer(() => {
     }
   };
 
+  const handleTutorialUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingTutorial(true);
+    try {
+      const buffer = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const response = await axios.post('/file/upload-tutorial', {
+        file: { buffer, filename: file.name, type: file.type }
+      });
+      const newUrl = response.data?.data;
+      if (newUrl) setTutorialPreview(newUrl);
+    } catch (error) {
+      toast({ title: "Tutorial Upload Failed", status: "error", duration: 3000, isClosable: true });
+    } finally {
+      setUploadingTutorial(false);
+    }
+  };
+
   const handleSave = async () => {
     let parsedHour = parseInt(hour, 10);
     
@@ -116,6 +144,7 @@ const GlobalSettingsPage = observer(() => {
       globalLogo: globalLogoPreview,
       paymentQrCode: paymentQrCodePreview,
       cronTime: formattedTime,
+      tutorialDoc: tutorialPreview,
     };
     
     const res = await globalConfigStore.updateGlobalConfig(payload);
@@ -192,6 +221,41 @@ const GlobalSettingsPage = observer(() => {
                 <Image src={paymentQrCodePreview} alt="Payment QR" maxH="180px" borderRadius="md" />
               ) : (
                 <Text color="gray.400" fontSize="sm">No QR Code uploaded</Text>
+              )}
+            </Box>
+          </Flex>
+        </Box>
+
+        <Divider borderColor="gray.200" />
+
+        {/* Tutorial Document Section */}
+        <Box>
+          <Flex align="flex-start" justify="space-between" direction={{ base: 'column', md: 'row' }} gap={4}>
+            <Box>
+              <Text fontWeight="bold" fontSize="lg" color="gray.800">Tutorial Document</Text>
+              <Text fontSize="sm" color="gray.500" mb={4}>This is the main tutorial document (Word format) served from the public folder.</Text>
+              <Button
+                size="md"
+                colorScheme="purple"
+                variant="outline"
+                leftIcon={<Icon as={FiUpload} />}
+                onClick={() => tutorialInputRef.current?.click()}
+                isLoading={uploadingTutorial}
+              >
+                Upload Tutorial
+              </Button>
+              <input type="file" ref={tutorialInputRef} onChange={handleTutorialUpload} style={{ display: 'none' }} accept=".doc,.docx,.pdf" />
+            </Box>
+            <Box p={4} borderWidth="1px" borderRadius="lg" bg="gray.50" shadow="sm" minW="200px" display="flex" alignItems="center" justifyContent="center">
+              {tutorialPreview ? (
+                <HStack spacing={2}>
+                  <Icon as={FiFileText} w={6} h={6} color="blue.500" />
+                  <a href={tutorialPreview} target="_blank" rel="noreferrer" style={{ color: '#3182ce', textDecoration: 'underline' }}>
+                    View Current Tutorial
+                  </a>
+                </HStack>
+              ) : (
+                <Text color="gray.400" fontSize="sm">No Tutorial uploaded</Text>
               )}
             </Box>
           </Flex>

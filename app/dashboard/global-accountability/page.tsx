@@ -250,10 +250,27 @@ const GlobalAccountabilityPage = observer(() => {
   const handleSavePayment = async () => {
     const paymentNow = Number(tempValue);
     if (isNaN(paymentNow) || paymentNow <= 0) return;
+    const remaining = selectedRecord.balanceDue || 0;
+
+    if (receiveType === "Wallet" && paymentNow > remaining) {
+      return toast({
+        title: "Wallet Payment Error",
+        description: `You cannot pay more than the balance due (₹${remaining}) from your wallet.`,
+        status: "warning"
+      });
+    }
+
+    const walletBal = selectedRecord?.patientInfo?.walletBalance || 0;
+    if (receiveType === "Wallet" && paymentNow > walletBal) {
+      return toast({
+        title: "Insufficient Wallet Balance",
+        description: `You only have ₹${walletBal} available in your wallet.`,
+        status: "warning"
+      });
+    }
+
     setIsSaving(true);
     try {
-      const remaining = selectedRecord.balanceDue || 0;
-
       // if (paymentNow > remaining) {
       //   setIsSaving(false);
       //   return toast({
@@ -595,6 +612,8 @@ const GlobalAccountabilityPage = observer(() => {
                 { label: "UPI", value: "upi" },
                 { label: "Card", value: "card" },
                 { label: "Bank Transfer", value: "bank transfer" },
+                { label: "Wallet", value: "wallet" },
+                { label: "Transferred to Wallet", value: "transferred to wallet" },
               ]}
               value={paymentMode}
               onChange={(v: any) => setPaymentMode(v?.value || "all")}
@@ -737,12 +756,12 @@ const GlobalAccountabilityPage = observer(() => {
             <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL RECEIVED</Text>
             <Box p={1.5} bg={useColorModeValue("green.50", "green.900")} borderRadius="md"><Icon as={FiCheckCircle} color={useColorModeValue("green.500", "green.300")} boxSize={4} /></Box>
           </HStack>
-          
+
           <Flex direction="column" position="relative" zIndex={1}>
             <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("green.600", "green.400")}>
               {formatCurrency((summary.totalPaid || 0) + (summary.totalWalletReceived || 0))}
             </Text>
-            
+
             <Flex mt={3} gap={2} align="center" flexWrap="wrap">
               <Box bg={useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)")} px={{ base: 2, md: 3 }} py={1.5} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.200", "green.700")}>
                 <HStack spacing={1.5} whiteSpace="nowrap">
@@ -750,9 +769,9 @@ const GlobalAccountabilityPage = observer(() => {
                   <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="900" color={useColorModeValue("green.800", "green.200")}>{formatCurrency(summary.totalPaid)}</Text>
                 </HStack>
               </Box>
-              
+
               <Text color={useColorModeValue("gray.700", "gray.200")} fontSize="2xl" fontWeight="900">+</Text>
-              
+
               <Box bg={useColorModeValue("purple.50", "rgba(159, 122, 234, 0.1)")} px={{ base: 2, md: 3 }} py={1.5} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("purple.200", "purple.700")}>
                 <HStack spacing={1.5} whiteSpace="nowrap">
                   <Text fontSize="11px" fontWeight="800" color={useColorModeValue("purple.700", "purple.400")} textTransform="uppercase">Wallet:</Text>
@@ -1225,7 +1244,7 @@ const GlobalAccountabilityPage = observer(() => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
-                  {selectedRecord?.patientInfo?.walletBalance > 0 && (
+                  {selectedRecord?.patientInfo?.walletBalance > 0 && selectedRecord?.balanceDue > 0 && (
                     <option value="Wallet">Wallet (Bal: ₹{selectedRecord.patientInfo.walletBalance})</option>
                   )}
                   <option value="Other">Other</option>
@@ -1421,13 +1440,13 @@ const GlobalAccountabilityPage = observer(() => {
 
                       setIsEditAmountOpen(false);
                       toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
-                      
+
                       const filters = {
                         page: 1, // Simplify for refresh
                         limit: 50,
                       };
                       const result = await stores.workDoneStore.fetchGlobalAccountability(filters);
-                      
+
                       if (result && result.records) {
                         const freshRecordData = result.records.find((wd: any) => wd._id === selectedRecord._id);
                         if (freshRecordData) {
@@ -1437,7 +1456,7 @@ const GlobalAccountabilityPage = observer(() => {
                           setIsHistoryOpen(false); // If record vanished, close drawer
                         }
                       }
-                      
+
                       fetchGlobalData(page);
                     } catch (err: any) {
                       toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
@@ -1549,7 +1568,7 @@ const GlobalAccountabilityPage = observer(() => {
                   This action may also deduct funds from the patient's wallet if this payment originally generated an advance.
                 </Text>
               </Box>
-              
+
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="bold" color="gray.700">
                   Type <Text as="span" color="red.500">DELETE</Text> to confirm
@@ -1582,14 +1601,14 @@ const GlobalAccountabilityPage = observer(() => {
                   await stores.workDoneStore.secureDeletePayment(paymentToDelete.payment._id);
                   toast({ title: "Payment deleted securely!", status: "success", duration: 2000 });
                   setIsDeleteModalOpen(false);
-                  
+
                   // Fetch fresh data for main table first
                   const filters = {
                     page: 1, // Simplify for refresh
                     limit: 50,
                   };
                   const result = await stores.workDoneStore.fetchGlobalAccountability(filters);
-                  
+
                   if (result && result.records) {
                     const freshRecordData = result.records.find((wd: any) => wd._id === selectedRecord._id);
                     if (freshRecordData) {
@@ -1599,15 +1618,15 @@ const GlobalAccountabilityPage = observer(() => {
                       setIsHistoryOpen(false); // If record vanished, close drawer
                     }
                   }
-                  
+
                   fetchGlobalData(page); // Also update the state for the main page
-                  
+
                 } catch (err: any) {
-                  toast({ 
-                    title: "Failed to delete payment", 
-                    description: err?.message || "An error occurred", 
-                    status: "error", 
-                    duration: 5000 
+                  toast({
+                    title: "Failed to delete payment",
+                    description: err?.message || "An error occurred",
+                    status: "error",
+                    duration: 5000
                   });
                 } finally {
                   setIsDeletingPayment(false);

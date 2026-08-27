@@ -324,12 +324,28 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const handleSavePayment = async () => {
     const paymentNow = Number(tempValue);
     if (isNaN(paymentNow) || paymentNow <= 0) return;
+    const bill = selectedRecord.amount - (selectedRecord.discount || 0);
+    const alreadyPaid = selectedRecord.receivedAmount || 0;
+    const remaining = Math.max(0, bill - alreadyPaid);
+
+    if (receiveType === "Wallet" && paymentNow > remaining) {
+      return toast({
+        title: "Wallet Payment Error",
+        description: `You cannot pay more than the balance due (₹${remaining}) from your wallet.`,
+        status: "warning"
+      });
+    }
+
+    if (receiveType === "Wallet" && paymentNow > walletBalance) {
+      return toast({
+        title: "Insufficient Wallet Balance",
+        description: `You only have ₹${walletBalance} available in your wallet.`,
+        status: "warning"
+      });
+    }
+
     setIsSaving(true);
     try {
-      const bill = selectedRecord.amount - (selectedRecord.discount || 0);
-      const alreadyPaid = selectedRecord.receivedAmount || 0;
-      const remaining = Math.max(0, bill - alreadyPaid);
-
       // if (paymentNow > remaining) {
       //   setIsSaving(false);
       //   return toast({
@@ -1153,7 +1169,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
-                  <option value="Wallet">Wallet (Avail. ₹{walletBalance})</option>
+                  {walletBalance > 0 && selectedRecord?.balanceDue > 0 && (
+                    <option value="Wallet">Wallet (Avail. ₹{walletBalance})</option>
+                  )}
+                  <option value="Transferred to Wallet">Transferred to Wallet</option>
                   <option value="Other">Other</option>
                 </Select>
               </FormControl>

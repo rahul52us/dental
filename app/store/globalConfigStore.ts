@@ -5,7 +5,8 @@ class GlobalConfigStore {
   config = {
     paymentQrCode: '',
     globalLogo: '',
-    cronTime: '07:00'
+    cronTime: '07:00',
+    tutorialDoc: ''
   };
   isLoading = false;
 
@@ -27,7 +28,7 @@ class GlobalConfigStore {
     }
   };
 
-  updateGlobalConfig = async (payload: { paymentQrCode?: string; globalLogo?: string; cronTime?: string }) => {
+  updateGlobalConfig = async (payload: { paymentQrCode?: string; globalLogo?: string; cronTime?: string; tutorialDoc?: string }) => {
     this.isLoading = true;
     try {
       const response = await axios.put('/global-config', payload);

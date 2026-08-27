@@ -173,7 +173,9 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
   ];
 
   const totalPaid = rows.reduce((sum, r) => sum + (Number(r.Amount_Paid) || 0), 0);
-  const totalDue = rows.reduce((sum, r) => sum + (Number(r.Fee_Due) || 0), 0);
+  const rawTotalDue = rows.reduce((sum, r) => sum + (Number(r.Fee_Due) || 0), 0);
+  const totalDiscount = rows.reduce((sum, r) => sum + (Number(r.Fee_Discount) || 0), 0);
+  const totalDue = rawTotalDue - totalDiscount - totalPaid;
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} size="xl" placement="right">
@@ -192,17 +194,25 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
                 </Text>
               </Box>
             </HStack>
-            <HStack spacing={5}>
-              <Box textAlign="center" bg="whiteAlpha.200" px={4} py={2} borderRadius="xl">
-                <Text fontSize="xs" opacity={0.8} mb={1}>Total Records</Text>
+            <HStack spacing={4}>
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+                <Text fontSize="xs" opacity={0.8} mb={1}>Records</Text>
                 <Badge colorScheme="blue" fontSize="md" px={3} py={1} borderRadius="lg">{rows.length}</Badge>
               </Box>
-              <Box textAlign="center" bg="whiteAlpha.200" px={4} py={2} borderRadius="xl">
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+                <Text fontSize="xs" opacity={0.8} mb={1}>Total Fee</Text>
+                <Badge colorScheme="blue" fontSize="md" px={3} py={1} borderRadius="lg">₹{rawTotalDue.toLocaleString("en-IN")}</Badge>
+              </Box>
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+                <Text fontSize="xs" opacity={0.8} mb={1}>Discount</Text>
+                <Badge colorScheme="purple" fontSize="md" px={3} py={1} borderRadius="lg">₹{totalDiscount.toLocaleString("en-IN")}</Badge>
+              </Box>
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
                 <Text fontSize="xs" opacity={0.8} mb={1}>Total Paid</Text>
                 <Badge colorScheme="green" fontSize="md" px={3} py={1} borderRadius="lg">₹{totalPaid.toLocaleString("en-IN")}</Badge>
               </Box>
-              <Box textAlign="center" bg="whiteAlpha.200" px={4} py={2} borderRadius="xl">
-                <Text fontSize="xs" opacity={0.8} mb={1}>Total Due</Text>
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+                <Text fontSize="xs" opacity={0.8} mb={1}>Net Due</Text>
                 <Badge colorScheme="red" fontSize="md" px={3} py={1} borderRadius="lg">₹{totalDue.toLocaleString("en-IN")}</Badge>
               </Box>
             </HStack>
