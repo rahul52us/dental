@@ -322,10 +322,10 @@ const GlobalAccountabilityPage = observer(() => {
       const diffTime = Math.abs(end.getTime() - start.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays > 40) {
+      if (diffDays > 30) {
         toast({
           title: "Date Limit Exceeded",
-          description: "You can only search for a maximum of 40 days at a time for the best performance.",
+          description: "You can only search for a maximum of 30 days at a time for the best performance.",
           status: "error",
           duration: 4000,
           isClosable: true,
@@ -750,33 +750,41 @@ const GlobalAccountabilityPage = observer(() => {
           <Box position="absolute" bottom="-4" right="-4" opacity={0.03}><Icon as={FiFileText} boxSize={20} /></Box>
         </Box>
 
-        {/* COMBINED PAID & WALLET */}
+        {/* GROSS COLLECTION & WALLET BREAKDOWN */}
         <Box bg={bgCard} p={4} borderRadius="2xl" boxShadow="sm" borderWidth="1px" borderColor={borderColor} position="relative" overflow="hidden">
           <HStack justify="space-between" mb={2} position="relative" zIndex={1}>
-            <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">TOTAL RECEIVED</Text>
+            <VStack align="start" spacing={0}>
+              <Text fontSize="sm" color={useColorModeValue("gray.700", "gray.300")} fontWeight="900" textTransform="uppercase" letterSpacing="wide">GROSS COLLECTION</Text>
+              <Text fontSize="11px" color={useColorModeValue("gray.600", "gray.300")} fontWeight="800" mt={1}>* Actual physical money collected for selected date(s)</Text>
+            </VStack>
             <Box p={1.5} bg={useColorModeValue("green.50", "green.900")} borderRadius="md"><Icon as={FiCheckCircle} color={useColorModeValue("green.500", "green.300")} boxSize={4} /></Box>
           </HStack>
 
           <Flex direction="column" position="relative" zIndex={1}>
             <Text fontSize="2xl" fontWeight="900" color={useColorModeValue("green.600", "green.400")}>
-              {formatCurrency((summary.totalPaid || 0) + (summary.totalWalletReceived || 0))}
+              {formatCurrency(summary.totalPhysicalCollected || 0)}
             </Text>
 
-            <Flex mt={3} gap={2} align="center" flexWrap="wrap">
-              <Box bg={useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)")} px={{ base: 2, md: 3 }} py={1.5} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.200", "green.700")}>
-                <HStack spacing={1.5} whiteSpace="nowrap">
-                  <Text fontSize="11px" fontWeight="800" color={useColorModeValue("green.700", "green.400")} textTransform="uppercase">Txn:</Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="900" color={useColorModeValue("green.800", "green.200")}>{formatCurrency(summary.totalPaid)}</Text>
-                </HStack>
+            <Flex display="none" mt={3} gap={2} align="stretch" flexWrap="wrap">
+              <Box flex="1" minW="140px" bg={useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.200", "green.700")}>
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="10px" fontWeight="800" color={useColorModeValue("green.700", "green.400")} textTransform="uppercase">Applied to Bills:</Text>
+                  <Text fontSize="sm" fontWeight="900" color={useColorModeValue("green.800", "green.200")}>{formatCurrency(summary.totalPaid || 0)}</Text>
+                </VStack>
               </Box>
 
-              <Text color={useColorModeValue("gray.700", "gray.200")} fontSize="2xl" fontWeight="900">+</Text>
+              <Box flex="1" minW="140px" bg={useColorModeValue("purple.50", "rgba(159, 122, 234, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("purple.200", "purple.700")}>
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="10px" fontWeight="800" color={useColorModeValue("purple.700", "purple.400")} textTransform="uppercase">Wallet Used:</Text>
+                  <Text fontSize="sm" fontWeight="900" color={useColorModeValue("purple.800", "purple.200")}>{formatCurrency(summary.totalPaidFromWallet || 0)}</Text>
+                </VStack>
+              </Box>
 
-              <Box bg={useColorModeValue("purple.50", "rgba(159, 122, 234, 0.1)")} px={{ base: 2, md: 3 }} py={1.5} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("purple.200", "purple.700")}>
-                <HStack spacing={1.5} whiteSpace="nowrap">
-                  <Text fontSize="11px" fontWeight="800" color={useColorModeValue("purple.700", "purple.400")} textTransform="uppercase">Wallet:</Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="900" color={useColorModeValue("purple.800", "purple.200")}>{formatCurrency(summary.totalWalletReceived)}</Text>
-                </HStack>
+              <Box flex="1" minW="140px" bg={useColorModeValue("blue.50", "rgba(66, 153, 225, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("blue.200", "blue.700")}>
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="10px" fontWeight="800" color={useColorModeValue("blue.700", "blue.400")} textTransform="uppercase">Saved to Wallet:</Text>
+                  <Text fontSize="sm" fontWeight="900" color={useColorModeValue("blue.800", "blue.200")}>{formatCurrency(summary.totalWalletReceived || 0)}</Text>
+                </VStack>
               </Box>
             </Flex>
           </Flex>
