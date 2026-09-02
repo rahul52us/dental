@@ -1169,10 +1169,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   <option value="UPI">UPI</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
-                  {walletBalance > 0 && selectedRecord?.balanceDue > 0 && (
-                    <option value="Wallet">Wallet (Avail. ₹{walletBalance})</option>
+                  {walletBalance > 0 && ((selectedRecord?.amount || 0) - (selectedRecord?.discount || 0) - (selectedRecord?.receivedAmount || 0)) > 0 && (
+                    <option value="Wallet">Wallet (Bal: ₹{walletBalance})</option>
                   )}
-                  <option value="Transferred to Wallet">Transferred to Wallet</option>
                   <option value="Other">Other</option>
                 </Select>
               </FormControl>

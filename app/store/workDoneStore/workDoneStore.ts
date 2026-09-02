@@ -355,6 +355,24 @@ class WorkDoneStore {
     }
   };
 
+  fetchMonthlyPatientReportBase64 = async (filters: any = {}) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const { data } = await axios.post(`/workDone/generate-monthly-patient-report`, {
+        ...filters,
+        company: compId
+      });
+      if (data.status === "error") {
+        throw new Error(data.message || "Failed to fetch monthly report");
+      }
+      return data.data; // Base64 string
+    } catch (error) {
+      console.error("Error fetching monthly patient report:", error);
+      throw error;
+    }
+  };
+
   /**
    * FETCH RECEIPTS LOG BASE64 (FOR PREVIEW)
    */

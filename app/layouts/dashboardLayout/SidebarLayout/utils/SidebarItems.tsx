@@ -17,7 +17,7 @@ import {
   FaArrowsAltH,
 } from "react-icons/fa";
 
-import { FaVial } from "react-icons/fa"; // correct icon
+import { FaTooth } from "react-icons/fa"; // correct icon
 import { GiOfficeChair, GiSofa } from "react-icons/gi";
 import { MdEventRepeat } from "react-icons/md";
 import WaitingRoomIcon from "../component/WaitingRoomIcon";
@@ -92,14 +92,14 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 32,
     name: "Lab",
-    icon: <FaVial />,
+    icon: <FaTooth />,
     url: "#",
     role: ["superAdmin", "patient", "doctor", "admin", "staff"],
     children: [
       {
         id: 33,
         name: "Labs",
-        icon: <FaVial />,
+        icon: <FaTooth />,
         url: "/dashboard/labs",
         role: ["superAdmin", "patient", "doctor", "admin", "staff"],
         permission: { module: "lab", action: "sidebar" },

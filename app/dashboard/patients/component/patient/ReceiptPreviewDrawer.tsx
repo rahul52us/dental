@@ -110,7 +110,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
           {blobUrl ? (
             <Box
               w="100%"
-              maxW="1000px" // Allows A4 reports to look large and clear
+              maxW="full"
               bg="white"
               borderRadius="xl"
               overflow="hidden"
@@ -129,7 +129,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
               />
             </Box>
           ) : (
-            <VStack spacing={4} w="100%" maxW="1000px" mt={10}>
+            <VStack spacing={4} w="100%" maxW="full" mt={10}>
               <Skeleton h="100px" w="100%" borderRadius="xl" />
               <Skeleton h="500px" w="100%" borderRadius="xl" />
             </VStack>

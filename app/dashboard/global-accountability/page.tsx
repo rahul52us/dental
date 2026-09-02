@@ -121,6 +121,16 @@ const GlobalAccountabilityPage = observer(() => {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [selectedPrintColumns, setSelectedPrintColumns] = useState<string[]>(ALL_PRINT_COLUMNS.map(c => c.key));
 
+  // Monthly Patient Report States
+  const [isMonthlyModalOpen, setIsMonthlyModalOpen] = useState(false);
+  const [isGeneratingMonthly, setIsGeneratingMonthly] = useState(false);
+  const [monthlyFromDate, setMonthlyFromDate] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    return d.toISOString().split("T")[0];
+  });
+  const [monthlyToDate, setMonthlyToDate] = useState(() => new Date().toISOString().split("T")[0]);
+
   // Edit Total Bill State
   const [isEditBillModalOpen, setIsEditBillModalOpen] = useState(false);
   const [editingBillRecord, setEditingBillRecord] = useState<any>(null);
@@ -434,6 +444,47 @@ const GlobalAccountabilityPage = observer(() => {
     }
   };
 
+  const handleGenerateMonthlyReport = async () => {
+    const start = new Date(monthlyFromDate);
+    const end = new Date(monthlyToDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 31) {
+      return toast({
+        title: "Date Limit Exceeded",
+        description: "You can only generate a monthly report for a maximum of 31 days.",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+
+    setIsGeneratingMonthly(true);
+    try {
+      const filters = {
+        fromDate: monthlyFromDate,
+        toDate: monthlyToDate,
+      };
+
+      const base64 = await stores.workDoneStore.fetchMonthlyPatientReportBase64(filters);
+      setPreviewData(base64);
+      setPreviewFileName(`Monthly_Patient_Report_${monthlyFromDate}_to_${monthlyToDate}.pdf`);
+      setIsMonthlyModalOpen(false);
+      setIsPreviewOpen(true);
+    } catch (error: any) {
+      toast({
+        title: "Error Generating Report",
+        description: error.message || "Failed to generate the monthly report.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsGeneratingMonthly(false);
+    }
+  };
+
   return (
     <Box p={{ base: 2, md: 4 }} minH="100vh" bg={useColorModeValue("gray.50", "gray.900")}>
 
@@ -448,21 +499,33 @@ const GlobalAccountabilityPage = observer(() => {
             </Text>
           </HStack>
         </Box>
-        <Button
-          leftIcon={<FiPrinter />}
-          colorScheme="whiteAlpha"
-          variant="solid"
-          size="sm"
-          borderRadius="full"
-          position="relative"
-          zIndex={1}
-          isLoading={isPrinting}
-          onClick={() => setIsPrintModalOpen(true)}
-          _hover={{ bg: "whiteAlpha.300" }}
-          w={{ base: "100%", md: "auto" }}
-        >
-          Print Report
-        </Button>
+        <HStack spacing={4} position="relative" zIndex={1} w={{ base: "100%", md: "auto" }}>
+          <Button
+            leftIcon={<FiFileText />}
+            colorScheme="whiteAlpha"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            onClick={() => setIsMonthlyModalOpen(true)}
+            _hover={{ bg: "whiteAlpha.300" }}
+            w={{ base: "100%", md: "auto" }}
+          >
+            Monthly Patient Report
+          </Button>
+          <Button
+            leftIcon={<FiPrinter />}
+            colorScheme="whiteAlpha"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            isLoading={isPrinting}
+            onClick={() => setIsPrintModalOpen(true)}
+            _hover={{ bg: "whiteAlpha.300" }}
+            w={{ base: "100%", md: "auto" }}
+          >
+            Print Report
+          </Button>
+        </HStack>
         <Box position="absolute" right="-2%" top="-50%" boxSize="150px" bg="whiteAlpha.100" borderRadius="full" />
         <Box position="absolute" right="10%" bottom="-50%" boxSize="100px" bg="blue.500" opacity={0.5} borderRadius="full" filter="blur(20px)" />
       </Flex>
@@ -765,20 +828,22 @@ const GlobalAccountabilityPage = observer(() => {
               {formatCurrency(summary.totalPhysicalCollected || 0)}
             </Text>
 
-            <Flex display="none" mt={3} gap={2} align="stretch" flexWrap="wrap">
-              <Box flex="1" minW="140px" bg={useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.200", "green.700")}>
+            <Flex mt={3} gap={2} align="stretch" flexWrap="wrap">
+              <Box display="none" flex="1" minW="140px" bg={useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.200", "green.700")}>
                 <VStack align="start" spacing={0}>
                   <Text fontSize="10px" fontWeight="800" color={useColorModeValue("green.700", "green.400")} textTransform="uppercase">Applied to Bills:</Text>
                   <Text fontSize="sm" fontWeight="900" color={useColorModeValue("green.800", "green.200")}>{formatCurrency(summary.totalPaid || 0)}</Text>
                 </VStack>
               </Box>
 
-              <Box flex="1" minW="140px" bg={useColorModeValue("purple.50", "rgba(159, 122, 234, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("purple.200", "purple.700")}>
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="10px" fontWeight="800" color={useColorModeValue("purple.700", "purple.400")} textTransform="uppercase">Wallet Used:</Text>
-                  <Text fontSize="sm" fontWeight="900" color={useColorModeValue("purple.800", "purple.200")}>{formatCurrency(summary.totalPaidFromWallet || 0)}</Text>
-                </VStack>
-              </Box>
+              {paymentMode !== "transferred to wallet" && (
+                <Box flex="1" minW="140px" bg={useColorModeValue("purple.50", "rgba(159, 122, 234, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("purple.200", "purple.700")}>
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="10px" fontWeight="800" color={useColorModeValue("purple.700", "purple.400")} textTransform="uppercase">Wallet Used:</Text>
+                    <Text fontSize="sm" fontWeight="900" color={useColorModeValue("purple.800", "purple.200")}>{formatCurrency(summary.totalPaidFromWallet || 0)}</Text>
+                  </VStack>
+                </Box>
+              )}
 
               <Box flex="1" minW="140px" bg={useColorModeValue("blue.50", "rgba(66, 153, 225, 0.1)")} p={2} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("blue.200", "blue.700")}>
                 <VStack align="start" spacing={0}>
@@ -1071,13 +1136,66 @@ const GlobalAccountabilityPage = observer(() => {
                     </Td>
                     <Td>
                       {(() => {
-                        const history = Array.isArray(row.paymentHistory) ? row.paymentHistory : (row.paymentHistory ? [row.paymentHistory] : []);
-                        if (history.length === 0 || !history[history.length - 1].paymentMethod) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
-                        const mode = String(history[history.length - 1].paymentMethod).toUpperCase();
+                        let history = Array.isArray(row.paymentHistory) ? row.paymentHistory : (row.paymentHistory ? [row.paymentHistory] : []);
+                        
+                        // Filter history by selected date range
+                        if (fromDate && toDate) {
+                          const start = new Date(fromDate);
+                          start.setHours(0, 0, 0, 0);
+                          const end = new Date(toDate);
+                          end.setHours(23, 59, 59, 999);
+                          history = history.filter((p: any) => {
+                            if (!p.date) return false;
+                            const d = new Date(p.date);
+                            return d >= start && d <= end;
+                          });
+                        }
+
+                        if (history.length === 0) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
+                        
+                        let modesList: string[] = [];
+                        history.forEach((p: any) => {
+                          if (!p.paymentMethod) return;
+                          let m = String(p.paymentMethod).toUpperCase();
+                          if (m === "TRANSFERRED TO WALLET" && (p.amount || 0) > 0) {
+                            m = "WALLET"; 
+                          }
+                          if (!modesList.includes(m)) modesList.push(m);
+                        });
+                        
+                        if (modesList.length === 0) return <Text color="gray.400" fontSize="sm" fontWeight="bold">-</Text>;
+                        
+                        // Keep only the last badge as requested by the user
+                        modesList = [modesList[modesList.length - 1]];
+                        
                         return (
-                          <Badge variant="subtle" colorScheme={mode === 'CASH' ? 'green' : 'blue'} fontSize="10px" borderRadius="md" px={2.5} py={1} border="1px solid" borderColor={mode === 'CASH' ? 'green.200' : 'blue.200'}>
-                            {mode}
-                          </Badge>
+                          <VStack align="flex-start" spacing={1}>
+                            {modesList.map((mode: string, idx: number) => {
+                              let amountForMode = 0;
+                              if (mode === "WALLET") {
+                                amountForMode = history.filter((p: any) => 
+                                  String(p.paymentMethod).toUpperCase() === "WALLET" || 
+                                  (String(p.paymentMethod).toUpperCase() === "TRANSFERRED TO WALLET" && (p.amount || 0) > 0)
+                                ).reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                              } else if (mode === "TRANSFERRED TO WALLET") {
+                                amountForMode = history.filter((p: any) => 
+                                  String(p.paymentMethod).toUpperCase() === "TRANSFERRED TO WALLET" && (p.amount || 0) < 0
+                                ).reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                              } else {
+                                amountForMode = history.filter((p: any) => 
+                                  String(p.paymentMethod).toUpperCase() === mode
+                                ).reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+                              }
+                                
+                              if (amountForMode === 0 && mode === "TRANSFERRED TO WALLET") return null;
+
+                              return (
+                                <Badge key={idx} variant="subtle" colorScheme={mode === 'CASH' ? 'green' : 'blue'} fontSize="10px" borderRadius="md" px={2.5} py={1} border="1px solid" borderColor={mode === 'CASH' ? 'green.200' : 'blue.200'}>
+                                  {mode}{(mode === 'TRANSFERRED TO WALLET' || mode === 'WALLET') && amountForMode ? ` (₹${Math.abs(amountForMode)})` : ''}
+                                </Badge>
+                              );
+                            })}
+                          </VStack>
                         );
                       })()}
                     </Td>
@@ -1642,6 +1760,83 @@ const GlobalAccountabilityPage = observer(() => {
               }}
             >
               Confirm Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Monthly Patient Report Modal */}
+      <Modal isOpen={isMonthlyModalOpen} onClose={() => !isGeneratingMonthly && setIsMonthlyModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
+        <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.300" />
+        <ModalContent borderRadius="2xl" overflow="hidden" boxShadow="2xl" border="1px solid" borderColor={useColorModeValue("white", "gray.700")}>
+          <Box bgGradient="linear(to-r, blue.500, purple.500)" px={6} py={8} position="relative" overflow="hidden">
+            <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" bg="whiteAlpha.300" borderRadius="full" filter="blur(15px)" />
+            <Box position="absolute" bottom="-20px" left="-20px" w="80px" h="80px" bg="blackAlpha.200" borderRadius="full" filter="blur(15px)" />
+            <VStack align="start" spacing={1} position="relative" zIndex={1}>
+              <Text fontSize="xs" fontWeight="black" color="whiteAlpha.800" letterSpacing="0.1em" textTransform="uppercase">Report Generation</Text>
+              <Text fontSize="2xl" fontWeight="bold" color="white">Monthly Patient Report</Text>
+              <Text fontSize="sm" color="whiteAlpha.900" mt={2}>
+                Select a date range up to 1 month to generate a beautifully crafted grouped patient report.
+              </Text>
+            </VStack>
+          </Box>
+          <ModalCloseButton color="white" isDisabled={isGeneratingMonthly} top={4} right={4} />
+          
+          <ModalBody py={8} px={6} bg={useColorModeValue("white", "gray.800")}>
+            <VStack spacing={6}>
+              <Box w="100%">
+                <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={2} textTransform="uppercase">Start Date</Text>
+                <Input
+                  type="date"
+                  value={monthlyFromDate}
+                  onChange={(e: any) => setMonthlyFromDate(e.target.value)}
+                  size="lg"
+                  borderRadius="xl"
+                  bg={useColorModeValue("gray.50", "gray.700")}
+                  border="1px solid"
+                  borderColor={useColorModeValue("gray.200", "gray.600")}
+                  _hover={{ borderColor: "blue.400" }}
+                  _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+                />
+              </Box>
+              <Box w="100%">
+                <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={2} textTransform="uppercase">End Date</Text>
+                <Input
+                  type="date"
+                  value={monthlyToDate}
+                  onChange={(e: any) => setMonthlyToDate(e.target.value)}
+                  size="lg"
+                  borderRadius="xl"
+                  bg={useColorModeValue("gray.50", "gray.700")}
+                  border="1px solid"
+                  borderColor={useColorModeValue("gray.200", "gray.600")}
+                  _hover={{ borderColor: "blue.400" }}
+                  _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+                />
+              </Box>
+            </VStack>
+          </ModalBody>
+          
+          <ModalFooter bg={useColorModeValue("gray.50", "gray.800")} borderTop="1px solid" borderColor={borderColor} px={6} py={5}>
+            <Button variant="ghost" mr={3} onClick={() => setIsMonthlyModalOpen(false)} borderRadius="xl" isDisabled={isGeneratingMonthly} _hover={{ bg: useColorModeValue("gray.200", "gray.700") }}>
+              Cancel
+            </Button>
+            <Button
+              bgGradient="linear(to-r, blue.500, purple.500)"
+              color="white"
+              isLoading={isGeneratingMonthly}
+              onClick={handleGenerateMonthlyReport}
+              borderRadius="xl"
+              px={8}
+              _hover={{
+                bgGradient: "linear(to-r, blue.600, purple.600)",
+                transform: "translateY(-1px)",
+                boxShadow: "lg"
+              }}
+              _active={{ transform: "translateY(0)" }}
+              transition="all 0.2s"
+            >
+              Generate Report
             </Button>
           </ModalFooter>
         </ModalContent>
