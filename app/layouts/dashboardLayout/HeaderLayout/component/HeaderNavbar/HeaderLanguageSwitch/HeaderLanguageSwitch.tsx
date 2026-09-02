@@ -39,6 +39,11 @@ const HeaderLanguageSwitch = () => {
     { value: "ta", label: "Tamil", nativeLabel: "தமிழ்", shortLabel: "TA" },
     { value: "mr", label: "Marathi", nativeLabel: "मराठी", shortLabel: "MR" },
     { value: "te", label: "Telugu", nativeLabel: "తెలుగు", shortLabel: "TE" },
+    { value: "bn", label: "Bengali", nativeLabel: "বাংলা", shortLabel: "BN" },
+    { value: "or", label: "Odia", nativeLabel: "ଓଡ଼ିଆ", shortLabel: "OR" },
+    { value: "gu", label: "Gujarati", nativeLabel: "ગુજરાતી", shortLabel: "GU" },
+    { value: "kn", label: "Kannada", nativeLabel: "ಕನ್ನಡ", shortLabel: "KN" },
+    { value: "ml", label: "Malayalam", nativeLabel: "മലയാളം", shortLabel: "ML" },
   ];
 
   // Handle language change with typed parameter
@@ -65,9 +70,29 @@ const HeaderLanguageSwitch = () => {
       />
       <Portal>
         <MenuList
-          minWidth="260px"
+          minWidth="450px"
+          maxH="400px"
+          overflowY="auto"
+          display="grid"
+          gridTemplateColumns="1fr 1fr"
+          gap={2}
+          css={{
+            '&::-webkit-scrollbar': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#cbd5e1',
+              borderRadius: '24px',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              background: '#94a3b8',
+            },
+          }}
           boxShadow="xl"
-          p={2}
+          p={3}
           borderRadius="xl"
           bg={menuBgColor}
           zIndex={10}
@@ -81,8 +106,6 @@ const HeaderLanguageSwitch = () => {
                 onClick={() => handleLanguageChange(option.value)}
                 px={3}
                 py={2}
-                mb={1}
-                _last={{ mb: 0 }}
                 bg={isActive ? useColorModeValue("blue.50", "whiteAlpha.100") : "transparent"}
                 _hover={{ bg: menuHoverBgColor }}
                 _active={{ bg: menuActiveBgColor }}
