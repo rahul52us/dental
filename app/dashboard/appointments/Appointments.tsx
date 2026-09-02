@@ -497,7 +497,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
 
       {/* Add / Calendar Drawer */}
       <CustomDrawer
-        width={{ base: "100vw", md: "80vw", lg: "75vw" }}
+        width={{ base: "100vw", md: "90vw", lg: "90vw" }}
         open={openReportModal.open}
         close={() =>
           setOpenReportModal({

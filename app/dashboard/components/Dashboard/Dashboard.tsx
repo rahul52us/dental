@@ -160,8 +160,8 @@ const Dashboard = observer(() => {
 
   const dashboardData = [
     { label: t("dashboard.doctors"), value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors", show: stores.auth.hasPermission('doctor', 'view') },
-    { label: t("dashboard.patients"), value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients", show: stores.auth.hasPermission('patient', 'view') },
-    { label: t("dashboard.appointments"), value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments", show: stores.auth.hasPermission('appointment', 'view') },
+    { label: t("dashboard.patients"), value: count?.data?.patients || 0, icon: FaUserInjured, color: "green", href: "/dashboard/patients", show: stores.auth.hasPermission('patient', 'view') && !['staff', 'doctor'].includes(user?.userType?.toLowerCase()) },
+    { label: t("dashboard.appointments"), value: count?.data?.appointments || 0, icon: FaCalendarAlt, color: "purple", href: "/dashboard/appointments", show: stores.auth.hasPermission('appointment', 'view') && !['staff', 'doctor'].includes(user?.userType?.toLowerCase()) },
     { label: t("dashboard.staff"), value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs", show: stores.auth.hasPermission('staffs', 'view') },
     { label: t("dashboard.dealers"), value: count?.data?.dealers || 0, icon: FaStore, color: "blue", href: "/dashboard/dealers", show: stores.auth.hasPermission('masters', 'view') },
   ].filter(item => item.show !== false);

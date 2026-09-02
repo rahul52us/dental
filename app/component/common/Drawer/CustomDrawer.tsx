@@ -79,7 +79,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
         display="flex"
         flexDirection="column"
         bg={useColorModeValue("white", "darkBrand.50")}
-        borderLeftRadius={{ base: "none", md: "3xl" }}
+        // borderLeftRadius={{ base: "none", md: "3xl" }}
       >
         {/* 🔹 HEADER */}
         {title && (
@@ -100,7 +100,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
                 <Box>{title}</Box>
               )}
             </HStack>
-            
+
             <HStack spacing={2} align="center" flexShrink={0}>
               {extraActions && (
                 <Box mr={3}>
