@@ -5,6 +5,11 @@ import hiTranslations from '../locales/hi.json';
 import taTranslations from '../locales/ta.json';
 import mrTranslations from '../locales/mr.json';
 import teTranslations from '../locales/te.json';
+import bnTranslations from '../locales/bn.json';
+import orTranslations from '../locales/or.json';
+import guTranslations from '../locales/gu.json';
+import knTranslations from '../locales/kn.json';
+import mlTranslations from '../locales/ml.json';
 
 // Get default language from localStorage or default to 'en'
 const getDefaultLanguage = () => {
@@ -18,21 +23,16 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: {
-        translation: enTranslations
-      },
-      hi: {
-        translation: hiTranslations
-      },
-      ta: {
-        translation: taTranslations
-      },
-      mr: {
-        translation: mrTranslations
-      },
-      te: {
-        translation: teTranslations
-      }
+      en: { translation: enTranslations },
+      hi: { translation: hiTranslations },
+      ta: { translation: taTranslations },
+      mr: { translation: mrTranslations },
+      te: { translation: teTranslations },
+      bn: { translation: bnTranslations },
+      or: { translation: orTranslations },
+      gu: { translation: guTranslations },
+      kn: { translation: knTranslations },
+      ml: { translation: mlTranslations }
     },
     lng: getDefaultLanguage(),
     fallbackLng: 'en',
