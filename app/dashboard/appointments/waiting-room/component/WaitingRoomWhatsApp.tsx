@@ -42,7 +42,7 @@ import { MdOutlineAirlineSeatReclineExtra, MdLocalHospital } from "react-icons/m
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import stores from "../../../../store/stores";
-import { copyToClipboard } from "../../../../config/utils/function";
+import { copyToClipboard, replaceLabelValueObjects } from "../../../../config/utils/function";
 import { genderOptions } from "../../../../config/constant";
 import CustomDrawer from "../../../../component/common/Drawer/CustomDrawer";
 import AppointmentDetailsView from "../../element/AppointmentDetailsView";
@@ -1160,6 +1160,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
                         stores.userStore.updateUser({
                             ...values,
+                            ...(replaceLabelValueObjects(values) || {}),
                             mobileNumber: formData.phones.find((it: any) => it.primary === true)?.number || undefined,
                             username: formData.emails.find((it: any) => it.primary === true)?.email || undefined,
                             pic: formData?.pic,
