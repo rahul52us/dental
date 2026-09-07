@@ -92,6 +92,22 @@
     }
   },
   "patients": {
+    "table": {
+      "name": "Name",
+      "mobileNo": "Mobile No.",
+      "code": "Code",
+      "appointments": "Appointments",
+      "treatment": "Treatment",
+      "recall": "Recall",
+      "workDone": "Work Done",
+      "labWork": "Lab Work",
+      "account": "Account",
+      "wallet": "Wallet",
+      "documents": "Documents",
+      "oldRecords": "Old Records",
+      "oldData": "Old Data",
+      "actions": "Actions"
+    },
     "form": {
       "editPatient": "Edit Patient",
       "newPatient": "New Patient",
@@ -375,7 +391,8 @@
       "title": "Appointments",
       "subTitle": "Manage your appointments",
       "failedToGetAppointments": "Failed to get Appointments",
-      "failedToFetchStatus": "Failed to Fetch Appointments Status"
+      "failedToFetchStatus": "Failed to Fetch Appointments Status",
+      "downloadSchedule": "Download Schedule"
     },
     "table": {
       "patient": "Patient",

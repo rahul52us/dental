@@ -173,6 +173,22 @@
         "anyOtherCondition": "કોઈ અન્ય પરિસ્થિતિ?",
         "enterConditionDetails": "પરિસ્થિતિની વિગતો દાખલ કરો"
       }
+    },
+    "table": {
+      "name": "નામ",
+      "mobileNo": "મોબાઇલ નંબર",
+      "code": "કોડ",
+      "appointments": "એપોઇન્ટમેન્ટ્સ",
+      "treatment": "સારવાર",
+      "recall": "રિકોલ",
+      "workDone": "કરેલું કામ",
+      "labWork": "લેબ વર્ક",
+      "account": "ખાતું",
+      "wallet": "વોલેટ",
+      "documents": "દસ્તાવેજો",
+      "oldRecords": "જૂના રેકોર્ડ્સ",
+      "oldData": "જૂનો ડેટા",
+      "actions": "ક્રિયાઓ"
     }
   },
   "staffs": {
@@ -375,7 +391,8 @@
       "title": "મુલાકાતો",
       "subTitle": "તમારી મુલાકાતો મેનેજ કરો",
       "failedToGetAppointments": "મુલાકાતો મેળવવામાં નિષ્ફળ",
-      "failedToFetchStatus": "મુલાકાતોની સ્થિતિ મેળવવામાં નિષ્ફળ"
+      "failedToFetchStatus": "મુલાકાતોની સ્થિતિ મેળવવામાં નિષ્ફળ",
+      "downloadSchedule": "શેડ્યૂલ ડાઉનલોડ કરો"
     },
     "table": {
       "patient": "દર્દી",

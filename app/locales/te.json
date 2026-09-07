@@ -167,6 +167,22 @@
         "anyOtherCondition": "ఏదైనా ఇతర షరతు?",
         "enterConditionDetails": "పరిస్థితి వివరాలను నమోదు చేయండి"
       }
+    },
+    "table": {
+      "name": "పేరు",
+      "mobileNo": "మొబైల్ నంబర్",
+      "code": "కోడ్",
+      "appointments": "అపాయింట్‌మెంట్‌లు",
+      "treatment": "చికిత్స",
+      "recall": "రీకాల్",
+      "workDone": "పూర్తయిన పని",
+      "labWork": "ల్యాబ్ పని",
+      "account": "ఖాతా",
+      "wallet": "వాలెట్",
+      "documents": "పత్రాలు",
+      "oldRecords": "పాత రికార్డులు",
+      "oldData": "పాత డేటా",
+      "actions": "చర్యలు"
     }
   },
   "staffs": {
@@ -369,7 +385,8 @@
       "title": "నియామకాలు",
       "subTitle": "మీ అపాయింట్‌మెంట్‌లను నిర్వహించండి",
       "failedToGetAppointments": "అపాయింట్‌మెంట్‌లను పొందడంలో విఫలమైంది",
-      "failedToFetchStatus": "అపాయింట్‌మెంట్‌ల స్థితిని పొందడంలో విఫలమైంది"
+      "failedToFetchStatus": "అపాయింట్‌మెంట్‌ల స్థితిని పొందడంలో విఫలమైంది",
+      "downloadSchedule": "షెడ్యూల్ డౌన్‌లోడ్ చేయండి"
     },
     "table": {
       "patient": "రోగి",

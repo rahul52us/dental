@@ -90,6 +90,22 @@
     }
   },
   "patients": {
+    "table": {
+      "name": "नाम",
+      "mobileNo": "मोबाइल नंबर",
+      "code": "कोड",
+      "appointments": "अपॉइंटमेंट्स",
+      "treatment": "उपचार",
+      "recall": "रिकॉल",
+      "workDone": "किया गया काम",
+      "labWork": "लैब का काम",
+      "account": "खाता",
+      "wallet": "वॉलेट",
+      "documents": "दस्तावेज़",
+      "oldRecords": "पुराने रिकॉर्ड",
+      "oldData": "पुराना डेटा",
+      "actions": "कार्रवाइयां"
+    },
     "form": {
       "editPatient": "मरीज संपादित करें",
       "newPatient": "नया मरीज",
@@ -370,7 +386,8 @@
       "title": "नियुक्तियां",
       "subTitle": "अपनी नियुक्तियों का प्रबंधन करें",
       "failedToGetAppointments": "नियुक्तियां प्राप्त करने में विफल",
-      "failedToFetchStatus": "नियुक्ति की स्थिति प्राप्त करने में विफल"
+      "failedToFetchStatus": "नियुक्ति की स्थिति प्राप्त करने में विफल",
+      "downloadSchedule": "शेड्यूल डाउनलोड करें"
     },
     "table": {
       "patient": "रोगी",

@@ -12,12 +12,14 @@ import EditAppointmentForm from "../component/EditForm";
 import { SLOT_DURATION } from "../../daily-report/utils/constant";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import { FiDownload } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 const BookAppointmentPage = observer(() => {
     const {
         DoctorAppointment: { getDoctorAppointment },
         auth: { openNotification, userType, user },
     } = stores;
+    const { t, i18n } = useTranslation();
 
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [createdAppointmentByCalender, setCreatedAppointmentByCalender] = useState(false);
@@ -544,7 +546,7 @@ const BookAppointmentPage = observer(() => {
                 borderRadius="xl"
                 boxShadow="sm"
             >
-                <Heading size="lg" textAlign={{ base: "center", lg: "left" }}>Book Appointment</Heading>
+                <Heading size="lg" textAlign={{ base: "center", lg: "left" }}>{t("sidebar.Book Appointment", "Book Appointment")}</Heading>
                 <Flex direction={{ base: "column", sm: "row" }} align="center" gap={4} width={{ base: "100%", lg: "auto" }}>
                     {stores.auth.hasPermission('appointment', 'download') && (
                         <Button
@@ -560,7 +562,7 @@ const BookAppointmentPage = observer(() => {
                             _active={{ transform: "translateY(0)" }}
                             transition="all 0.2s"
                         >
-                            Download Schedule
+                            {t("appointments.page.downloadSchedule", "Download Schedule")}
                         </Button>
                     )}
                     <Flex align="center" justify="center" gap={3} width={{ base: "100%", sm: "auto" }}>
@@ -568,7 +570,7 @@ const BookAppointmentPage = observer(() => {
                             <ChevronLeftIcon fontSize={28} />
                         </Button>
                         <Text fontWeight="700" fontSize={{ base: "sm", sm: "lg" }} minW={{ base: "150px", sm: "220px" }} textAlign="center">
-                            {moment(selectedDate).format("ddd, DD MMM YYYY")}
+                            {moment(selectedDate).locale(i18n.language || "en").format("ddd, DD MMM YYYY")}
                         </Text>
                         <Button size="md" colorScheme="blue" onClick={goToNextDate} p={1}>
                             <ChevronRightIcon fontSize={28} />

@@ -173,6 +173,22 @@
         "anyOtherCondition": "ಬೇರೆ ಯಾವುದೇ ಅನಾರೋಗ್ಯವಿದೆಯೇ?",
         "enterConditionDetails": "ಅನಾರೋಗ್ಯದ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ"
       }
+    },
+    "table": {
+      "name": "ಹೆಸರು",
+      "mobileNo": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+      "code": "ಕೋಡ್",
+      "appointments": "ನೇಮಕಾತಿಗಳು",
+      "treatment": "ಚಿಕಿತ್ಸೆ",
+      "recall": "ಮರುಪಡೆಯಿರಿ",
+      "workDone": "ಮಾಡಿದ ಕೆಲಸ",
+      "labWork": "ಲ್ಯಾಬ್ ಕೆಲಸ",
+      "account": "ಖಾತೆ",
+      "wallet": "ವಾಲೆಟ್",
+      "documents": "ದಾಖಲೆಗಳು",
+      "oldRecords": "ಹಳೆಯ ದಾಖಲೆಗಳು",
+      "oldData": "ಹಳೆಯ ಡೇಟಾ",
+      "actions": "ಕ್ರಿಯೆಗಳು"
     }
   },
   "staffs": {
@@ -375,7 +391,8 @@
       "title": "ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳು",
       "subTitle": "ನಿಮ್ಮ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ",
       "failedToGetAppointments": "ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ",
-      "failedToFetchStatus": "ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ"
+      "failedToFetchStatus": "ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ",
+      "downloadSchedule": "ವೇಳಾಪಟ್ಟಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ"
     },
     "table": {
       "patient": "ರೋಗಿ",

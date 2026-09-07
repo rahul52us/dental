@@ -40,6 +40,7 @@ import AppointmentList from "../../../appointments/Appointments";
 import ViewDoctor from "./ViewPatient";
 import Treatment from "../../../toothTreatment/page";
 import RecallAppointmentList from "../../../recall-appointment/component/recallAppointmentTable/RecallTable";
+import { useTranslation } from "react-i18next";
 
 const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const {
@@ -47,6 +48,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     auth: { openNotification },
     oldDataStore,
   } = stores;
+  const { t } = useTranslation();
 
   const [openAppointmentDetails, setOpenAppointmentDetails] = useState({
     open: false,
@@ -173,7 +175,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const PatientTableColumns = [
     {
-      headerName: "Name",
+      headerName: t("patients.table.name", "Name"),
       key: "gender",
       type: "component",
       metaData: {
@@ -207,7 +209,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Mobile No.",
+      headerName: t("patients.table.mobileNo", "Mobile No."),
       key: "mobile",
       type: "component",
       metaData: {
@@ -233,13 +235,13 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 140, textAlign: "center" } },
     },
     {
-      headerName: "Code",
+      headerName: t("patients.table.code", "Code"),
       key: "code",
       type: "text",
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
-      headerName: "Appointments",
+      headerName: t("patients.table.appointments", "Appointments"),
       key: "appointments",
       type: "component",
       metaData: {
@@ -269,7 +271,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 130, textAlign: "center" } },
     },
     {
-      headerName: "Treatment",
+      headerName: t("patients.table.treatment", "Treatment"),
       key: "treatment",
       type: "component",
       metaData: {
@@ -299,7 +301,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Recall",
+      headerName: t("patients.table.recall", "Recall"),
       key: "recall",
       type: "component",
       metaData: {
@@ -330,7 +332,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     },
 
     {
-      headerName: "Work Done",
+      headerName: t("patients.table.workDone", "Work Done"),
       key: "history",
       type: "component",
       metaData: {
@@ -355,7 +357,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
-      headerName: "Lab Work",
+      headerName: t("patients.table.labWork", "Lab Work"),
       key: "labSheet",
       type: "component",
       metaData: {
@@ -379,7 +381,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
-      headerName: "Account",
+      headerName: t("patients.table.account", "Account"),
       key: "account",
       type: "component",
       metaData: {
@@ -403,7 +405,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
-      headerName: "Wallet",
+      headerName: t("patients.table.wallet", "Wallet"),
       key: "wallet",
       type: "component",
       metaData: {
@@ -431,7 +433,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
-      headerName: "Documents",
+      headerName: t("patients.table.documents", "Documents"),
       key: "documents",
       type: "component",
       metaData: {
@@ -456,7 +458,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 100, textAlign: "center" } },
     },
     {
-      headerName: "Old Records",
+      headerName: t("patients.table.oldRecords", "Old Records"),
       key: "legacyHistory",
       type: "component",
       metaData: {
@@ -481,7 +483,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Old Data",
+      headerName: t("patients.table.oldData", "Old Data"),
       key: "importedOldData",
       type: "component",
       metaData: {
@@ -506,7 +508,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       props: { row: { minW: 120, textAlign: "center" } },
     },
     {
-      headerName: "Actions",
+      headerName: t("patients.table.actions", "Actions"),
       key: "table-actions",
       type: "table-actions",
       props: { row: { minW: 180, textAlign: "center" } },
@@ -527,7 +529,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     <>
       <Box p={{ base: 2, md: 4 }} overflowX="auto" maxW="100vw">
         <CustomTable
-          title="Patients"
+          title={t("sidebar.Patients", "Patients")}
           data={
             user.data?.map((patient: any, index: number) => {
               const { references, ...personalInfoRest } = patient.profileDetails?.personalInfo || {};

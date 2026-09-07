@@ -89,6 +89,22 @@
     }
   },
   "patients": {
+    "table": {
+      "name": "பெயர்",
+      "mobileNo": "மொபைல் எண்",
+      "code": "குறியீடு",
+      "appointments": "நியமனங்கள்",
+      "treatment": "சிகிச்சை",
+      "recall": "நினைவுகூர்க",
+      "workDone": "செய்த வேலை",
+      "labWork": "ஆய்வக வேலை",
+      "account": "கணக்கு",
+      "wallet": "பணப்பை",
+      "documents": "ஆவணங்கள்",
+      "oldRecords": "பழைய பதிவுகள்",
+      "oldData": "பழைய தரவு",
+      "actions": "செயல்கள்"
+    },
     "form": {
       "editPatient": "நோயாளியைத் திருத்தவும்",
       "newPatient": "புதிய நோயாளி",
@@ -369,7 +385,8 @@
       "title": "நியமனங்கள்",
       "subTitle": "உங்கள் சந்திப்புகளை நிர்வகிக்கவும்",
       "failedToGetAppointments": "அப்பாயிண்ட்மெண்ட்களைப் பெற முடியவில்லை",
-      "failedToFetchStatus": "அப்பாயிண்ட்மெண்ட்ஸ் நிலையைப் பெறுவதில் தோல்வி"
+      "failedToFetchStatus": "அப்பாயிண்ட்மெண்ட்ஸ் நிலையைப் பெறுவதில் தோல்வி",
+      "downloadSchedule": "அட்டவணையைப் பதிவிறக்குக"
     },
     "table": {
       "patient": "நோயாளி",

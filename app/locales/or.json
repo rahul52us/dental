@@ -173,6 +173,22 @@
         "anyOtherCondition": "ଅନ୍ୟ କୌଣସି ରୋଗ ଅଛି କି?",
         "enterConditionDetails": "ରୋଗର ବିବରଣୀ ଦିଅନ୍ତୁ"
       }
+    },
+    "table": {
+      "name": "ନାମ",
+      "mobileNo": "ମୋବାଇଲ୍ ନମ୍ବର",
+      "code": "କୋଡ୍",
+      "appointments": "ଆପଏଣ୍ଟମେଣ୍ଟ",
+      "treatment": "ଚିକିତ୍ସା",
+      "recall": "ରିକଲ୍",
+      "workDone": "କରାଯାଇଥିବା କାମ",
+      "labWork": "ଲ୍ୟାବ୍ କାମ",
+      "account": "ଆକାଉଣ୍ଟ୍",
+      "wallet": "ୱାଲେଟ୍",
+      "documents": "ଡକ୍ୟୁମେଣ୍ଟ୍",
+      "oldRecords": "ପୁରୁଣା ରେକର୍ଡ",
+      "oldData": "ପୁରୁଣା ଡାଟା",
+      "actions": "କାର୍ଯ୍ୟ"
     }
   },
   "staffs": {
@@ -375,7 +391,8 @@
       "title": "ଆପଏଣ୍ଟମେଣ୍ଟଗୁଡ଼ିକ",
       "subTitle": "ଆପଣଙ୍କ ଆପଏଣ୍ଟମେଣ୍ଟ ପରିଚାଳନା କରନ୍ତୁ",
       "failedToGetAppointments": "ଆପଏଣ୍ଟମେଣ୍ଟ ପାଇବାରେ ବିଫଳ",
-      "failedToFetchStatus": "ଆପଏଣ୍ଟମେଣ୍ଟ ସ୍ଥିତି ପାଇବାରେ ବିଫଳ"
+      "failedToFetchStatus": "ଆପଏଣ୍ଟମେଣ୍ଟ ସ୍ଥିତି ପାଇବାରେ ବିଫଳ",
+      "downloadSchedule": "ସିଡ୍ୟୁଲ୍ ଡାଉନଲୋଡ୍ କରନ୍ତୁ"
     },
     "table": {
       "patient": "ରୋଗୀ",

@@ -167,6 +167,22 @@
         "anyOtherCondition": "इतर कोणतीही अट?",
         "enterConditionDetails": "स्थिती तपशील प्रविष्ट करा"
       }
+    },
+    "table": {
+      "name": "नाव",
+      "mobileNo": "मोबाईल क्रमांक",
+      "code": "कोड",
+      "appointments": "अपॉइंटमेंट्स",
+      "treatment": "उपचार",
+      "recall": "रिकॉल",
+      "workDone": "केलेले काम",
+      "labWork": "लॅबचे काम",
+      "account": "खाते",
+      "wallet": "पाकीट",
+      "documents": "कागदपत्रे",
+      "oldRecords": "जुने रेकॉर्ड",
+      "oldData": "जुना डेटा",
+      "actions": "कृती"
     }
   },
   "staffs": {
@@ -369,7 +385,8 @@
       "title": "भेटी",
       "subTitle": "तुमच्या भेटी व्यवस्थापित करा",
       "failedToGetAppointments": "अपॉइंटमेंट मिळवण्यात अयशस्वी",
-      "failedToFetchStatus": "भेटीची स्थिती आणण्यात अयशस्वी"
+      "failedToFetchStatus": "भेटीची स्थिती आणण्यात अयशस्वी",
+      "downloadSchedule": "शेड्यूल डाउनलोड करा"
     },
     "table": {
       "patient": "पेशंट",

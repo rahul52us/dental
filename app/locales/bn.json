@@ -173,6 +173,22 @@
         "anyOtherCondition": "অন্য কোনো শারীরিক সমস্যা?",
         "enterConditionDetails": "শারীরিক সমস্যার বিবরণ লিখুন"
       }
+    },
+    "table": {
+      "name": "নাম",
+      "mobileNo": "মোবাইল নম্বর",
+      "code": "কোড",
+      "appointments": "অ্যাপয়েন্টমেন্ট",
+      "treatment": "চিকিত্সা",
+      "recall": "রিকল",
+      "workDone": "করা কাজ",
+      "labWork": "ল্যাব কাজ",
+      "account": "অ্যাকাউন্ট",
+      "wallet": "ওয়ালেট",
+      "documents": "নথি",
+      "oldRecords": "পুরনো রেকর্ড",
+      "oldData": "পুরনো ডেটা",
+      "actions": "কাজ"
     }
   },
   "staffs": {
@@ -375,7 +391,8 @@
       "title": "অ্যাপয়েন্টমেন্টসমূহ",
       "subTitle": "আপনার অ্যাপয়েন্টমেন্ট পরিচালনা করুন",
       "failedToGetAppointments": "অ্যাপয়েন্টমেন্ট আনতে ব্যর্থ",
-      "failedToFetchStatus": "অ্যাপয়েন্টমেন্টের স্ট্যাটাস আনতে ব্যর্থ"
+      "failedToFetchStatus": "অ্যাপয়েন্টমেন্টের স্ট্যাটাস আনতে ব্যর্থ",
+      "downloadSchedule": "সময়সূচী ডাউনলোড করুন"
     },
     "table": {
       "patient": "রোগী",
