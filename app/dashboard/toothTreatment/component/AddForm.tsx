@@ -373,6 +373,7 @@ const AddAppointmentForm = observer(
                           }
                           error={errors.primaryDoctor as string}
                           showError={touched.primaryDoctor}
+                          isClear={true}
                           query={{ type: "doctor" }}
                         />
                       </Grid>

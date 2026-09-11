@@ -61,19 +61,19 @@ import WalletHistoryDrawer from "../../component/WalletHistoryDrawer";
 import { toJS } from "mobx";
 
 const ALL_PRINT_COLUMNS = [
-  { key: "date", label: "Billing Date" },
+  { key: "date", label: "Bill Date" },
   { key: "receiptNumber", label: "Receipt No." },
   { key: "patient", label: "Patient" },
   { key: "tooth", label: "Tooth" },
   { key: "treatmentCode", label: "Treatment Code" },
   { key: "treatment", label: "Treatment" },
   { key: "doctor", label: "Doctor" },
-  { key: "walletBalance", label: "Wallet Balance" },
   { key: "fees", label: "Fees" },
+  { key: "discount", label: "Discount" },
   { key: "paid", label: "Txn Paid" },
   { key: "lastPaid", label: "Payment Date" },
   { key: "due", label: "Due" },
-  { key: "overpay", label: "Advance" },
+  { key: "walletBalance", label: "Wallet" },
   { key: "paymentMode", label: "Payment Mode" },
   { key: "status", label: "Status" }
 ];
@@ -877,12 +877,13 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">RECEIPT NO.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="220px" whiteSpace="nowrap">PATIENT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap" isNumeric>WALLET BAL.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap" isNumeric>DISCOUNT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">Pay Date</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>BALANCE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap" isNumeric>WALLET</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
                 <Th display="none" color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="90px" whiteSpace="nowrap">TOOTH</Th>
@@ -971,11 +972,6 @@ const GlobalAccountabilityPage = observer(() => {
                       </HStack>
                     </Td>
                     <Td isNumeric>
-                      <Text fontWeight="900" color={useColorModeValue("purple.600", "purple.300")} fontSize="sm">
-                        {formatCurrency(row.patientInfo?.walletBalance || 0)}
-                      </Text>
-                    </Td>
-                    <Td isNumeric>
                       <HStack justify="flex-end" spacing={2} minW="130px">
                         <Box px={3} py={1} bg={useColorModeValue("yellow.50", "yellow.900")} borderRadius="xl" display="inline-flex" alignItems="center" border="1px solid" borderColor={useColorModeValue("yellow.200", "yellow.700")} justifyContent="center">
                           <VStack spacing={0} align="end">
@@ -1006,6 +1002,11 @@ const GlobalAccountabilityPage = observer(() => {
                           </Tooltip>
                         )}
                       </HStack>
+                    </Td>
+                    <Td isNumeric>
+                      <Text fontWeight="900" color={useColorModeValue("red.500", "red.300")} fontSize="sm">
+                        {row.discount > 0 ? formatCurrency(row.discount) : "-"}
+                      </Text>
                     </Td>
                     <Td isNumeric>
                       <HStack justify="flex-end" spacing={2}>
@@ -1133,6 +1134,11 @@ const GlobalAccountabilityPage = observer(() => {
                           </Tooltip>
                         )}
                       </HStack>
+                    </Td>
+                    <Td isNumeric>
+                      <Text fontWeight="900" color={useColorModeValue("purple.600", "purple.300")} fontSize="sm">
+                        {formatCurrency(row.patientInfo?.walletBalance || 0)}
+                      </Text>
                     </Td>
                     <Td>
                       {(() => {

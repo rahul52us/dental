@@ -532,6 +532,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   query={{ type: 'doctor' }}
                                   value={values.doctor}
                                   onChange={(val: any) => setFieldValue("doctor", val)}
+                                  isClear={true}
                                   style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
                                   placeholder="Select Treating Dr."
                                 />
@@ -544,6 +545,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   query={{ type: 'doctor' }}
                                   value={values.examiningDoctor}
                                   onChange={(val: any) => setFieldValue("examiningDoctor", val)}
+                                  isClear={true}
                                   style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
                                   placeholder="Select Examining Dr."
                                 />
@@ -724,6 +726,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               query={{ type: 'doctor' }}
                               value={values.doctor}
                               onChange={(val: any) => setFieldValue("doctor", val)}
+                              isClear={true}
                               style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
                               placeholder="Select Treating Dr."
                             />
@@ -736,6 +739,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               query={{ type: 'doctor' }}
                               value={values.examiningDoctor}
                               onChange={(val: any) => setFieldValue("examiningDoctor", val)}
+                              isClear={true}
                               style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
                               placeholder="Select Examining Dr."
                             />

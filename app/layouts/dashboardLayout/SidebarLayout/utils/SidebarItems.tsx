@@ -275,49 +275,7 @@ const sidebarDatas: SidebarItem[] = [
     url: "/dashboard/global-accountability",
     role: ["admin", "superAdmin", "staff","doctor"],
     permission: { module: "globalAccountability", action: "sidebar" },
-  },
-  {
-    id: 43,
-    name: "Historical Records",
-    icon: <FaClipboardList />,
-    url: "#",
-    role: ["superAdmin", "patient", "doctor", "admin", "staff"],
-    permission: { module: "historicalRecords", action: "sidebar" },
-    children: [
-      {
-        id: 44,
-        name: "Work Done",
-        icon: <FaClipboardList />,
-        url: "/dashboard/old-data/work-done",
-        role: ["superAdmin", "patient", "doctor", "admin", "staff"],
-        permission: { module: "historicalRecords", action: "sidebar" },
-      },
-      {
-        id: 45,
-        name: "Tooth Work",
-        icon: <FaClipboardList />,
-        url: "/dashboard/old-data/tooth-work",
-        role: ["superAdmin", "patient", "doctor", "admin", "staff"],
-        permission: { module: "historicalRecords", action: "sidebar" },
-      },
-      {
-        id: 46,
-        name: "Transactions",
-        icon: <FaClipboardList />,
-        url: "/dashboard/old-data/transactions",
-        role: ["superAdmin", "patient", "doctor", "admin", "staff"],
-        permission: { module: "historicalRecords", action: "sidebar" },
-      },
-      {
-        id: 47,
-        name: "Fees",
-        icon: <FaClipboardList />,
-        url: "/dashboard/old-data/fees",
-        role: ["superAdmin", "patient", "doctor", "admin", "staff"],
-        permission: { module: "historicalRecords", action: "sidebar" },
-      },
-    ],
-  },
+  }
 ];
 
 export const sidebarFooterData: SidebarItem[] = [

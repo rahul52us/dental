@@ -34,7 +34,6 @@ export const MODULES = [
   { id: "patient_documents", label: "Patient Documents", icon: FiFileText, color: "cyan", category: "Clinical", keys: ["view", "create", "delete", "sidebar"] },
   { id: "treatment", label: "Treatments", icon: FiActivity, color: "teal", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
   { id: "workdone", label: "Work Done / Clinical Records", icon: FiActivity, color: "green", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "print", "sidebar"] },
-  { id: "historicalRecords", label: "Historical Records", icon: FiFileText, color: "gray", category: "Admin", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "doctor", label: "Doctor Management", icon: FiUserCheck, color: "teal", category: "Clinical", keys: ["view", "create", "edit", "delete", "sidebar"] },
   { id: "appointment", label: "Appointments", icon: FiCalendar, color: "purple", category: "Clinical", keys: ["view", "create", "edit", "delete", "download", "sidebar"] },
   { id: "recall", label: "Recalls", icon: FiRefreshCw, color: "orange", category: "Clinical", keys: ["view", "create", "edit", "delete", "sidebar"] },

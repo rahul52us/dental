@@ -37,7 +37,7 @@ const Login = observer(() => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    loginType: "email", // username | email | code
+    loginType: "code", // username | email | code
   });
 
   const [isLoading, setIsLoading] = useState(false);

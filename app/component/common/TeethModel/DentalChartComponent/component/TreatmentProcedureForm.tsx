@@ -651,6 +651,7 @@ export const TreatmentProcedureForm = observer(
                                     }
                                 }}
                                 style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                isClear={true}
                             />
                         </VStack>
 
@@ -670,6 +671,7 @@ export const TreatmentProcedureForm = observer(
                                     }
                                 }}
                                 style={{ height: '50px', borderRadius: '16px', fontSize: '14px', width: '100%' }}
+                                isClear={true}
                             />
                         </VStack>
 
