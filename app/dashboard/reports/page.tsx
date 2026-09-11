@@ -28,6 +28,7 @@ import {
   RiTeamLine,
   RiFlaskLine,
   RiEyeLine,
+  RiHealthBookLine,
 } from "react-icons/ri";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 
@@ -35,7 +36,7 @@ import CustomInput from "../../component/config/component/customInput/CustomInpu
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
 
-type ReportTab = "patient" | "doctor" | "appointment" | "recall" | "staff" | "labWork";
+type ReportTab = "patient" | "doctor" | "appointment" | "recall" | "staff" | "labWork" | "workDone" | "treatment";
 
 const REPORT_TABS: {
   label: string;
@@ -43,16 +44,18 @@ const REPORT_TABS: {
   colorScheme: string;
   icon: React.ElementType;
 }[] = [
-    { label: "Patient", value: "patient", colorScheme: "teal", icon: RiUser3Line },
-    { label: "Doctor", value: "doctor", colorScheme: "blue", icon: RiStethoscopeLine },
-    { label: "Staff", value: "staff", colorScheme: "green", icon: RiTeamLine },
-    { label: "Appointment", value: "appointment", colorScheme: "purple", icon: RiCalendarTodoLine },
-    { label: "Recall", value: "recall", colorScheme: "orange", icon: RiNotification4Line },
-    { label: "Lab Work", value: "labWork", colorScheme: "cyan", icon: RiFlaskLine },
+    // { label: "Patient", value: "patient", colorScheme: "teal", icon: RiUser3Line },
+    // { label: "Doctor", value: "doctor", colorScheme: "blue", icon: RiStethoscopeLine },
+    // { label: "Staff", value: "staff", colorScheme: "green", icon: RiTeamLine },
+    // { label: "Appointment", value: "appointment", colorScheme: "purple", icon: RiCalendarTodoLine },
+    // { label: "Recall", value: "recall", colorScheme: "orange", icon: RiNotification4Line },
+    // { label: "Lab Work", value: "labWork", colorScheme: "cyan", icon: RiFlaskLine },
+    { label: "Work Done", value: "workDone", colorScheme: "teal", icon: RiCalendar2Line },
+    { label: "Treatment", value: "treatment", colorScheme: "purple", icon: RiHealthBookLine },
   ];
 
 const ReportsPage = observer(() => {
-  const { reportStore: { getReportDownload }, workDoneStore, auth } = stores;
+  const { reportStore: { getReportDownload }, workDoneStore, toothTreatmentStore, auth } = stores;
   const [activeTab, setActiveTab] = useState<ReportTab>("patient");
 
   // Searchable entities
@@ -66,6 +69,8 @@ const ReportsPage = observer(() => {
     recall: { status: "" },
     staff: { role: "all" },
     labWork: { workType: "all", dateType: "sendDate", status: "all" },
+    workDone: { status: "all" },
+    treatment: { status: "all" },
   });
 
   const [isPDFDownloading, setIsPDFDownloading] = useState(false);
@@ -78,7 +83,7 @@ const ReportsPage = observer(() => {
   // Persist active tab
   useEffect(() => {
     const saved = localStorage.getItem("activeReportTab");
-    if (saved && ["patient", "doctor", "appointment", "recall", "staff", "labWork"].includes(saved)) {
+    if (saved && ["patient", "doctor", "appointment", "recall", "staff", "labWork", "workDone", "treatment"].includes(saved)) {
       setActiveTab(saved as ReportTab);
     }
   }, []);
@@ -88,7 +93,7 @@ const ReportsPage = observer(() => {
   }, [activeTab]);
 
   const visibleTabs = REPORT_TABS.filter(tab => {
-    const moduleKey = tab.value === 'staff' ? 'staffs' : (tab.value === 'labWork' ? 'lab' : tab.value);
+    const moduleKey = tab.value === 'staff' ? 'staffs' : (tab.value === 'labWork' ? 'lab' : (tab.value === 'workDone' || tab.value === 'treatment' ? 'appointment' : tab.value));
     return stores.auth.hasPermission(moduleKey, 'view');
   });
 
@@ -223,7 +228,7 @@ const ReportsPage = observer(() => {
         fromDate: filters.doctor.fromDate,
         toDate: filters.doctor.toDate,
       };
-      
+
       const base64 = await workDoneStore.fetchDoctorReportBase64(filtersData);
       setPreviewData(base64);
       setPreviewFileName(`Doctor_Performance_${selectedDoctor.name || 'Report'}.pdf`);
@@ -235,7 +240,51 @@ const ReportsPage = observer(() => {
     }
   };
 
-  const activeTabConfig = REPORT_TABS.find((t) => t.value === activeTab)!;
+  const handleWorkDonePDFDownload = async () => {
+    setIsPDFDownloading(true);
+    try {
+      const filtersData = {
+        fromDate: filters.workDone.fromDate,
+        toDate: filters.workDone.toDate,
+        ...(filters.workDone.status !== 'all' ? { status: filters.workDone.status } : {})
+      };
+
+      const res = await workDoneStore.fetchGlobalFilteredTablePDFBase64(filtersData);
+      if (res?.data) {
+        setPreviewData(res.data);
+        setPreviewFileName(`Global_WorkDone_Report_${new Date().toISOString().split("T")[0]}.pdf`);
+        setIsPreviewOpen(true);
+      }
+    } catch (err: any) {
+      toast({ title: "Preview Error", description: err.message || "Failed to fetch PDF", status: "error" });
+    } finally {
+      setIsPDFDownloading(false);
+    }
+  };
+
+  const handleTreatmentPDFDownload = async () => {
+    setIsPDFDownloading(true);
+    try {
+      const filtersData = {
+        fromDate: filters.treatment.fromDate,
+        toDate: filters.treatment.toDate,
+        ...(filters.treatment.status !== 'all' ? { status: filters.treatment.status } : {})
+      };
+
+      const base64 = await toothTreatmentStore.fetchGlobalFilteredTreatmentPDFBase64(filtersData);
+      if (base64) {
+        setPreviewData(base64);
+        setPreviewFileName(`Global_Treatment_Report_${new Date().toISOString().split("T")[0]}.pdf`);
+        setIsPreviewOpen(true);
+      }
+    } catch (err: any) {
+      toast({ title: "Preview Error", description: err.message || "Failed to fetch PDF", status: "error" });
+    } finally {
+      setIsPDFDownloading(false);
+    }
+  };
+
+  const activeTabConfig = REPORT_TABS.find((t) => t.value === activeTab) || REPORT_TABS[0];
   const bgPage = useColorModeValue("gray.50", "gray.900");
   const bgCard = useColorModeValue("white", "gray.800");
   const textSecondary = useColorModeValue("gray.600", "gray.400");
@@ -366,7 +415,7 @@ const ReportsPage = observer(() => {
           </Box>
 
           {/* Stats Placeholder */}
-          <Box px={{ base: 8, md: 12 }} py={8} bg={useColorModeValue("gray.50", "gray.700")}>
+          <Box display="none" px={{ base: 8, md: 12 }} py={8} bg={useColorModeValue("gray.50", "gray.700")}>
             <StatGroup gap={8} justifyContent="center">
               <Stat textAlign="center">
                 <StatLabel fontSize="lg" color={textSecondary}>Total Records</StatLabel>
@@ -635,6 +684,40 @@ const ReportsPage = observer(() => {
                     />
                   </>
                 )}
+
+                {activeTab === "workDone" && (
+                  <CustomInput
+                    name="status"
+                    type="select"
+                    label="Status"
+                    placeholder="All status"
+                    options={[
+                      { label: "All Status", value: "all" },
+                      { label: "Complete", value: "complete" },
+                      { label: "Pending", value: "pending" },
+                      { label: "Incomplete", value: "incomplete" },
+                    ]}
+                    value={filters.workDone.status || "all"}
+                    onChange={(val: any) => handleChange("workDone", "status", val?.value || "all")}
+                  />
+                )}
+
+                {activeTab === "treatment" && (
+                  <CustomInput
+                    name="status"
+                    type="select"
+                    label="Status"
+                    placeholder="All status"
+                    options={[
+                      { label: "All Status", value: "all" },
+                      { label: "Complete", value: "complete" },
+                      { label: "Pending", value: "pending" },
+                      { label: "Incomplete", value: "incomplete" },
+                    ]}
+                    value={filters.treatment.status || "all"}
+                    onChange={(val: any) => handleChange("treatment", "status", val?.value || "all")}
+                  />
+                )}
               </SimpleGrid>
             </Box>
           </Box>
@@ -667,31 +750,67 @@ const ReportsPage = observer(() => {
                         >
                           View PDF Performance
                         </Button>
-                    )}
-                    <Button
-                      size="xl"
-                      colorScheme={activeTabConfig.colorScheme}
-                      rightIcon={<RiDownload2Line size={28} />}
-                      px={12}
-                      py={8}
-                      fontSize="xl"
-                      fontWeight="extrabold"
-                      borderRadius="full"
-                      boxShadow="0 20px 40px rgba(0,0,0,0.15)"
-                      _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
-                      isDisabled={isDownloadDisabled()}
-                      isLoading={isDownloading}
-                      loadingText="Generating..."
-                      onClick={handleDownload}
-                    >
-                      Download Excel Report
-                    </Button>
-                  </>
-                )}
-              </HStack>
-            </Flex>
+                      )}
+                      {activeTab === "workDone" && (
+                          <Button
+                            size="xl"
+                            colorScheme="red"
+                            variant="outline"
+                            leftIcon={<RiEyeLine size={24} />}
+                            px={10}
+                            py={8}
+                            fontSize="lg"
+                            fontWeight="bold"
+                            borderRadius="full"
+                            isLoading={isPDFDownloading}
+                            onClick={handleWorkDonePDFDownload}
+                          >
+                            View WorkDone PDF
+                          </Button>
+                      )}
+                      {activeTab === "treatment" && (
+                          <Button
+                            size="xl"
+                            colorScheme="purple"
+                            variant="outline"
+                            leftIcon={<RiEyeLine size={24} />}
+                            px={10}
+                            py={8}
+                            fontSize="lg"
+                            fontWeight="bold"
+                            borderRadius="full"
+                            isLoading={isPDFDownloading}
+                            onClick={handleTreatmentPDFDownload}
+                          >
+                            View Treatment PDF
+                          </Button>
+                      )}
+                      {activeTab !== "doctor" && activeTab !== "workDone" && activeTab !== "treatment" && (
+                        <Button
+                          size="xl"
+                          colorScheme={activeTabConfig.colorScheme}
+                          rightIcon={<RiDownload2Line size={28} />}
+                          px={12}
+                          py={8}
+                          fontSize="xl"
+                          fontWeight="extrabold"
+                          borderRadius="full"
+                          boxShadow="0 20px 40px rgba(0,0,0,0.15)"
+                          _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
+                          isDisabled={isDownloadDisabled()}
+                          isLoading={isDownloading}
+                          loadingText="Generating..."
+                          onClick={handleDownload}
+                        >
+                          Download Excel Report
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </HStack>
+              </Flex>
+            </Box>
           </Box>
-        </Box>
 
         {/* Pulse Animation */}
         <style jsx global>{`

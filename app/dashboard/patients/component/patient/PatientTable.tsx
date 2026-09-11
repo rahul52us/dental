@@ -457,31 +457,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
       },
       props: { row: { minW: 100, textAlign: "center" } },
     },
-    {
-      headerName: t("patients.table.oldRecords", "Old Records"),
-      key: "legacyHistory",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Tooltip label="Legacy Historical Records" hasArrow borderRadius="xl">
-            <IconButton
-              aria-label="Old Records"
-              icon={<FaHistory />}
-              colorScheme="orange"
-              bg={useColorModeValue("orange.50", "orange.900")}
-              color={useColorModeValue("orange.600", "orange.300")}
-              _hover={{ bg: "orange.600", color: "white", transform: "translateY(-2px)", shadow: "lg" }}
-              variant="ghost"
-              size="md"
-              borderRadius="2xl"
-              transition="all 0.3s"
-              onClick={() => handleOpenHistoryDrawer(dt)}
-            />
-          </Tooltip>
-        ),
-      },
-      props: { row: { minW: 120, textAlign: "center" } },
-    },
+
     {
       headerName: t("patients.table.oldData", "Old Data"),
       key: "importedOldData",

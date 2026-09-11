@@ -365,8 +365,42 @@ class ToothTreatmentStore {
     try {
       const response = await axios.get(`/toothTreatment/generate-filtered-table-pdf/${patientId}`, { params });
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Error generating report");
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
+  fetchGlobalFilteredTreatmentPDFBase64 = async (sendData: { fromDate?: string; toDate?: string; status?: string }) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      
+      const params = {
+        ...sendData,
+        company: compId,
+      };
+
+      const { data } = await axios.get("/toothTreatment/generate-global-filtered-table-pdf", { 
+        params,
+        responseType: 'blob' 
+      });
+
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            const base64data = reader.result.split(',')[1];
+            resolve(base64data);
+          } else {
+            reject(new Error("Failed to read blob as base64"));
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(data);
+      });
+    } catch (err: any) {
+      console.error("Error generating global filtered treatment PDF:", err);
+      return Promise.reject(err);
     }
   };
 }

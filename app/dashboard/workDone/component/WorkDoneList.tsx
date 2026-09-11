@@ -1067,7 +1067,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 <Box mt={4} p={4} bg="gray.50" borderRadius="xl" border="1px solid" borderColor="gray.100">
                   <HStack spacing={2} mb={1}>
                     <Icon as={FiActivity} color="blue.500" fontSize="13px" />
-                    <Text fontSize="10px" fontWeight="1000" color="gray.700" letterSpacing="0.08em">PROCEDURE</Text>
+                    <Text fontSize="10px" fontWeight="1000" color="gray.700" letterSpacing="0.08em">TREATMENT CODE</Text>
                   </HStack>
                   <Text fontSize="14px" fontWeight="800" color="gray.800" pl={5}>
                     {record.treatmentCode || "General Procedure"}

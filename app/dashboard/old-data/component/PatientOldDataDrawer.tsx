@@ -50,7 +50,17 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
     {
       headerName: "Work Date",
       key: "Work_Date",
-      type: "text",
+      type: "component",
+      metaData: {
+        component: (dt: any) => {
+          if (!dt.Work_Date) return <Text color="gray.400">--</Text>;
+          const parts = dt.Work_Date.split('-');
+          if (parts.length === 3) {
+            return <Text>{`${parts[2]}-${parts[1]}-${parts[0]}`}</Text>;
+          }
+          return <Text>{dt.Work_Date}</Text>;
+        }
+      },
       props: { row: { minW: 110 } },
     },
     {
@@ -205,15 +215,22 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
   const handlePrint = () => {
     const doc = new jsPDF({ orientation: "landscape" });
     const head = [["Work Date", "Doctor", "Treatments", "Fee Due", "Discount", "Paid", "Payment Mode"]];
-    const body = filteredRows.map((r: any) => [
-      r.Work_Date || "--",
-      r.Doctor || "--",
-      r.Treatments || "--",
-      r.Fee_Due || "0",
-      r.Fee_Discount || "0",
-      r.Amount_Paid || "0",
-      r.Payment_Modes || "--"
-    ]);
+    const body = filteredRows.map((r: any) => {
+      let formattedDate = r.Work_Date || "--";
+      if (r.Work_Date) {
+        const parts = r.Work_Date.split('-');
+        if (parts.length === 3) formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return [
+        formattedDate,
+        r.Doctor || "--",
+        r.Treatments || "--",
+        r.Fee_Due || "0",
+        r.Fee_Discount || "0",
+        r.Amount_Paid || "0",
+        r.Payment_Modes || "--"
+      ];
+    });
 
     doc.setFontSize(16);
     doc.text(`Imported Patient History - ${patient?.name || "Patient"}`, 14, 15);

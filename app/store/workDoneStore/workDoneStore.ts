@@ -865,6 +865,28 @@ class WorkDoneStore {
       return Promise.reject(err?.response?.data || err);
     }
   };
+
+  /**
+   * FETCH GLOBAL FILTERED TABLE PDF BASE64
+   */
+  fetchGlobalFilteredTablePDFBase64 = async (filters: any) => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const compId = authStore.company?._id || authStore.company || companyId;
+      const queryParams = new URLSearchParams({
+        company: compId,
+        ...(filters.fromDate && { fromDate: filters.fromDate }),
+        ...(filters.toDate && { toDate: filters.toDate }),
+        ...(filters.status && { status: filters.status }),
+      });
+
+      const { data } = await axios.get(`/workDone/generate-global-filtered-table-pdf?${queryParams.toString()}`);
+      return data;
+    } catch (err) {
+      console.error("Error fetching global table PDF:", err);
+      throw err;
+    }
+  };
 }
 
 export const workDoneStore = new WorkDoneStore();

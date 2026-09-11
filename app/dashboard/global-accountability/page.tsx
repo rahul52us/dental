@@ -873,7 +873,7 @@ const GlobalAccountabilityPage = observer(() => {
           <Table variant="simple" size="sm">
             <Thead bgGradient="linear(to-r, gray.800, gray.700)">
               <Tr>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">BILLING DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">Bill Date</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">RECEIPT NO.</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="220px" whiteSpace="nowrap">PATIENT</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="150px" whiteSpace="nowrap">DOCTOR</Th>
@@ -881,7 +881,7 @@ const GlobalAccountabilityPage = observer(() => {
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>FEES</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>TXN PAID</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="180px" whiteSpace="nowrap" isNumeric>Total Amt Rec.</Th>
-                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT DATE</Th>
+                <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">Pay Date</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap" isNumeric>BALANCE</Th>
                 <Th color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="140px" whiteSpace="nowrap">PAYMENT MODE</Th>
                 <Th display="none" color="white" fontSize="11px" fontWeight="900" letterSpacing="widest" py={3} borderBottom="none" minW="130px" whiteSpace="nowrap">STATUS</Th>
@@ -979,7 +979,7 @@ const GlobalAccountabilityPage = observer(() => {
                       <HStack justify="flex-end" spacing={2} minW="130px">
                         <Box px={3} py={1} bg={useColorModeValue("yellow.50", "yellow.900")} borderRadius="xl" display="inline-flex" alignItems="center" border="1px solid" borderColor={useColorModeValue("yellow.200", "yellow.700")} justifyContent="center">
                           <VStack spacing={0} align="end">
-                            <Text fontWeight="900" color={useColorModeValue("yellow.800", "yellow.200")} fontSize="sm" whiteSpace="nowrap">
+                            <Text fontWeight="900" color={useColorModeValue("black", "white")} fontSize="sm" whiteSpace="nowrap">
                               {formatCurrency(row.amount - (row.discount || 0))}
                             </Text>
                             {row.discount > 0 && (
