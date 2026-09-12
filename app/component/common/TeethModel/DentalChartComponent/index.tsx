@@ -141,6 +141,10 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
   const [activeViewIndex, setActiveViewIndex] = useState(0);
 
   const { isOpen: isEditDrawerOpen, onOpen: onEditDrawerOpen, onClose: onEditDrawerClose } = useDisclosure();
+  const handleCloseEditDrawer = () => {
+    setEditingTreatment(null);
+    onEditDrawerClose();
+  };
   const { isOpen: isHistoryDrawerOpen, onOpen: onHistoryDrawerOpen, onClose: onHistoryDrawerClose } = useDisclosure();
   const { isOpen: isProcedureDrawerOpen, onOpen: onProcedureDrawerOpen, onClose: onProcedureDrawerClose } = useDisclosure();
   const { isOpen: isQuickAddOpen, onOpen: onQuickAddOpen, onClose: onQuickAddClose } = useDisclosure();
@@ -609,42 +613,44 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                 </HStack>
               </VStack>
               <HStack spacing={4} align="center">
-                <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
-                  <Button
-                    size="xs" leftIcon={<FiMousePointer size={11} />}
-                    bg={selectionMode === 'single' ? "white" : "transparent"}
-                    color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
-                    boxShadow={selectionMode === 'single' ? "sm" : "none"}
-                    onClick={() => {
-                      setSelectionMode('single');
-                      setIsMultipleSelection(false);
-                      setSelectedTeeth([]);
-                      setToothComplaints({});
-                    }}
-                    fontWeight="1000"
-                    h="28px"
-                    borderRadius="lg"
-                  >
-                    SINGLE
-                  </Button>
-                  <Button
-                    size="xs" leftIcon={<FiActivity size={11} />}
-                    bg={selectionMode === 'multi' ? "white" : "transparent"}
-                    color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
-                    boxShadow={selectionMode === 'multi' ? "sm" : "none"}
-                    onClick={() => {
-                      setSelectionMode('multi');
-                      setIsMultipleSelection(true);
-                      setSelectedTeeth([]);
-                      setToothComplaints({});
-                    }}
-                    fontWeight="1000"
-                    h="28px"
-                    borderRadius="lg"
-                  >
-                    MULTI
-                  </Button>
-                </HStack>
+                {!patientDetails?.editData?._id && (
+                  <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
+                    <Button
+                      size="xs" leftIcon={<FiMousePointer size={11} />}
+                      bg={selectionMode === 'single' ? "white" : "transparent"}
+                      color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
+                      boxShadow={selectionMode === 'single' ? "sm" : "none"}
+                      onClick={() => {
+                        setSelectionMode('single');
+                        setIsMultipleSelection(false);
+                        setSelectedTeeth([]);
+                        setToothComplaints({});
+                      }}
+                      fontWeight="1000"
+                      h="28px"
+                      borderRadius="lg"
+                    >
+                      SINGLE
+                    </Button>
+                    <Button
+                      size="xs" leftIcon={<FiActivity size={11} />}
+                      bg={selectionMode === 'multi' ? "white" : "transparent"}
+                      color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
+                      boxShadow={selectionMode === 'multi' ? "sm" : "none"}
+                      onClick={() => {
+                        setSelectionMode('multi');
+                        setIsMultipleSelection(true);
+                        setSelectedTeeth([]);
+                        setToothComplaints({});
+                      }}
+                      fontWeight="1000"
+                      h="28px"
+                      borderRadius="lg"
+                    >
+                      MULTI
+                    </Button>
+                  </HStack>
+                )}
               </HStack>
             </Flex>
 
@@ -729,7 +735,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
           <TreatmentProcedureForm
             isPatient={isPatient}
             patientDetails={patientDetails}
-            editData={editingTreatment || patientDetails?.editData}
+            editData={patientDetails?.editData}
             teeth={selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData]}
             dentitionType={dentitionType}
             isMultipleSelection={selectionMode === 'multi'}
@@ -830,7 +836,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
 
       <Box px={6} pb={6} pt={2}>{renderStep()}</Box>
 
-      <CustomDrawer open={isEditDrawerOpen} close={onEditDrawerClose} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
+      <CustomDrawer open={isEditDrawerOpen} close={handleCloseEditDrawer} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
         {(() => {
           const rawTId = typeof editingTreatment?.tooth === 'object' ? (editingTreatment.tooth.fdi || editingTreatment.tooth.id || editingTreatment.tooth.tooth?.fdi || editingTreatment.tooth.tooth?.id) : String(editingTreatment?.tooth || "");
           const tId = String(rawTId);
@@ -860,7 +866,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
               dentitionType={isChild ? "child" : "adult"}
               generalDescription={generalDescription} complaintType={complaintType} toothComplaints={toothComplaints}
               onSuccess={(treatment) => {
-                onEditDrawerClose();
+                handleCloseEditDrawer();
                 patientDetails?.applyGetAllRecords?.({});
                 if (patientDetails?._id) {
                   getTodayToothTreatments({ patientId: patientDetails._id, date: sessionDate });
@@ -872,7 +878,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
               }}
 
 
-              onBack={onEditDrawerClose} isDrawerMode={true} doctorOptions={doctorOptions}
+              onBack={handleCloseEditDrawer} isDrawerMode={true} doctorOptions={doctorOptions}
               notation={notation}
             />
           );

@@ -256,9 +256,28 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
       // Sync Treatment Status if linked
       if (tId) {
+        const firstTooth = teethList[0];
+        const isGeneral = firstTooth === "General";
+        const getQuadrantInfo = (tId: string) => {
+          const id = parseInt(tId);
+          if (isNaN(id)) return { position: "general", side: "general" };
+          if ((id >= 11 && id <= 18) || (id >= 51 && id <= 55)) return { position: "upper", side: "right" };
+          if ((id >= 21 && id <= 28) || (id >= 61 && id <= 65)) return { position: "upper", side: "left" };
+          if ((id >= 31 && id <= 38) || (id >= 71 && id <= 75)) return { position: "lower", side: "left" };
+          if ((id >= 41 && id <= 48) || (id >= 81 && id <= 85)) return { position: "lower", side: "right" };
+          return { position: "general", side: "general" };
+        };
+        const quad = getQuadrantInfo(firstTooth);
+
         await updateToothTreatment({
           treatmentId: tId,
-          status: values.status
+          status: values.status,
+          tooth: isGeneral ? "" : firstTooth,
+          toothNotation: values.toothNotation || "fdi",
+          dentitionType: values.dentitionType || "adult",
+          position: quad.position,
+          side: quad.side,
+          recordType: isGeneral ? "note" : "tooth"
         });
       }
 
@@ -370,8 +389,8 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                   {/* Treatment Context Information & Layout Grid */}
                   {(() => {
-                    const data = treatmentDetails || editData;
-                    if (!data) {
+                    const useSimpleLayout = !!treatmentDetails && !editData;
+                    if (!useSimpleLayout) {
                       return (
                         <VStack align="stretch" spacing={6} w="full" mt={4}>
                           {/* 1. Teeth Chart & Selector Header (100% full-width at the top) */}
@@ -458,13 +477,17 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                   selectedTeeth={selectedTeeth.map(t => ({ id: t, fdi: t } as ToothData))}
                                   onToothClick={(tooth) => {
                                     const toothId = String(tooth.fdi || tooth.id);
-                                    setSelectedTeeth(prev => {
-                                      if (prev.includes(toothId)) {
-                                        return prev.filter(x => x !== toothId);
-                                      } else {
-                                        return [...prev, toothId];
-                                      }
-                                    });
+                                    if (editData) {
+                                      setSelectedTeeth([toothId]);
+                                    } else {
+                                      setSelectedTeeth(prev => {
+                                        if (prev.includes(toothId)) {
+                                          return prev.filter(x => x !== toothId);
+                                        } else {
+                                          return [...prev, toothId];
+                                        }
+                                      });
+                                    }
                                   }}
                                   notationType={values.toothNotation}
                                   toothComplaints={{}}
@@ -650,11 +673,12 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                     }
 
                     // If there is data (editing/view plan mode), show standard linear layout
-                    const doctorName = values.doctor?.label || values.doctor || data.doctor?.name || (typeof data.doctor === 'string' ? data.doctor : "N/A");
-                    const examDrName = values.examiningDoctor?.label || values.examiningDoctor || data.examiningDoctor?.name || (typeof data.examiningDoctor === 'string' ? data.examiningDoctor : "N/A");
-                    const rawToothVal = values.tooth || data.tooth || data.toothNo || "GENERAL";
+                    const data = treatmentDetails || editData;
+                    const doctorName = values.doctor?.label || values.doctor || data?.doctor?.name || (typeof data?.doctor === 'string' ? data.doctor : "N/A");
+                    const examDrName = values.examiningDoctor?.label || values.examiningDoctor || data?.examiningDoctor?.name || (typeof data?.examiningDoctor === 'string' ? data.examiningDoctor : "N/A");
+                    const rawToothVal = values.tooth || data?.tooth || data?.toothNo || "GENERAL";
                     const toothVal = typeof rawToothVal === 'object' && rawToothVal !== null ? (rawToothVal.fdi || rawToothVal.fd1 || rawToothVal.id1 || rawToothVal.id || rawToothVal.universal || "GENERAL") : rawToothVal;
-                    const baseEstimate = data.estimateMin || 0;
+                    const baseEstimate = data?.estimateMin || 0;
                     let oldBilled = data.receivedAmount || 0;
                     if (editData) {
                       const oldNet = (Number(editData.amount) || 0) - (Number(editData.discount) || 0);

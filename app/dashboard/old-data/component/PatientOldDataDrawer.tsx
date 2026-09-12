@@ -212,30 +212,39 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
   const totalDiscount = filteredRows.reduce((sum: number, r: any) => sum + (Number(r.Fee_Discount) || 0), 0);
   const totalDue = rawTotalDue - totalDiscount - totalPaid;
 
-  const handlePrint = () => {
+  const handlePrint = (withFees: boolean) => {
     const doc = new jsPDF({ orientation: "landscape" });
-    const head = [["Work Date", "Doctor", "Treatments", "Fee Due", "Discount", "Paid", "Payment Mode"]];
+    const head = withFees 
+      ? [["Work Date", "Doctor", "Treatments", "Fee Due", "Discount", "Paid", "Payment Mode"]]
+      : [["Work Date", "Doctor", "Treatments"]];
+
     const body = filteredRows.map((r: any) => {
       let formattedDate = r.Work_Date || "--";
       if (r.Work_Date) {
         const parts = r.Work_Date.split('-');
         if (parts.length === 3) formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
       }
-      return [
+      
+      const baseRow = [
         formattedDate,
         r.Doctor || "--",
-        r.Treatments || "--",
-        r.Fee_Due || "0",
-        r.Fee_Discount || "0",
-        r.Amount_Paid || "0",
-        r.Payment_Modes || "--"
+        r.Treatments || "--"
       ];
+
+      return withFees 
+        ? [...baseRow, r.Fee_Due || "0", r.Fee_Discount || "0", r.Amount_Paid || "0", r.Payment_Modes || "--"]
+        : baseRow;
     });
 
     doc.setFontSize(16);
     doc.text(`Imported Patient History - ${patient?.name || "Patient"}`, 14, 15);
     doc.setFontSize(10);
-    doc.text(`Records: ${filteredRows.length} | Total Fee: Rs. ${rawTotalDue.toLocaleString("en-IN")} | Discount: Rs. ${totalDiscount.toLocaleString("en-IN")} | Paid: Rs. ${totalPaid.toLocaleString("en-IN")} | Net Due: Rs. ${totalDue.toLocaleString("en-IN")}`, 14, 22);
+    
+    if (withFees) {
+      doc.text(`Records: ${filteredRows.length} | Total Fee: Rs. ${rawTotalDue.toLocaleString("en-IN")} | Discount: Rs. ${totalDiscount.toLocaleString("en-IN")} | Paid: Rs. ${totalPaid.toLocaleString("en-IN")} | Net Due: Rs. ${totalDue.toLocaleString("en-IN")}`, 14, 22);
+    } else {
+      doc.text(`Records: ${filteredRows.length}`, 14, 22);
+    }
 
     autoTable(doc, {
       head,
@@ -334,8 +343,11 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
                   maxW="250px"
                   bg="white"
                 />
-                <Button size="sm" colorScheme="blue" leftIcon={<FiPrinter />} onClick={handlePrint}>
-                  Print / Download
+                <Button size="sm" colorScheme="blue" leftIcon={<FiPrinter />} onClick={() => handlePrint(true)}>
+                  Print (With Fees)
+                </Button>
+                <Button size="sm" variant="outline" colorScheme="blue" leftIcon={<FiPrinter />} onClick={() => handlePrint(false)}>
+                  Print (Without Fees)
                 </Button>
               </HStack>
               <CustomTable

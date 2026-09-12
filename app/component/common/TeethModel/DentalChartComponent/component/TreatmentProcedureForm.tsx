@@ -420,10 +420,15 @@ export const TreatmentProcedureForm = observer(
                         user: stores.auth.user?._id
                     };
 
-                    const isEditingThisTooth = editData?._id && (
-                        (typeof editData.tooth === 'object' && String(editData.tooth.fdi) === String(toothId)) ||
-                        (typeof editData.tooth === 'string' && String(editData.tooth) === String(toothId))
-                    );
+                    // If we have an editData._id, we are DEFINITELY editing this record.
+                    // We don't need to strictly check if the tooth matches, because the user 
+                    // is intentionally updating the record they opened.
+                    const isEditingThisTooth = !!(editData?._id);
+                    console.log('DEBUG EDIT:', {
+                        editDataId: editData?._id,
+                        toothId,
+                        isEditingThisTooth
+                    });
 
                     if (isEditingThisTooth) {
                         payload.treatmentId = editData._id;
@@ -836,9 +841,9 @@ export const TreatmentProcedureForm = observer(
                 const dataTooth = editData.tooth;
                 const actualToothId = typeof dataTooth === 'object' ? dataTooth.fdi : dataTooth;
 
-                // Find matching tooth in current array
-                const targetTooth = teeth.find(t => t.id === actualToothId || t.fdi === actualToothId);
-                const toothKey = targetTooth ? targetTooth.id : actualToothId;
+                // If the user selects a DIFFERENT tooth while editing, we want the data to MOVE 
+                // to the new tooth rather than disappearing! 
+                const toothKey = (teeth.length === 1) ? teeth[0].id : actualToothId;
 
                 if (toothKey) {
                     trs[toothKey] = {
@@ -852,6 +857,7 @@ export const TreatmentProcedureForm = observer(
                         totalMax: editData.totalMax || 0,
                         doctor: editData.doctor ? (typeof editData.doctor === 'object' ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor) : (lastExaminingDoctor || undefined),
                         complaintType: editData.complaintType || "OTHER FINDING",
+                        status: editData.status || "pending",
                         examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : (lastExaminingDoctor || undefined),
                     };
                 }
