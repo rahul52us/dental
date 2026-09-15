@@ -54,13 +54,13 @@
     languages: Yup.array(),
     bio: Yup.string(),
     medicalHistory: Yup.string(),
-   password: Yup.string(),
-    // .min(6, "Password must be at least 6 characters")
-    // .required("Password is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
 
-  confirmPassword: Yup.string()
-    // .required("Confirm password is required")
-    // .oneOf([Yup.ref("password"), null], "Passwords must match"),
+    confirmPassword: Yup.string()
+      .required("Confirm password is required")
+      .oneOf([Yup.ref("password"), null as unknown as string], "Passwords must match"),
     // vaccinations: Yup.array().of(
     //   Yup.object().shape({
     //     type: Yup.mixed().required("Vaccine type is required"),

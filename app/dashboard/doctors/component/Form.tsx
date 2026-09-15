@@ -226,6 +226,36 @@ const Form = observer(
                             error={errors?.code}
                             showError={errors.code && touched.code}
                           />
+                          {!isEdit && (
+                            <>
+                              <CustomInput
+                                label="Password"
+                                name="password"
+                                type="password"
+                                placeholder="Enter Password"
+                                value={values.password}
+                                onChange={handleChange}
+                                error={errors.password && touched.password}
+                                showError={errors.password && touched.password}
+                              />
+                              <CustomInput
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                type="password"
+                                placeholder="Confirm Password"
+                                value={values.confirmPassword}
+                                onChange={handleChange}
+                                error={
+                                  errors.confirmPassword &&
+                                  touched.confirmPassword
+                                }
+                                showError={
+                                  errors.confirmPassword &&
+                                  touched.confirmPassword
+                                }
+                              />
+                            </>
+                          )}
                           <CustomInput
                             label={t("doctors.form.dob")}
                             type="date"
