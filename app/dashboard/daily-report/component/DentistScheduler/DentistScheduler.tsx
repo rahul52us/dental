@@ -138,7 +138,13 @@ const AppointmentCard = ({
             {appointment.patientName}
           </Text>
 
-          <Text fontSize="xs" opacity={0.85}>
+          {appointment.patientMobileNumber && (
+            <Text fontSize="xs" opacity={0.9} color="gray.300">
+              📞 {appointment.patientMobileNumber}
+            </Text>
+          )}
+
+          <Text fontSize="xs" opacity={0.85} mt={1}>
             👨‍⚕️ {appointment.doctorName || "—"}
           </Text>
 
@@ -179,6 +185,7 @@ const AppointmentCard = ({
         borderColor={chairColor}
         zIndex={10 + overlapIndex}
         cursor="pointer"
+        overflow="hidden"
         onClick={(e) => {
           e.stopPropagation();
           onOpenDetails(appointment);
@@ -192,6 +199,7 @@ const AppointmentCard = ({
             color="gray.800"
             noOfLines={1}
             title={appointment.patientName}
+            isTruncated
           >
             {appointment.patientName}
           </Text>
@@ -201,11 +209,11 @@ const AppointmentCard = ({
             color="gray.600"
             px={2}
             py="2px"
-            borderRadius="full"
             fontWeight="500"
             whiteSpace="nowrap"
+            title={appointment?.patientMobileNumber}
           >
-            ({appointment?.patientMobileNumber})
+            {appointment?.patientMobileNumber ? `(${String(appointment.patientMobileNumber).split(',')[0]})` : null}
           </Text>
         </Flex>
         {editable && (
