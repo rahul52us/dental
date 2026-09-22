@@ -142,22 +142,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   };
 
   const TherapistTableColumns = [
-    {
-      headerName: t("doctors.table.pic"),
-      key: "user",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Box m={1}>
-            <Avatar src={dt.pic?.url} name={dt.pic?.name} size="sm" />
-          </Box>
-        ),
-      },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
+
     {
       headerName: t("doctors.table.name"),
       key: "gender",
@@ -175,6 +160,8 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 ? "pink"
                 : "gray";
 
+          const displayTitle = dt?.title || (genderLabel === "Male" ? "Dr." : genderLabel === "Female" ? "Dr." : "");
+
           return (
             <Badge
               colorScheme={colorScheme}
@@ -185,7 +172,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               fontSize="sm"
               fontWeight="semibold"
             >
-              {dt?.name}
+              {displayTitle ? `${displayTitle} ${dt?.name}` : dt?.name}
             </Badge>
           );
         },

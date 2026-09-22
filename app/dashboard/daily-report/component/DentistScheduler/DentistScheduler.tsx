@@ -151,10 +151,6 @@ const AppointmentCard = ({
           <Divider my={1} borderColor="gray.600" />
 
           <Text fontSize="xs">
-            🩺 {appointment.treatment || "Consultation"}
-          </Text>
-
-          <Text fontSize="xs">
             ⏰ {appointment.startTime} • {appointment.duration} min
           </Text>
 
@@ -290,6 +286,8 @@ const AppointmentCard = ({
 
 
 
+
+
         {/* Doctor name (secondary) */}
         <Text fontSize="xs" color="gray.600" noOfLines={1}>
           Dr. {appointment.doctorName || "—"}
@@ -298,7 +296,7 @@ const AppointmentCard = ({
         {/* Treatment */}
         <Text fontSize="xs" mt={1}>
           {(() => {
-            const displayStr = [appointment.title, appointment.description].filter(Boolean).join(" - ") || "Consultation";
+            const displayStr = [appointment.title, appointment.description].filter(Boolean).join(" - ");
             return displayStr.length > 30 ? displayStr.slice(0, 30) + "..." : displayStr;
           })()}
         </Text>

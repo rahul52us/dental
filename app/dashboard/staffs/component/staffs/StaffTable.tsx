@@ -135,27 +135,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   };
 
   const UserTableColumns = [
-    {
-      headerName: t("staffs.table.sno"),
-      key: "sno",
-      props: { row: { textAlign: "center" } },
-    },
-    {
-      headerName: t("staffs.table.pic"),
-      key: "user",
-      type: "component",
-      metaData: {
-        component: (dt: any) => (
-          <Box m={1}>
-            <Avatar src={dt.pic?.url} name={dt.pic?.name} size="sm" />
-          </Box>
-        ),
-      },
-      props: {
-        row: { minW: 120, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
+
+
     {
       headerName: t("staffs.table.name"),
       key: "gender",
@@ -173,6 +154,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 ? "pink"
                 : "gray";
 
+          const displayTitle = dt?.title || (genderLabel === "Male" ? "Mr." : genderLabel === "Female" ? "Mrs." : "");
+
           return (
             <Badge
               colorScheme={colorScheme}
@@ -183,7 +166,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               fontSize="sm"
               fontWeight="semibold"
             >
-              {dt?.name}
+              {displayTitle ? `${displayTitle} ${dt?.name}` : dt?.name}
             </Badge>
           );
         },

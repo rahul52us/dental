@@ -113,7 +113,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     setSelectedOldDataPatient(null);
     oldDataStore.clearPatientOldData();
   };
-  
+
   const [isWalletHistoryOpen, setIsWalletHistoryOpen] = useState(false);
   const [selectedWalletPatient, setSelectedWalletPatient] = useState<any>(null);
 
@@ -191,6 +191,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 ? "pink"
                 : "gray";
 
+          const displayTitle = dt?.title || (genderLabel === "Male" ? "Mr." : genderLabel === "Female" ? "Mrs." : "");
+
           return (
             <Badge
               colorScheme={colorScheme}
@@ -201,7 +203,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               fontSize="sm"
               fontWeight="semibold"
             >
-              {dt?.name}
+              {displayTitle ? `${displayTitle} ${dt?.name}` : dt?.name}
             </Badge>
           );
         },
