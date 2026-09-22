@@ -389,7 +389,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                   {/* Treatment Context Information & Layout Grid */}
                   {(() => {
-                    const useSimpleLayout = !!treatmentDetails && !editData;
+                    const useSimpleLayout = false; // !!treatmentDetails && !editData;
                     if (!useSimpleLayout) {
                       return (
                         <VStack align="stretch" spacing={6} w="full" mt={4}>

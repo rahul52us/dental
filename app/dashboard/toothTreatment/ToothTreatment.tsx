@@ -12,7 +12,7 @@ import stores from "../../store/stores";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
 import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
 import TreatmentDetailsView from "./element/TreatmentDetailsView";
-import { FiGrid, FiList, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2 } from "react-icons/fi";
+import { FiGrid, FiList, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { FaTooth } from "react-icons/fa";
 import Pagination from "../../component/config/component/pagination/Pagination";
 import WorkDoneForm from "../workDone/component/WorkDoneForm";
@@ -1033,6 +1033,16 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                         Clear Date Filter
                       </Button>
                     )}
+                    <Button
+                      leftIcon={<FiRefreshCw />}
+                      size="sm"
+                      colorScheme="blue"
+                      variant="outline"
+                      bg="white"
+                      onClick={() => applyGetAllRecords({ page: currentPage, limit: tablePageLimit, reset: false })}
+                    >
+                      Refresh
+                    </Button>
                     {stores.auth.hasPermission('treatment', 'view') && (
                       <Button
                         size="sm"
