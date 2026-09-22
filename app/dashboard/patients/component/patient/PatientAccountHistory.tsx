@@ -648,8 +648,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           ))}
         </SimpleGrid>
 
-        <Flex px={{ base: 0, md: 2 }} mb={6} justify={{ base: "center", md: "flex-end" }}>
-          <Flex wrap="wrap" gap={2} justify={{ base: "center", md: "flex-end" }}>
+        <Flex px={{ base: 0, md: 2 }} mb={6} justify="space-between" align="center" wrap="wrap" gap={4}>
+          <HStack spacing={2} wrap="wrap">
               {stores.auth.hasPermission('accountability', 'download') && (
                 <Button
                   leftIcon={<FiEye />}
@@ -683,7 +683,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               >
                 Wallet (₹{walletBalance})
               </Button>
+          </HStack>
 
+          <Flex wrap="wrap" gap={2} justify={{ base: "center", md: "flex-end" }} align="center">
               <HStack
                 spacing={0}
                 p={1}
@@ -736,7 +738,6 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               </Box>
 
               <HStack
-                display="none"
                 spacing={2}
                 p={1}
                 bg={inputBg}
