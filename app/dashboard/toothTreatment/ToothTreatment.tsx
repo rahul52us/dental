@@ -897,7 +897,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               borderTopRadius: "lg",
             }}
           >
-            All Work Done History
+            Work History
           </Tab>
         </TabList>
 
