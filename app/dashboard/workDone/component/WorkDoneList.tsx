@@ -1036,42 +1036,56 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
                 {/* Content: Tooth Info & Note on the Same Line */}
                 <HStack spacing={4} w="full" align="stretch">
-                  {(record.tooth || record.treatment?.tooth) && (
-                    <VStack
-                      align="center"
-                      justify="center"
-                      bg="blue.50"
-                      border="2px solid"
-                      borderColor="blue.300"
-                      borderRadius="2xl"
-                      p={4}
-                      minW="120px"
-                      shadow="sm"
-                      transition="all 0.2s"
-                      _hover={{ bg: "blue.100", borderColor: "blue.400" }}
-                    >
-                      <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
-                        {record.tooth || record.treatment?.tooth}
-                      </Text>
-                      {(() => {
-                        const { line1, line2 } = getToothNameParts(
-                          record.tooth || record.treatment?.tooth,
-                          record.position || record.treatment?.position,
-                          record.side || record.treatment?.side
-                        );
-                        return (
-                          <>
-                            <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1}>
-                              {line1}
-                            </Text>
-                            {line2 && (
-                              <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
-                                {line2}
+                  {(record.tooth !== undefined || record.treatment?.tooth !== undefined) && (
+                    <VStack align="center" spacing={2} minW="120px">
+                      <VStack
+                        align="center"
+                        justify="center"
+                        bg="blue.50"
+                        border="2px solid"
+                        borderColor="blue.300"
+                        borderRadius="2xl"
+                        p={4}
+                        w="full"
+                        shadow="sm"
+                        transition="all 0.2s"
+                        _hover={{ bg: "blue.100", borderColor: "blue.400" }}
+                      >
+                        <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
+                          {(() => {
+                            const t = record.tooth || record.treatment?.tooth;
+                            return (!t || t === "General") ? "GEN" : t;
+                          })()}
+                        </Text>
+                        {(() => {
+                          const { line1, line2 } = getToothNameParts(
+                            record.tooth || record.treatment?.tooth,
+                            record.position || record.treatment?.position,
+                            record.side || record.treatment?.side
+                          );
+                          const displayLine1 = line1 === "GENERAL GENERAL" ? "GENERAL" : line1;
+                          return (
+                            <>
+                              <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1} textAlign="center">
+                                {displayLine1}
                               </Text>
-                            )}
-                          </>
-                        );
-                      })()}
+                              {line2 && (
+                                <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                                  {line2}
+                                </Text>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </VStack>
+
+                      {(record.generalTitle || record.treatment?.generalTitle) && (
+                        <Box bg="blue.600" borderRadius="md" px={3} py={1.5} w="full" textAlign="center" shadow="sm">
+                          <Text fontSize="11px" fontWeight="900" color="white" noOfLines={2} textTransform="uppercase" letterSpacing="0.05em">
+                            {record.generalTitle || record.treatment?.generalTitle}
+                          </Text>
+                        </Box>
+                      )}
                     </VStack>
                   )}
 
@@ -1079,7 +1093,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     <Box bg="blue.50" p={4} borderRadius="2xl" flex={1} borderLeft="5px solid" borderColor="blue.500" shadow="sm">
                       <HStack spacing={2} mb={2}>
                         <Icon as={FiFileText} fontSize="14px" color="blue.500" />
-                        <Text fontSize="12px" fontWeight="1000" color="blue.600" letterSpacing="0.08em">TREATMENT ADVISE</Text>
+                        <Text fontSize="12px" fontWeight="1000" color="blue.600" letterSpacing="0.08em">WORK DONE ADVICE</Text>
                       </HStack>
                       <Text fontSize="15px" fontWeight="800" color="gray.800" lineHeight="1.6">
                         {record.workDoneNote || record.toothNote}
@@ -1399,26 +1413,26 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               >
                 <Icon as={FiCheckCircle} boxSize={8} />
               </Box>
-              
+
               <Box>
                 <Text fontSize="xl" fontWeight="900" color="gray.800" mb={2}>
                   Complete Treatment
                 </Text>
-                
+
                 <Text color="gray.500" fontSize="sm" lineHeight="tall">
                   Are you sure you want to mark this Treatment Plan and all its associated Work Done entries as <Text as="span" fontWeight="bold" color="green.600">COMPLETE</Text>?
                 </Text>
               </Box>
             </VStack>
           </ModalBody>
-          
+
           <ModalFooter bg="gray.50" p={5} borderTop="1px solid" borderColor="gray.100">
             <HStack w="full" spacing={3}>
-              <Button 
-                w="full" 
-                variant="ghost" 
+              <Button
+                w="full"
+                variant="ghost"
                 borderRadius="xl"
-                onClick={() => setCompletePlanModal(false)} 
+                onClick={() => setCompletePlanModal(false)}
                 isDisabled={isCompletingPlan}
                 color="gray.600"
                 _hover={{ bg: "gray.200" }}

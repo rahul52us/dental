@@ -708,7 +708,13 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
 
             <HStack spacing={2}>
               {dt.complaintType && (
-                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
+                <Badge 
+                  colorScheme={
+                    dt.complaintType?.toUpperCase() === "EXISTING FINDING" ? "green" :
+                    dt.complaintType?.toUpperCase() === "OTHER FINDING" ? "orange" : "red"
+                  } 
+                  variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800"
+                >
                   {dt.complaintType?.toUpperCase()}
                 </Badge>
               )}
