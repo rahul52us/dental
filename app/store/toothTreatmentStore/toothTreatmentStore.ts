@@ -315,6 +315,15 @@ class ToothTreatmentStore {
     }
   };
 
+  completeToothTreatmentAndWorkDone = async (treatmentId: string) => {
+    try {
+      const { data } = await axios.put(`/toothTreatment/${treatmentId}/complete-all`, { company: authStore.company });
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err);
+    }
+  };
+
   assignSittingNo = async (sendData: { treatmentId: string, sittingNo: number }) => {
     try {
       const { data } = await axios.put(`/toothTreatment/${sendData.treatmentId}/sitting`, sendData);

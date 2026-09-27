@@ -171,7 +171,9 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
   const [currentPage, setCurrentPage] = useState(1);
   const [openView, setOpenView] = useState({ open: false, data: null as any });
   const [deleteModal, setDeleteModal] = useState({ open: false, id: "" });
+  const [completePlanModal, setCompletePlanModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCompletingPlan, setIsCompletingPlan] = useState(false);
   const [openPrintModal, setOpenPrintModal] = useState({ open: false, id: "", patientId: "", date: "" });
   const [openDailyReportModal, setOpenDailyReportModal] = useState({ open: false });
   const [openFilteredReportModal, setOpenFilteredReportModal] = useState({ open: false });
@@ -313,6 +315,32 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
         title: "Update Failed",
         message: err?.message,
       });
+    }
+  };
+
+  const handleCompleteTreatmentPlan = async () => {
+    if (!treatmentId) return;
+
+    setIsCompletingPlan(true);
+    try {
+      await stores.toothTreatmentStore.completeToothTreatmentAndWorkDone(treatmentId);
+
+      openNotification({
+        type: "success",
+        title: "Treatment Completed",
+        message: "Treatment Plan and all entries marked as complete."
+      });
+
+      setCompletePlanModal(false);
+      fetchRecords(); // Refresh the list
+    } catch (err: any) {
+      openNotification({
+        type: "error",
+        title: "Error",
+        message: err?.message || "Failed to complete treatment plan."
+      });
+    } finally {
+      setIsCompletingPlan(false);
     }
   };
 
@@ -559,6 +587,20 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           >
             DOWNLOAD DAILY PRESCRIPTION
           </Button>
+          {treatmentId && (
+            <Button
+              size="sm"
+              colorScheme="green"
+              variant="solid"
+              leftIcon={<FiCheckCircle />}
+              borderRadius="xl"
+              fontSize="11px"
+              fontWeight="bold"
+              onClick={() => setCompletePlanModal(true)}
+            >
+              COMPLETE ALL WORK DONE
+            </Button>
+          )}
 
           {stores.auth.hasPermission('appointment', 'view') && (
             <Button
@@ -612,7 +654,6 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             >
               View Work Dates
             </Button>
-
           </HStack>
         </HStack>
 
@@ -1337,6 +1378,67 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           </ModalBody>
           <ModalFooter bg="gray.50" borderRadius="0 0 2xl 2xl">
             <Button w="full" variant="ghost" fontWeight="1000" onClick={() => setIsCountModalOpen(false)}>CLOSE SUMMARY</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={completePlanModal} onClose={() => !isCompletingPlan && setCompletePlanModal(false)} isCentered size="sm">
+        <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.400" />
+        <ModalContent borderRadius="3xl" overflow="hidden" boxShadow="2xl">
+          <ModalBody p={8} textAlign="center">
+            <VStack spacing={5}>
+              <Box
+                w="70px"
+                h="70px"
+                borderRadius="full"
+                bg="green.50"
+                color="green.500"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon as={FiCheckCircle} boxSize={8} />
+              </Box>
+              
+              <Box>
+                <Text fontSize="xl" fontWeight="900" color="gray.800" mb={2}>
+                  Complete Treatment
+                </Text>
+                
+                <Text color="gray.500" fontSize="sm" lineHeight="tall">
+                  Are you sure you want to mark this Treatment Plan and all its associated Work Done entries as <Text as="span" fontWeight="bold" color="green.600">COMPLETE</Text>?
+                </Text>
+              </Box>
+            </VStack>
+          </ModalBody>
+          
+          <ModalFooter bg="gray.50" p={5} borderTop="1px solid" borderColor="gray.100">
+            <HStack w="full" spacing={3}>
+              <Button 
+                w="full" 
+                variant="ghost" 
+                borderRadius="xl"
+                onClick={() => setCompletePlanModal(false)} 
+                isDisabled={isCompletingPlan}
+                color="gray.600"
+                _hover={{ bg: "gray.200" }}
+              >
+                Cancel
+              </Button>
+              <Button
+                w="full"
+                colorScheme="green"
+                borderRadius="xl"
+                boxShadow="md"
+                onClick={handleCompleteTreatmentPlan}
+                isLoading={isCompletingPlan}
+                loadingText="Completing..."
+                _hover={{ transform: "translateY(-1px)", boxShadow: "lg" }}
+                transition="all 0.2s"
+              >
+                Yes, Complete
+              </Button>
+            </HStack>
           </ModalFooter>
         </ModalContent>
       </Modal>
