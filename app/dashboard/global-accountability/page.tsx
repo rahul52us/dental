@@ -979,7 +979,7 @@ const GlobalAccountabilityPage = observer(() => {
                               {formatCurrency(row.amount - (row.discount || 0))}
                             </Text>
                             {row.discount > 0 && (
-                              <Text fontSize="2xs" color={useColorModeValue("gray.400", "gray.500")} textDecoration="line-through">
+                              <Text fontSize="xs" fontWeight="bold" color={useColorModeValue("gray.600", "gray.400")} textDecoration="line-through">
                                 {formatCurrency(row.amount)}
                               </Text>
                             )}
@@ -1420,7 +1420,7 @@ const GlobalAccountabilityPage = observer(() => {
                         <HStack align="baseline" spacing={2}>
                           <Text fontWeight="1000" color="blue.700" fontSize="lg">₹{(selectedRecord?.amount - (selectedRecord?.discount || 0)).toLocaleString()}</Text>
                           {selectedRecord?.discount > 0 && (
-                            <Text fontSize="xs" color="gray.400" textDecoration="line-through">
+                            <Text fontSize="sm" fontWeight="bold" color={useColorModeValue("gray.600", "gray.400")} textDecoration="line-through">
                               ₹{(selectedRecord?.amount || 0).toLocaleString()}
                             </Text>
                           )}
