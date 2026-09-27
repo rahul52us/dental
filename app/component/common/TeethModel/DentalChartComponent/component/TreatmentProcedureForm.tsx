@@ -400,6 +400,7 @@ export const TreatmentProcedureForm = observer(
                         position: position,
                         side: side,
                         treatmentDate: sessionDate || new Date().toISOString().split("T")[0],
+                        generalTitle: values.generalTitle || "",
                         notes: String(values.notes || ""),
                         treatmentPlan: values.treatmentCode || "",
                         status: (() => {
@@ -637,6 +638,24 @@ export const TreatmentProcedureForm = observer(
                         </HStack>
                     </VStack>
 
+                    <VStack align="start" spacing={2} w="full" mb={2}>
+                        <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.1em">GENERAL TITLE (OPTIONAL)</Text>
+                        <CustomInput
+                            name={activeId === "bulk" ? `bulk.generalTitle` : `treatments.${activeId}.generalTitle`}
+                            type="text"
+                            placeholder="Enter a general title for this record..."
+                            value={currentValues.generalTitle || ""}
+                            onChange={(e: any) => {
+                                const val = e.target.value;
+                                if (activeId === "bulk") {
+                                    teeth.forEach(t => setFieldValue(`treatments.${t.id}.generalTitle`, val));
+                                } else {
+                                    setFieldValue(`treatments.${activeId}.generalTitle`, val);
+                                }
+                            }}
+                        />
+                    </VStack>
+
                     {/* 2 & 3. Doctors - SAME ROW */}
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
 
@@ -849,6 +868,7 @@ export const TreatmentProcedureForm = observer(
                     trs[toothKey] = {
                         ...(trs[toothKey] || { ...initialFormData }),
                         treatmentCode: editData.treatmentPlan,
+                        generalTitle: editData.generalTitle || "",
                         notes: editData.notes,
                         estimateMin: editData.estimateMin || 0,
                         estimateMax: editData.estimateMax || 0,

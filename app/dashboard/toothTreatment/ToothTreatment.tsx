@@ -663,30 +663,40 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
         _hover={{ shadow: "md", transform: "translateY(-2px)", borderColor: "blue.200" }}
       >
         <Flex align="start" gap={6}>
-          {/* Left side: Tooth Identifier Box */}
-          <VStack
-            align="center"
-            justify="center"
-            bg="blue.50"
-            border="2px solid"
-            borderColor="blue.300"
-            borderRadius="2xl"
-            p={4}
-            minW="120px"
-            shadow="sm"
-            transition="all 0.2s"
-            _hover={{ bg: "blue.100", borderColor: "blue.400" }}
-          >
-            <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
-              {displayToothFDI === "General" || toothValue === "General" ? "GEN" : (displayToothFDI || toothValue || "??")}
-            </Text>
-            <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1} textTransform="uppercase" textAlign="center">
-              {line1}
-            </Text>
-            {line2 && (
-              <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
-                {line2}
+          {/* Left side: Tooth Identifier Box & General Title */}
+          <VStack align="center" spacing={2} minW="120px">
+            <VStack
+              align="center"
+              justify="center"
+              bg="blue.50"
+              border="2px solid"
+              borderColor="blue.300"
+              borderRadius="2xl"
+              p={4}
+              w="full"
+              shadow="sm"
+              transition="all 0.2s"
+              _hover={{ bg: "blue.100", borderColor: "blue.400" }}
+            >
+              <Text fontSize="34px" fontWeight="1000" color="blue.800" lineHeight="1" my={2}>
+                {displayToothFDI === "General" || toothValue === "General" ? "GEN" : (displayToothFDI || toothValue || "??")}
               </Text>
+              <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.08em" mb={1} textTransform="uppercase" textAlign="center">
+                {line1}
+              </Text>
+              {line2 && (
+                <Text fontSize="9px" fontWeight="1000" color="gray.600" textTransform="uppercase" textAlign="center" letterSpacing="0.02em">
+                  {line2}
+                </Text>
+              )}
+            </VStack>
+            
+            {dt.generalTitle && (
+              <Box bg="blue.600" borderRadius="md" px={3} py={1.5} w="full" textAlign="center" shadow="sm">
+                <Text fontSize="11px" fontWeight="900" color="white" noOfLines={2} textTransform="uppercase" letterSpacing="0.05em">
+                  {dt.generalTitle}
+                </Text>
+              </Box>
             )}
           </VStack>
 
