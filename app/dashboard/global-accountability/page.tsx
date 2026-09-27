@@ -111,6 +111,7 @@ const GlobalAccountabilityPage = observer(() => {
   const [paymentMode, setPaymentMode] = useState("all");
   const [treatmentCode, setTreatmentCode] = useState("");
   const [toothNumbers, setToothNumbers] = useState<any[]>([]);
+  const [sortBy, setSortBy] = useState("payment_desc");
 
   // Print Report States
   const toast = useToast();
@@ -357,6 +358,7 @@ const GlobalAccountabilityPage = observer(() => {
         paymentMode,
         treatmentCode,
         tooth: toothNumbers.length > 0 ? toothNumbers.map(t => t.value).join("|") : undefined,
+        sortBy
       };
 
       const result = await stores.workDoneStore.fetchGlobalAccountability(filters);
@@ -375,7 +377,7 @@ const GlobalAccountabilityPage = observer(() => {
     } finally {
       setLoading(false);
     }
-  }, [selectedPatients, selectedDoctors, fromDate, toDate, status, paymentMode, treatmentCode, toothNumbers]);
+  }, [selectedPatients, selectedDoctors, fromDate, toDate, status, paymentMode, treatmentCode, toothNumbers, sortBy]);
 
   useEffect(() => {
     fetchGlobalData(page);
@@ -425,6 +427,7 @@ const GlobalAccountabilityPage = observer(() => {
         treatmentCode,
         tooth: toothNumbers.length > 0 ? toothNumbers.map(t => t.value).join("|") : undefined,
         columns: selectedPrintColumns,
+        sortBy
       };
 
       const base64 = await stores.workDoneStore.fetchGlobalAccountabilityReportBase64(filters);
@@ -680,6 +683,20 @@ const GlobalAccountabilityPage = observer(() => {
               ]}
               value={paymentMode}
               onChange={(v: any) => setPaymentMode(v?.value || "all")}
+            />
+          </Box>
+          <Box>
+            <CustomInput
+              name="sortBy"
+              label="Sort By"
+              type="select"
+              options={[
+                { label: "Payment Date (Newest)", value: "payment_desc" },
+                { label: "Bill Date (Newest)", value: "date_desc" },
+                { label: "Bill Date (Oldest)", value: "date_asc" },
+              ]}
+              value={sortBy}
+              onChange={(v: any) => setSortBy(v?.value || "payment_desc")}
             />
           </Box>
           <GridItem colSpan={{ base: 1, md: 2, lg: 3, xl: 4 }}>
