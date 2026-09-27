@@ -309,7 +309,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
       if (typeof doc === 'object' && doc.name) return { label: doc.name, value: doc._id };
       return doc;
     })(),
-    workDoneNote: editData?.workDoneNote || treatmentDetails?.notes || "",
+    workDoneNote: editData?.workDoneNote || editData?.toothNote || "",
     status: editData?.status ? String(editData.status).toLowerCase() : "",
     amount: editData?.amount ?? "", // Keep empty for new records
     discount: editData?.discount ?? "", // Keep empty for new records
@@ -578,6 +578,20 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                             {/* TREATMENT ADVISE / Work Done Note (100% width) */}
                             <VStack align="start" spacing={2} w="full">
                               <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATMENT ADVISE (WORK DONE NOTE)</Text>
+                              {(treatmentDetails?.notes || treatmentDetails?.toothNote) && !editData?._id && (
+                                <Box w="full" p={4} bgGradient="linear(to-r, blue.50, transparent)" borderRadius="2xl" borderLeft="4px solid" borderColor="blue.400">
+                                  <HStack spacing={3} align="start">
+                                    <Icon as={FiActivity} color="blue.500" boxSize={5} mt={0.5} />
+                                    <VStack align="start" spacing={1}>
+                                      <Text fontSize="11px" fontWeight="1000" color="blue.700" letterSpacing="0.05em">ORIGINAL TREATMENT ADVISE</Text>
+                                      <Text fontSize="14px" color="gray.700" fontWeight="600" fontStyle="italic">
+                                        "{treatmentDetails?.notes || treatmentDetails?.toothNote}"
+                                      </Text>
+                                    </VStack>
+                                  </HStack>
+                                </Box>
+                              )}
+
                               <CustomInput
                                 name="workDoneNote"
                                 type="textarea"
