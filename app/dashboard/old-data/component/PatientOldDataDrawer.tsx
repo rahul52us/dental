@@ -40,6 +40,7 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [doctorFilter, setDoctorFilter] = useState("");
+  const [treatmentFilter, setTreatmentFilter] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
 
@@ -68,26 +69,6 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
       key: "Doctor",
       type: "text",
       props: { row: { minW: 130 } },
-    },
-    {
-      headerName: "Stage",
-      key: "Treatment_Stage",
-      type: "component",
-      metaData: {
-        component: (dt: any) =>
-          dt.Treatment_Stage ? (
-            <Badge
-              colorScheme={dt.Treatment_Stage === "Finished" ? "green" : "orange"}
-              borderRadius="md"
-              px={2}
-            >
-              {dt.Treatment_Stage}
-            </Badge>
-          ) : (
-            <Text color="gray.400">--</Text>
-          ),
-      },
-      props: { row: { minW: 100 } },
     },
     {
       headerName: "Teeth",
@@ -204,7 +185,8 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
       }
     }
     const matchDoctor = doctorFilter ? r.Doctor?.toLowerCase().includes(doctorFilter.toLowerCase()) : true;
-    return matchDate && matchDoctor;
+    const matchTreatment = treatmentFilter ? r.Treatments?.toLowerCase().includes(treatmentFilter.toLowerCase()) : true;
+    return matchDate && matchDoctor && matchTreatment;
   });
 
   const totalPaid = filteredRows.reduce((sum: number, r: any) => sum + (Number(r.Amount_Paid) || 0), 0);
@@ -339,6 +321,14 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
                   placeholder="Filter by Doctor (e.g. Dr. Anant)"
                   value={doctorFilter}
                   onChange={(e) => setDoctorFilter(e.target.value)}
+                  size="sm"
+                  maxW="250px"
+                  bg="white"
+                />
+                <Input
+                  placeholder="Filter by Treatment"
+                  value={treatmentFilter}
+                  onChange={(e) => setTreatmentFilter(e.target.value)}
                   size="sm"
                   maxW="250px"
                   bg="white"

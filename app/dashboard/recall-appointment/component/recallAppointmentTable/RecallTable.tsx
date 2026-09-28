@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, Flex, Input } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import moment from "moment";
@@ -43,6 +43,9 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
     type: "add",
@@ -83,6 +86,16 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         query.limit = tablePageLimit;
       }
 
+      if (filterStatus) {
+        query.status = filterStatus;
+      }
+      if (filterStartDate) {
+        query.fromDate = filterStartDate;
+      }
+      if (filterEndDate) {
+        query.toDate = filterEndDate;
+      }
+
       if (isPatient && patientDetails) {
         query.patient = patientDetails?._id;
       }
@@ -99,15 +112,20 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
     },
     [
       debouncedSearchQuery,
+      filterStatus,
+      filterStartDate,
+      filterEndDate,
       getRecallAppointments,
       openNotification,
       currentPage,
+      isPatient,
+      patientDetails,
     ],
   );
 
   useEffect(() => {
     applyGetAllRecords({ page: currentPage, limit: tablePageLimit });
-  }, [currentPage, debouncedSearchQuery, applyGetAllRecords]);
+  }, [currentPage, debouncedSearchQuery, filterStatus, filterStartDate, filterEndDate, applyGetAllRecords]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -116,6 +134,9 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
   const resetTableData = () => {
     setCurrentPage(1);
     setSearchQuery("");
+    setFilterStatus("");
+    setFilterStartDate("");
+    setFilterEndDate("");
     applyGetAllRecords({ page: 1, reset: true });
   };
 
@@ -335,8 +356,47 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
             searchValue: searchQuery,
             onSearchChange: (e: any) => setSearchQuery(e.target.value),
           },
+          customComponent: (
+            <Flex gap={2} alignItems="center">
+              <Input
+                type="date"
+                size="sm"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+                bg="white"
+                borderRadius="md"
+              />
+              <Text fontSize="sm" color="gray.500">to</Text>
+              <Input
+                type="date"
+                size="sm"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+                bg="white"
+                borderRadius="md"
+              />
+              <select
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #e2e8f0",
+                  backgroundColor: "white",
+                  fontSize: "14px",
+                  outline: "none",
+                  marginLeft: "8px"
+                }}
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="">All Statuses</option>
+                {status.map((st: any) => (
+                  <option key={st.value} value={st.value}>{st.label}</option>
+                ))}
+              </select>
+            </Flex>
+          ),
           resetData: {
-            show: false,
+            show: true,
             text: t("recall.table.resetData"),
             function: resetTableData,
           },

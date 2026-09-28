@@ -59,7 +59,7 @@ export default function CustomDateRange({
         <Box position="relative" width={{ base: "14.5rem", lg: "16rem" }}>
           <Input
             name="datePicker"
-            value=""
+            readOnly
             // width={{ base: "14rem", lg: "14rem" }}
             textAlign="center"
           />
@@ -98,8 +98,8 @@ export default function CustomDateRange({
             moveRangeOnFirstSelection={false}
             ranges={[
               {
-                startDate: startDate,
-                endDate: endDate,
+                startDate: isValidDate(startDate) ? startDate : new Date(),
+                endDate: isValidDate(endDate) ? endDate : new Date(),
                 key: "selection",
               },
             ]}
@@ -116,10 +116,8 @@ export default function CustomDateRange({
       <PopoverTrigger>
         <Input
           name="datePicker"
-          value={`${format(startDate, "d MMM yyyy")} to ${format(
-            endDate,
-            "d MMM yyyy"
-          )}`}
+          value={`${formattedStartDate} to ${formattedEndDate}`}
+          readOnly
           width={{ lg: "18rem" }}
           textAlign="center"
         />
@@ -136,8 +134,8 @@ export default function CustomDateRange({
             showPreview={true}
             ranges={[
               {
-                startDate: startDate,
-                endDate: endDate,
+                startDate: isValidDate(startDate) ? startDate : new Date(),
+                endDate: isValidDate(endDate) ? endDate : new Date(),
                 key: "selection",
               },
             ]}
