@@ -27,7 +27,7 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const columns = [
     {
-      headerName: "Lab Doctor",
+      headerName: "Name",
       key: "labDoctor",
       type: "component",
       metaData: {
@@ -39,7 +39,9 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             fontSize="sm"
             fontWeight="semibold"
           >
-            {item.labDoctor?.labDoctorName || "Unknown"}
+            {typeof item.labDoctor === "object" && item.labDoctor !== null
+              ? item.labDoctor.labDoctorName || item.labDoctor.label || item.labDoctor.value || "Unknown"
+              : item.labDoctor || "Unknown"}
           </Badge>
         ),
       },

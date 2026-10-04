@@ -134,7 +134,7 @@ const DoctorInventoryPage = observer(() => {
           setIsDrawerOpen({
             isOpen: true,
             type: "edit",
-            data: { ...dt, labDoctor: { label: dt.labDoctor?.labDoctorName, value: dt.labDoctor?._id } },
+            data: dt,
           });
         }}
       />

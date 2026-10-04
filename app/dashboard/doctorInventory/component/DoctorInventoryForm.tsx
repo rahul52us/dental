@@ -17,7 +17,7 @@ import stores from "../../../store/stores";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
-  labDoctor: Yup.object().required("Lab Doctor is required"),
+  labDoctor: Yup.string().required("Name is required"),
   description: Yup.string(),
 });
 
@@ -36,6 +36,9 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
     if (initialData) {
       setFormData({
         ...initialData,
+        labDoctor: typeof initialData.labDoctor === "object" && initialData.labDoctor !== null
+          ? initialData.labDoctor.labDoctorName || initialData.labDoctor.label || initialData.labDoctor.value || ""
+          : initialData.labDoctor || "",
       });
     } else {
       setFormData({
@@ -54,7 +57,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
         onSubmit={async (values: any) => {
           onSubmit({
             ...values,
-            labDoctor: values.labDoctor?.value || values.labDoctor,
+            labDoctor: values.labDoctor,
           });
         }}
       >
@@ -104,16 +107,12 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                 <GridItem>
                   <SimpleGrid columns={1} spacing={5} p={5} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor} boxShadow="sm">
                     <CustomInput
-                      label="Lab Doctor"
+                      label="Name"
                       name="labDoctor"
-                      type="real-time-search"
-                      params={{
-                        entityName: "labDoctorStore",
-                        functionName: "getLabDoctors",
-                        key: "labDoctorName",
-                      }}
+                      type="text"
+                      placeholder="Enter Name"
                       value={values.labDoctor}
-                      onChange={(e: any) => setFieldValue("labDoctor", e)}
+                      onChange={handleChange}
                       required={true}
                       error={errors.labDoctor && touched.labDoctor}
                       showError={errors.labDoctor && touched.labDoctor}
