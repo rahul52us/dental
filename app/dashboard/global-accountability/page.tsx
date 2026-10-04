@@ -699,6 +699,8 @@ const GlobalAccountabilityPage = observer(() => {
                 { label: "Payment Date (Newest)", value: "payment_desc" },
                 { label: "Bill Date (Newest)", value: "date_desc" },
                 { label: "Bill Date (Oldest)", value: "date_asc" },
+                { label: "Receipt No. (Highest First)", value: "receipt_desc" },
+                { label: "Receipt No. (Lowest First)", value: "receipt_asc" },
               ]}
               value={sortBy}
               onChange={(v: any) => setSortBy(v?.value || "payment_desc")}
