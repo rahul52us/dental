@@ -930,7 +930,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {openTreatment.open && (
                 <CustomDrawer
                     width="92%"
-                    title={`Treatment History: ${openTreatment.data?.name}`}
+                    title={`Treatment advise: ${openTreatment.data?.name}`}
                     open={openTreatment.open}
                     close={() => setOpenTreatment({ open: false, data: null, defaultTab: 0, defaultStatusFilter: "all" })}
                 >

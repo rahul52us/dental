@@ -927,7 +927,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                         h="28px"
                         shadow="sm"
                       >
-                        VIEW PLAN
+                        VIEW WORK DETAILS
                       </Button>
                     )}
 

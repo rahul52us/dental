@@ -600,7 +600,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         {openTreatmentDetails.open && (
           <CustomDrawer
             width="92%"
-            title={`Treatment History ${openTreatmentDetails.data?.name ? `(${openTreatmentDetails.data.name})` : ""}`}
+            title={`Treatment advise ${openTreatmentDetails.data?.name ? `(${openTreatmentDetails.data.name})` : ""}`}
             open={openTreatmentDetails.open}
             close={() => setOpenTreatmentDetails({ open: false, data: null, defaultTab: 0, defaultStatusFilter: "all" })}
           >
