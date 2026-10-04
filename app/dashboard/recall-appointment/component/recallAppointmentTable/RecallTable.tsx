@@ -1,5 +1,6 @@
 "use client";
-import { Box, Text, Flex, Input } from "@chakra-ui/react";
+import { Box, Text, Flex, Input, IconButton, Tooltip } from "@chakra-ui/react";
+import { FiRefreshCw } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import moment from "moment";
@@ -77,7 +78,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
     ({ page = currentPage, limit = tablePageLimit, reset = false }) => {
       const query: any = { page, limit };
 
-      if (debouncedSearchQuery?.trim()) {
+      if (!reset && debouncedSearchQuery?.trim()) {
         query.search = debouncedSearchQuery.trim();
       }
 
@@ -86,13 +87,13 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
         query.limit = tablePageLimit;
       }
 
-      if (filterStatus) {
+      if (!reset && filterStatus) {
         query.status = filterStatus;
       }
-      if (filterStartDate) {
+      if (!reset && filterStartDate) {
         query.fromDate = filterStartDate;
       }
-      if (filterEndDate) {
+      if (!reset && filterEndDate) {
         query.toDate = filterEndDate;
       }
 
@@ -393,6 +394,21 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   <option key={st.value} value={st.value}>{st.label}</option>
                 ))}
               </select>
+              <Tooltip label="Reset" placement="top" hasArrow>
+                <IconButton
+                  aria-label="Reset Filters"
+                  icon={<FiRefreshCw />}
+                  size="sm"
+                  colorScheme="red"
+                  variant="outline"
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="red.400"
+                  ml={3}
+                  onClick={resetTableData}
+                  _hover={{ bg: "red.50" }}
+                />
+              </Tooltip>
             </Flex>
           ),
           resetData: {
