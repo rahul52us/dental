@@ -1253,6 +1253,9 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     <span>Previous work done entered through tmt Plan</span>
                   </Tooltip>
                 </Tab>
+                <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
+                  All Work Done History
+                </Tab>
               </TabList>
               <TabPanels>
                 <TabPanel p={0}>
@@ -1269,6 +1272,11 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   <WorkDoneList
                     patientDetails={typeof openWorkDone.data?.patient === 'object' ? openWorkDone.data.patient : patientDetails}
                     treatmentId={openWorkDone.data?._id}
+                  />
+                </TabPanel>
+                <TabPanel p={0}>
+                  <PatientWorkDoneHistory 
+                    patientDetails={typeof openWorkDone.data?.patient === 'object' ? openWorkDone.data.patient : patientDetails} 
                   />
                 </TabPanel>
               </TabPanels>
