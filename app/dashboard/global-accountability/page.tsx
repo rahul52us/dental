@@ -80,6 +80,7 @@ const ALL_PRINT_COLUMNS = [
 
 const GlobalAccountabilityPage = observer(() => {
   const user = stores?.auth?.user;
+  const isAdmin = user?.role?.toLowerCase() === "admin" || user?.userType?.toLowerCase() === "admin";
   const bgCard = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const tableHeaderBg = useColorModeValue("gray.50", "gray.700");
@@ -503,18 +504,20 @@ const GlobalAccountabilityPage = observer(() => {
           </HStack>
         </Box>
         <HStack spacing={4} position="relative" zIndex={1} w={{ base: "100%", md: "auto" }}>
-          <Button
-            leftIcon={<FiFileText />}
-            colorScheme="whiteAlpha"
-            variant="solid"
-            size="sm"
-            borderRadius="full"
-            onClick={() => setIsMonthlyModalOpen(true)}
-            _hover={{ bg: "whiteAlpha.300" }}
-            w={{ base: "100%", md: "auto" }}
-          >
-            Monthly Patient Report
-          </Button>
+          {isAdmin && (
+            <Button
+              leftIcon={<FiFileText />}
+              colorScheme="whiteAlpha"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              onClick={() => setIsMonthlyModalOpen(true)}
+              _hover={{ bg: "whiteAlpha.300" }}
+              w={{ base: "100%", md: "auto" }}
+            >
+              Monthly Patient Report
+            </Button>
+          )}
           <Button
             leftIcon={<FiPrinter />}
             colorScheme="whiteAlpha"
@@ -573,6 +576,7 @@ const GlobalAccountabilityPage = observer(() => {
                   type="date"
                   value={fromDate}
                   onChange={(e: any) => setFromDate(e.target.value)}
+                  disabled={!isAdmin}
                 />
               </Box>
               <Box flex="1" w="100%">
@@ -582,6 +586,7 @@ const GlobalAccountabilityPage = observer(() => {
                   type="date"
                   value={toDate}
                   onChange={(e: any) => setToDate(e.target.value)}
+                  disabled={!isAdmin}
                 />
               </Box>
             </Flex>
