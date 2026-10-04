@@ -1315,7 +1315,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                             }}
                           />
                         )}
-                        {stores.auth.hasPermission('accountability', 'edit') && new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") && h.paymentMethod !== 'Transferred to Wallet' && (
+                        {stores.auth.hasPermission('accountability', 'edit') && (new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") || stores.auth.user?.role?.toLowerCase() === 'superadmin' || stores.auth.user?.role?.toLowerCase() === 'admin') && h.paymentMethod !== 'Transferred to Wallet' && (
                           <>
                             <IconButton
                               aria-label="Edit Amount"
