@@ -265,15 +265,15 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
                 <Text fontSize="xs" opacity={0.8} mb={1}>Records</Text>
                 <Badge colorScheme="blue" fontSize="md" px={3} py={1} borderRadius="lg">{filteredRows.length}</Badge>
               </Box>
-              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl" display="none">
                 <Text fontSize="xs" opacity={0.8} mb={1}>Total Fee</Text>
                 <Badge colorScheme="blue" fontSize="md" px={3} py={1} borderRadius="lg">₹{rawTotalDue.toLocaleString("en-IN")}</Badge>
               </Box>
-              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl" display="none">
                 <Text fontSize="xs" opacity={0.8} mb={1}>Discount</Text>
                 <Badge colorScheme="purple" fontSize="md" px={3} py={1} borderRadius="lg">₹{totalDiscount.toLocaleString("en-IN")}</Badge>
               </Box>
-              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl">
+              <Box textAlign="center" bg="whiteAlpha.200" px={3} py={2} borderRadius="xl" display="none">
                 <Text fontSize="xs" opacity={0.8} mb={1}>Total Paid</Text>
                 <Badge colorScheme="green" fontSize="md" px={3} py={1} borderRadius="lg">₹{totalPaid.toLocaleString("en-IN")}</Badge>
               </Box>

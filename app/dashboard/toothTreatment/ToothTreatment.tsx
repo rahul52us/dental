@@ -12,7 +12,7 @@ import stores from "../../store/stores";
 import Index from "../../component/common/TeethModel/DentalChartComponent";
 import { PatientHeader } from "../../component/common/TeethModel/DentalChartComponent/component/PatientHeader";
 import TreatmentDetailsView from "./element/TreatmentDetailsView";
-import { FiGrid, FiList, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2, FiRefreshCw } from "react-icons/fi";
+import { FiGrid, FiList, FiEye, FiEdit3, FiSearch, FiActivity, FiTrash2, FiRefreshCw, FiDollarSign } from "react-icons/fi";
 import { FaTooth } from "react-icons/fa";
 import Pagination from "../../component/config/component/pagination/Pagination";
 import WorkDoneForm from "../workDone/component/WorkDoneForm";
@@ -723,11 +723,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   {dt.status?.toUpperCase() || "PENDING"}
                 </Badge>
               )}
-              {(dt.estimateMin || dt.estimateMax) && (
-                <Badge colorScheme="blue" variant="outline" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
-                  ₹{dt.estimateMin || 0} - ₹{dt.estimateMax || 0}
-                </Badge>
-              )}
+
               {dt.sittingNo ? (
                  <Badge colorScheme="purple" variant="solid" borderRadius="full" px={3} fontSize="14px" fontWeight="800">
                    Sitting: {dt.sittingNo}
@@ -756,6 +752,34 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             <Text fontSize="lg" fontWeight="800" color="gray.800" noOfLines={2} pt={1}>
               {dt.treatmentPlan || "General Consultation"}
             </Text>
+
+            {/* Financial Details (like Work Done card) */}
+            {(dt.estimateMin > 0 || dt.estimateMax > 0 || dt.discount > 0 || dt.totalMin > 0) && (
+              <HStack spacing={4} w="full" mt={4} align="stretch" flexWrap="wrap">
+                <Box flex={1} minW="120px" bg="blue.50" p={3} borderRadius="lg" border="1px solid" borderColor="blue.100">
+                  <Text fontSize="10px" fontWeight="900" color="blue.500" textTransform="uppercase" letterSpacing="wider">ESTIMATE</Text>
+                  <Text fontSize="md" fontWeight="900" color="blue.800" mt={1}>
+                    <Text as="span" fontSize="xs" color="blue.600" mr={1}>Min:</Text>₹{dt.estimateMin?.toLocaleString("en-IN") || 0}
+                    {dt.estimateMax > 0 ? <><Text as="span" fontSize="xs" color="blue.600" ml={2} mr={1}>Max:</Text>₹{dt.estimateMax.toLocaleString("en-IN")}</> : ''}
+                  </Text>
+                </Box>
+
+                <Box flex={1} minW="120px" bg="red.50" p={3} borderRadius="lg" border="1px solid" borderColor="red.100">
+                  <Text fontSize="10px" fontWeight="900" color="red.500" textTransform="uppercase" letterSpacing="wider">DISCOUNT</Text>
+                  <Text fontSize="md" fontWeight="900" color="red.800" mt={1}>
+                    ₹{dt.discount?.toLocaleString("en-IN") || 0}
+                  </Text>
+                </Box>
+
+                <Box flex={1} minW="120px" bg="green.50" p={3} borderRadius="lg" border="1px solid" borderColor="green.100">
+                  <Text fontSize="10px" fontWeight="900" color="green.600" textTransform="uppercase" letterSpacing="wider">NET QUOTATION</Text>
+                  <Text fontSize="md" fontWeight="900" color="green.800" mt={1}>
+                    <Text as="span" fontSize="xs" color="green.600" mr={1}>Min:</Text>₹{(dt.totalMin !== undefined ? dt.totalMin : dt.estimateMin || 0)?.toLocaleString("en-IN")}
+                    {(dt.totalMax > 0 || dt.estimateMax > 0) ? <><Text as="span" fontSize="xs" color="green.600" ml={2} mr={1}>Max:</Text>₹{(dt.totalMax !== undefined && dt.totalMax > 0 ? dt.totalMax : dt.estimateMax).toLocaleString("en-IN")}</> : ''}
+                  </Text>
+                </Box>
+              </HStack>
+            )}
           </VStack>
 
           {/* Right side: Floating Actions */}
