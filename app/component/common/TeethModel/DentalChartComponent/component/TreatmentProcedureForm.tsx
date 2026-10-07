@@ -848,8 +848,8 @@ export const TreatmentProcedureForm = observer(
                     ...initialFormData,
                     patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
                     notes: generalDescription,
-                    doctor: lastExaminingDoctor || undefined,
-                    examiningDoctor: lastExaminingDoctor || undefined,
+                    doctor: undefined,
+                    examiningdoctor: undefined,
                     complaintType: toothComplaints[t.id] || complaintType || "OTHER FINDING",
                 };
             });
@@ -875,10 +875,10 @@ export const TreatmentProcedureForm = observer(
                         discount: editData.discount || 0,
                         totalMin: editData.totalMin || 0,
                         totalMax: editData.totalMax || 0,
-                        doctor: editData.doctor ? (typeof editData.doctor === 'object' ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor) : (lastExaminingDoctor || undefined),
+                        doctor: editData.doctor ? (typeof editData.doctor === 'object' ? { label: editData.doctor.name, value: editData.doctor._id } : editData.doctor) : undefined,
                         complaintType: editData.complaintType || "OTHER FINDING",
                         status: editData.status || "pending",
-                        examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : (lastExaminingDoctor || undefined),
+                        examiningDoctor: editData.examiningDoctor ? (typeof editData.examiningDoctor === 'object' ? { label: editData.examiningDoctor.name, value: editData.examiningDoctor._id } : editData.examiningDoctor) : undefined,
                     };
                 }
             }
