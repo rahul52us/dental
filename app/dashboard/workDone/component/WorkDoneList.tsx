@@ -1848,7 +1848,8 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                   size="sm"
                                   type="number"
                                   borderRadius="lg"
-                                  value={localFormData.doseNo}
+                                  placeholder=""
+                                  value={Number(localFormData.doseNo) === 0 ? '' : localFormData.doseNo}
                                   onChange={(e) => setLocalFormData({ ...localFormData, doseNo: parseInt(e.target.value) || 0 })}
                                 />
                               </Box>
@@ -1884,8 +1885,8 @@ const PrescriptionPrintDrawer = observer(({ isOpen, onClose, workDoneId, patient
                                 size="sm"
                                 type="number"
                                 borderRadius="lg"
-                                placeholder="0"
-                                value={localFormData.noOfDays}
+                                placeholder=""
+                                value={Number(localFormData.noOfDays) === 0 ? '' : localFormData.noOfDays}
                                 onChange={(e) => {
                                   const days = parseInt(e.target.value) || 0;
                                   // Basic auto-calc logic for Pattern (e.g. 1-0-1 or 1-1-1)
@@ -2560,7 +2561,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                               </Box>
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>QTY</Text>
-                                <Input bg="white" size="sm" type="number" borderRadius="lg" value={localFormData.doseNo} onChange={(e) => setLocalFormData({ ...localFormData, doseNo: parseInt(e.target.value) || 0 })} />
+                                <Input bg="white" size="sm" type="number" borderRadius="lg" placeholder="0" value={localFormData.doseNo || ''} onChange={(e) => setLocalFormData({ ...localFormData, doseNo: parseInt(e.target.value) || 0 })} />
                               </Box>
                               <Box>
                                 <Text fontSize="10px" fontWeight="900" color="gray.700" mb={1.5}>PATTERN</Text>
@@ -2595,7 +2596,7 @@ const DailyPrescriptionDrawer = observer(({ isOpen, onClose, patientId, mode, fi
                                 type="number"
                                 borderRadius="lg"
                                 placeholder="0"
-                                value={localFormData.noOfDays}
+                                value={localFormData.noOfDays || ''}
                                 onChange={(e) => {
                                   const days = parseInt(e.target.value) || 0;
                                   let timesPerDay = 1;

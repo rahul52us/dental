@@ -709,7 +709,7 @@ export const TreatmentProcedureForm = observer(
                             name={activeId === "bulk" ? `bulk.notes` : `treatments.${activeId}.notes`}
                             type="textarea"
                             placeholder="Enter detailed documentation regarding symptoms, findings, or patient concerns..."
-                            value={currentValues.notes}
+                            value={currentValues.notes || ""}
                             onChange={(e: any) => {
                                 const val = e.target.value;
                                 if (activeId === "bulk") {
@@ -885,11 +885,15 @@ export const TreatmentProcedureForm = observer(
             return trs;
         }, [teeth, patientDetails?._id, editData?._id, lastExaminingDoctor]);
 
+        const formInitialValues = useMemo(() => {
+            return {
+                treatments: { ...initialTreatments, ...(hoistedValues?.treatments || {}) },
+            };
+        }, [initialTreatments]);
+
         return (
             <Formik
-                initialValues={{
-                    treatments: { ...initialTreatments, ...(hoistedValues?.treatments || {}) },
-                }}
+                initialValues={formInitialValues}
                 enableReinitialize={true}
                 onSubmit={handleSubmit}
             >

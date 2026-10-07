@@ -450,7 +450,7 @@ export const ToothFormDialog = observer(
                           name="notes"
                           type="textarea"
                           placeholder="Enter detailed documentation regarding symptoms, findings, or patient concerns..."
-                          value={values.notes}
+                          value={values.notes || ""}
                           onChange={(e: any) => setFieldValue("notes", e.target.value)}
                           style={{
                             minHeight: "130px",
