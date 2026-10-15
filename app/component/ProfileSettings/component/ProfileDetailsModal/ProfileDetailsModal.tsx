@@ -430,10 +430,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
           <Tabs isFitted variant="enclosed" colorScheme="blue" index={profileModal.defaultTab} onChange={(index) => setProfileModal(true, index)}>
             <TabList px={4} pt={4}>
               <Tab fontWeight="bold">Profile</Tab>
-              <Tab fontWeight="bold">Operating Hours</Tab>
+              {user?.role === "admin" && <Tab fontWeight="bold">Operating Hours</Tab>}
               <Tab fontWeight="bold">Sidebar</Tab>
               <Tab fontWeight="bold">Theme</Tab>
-              <Tab fontWeight="bold">WhatsApp</Tab>
+              {user?.role === "admin" && <Tab fontWeight="bold">WhatsApp</Tab>}
             </TabList>
 
             <TabPanels>
@@ -688,10 +688,12 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                 </VStack>
               </TabPanel>
 
-              {/* TAB 2: Operating Hours (Placeholder) */}
-              <TabPanel p={6}>
-                <OperatingHours schedule={schedule} setSchedule={setSchedule} />
-              </TabPanel>
+              {/* TAB 2: Operating Hours */}
+              {user?.role === "admin" && (
+                <TabPanel p={6}>
+                  <OperatingHours schedule={schedule} setSchedule={setSchedule} />
+                </TabPanel>
+              )}
 
               <TabPanel p={6}>
                 <ProfileSettings />
@@ -703,9 +705,11 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               </TabPanel>
 
               {/* TAB 5: WhatsApp Settings */}
-              <TabPanel p={6}>
-                <WhatsappSettings user={user} />
-              </TabPanel>
+              {user?.role === "admin" && (
+                <TabPanel p={6}>
+                  <WhatsappSettings user={user} />
+                </TabPanel>
+              )}
             </TabPanels>
           </Tabs>
         </DrawerBody>
