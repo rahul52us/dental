@@ -357,7 +357,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                 <VStack align="stretch" spacing={4} pt={4}>
                   {/* Header */}
                   <Box mb={-4}>
-                    <HStack justify="space-between" align="start">
+                    <HStack justify="space-between" align="center" wrap="wrap" gap={3}>
                       <VStack align="start" spacing={0}>
                         <Text fontSize="10px" fontWeight="1000" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">
                           CLINICAL ENTRY
@@ -367,22 +367,88 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         </Heading>
                       </VStack>
 
-                      {treatmentDetails && (
-                        <Button
-                          type="button"
-                          leftIcon={<FiEye />}
-                          variant="ghost"
-                          colorScheme="blue"
-                          size="sm"
-                          fontWeight="900"
-                          fontSize="11px"
-                          borderRadius="full"
-                          onClick={() => setIsViewModalOpen(true)}
-                          _hover={{ bg: "blue.50" }}
-                        >
-                          VIEW FULL PLAN
-                        </Button>
-                      )}
+                      {treatmentDetails && (() => {
+                        const baseEstimate = treatmentDetails.estimateMin || 0;
+                        const maxEstimate = treatmentDetails.estimateMax || 0;
+                        let oldBilled = treatmentDetails.receivedAmount || 0;
+                        if (editData) {
+                          const oldNet = (Number(editData.amount) || 0) - (Number(editData.discount) || 0);
+                          oldBilled -= oldNet;
+                        }
+                        const currentNet = (Number(values.amount) || 0) - (Number(values.discount) || 0);
+                        const realTimeBilled = oldBilled + currentNet;
+                        const realTimeBalance = (maxEstimate || baseEstimate) - realTimeBilled;
+
+                        return (
+                          <HStack spacing={3} align="center" wrap="wrap">
+                            {/* Estimate Summary Card */}
+                            <HStack
+                              bg="blue.50"
+                              border="1px solid"
+                              borderColor="blue.200"
+                              borderRadius="2xl"
+                              px={3.5}
+                              py={1.5}
+                              spacing={3}
+                              shadow="xs"
+                            >
+                              <VStack align="start" spacing={0}>
+                                <Text fontSize="8.5px" fontWeight="900" color="blue.600" letterSpacing="0.08em">
+                                  TMT ESTIMATE
+                                </Text>
+                                <Text fontSize="12px" fontWeight="1000" color="blue.900">
+                                  ₹{baseEstimate.toLocaleString()}{maxEstimate && maxEstimate !== baseEstimate ? ` - ₹${maxEstimate.toLocaleString()}` : ""}
+                                </Text>
+                              </VStack>
+
+                              <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+
+                              <VStack align="start" spacing={0}>
+                                <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                  TOTAL BILLED
+                                </Text>
+                                <Text fontSize="12px" fontWeight="1000" color="gray.800">
+                                  ₹{realTimeBilled.toLocaleString()}
+                                </Text>
+                              </VStack>
+
+                              {(baseEstimate > 0 || maxEstimate > 0) && (
+                                <>
+                                  <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                      BALANCE
+                                    </Text>
+                                    <Text
+                                      fontSize="12px"
+                                      fontWeight="1000"
+                                      color={realTimeBalance <= 0 ? "green.600" : "orange.600"}
+                                    >
+                                      ₹{Math.max(0, realTimeBalance).toLocaleString()}
+                                    </Text>
+                                  </VStack>
+                                </>
+                              )}
+                            </HStack>
+
+                            <Button
+                              type="button"
+                              leftIcon={<FiEye />}
+                              variant="ghost"
+                              colorScheme="blue"
+                              size="sm"
+                              fontWeight="900"
+                              fontSize="11px"
+                              borderRadius="full"
+                              onClick={() => setIsViewModalOpen(true)}
+                              _hover={{ bg: "blue.50" }}
+                            >
+                              VIEW FULL PLAN
+                            </Button>
+                          </HStack>
+                        );
+                      })()}
                     </HStack>
                   </Box>
 
@@ -1184,8 +1250,17 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
           );
         }}
       </Formik>
+      {treatmentDetails && isViewModalOpen && (
+        <CustomDrawer
+          open={isViewModalOpen}
+          close={() => setIsViewModalOpen(false)}
+          title="Full Treatment Plan Details"
+          width="75vw"
+        >
+          <TreatmentDetailsView data={treatmentDetails} />
+        </CustomDrawer>
+      )}
     </Box>
-
   );
 });
 

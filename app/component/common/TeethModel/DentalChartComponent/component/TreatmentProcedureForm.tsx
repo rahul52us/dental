@@ -849,7 +849,7 @@ export const TreatmentProcedureForm = observer(
                     patient: { label: `${patientDetails?.name}`, value: patientDetails?._id },
                     notes: generalDescription,
                     doctor: undefined,
-                    examiningdoctor: undefined,
+                    examiningDoctor: undefined,
                     complaintType: toothComplaints[t.id] || complaintType || "OTHER FINDING",
                 };
             });
