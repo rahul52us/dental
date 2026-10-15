@@ -102,8 +102,6 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   }, [treatmentDetails, editData]);
 
 
-
-
   useEffect(() => {
     const companyId = patientDetails?.company?._id || patientDetails?.company || stores.auth.company;
     getProcedures(companyId ? { companyId } : {});
@@ -367,88 +365,22 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         </Heading>
                       </VStack>
 
-                      {treatmentDetails && (() => {
-                        const baseEstimate = treatmentDetails.estimateMin || 0;
-                        const maxEstimate = treatmentDetails.estimateMax || 0;
-                        let oldBilled = treatmentDetails.receivedAmount || 0;
-                        if (editData) {
-                          const oldNet = (Number(editData.amount) || 0) - (Number(editData.discount) || 0);
-                          oldBilled -= oldNet;
-                        }
-                        const currentNet = (Number(values.amount) || 0) - (Number(values.discount) || 0);
-                        const realTimeBilled = oldBilled + currentNet;
-                        const realTimeBalance = (maxEstimate || baseEstimate) - realTimeBilled;
-
-                        return (
-                          <HStack spacing={3} align="center" wrap="wrap">
-                            {/* Estimate Summary Card */}
-                            <HStack
-                              bg="blue.50"
-                              border="1px solid"
-                              borderColor="blue.200"
-                              borderRadius="2xl"
-                              px={3.5}
-                              py={1.5}
-                              spacing={3}
-                              shadow="xs"
-                            >
-                              <VStack align="start" spacing={0}>
-                                <Text fontSize="8.5px" fontWeight="900" color="blue.600" letterSpacing="0.08em">
-                                  TMT ESTIMATE
-                                </Text>
-                                <Text fontSize="12px" fontWeight="1000" color="blue.900">
-                                  ₹{baseEstimate.toLocaleString()}{maxEstimate && maxEstimate !== baseEstimate ? ` - ₹${maxEstimate.toLocaleString()}` : ""}
-                                </Text>
-                              </VStack>
-
-                              <Divider orientation="vertical" h="22px" borderColor="blue.200" />
-
-                              <VStack align="start" spacing={0}>
-                                <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
-                                  TOTAL BILLED
-                                </Text>
-                                <Text fontSize="12px" fontWeight="1000" color="gray.800">
-                                  ₹{realTimeBilled.toLocaleString()}
-                                </Text>
-                              </VStack>
-
-                              {(baseEstimate > 0 || maxEstimate > 0) && (
-                                <>
-                                  <Divider orientation="vertical" h="22px" borderColor="blue.200" />
-
-                                  <VStack align="start" spacing={0}>
-                                    <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
-                                      BALANCE
-                                    </Text>
-                                    <Text
-                                      fontSize="12px"
-                                      fontWeight="1000"
-                                      color={realTimeBalance <= 0 ? "green.600" : "orange.600"}
-                                    >
-                                      ₹{Math.max(0, realTimeBalance).toLocaleString()}
-                                    </Text>
-                                  </VStack>
-                                </>
-                              )}
-                            </HStack>
-
-                            <Button
-                              type="button"
-                              leftIcon={<FiEye />}
-                              variant="ghost"
-                              colorScheme="blue"
-                              size="sm"
-                              fontWeight="900"
-                              fontSize="11px"
-                              borderRadius="full"
-                              onClick={() => setIsViewModalOpen(true)}
-                              _hover={{ bg: "blue.50" }}
-                            >
-                              VIEW FULL PLAN
-                            </Button>
-                          </HStack>
-                        );
-                      })()}
+                      {treatmentDetails && (
+                        <Button
+                          type="button"
+                          leftIcon={<FiEye />}
+                          variant="ghost"
+                          colorScheme="blue"
+                          size="sm"
+                          fontWeight="900"
+                          fontSize="11px"
+                          borderRadius="full"
+                          onClick={() => setIsViewModalOpen(true)}
+                          _hover={{ bg: "blue.50" }}
+                        >
+                          VIEW FULL PLAN
+                        </Button>
+                      )}
                     </HStack>
                   </Box>
 
@@ -641,6 +573,22 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               </VStack>
                             </Grid>
 
+                            <VStack align="start" spacing={2} w="full">
+                              <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">General Title</Text>
+                              {(treatmentDetails?.generalTitle || treatmentDetails?.generalTitle) && !editData?._id && (
+                                <Box w="full" p={4} bgGradient="linear(to-r, blue.50, transparent)" borderRadius="2xl" borderLeft="4px solid" borderColor="blue.400">
+                                  <HStack spacing={3} align="start">
+                                    <Icon as={FiActivity} color="blue.500" boxSize={5} mt={0.5} />
+                                    <VStack align="start" spacing={1}>
+                                      <Text fontSize="14px" color="gray.700" fontWeight="600" fontStyle="italic">
+                                        "{treatmentDetails?.generalTitle || treatmentDetails?.generalTitle}"
+                                      </Text>
+                                    </VStack>
+                                  </HStack>
+                                </Box>
+                              )}
+                            </VStack>
+
                             {/* TREATMENT ADVISE / Work Done Note (100% width) */}
                             <VStack align="start" spacing={2} w="full">
                               <Text fontSize="12px" fontWeight="bold" color="gray.700" letterSpacing="0.05em">TREATMENT ADVISE (WORK DONE NOTE)</Text>
@@ -670,7 +618,74 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                             {/* Today Dues Card (100% width) */}
                             <VStack align="stretch" spacing={4} p={5} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
-                              <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.1em">TODAY DUES</Text>
+                              <HStack justify="space-between" align="center" wrap="wrap" gap={3}>
+                                <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.1em">TODAY DUES</Text>
+
+                                {treatmentDetails && (() => {
+                                  const baseEstimate = treatmentDetails.estimateMin || 0;
+                                  const maxEstimate = treatmentDetails.estimateMax || 0;
+                                  let oldBilled = treatmentDetails.receivedAmount || 0;
+                                  if (editData) {
+                                    const oldNet = (Number(editData.amount) || 0) - (Number(editData.discount) || 0);
+                                    oldBilled -= oldNet;
+                                  }
+                                  const currentNet = (Number(values.amount) || 0) - (Number(values.discount) || 0);
+                                  const realTimeBilled = oldBilled + currentNet;
+                                  const realTimeBalance = (maxEstimate || baseEstimate) - realTimeBilled;
+
+                                  return (
+                                    <HStack
+                                      bg="white"
+                                      border="1px solid"
+                                      borderColor="blue.200"
+                                      borderRadius="2xl"
+                                      px={3.5}
+                                      py={1.5}
+                                      spacing={3}
+                                      shadow="xs"
+                                    >
+                                      <VStack align="start" spacing={0}>
+                                        <Text fontSize="8.5px" fontWeight="900" color="blue.600" letterSpacing="0.08em">
+                                          TMT ESTIMATE
+                                        </Text>
+                                        <Text fontSize="12px" fontWeight="1000" color="blue.900">
+                                          ₹{baseEstimate.toLocaleString()}{maxEstimate && maxEstimate !== baseEstimate ? ` - ₹${maxEstimate.toLocaleString()}` : ""}
+                                        </Text>
+                                      </VStack>
+
+                                      <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+
+                                      <VStack align="start" spacing={0}>
+                                        <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                          TOTAL BILLED
+                                        </Text>
+                                        <Text fontSize="12px" fontWeight="1000" color="gray.800">
+                                          ₹{realTimeBilled.toLocaleString()}
+                                        </Text>
+                                      </VStack>
+
+                                      {(baseEstimate > 0 || maxEstimate > 0) && (
+                                        <>
+                                          <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+
+                                          <VStack align="start" spacing={0}>
+                                            <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                              BALANCE
+                                            </Text>
+                                            <Text
+                                              fontSize="12px"
+                                              fontWeight="1000"
+                                              color={realTimeBalance <= 0 ? "green.600" : "orange.600"}
+                                            >
+                                              ₹{Math.max(0, realTimeBalance).toLocaleString()}
+                                            </Text>
+                                          </VStack>
+                                        </>
+                                      )}
+                                    </HStack>
+                                  );
+                                })()}
+                              </HStack>
                               <Grid templateColumns="1fr 1fr" gap={4}>
                                 <VStack align="start" spacing={1}>
                                   <Text fontSize="11px" fontWeight="bold" color="gray.700">Actual Amount (₹)</Text>
@@ -863,7 +878,74 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         </VStack>
 
                         <VStack align="stretch" spacing={5} p={6} bg={values.complaintType === "CHIEF COMPLAINT" ? "red.50" : values.complaintType === "OTHER FINDING" ? "orange.50" : values.complaintType === "EXISTING FINDING" ? "green.50" : "blue.50"} borderRadius="3xl" border="1px solid" borderColor={complaintColor}>
-                          <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.1em">TODAY DUES</Text>
+                          <HStack justify="space-between" align="center" wrap="wrap" gap={3}>
+                            <Text fontSize="12px" fontWeight="bold" color={complaintColor} letterSpacing="0.1em">TODAY DUES</Text>
+
+                            {treatmentDetails && (() => {
+                              const baseEstimate = treatmentDetails.estimateMin || 0;
+                              const maxEstimate = treatmentDetails.estimateMax || 0;
+                              let oldBilled = treatmentDetails.receivedAmount || 0;
+                              if (editData) {
+                                const oldNet = (Number(editData.amount) || 0) - (Number(editData.discount) || 0);
+                                oldBilled -= oldNet;
+                              }
+                              const currentNet = (Number(values.amount) || 0) - (Number(values.discount) || 0);
+                              const realTimeBilled = oldBilled + currentNet;
+                              const realTimeBalance = (maxEstimate || baseEstimate) - realTimeBilled;
+
+                              return (
+                                <HStack
+                                  bg="white"
+                                  border="1px solid"
+                                  borderColor="blue.200"
+                                  borderRadius="2xl"
+                                  px={3.5}
+                                  py={1.5}
+                                  spacing={3}
+                                  shadow="xs"
+                                >
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="8.5px" fontWeight="900" color="blue.600" letterSpacing="0.08em">
+                                      TMT ESTIMATE
+                                    </Text>
+                                    <Text fontSize="12px" fontWeight="1000" color="blue.900">
+                                      ₹{baseEstimate.toLocaleString()}{maxEstimate && maxEstimate !== baseEstimate ? ` - ₹${maxEstimate.toLocaleString()}` : ""}
+                                    </Text>
+                                  </VStack>
+
+                                  <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                      TOTAL BILLED
+                                    </Text>
+                                    <Text fontSize="12px" fontWeight="1000" color="gray.800">
+                                      ₹{realTimeBilled.toLocaleString()}
+                                    </Text>
+                                  </VStack>
+
+                                  {(baseEstimate > 0 || maxEstimate > 0) && (
+                                    <>
+                                      <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+
+                                      <VStack align="start" spacing={0}>
+                                        <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                          BALANCE
+                                        </Text>
+                                        <Text
+                                          fontSize="12px"
+                                          fontWeight="1000"
+                                          color={realTimeBalance <= 0 ? "green.600" : "orange.600"}
+                                        >
+                                          ₹{Math.max(0, realTimeBalance).toLocaleString()}
+                                        </Text>
+                                      </VStack>
+                                    </>
+                                  )}
+                                </HStack>
+                              );
+                            })()}
+                          </HStack>
                           <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                             <VStack align="start" spacing={1}>
                               <Text fontSize="11px" fontWeight="bold" color="gray.700">Actual Amount (₹)</Text>
