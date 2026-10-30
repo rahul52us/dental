@@ -59,6 +59,7 @@ import { FormControl, FormLabel } from "@chakra-ui/react";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 import WalletHistoryDrawer from "../../component/WalletHistoryDrawer";
 import { toJS } from "mobx";
+import moment from "moment";
 
 const ALL_PRINT_COLUMNS = [
   { key: "date", label: "Bill Date" },
@@ -1518,24 +1519,36 @@ const GlobalAccountabilityPage = observer(() => {
                           }}
                         />
                       )}
-                      {stores.auth.hasPermission('accountability', 'edit') && (new Date(h.date).toLocaleDateString("en-GB") === new Date().toLocaleDateString("en-GB") || stores.auth.user?.role?.toLowerCase() === 'superadmin' || stores.auth.user?.role?.toLowerCase() === 'admin') && h.paymentMethod !== 'Transferred to Wallet' && (
-                        <>
-                          <IconButton aria-label="Edit Amount" icon={<FiEdit2 />} size="sm" colorScheme="orange" variant="ghost" borderRadius="full"
-                            onClick={() => {
-                              setEditingPaymentIndex(i);
-                              setEditAmount(String(h.amount));
-                              setIsEditAmountOpen(true);
-                            }}
-                          />
-                          <IconButton aria-label="Delete Payment" icon={<FiTrash2 />} size="sm" colorScheme="red" variant="ghost" borderRadius="full"
-                            onClick={() => {
-                              setPaymentToDelete({ payment: h, index: i });
-                              setDeleteConfirmText("");
-                              setIsDeleteModalOpen(true);
-                            }}
-                          />
-                        </>
-                      )}
+                      {(() => {
+                        const user = stores.auth.user;
+                        const role = (user?.role || user?.userType || "")?.toLowerCase();
+                        const isAdmin = role === 'superadmin' || role === 'admin';
+                        const isToday = moment(h.date).isSame(moment(), 'day');
+                        const canModify = (isAdmin || isToday) && h.paymentMethod !== 'Transferred to Wallet';
+
+                        return (
+                          <>
+                            {canModify && stores.auth.hasPermission('accountability', 'edit') && (
+                              <IconButton aria-label="Edit Amount" icon={<FiEdit2 />} size="sm" colorScheme="orange" variant="ghost" borderRadius="full"
+                                onClick={() => {
+                                  setEditingPaymentIndex(i);
+                                  setEditAmount(String(h.amount));
+                                  setIsEditAmountOpen(true);
+                                }}
+                              />
+                            )}
+                            {canModify && (stores.auth.hasPermission('accountability', 'delete') || stores.auth.hasPermission('accountability', 'edit')) && (
+                              <IconButton aria-label="Delete Payment" icon={<FiTrash2 />} size="sm" colorScheme="red" variant="ghost" borderRadius="full"
+                                onClick={() => {
+                                  setPaymentToDelete({ payment: h, index: i });
+                                  setDeleteConfirmText("");
+                                  setIsDeleteModalOpen(true);
+                                }}
+                              />
+                            )}
+                          </>
+                        );
+                      })()}
                     </HStack>
                   </HStack>
                 ))}

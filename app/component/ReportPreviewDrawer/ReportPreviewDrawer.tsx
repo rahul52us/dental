@@ -59,7 +59,7 @@ const ReportPreviewDrawer: React.FC<ReportPreviewDrawerProps> = ({
         body,
         startY: 20,
         theme: "grid",
-        headStyles: { fillColor: [30, 58, 138], textColor: 255 },
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: "bold", lineWidth: 0.2, lineColor: [180, 180, 180] },
         styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak', lineColor: [200, 200, 200], lineWidth: 0.1 },
       });
 

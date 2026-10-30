@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
-import { FiDatabase, FiPrinter } from "react-icons/fi";
+import { FiDatabase, FiPrinter, FiRotateCcw } from "react-icons/fi";
 import CustomTable from "../../../component/config/component/CustomTable/CustomTable";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -43,6 +43,15 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
   const [treatmentFilter, setTreatmentFilter] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+
+  const handleResetFilters = () => {
+    setStartDate("");
+    setEndDate("");
+    setDoctorFilter("");
+    setTreatmentFilter("");
+  };
+
+  const isFiltered = Boolean(startDate || endDate || doctorFilter || treatmentFilter);
 
   const headerBg = useColorModeValue("blue.600", "blue.800");
   const bodyBg = useColorModeValue("gray.50", "gray.900");
@@ -233,8 +242,8 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
       body,
       startY: 28,
       theme: "grid",
-      headStyles: { fillColor: [30, 58, 138], textColor: 255 },
-      styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+      headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: "bold", lineWidth: 0.2, lineColor: [180, 180, 180] },
+      styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak', lineColor: [200, 200, 200], lineWidth: 0.1 },
     });
 
     const pdfBlob = doc.output('blob');
@@ -333,6 +342,16 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
                   maxW="250px"
                   bg="white"
                 />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorScheme="red"
+                  leftIcon={<FiRotateCcw />}
+                  onClick={handleResetFilters}
+                  isDisabled={!isFiltered}
+                >
+                  Reset
+                </Button>
                 <Button size="sm" colorScheme="blue" leftIcon={<FiPrinter />} onClick={() => handlePrint(true)}>
                   Print (With Fees)
                 </Button>
