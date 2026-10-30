@@ -494,17 +494,39 @@ const GlobalAccountabilityPage = observer(() => {
     <Box p={{ base: 2, md: 4 }} minH="100vh" bg={useColorModeValue("gray.50", "gray.900")}>
 
       {/* Premium Header */}
-      <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "flex-start", md: "center" }} gap={{ base: 4, md: 0 }} mb={6} bgGradient="linear(to-r, blue.600, blue.800)" p={6} borderRadius="2xl" color="white" boxShadow="xl" position="relative" overflow="hidden">
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        justify="space-between"
+        align={{ base: "stretch", md: "center" }}
+        gap={{ base: 3, md: 4 }}
+        mb={5}
+        bgGradient="linear(to-r, blue.600, blue.800)"
+        p={{ base: 4, md: 6 }}
+        borderRadius="2xl"
+        color="white"
+        boxShadow="xl"
+        position="relative"
+        overflow="hidden"
+      >
         <Box position="relative" zIndex={1}>
-          <HStack spacing={3}>
+          <HStack spacing={2.5} flexWrap="wrap">
             <Icon as={FiActivity} boxSize={5} color="blue.200" />
-            <Heading size="md" fontWeight="1000" letterSpacing="-0.5px">Global Accountability</Heading>
-            <Text color="blue.100" fontSize="xs" fontWeight="500" display={{ base: "none", md: "block" }}>
+            <Heading size={{ base: "sm", md: "md" }} fontWeight="1000" letterSpacing="-0.5px">
+              Global Accountability
+            </Heading>
+            <Text color="blue.100" fontSize="xs" fontWeight="500" display={{ base: "none", md: "inline" }}>
               — Complete oversight of clinical treatments
             </Text>
           </HStack>
         </Box>
-        <HStack spacing={4} position="relative" zIndex={1} w={{ base: "100%", md: "auto" }}>
+        <Flex
+          direction={{ base: "column", sm: "row" }}
+          gap={2.5}
+          position="relative"
+          zIndex={1}
+          w={{ base: "100%", md: "auto" }}
+          align={{ base: "stretch", sm: "center" }}
+        >
           {isAdmin && (
             <Button
               leftIcon={<FiFileText />}
@@ -514,7 +536,9 @@ const GlobalAccountabilityPage = observer(() => {
               borderRadius="full"
               onClick={() => setIsMonthlyModalOpen(true)}
               _hover={{ bg: "whiteAlpha.300" }}
-              w={{ base: "100%", md: "auto" }}
+              flex={{ base: "1", sm: "initial" }}
+              fontSize={{ base: "xs", sm: "sm" }}
+              py={{ base: 4, sm: 2 }}
             >
               Monthly Patient Report
             </Button>
@@ -528,11 +552,13 @@ const GlobalAccountabilityPage = observer(() => {
             isLoading={isPrinting}
             onClick={() => setIsPrintModalOpen(true)}
             _hover={{ bg: "whiteAlpha.300" }}
-            w={{ base: "100%", md: "auto" }}
+            flex={{ base: "1", sm: "initial" }}
+            fontSize={{ base: "xs", sm: "sm" }}
+            py={{ base: 4, sm: 2 }}
           >
             Print Report
           </Button>
-        </HStack>
+        </Flex>
         <Box position="absolute" right="-2%" top="-50%" boxSize="150px" bg="whiteAlpha.100" borderRadius="full" />
         <Box position="absolute" right="10%" bottom="-50%" boxSize="100px" bg="blue.500" opacity={0.5} borderRadius="full" filter="blur(20px)" />
       </Flex>

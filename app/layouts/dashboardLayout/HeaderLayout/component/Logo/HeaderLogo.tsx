@@ -85,7 +85,15 @@ const HeaderLogo = observer(() => {
                   boxShadow="sm"
                 />
               )}
-              <Text color="white" fontWeight="800" letterSpacing="0.02em" fontSize={{ base: "lg", md: "xl" }} whiteSpace="nowrap" maxW={{ base: "150px", md: "none" }} isTruncated>
+              <Text
+                color="white"
+                fontWeight="800"
+                letterSpacing="0.02em"
+                fontSize={{ base: "md", md: "xl" }}
+                whiteSpace="nowrap"
+                maxW={{ base: "110px", sm: "180px", md: "none" }}
+                isTruncated
+              >
                 {stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
               </Text>
             </>

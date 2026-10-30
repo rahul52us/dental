@@ -30,8 +30,8 @@ const HeaderNavbar = observer(() => {
       display="flex"
       justifyContent="flex-end"
       alignItems="center"
-      gap={4}
-      pr={2}
+      gap={{ base: 2, md: 4 }}
+      pr={{ base: 1, md: 2 }}
     >
       {stores.globalConfigStore?.config?.tutorialDoc && (
         <Button
@@ -39,16 +39,17 @@ const HeaderNavbar = observer(() => {
           href={stores.globalConfigStore?.config?.tutorialDoc}
           target="_blank"
           leftIcon={<FiBookOpen />}
-          size="sm"
+          size="xs"
+          display={{ base: "none", sm: "inline-flex" }}
           bgGradient="linear(to-r, purple.500, pink.500)"
           color="white"
           _hover={{ bgGradient: "linear(to-r, purple.600, pink.600)", transform: "translateY(-1px)", shadow: "lg" }}
           _active={{ transform: "translateY(0)" }}
           shadow="md"
           borderRadius="full"
-          px={{ base: 3, md: 5 }}
+          px={{ base: 2.5, md: 5 }}
           fontWeight="bold"
-          mr={2}
+          mr={1}
         >
           {isLargerThan1020 ? "How to use" : "Tutorial"}
         </Button>
@@ -64,16 +65,19 @@ const HeaderNavbar = observer(() => {
           <HeaderProfile />
         </>
       ) : (
-        <IconButton
-          aria-label="Menu"
-          variant="ghost"
-          color="white"
-          fontSize="2xl"
-          _hover={{ bg: "whiteAlpha.200" }}
-          _active={{ bg: "whiteAlpha.300" }}
-          onClick={() => setOpenMobileSideDrawer(true)}
-          icon={<FaBars />}
-        />
+        <Flex alignItems="center" gap={2}>
+          <HeaderProfile />
+          <IconButton
+            aria-label="Menu"
+            variant="ghost"
+            color="white"
+            fontSize="2xl"
+            _hover={{ bg: "whiteAlpha.200" }}
+            _active={{ bg: "whiteAlpha.300" }}
+            onClick={() => setOpenMobileSideDrawer(true)}
+            icon={<FaBars />}
+          />
+        </Flex>
       )}
     </Flex>
   );

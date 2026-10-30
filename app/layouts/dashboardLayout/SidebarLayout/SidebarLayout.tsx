@@ -28,6 +28,8 @@ import {
   useColorMode,
   Tooltip,
   IconButton,
+  HStack,
+  Avatar,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
@@ -404,7 +406,7 @@ const SidebarAccordion = observer(
     return (
       <Accordion
         width={"100%"}
-        px={3}
+        px={0}
         allowMultiple
         defaultIndex={expandedIndex !== null ? [expandedIndex] : []}
       >
@@ -638,36 +640,58 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
         <Drawer
           isOpen={openMobileSideDrawer}
           placement="right"
-          onClose={() => setOpenMobileSideDrawer(false)} // Changed to false directly
+          size="full"
+          onClose={() => setOpenMobileSideDrawer(false)}
         >
           <DrawerOverlay />
-          <DrawerContent>
-            <Box position="relative">
+          <DrawerContent bg={useColorModeValue("white", "gray.900")}>
+            <Flex
+              alignItems="center"
+              justifyContent="space-between"
+              px={4}
+              py={3}
+              bg={useColorModeValue(
+                themeConfig.colors.custom?.light?.primary || "brand.500",
+                themeConfig.colors.custom?.dark?.primary || "brand.600"
+              )}
+              color="white"
+              boxShadow="sm"
+            >
+              <HStack spacing={3} overflow="hidden" flex={1} mr={2}>
+                <Avatar
+                  size="sm"
+                  name={user?.companyDetails?.company_name}
+                  src={user?.companyDetails?.logo?.url || "/images/whiteLogo.png"}
+                  bg="whiteAlpha.900"
+                  color="brand.500"
+                  boxShadow="sm"
+                />
+                <Text
+                  fontWeight="bold"
+                  fontSize="md"
+                  color="white"
+                  noOfLines={1}
+                  isTruncated
+                >
+                  {user?.companyDetails?.company_name || "Menu"}
+                </Text>
+              </HStack>
+
               <IconButton
                 aria-label="Close menu"
-                icon={<FiX size={20} strokeWidth={3} />}
-                bg="red.500"
-                size="md"
+                icon={<FiX size={20} strokeWidth={2.5} />}
+                bg="whiteAlpha.300"
+                size="sm"
                 color="white"
-                _hover={{ bg: "red.600", transform: "translateY(-50%) scale(1.05)" }}
-                _active={{ bg: "red.700" }}
-                position="absolute"
-                top="50%"
-                transform="translateY(-50%)"
-                right={4}
-                zIndex={999999999}
+                _hover={{ bg: "whiteAlpha.400", transform: "scale(1.05)" }}
+                _active={{ bg: "whiteAlpha.500" }}
                 _focus={{ boxShadow: "none" }}
                 onClick={() => setOpenMobileSideDrawer(false)}
                 borderRadius="full"
-                boxShadow="sm"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
                 lineHeight={0}
               />
-              <SidebarLogo />
-            </Box>
-            <DrawerBody px={2} className="customScrollBar">
+            </Flex>
+            <DrawerBody px={3} py={3} className="customScrollBar">
               <SidebarAccordion
                 items={sidebarData}
                 onClick={onItemClick}
@@ -709,6 +733,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             <Box
               overflowY="auto"
               overflowX={"hidden"}
+              px={3}
               className="customScrollBar"
               height="calc(100vh - 165px)"
             >
