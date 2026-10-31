@@ -1,16 +1,13 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Flex, IconButton, useMediaQuery, useColorModeValue, Tooltip, Button } from "@chakra-ui/react";
+import { Button, Flex, IconButton, useMediaQuery } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { FiBookOpen } from "react-icons/fi";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import HeaderProfile from "./HeaderProfile/HeaderProfile";
-import HeaderNotification from "./HeaderNotification/HeaderNotification";
 import HeaderThemeSwitch from "./HeaderThemeSwitch/HeaderThemeSwitch";
 import HeaderLanguageSwitch from "./HeaderLanguageSwitch/HeaderLanguageSwitch";
-// import HeaderChatMessage from "./HeaderChatMessage/HeaderChatMessage";
-// import CartContainer from "./CartContainer/CartContainer";
 import stores from "../../../../../store/stores";
 
 const HeaderNavbar = observer(() => {
@@ -27,53 +24,75 @@ const HeaderNavbar = observer(() => {
 
   return (
     <Flex
-      display="flex"
       justifyContent="flex-end"
       alignItems="center"
-      gap={4}
-      pr={2}
+      gap={isLargerThan1020 ? 4 : 0}
+      pr={{ base: 0, md: 1 }}
+      minW={0}
     >
       {stores.globalConfigStore?.config?.tutorialDoc && (
-        <Button
-          as="a"
-          href={stores.globalConfigStore?.config?.tutorialDoc}
-          target="_blank"
-          leftIcon={<FiBookOpen />}
-          size="sm"
-          bgGradient="linear(to-r, purple.500, pink.500)"
-          color="white"
-          _hover={{ bgGradient: "linear(to-r, purple.600, pink.600)", transform: "translateY(-1px)", shadow: "lg" }}
-          _active={{ transform: "translateY(0)" }}
-          shadow="md"
-          borderRadius="full"
-          px={{ base: 3, md: 5 }}
-          fontWeight="bold"
-          mr={2}
-        >
-          {isLargerThan1020 ? "How to use" : "Tutorial"}
-        </Button>
+        isLargerThan1020 ? (
+          <Button
+            as="a"
+            href={stores.globalConfigStore.config.tutorialDoc}
+            target="_blank"
+            rel="noopener noreferrer"
+            leftIcon={<FiBookOpen />}
+            size="sm"
+            bgGradient="linear(to-r, purple.500, pink.500)"
+            color="white"
+            _hover={{ bgGradient: "linear(to-r, purple.600, pink.600)", transform: "translateY(-1px)", shadow: "lg" }}
+            _active={{ transform: "translateY(0)" }}
+            shadow="md"
+            borderRadius="full"
+            px={5}
+            fontWeight="bold"
+          >
+            How to use
+          </Button>
+        ) : (
+          <IconButton
+            as="a"
+            href={stores.globalConfigStore.config.tutorialDoc}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Tutorial"
+            title="Tutorial"
+            icon={<FiBookOpen />}
+            size="sm"
+            minW={{ base: "36px", sm: "40px" }}
+            h={{ base: "36px", sm: "40px" }}
+            color="white"
+            variant="ghost"
+            _hover={{ bg: "whiteAlpha.200" }}
+          />
+        )
       )}
       {isLargerThan1020 ? (
         <>
           <HeaderLanguageSwitch />
           <HeaderThemeSwitch />
-          {/* <HeaderChatMessage />
-          <HeaderNotification />
-          <CartContainer /> */}
-          {/* <HeaderNotification /> */}
           <HeaderProfile />
         </>
       ) : (
-        <IconButton
-          aria-label="Menu"
-          variant="ghost"
-          color="white"
-          fontSize="2xl"
-          _hover={{ bg: "whiteAlpha.200" }}
-          _active={{ bg: "whiteAlpha.300" }}
-          onClick={() => setOpenMobileSideDrawer(true)}
-          icon={<FaBars />}
-        />
+        <>
+          <HeaderLanguageSwitch />
+          <HeaderThemeSwitch />
+          <HeaderProfile />
+          <IconButton
+            aria-label="Open navigation menu"
+            title="Open navigation menu"
+            variant="ghost"
+            color="white"
+            fontSize="xl"
+            minW={{ base: "36px", sm: "40px" }}
+            h={{ base: "36px", sm: "40px" }}
+            _hover={{ bg: "whiteAlpha.200" }}
+            _active={{ bg: "whiteAlpha.300" }}
+            onClick={() => setOpenMobileSideDrawer(true)}
+            icon={<FaBars />}
+          />
+        </>
       )}
     </Flex>
   );

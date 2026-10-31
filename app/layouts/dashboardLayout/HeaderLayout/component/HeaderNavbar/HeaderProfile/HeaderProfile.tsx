@@ -59,8 +59,11 @@ const HeaderProfile = observer(() => {
               name={user?.name}
             />
           }
-          size="sm"
+          size="md"
           variant="ghost"
+          minW={{ base: "36px", sm: "40px" }}
+          h={{ base: "36px", sm: "40px" }}
+          title="User menu"
         />
         <Portal>
           <MenuList 

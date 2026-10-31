@@ -1,11 +1,20 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Box, Flex, IconButton, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Flex,
+  HStack,
+  IconButton,
+  Image,
+  Text,
+  useBreakpointValue,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import stores from "../../../../../store/stores";
 import SearchBar from "../HeaderNavbar/SearchBar/SearchBar";
-import { Avatar, Text, HStack, Image } from "@chakra-ui/react";
 
 const HeaderLogo = observer(() => {
   const isLargerThanXl = useBreakpointValue({ lg: true }) ?? false; // Added default value for SSR
@@ -61,7 +70,12 @@ const HeaderLogo = observer(() => {
           </Flex>
         )}
 
-        <HStack ml={isLargerThanXl ? 0 : 2} mr={2} spacing={4} display="flex">
+        <HStack
+          ml={{ base: 0, sm: 1 }}
+          mr={{ base: 0, sm: 1 }}
+          spacing={{ base: 0, sm: 2, md: 4 }}
+          minW={0}
+        >
           {(stores.auth.user?.companyDetail || stores.auth.user?.companyDetails) && (
             <>
               {stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url ? (
@@ -85,7 +99,7 @@ const HeaderLogo = observer(() => {
                   boxShadow="sm"
                 />
               )}
-              <Text color="white" fontWeight="800" letterSpacing="0.02em" fontSize={{ base: "lg", md: "xl" }} whiteSpace="nowrap" maxW={{ base: "150px", md: "none" }} isTruncated>
+              <Text display={{ base: "none", sm: "block" }} color="white" fontWeight="800" letterSpacing="0.02em" fontSize={{ base: "md", md: "xl" }} whiteSpace="nowrap" maxW={{ base: "100px", md: "none" }} isTruncated>
                 {stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
               </Text>
             </>

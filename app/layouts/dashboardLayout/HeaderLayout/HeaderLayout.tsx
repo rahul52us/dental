@@ -1,33 +1,30 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Flex, IconButton } from "@chakra-ui/react";
-import { useMediaQuery } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import HeaderNavbar from "./component/HeaderNavbar/HeaderNavbar";
 import HeaderLogo from "./component/Logo/HeaderLogo";
 import { observer } from "mobx-react-lite";
-import { headerHeight, headerPadding } from "../../../component/config/utils/variable";
-import { FaSearch } from "react-icons/fa";
-
+import { headerHeight } from "../../../component/config/utils/variable";
 
 const HeaderLayout = observer(() => {
-  const [isLargerThan1020] = useMediaQuery("(min-width: 1020px)");
-
   return (
     <Flex
       direction="row"
       alignItems="center"
       justifyContent="space-between"
+      width="100%"
       height={headerHeight}
-      padding={headerPadding}
+      px={{ base: 1, sm: 2, md: 3 }}
       boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
       borderBottom="1px solid rgba(255,255,255,0.1)"
       position="relative"
+      minW={0}
     >
-      <Flex flex={1}>
+      <Flex flex={1} minW={0}>
         <HeaderLogo />
       </Flex>
 
-      <Flex zIndex={2} ml="auto">
+      <Flex zIndex={2} ml="auto" minW={0}>
         <HeaderNavbar />
       </Flex>
     </Flex>
