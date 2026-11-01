@@ -23,6 +23,7 @@ import {
   GridItem,
   Avatar,
   SimpleGrid,
+  Select,
   useToast,
   Modal,
   ModalOverlay,
@@ -45,7 +46,12 @@ import {
   DrawerBody,
   DrawerCloseButton,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
+  FormControl,
+  FormLabel,
+  Alert,
+  AlertIcon,
+  AlertDescription
 } from "@chakra-ui/react";
 import { FiActivity, FiFilter, FiFileText, FiCheckCircle, FiAlertCircle, FiUser, FiCalendar, FiDollarSign, FiPrinter, FiEdit2, FiList, FiEye, FiPlusCircle, FiCreditCard, FiArrowDownLeft, FiArrowUpRight, FiTrash2 } from "react-icons/fi";
 import React, { useState, useEffect, useCallback } from "react";
@@ -55,7 +61,6 @@ import CustomInput from "../../component/config/component/customInput/CustomInpu
 import Pagination from "../../component/common/pagination/Pagination";
 import { formatCurrency } from "../../config/utils/utils";
 import CreatableSelect from "react-select/creatable";
-import { FormControl, FormLabel } from "@chakra-ui/react";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 import WalletHistoryDrawer from "../../component/WalletHistoryDrawer";
 import { toJS } from "mobx";
@@ -509,8 +514,23 @@ const GlobalAccountabilityPage = observer(() => {
         overflow="hidden"
       >
         <Box position="relative" zIndex={1}>
-          <HStack spacing={2.5} flexWrap="wrap">
-            <Icon as={FiActivity} boxSize={5} color="blue.200" />
+          <HStack spacing={2.5} flexWrap="wrap" align="center">
+            <Box
+              boxSize="26px"
+              borderRadius="md"
+              overflow="hidden"
+              display="inline-flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="whiteAlpha.200"
+              p="2px"
+            >
+              <img
+                src="/global_accoubility.jpeg"
+                alt="Global Accountability"
+                style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "3px" }}
+              />
+            </Box>
             <Heading size={{ base: "sm", md: "md" }} fontWeight="1000" letterSpacing="-0.5px">
               Global Accountability
             </Heading>
@@ -709,7 +729,9 @@ const GlobalAccountabilityPage = observer(() => {
                 { label: "Cash", value: "cash" },
                 { label: "UPI", value: "upi" },
                 { label: "Card", value: "card" },
+                { label: "Cheque", value: "cheque" },
                 { label: "Bank Transfer", value: "bank transfer" },
+                { label: "Other", value: "other" },
                 { label: "Wallet", value: "wallet" },
                 { label: "Transferred to Wallet", value: "transferred to wallet" },
               ]}
@@ -1422,17 +1444,49 @@ const GlobalAccountabilityPage = observer(() => {
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="xs" fontWeight="900" color="gray.500">PAYMENT MODE</FormLabel>
-                <Box as="select" p={3} w="full" h="60px" borderRadius="2xl" fontWeight="800" bg="white" borderWidth="2px" value={receiveType} onChange={(e: any) => setReceiveType(e.target.value)}>
+                <Select
+                  size="lg"
+                  h="60px"
+                  borderRadius="2xl"
+                  fontWeight="800"
+                  bg="white"
+                  borderWidth="2px"
+                  value={receiveType}
+                  onChange={(e: any) => {
+                    const val = e.target.value;
+                    setReceiveType(val);
+                    if (val === "Other") {
+                      toast({
+                        title: "Other Payment Mode Selected",
+                        description: "You have selected Other. Please verify payment details before confirming.",
+                        status: "warning",
+                        duration: 3500,
+                        isClosable: true,
+                        position: "top",
+                      });
+                    }
+                  }}
+                >
                   <option value="Cash">Cash</option>
                   <option value="UPI">UPI</option>
-                  <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
                   {selectedRecord?.patientInfo?.walletBalance > 0 && selectedRecord?.balanceDue > 0 && (
                     <option value="Wallet">Wallet (Bal: ₹{selectedRecord.patientInfo.walletBalance})</option>
                   )}
                   <option value="Other">Other</option>
-                </Box>
+                </Select>
               </FormControl>
+
+              {receiveType === "Other" && (
+                <Alert status="warning" borderRadius="2xl" variant="subtle" py={3} px={4} border="1px solid" borderColor="orange.300" bg="orange.50">
+                  <AlertIcon boxSize="18px" color="orange.500" />
+                  <AlertDescription fontSize="xs" fontWeight="800" color="orange.900">
+                    Other Payment Mode: Please ensure payment details and reference are verified before confirming.
+                  </AlertDescription>
+                </Alert>
+              )}
             </VStack>
           </ModalBody>
           <ModalFooter bg="gray.50" borderTopWidth="1px" borderColor="gray.100" p={6}>
@@ -1524,7 +1578,20 @@ const GlobalAccountabilityPage = observer(() => {
                     <HStack>
                       <VStack align="end" spacing={0}>
                         <Text fontWeight="1000" color="green.700" fontSize="lg">₹{h.amount.toLocaleString()}</Text>
-                        <Badge size="sm" colorScheme={h.paymentMethod === 'Cash' ? 'green' : 'blue'} variant="solid" fontSize="9px" borderRadius="lg" px={2}>
+                        <Badge
+                          size="sm"
+                          colorScheme={
+                            h.paymentMethod === 'Cash' ? 'green' :
+                            h.paymentMethod === 'UPI' ? 'purple' :
+                            h.paymentMethod === 'Cheque' ? 'orange' :
+                            h.paymentMethod === 'Bank Transfer' ? 'teal' :
+                            h.paymentMethod === 'Card' ? 'blue' : 'gray'
+                          }
+                          variant="solid"
+                          fontSize="9px"
+                          borderRadius="lg"
+                          px={2}
+                        >
                           {(h.paymentMethod || "CASH").toUpperCase()}
                         </Badge>
                       </VStack>

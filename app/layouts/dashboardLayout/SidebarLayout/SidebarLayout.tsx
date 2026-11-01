@@ -69,7 +69,10 @@ const renderIcon = (depth: number, icon: any, colorMode: string, isCustomWhite?:
   if (depth > 1) {
     return <Icon as={FaCircle} boxSize={1.5} mr={2} color="currentColor" opacity={isCustomWhite ? 1 : 0.4} />;
   }
-  return <Icon as={icon.type} boxSize={5} color="currentColor" />;
+  if (React.isValidElement(icon)) {
+    return <Box as="span" display="inline-flex" alignItems="center" justifyContent="center">{icon}</Box>;
+  }
+  return <Icon as={icon?.type || icon} boxSize={5} color="currentColor" />;
 };
 
 const findPathToActiveItem = (
@@ -406,7 +409,7 @@ const SidebarAccordion = observer(
     return (
       <Accordion
         width={"100%"}
-        px={0}
+        px={3}
         allowMultiple
         defaultIndex={expandedIndex !== null ? [expandedIndex] : []}
       >
@@ -733,7 +736,6 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             <Box
               overflowY="auto"
               overflowX={"hidden"}
-              px={3}
               className="customScrollBar"
               height="calc(100vh - 165px)"
             >

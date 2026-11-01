@@ -41,6 +41,9 @@ import {
   Heading,
   useColorModeValue,
   Flex,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from "@chakra-ui/react";
 import {
   FiActivity,
@@ -1164,18 +1167,42 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 <FormLabel fontSize="xs" fontWeight="900" color="gray.500">PAYMENT MODE</FormLabel>
                 <Select
                   size="lg" borderRadius="2xl" fontWeight="800"
-                  value={receiveType} onChange={(e) => setReceiveType(e.target.value)}
+                  value={receiveType}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setReceiveType(val);
+                    if (val === "Other") {
+                      toast({
+                        title: "Other Payment Mode Selected",
+                        description: "You have selected Other. Please verify payment details before confirming.",
+                        status: "warning",
+                        duration: 3500,
+                        isClosable: true,
+                        position: "top",
+                      });
+                    }
+                  }}
                 >
                   <option value="Cash">Cash</option>
                   <option value="UPI">UPI</option>
-                  <option value="Cheque">Cheque</option>
                   <option value="Card">Card</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
                   {walletBalance > 0 && ((selectedRecord?.amount || 0) - (selectedRecord?.discount || 0) - (selectedRecord?.receivedAmount || 0)) > 0 && (
                     <option value="Wallet">Wallet (Bal: ₹{walletBalance})</option>
                   )}
                   <option value="Other">Other</option>
                 </Select>
               </FormControl>
+
+              {receiveType === "Other" && (
+                <Alert status="warning" borderRadius="2xl" variant="subtle" py={3} px={4} border="1px solid" borderColor="orange.300" bg="orange.50">
+                  <AlertIcon boxSize="18px" color="orange.500" />
+                  <AlertDescription fontSize="xs" fontWeight="800" color="orange.900">
+                    Other Payment Mode: Please ensure payment details and reference are verified before confirming.
+                  </AlertDescription>
+                </Alert>
+              )}
             </VStack>
           </ModalBody>
           <ModalFooter>
@@ -1281,7 +1308,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                               h.paymentMethod === 'Cash' ? 'green' :
                                 h.paymentMethod === 'UPI' ? 'purple' :
                                   h.paymentMethod === 'Cheque' ? 'orange' :
-                                    h.paymentMethod === 'Card' ? 'blue' : 'gray'
+                                    h.paymentMethod === 'Bank Transfer' ? 'teal' :
+                                      h.paymentMethod === 'Card' ? 'blue' : 'gray'
                             }
                             variant="solid"
                             fontSize="9px"

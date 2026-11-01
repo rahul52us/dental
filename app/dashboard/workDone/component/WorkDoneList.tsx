@@ -983,10 +983,18 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     </Menu>
 
                     {/* Print Action */}
+                    <Tooltip label="Print Prescription" hasArrow placement="top" bg="blue.700" color="white" borderRadius="md" fontSize="xs">
                       <Button
-                        size="xs"
-                        variant="ghost"
-                        colorScheme="gray"
+                        size="sm"
+                        variant="solid"
+                        bg="blue.500"
+                        color="white"
+                        _hover={{
+                          bg: "blue.600",
+                          transform: "translateY(-1px)",
+                          boxShadow: "lg",
+                        }}
+                        transition="all 0.15s ease"
                         onClick={() => setOpenPrintModal({
                           open: true,
                           id: record._id,
@@ -994,27 +1002,44 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                           date: getLocalDateString(record.createdAt)
                         })}
                         borderRadius="full"
-                        px={3}
-                        h="28px"
+                        px={4}
+                        h="32px"
+                        shadow="md"
                       >
-                        <HStack spacing={1.5}>
-                          <FiPrinter />
-                          <img src="/rx-tooth.jpeg" alt="Rx" style={{ width: "14px", height: "14px", borderRadius: "2px" }} />
-                          <Text fontSize="10px" fontWeight="bold">Prescription</Text>
+                        <HStack spacing={2}>
+                          <FiPrinter size="14px" />
+                          <Box bg="white" borderRadius="2px" p="1.5px" display="inline-flex" alignItems="center">
+                            <img src="/rx-tooth.jpeg" alt="Rx" style={{ width: "15px", height: "15px", borderRadius: "2px" }} />
+                          </Box>
+                          <Text fontSize="11px" fontWeight="1000" letterSpacing="0.02em">Prescription</Text>
                         </HStack>
                       </Button>
+                    </Tooltip>
 
                     {/* Edit Action */}
                     {stores.auth.hasPermission('workdone', 'edit') && (
-                      <IconButton
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="blue"
-                        icon={<FiEdit />}
-                        aria-label="Edit"
-                        onClick={() => setOpenEditWorkDone({ open: true, data: record })}
-                        borderRadius="full"
-                      />
+                      <Tooltip label="Edit" hasArrow placement="top" bg="blue.700" color="white" borderRadius="md" fontSize="xs" py={1} px={2}>
+                        <IconButton
+                          size="sm"
+                          w="32px"
+                          h="32px"
+                          variant="solid"
+                          colorScheme="blue"
+                          bg="blue.500"
+                          color="white"
+                          _hover={{
+                            bg: "blue.600",
+                            transform: "scale(1.08)",
+                            boxShadow: "0 4px 14px rgba(49, 130, 206, 0.45)",
+                          }}
+                          transition="all 0.15s ease"
+                          icon={<FiEdit size="17px" />}
+                          aria-label="Edit"
+                          onClick={() => setOpenEditWorkDone({ open: true, data: record })}
+                          borderRadius="xl"
+                          shadow="md"
+                        />
+                      </Tooltip>
                     )}
 
                     {/* Delete Action */}

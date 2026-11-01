@@ -271,7 +271,19 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 48,
     name: "Global Accountability",
-    icon: <FaListAlt />,
+    icon: (
+      <img
+        src="/global_accoubility.jpeg"
+        alt="Global Accountability"
+        style={{
+          width: "26px",
+          height: "26px",
+          objectFit: "cover",
+          borderRadius: "6px",
+          display: "block",
+        }}
+      />
+    ),
     url: "/dashboard/global-accountability",
     role: ["admin", "superAdmin", "staff","doctor"],
     permission: { module: "globalAccountability", action: "sidebar" },
