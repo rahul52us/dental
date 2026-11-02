@@ -1,12 +1,27 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Box, Flex, Text, Heading, Badge, useColorModeValue, Tooltip } from '@chakra-ui/react';
+import { 
+  Box, 
+  Flex, 
+  Text, 
+  Heading, 
+  Badge, 
+  useColorModeValue, 
+  Tooltip, 
+  HStack, 
+  Icon, 
+  VStack,
+  Circle,
+  Divider
+} from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { FiStar, FiZap, FiChevronRight, FiCheckCircle } from 'react-icons/fi';
 import stores from '../../store/stores';
 
-const marqueeStyle = `marqueeAnimation 20s linear infinite`;
+const marqueeStyle = `marqueeAnimation 25s linear infinite`;
+const MotionBox = motion(Box);
 
 const AdvertisementBanner = observer(() => {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
@@ -19,7 +34,7 @@ const AdvertisementBanner = observer(() => {
   const user = stores.auth.user;
 
   const currentDate = useMemo(() => {
-    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date());
   }, []);
 
   useEffect(() => {
@@ -27,10 +42,10 @@ const AdvertisementBanner = observer(() => {
   }, []);
 
   useEffect(() => {
-    if (ads.length > 0) {
+    if (ads.length > 1) {
       const interval = setInterval(() => {
         setCurrentAdIndex((prevIndex) => (prevIndex + 1) % ads.length);
-      }, 3000);
+      }, 4000);
       return () => clearInterval(interval);
     }
   }, [ads.length]);
@@ -38,8 +53,20 @@ const AdvertisementBanner = observer(() => {
   if (pathname !== '/dashboard' && pathname !== '/dashboard/advertisements') return null;
   if (ads.length === 0 && pathname !== '/dashboard') return null;
 
+  const daysRemaining = user?.companyDetails?.subscriptionEndDate 
+    ? Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+    
+  const primaryColor = stores.themeStore.themeConfig.colors.custom.light.primary;
+
+  // App-like surface colors
+  const cardBg = useColorModeValue("white", "gray.800");
+  const cardBorder = useColorModeValue("gray.100", "whiteAlpha.200");
+  const cardShadow = useColorModeValue("0 4px 20px rgba(0,0,0,0.04)", "0 4px 20px rgba(0,0,0,0.4)");
+  const isDark = useColorModeValue(false, true);
+
   return (
-    <Box mb={8} px={{ base: 4, md: 8 }} pt={{ base: 4, md: 8 }}>
+    <Box w="100%">
       <style>
         {`
           @keyframes marqueeAnimation {
@@ -48,125 +75,304 @@ const AdvertisementBanner = observer(() => {
           }
         `}
       </style>
-      <Flex direction="column" gap={6}>
-        <Flex 
-          direction={{ base: 'column', lg: 'row' }} 
-          justify="space-between" 
-          align={{ base: 'flex-start', lg: 'flex-start' }} 
-          width="100%"
-          gap={{ base: 6, lg: 4 }}
-        >
-          <Box flex="1" w={{ base: "100%", lg: "auto" }}>
-            {pathname === '/dashboard' ? (
-              <Box>
-                <Text fontSize="xs" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} textTransform="uppercase" letterSpacing="widest" mb={2}>{currentDate}</Text>
-                <Heading size={{ base: "xl", md: "2xl" }} letterSpacing="tight" color={useColorModeValue("gray.900", "white")}>
-                  {t("dashboard.welcomeBack", { name: user?.name?.split(' ')[0] || "Admin" })}
-                </Heading>
-                <Text color="gray.500" fontWeight="600" mt={2} fontSize={{ base: "sm", md: "md" }}>{t("dashboard.analyticsOverview")}</Text>
-                
-                {user?.companyDetails?.subscriptionEndDate && (
-                  <Flex align={{ base: "flex-start", md: "center" }} direction={{ base: "column", md: "row" }} gap={3} mt={5}>
-                    <Badge colorScheme="purple" variant="subtle" borderRadius="md" px={3} py={1} fontSize="xs">
-                      PRO PLAN
-                    </Badge>
+
+      {/* ========================================================= */}
+      {/* ==================== DESKTOP VIEW ======================= */}
+      {/* ========================================================= */}
+      <Box display={{ base: "none", md: "block" }} mb={8} px={4} pt={4}>
+        <Flex direction="column" gap={6}>
+          <Flex justify="space-between" align="center" width="100%" gap={8}>
+            {/* Left: Welcome & Pro Plan */}
+            <Box flex="1">
+              {pathname === '/dashboard' ? (
+                <Box>
+                  <HStack mb={2} spacing={3}>
+                    <Text fontSize="xs" fontWeight="900" color={primaryColor} textTransform="uppercase" letterSpacing="widest">
+                      {currentDate}
+                    </Text>
+                    <Box w={1} h={1} rounded="full" bg="gray.300" />
+                    <HStack spacing={1} color="gray.400" fontSize="10px" fontWeight="700">
+                      <Icon as={FiCheckCircle} boxSize={3} />
+                      <Text>OVERVIEW</Text>
+                    </HStack>
+                  </HStack>
+
+                  <Heading size="2xl" letterSpacing="tight" color={useColorModeValue("gray.900", "white")} fontWeight="900">
+                    {t("dashboard.welcomeBack", { name: user?.name?.split(' ')[0] || "Admin" })}
+                  </Heading>
+                  <Text color="gray.500" fontWeight="600" mt={2} fontSize="md">
+                    {t("dashboard.analyticsOverview")}
+                  </Text>
+
+                  {user?.companyDetails?.subscriptionEndDate && (
                     <Tooltip 
-                      label="Renew your plan from Profile Settings to extend your subscription validity and continue enjoying uninterrupted access." 
-                      placement="bottom-start" 
-                      hasArrow 
-                      bg="blue.500"
-                      color="white"
-                      px={3}
-                      py={2}
-                      borderRadius="md"
-                      fontSize="xs"
+                      label="Renew your plan from Profile Settings to extend your subscription." 
+                      placement="bottom-start" hasArrow bg="gray.800" color="white" px={3} py={2} borderRadius="lg" fontSize="xs" fontWeight="600"
                     >
-                      <Text fontSize="sm" color="gray.500" fontWeight="600" cursor="help">
-                        Valid until <Text as="span" color="gray.700" fontWeight="bold">{new Date(user.companyDetails.subscriptionEndDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text> 
-                        <Text as="span" color={
-                          Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) > 7 ? "green.500" : "red.500"
-                        } ml={2} display={{ base: "block", md: "inline" }} mt={{ base: 1, md: 0 }}>
-                          ({Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining)
+                      <Flex
+                        mt={5} align="center" bg={cardBg} borderWidth="1px" borderColor={cardBorder} rounded="xl" px={5} py={2.5} w="fit-content" cursor="help" boxShadow="sm" transition="all 0.2s" _hover={{ boxShadow: "md", borderColor: "purple.200" }} gap={4}
+                      >
+                        <HStack spacing={2}>
+                          <Icon as={FiStar} color="purple.500" boxSize={4} />
+                          <Text fontSize="sm" fontWeight="900" color={isDark ? "white" : "gray.800"}>PRO PLAN</Text>
+                        </HStack>
+                        <Divider orientation="vertical" height="16px" borderColor="gray.300" />
+                        <Text fontSize="xs" color="gray.500" fontWeight="600">
+                          Valid until <Text as="span" fontWeight="800" color={isDark ? "gray.200" : "gray.700"}>{new Date(user.companyDetails.subscriptionEndDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>
                         </Text>
-                      </Text>
+                        <Badge colorScheme={daysRemaining > 7 ? "green" : "red"} variant="subtle" rounded="md" px={2.5} py={1} fontSize="10px" fontWeight="800">
+                          {daysRemaining} DAYS LEFT
+                        </Badge>
+                      </Flex>
                     </Tooltip>
-                  </Flex>
-                )}
-              </Box>
-            ) : (
-              <Box>
-                <Text fontSize="xs" fontWeight="900" color={stores.themeStore.themeConfig.colors.custom.light.primary} textTransform="uppercase" letterSpacing="widest" mb={2}>
-                  Workspace
+                  )}
+                </Box>
+              ) : (
+                <Box>
+                  <Text fontSize="xs" fontWeight="900" color={primaryColor} textTransform="uppercase" letterSpacing="widest" mb={2}>
+                    Workspace
+                  </Text>
+                  <Heading size="2xl" letterSpacing="tight" color={useColorModeValue("gray.900", "white")} textTransform="capitalize" fontWeight="900">
+                    {pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
+                  </Heading>
+                  <Text color="gray.500" fontWeight="600" mt={2} fontSize="md">
+                    Manage and oversee your clinic's {pathname.split('/').pop()?.replace(/-/g, ' ') || 'data'} efficiently.
+                  </Text>
+                </Box>
+              )}
+            </Box>
+
+            {/* Right: Sponsored Ad */}
+            {ads[currentAdIndex]?.image?.url && (
+              <Box display="flex" flexDirection="column" alignItems="flex-end" justifyContent="center">
+                <Text fontSize="10px" color="gray.400" fontWeight="800" textTransform="uppercase" letterSpacing="widest" mb={2} mr={1}>
+                  Sponsored
                 </Text>
-                <Heading size={{ base: "xl", md: "2xl" }} letterSpacing="tight" color={useColorModeValue("gray.900", "white")} textTransform="capitalize">
-                  {pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
-                </Heading>
-                <Text color="gray.500" fontWeight="600" mt={2} fontSize={{ base: "sm", md: "md" }}>
-                  Manage and oversee your clinic's {pathname.split('/').pop()?.replace(/-/g, ' ') || 'data'} efficiently.
-                </Text>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`desktop-ad-${currentAdIndex}`}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <Box 
+                      bg={cardBg} rounded="2xl" borderWidth="1px" borderColor={cardBorder} boxShadow={cardShadow} p={2} pr={4} _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }} transition="all 0.3s ease-out"
+                      cursor={ads[currentAdIndex].link ? "pointer" : "default"}
+                      onClick={() => {
+                        if (ads[currentAdIndex].link) window.open(ads[currentAdIndex].link, "_blank");
+                      }}
+                    >
+                      <Flex align="center" gap={4}>
+                        <Box w="48px" h="48px" rounded="xl" overflow="hidden" flexShrink={0} borderWidth="1px" borderColor={cardBorder}>
+                          <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        </Box>
+                        <Box minW="120px">
+                          <Text fontSize="sm" fontWeight="800" color={useColorModeValue("gray.800", "white")} noOfLines={1}>
+                            {ads[currentAdIndex].title || "Special Offer"}
+                          </Text>
+                          <Text fontSize="xs" color="gray.500" fontWeight="600">Tap to view</Text>
+                        </Box>
+                        <Icon as={FiChevronRight} boxSize={5} color="gray.300" />
+                      </Flex>
+                    </Box>
+                  </motion.div>
+                </AnimatePresence>
               </Box>
             )}
-          </Box>
+          </Flex>
 
+          {/* Desktop Bottom Ticker */}
+          {ads.length > 0 && (
+            <Box 
+              position="relative" borderRadius="2xl" overflow="hidden" bgGradient={`linear(to-r, ${primaryColor}, ${primaryColor}E6)`} boxShadow="md" py={3}
+            >
+              <Flex align="center" px={4}>
+                <Circle size="24px" bg="whiteAlpha.300" color="white" mr={3} flexShrink={0}>
+                  <Icon as={FiZap} boxSize={3} />
+                </Circle>
+                <Box overflow="hidden" whiteSpace="nowrap" w="100%" position="relative">
+                  <Box display="inline-block" pl="100%" animation={marqueeStyle} fontSize="sm" fontWeight="800" color="white" letterSpacing="wide">
+                    {ads.map((ad: any) => `✨ ${ad.title}`).join("   •   ")}
+                  </Box>
+                </Box>
+              </Flex>
+            </Box>
+          )}
+        </Flex>
+      </Box>
+
+      {/* ========================================================= */}
+      {/* ==================== MOBILE VIEW (REDESIGNED) =========== */}
+      {/* ========================================================= */}
+      <Box display={{ base: "block", md: "none" }} mb={4} px={4} pt={4}>
+        <VStack align="stretch" spacing={4}>
+          
+          {/* 1. Mobile Hero Header (Gradient Card) */}
+          {pathname === '/dashboard' ? (
+            <MotionBox
+              p={5}
+              borderRadius="3xl"
+              bgGradient="linear(to-br, blue.600, purple.600)"
+              color="white"
+              boxShadow="0 10px 25px -5px rgba(66, 153, 225, 0.4)"
+              position="relative"
+              overflow="hidden"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Circle position="absolute" size="140px" bg="whiteAlpha.100" right="-20px" bottom="-40px" />
+              <Circle position="absolute" size="90px" bg="whiteAlpha.100" left="-30px" top="-20px" />
+
+              <Box position="relative" zIndex={1}>
+                <HStack justify="space-between" mb={3}>
+                  <Badge bg="whiteAlpha.300" color="white" rounded="full" px={2.5} py={0.5} fontSize="9px" fontWeight="800" backdropFilter="blur(10px)">
+                    {currentDate}
+                  </Badge>
+                  <HStack spacing={1} color="whiteAlpha.800" fontSize="10px" fontWeight="700">
+                    <Icon as={FiCheckCircle} boxSize={3} />
+                    <Text>OVERVIEW</Text>
+                  </HStack>
+                </HStack>
+
+                <Heading size="xl" fontWeight="900" letterSpacing="tight" mb={1}>
+                  {t("dashboard.welcomeBack", { name: user?.name?.split(' ')[0] || "Admin" })}
+                </Heading>
+                <Text color="whiteAlpha.800" fontSize="sm" fontWeight="500">
+                  {t("dashboard.analyticsOverview")}
+                </Text>
+              </Box>
+            </MotionBox>
+          ) : (
+            <Box pt={2}>
+              <Text fontSize="10px" fontWeight="900" color={primaryColor} textTransform="uppercase" letterSpacing="widest" mb={1}>
+                Workspace
+              </Text>
+              <Heading size="lg" letterSpacing="tight" color={isDark ? "white" : "gray.800"} textTransform="capitalize" fontWeight="900">
+                {pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
+              </Heading>
+              <Text color="gray.500" fontWeight="600" mt={0.5} fontSize="xs">
+                Manage and oversee your clinic's {pathname.split('/').pop()?.replace(/-/g, ' ') || 'data'} efficiently.
+              </Text>
+            </Box>
+          )}
+
+          {/* 2. Mobile Pro Plan Widget */}
+          {user?.companyDetails?.subscriptionEndDate && (
+            <Box 
+              bg={cardBg}
+              borderWidth="1px"
+              borderColor={cardBorder}
+              rounded="2xl"
+              p={3}
+              boxShadow="sm"
+            >
+              <Flex justify="space-between" align="center">
+                <HStack spacing={3}>
+                  <Circle size="32px" bg="purple.50" color="purple.500">
+                    <Icon as={FiStar} boxSize={4} />
+                  </Circle>
+                  <Box>
+                    <Text fontSize="xs" fontWeight="900" color={isDark ? "white" : "gray.800"}>PRO PLAN</Text>
+                    <Text fontSize="10px" color="gray.500" fontWeight="600">
+                      Until {new Date(user.companyDetails.subscriptionEndDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </Text>
+                  </Box>
+                </HStack>
+                <Badge 
+                  colorScheme={daysRemaining > 7 ? "green" : "red"} 
+                  variant="subtle" 
+                  rounded="md" 
+                  px={2} py={1} 
+                  fontSize="9px"
+                  fontWeight="800"
+                >
+                  {daysRemaining} DAYS LEFT
+                </Badge>
+              </Flex>
+            </Box>
+          )}
+
+          {/* 3. Mobile Sponsored Ad Widget */}
           {ads[currentAdIndex]?.image?.url && (
-            <Box display="flex" flexDirection="column" alignItems={{ base: "flex-start", lg: "flex-end" }} justifyContent="center" w={{ base: "100%", lg: "auto" }}>
-              <Text fontSize="10px" color="gray.500" fontWeight="700" textTransform="uppercase" letterSpacing="widest" mb={1}>Sponsored</Text>
+            <Box w="100%">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={`img-${currentAdIndex}`}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.5 }}
+                  key={`mobile-ad-${currentAdIndex}`}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <Box 
-                    _hover={{ transform: 'scale(1.05)' }}
-                    transition="transform 0.3s ease-out"
-                    w="100%"
-                    maxW={{ base: "100%", lg: "300px" }}
+                    bg={cardBg}
+                    rounded="2xl"
+                    borderWidth="1px"
+                    borderColor={cardBorder}
+                    boxShadow="sm"
+                    p={2}
+                    pr={3}
+                    cursor={ads[currentAdIndex].link ? "pointer" : "default"}
+                    onClick={() => {
+                      if (ads[currentAdIndex].link) window.open(ads[currentAdIndex].link, "_blank");
+                    }}
                   >
-                    {ads[currentAdIndex].link ? (
-                      <a href={ads[currentAdIndex].link} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
-                        <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", height: "auto", maxHeight: "100px", objectFit: "contain", mixBlendMode: "darken", opacity: 0.9 }} />
-                      </a>
-                    ) : (
-                      <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", height: "auto", maxHeight: "100px", objectFit: "contain", mixBlendMode: "darken", opacity: 0.9 }} />
-                    )}
+                    <Flex align="center" gap={3}>
+                      <Box w="40px" h="40px" rounded="xl" overflow="hidden" flexShrink={0} borderWidth="1px" borderColor={cardBorder}>
+                        <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      </Box>
+                      <Box flex="1" minW={0}>
+                        <Text fontSize="9px" color="gray.400" fontWeight="800" textTransform="uppercase" letterSpacing="widest">
+                          Sponsored
+                        </Text>
+                        <Text fontSize="xs" fontWeight="800" color={isDark ? "white" : "gray.800"} noOfLines={1}>
+                          {ads[currentAdIndex].title || "Special Offer"}
+                        </Text>
+                      </Box>
+                      <Icon as={FiChevronRight} boxSize={4} color="gray.400" />
+                    </Flex>
                   </Box>
                 </motion.div>
               </AnimatePresence>
             </Box>
           )}
-        </Flex>
 
-        {ads.length > 0 && (
-          <Box position="relative" borderRadius="2xl" overflow="hidden" boxShadow="xl" bg="white">
-            <Box w="100%">
-              <Box 
-                bgGradient={`linear(to-r, ${stores.themeStore.themeConfig.colors.custom.light.primary}, ${stores.themeStore.themeConfig.colors.custom.light.primary}E6)`} 
-                color="white" 
-                py={4} 
-                overflow="hidden" 
-                whiteSpace="nowrap" 
-                position="relative" 
-                w="100%"
-                boxShadow="md"
-              >
-                <Box
-                  display="inline-block"
-                  pl="100%"
-                  animation={marqueeStyle}
-                  fontSize="1.15rem"
-                  fontWeight="bold"
-                  letterSpacing="wide"
-                >
-                  {ads.map((ad: any) => `✨ ${ad.title} ✨`).join(" ✦ ")}
+          {/* 4. Mobile Bottom Ticker (Floating Pill) */}
+          {ads.length > 0 && (
+            <Box 
+              position="relative" 
+              borderRadius="full" 
+              overflow="hidden" 
+              bg={cardBg}
+              borderWidth="1px"
+              borderColor={cardBorder}
+              boxShadow="sm"
+              px={2}
+              py={1.5}
+            >
+              <Flex align="center">
+                <Circle size="20px" bg={primaryColor} color="white" mr={2} flexShrink={0}>
+                  <Icon as={FiZap} boxSize={2.5} />
+                </Circle>
+                <Box overflow="hidden" whiteSpace="nowrap" w="100%" position="relative">
+                  <Box
+                    display="inline-block"
+                    pl="100%"
+                    animation={marqueeStyle}
+                    fontSize="10px"
+                    fontWeight="800"
+                    color={isDark ? "gray.300" : "gray.600"}
+                    letterSpacing="wide"
+                  >
+                    {ads.map((ad: any) => `✨ ${ad.title}`).join("   •   ")}
+                  </Box>
                 </Box>
-              </Box>
+              </Flex>
             </Box>
-          </Box>
-        )}
-      </Flex>
+          )}
+        </VStack>
+      </Box>
     </Box>
   );
 });

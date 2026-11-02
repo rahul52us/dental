@@ -12,12 +12,16 @@ const HeaderThemeSwitch = () => {
       icon={isDarkMode ? <BiSun /> : <BiMoon />}
       onClick={toggleColorMode}
       variant="ghost"
-      fontSize="xl"
+      fontSize={{ base: "17px", md: "19px" }}
       color="white"
-      minW={{ base: "36px", sm: "40px" }}
-      h={{ base: "36px", sm: "40px" }}
-      _hover={{ color: "blue.500", bg: "gray.700" }}
-      _active={{ bg: "gray.800" }}
+      w={{ base: "36px", md: "40px" }}
+      h={{ base: "36px", md: "40px" }}
+      minW={{ base: "36px", md: "40px" }}
+      borderRadius="full"
+      bg="whiteAlpha.150"
+      _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+      _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
+      transition="all 0.2s ease"
       aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
       title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
     />

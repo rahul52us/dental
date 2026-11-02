@@ -26,8 +26,8 @@ const HeaderNavbar = observer(() => {
     <Flex
       justifyContent="flex-end"
       alignItems="center"
-      gap={isLargerThan1020 ? 4 : 0}
-      pr={{ base: 0, md: 1 }}
+      gap={{ base: 1.5, sm: 2, lg: 3 }}
+      pr={{ base: 1, md: 2 }}
       minW={0}
     >
       {stores.globalConfigStore?.config?.tutorialDoc && (
@@ -59,12 +59,17 @@ const HeaderNavbar = observer(() => {
             aria-label="Tutorial"
             title="Tutorial"
             icon={<FiBookOpen />}
-            size="sm"
-            minW={{ base: "36px", sm: "40px" }}
-            h={{ base: "36px", sm: "40px" }}
+            fontSize="17px"
+            w={{ base: "36px", md: "40px" }}
+            h={{ base: "36px", md: "40px" }}
+            minW={{ base: "36px", md: "40px" }}
+            borderRadius="full"
             color="white"
             variant="ghost"
-            _hover={{ bg: "whiteAlpha.200" }}
+            bg="whiteAlpha.150"
+            _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+            _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
+            transition="all 0.2s ease"
           />
         )
       )}
@@ -84,11 +89,15 @@ const HeaderNavbar = observer(() => {
             title="Open navigation menu"
             variant="ghost"
             color="white"
-            fontSize="xl"
-            minW={{ base: "36px", sm: "40px" }}
-            h={{ base: "36px", sm: "40px" }}
-            _hover={{ bg: "whiteAlpha.200" }}
-            _active={{ bg: "whiteAlpha.300" }}
+            fontSize="16px"
+            w={{ base: "36px", md: "40px" }}
+            h={{ base: "36px", md: "40px" }}
+            minW={{ base: "36px", md: "40px" }}
+            borderRadius="full"
+            bg="whiteAlpha.150"
+            _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+            _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
+            transition="all 0.2s ease"
             onClick={() => setOpenMobileSideDrawer(true)}
             icon={<FaBars />}
           />

@@ -34,9 +34,9 @@ import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 import { observer } from "mobx-react-lite";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import SidebarLogo from "./component/SidebarLogo";
+import MobileDrawer from "./component/MobileDrawer";
 import stores from "../../../store/stores";
 import { FaCircle } from "react-icons/fa"; // Added FaCircle
-import { FiX } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import {
   mediumSidebarWidth,
@@ -51,6 +51,13 @@ export interface SidebarItem {
   url: string;
   children?: SidebarItem[];
 }
+
+export const BOTTOM_NAV_ITEMS = [
+  "Dashboard",
+  "Patients",
+  "Book Appointment",
+  "Waiting Room",
+];
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -626,58 +633,33 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
       }
     }, [isMobile, setOpenMobileSideDrawer]);
 
+    const allowedFooterItems = sidebarFooterData.filter(
+      (item) => !item.role || (user?.userType && item.role.includes(user.userType))
+    );
+
+    const mobileDrawerItems = [
+      ...sidebarData.filter((item) => !BOTTOM_NAV_ITEMS.includes(item.name)),
+      ...allowedFooterItems,
+    ];
+
     const expandedPath =
       activeItemId !== null
-        ? findPathToActiveItem(sidebarData, activeItemId)
+        ? findPathToActiveItem(isMobile ? mobileDrawerItems : sidebarData, activeItemId)
         : [];
 
     console.log("SidebarLayout Rendered. ThemeConfig:", themeConfig.sidebarColors);
 
     return (
       <>
-        <Drawer
+        <MobileDrawer
           isOpen={openMobileSideDrawer}
-          placement="right"
-          onClose={() => setOpenMobileSideDrawer(false)} // Changed to false directly
-        >
-          <DrawerOverlay />
-          <DrawerContent>
-            <Box position="relative">
-              <IconButton
-                aria-label="Close menu"
-                icon={<FiX size={20} strokeWidth={3} />}
-                bg="red.500"
-                size="md"
-                color="white"
-                _hover={{ bg: "red.600", transform: "translateY(-50%) scale(1.05)" }}
-                _active={{ bg: "red.700" }}
-                position="absolute"
-                top="50%"
-                transform="translateY(-50%)"
-                right={4}
-                zIndex={999999999}
-                _focus={{ boxShadow: "none" }}
-                onClick={() => setOpenMobileSideDrawer(false)}
-                borderRadius="full"
-                boxShadow="sm"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                lineHeight={0}
-              />
-              <SidebarLogo />
-            </Box>
-            <DrawerBody px={2} className="customScrollBar">
-              <SidebarAccordion
-                items={sidebarData}
-                onClick={onItemClick}
-                onLeafClick={handleLeafItemClick}
-                activeItemId={activeItemId}
-                expandedPath={expandedPath}
-              />
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
+          onClose={() => setOpenMobileSideDrawer(false)}
+          items={mobileDrawerItems}
+          activeItemId={activeItemId}
+          expandedPath={expandedPath}
+          onClick={onItemClick}
+          onLeafClick={handleLeafItemClick}
+        />
         {!isMobile && (
           <Box
             pos={"fixed"}

@@ -80,13 +80,17 @@ const HeaderLanguageSwitch = () => {
       icon={<FiGlobe />}
       variant="ghost"
       aria-label="Switch Language"
-      fontSize="xl"
+      fontSize={{ base: "17px", md: "19px" }}
       color="white"
-      minW={{ base: "36px", sm: "40px" }}
-      h={{ base: "36px", sm: "40px" }}
+      w={{ base: "36px", md: "40px" }}
+      h={{ base: "36px", md: "40px" }}
+      minW={{ base: "36px", md: "40px" }}
+      borderRadius="full"
+      bg="whiteAlpha.150"
+      _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+      _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
+      transition="all 0.2s ease"
       title="Switch language"
-      _hover={{ color: "blue.500", bg: "gray.700" }}
-      _active={{ bg: "gray.800" }}
     />
   );
 
@@ -98,13 +102,17 @@ const HeaderLanguageSwitch = () => {
           onClick={onOpen}
           variant="ghost"
           aria-label="Switch Language"
-          fontSize="xl"
+          fontSize="17px"
           color="white"
-          minW="40px"
-          h="40px"
+          w="36px"
+          h="36px"
+          minW="36px"
+          borderRadius="full"
+          bg="whiteAlpha.150"
+          _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+          _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
+          transition="all 0.2s ease"
           title="Switch language"
-          _hover={{ color: "blue.500", bg: "gray.700" }}
-          _active={{ bg: "gray.800" }}
         />
         <Drawer isOpen={isOpen} placement="bottom" onClose={onClose} size="md">
           <DrawerOverlay bg="blackAlpha.500" backdropFilter="blur(4px)" />

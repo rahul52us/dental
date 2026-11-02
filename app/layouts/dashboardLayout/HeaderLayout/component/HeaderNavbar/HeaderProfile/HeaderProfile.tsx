@@ -54,23 +54,32 @@ const HeaderProfile = observer(() => {
           icon={
             <Avatar
               src={user?.pic?.url || undefined}
-              size="sm"
-              borderRadius={10}
+              size="xs"
+              boxSize="26px"
+              borderRadius="full"
+              border="2px solid rgba(255, 255, 255, 0.9)"
               name={user?.name}
+              bg="white"
             />
           }
-          size="md"
           variant="ghost"
-          minW={{ base: "36px", sm: "40px" }}
-          h={{ base: "36px", sm: "40px" }}
+          w={{ base: "36px", md: "40px" }}
+          h={{ base: "36px", md: "40px" }}
+          minW={{ base: "36px", md: "40px" }}
+          borderRadius="full"
+          p={0}
+          bg="whiteAlpha.150"
+          _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+          _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
+          transition="all 0.2s ease"
           title="User menu"
         />
         <Portal>
-          <MenuList 
-            minWidth="240px" 
-            boxShadow="0 10px 40px rgba(0,0,0,0.1)" 
-            borderRadius="2xl" 
-            zIndex={10} 
+          <MenuList
+            minWidth="240px"
+            boxShadow="0 10px 40px rgba(0,0,0,0.1)"
+            borderRadius="2xl"
+            zIndex={10}
             p={2}
             bg={useColorModeValue("rgba(255, 255, 255, 0.95)", "rgba(23, 25, 35, 0.95)")}
             backdropFilter="blur(15px)"
@@ -85,13 +94,13 @@ const HeaderProfile = observer(() => {
                   {WEBSITE_TITLE?.split("-").join(" ")}
                 </Text>
               </Box>
-              
+
               <Divider borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} />
-              
+
               <Box width="100%" px={1}>
                 {user && pathname !== main.home && (
-                  <MenuItem 
-                    icon={<FaHome />} 
+                  <MenuItem
+                    icon={<FaHome />}
                     onClick={() => router.push(main.home)}
                     borderRadius="lg"
                     py={2.5}
@@ -100,8 +109,8 @@ const HeaderProfile = observer(() => {
                     <Text fontWeight="700">Home</Text>
                   </MenuItem>
                 )}
-                <MenuItem 
-                  icon={<FaCog />} 
+                <MenuItem
+                  icon={<FaCog />}
                   onClick={() => setProfileModal(true, 2)}
                   borderRadius="lg"
                   py={2.5}
@@ -109,8 +118,8 @@ const HeaderProfile = observer(() => {
                 >
                   <Text fontWeight="700">Profile Settings</Text>
                 </MenuItem>
-                <MenuItem 
-                  icon={<FaLock />} 
+                <MenuItem
+                  icon={<FaLock />}
                   onClick={onOpen}
                   borderRadius="lg"
                   py={2.5}
@@ -121,7 +130,7 @@ const HeaderProfile = observer(() => {
               </Box>
 
               <Divider borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} />
-              
+
               <Box width="100%" px={1} pt={1}>
                 <MenuItem
                   icon={<FaSignOutAlt />}
@@ -148,9 +157,16 @@ const HeaderProfile = observer(() => {
       <MenuButton
         as={IconButton}
         aria-label="User Menu"
-        icon={<Avatar size="sm" borderRadius="full" />}
-        size="sm"
+        icon={<Avatar size="xs" boxSize="26px" borderRadius="full" />}
         variant="ghost"
+        w={{ base: "36px", md: "40px" }}
+        h={{ base: "36px", md: "40px" }}
+        minW={{ base: "36px", md: "40px" }}
+        borderRadius="full"
+        p={0}
+        bg="whiteAlpha.150"
+        _hover={{ bg: "whiteAlpha.300" }}
+        _active={{ bg: "whiteAlpha.400" }}
       />
       <Portal>
         <MenuList minWidth="220px" boxShadow="md" borderRadius="md" zIndex={10} p={2}>

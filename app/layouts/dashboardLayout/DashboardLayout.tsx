@@ -13,6 +13,7 @@ import { contentLargeBodyPadding, contentSmallBodyPadding, headerHeight, mediumS
 import PageLoader from '../../component/common/Loader/PageLoader';
 import ProfileDetailsModal from '../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal';
 import AdvertisementBanner from './AdvertisementBanner';
+import MobileBottomNav from './component/MobileBottomNav';
 
 
 const DashboardLayout = observer(({ children }: { children: React.ReactNode }) => {
@@ -100,6 +101,11 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
         </Container>
       </MainContainer>
       <ProfileDetailsModal user={user} />
+      {isMobile && (
+        <MobileBottomNav
+          onItemClick={handleSidebarItemClick}
+        />
+      )}
     </Box>
   ) : (
     <PageLoader loading={true}>
@@ -148,7 +154,9 @@ const ContentContainer = styled.div<{
   $isMobile: boolean;
 }>`
   padding: ${({ $isMobile }) =>
-    $isMobile ? `${contentSmallBodyPadding}` : `${contentLargeBodyPadding}`};
+    $isMobile
+      ? `${contentSmallBodyPadding} ${contentSmallBodyPadding} calc(72px + env(safe-area-inset-bottom, 0px)) ${contentSmallBodyPadding}`
+      : `${contentLargeBodyPadding}`};
   width: ${({ $isMobile }) =>
     $isMobile ? '100vw' : `calc(100vw - ${mediumSidebarWidth})`};
   overflow-x: hidden;
