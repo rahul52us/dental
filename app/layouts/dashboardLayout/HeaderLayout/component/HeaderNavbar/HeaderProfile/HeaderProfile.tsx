@@ -55,23 +55,24 @@ const HeaderProfile = observer(() => {
             <Avatar
               src={user?.pic?.url || undefined}
               size="xs"
-              boxSize="26px"
+              boxSize={{ base: "22px", sm: "24px", md: "26px" }}
               borderRadius="full"
-              border="2px solid rgba(255, 255, 255, 0.9)"
+              border="1.5px solid rgba(255, 255, 255, 0.9)"
               name={user?.name}
               bg="white"
             />
           }
           variant="ghost"
-          w={{ base: "36px", md: "40px" }}
-          h={{ base: "36px", md: "40px" }}
-          minW={{ base: "36px", md: "40px" }}
-          borderRadius="full"
+          w={{ base: "32px", sm: "36px", md: "38px" }}
+          h={{ base: "32px", sm: "36px", md: "38px" }}
+          minW={{ base: "32px", sm: "36px", md: "38px" }}
+          borderRadius="10px"
           p={0}
-          bg="whiteAlpha.150"
-          _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+          bg="whiteAlpha.180"
+          border="1px solid rgba(255,255,255,0.12)"
+          _hover={{ bg: "whiteAlpha.300", transform: "scale(1.05)" }}
           _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
-          transition="all 0.2s ease"
+          transition="all 0.15s ease"
           title="User menu"
         />
         <Portal>

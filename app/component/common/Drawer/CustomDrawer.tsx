@@ -49,7 +49,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
 
   const drawerRef = useRef<HTMLDivElement>(null);
   const { colorMode } = useColorMode();
-  const isDesktop = useBreakpointValue({ base: false, md: true });
+  const isDesktop = useBreakpointValue({ base: false, md: true }) ?? false;
+  const isMobile = !isDesktop;
 
   const headerBgColor = useColorModeValue(
     themeConfig.colors.custom.light.primary,
@@ -65,7 +66,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
   return (
     <Drawer
       isOpen={open}
-      placement="right"
+      placement={isMobile ? "bottom" : "right"}
       onClose={handleCloseDrawer}
       size={isDesktop ? (size || "xl") : "full"}
       finalFocusRef={drawerRef}
@@ -76,50 +77,73 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
       <DrawerContent
         width={isDesktop ? (width || undefined) : "100%"}
         maxW={isDesktop ? (width || undefined) : "100%"}
+        maxH={isMobile ? "100dvh" : "100%"}
+        height={isMobile ? "100dvh" : "100%"}
+        borderTopRadius={isMobile ? "20px" : "none"}
+        overflow="hidden"
         display="flex"
         flexDirection="column"
         bg={useColorModeValue("white", "darkBrand.50")}
-        // borderLeftRadius={{ base: "none", md: "3xl" }}
       >
         {/* 🔹 HEADER */}
         {title && (
           <Flex
-            justify="space-between"
-            align="center"
-            p={4}
-            bg={headerBgColor}
+            direction="column"
+            p={isMobile ? 3 : 4}
+            bgGradient={
+              isMobile
+                ? "linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                : undefined
+            }
+            bg={isMobile ? undefined : headerBgColor}
             color={headerTextColor}
             fontWeight="bold"
-            py={6}
+            py={isMobile ? 3.5 : 6}
             px={{ base: 4, md: 8 }}
           >
-            <HStack spacing={4} flex="1" pr={4}>
-              {typeof title === "string" ? (
-                <Text fontSize={{ base: "md", md: "xl" }} noOfLines={2} lineHeight="short">{title}</Text>
-              ) : (
-                <Box>{title}</Box>
-              )}
-            </HStack>
-
-            <HStack spacing={2} align="center" flexShrink={0}>
-              {extraActions && (
-                <Box mr={3}>
-                  {extraActions}
-                </Box>
-              )}
-              <DrawerCloseButton
-                position="relative"
-                top="0"
-                right="0"
-                insetEnd="0"
-                bg="red.500"
-                color="white"
+            {isMobile && (
+              <Box
+                w="38px"
+                h="4.5px"
                 borderRadius="full"
-                size="md"
-                _hover={{ bg: "red.600" }}
-                mt={1}
+                bg="whiteAlpha.400"
+                mx="auto"
+                mb={2.5}
               />
-            </HStack>
+            )}
+            <Flex justify="space-between" align="center" width="100%">
+              <HStack spacing={3} flex="1" pr={3}>
+                {typeof title === "string" ? (
+                  <Text
+                    fontSize={{ base: "sm", sm: "md", md: "xl" }}
+                    fontWeight="800"
+                    noOfLines={2}
+                    lineHeight="short"
+                    letterSpacing="-0.2px"
+                  >
+                    {title}
+                  </Text>
+                ) : (
+                  <Box>{title}</Box>
+                )}
+              </HStack>
+
+              <HStack spacing={2} align="center" flexShrink={0}>
+                {extraActions && <Box mr={2}>{extraActions}</Box>}
+                <DrawerCloseButton
+                  position="relative"
+                  top="0"
+                  right="0"
+                  insetEnd="0"
+                  bg="whiteAlpha.250"
+                  color="white"
+                  borderRadius="full"
+                  size="sm"
+                  _hover={{ bg: "red.500" }}
+                  mt={0}
+                />
+              </HStack>
+            </Flex>
           </Flex>
         )}
 

@@ -17,7 +17,8 @@ import {
   Tooltip,
   useColorModeValue,
   Input,
-  Button
+  Button,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
@@ -243,12 +244,36 @@ const PatientOldDataDrawer = observer(({ isOpen, onClose, patient }: PatientOldD
     setIsPreviewOpen(true);
   };
 
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} size="xl" placement="right">
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      size={isMobile ? "full" : "xl"}
+      placement={isMobile ? "bottom" : "right"}
+    >
       <DrawerOverlay backdropFilter="blur(4px)" />
-      <DrawerContent maxW="90vw" w="90vw">
-        <DrawerHeader bg={headerBg} color="white" py={4}>
-          <Flex align="center" justify="space-between" pr={8}>
+      <DrawerContent
+        maxW={isMobile ? "100%" : "90vw"}
+        w={isMobile ? "100%" : "90vw"}
+        maxH={isMobile ? "100dvh" : "100%"}
+        height={isMobile ? "100dvh" : "100%"}
+        borderTopRadius={isMobile ? "20px" : "none"}
+        overflow="hidden"
+      >
+        <DrawerHeader bg={headerBg} color="white" py={isMobile ? 3 : 4}>
+          {isMobile && (
+            <Box
+              w="38px"
+              h="4px"
+              borderRadius="full"
+              bg="whiteAlpha.400"
+              mx="auto"
+              mb={2}
+            />
+          )}
+          <Flex align="center" justify="space-between" pr={isMobile ? 2 : 8}>
             <HStack spacing={3}>
               <Icon as={FiDatabase} boxSize={5} />
               <Box>

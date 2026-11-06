@@ -28,7 +28,8 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement
+  InputRightElement,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import { FiCreditCard, FiArrowDownLeft, FiArrowUpRight, FiAlertCircle, FiUser, FiPlus, FiMinus } from "react-icons/fi";
 import stores from "../store/stores";
@@ -149,13 +150,55 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
     }
   };
 
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
   return (
     <React.Fragment>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
-        <DrawerOverlay backdropFilter="blur(8px)" bg="blackAlpha.400" />
-        <DrawerContent borderLeftRadius="3xl" bg="gray.50" shadow="2xl">
-          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100" bg="white" py={6} px={8} position="relative">
-            <DrawerCloseButton position="absolute" top={6} right={6} bg="gray.100" color="gray.600" borderRadius="full" size="md" _hover={{ bg: "red.100", color: "red.500", transform: "scale(1.1)" }} transition="all 0.2s" />
+      <Drawer
+        isOpen={isOpen}
+        placement={isMobile ? "bottom" : "right"}
+        onClose={onClose}
+        size={isMobile ? "full" : "md"}
+      >
+        <DrawerOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
+        <DrawerContent
+          borderTopRadius={isMobile ? "20px" : "none"}
+          borderLeftRadius={isMobile ? "none" : "3xl"}
+          maxH={isMobile ? "100dvh" : "100%"}
+          height={isMobile ? "100dvh" : "100%"}
+          overflow="hidden"
+          bg="gray.50"
+          shadow="2xl"
+        >
+          <DrawerHeader
+            borderBottomWidth="1px"
+            borderColor="gray.100"
+            bg="white"
+            py={isMobile ? 4 : 6}
+            px={isMobile ? 5 : 8}
+            position="relative"
+          >
+            {isMobile && (
+              <Box
+                w="38px"
+                h="4px"
+                borderRadius="full"
+                bg="gray.300"
+                mx="auto"
+                mb={2}
+              />
+            )}
+            <DrawerCloseButton
+              position="absolute"
+              top={isMobile ? 4 : 6}
+              right={isMobile ? 4 : 6}
+              bg="gray.100"
+              color="gray.600"
+              borderRadius="full"
+              size="sm"
+              _hover={{ bg: "red.100", color: "red.500", transform: "scale(1.1)" }}
+              transition="all 0.2s"
+            />
             <VStack align="start" spacing={5} w="full" mt={2}>
               <VStack align="start" spacing={0}>
                 <HStack>

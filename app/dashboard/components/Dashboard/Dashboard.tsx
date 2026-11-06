@@ -42,6 +42,9 @@ import {
   FaChartLine,
   FaChevronRight,
   FaClock,
+  FaUserPlus,
+  FaCalendarPlus,
+  FaChair,
 } from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
@@ -119,10 +122,25 @@ const horizontalBarOptions: any = {
   },
 };
 
-const HERO_IMAGES = [
-  "https://salisburydentist.co.uk/wp-content/uploads/2025/04/woman-patient-dentist-1-scaled.jpg",
-  "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=1080&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=1080&auto=format&fit=crop",
+const HERO_SLIDES = [
+  {
+    image: "https://salisburydentist.co.uk/wp-content/uploads/2025/04/woman-patient-dentist-1-scaled.jpg",
+    tag: "PATIENT CARE",
+    title: "Smart Practice Suite",
+    subtitle: "Real-time records & instant chair updates",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=1080&auto=format&fit=crop",
+    tag: "EFFICIENCY",
+    title: "Seamless Bookings",
+    subtitle: "Automated schedule & waiting room triage",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=1080&auto=format&fit=crop",
+    tag: "INSIGHTS",
+    title: "Clinical Intelligence",
+    subtitle: "Daily patient analytics & top treatments",
+  },
 ];
 
 const Dashboard = observer(() => {
@@ -156,8 +174,8 @@ const Dashboard = observer(() => {
   // Hero Image Auto-Slide Effect
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentHeroSlide((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 3500);
+      setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 
@@ -178,6 +196,48 @@ const Dashboard = observer(() => {
     { label: t("dashboard.staff"), value: count?.data?.staffs || 0, icon: FaUserTie, color: "orange", href: "/dashboard/staffs", show: stores.auth.hasPermission("staffs", "view") },
     { label: t("dashboard.dealers"), value: count?.data?.dealers || 0, icon: FaStore, color: "pink", href: "/dashboard/dealers", show: stores.auth.hasPermission("masters", "view") },
   ].filter((item) => item.show !== false);
+
+  // Quick Action Shortcuts for Mobile
+  const quickActions = [
+    { label: "Patient", icon: FaUserPlus, color: "teal", href: "/dashboard/patients" },
+    { label: "Book Slot", icon: FaCalendarPlus, color: "blue", href: "/dashboard/appointments/book" },
+    { label: "Waiting", icon: FaChair, color: "purple", href: "/dashboard/appointments/waiting-room" },
+    { label: "Reports", icon: FaClipboardList, color: "orange", href: "/dashboard/daily-report" },
+  ];
+
+  // Metric Card Pastel Themes
+  const metricThemes: any = {
+    blue: {
+      bg: isDark ? "rgba(49, 130, 206, 0.12)" : "linear(145deg, #F0F7FF 0%, #E0F0FE 100%)",
+      border: isDark ? "rgba(49, 130, 206, 0.3)" : "#BFDBFE",
+      iconGrad: "linear(135deg, #3B82F6, #1D4ED8)",
+      tag: "DOCTORS",
+    },
+    teal: {
+      bg: isDark ? "rgba(56, 178, 172, 0.12)" : "linear(145deg, #F0FDFA 0%, #CCFBF1 100%)",
+      border: isDark ? "rgba(56, 178, 172, 0.3)" : "#99F6E4",
+      iconGrad: "linear(135deg, #0D9488, #0F766E)",
+      tag: "PATIENTS",
+    },
+    purple: {
+      bg: isDark ? "rgba(128, 90, 213, 0.12)" : "linear(145deg, #FAF5FF 0%, #F3E8FF 100%)",
+      border: isDark ? "rgba(128, 90, 213, 0.3)" : "#DDD6FE",
+      iconGrad: "linear(135deg, #8B5CF6, #6D28D9)",
+      tag: "VISITS",
+    },
+    orange: {
+      bg: isDark ? "rgba(221, 107, 32, 0.12)" : "linear(145deg, #FFF7ED 0%, #FFEDD5 100%)",
+      border: isDark ? "rgba(221, 107, 32, 0.3)" : "#FED7AA",
+      iconGrad: "linear(135deg, #F97316, #C2410C)",
+      tag: "TEAM",
+    },
+    pink: {
+      bg: isDark ? "rgba(213, 63, 140, 0.12)" : "linear(145deg, #FDF2F8 0%, #FCE7F3 100%)",
+      border: isDark ? "rgba(213, 63, 140, 0.3)" : "#FBCFE8",
+      iconGrad: "linear(135deg, #EC4899, #BE185D)",
+      tag: "PARTNERS",
+    },
+  };
 
   // Chart Data Memos
   const weeklyGrowthData = useMemo(() => {
@@ -219,48 +279,79 @@ const Dashboard = observer(() => {
     <Box p={{ base: 0, md: 8 }} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
       <Box mx="auto" position="relative" zIndex={1}>
         {/* ========================================================= */}
-        {/* ==================== MOBILE VIEW ======================== */}
+        {/* ==================== MOBILE VIEW (REDESIGNED) =========== */}
         {/* ========================================================= */}
-        <Box display={{ base: "block", md: "none" }} pb={10}>
+        <Box display={{ base: "block", md: "none" }} pb="calc(84px + env(safe-area-inset-bottom, 0px))">
           
-          {/* 1. Auto-Sliding Image Carousel (No Text) */}
-          <Box px={4} pt={4} mb={4}>
+          {/* 1. Lovable Clinic Spotlight Carousel */}
+          <Box px={4} pt={1} mb={3.5}>
             <Box
-              borderRadius="2xl"
+              borderRadius="24px"
               overflow="hidden"
               position="relative"
-              boxShadow="md"
-              h="160px"
-              bg="gray.200"
+              boxShadow="0 8px 24px rgba(0,0,0,0.08)"
+              h="150px"
+              bg="gray.100"
             >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentHeroSlide}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={{ opacity: 0, scale: 1.02 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                  style={{ width: "100%", height: "100%" }}
+                  transition={{ duration: 0.5 }}
+                  style={{ width: "100%", height: "100%", position: "relative" }}
                 >
                   <Image
-                    src={HERO_IMAGES[currentHeroSlide]}
-                    alt={`Slide ${currentHeroSlide + 1}`}
+                    src={HERO_SLIDES[currentHeroSlide].image}
+                    alt={HERO_SLIDES[currentHeroSlide].title}
                     w="100%"
                     h="100%"
                     objectFit="cover"
                     objectPosition="center"
                   />
+                  {/* Frosted Clinic Spotlight Overlay */}
+                  <Box
+                    position="absolute"
+                    inset={0}
+                    bgGradient="linear(to-t, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.3) 55%, transparent 100%)"
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="flex-end"
+                    p={3.5}
+                  >
+                    <HStack spacing={1.5} mb={0.5}>
+                      <Badge
+                        bg="cyan.400"
+                        color="gray.950"
+                        fontSize="8px"
+                        fontWeight="900"
+                        px={1.5}
+                        py={0.2}
+                        rounded="md"
+                        letterSpacing="0.5px"
+                      >
+                        {HERO_SLIDES[currentHeroSlide].tag}
+                      </Badge>
+                    </HStack>
+                    <Text color="white" fontWeight="900" fontSize="sm" lineHeight="1.2">
+                      {HERO_SLIDES[currentHeroSlide].title}
+                    </Text>
+                    <Text color="whiteAlpha.800" fontSize="10px" fontWeight="500" noOfLines={1}>
+                      {HERO_SLIDES[currentHeroSlide].subtitle}
+                    </Text>
+                  </Box>
                 </motion.div>
               </AnimatePresence>
             </Box>
             
-            {/* Slide Indicators (Dots) */}
-            <HStack justify="center" spacing={1.5} mt={3}>
-              {HERO_IMAGES.map((_, idx) => (
+            {/* Slide Indicators (Pills) */}
+            <HStack justify="center" spacing={1.5} mt={2.5}>
+              {HERO_SLIDES.map((_, idx) => (
                 <Box
                   key={idx}
-                  w={currentHeroSlide === idx ? "16px" : "6px"}
-                  h="6px"
+                  w={currentHeroSlide === idx ? "18px" : "5px"}
+                  h="5px"
                   borderRadius="full"
                   bg={currentHeroSlide === idx ? "blue.500" : "gray.300"}
                   transition="all 0.3s ease"
@@ -269,110 +360,223 @@ const Dashboard = observer(() => {
             </HStack>
           </Box>
 
-          {/* 2. Horizontal Scrolling Stat Cards */}
-          <Box mb={6}>
-            <Flex justify="space-between" align="center" px={4} mb={3}>
-              <Text fontSize="xs" fontWeight="800" color="gray.400" textTransform="uppercase" letterSpacing="wider">
-                Key Metrics
-              </Text>
-              <Text fontSize="11px" fontWeight="700" color="blue.400">Swipe →</Text>
+          {/* 2. Quick Clinical Shortcuts Row */}
+          <Box px={4} mb={4}>
+            <SimpleGrid columns={4} spacing={2.5}>
+              {quickActions.map((qa, i) => (
+                <MotionBox
+                  key={i}
+                  p={2}
+                  borderRadius="18px"
+                  bg={appCardBg}
+                  borderWidth="1px"
+                  borderColor={appCardBorder}
+                  boxShadow="0 2px 10px rgba(0,0,0,0.02)"
+                  textAlign="center"
+                  onClick={() => (window.location.href = qa.href)}
+                  whileTap={{ scale: 0.94 }}
+                  cursor="pointer"
+                  transition={{ duration: 0.2 }}
+                >
+                  <Circle size="34px" mx="auto" mb={1} bg={`${qa.color}.50`} color={`${qa.color}.600`}>
+                    <Icon as={qa.icon} boxSize={3.5} />
+                  </Circle>
+                  <Text fontSize="10px" fontWeight="800" color={textColor} noOfLines={1}>
+                    {qa.label}
+                  </Text>
+                </MotionBox>
+              ))}
+            </SimpleGrid>
+          </Box>
+
+          {/* 3. Key Metrics Stat Cards (Vibrant Pastel Bento Cards) */}
+          <Box mb={5}>
+            <Flex justify="space-between" align="center" px={4} mb={2.5}>
+              <HStack spacing={1.5}>
+                <Box w="3px" h="12px" bg="blue.500" rounded="full" />
+                <Text fontSize="xs" fontWeight="900" color={textColor} letterSpacing="0.2px">
+                  Key Metrics
+                </Text>
+              </HStack>
+              <Text fontSize="10px" fontWeight="800" color="blue.500">Swipe →</Text>
             </Flex>
 
             <Flex
               overflowX="auto"
               px={4}
               py={1}
-              gap={3.5}
+              gap={3}
               css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}
             >
-              {dashboardData.map((item, index) => (
-                <MotionBox
-                  key={index}
-                  minW="145px"
-                  bg={appCardBg}
-                  p={4}
-                  borderRadius="2xl"
-                  boxShadow="0 4px 15px rgba(0,0,0,0.03)"
-                  borderWidth="1px"
-                  borderColor={appCardBorder}
-                  backdropFilter="blur(10px)"
-                  onClick={() => (window.location.href = item.href)}
-                  whileTap={{ scale: 0.95 }}
-                  flexShrink={0}
-                >
-                  <Flex justify="space-between" align="center" mb={3}>
-                    <Circle size="36px" bg={`${item.color}.500`} color="white" boxShadow={`0 4px 10px ${item.color}40`}>
-                      <Icon as={item.icon} boxSize={4} />
-                    </Circle>
-                    <Icon as={FaChevronRight} boxSize={2.5} color="gray.400" />
-                  </Flex>
-                  <Text fontSize="2xl" fontWeight="900" color={textColor} lineHeight="1" mb={1}>
-                    {item.value}
-                  </Text>
-                  <Text fontSize="10px" fontWeight="700" color="gray.400" textTransform="uppercase" letterSpacing="wide" noOfLines={1}>
-                    {item.label}
-                  </Text>
-                </MotionBox>
-              ))}
+              {dashboardData.map((item, index) => {
+                const theme = metricThemes[item.color] || metricThemes.blue;
+                return (
+                  <MotionBox
+                    key={index}
+                    minW="148px"
+                    bgGradient={theme.bg}
+                    p={3.5}
+                    borderRadius="22px"
+                    boxShadow="0 4px 16px rgba(0,0,0,0.03)"
+                    borderWidth="1.5px"
+                    borderColor={theme.border}
+                    onClick={() => (window.location.href = item.href)}
+                    whileTap={{ scale: 0.95 }}
+                    flexShrink={0}
+                    cursor="pointer"
+                  >
+                    <Flex justify="space-between" align="center" mb={2.5}>
+                      <Circle 
+                        size="34px" 
+                        bgGradient={theme.iconGrad}
+                        color="white" 
+                        boxShadow="0 4px 10px rgba(0,0,0,0.15)"
+                      >
+                        <Icon as={item.icon} boxSize={3.5} />
+                      </Circle>
+                      <Flex w="22px" h="22px" rounded="full" bg="whiteAlpha.800" align="center" justify="center" boxShadow="sm">
+                        <Icon as={FaChevronRight} boxSize={2} color="gray.600" />
+                      </Flex>
+                    </Flex>
+                    <Text fontSize="24px" fontWeight="900" color="gray.900" lineHeight="1" mb={0.5}>
+                      {item.value}
+                    </Text>
+                    <Text fontSize="10px" fontWeight="800" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" noOfLines={1}>
+                      {item.label}
+                    </Text>
+                  </MotionBox>
+                );
+              })}
             </Flex>
           </Box>
 
-          {/* 3. Interactive Analytics Segment */}
-          <Box px={4} mb={6}>
-            <Text fontSize="xs" fontWeight="800" color="gray.400" textTransform="uppercase" letterSpacing="wider" mb={3}>
-              Analytics Hub
-            </Text>
+          {/* 4. Interactive Analytics Segment */}
+          <Box px={4} mb={5}>
+            <HStack spacing={1.5} mb={2.5}>
+              <Box w="3px" h="12px" bg="purple.500" rounded="full" />
+              <Text fontSize="xs" fontWeight="900" color={textColor} letterSpacing="0.2px">
+                Analytics Hub
+              </Text>
+            </HStack>
 
             {/* Segment Tabs */}
-            <Flex bg={isDark ? "gray.800" : "gray.200"} p={1} borderRadius="2xl" mb={4} gap={1} overflowX="auto" css={{ "&::-webkit-scrollbar": { display: "none" } }}>
+            <Flex 
+              bg={isDark ? "gray.800" : "gray.200"} 
+              p="3px" 
+              borderRadius="18px" 
+              mb={3} 
+              gap={1} 
+              overflowX="auto" 
+              css={{ "&::-webkit-scrollbar": { display: "none" } }}
+            >
               {showWeeklyGrowth && (
-                <Flex flex={1} py={2} px={3} justify="center" align="center" borderRadius="xl" cursor="pointer" bg={activeMobileTab === "weekly" ? (isDark ? "gray.700" : "white") : "transparent"} boxShadow={activeMobileTab === "weekly" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} onClick={() => setActiveMobileTab("weekly")} transition="all 0.2s">
-                  <Text fontSize="11px" fontWeight="800" color={activeMobileTab === "weekly" ? "blue.400" : "gray.500"}>Weekly</Text>
+                <Flex 
+                  flex={1} 
+                  py={2} 
+                  px={2.5} 
+                  justify="center" 
+                  align="center" 
+                  borderRadius="14px" 
+                  cursor="pointer" 
+                  bg={activeMobileTab === "weekly" ? (isDark ? "gray.700" : "white") : "transparent"} 
+                  boxShadow={activeMobileTab === "weekly" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
+                  onClick={() => setActiveMobileTab("weekly")} 
+                  transition="all 0.2s"
+                >
+                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "weekly" ? "blue.500" : "gray.500"}>Weekly</Text>
                 </Flex>
               )}
               {showTimeSlot && (
-                <Flex flex={1} py={2} px={3} justify="center" align="center" borderRadius="xl" cursor="pointer" bg={activeMobileTab === "slots" ? (isDark ? "gray.700" : "white") : "transparent"} boxShadow={activeMobileTab === "slots" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} onClick={() => setActiveMobileTab("slots")} transition="all 0.2s">
-                  <Text fontSize="11px" fontWeight="800" color={activeMobileTab === "slots" ? "green.400" : "gray.500"}>Slots</Text>
+                <Flex 
+                  flex={1} 
+                  py={2} 
+                  px={2.5} 
+                  justify="center" 
+                  align="center" 
+                  borderRadius="14px" 
+                  cursor="pointer" 
+                  bg={activeMobileTab === "slots" ? (isDark ? "gray.700" : "white") : "transparent"} 
+                  boxShadow={activeMobileTab === "slots" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
+                  onClick={() => setActiveMobileTab("slots")} 
+                  transition="all 0.2s"
+                >
+                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "slots" ? "green.500" : "gray.500"}>Slots</Text>
                 </Flex>
               )}
               {showWeeklyGrowth && (
-                <Flex flex={1} py={2} px={3} justify="center" align="center" borderRadius="xl" cursor="pointer" bg={activeMobileTab === "treatments" ? (isDark ? "gray.700" : "white") : "transparent"} boxShadow={activeMobileTab === "treatments" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} onClick={() => setActiveMobileTab("treatments")} transition="all 0.2s">
-                  <Text fontSize="11px" fontWeight="800" color={activeMobileTab === "treatments" ? "purple.400" : "gray.500"}>Treatments</Text>
+                <Flex 
+                  flex={1} 
+                  py={2} 
+                  px={2.5} 
+                  justify="center" 
+                  align="center" 
+                  borderRadius="14px" 
+                  cursor="pointer" 
+                  bg={activeMobileTab === "treatments" ? (isDark ? "gray.700" : "white") : "transparent"} 
+                  boxShadow={activeMobileTab === "treatments" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
+                  onClick={() => setActiveMobileTab("treatments")} 
+                  transition="all 0.2s"
+                >
+                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "treatments" ? "purple.500" : "gray.500"}>Treatments</Text>
                 </Flex>
               )}
               {showTimeSlot && (
-                <Flex flex={1} py={2} px={3} justify="center" align="center" borderRadius="xl" cursor="pointer" bg={activeMobileTab === "trends" ? (isDark ? "gray.700" : "white") : "transparent"} boxShadow={activeMobileTab === "trends" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} onClick={() => setActiveMobileTab("trends")} transition="all 0.2s">
-                  <Text fontSize="11px" fontWeight="800" color={activeMobileTab === "trends" ? "orange.400" : "gray.500"}>Trends</Text>
+                <Flex 
+                  flex={1} 
+                  py={2} 
+                  px={2.5} 
+                  justify="center" 
+                  align="center" 
+                  borderRadius="14px" 
+                  cursor="pointer" 
+                  bg={activeMobileTab === "trends" ? (isDark ? "gray.700" : "white") : "transparent"} 
+                  boxShadow={activeMobileTab === "trends" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
+                  onClick={() => setActiveMobileTab("trends")} 
+                  transition="all 0.2s"
+                >
+                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "trends" ? "orange.500" : "gray.500"}>Trends</Text>
                 </Flex>
               )}
             </Flex>
 
-            {/* Active Chart */}
+            {/* Active Chart Card */}
             <AnimatePresence mode="wait">
-              <MotionBox key={activeMobileTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} bg={appCardBg} p={4} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.04)" borderWidth="1px" borderColor={appCardBorder}>
+              <MotionBox 
+                key={activeMobileTab} 
+                initial={{ opacity: 0, y: 8 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -8 }} 
+                transition={{ duration: 0.2 }} 
+                bg={appCardBg} 
+                p={4} 
+                borderRadius="24px" 
+                boxShadow="0 4px 20px rgba(0,0,0,0.03)" 
+                borderWidth="1px" 
+                borderColor={appCardBorder}
+              >
                 {activeMobileTab === "weekly" && showWeeklyGrowth && (
                   <Box>
-                    <Flex justify="space-between" align="center" mb={4}>
+                    <Flex justify="space-between" align="center" mb={3}>
                       <Box>
-                        <Text fontSize="md" fontWeight="900" color={textColor}>{t("dashboard.weeklyGrowth")}</Text>
+                        <Text fontSize="sm" fontWeight="900" color={textColor}>{t("dashboard.weeklyGrowth")}</Text>
                         <Text fontSize="10px" color={subTextColor} fontWeight="600">{t("dashboard.revenueVsAppointments")}</Text>
                       </Box>
-                      <Circle size="32px" bg="blue.500" color="white"><Icon as={FaClipboardList} boxSize={3.5} /></Circle>
+                      <Circle size="30px" bg="blue.500" color="white"><Icon as={FaClipboardList} boxSize={3} /></Circle>
                     </Flex>
-                    <Box h="230px" w="100%"><Bar data={weeklyGrowthData} options={barChartOptions} /></Box>
+                    <Box h="220px" w="100%"><Bar data={weeklyGrowthData} options={barChartOptions} /></Box>
                   </Box>
                 )}
 
                 {activeMobileTab === "slots" && showTimeSlot && (
                   <Box>
-                    <Flex justify="space-between" align="center" mb={4}>
+                    <Flex justify="space-between" align="center" mb={3}>
                       <Box>
-                        <Text fontSize="md" fontWeight="900" color={textColor}>{t("dashboard.timeSlotAnalytics")}</Text>
+                        <Text fontSize="sm" fontWeight="900" color={textColor}>{t("dashboard.timeSlotAnalytics")}</Text>
                         <Text fontSize="10px" color={subTextColor} fontWeight="600">{t("dashboard.dailyAppointmentDistribution")}</Text>
                       </Box>
-                      <Circle size="32px" bg="green.500" color="white"><Icon as={FaCalendarAlt} boxSize={3.5} /></Circle>
+                      <Circle size="30px" bg="green.500" color="white"><Icon as={FaCalendarAlt} boxSize={3} /></Circle>
                     </Flex>
-                    <Box h="230px" w="100%">
+                    <Box h="220px" w="100%">
                       <Line data={timeSlotChartData} options={{ ...lineChartOptions, plugins: { ...lineChartOptions.plugins, legend: { display: true, position: "top", labels: { boxWidth: 8, usePointStyle: true, font: { size: 9 } } } } }} />
                     </Box>
                   </Box>
@@ -380,45 +584,50 @@ const Dashboard = observer(() => {
 
                 {activeMobileTab === "treatments" && showWeeklyGrowth && (
                   <Box>
-                    <Flex justify="space-between" align="center" mb={4}>
+                    <Flex justify="space-between" align="center" mb={3}>
                       <Box>
-                        <Text fontSize="md" fontWeight="900" color={textColor}>{t("dashboard.treatmentTrends")}</Text>
+                        <Text fontSize="sm" fontWeight="900" color={textColor}>{t("dashboard.treatmentTrends")}</Text>
                         <Text fontSize="10px" color={subTextColor} fontWeight="600">{t("dashboard.top10Treatments")}</Text>
                       </Box>
-                      <Circle size="32px" bg="purple.500" color="white"><Icon as={FaNotesMedical} boxSize={3.5} /></Circle>
+                      <Circle size="30px" bg="purple.500" color="white"><Icon as={FaNotesMedical} boxSize={3} /></Circle>
                     </Flex>
-                    <Box h="260px" w="100%"><Bar data={treatmentTrendsData} options={horizontalBarOptions} /></Box>
+                    <Box h="240px" w="100%"><Bar data={treatmentTrendsData} options={horizontalBarOptions} /></Box>
                   </Box>
                 )}
 
                 {activeMobileTab === "trends" && showTimeSlot && (
                   <Box>
-                    <Flex justify="space-between" align="center" mb={4}>
+                    <Flex justify="space-between" align="center" mb={3}>
                       <Box>
-                        <Text fontSize="md" fontWeight="900" color={textColor}>{t("dashboard.appointmentTrends")}</Text>
+                        <Text fontSize="sm" fontWeight="900" color={textColor}>{t("dashboard.appointmentTrends")}</Text>
                         <Text fontSize="10px" color={subTextColor} fontWeight="600">{t("dashboard.sixMonthsGrowthHistory")}</Text>
                       </Box>
-                      <Circle size="32px" bg="orange.500" color="white"><Icon as={FaChartLine} boxSize={3.5} /></Circle>
+                      <Circle size="30px" bg="orange.500" color="white"><Icon as={FaChartLine} boxSize={3} /></Circle>
                     </Flex>
-                    <Box h="230px" w="100%"><Line data={appointmentTrendsData} options={lineChartOptions} /></Box>
+                    <Box h="220px" w="100%"><Line data={appointmentTrendsData} options={lineChartOptions} /></Box>
                   </Box>
                 )}
               </MotionBox>
             </AnimatePresence>
           </Box>
 
-          {/* 4. Timeline Activity Feed */}
+          {/* 5. Timeline Activity Feed */}
           {showLiveActivity && (
-            <Box px={4} mb={6}>
-              <Flex justify="space-between" align="center" mb={4}>
-                <HStack spacing={2}>
-                  <Circle size="24px" bg="green.500" color="white"><Icon as={FaClock} boxSize={3} /></Circle>
-                  <Text fontSize="md" fontWeight="900" color={textColor}>{t("dashboard.liveClinicActivity")}</Text>
+            <Box px={4}>
+              <Flex justify="space-between" align="center" mb={3}>
+                <HStack spacing={1.5}>
+                  <Box w="3px" h="12px" bg="green.500" rounded="full" />
+                  <Text fontSize="xs" fontWeight="900" color={textColor} letterSpacing="0.2px">
+                    {t("dashboard.liveClinicActivity")}
+                  </Text>
                 </HStack>
-                <Badge colorScheme="green" variant="solid" rounded="full" px={2.5} py={0.5} fontSize="9px" fontWeight="800">LIVE</Badge>
+                <HStack spacing={1} bg="green.50" px={2} py={0.5} rounded="full" border="1px solid" borderColor="green.200">
+                  <Box w="5px" h="5px" rounded="full" bg="green.500" />
+                  <Text fontSize="9px" fontWeight="800" color="green.700">LIVE</Text>
+                </HStack>
               </Flex>
 
-              <VStack spacing={3} align="stretch">
+              <VStack spacing={2.5} align="stretch">
                 {count?.data?.recentUsers?.map((u: any, idx: number) => {
                   const regDate = new Date(u.createdAt);
                   const formattedTime = regDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -433,20 +642,31 @@ const Dashboard = observer(() => {
                   const style = typeColors[u.userType?.toLowerCase()] || { bg: "gray.500", color: "gray.400", badge: "gray" };
 
                   return (
-                    <MotionBox key={idx} bg={appCardBg} p={3.5} borderRadius="2xl" boxShadow="0 2px 10px rgba(0,0,0,0.02)" borderWidth="1px" borderColor={appCardBorder} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
+                    <MotionBox 
+                      key={idx} 
+                      bg={appCardBg} 
+                      p={3} 
+                      borderRadius="20px" 
+                      boxShadow="0 2px 8px rgba(0,0,0,0.02)" 
+                      borderWidth="1px" 
+                      borderColor={appCardBorder} 
+                      initial={{ opacity: 0, y: 8 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      transition={{ delay: idx * 0.04 }}
+                    >
                       <Flex align="center" gap={3}>
-                        <Avatar size="md" src={u.pic?.url} name={u.name} borderRadius="xl" />
+                        <Avatar size="sm" src={u.pic?.url} name={u.name} borderRadius="xl" />
                         <Box flex={1} minW={0}>
                           <Flex justify="space-between" align="center">
-                            <Text fontSize="sm" fontWeight="800" color={textColor} noOfLines={1}>{u.name}</Text>
+                            <Text fontSize="xs" fontWeight="800" color={textColor} noOfLines={1}>{u.name}</Text>
                             <HStack spacing={1} color="gray.400">
                               <Icon as={FaClock} boxSize={2.5} />
-                              <Text fontSize="10px" fontWeight="700">{formattedTime}</Text>
+                              <Text fontSize="9px" fontWeight="700">{formattedTime}</Text>
                             </HStack>
                           </Flex>
-                          <Flex justify="space-between" align="center" mt={1}>
-                            <Badge colorScheme={style.badge} variant="subtle" fontSize="9px" px={2} py={0.5} borderRadius="md" fontWeight="800">{u.userType}</Badge>
-                            <Text fontSize="10px" fontWeight="600" color="gray.400">{formattedDate}</Text>
+                          <Flex justify="space-between" align="center" mt={0.5}>
+                            <Badge colorScheme={style.badge} variant="subtle" fontSize="8px" px={1.5} py={0.2} borderRadius="md" fontWeight="800">{u.userType}</Badge>
+                            <Text fontSize="9px" fontWeight="600" color="gray.400">{formattedDate}</Text>
                           </Flex>
                         </Box>
                       </Flex>

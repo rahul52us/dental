@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid, useBreakpointValue } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState, useMemo } from "react";
@@ -89,6 +89,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
 };
 
 const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
   const {
     toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
     auth: { openNotification, userType },
@@ -649,6 +650,210 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
       dt.side
     );
 
+    if (isMobile) {
+      return (
+        <Box
+          key={dt._id}
+          bg="white"
+          p={3.5}
+          borderRadius="24px"
+          shadow="sm"
+          border="1px solid"
+          borderColor="gray.150"
+          position="relative"
+          mb={3}
+        >
+          {/* 1. Header Bar: Date & Status Badges */}
+          <Flex justify="space-between" align="center" mb={2.5} wrap="wrap" gap={1.5}>
+            <Text fontSize="11px" fontWeight="800" color="gray.400" letterSpacing="0.05em" textTransform="uppercase">
+              📅 {formatDate(dt.treatmentDate)}
+            </Text>
+
+            <HStack spacing={1.5} wrap="wrap">
+              {dt.complaintType && (
+                <Badge 
+                  colorScheme={
+                    dt.complaintType?.toUpperCase() === "EXISTING FINDING" ? "green" :
+                    dt.complaintType?.toUpperCase() === "OTHER FINDING" ? "orange" : "red"
+                  } 
+                  variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px" fontWeight="800"
+                >
+                  {dt.complaintType?.toUpperCase()}
+                </Badge>
+              )}
+              {dt.complaintType?.toUpperCase() !== "EXISTING FINDING" && (
+                <Badge colorScheme={color} variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px" fontWeight="800">
+                  {dt.status?.toUpperCase() || "PENDING"}
+                </Badge>
+              )}
+              {dt.sittingNo ? (
+                <Badge colorScheme="purple" variant="solid" borderRadius="full" px={2} py={0.5} fontSize="10px" fontWeight="800">
+                  Sitting: {dt.sittingNo}
+                </Badge>
+              ) : null}
+            </HStack>
+          </Flex>
+
+          {/* 2. Tooth Identifier + Treatment Plan Name */}
+          <Flex align="start" gap={3} mb={3}>
+            {/* Tooth Identifier Squircle */}
+            <VStack
+              align="center"
+              justify="center"
+              bg="blue.50"
+              border="1.5px solid"
+              borderColor="blue.300"
+              borderRadius="18px"
+              p={2}
+              minW="68px"
+              maxW="68px"
+              flexShrink={0}
+            >
+              <Text fontSize="22px" fontWeight="900" color="blue.800" lineHeight="1" my={1}>
+                {displayToothFDI === "General" || toothValue === "General" ? "GEN" : (displayToothFDI || toothValue || "??")}
+              </Text>
+              <Text fontSize="8px" fontWeight="900" color="blue.600" textTransform="uppercase" textAlign="center" noOfLines={1}>
+                {line1}
+              </Text>
+              {line2 && (
+                <Text fontSize="7px" fontWeight="800" color="gray.500" textTransform="uppercase" textAlign="center" noOfLines={1}>
+                  {line2}
+                </Text>
+              )}
+            </VStack>
+
+            {/* Treatment Details */}
+            <Box flex={1} minW={0}>
+              {dt.generalTitle && (
+                <Badge colorScheme="blue" mb={1} px={2} py={0.5} borderRadius="md" fontSize="9px">
+                  {dt.generalTitle}
+                </Badge>
+              )}
+              <Text fontSize="15px" fontWeight="800" color="gray.900" lineHeight="1.3">
+                {dt.treatmentPlan || "General Consultation"}
+              </Text>
+              {dt.notes && (
+                <Text fontSize="12px" color="gray.600" fontStyle="italic" mt={1} noOfLines={2}>
+                  "{dt.notes}"
+                </Text>
+              )}
+            </Box>
+          </Flex>
+
+          {/* 3. Plan Sitting Assigner (Dedicated Clean Row) */}
+          {(dt.status?.toLowerCase() === "pending" || dt.status?.toLowerCase() === "incomplete") && (
+            <Flex
+              justify="space-between"
+              align="center"
+              bg="gray.50"
+              px={3}
+              py={2}
+              borderRadius="16px"
+              border="1px solid"
+              borderColor="gray.150"
+              mb={3}
+            >
+              <Text fontSize="11px" fontWeight="800" color="gray.600" textTransform="uppercase">
+                Sitting Wise Plan:
+              </Text>
+              <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
+            </Flex>
+          )}
+
+          {/* 4. Financial Estimates Bento */}
+          {(dt.estimateMin > 0 || dt.estimateMax > 0 || dt.discount > 0 || dt.totalMin > 0) && (
+            <SimpleGrid columns={3} gap={1.5} mb={3}>
+              <Box bg="blue.50" p={2} borderRadius="12px" border="1px solid" borderColor="blue.100" textAlign="center">
+                <Text fontSize="8px" fontWeight="900" color="blue.600" textTransform="uppercase">ESTIMATE</Text>
+                <Text fontSize="11px" fontWeight="900" color="blue.800" mt={0.5}>
+                  ₹{dt.estimateMin?.toLocaleString("en-IN") || 0}
+                </Text>
+              </Box>
+
+              <Box bg="red.50" p={2} borderRadius="12px" border="1px solid" borderColor="red.100" textAlign="center">
+                <Text fontSize="8px" fontWeight="900" color="red.600" textTransform="uppercase">DISCOUNT</Text>
+                <Text fontSize="11px" fontWeight="900" color="red.800" mt={0.5}>
+                  ₹{dt.discount?.toLocaleString("en-IN") || 0}
+                </Text>
+              </Box>
+
+              <Box bg="green.50" p={2} borderRadius="12px" border="1px solid" borderColor="green.100" textAlign="center">
+                <Text fontSize="8px" fontWeight="900" color="green.600" textTransform="uppercase">NET</Text>
+                <Text fontSize="11px" fontWeight="900" color="green.800" mt={0.5}>
+                  ₹{(dt.totalMin !== undefined ? dt.totalMin : dt.estimateMin || 0)?.toLocaleString("en-IN")}
+                </Text>
+              </Box>
+            </SimpleGrid>
+          )}
+
+          {/* 5. Bottom Action Bar */}
+          <Flex
+            justify="space-between"
+            align="center"
+            pt={2}
+            borderTop="1px solid"
+            borderColor="gray.100"
+          >
+            {/* Add Work Done Action */}
+            <Button
+              size="xs"
+              colorScheme="orange"
+              bgGradient="linear(to-r, orange.400, orange.500)"
+              color="white"
+              borderRadius="full"
+              px={3}
+              fontWeight="800"
+              fontSize="11px"
+              leftIcon={<Text fontWeight="900">W</Text>}
+              onClick={() => {
+                setWorkDoneTab(1);
+                setOpenWorkDone({ open: true, data: dt });
+              }}
+            >
+              Work Done
+            </Button>
+
+            {/* View / Edit / Delete Icons */}
+            <HStack spacing={1}>
+              {stores.auth.hasPermission('treatment', 'view') && (
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="blue"
+                  icon={<FiEye />}
+                  aria-label="View"
+                  onClick={() => setOpenView({ open: true, data: dt })}
+                />
+              )}
+              {stores.auth.hasPermission('treatment', 'edit') && (
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="teal"
+                  icon={<FiEdit3 />}
+                  aria-label="Edit"
+                  onClick={() => setOpenReportModal({ open: true, type: "edit", data: dt })}
+                />
+              )}
+              {stores.auth.hasPermission('treatment', 'delete') && (
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  icon={<FiTrash2 />}
+                  aria-label="Delete"
+                  onClick={() => handleDelete(dt._id)}
+                />
+              )}
+            </HStack>
+          </Flex>
+        </Box>
+      );
+    }
+
+    // ==============================================================
+    // DESKTOP CARD VIEW (>= 768px): 100% UNCHANGED
+    // ==============================================================
     return (
       <Box
         key={dt._id}
@@ -893,12 +1098,22 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
         isLazy
         lazyBehavior="unmount"
       >
-        <TabList mb={0} borderBottom="2px solid" borderColor="gray.100" px={2}>
+        <TabList
+          mb={0}
+          borderBottom="2px solid"
+          borderColor="gray.100"
+          px={{ base: 1, md: 2 }}
+          display="flex"
+          w="100%"
+        >
           <Tab
+            flex={{ base: 1, md: "initial" }}
             fontWeight="bold"
-            fontSize="14px"
-            px={6}
-            py={3}
+            fontSize={{ base: "11px", sm: "13px", md: "14px" }}
+            px={{ base: 1, sm: 5, md: 6 }}
+            py={{ base: 2.5, md: 3 }}
+            textAlign="center"
+            whiteSpace="nowrap"
             _selected={{
               color: "blue.700",
               borderColor: "blue.600",
@@ -907,13 +1122,16 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               borderTopRadius: "lg",
             }}
           >
-            Create Treatment Advise & Work Done
+            New Advise
           </Tab>
           <Tab
+            flex={{ base: 1, md: "initial" }}
             fontWeight="bold"
-            fontSize="14px"
-            px={6}
-            py={3}
+            fontSize={{ base: "11px", sm: "13px", md: "14px" }}
+            px={{ base: 1, sm: 5, md: 6 }}
+            py={{ base: 2.5, md: 3 }}
+            textAlign="center"
+            whiteSpace="nowrap"
             _selected={{
               color: "blue.700",
               borderColor: "blue.600",
@@ -922,13 +1140,16 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               borderTopRadius: "lg",
             }}
           >
-            Previous Treatment Plan History
+            Plans History
           </Tab>
           <Tab
+            flex={{ base: 1, md: "initial" }}
             fontWeight="bold"
-            fontSize="14px"
-            px={6}
-            py={3}
+            fontSize={{ base: "11px", sm: "13px", md: "14px" }}
+            px={{ base: 1, sm: 5, md: 6 }}
+            py={{ base: 2.5, md: 3 }}
+            textAlign="center"
+            whiteSpace="nowrap"
             _selected={{
               color: "blue.700",
               borderColor: "blue.600",
@@ -983,8 +1204,9 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
                 </VStack>
 
-                <HStack spacing={4} flex={1} w="full" justify="flex-end" flexWrap="wrap">
-                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" flex={1} minW="250px">
+                <Flex direction="column" gap={3} flex={1} w="full">
+                  {/* Search Bar - Full Width on Mobile */}
+                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" w="full">
                     <Icon as={FiSearch} color="gray.400" />
                     <Input
                       placeholder="Search clinical records..."
@@ -997,87 +1219,95 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     />
                   </HStack>
 
-                  <Tooltip label="Sitting Number" hasArrow placement="top">
-                    <Box w="150px" zIndex={10}>
-                      <CreatableSelect
-                        isMulti
-                        placeholder="Sitting No"
-                        value={sittingNoSearch}
-                        onChange={(newVal) => setSittingNoSearch(newVal as any)}
-                        styles={{
-                          control: (base) => ({
-                            ...base,
-                            borderRadius: 'full',
-                            borderColor: '#E2E8F0',
-                            minHeight: '40px',
-                            fontSize: '14px',
-                            boxShadow: 'none',
-                            '&:hover': {
-                              borderColor: '#CBD5E1'
-                            }
-                          }),
-                          multiValue: (base) => ({
-                            ...base,
-                            backgroundColor: '#EBF8FF',
-                            borderRadius: '4px'
-                          })
+                  {/* Filter Dropdowns Grid */}
+                  <SimpleGrid columns={{ base: 1, sm: 3 }} spacing={2} w="full">
+                    <Tooltip label="Sitting Number" hasArrow placement="top">
+                      <Box w="full" zIndex={10}>
+                        <CreatableSelect
+                          isMulti
+                          placeholder="Sitting No"
+                          value={sittingNoSearch}
+                          onChange={(newVal) => setSittingNoSearch(newVal as any)}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: 'full',
+                              borderColor: '#E2E8F0',
+                              minHeight: '38px',
+                              fontSize: '13px',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#CBD5E1'
+                              }
+                            }),
+                            multiValue: (base) => ({
+                              ...base,
+                              backgroundColor: '#EBF8FF',
+                              borderRadius: '4px'
+                            })
+                          }}
+                        />
+                      </Box>
+                    </Tooltip>
+
+                    <Box w="full">
+                      <select
+                        value={complaintTypeFilter}
+                        onChange={(e) => setComplaintTypeFilter(e.target.value)}
+                        style={{
+                          width: '100%', height: '38px', borderRadius: '16px',
+                          padding: '0 12px', fontSize: '13px', border: '1px solid #E2E8F0',
+                          background: 'white', fontWeight: '700', color: '#4A5568',
+                          outline: 'none', cursor: 'pointer'
                         }}
-                      />
+                      >
+                        <option value="all">All Complaints</option>
+                        <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
+                        <option value="OTHER FINDING">OTHER FINDING</option>
+                        <option value="EXISTING FINDING">EXISTING FINDING</option>
+                      </select>
                     </Box>
-                  </Tooltip>
 
-                  <Box w="220px">
-                    <select
-                      value={complaintTypeFilter}
-                      onChange={(e) => setComplaintTypeFilter(e.target.value)}
-                      style={{
-                        width: '100%', height: '42px', borderRadius: '16px',
-                        padding: '0 12px', fontSize: '14px', border: '1px solid #E2E8F0',
-                        background: 'white', fontWeight: '700', color: '#4A5568',
-                        outline: 'none', cursor: 'pointer'
-                      }}
-                    >
-                      <option value="all">All Complaints</option>
-                      <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
-                      <option value="OTHER FINDING">OTHER FINDING</option>
-                      <option value="EXISTING FINDING">EXISTING FINDING</option>
-                    </select>
-                  </Box>
+                    <Box w="full">
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        style={{
+                          width: '100%', height: '38px', borderRadius: '16px',
+                          padding: '0 12px', fontSize: '13px', border: '1px solid #E2E8F0',
+                          background: 'white', fontWeight: '700', color: '#4A5568',
+                          outline: 'none', cursor: 'pointer'
+                        }}
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="pending">PENDING</option>
+                        <option value="complete">COMPLETE</option>
+                        <option value="incomplete">INCOMPLETE</option>
+                      </select>
+                    </Box>
+                  </SimpleGrid>
 
-                  <Box w="220px">
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      style={{
-                        width: '100%', height: '42px', borderRadius: '16px',
-                        padding: '0 12px', fontSize: '14px', border: '1px solid #E2E8F0',
-                        background: 'white', fontWeight: '700', color: '#4A5568',
-                        outline: 'none', cursor: 'pointer'
-                      }}
-                    >
-                      <option value="all">All Statuses</option>
-                      <option value="pending">PENDING</option>
-                      <option value="complete">COMPLETE</option>
-                      <option value="incomplete">INCOMPLETE</option>
-                    </select>
-                  </Box>
+                  {/* Actions & Buttons Row */}
+                  <Flex justify="space-between" align="center" wrap="wrap" gap={2} w="full">
 
-                  <HStack spacing={2}>
+                  <HStack spacing={2} wrap="wrap">
                     {selectedDateFilter && (
                       <Button
-                        size="sm"
+                        size={{ base: "xs", md: "sm" }}
                         colorScheme="red"
                         variant="outline"
+                        borderRadius="xl"
                         onClick={() => setSelectedDateFilter(null)}
                       >
-                        Clear Date Filter
+                        Clear Date
                       </Button>
                     )}
                     <Button
                       leftIcon={<FiRefreshCw />}
-                      size="sm"
+                      size={{ base: "xs", md: "sm" }}
                       colorScheme="blue"
                       variant="outline"
+                      borderRadius="xl"
                       bg="white"
                       onClick={() => applyGetAllRecords({ page: currentPage, limit: tablePageLimit, reset: false })}
                     >
@@ -1085,8 +1315,10 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     </Button>
                     {stores.auth.hasPermission('treatment', 'view') && (
                       <Button
-                        size="sm"
+                        size={{ base: "xs", md: "sm" }}
                         colorScheme="purple"
+                        variant="solid"
+                        borderRadius="xl"
                         leftIcon={<FiCalendar />}
                         onClick={() => {
                           setIsCounting(true);
@@ -1101,37 +1333,31 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                           setIsCountModalOpen(true);
                         }}
                       >
-                        View Work Dates
+                        Work Dates
                       </Button>
                     )}
                     {stores.auth.hasPermission('treatment', 'download') && (
                       <Button
-                        size="sm"
+                        size={{ base: "xs", md: "sm" }}
                         colorScheme="orange"
+                        variant="solid"
+                        borderRadius="xl"
                         leftIcon={<FiDownload />}
                         isLoading={isDownloadingData}
                         onClick={handleDownloadTable}
+                        fontSize={{ base: "11px", md: "12px" }}
                       >
-                        PRINT ALL TMT DATA
+                        Print
                       </Button>
                     )}
-                    {/* {isPatient && stores.auth.hasPermission('treatment', 'create') && (
-                      <Button
-                        size="sm"
-                        colorScheme="blue"
-                        onClick={() => setOpenReportModal({ open: true, type: "add", data: null })}
-                      >
-                        + ADD TREATMENT
-                      </Button>
-                    )} */}
-                    <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
+                    <Circle size={{ base: "24px", md: "28px" }} bg="blue.50" color="blue.500" fontWeight="900" fontSize={{ base: "10px", md: "12px" }} border="1px solid" borderColor="blue.100">
                       {toothTreatment?.totalItems || 0}
                     </Circle>
                   </HStack>
 
-                  <HStack bg="gray.100" p={1} borderRadius="xl">
+                  <HStack bg="gray.100" p={1} borderRadius="xl" ml="auto">
                     <IconButton
-                      size="sm"
+                      size={{ base: "xs", md: "sm" }}
                       variant={isTableView === "card" ? "solid" : "ghost"}
                       colorScheme={isTableView === "card" ? "blue" : "gray"}
                       icon={<FiGrid />}
@@ -1139,7 +1365,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                       aria-label="Grid View"
                     />
                     <IconButton
-                      size="sm"
+                      size={{ base: "xs", md: "sm" }}
                       variant={isTableView === "table" ? "solid" : "ghost"}
                       colorScheme={isTableView === "table" ? "blue" : "gray"}
                       icon={<FiList />}
@@ -1147,7 +1373,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                       aria-label="List View"
                     />
                   </HStack>
-                </HStack>
+                </Flex>
+              </Flex>
               </Flex>
 
               {isTableView === "table" ? (

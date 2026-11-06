@@ -161,56 +161,84 @@ export const TeethChart = ({
         </Text>
       </Flex>
 
-      <VStack spacing={2} pt={2}>
-        {/* Upper Jaw */}
-        <Box position="relative">
-          <Text
-            position="absolute"
-            left="-64px"
-            top="50%"
-            transform="translateY(-50%) rotate(-90deg)"
-            fontSize="xs"
-            fontWeight="black"
-            color="black"
-          >
-            Upper Jaw
-          </Text>
-          <Flex align="flex-end" justify="center" gap={1}>
-            <Flex align="flex-end">{renderTeethRow(upperRightTeeth)}</Flex>
-            <Box w="1px" h="64px" bg="gray.200" mx={2} />
-            <Flex align="flex-end">{renderTeethRow(upperLeftTeeth)}</Flex>
-          </Flex>
-        </Box>
+      {/* Mobile Swipe Hint */}
+      <Flex justify="center" display={{ base: "flex", md: "none" }} mb={2}>
+        <Badge
+          colorScheme="blue"
+          variant="subtle"
+          borderRadius="full"
+          px={3}
+          py={1}
+          fontSize="10px"
+          fontWeight="800"
+        >
+          ↔ Swipe horizontally to view all teeth (18 to 28)
+        </Badge>
+      </Flex>
 
-        {/* Bite line */}
-        <Box
-          w="100%"
-          maxW="2xl"
-          h="2px"
-          my={2}
-          bgGradient="linear(to-r, transparent, gray.300, transparent)"
-        />
+      <Box
+        w="100%"
+        overflowX={{ base: "auto", md: "visible" }}
+        pb={{ base: 3, md: 0 }}
+        css={{
+          WebkitOverflowScrolling: "touch",
+          "&::-webkit-scrollbar": { height: "6px" },
+          "&::-webkit-scrollbar-thumb": { backgroundColor: "#CBD5E1", borderRadius: "3px" },
+        }}
+      >
+        <Box minW={{ base: "680px", md: "auto" }} px={2}>
+          <VStack spacing={2} pt={2}>
+            {/* Upper Jaw */}
+            <Box position="relative">
+              <Text
+                position="absolute"
+                left="-56px"
+                top="50%"
+                transform="translateY(-50%) rotate(-90deg)"
+                fontSize="xs"
+                fontWeight="black"
+                color="black"
+              >
+                Upper Jaw
+              </Text>
+              <Flex align="flex-end" justify="center" gap={1}>
+                <Flex align="flex-end">{renderTeethRow(upperRightTeeth)}</Flex>
+                <Box w="1px" h="64px" bg="gray.200" mx={2} />
+                <Flex align="flex-end">{renderTeethRow(upperLeftTeeth)}</Flex>
+              </Flex>
+            </Box>
 
-        {/* Lower Jaw */}
-        <Box position="relative">
-          <Text
-            position="absolute"
-            left="-64px"
-            top="50%"
-            transform="translateY(-50%) rotate(-90deg)"
-            fontSize="xs"
-            fontWeight="black"
-            color="black"
-          >
-            Lower Jaw
-          </Text>
-          <Flex align="flex-start" justify="center" gap={1}>
-            <Flex align="flex-start">{renderTeethRow(lowerRightTeeth, true)}</Flex>
-            <Box w="1px" h="64px" bg="gray.200" mx={2} />
-            <Flex align="flex-start">{renderTeethRow(lowerLeftTeeth, true)}</Flex>
-          </Flex>
+            {/* Bite line */}
+            <Box
+              w="100%"
+              maxW="2xl"
+              h="2px"
+              my={2}
+              bgGradient="linear(to-r, transparent, gray.300, transparent)"
+            />
+
+            {/* Lower Jaw */}
+            <Box position="relative">
+              <Text
+                position="absolute"
+                left="-56px"
+                top="50%"
+                transform="translateY(-50%) rotate(-90deg)"
+                fontSize="xs"
+                fontWeight="black"
+                color="black"
+              >
+                Lower Jaw
+              </Text>
+              <Flex align="flex-start" justify="center" gap={1}>
+                <Flex align="flex-start">{renderTeethRow(lowerRightTeeth, true)}</Flex>
+                <Box w="1px" h="64px" bg="gray.200" mx={2} />
+                <Flex align="flex-start">{renderTeethRow(lowerLeftTeeth, true)}</Flex>
+              </Flex>
+            </Box>
+          </VStack>
         </Box>
-      </VStack>
+      </Box>
 
       {/* Legend */}
       <Box display="none" mt={8} pt={4} borderTop="1px solid" borderColor="gray.200">

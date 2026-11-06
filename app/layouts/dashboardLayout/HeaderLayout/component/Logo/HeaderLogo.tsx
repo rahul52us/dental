@@ -73,35 +73,63 @@ const HeaderLogo = observer(() => {
         <HStack
           ml={{ base: 0, sm: 1 }}
           mr={{ base: 0, sm: 1 }}
-          spacing={{ base: 0, sm: 2, md: 4 }}
+          spacing={{ base: 1.5, sm: 2, md: 3 }}
           minW={0}
+          alignItems="center"
         >
           {(stores.auth.user?.companyDetail || stores.auth.user?.companyDetails) && (
             <>
               {stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url ? (
-                <Image 
-                  src={stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url} 
-                  alt={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
-                  boxSize={{ base: "36px", md: "36px" }}
-                  objectFit="contain"
-                  bg="white"
-                  borderRadius="full"
-                  p={1}
-                  boxShadow="sm"
-                />
+                <Box
+                  p="2px"
+                  borderRadius="11px"
+                  bg="whiteAlpha.350"
+                  boxShadow="0 2px 8px rgba(0,0,0,0.18)"
+                  backdropFilter="blur(6px)"
+                  flexShrink={0}
+                >
+                  <Image 
+                    src={stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url} 
+                    alt={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
+                    boxSize={{ base: "32px", md: "36px" }}
+                    objectFit="contain"
+                    bg="white"
+                    borderRadius="9px"
+                    p={1}
+                  />
+                </Box>
               ) : (
                 <Avatar 
                   size="sm" 
                   name={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name} 
                   bg="white"
-                  color="brand.500"
-                  borderRadius="full"
-                  boxShadow="sm"
+                  color="teal.600"
+                  borderRadius="11px"
+                  boxShadow="0 2px 8px rgba(0,0,0,0.18)"
+                  boxSize={{ base: "32px", md: "36px" }}
+                  flexShrink={0}
                 />
               )}
-              <Text display={{ base: "none", sm: "block" }} color="white" fontWeight="800" letterSpacing="0.02em" fontSize={{ base: "md", md: "xl" }} whiteSpace="nowrap" maxW={{ base: "100px", md: "none" }} isTruncated>
-                {stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
-              </Text>
+
+              <Box minW={0} display="flex" flexDirection="column">
+                <Text
+                  color="white"
+                  fontWeight="800"
+                  letterSpacing="-0.2px"
+                  fontSize={{ base: "13px", sm: "14px", md: "16px" }}
+                  whiteSpace="nowrap"
+                  noOfLines={1}
+                  maxW={{ base: "115px", sm: "160px", md: "none" }}
+                >
+                  {stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
+                </Text>
+                <HStack spacing={1} display={{ base: "flex", md: "none" }}>
+                  <Box w="5px" h="5px" borderRadius="full" bg="#22C55E" boxShadow="0 0 6px #22C55E" />
+                  <Text color="whiteAlpha.800" fontSize="9px" fontWeight="600" noOfLines={1}>
+                    Active
+                  </Text>
+                </HStack>
+              </Box>
             </>
           )}
         </HStack>

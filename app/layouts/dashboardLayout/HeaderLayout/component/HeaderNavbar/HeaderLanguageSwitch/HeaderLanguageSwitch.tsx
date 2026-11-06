@@ -80,16 +80,17 @@ const HeaderLanguageSwitch = () => {
       icon={<FiGlobe />}
       variant="ghost"
       aria-label="Switch Language"
-      fontSize={{ base: "17px", md: "19px" }}
+      fontSize={{ base: "15px", md: "18px" }}
       color="white"
-      w={{ base: "36px", md: "40px" }}
-      h={{ base: "36px", md: "40px" }}
-      minW={{ base: "36px", md: "40px" }}
-      borderRadius="full"
-      bg="whiteAlpha.150"
-      _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+      w={{ base: "32px", sm: "36px", md: "38px" }}
+      h={{ base: "32px", sm: "36px", md: "38px" }}
+      minW={{ base: "32px", sm: "36px", md: "38px" }}
+      borderRadius="10px"
+      bg="whiteAlpha.180"
+      border="1px solid rgba(255,255,255,0.12)"
+      _hover={{ bg: "whiteAlpha.300", transform: "scale(1.05)" }}
       _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
-      transition="all 0.2s ease"
+      transition="all 0.15s ease"
       title="Switch language"
     />
   );
@@ -102,16 +103,17 @@ const HeaderLanguageSwitch = () => {
           onClick={onOpen}
           variant="ghost"
           aria-label="Switch Language"
-          fontSize="17px"
+          fontSize="15px"
           color="white"
-          w="36px"
-          h="36px"
-          minW="36px"
-          borderRadius="full"
-          bg="whiteAlpha.150"
-          _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+          w={{ base: "32px", sm: "36px", md: "38px" }}
+          h={{ base: "32px", sm: "36px", md: "38px" }}
+          minW={{ base: "32px", sm: "36px", md: "38px" }}
+          borderRadius="10px"
+          bg="whiteAlpha.180"
+          border="1px solid rgba(255,255,255,0.12)"
+          _hover={{ bg: "whiteAlpha.300", transform: "scale(1.05)" }}
           _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
-          transition="all 0.2s ease"
+          transition="all 0.15s ease"
           title="Switch language"
         />
         <Drawer isOpen={isOpen} placement="bottom" onClose={onClose} size="md">

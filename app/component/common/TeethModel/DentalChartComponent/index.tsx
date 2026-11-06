@@ -34,6 +34,8 @@ import {
   Td,
   Select,
   Avatar,
+  useBreakpointValue,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import {
   FiMousePointer,
@@ -80,6 +82,7 @@ const detectIsChild = (tooth: any) => {
 };
 
 const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkDone }: any) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
   const [dentitionType, setDentitionType] = useState<DentitionType>("adult");
   const formRef = useRef<any>(null);
   const lastSyncedEditId = useRef<string | null>(null);
@@ -520,65 +523,140 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
 
     return (
       <VStack spacing={4} align="stretch">
-        <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
-          <HStack spacing={8}>
-            <VStack align="start" spacing={1}>
-              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">DENTITION</Text>
-              <DentitionToggle value={dentitionType} onChange={(val) => {
-                setDentitionType(val);
-                setSelectedTeeth([]);
-                setToothComplaints({});
-              }} />
-            </VStack>
-            <VStack align="start" spacing={1}>
-              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">NOTATION</Text>
-              <HStack bg="gray.50" p={1} borderRadius="xl">
-                {["fdi", "universal", "palmer"].map(n => (
-                  <Button
-                    key={n}
-                    size="xs"
-                    variant={notation === n ? "solid" : "ghost"}
-                    bg={notation === n ? `${activeColor}.500` : "transparent"}
-                    color={notation === n ? "white" : "gray.600"}
-                    _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
-                    onClick={() => setNotation(n as any)}
-                    fontWeight="900"
-                  >
-                    {n.toUpperCase()}
-                  </Button>
-                ))}
+        {isMobile ? (
+          <Box bg="white" p={3.5} borderRadius="24px" border="1px solid" borderColor="gray.100" boxShadow="sm">
+            {/* Row 1: Dentition Toggle + Selected Count */}
+            <Flex justify="space-between" align="center" mb={3}>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color="black" letterSpacing="0.1em">DENTITION</Text>
+                <DentitionToggle value={dentitionType} onChange={(val) => {
+                  setDentitionType(val);
+                  setSelectedTeeth([]);
+                  setToothComplaints({});
+                }} />
+              </VStack>
+
+              <HStack spacing={1.5} bg={`${activeColor}.50`} px={3} py={1.5} borderRadius="2xl" border="1px solid" borderColor={`${activeColor}.100`}>
+                <Text fontSize="10px" fontWeight="900" color="gray.500">SELECTED:</Text>
+                <Text fontWeight="900" color={`${activeColor}.600`} fontSize="18px">{selectedTeeth.length}</Text>
               </HStack>
-            </VStack>
-            <VStack align="start" spacing={1}>
-              <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">RECORD AS</Text>
-              <HStack bg="gray.50" p={1} borderRadius="xl">
-                {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
-                  const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
-                  const isActive = complaintType === type;
-                  const c = buttonColorMap[type];
-                  return (
+            </Flex>
+
+            {/* Row 2: Notation & Record As */}
+            <VStack align="stretch" spacing={2.5}>
+              <Flex justify="space-between" align="center">
+                <Text fontSize="10px" fontWeight="900" color="black" letterSpacing="0.1em">NOTATION</Text>
+                <HStack bg="gray.50" p={1} borderRadius="xl">
+                  {["fdi", "universal", "palmer"].map(n => (
                     <Button
-                      key={type}
+                      key={n}
                       size="xs"
-                      bg={isActive ? `${c}.500` : "transparent"}
-                      color={isActive ? "white" : "gray.600"}
-                      _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
-                      variant={isActive ? "solid" : "ghost"}
-                      onClick={() => setComplaintType(type)}
+                      variant={notation === n ? "solid" : "ghost"}
+                      bg={notation === n ? `${activeColor}.500` : "transparent"}
+                      color={notation === n ? "white" : "gray.600"}
+                      _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
+                      onClick={() => setNotation(n as any)}
+                      fontWeight="900"
+                      fontSize="10px"
+                      px={2}
+                    >
+                      {n.toUpperCase()}
+                    </Button>
+                  ))}
+                </HStack>
+              </Flex>
+
+              <Box>
+                <Text fontSize="10px" fontWeight="900" color="black" letterSpacing="0.1em" mb={1}>RECORD AS</Text>
+                <SimpleGrid columns={3} spacing={1.5}>
+                  {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
+                    const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
+                    const isActive = complaintType === type;
+                    const c = buttonColorMap[type];
+                    const shortName = type === "CHIEF COMPLAINT" ? "CHIEF" : type === "OTHER FINDING" ? "OTHER" : "EXISTING";
+                    return (
+                      <Button
+                        key={type}
+                        size="xs"
+                        bg={isActive ? `${c}.500` : "gray.50"}
+                        color={isActive ? "white" : "gray.600"}
+                        _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
+                        variant={isActive ? "solid" : "ghost"}
+                        onClick={() => setComplaintType(type)}
+                        fontWeight="900"
+                        fontSize="10px"
+                        borderRadius="xl"
+                        py={1.5}
+                      >
+                        {shortName}
+                      </Button>
+                    );
+                  })}
+                </SimpleGrid>
+              </Box>
+            </VStack>
+          </Box>
+        ) : (
+          <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
+            <HStack spacing={8}>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">DENTITION</Text>
+                <DentitionToggle value={dentitionType} onChange={(val) => {
+                  setDentitionType(val);
+                  setSelectedTeeth([]);
+                  setToothComplaints({});
+                }} />
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">NOTATION</Text>
+                <HStack bg="gray.50" p={1} borderRadius="xl">
+                  {["fdi", "universal", "palmer"].map(n => (
+                    <Button
+                      key={n}
+                      size="xs"
+                      variant={notation === n ? "solid" : "ghost"}
+                      bg={notation === n ? `${activeColor}.500` : "transparent"}
+                      color={notation === n ? "white" : "gray.600"}
+                      _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
+                      onClick={() => setNotation(n as any)}
                       fontWeight="900"
                     >
-                      {type}
+                      {n.toUpperCase()}
                     </Button>
-                  );
-                })}
-              </HStack>
+                  ))}
+                </HStack>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">RECORD AS</Text>
+                <HStack bg="gray.50" p={1} borderRadius="xl">
+                  {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
+                    const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
+                    const isActive = complaintType === type;
+                    const c = buttonColorMap[type];
+                    return (
+                      <Button
+                        key={type}
+                        size="xs"
+                        bg={isActive ? `${c}.500` : "transparent"}
+                        color={isActive ? "white" : "gray.600"}
+                        _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
+                        variant={isActive ? "solid" : "ghost"}
+                        onClick={() => setComplaintType(type)}
+                        fontWeight="900"
+                      >
+                        {type}
+                      </Button>
+                    );
+                  })}
+                </HStack>
+              </VStack>
+            </HStack>
+            <VStack align="end" spacing={0}>
+              <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
+              <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
             </VStack>
-          </HStack>
-          <VStack align="end" spacing={0}>
-            <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
-            <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
-          </VStack>
-        </Flex>
+          </Flex>
+        )}
         <Grid templateColumns={{ base: "1fr", xl: "2.5fr 1fr" }} gap={6} w="full">
           {/* Column 1: Teeth Chart and Controls */}
           <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={3} align="stretch" spacing={3} h="auto" flexShrink={0} w="full">

@@ -160,8 +160,13 @@ class AuthStore {
   };
 
   doLogout = () => {
+    this.token = null;
     this.user = null;
+    this.error = null;
     this.clearLocalStorage();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   };
 
   clearLocalStorage = () => {
@@ -267,10 +272,9 @@ class AuthStore {
     this.token = null;
     this.user = null;
     this.error = null;
-
+    this.clearLocalStorage();
     if (typeof window !== "undefined") {
-      localStorage.removeItem(AUTH_TOKEN);
-      sessionStorage.clear()
+      window.location.href = "/login";
     }
   };
 

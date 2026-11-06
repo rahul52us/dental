@@ -40,6 +40,7 @@ import {
   Grid,
   Heading,
   useColorModeValue,
+  useBreakpointValue,
   Flex,
 } from "@chakra-ui/react";
 import {
@@ -585,135 +586,245 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
     }
   ];
 
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
   // Using Server-Side calculated stats from the store
   const { totalBill, patientPending } = workDoneStore.patientStats;
   const serverReceived = totalBill - patientPending;
 
   return (
-    <Box p={4} bg={bgOuter} minH="100vh">
+    <Box p={{ base: 2, md: 4 }} bg={bgOuter} minH="100vh" pb="calc(80px + env(safe-area-inset-bottom, 16px))">
       <Box bg={bgInner} borderRadius="3xl" shadow="2xl" border="1px solid" borderColor={borderColor} overflow="hidden" p={{ base: 3, md: 6 }}>
-        <VStack align="start" spacing={1} mb={3}>
-          <HStack w="full" justify="space-between" align="center">
-            <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em">OVERALL PATIENT SUMMARY</Text>
-            <Badge colorScheme="gray" variant="solid" fontSize="8px" px={2} borderRadius="md" opacity={0.6}>TOTALS</Badge>
-          </HStack>
-          <Divider opacity={0.3} />
-        </VStack>
+        {/* ============================================================== */}
+        {/* MOBILE VIEW (< 768px): Sleek 3-Metric Executive Bento Grid       */}
+        {/* ============================================================== */}
+        {isMobile ? (
+          <Box mb={4}>
+            <Flex justify="space-between" align="center" mb={2} px={1}>
+              <Text fontSize="10px" fontWeight="900" color="gray.500" letterSpacing="0.1em">
+                {doctorFilter === 'all' ? 'ACCOUNT SUMMARY' : 'FILTERED BY DOCTOR'}
+              </Text>
+              <Badge colorScheme={doctorFilter === 'all' ? 'teal' : 'blue'} variant="subtle" fontSize="9px" px={2} borderRadius="full">
+                {doctorFilter === 'all' ? 'OVERALL' : 'DOCTOR VIEW'}
+              </Badge>
+            </Flex>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={3} mb={6}>
-          {[
-            { label: 'Total Bill Value', val: workDoneStore.overallStats.totalBill, icon: FiPieChart, color: 'purple', sub: 'Gross Clinic Revenue' },
-            { label: 'Total Collected', val: workDoneStore.overallStats.totalBill - workDoneStore.overallStats.patientPending, icon: FiDownloadCloud, color: 'cyan', sub: 'Total Cash Received' },
-            { label: 'Total Outstanding', val: workDoneStore.overallStats.patientPending, icon: FiTrendingUp, color: 'pink', sub: 'Patient Balance' }
-          ].map((item, i) => (
-            <HStack key={i} p={3} bg={useColorModeValue(`${item.color}.50`, `${item.color}.900`)} borderRadius="xl" border="1px solid" borderColor={useColorModeValue(`${item.color}.100`, `${item.color}.800`)} shadow="sm" spacing={3}>
-              <Box p={2.5} bg={bgCardBox} borderRadius="lg" shadow="sm"><Icon as={item.icon} color={useColorModeValue(`${item.color}.400`, `${item.color}.300`)} boxSize="18px" /></Box>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="bold" color={useColorModeValue(`${item.color}.600`, `${item.color}.300`)} textTransform="uppercase">{item.label}</Text>
-                {workDoneStore.overallStats.loading ? <Spinner size="xs" /> : (
-                  <Text fontSize="md" fontWeight="800" color={useColorModeValue(`${item.color}.700`, `${item.color}.200`)} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
+            <SimpleGrid columns={3} gap={2} mb={2}>
+              {/* 1. Billed */}
+              <Box
+                p={2.5}
+                bg={useColorModeValue('purple.50', 'purple.900')}
+                borderRadius="16px"
+                border="1px solid"
+                borderColor={useColorModeValue('purple.100', 'purple.800')}
+                textAlign="center"
+              >
+                <Text fontSize="9px" fontWeight="800" color={useColorModeValue('purple.600', 'purple.300')} textTransform="uppercase">
+                  Total Bill
+                </Text>
+                {workDoneStore.overallStats.loading ? (
+                  <Spinner size="xs" mt={1} />
+                ) : (
+                  <Text fontSize="14px" fontWeight="900" color={useColorModeValue('purple.800', 'purple.100')} mt={0.5}>
+                    ₹{(workDoneStore.overallStats.totalBill || 0).toLocaleString('en-IN')}
+                  </Text>
                 )}
-                <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
-              </VStack>
-            </HStack>
-          ))}
-        </SimpleGrid>
+                <Text fontSize="8px" fontWeight="700" color="purple.400" noOfLines={1}>Revenue</Text>
+              </Box>
 
-        <VStack align="start" spacing={1} mb={3}>
-          <HStack w="full" justify="space-between" align="center">
-            <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">
-              {doctorFilter === 'all' ? 'FILTERED VIEW (ALL DOCTORS)' : 'DOCTOR SPECIFIC VIEW'}
-            </Text>
-            <Badge colorScheme="blue" variant="solid" fontSize="8px" px={2} borderRadius="md">DYNAMIC</Badge>
-          </HStack>
-          <Divider borderColor="blue.100" opacity={0.5} />
-        </VStack>
-
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={3} mb={8}>
-          {[
-            { label: 'Bill Value', val: totalBill, icon: FiPieChart, color: 'blue', sub: doctorFilter === 'all' ? 'Gross Revenue' : 'Doctor Share' },
-            { label: 'Collected', val: serverReceived, icon: FiDownloadCloud, color: 'green', sub: 'Cash Received' },
-            { label: 'Outstanding', val: patientPending, icon: FiTrendingUp, color: 'orange', sub: 'Balance Due' }
-          ].map((item, i) => (
-            <HStack key={i} p={3} bg={useColorModeValue(`${item.color}.50`, `${item.color}.900`)} borderRadius="xl" border="1px solid" borderColor={useColorModeValue(`${item.color}.100`, `${item.color}.800`)} shadow="sm" spacing={3}>
-              <Box p={2.5} bg={bgCardBox} borderRadius="lg" shadow="sm"><Icon as={item.icon} color={useColorModeValue(`${item.color}.400`, `${item.color}.300`)} boxSize="18px" /></Box>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="bold" color={useColorModeValue(`${item.color}.600`, `${item.color}.300`)} textTransform="uppercase">{item.label}</Text>
-                {workDoneStore.patientStats.loading ? <Spinner size="xs" /> : (
-                  <Text fontSize="md" fontWeight="800" color={useColorModeValue(`${item.color}.700`, `${item.color}.200`)} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
+              {/* 2. Collected */}
+              <Box
+                p={2.5}
+                bg={useColorModeValue('teal.50', 'teal.900')}
+                borderRadius="16px"
+                border="1px solid"
+                borderColor={useColorModeValue('teal.100', 'teal.800')}
+                textAlign="center"
+              >
+                <Text fontSize="9px" fontWeight="800" color={useColorModeValue('teal.600', 'teal.300')} textTransform="uppercase">
+                  Collected
+                </Text>
+                {workDoneStore.overallStats.loading ? (
+                  <Spinner size="xs" mt={1} />
+                ) : (
+                  <Text fontSize="14px" fontWeight="900" color={useColorModeValue('teal.800', 'teal.100')} mt={0.5}>
+                    ₹{((workDoneStore.overallStats.totalBill - workDoneStore.overallStats.patientPending) || 0).toLocaleString('en-IN')}
+                  </Text>
                 )}
-                <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
-              </VStack>
-            </HStack>
-          ))}
-        </SimpleGrid>
+                <Text fontSize="8px" fontWeight="700" color="teal.500" noOfLines={1}>Received</Text>
+              </Box>
 
-        <Flex px={{ base: 0, md: 2 }} mb={6} justify="space-between" align="center" wrap="wrap" gap={4}>
-          <HStack spacing={2} wrap="wrap">
+              {/* 3. Outstanding */}
+              <Box
+                p={2.5}
+                bg={useColorModeValue('pink.50', 'pink.900')}
+                borderRadius="16px"
+                border="1px solid"
+                borderColor={useColorModeValue('pink.100', 'pink.800')}
+                textAlign="center"
+              >
+                <Text fontSize="9px" fontWeight="800" color={useColorModeValue('pink.600', 'pink.300')} textTransform="uppercase">
+                  Due
+                </Text>
+                {workDoneStore.overallStats.loading ? (
+                  <Spinner size="xs" mt={1} />
+                ) : (
+                  <Text fontSize="14px" fontWeight="900" color={useColorModeValue('pink.800', 'pink.100')} mt={0.5}>
+                    ₹{(workDoneStore.overallStats.patientPending || 0).toLocaleString('en-IN')}
+                  </Text>
+                )}
+                <Text fontSize="8px" fontWeight="700" color="pink.500" noOfLines={1}>Balance</Text>
+              </Box>
+            </SimpleGrid>
+
+            {/* Doctor Specific Secondary Row (only shown when doctor is filtered) */}
+            {doctorFilter !== 'all' && (
+              <SimpleGrid columns={3} gap={2} mt={2}>
+                <Box p={2} bg={useColorModeValue('blue.50', 'blue.900')} borderRadius="12px" textAlign="center">
+                  <Text fontSize="8px" fontWeight="700" color="blue.500">Doc Bill</Text>
+                  <Text fontSize="12px" fontWeight="800" color="blue.700">₹{totalBill}</Text>
+                </Box>
+                <Box p={2} bg={useColorModeValue('green.50', 'green.900')} borderRadius="12px" textAlign="center">
+                  <Text fontSize="8px" fontWeight="700" color="green.500">Doc Recv</Text>
+                  <Text fontSize="12px" fontWeight="800" color="green.700">₹{serverReceived}</Text>
+                </Box>
+                <Box p={2} bg={useColorModeValue('orange.50', 'orange.900')} borderRadius="12px" textAlign="center">
+                  <Text fontSize="8px" fontWeight="700" color="orange.500">Doc Due</Text>
+                  <Text fontSize="12px" fontWeight="800" color="orange.700">₹{patientPending}</Text>
+                </Box>
+              </SimpleGrid>
+            )}
+          </Box>
+        ) : (
+          /* ============================================================== */
+          /* DESKTOP VIEW (>= 768px): 100% UNCHANGED                         */
+          /* ============================================================== */
+          <>
+            <VStack align="start" spacing={1} mb={3}>
+              <HStack w="full" justify="space-between" align="center">
+                <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="0.2em">OVERALL PATIENT SUMMARY</Text>
+                <Badge colorScheme="gray" variant="solid" fontSize="8px" px={2} borderRadius="md" opacity={0.6}>TOTALS</Badge>
+              </HStack>
+              <Divider opacity={0.3} />
+            </VStack>
+
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap={3} mb={6}>
+              {[
+                { label: 'Total Bill Value', val: workDoneStore.overallStats.totalBill, icon: FiPieChart, color: 'purple', sub: 'Gross Clinic Revenue' },
+                { label: 'Total Collected', val: workDoneStore.overallStats.totalBill - workDoneStore.overallStats.patientPending, icon: FiDownloadCloud, color: 'cyan', sub: 'Total Cash Received' },
+                { label: 'Total Outstanding', val: workDoneStore.overallStats.patientPending, icon: FiTrendingUp, color: 'pink', sub: 'Patient Balance' }
+              ].map((item, i) => (
+                <HStack key={i} p={3} bg={useColorModeValue(`${item.color}.50`, `${item.color}.900`)} borderRadius="xl" border="1px solid" borderColor={useColorModeValue(`${item.color}.100`, `${item.color}.800`)} shadow="sm" spacing={3}>
+                  <Box p={2.5} bg={bgCardBox} borderRadius="lg" shadow="sm"><Icon as={item.icon} color={useColorModeValue(`${item.color}.400`, `${item.color}.300`)} boxSize="18px" /></Box>
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="10px" fontWeight="bold" color={useColorModeValue(`${item.color}.600`, `${item.color}.300`)} textTransform="uppercase">{item.label}</Text>
+                    {workDoneStore.overallStats.loading ? <Spinner size="xs" /> : (
+                      <Text fontSize="md" fontWeight="800" color={useColorModeValue(`${item.color}.700`, `${item.color}.200`)} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
+                    )}
+                    <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
+                  </VStack>
+                </HStack>
+              ))}
+            </SimpleGrid>
+
+            <VStack align="start" spacing={1} mb={3}>
+              <HStack w="full" justify="space-between" align="center">
+                <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.2em">
+                  {doctorFilter === 'all' ? 'FILTERED VIEW (ALL DOCTORS)' : 'DOCTOR SPECIFIC VIEW'}
+                </Text>
+                <Badge colorScheme="blue" variant="solid" fontSize="8px" px={2} borderRadius="md">DYNAMIC</Badge>
+              </HStack>
+              <Divider borderColor="blue.100" opacity={0.5} />
+            </VStack>
+
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap={3} mb={8}>
+              {[
+                { label: 'Bill Value', val: totalBill, icon: FiPieChart, color: 'blue', sub: doctorFilter === 'all' ? 'Gross Revenue' : 'Doctor Share' },
+                { label: 'Collected', val: serverReceived, icon: FiDownloadCloud, color: 'green', sub: 'Cash Received' },
+                { label: 'Outstanding', val: patientPending, icon: FiTrendingUp, color: 'orange', sub: 'Balance Due' }
+              ].map((item, i) => (
+                <HStack key={i} p={3} bg={useColorModeValue(`${item.color}.50`, `${item.color}.900`)} borderRadius="xl" border="1px solid" borderColor={useColorModeValue(`${item.color}.100`, `${item.color}.800`)} shadow="sm" spacing={3}>
+                  <Box p={2.5} bg={bgCardBox} borderRadius="lg" shadow="sm"><Icon as={item.icon} color={useColorModeValue(`${item.color}.400`, `${item.color}.300`)} boxSize="18px" /></Box>
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="10px" fontWeight="bold" color={useColorModeValue(`${item.color}.600`, `${item.color}.300`)} textTransform="uppercase">{item.label}</Text>
+                    {workDoneStore.patientStats.loading ? <Spinner size="xs" /> : (
+                      <Text fontSize="md" fontWeight="800" color={useColorModeValue(`${item.color}.700`, `${item.color}.200`)} letterSpacing="-0.5px">₹{(item.val || 0).toLocaleString('en-IN')}</Text>
+                    )}
+                    <Text fontSize="8px" fontWeight="bold" color={`${item.color}.400`} opacity={0.8}>{item.sub}</Text>
+                  </VStack>
+                </HStack>
+              ))}
+            </SimpleGrid>
+          </>
+        )}
+
+        {isMobile ? (
+          <VStack align="stretch" spacing={2.5} mb={4}>
+            {/* Row 1: Statement & Wallet buttons */}
+            <HStack spacing={2} w="full">
               {stores.auth.hasPermission('accountability', 'download') && (
                 <Button
+                  flex={1}
                   leftIcon={<FiEye />}
                   bgGradient="linear(to-r, blue.500, blue.600)"
                   color="white"
-                  _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
-                  _active={{ transform: "translateY(0)" }}
-                  size="md"
-                  borderRadius="2xl"
+                  _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)" }}
+                  size="sm"
+                  h="38px"
+                  borderRadius="14px"
                   fontWeight="800"
-                  px={6}
-                  shadow="md"
+                  fontSize="12px"
+                  shadow="sm"
                   onClick={() => setIsDownloadModalOpen(true)}
                 >
-                  View Statement
+                  Statement
                 </Button>
               )}
 
               <Button
+                flex={1}
                 leftIcon={<FiCreditCard />}
                 bgGradient="linear(to-r, pink.500, pink.600)"
                 color="white"
-                _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)", shadow: "lg", transform: "translateY(-1px)" }}
-                _active={{ transform: "translateY(0)" }}
-                size="md"
-                borderRadius="2xl"
+                _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)" }}
+                size="sm"
+                h="38px"
+                borderRadius="14px"
                 fontWeight="800"
-                px={6}
-                shadow="md"
+                fontSize="12px"
+                shadow="sm"
                 onClick={() => { setSelectedWalletPatient({ ...patientDetails, walletBalance }); setIsWalletHistoryOpen(true); }}
               >
                 Wallet (₹{walletBalance})
               </Button>
-          </HStack>
+            </HStack>
 
-          <Flex wrap="wrap" gap={2} justify={{ base: "center", md: "flex-end" }} align="center">
+            {/* Row 2: Search Input & Doctor Dropdown */}
+            <Grid templateColumns="1fr 1fr" gap={2} w="full">
               <HStack
-                spacing={0}
-                p={1}
+                spacing={1.5}
+                px={2.5}
                 bg={inputBg}
-                borderRadius="2xl"
+                borderRadius="12px"
                 border="1px solid"
                 borderColor={borderColor}
-                shadow="sm"
-                transition="all 0.2s"
-                _hover={{ borderColor: "blue.200", shadow: "md" }}
+                h="36px"
               >
-                <Box px={3}>
-                  <Icon as={FiSearch} color="gray.400" mt={1} />
-                </Box>
+                <Icon as={FiSearch} color="gray.400" fontSize="13px" />
                 <Input
                   variant="unstyled"
-                  placeholder="Search tooth or note..."
-                  size="md"
-                  w={{ base: "100%", sm: "220px" }}
+                  placeholder="Search tooth/note..."
+                  fontSize="11.5px"
+                  fontWeight="600"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </HStack>
 
-              <Box w={{ base: "100%", sm: "250px" }} zIndex={10}>
+              <Box zIndex={10}>
                 {(() => {
                   const selectOptions = doctorsList.map(doc => ({
-                    label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`, // Prevent double "Dr. Dr."
+                    label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`,
                     value: doc.id
                   }));
                   const selectedValue = doctorFilter !== "all" ? selectOptions.find(opt => opt.value === doctorFilter) : null;
@@ -722,7 +833,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     <CustomInput
                       name="doctorFilter"
                       type="select"
-                      placeholder="Filter by Doctor..."
+                      placeholder="Doctor..."
                       isClear={true}
                       isSearchable={true}
                       isPortal={true}
@@ -736,65 +847,30 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   );
                 })()}
               </Box>
+            </Grid>
 
-              <HStack
-                spacing={2}
-                p={1}
-                bg={inputBg}
-                borderRadius="2xl"
-                border="1px solid"
-                borderColor={borderColor}
-                shadow="sm"
-                transition="all 0.2s"
-                _hover={{ borderColor: "blue.200", shadow: "md" }}
-              >
-                <Input
-                  type="date"
-                  variant="unstyled"
-                  size="sm"
-                  px={2}
-                  w="145px"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  fontWeight="800"
-                  color="blue.600"
-                />
-                <Box color="gray.300" fontWeight="bold">-</Box>
-                <Input
-                  type="date"
-                  variant="unstyled"
-                  size="sm"
-                  px={2}
-                  w="145px"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  fontWeight="800"
-                  color="blue.600"
-                />
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  borderRadius="xl"
-                  px={4}
-                  onClick={() => {
-                    setAppliedStartDate(startDate);
-                    setAppliedEndDate(endDate);
-                  }}
-                >
-                  Apply
-                </Button>
-
-              </HStack>
-              <HStack spacing={1}>
+            {/* Row 3: Horizontal scrollable quick-action pills */}
+            <Box
+              overflowX="auto"
+              py={1}
+              sx={{
+                "&::-webkit-scrollbar": { display: "none" },
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              <HStack spacing={2} minW="max-content">
                 {stores.auth.hasPermission('accountability', 'view') && (
                   <Button
-                    size="sm"
+                    size="xs"
+                    h="30px"
                     colorScheme="blue"
                     variant="solid"
                     leftIcon={<FiCalendar />}
-                    borderRadius="xl"
+                    borderRadius="full"
                     fontSize="11px"
-                    fontWeight="bold"
+                    fontWeight="800"
+                    px={3}
                     onClick={() => {
                       setIsCounting(true);
                       workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
@@ -808,104 +884,618 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       setIsCountModalOpen(true);
                     }}
                   >
-                    View Work Dates
+                    Work Dates ({filteredWork.length || 0})
                   </Button>
                 )}
-                <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
-                  {filteredWork.length || 0}
-                </Circle>
+
+                <HStack
+                  spacing={1}
+                  px={2}
+                  py={0.5}
+                  bg="gray.50"
+                  borderRadius="full"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  h="30px"
+                >
+                  <Input
+                    type="date"
+                    variant="unstyled"
+                    fontSize="10px"
+                    w="100px"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    fontWeight="700"
+                    color="blue.700"
+                  />
+                  <Text fontSize="10px" color="gray.400">-</Text>
+                  <Input
+                    type="date"
+                    variant="unstyled"
+                    fontSize="10px"
+                    w="100px"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    fontWeight="700"
+                    color="blue.700"
+                  />
+                  {(startDate || endDate) && (
+                    <Button
+                      size="xs"
+                      h="22px"
+                      colorScheme="blue"
+                      borderRadius="full"
+                      px={2}
+                      fontSize="9.5px"
+                      fontWeight="800"
+                      onClick={() => {
+                        setAppliedStartDate(startDate);
+                        setAppliedEndDate(endDate);
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  )}
+                </HStack>
+
+                {(searchQuery || doctorFilter !== "all" || startDate || endDate || appliedStartDate || appliedEndDate) && (
+                  <Button
+                    size="xs"
+                    h="30px"
+                    variant="outline"
+                    colorScheme="red"
+                    borderRadius="full"
+                    fontSize="11px"
+                    fontWeight="800"
+                    px={3}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setDoctorFilter("all");
+                      setStartDate("");
+                      setEndDate("");
+                      setAppliedStartDate("");
+                      setAppliedEndDate("");
+                    }}
+                  >
+                    Reset
+                  </Button>
+                )}
               </HStack>
+            </Box>
+          </VStack>
+        ) : (
+          <Flex px={{ base: 0, md: 2 }} mb={6} justify="space-between" align="center" wrap="wrap" gap={3}>
+            <HStack spacing={2} wrap="wrap" w={{ base: "100%", md: "auto" }}>
+                {stores.auth.hasPermission('accountability', 'download') && (
+                  <Button
+                    flex={{ base: 1, md: "initial" }}
+                    leftIcon={<FiEye />}
+                    bgGradient="linear(to-r, blue.500, blue.600)"
+                    color="white"
+                    _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                    _active={{ transform: "translateY(0)" }}
+                    size={{ base: "sm", md: "md" }}
+                    borderRadius="2xl"
+                    fontWeight="800"
+                    px={{ base: 3, md: 6 }}
+                    shadow="md"
+                    onClick={() => setIsDownloadModalOpen(true)}
+                  >
+                    View Statement
+                  </Button>
+                )}
 
-              <Button
-                size="sm"
-                variant="solid"
-                colorScheme="blue"
-                borderRadius="xl"
-                fontSize="11px"
-                fontWeight="bold"
-                px={4}
-                ml={2}
-                shadow="sm"
-                onClick={() => {
-                  setSearchQuery("");
-                  setDoctorFilter("all");
-                  setStartDate("");
-                  setEndDate("");
-                  setAppliedStartDate("");
-                  setAppliedEndDate("");
-                }}
-              >
-                RESET FILTERS
-              </Button>
-            </Flex>
-        </Flex>
+                <Button
+                  flex={{ base: 1, md: "initial" }}
+                  leftIcon={<FiCreditCard />}
+                  bgGradient="linear(to-r, pink.500, pink.600)"
+                  color="white"
+                  _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                  _active={{ transform: "translateY(0)" }}
+                  size={{ base: "sm", md: "md" }}
+                  borderRadius="2xl"
+                  fontWeight="800"
+                  px={{ base: 3, md: 6 }}
+                  shadow="md"
+                  onClick={() => { setSelectedWalletPatient({ ...patientDetails, walletBalance }); setIsWalletHistoryOpen(true); }}
+                >
+                  Wallet (₹{walletBalance})
+                </Button>
+            </HStack>
 
-        <CustomTable
-          data={filteredWork.map((wd: any, i: number) => ({
-            ...wd,
-            sno: (currentPage - 1) * 10 + (i + 1)
-          }))}
-          columns={columns}
-          loading={workDoneStore.workDone.loading}
-          actions={{
-            pagination: {
-              show: true,
-              onClick: handleChangePage,
-              currentPage: currentPage,
-              totalPages: workDoneStore.workDone.totalPages || 1,
-            }
-          }}
-        />
+            <Flex wrap="wrap" gap={2} justify={{ base: "center", md: "flex-end" }} align="center">
+                <HStack
+                  spacing={0}
+                  p={1}
+                  bg={inputBg}
+                  borderRadius="2xl"
+                  border="1px solid"
+                  borderColor={borderColor}
+                  shadow="sm"
+                  transition="all 0.2s"
+                  _hover={{ borderColor: "blue.200", shadow: "md" }}
+                >
+                  <Box px={3}>
+                    <Icon as={FiSearch} color="gray.400" mt={1} />
+                  </Box>
+                  <Input
+                    variant="unstyled"
+                    placeholder="Search tooth or note..."
+                    size="md"
+                    w={{ base: "100%", sm: "220px" }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </HStack>
+
+                <Box w={{ base: "100%", sm: "250px" }} zIndex={10}>
+                  {(() => {
+                    const selectOptions = doctorsList.map(doc => ({
+                      label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`,
+                      value: doc.id
+                    }));
+                    const selectedValue = doctorFilter !== "all" ? selectOptions.find(opt => opt.value === doctorFilter) : null;
+
+                    return (
+                      <CustomInput
+                        name="doctorFilter"
+                        type="select"
+                        placeholder="Filter by Doctor..."
+                        isClear={true}
+                        isSearchable={true}
+                        isPortal={true}
+                        value={selectedValue}
+                        onChange={(selectedOption: any) => {
+                          setDoctorFilter(selectedOption ? selectedOption.value : "all");
+                          setCurrentPage(1);
+                        }}
+                        options={selectOptions}
+                      />
+                    );
+                  })()}
+                </Box>
+
+                <HStack
+                  spacing={2}
+                  p={1}
+                  bg={inputBg}
+                  borderRadius="2xl"
+                  border="1px solid"
+                  borderColor={borderColor}
+                  shadow="sm"
+                  transition="all 0.2s"
+                  _hover={{ borderColor: "blue.200", shadow: "md" }}
+                >
+                  <Input
+                    type="date"
+                    variant="unstyled"
+                    size="sm"
+                    px={2}
+                    w="145px"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    fontWeight="800"
+                    color="blue.600"
+                  />
+                  <Box color="gray.300" fontWeight="bold">-</Box>
+                  <Input
+                    type="date"
+                    variant="unstyled"
+                    size="sm"
+                    px={2}
+                    w="145px"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    fontWeight="800"
+                    color="blue.600"
+                  />
+                  <Button
+                    size="sm"
+                    colorScheme="blue"
+                    borderRadius="xl"
+                    px={4}
+                    onClick={() => {
+                      setAppliedStartDate(startDate);
+                      setAppliedEndDate(endDate);
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </HStack>
+
+                <HStack spacing={1}>
+                  {stores.auth.hasPermission('accountability', 'view') && (
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      variant="solid"
+                      leftIcon={<FiCalendar />}
+                      borderRadius="xl"
+                      fontSize="11px"
+                      fontWeight="bold"
+                      onClick={() => {
+                        setIsCounting(true);
+                        workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                          .then((res: any) => {
+                            if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                              setBackendCounts(res.data || []);
+                            }
+                          })
+                          .catch((err: any) => console.error("Failed to load accountability counts:", err))
+                          .finally(() => setIsCounting(false));
+                        setIsCountModalOpen(true);
+                      }}
+                    >
+                      View Work Dates
+                    </Button>
+                  )}
+                  <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
+                    {filteredWork.length || 0}
+                  </Circle>
+                </HStack>
+
+                <Button
+                  size="sm"
+                  variant="solid"
+                  colorScheme="blue"
+                  borderRadius="xl"
+                  fontSize="11px"
+                  fontWeight="bold"
+                  px={4}
+                  ml={2}
+                  shadow="sm"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setDoctorFilter("all");
+                    setStartDate("");
+                    setEndDate("");
+                    setAppliedStartDate("");
+                    setAppliedEndDate("");
+                  }}
+                >
+                  RESET FILTERS
+                </Button>
+              </Flex>
+          </Flex>
+        )}
+
+        {/* Dynamic Mobile Transaction Cards vs Desktop Table */}
+        {isMobile ? (
+          <VStack align="stretch" spacing={3} mb={6}>
+            {filteredWork.length === 0 ? (
+              <VStack py={12} spacing={3} bg="gray.50" borderRadius="2xl" border="1px dashed" borderColor="gray.300">
+                <Icon as={FiActivity} fontSize="36px" color="gray.400" />
+                <Text fontSize="13px" fontWeight="800" color="gray.600">No transactions found</Text>
+              </VStack>
+            ) : (
+              filteredWork.map((record: any, idx: number) => {
+                const bill = record.amount - (record.discount || 0);
+                const received = record.receivedAmount || 0;
+                const remaining = bill - received;
+                const isOverpaid = received > bill;
+                const isSettled = received === bill;
+                const modes = Array.from(new Set((record.paymentHistory || []).map((h: any) => h.paymentMethod).filter(Boolean)));
+                const toothDisplay = (typeof record.tooth === 'object' && record.tooth !== null)
+                  ? (record.tooth.fdi || record.tooth.id || "")
+                  : (record.toothFDI || record.tooth || "");
+
+                return (
+                  <Box
+                    key={record._id || idx}
+                    bg={bgCardBox}
+                    borderRadius="20px"
+                    border="1px solid"
+                    borderColor={borderColor}
+                    p={3.5}
+                    shadow="sm"
+                  >
+                    {/* Header: S.No, Date, Status */}
+                    <Flex justify="space-between" align="center" mb={2}>
+                      <HStack spacing={2}>
+                        <Badge colorScheme="gray" variant="solid" borderRadius="full" px={2} py={0.5} fontSize="9.5px" fontWeight="900">
+                          #{(currentPage - 1) * 10 + (idx + 1)}
+                        </Badge>
+                        <HStack spacing={1} color="gray.500">
+                          <Icon as={FiClock} fontSize="11px" />
+                          <Text fontSize="11px" fontWeight="700">
+                            {record.createdAt ? moment(record.createdAt).format("DD MMM YYYY") : "N/A"}
+                          </Text>
+                        </HStack>
+                      </HStack>
+                      <Badge
+                        px={2.5}
+                        py={0.8}
+                        borderRadius="full"
+                        fontSize="9.5px"
+                        fontWeight="800"
+                        bg={isOverpaid ? "purple.500" : isSettled ? "green.500" : "orange.400"}
+                        color="white"
+                      >
+                        {isOverpaid ? "OVERPAID" : isSettled ? "SETTLED" : "PENDING"}
+                      </Badge>
+                    </Flex>
+
+                    {/* Tooth badge + Doctor name */}
+                    <HStack spacing={2} mb={1.5} wrap="wrap">
+                      {toothDisplay && toothDisplay !== "General" && (
+                        <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} py={0.5} fontSize="10px" fontWeight="800">
+                          Tooth #{toothDisplay}
+                        </Badge>
+                      )}
+                      {record.doctor?.name && (
+                        <HStack spacing={1} color="gray.600">
+                          <Icon as={FiUser} fontSize="11px" color="blue.500" />
+                          <Text fontSize="11px" fontWeight="700" noOfLines={1}>
+                            Dr. {record.doctor.name.replace(/^Dr\.\s*/i, '')}
+                          </Text>
+                        </HStack>
+                      )}
+                    </HStack>
+
+                    {/* Procedure Note */}
+                    <Text fontSize="13px" fontWeight="800" color="gray.800" lineHeight="1.35" mb={2.5}>
+                      {record.workDoneNote || record.toothNote || record.treatmentPlan || record.treatmentCode || "General Procedure"}
+                    </Text>
+
+                    {/* Financials Bento: Total Bill | Paid | Balance */}
+                    <SimpleGrid columns={3} gap={1.5} p={2} bg="gray.50" borderRadius="14px" mb={3} border="1px solid" borderColor="gray.150">
+                      <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
+                        <Text fontSize="8.5px" fontWeight="800" color="gray.500" textTransform="uppercase">Bill</Text>
+                        <Text fontSize="12.5px" fontWeight="900" color="purple.800">
+                          ₹{bill.toLocaleString('en-IN')}
+                        </Text>
+                        {record.discount > 0 && (
+                          <Text fontSize="8px" color="gray.400" textDecoration="line-through">
+                            ₹{(record.amount || 0).toLocaleString('en-IN')}
+                          </Text>
+                        )}
+                      </VStack>
+
+                      <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
+                        <Text fontSize="8.5px" fontWeight="800" color="gray.500" textTransform="uppercase">Paid</Text>
+                        <Text fontSize="12.5px" fontWeight="900" color="green.700">
+                          ₹{received.toLocaleString('en-IN')}
+                        </Text>
+                        {modes.length > 0 && (
+                          <Text fontSize="8px" fontWeight="700" color="green.600" noOfLines={1}>
+                            {modes.join(", ")}
+                          </Text>
+                        )}
+                      </VStack>
+
+                      <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
+                        <Text fontSize="8.5px" fontWeight="800" color="gray.500" textTransform="uppercase">Balance</Text>
+                        <Text
+                          fontSize="12.5px"
+                          fontWeight="900"
+                          color={remaining < 0 ? "purple.600" : remaining > 0 ? "orange.600" : "green.600"}
+                        >
+                          ₹{Math.abs(remaining).toLocaleString('en-IN')}
+                        </Text>
+                        <Text fontSize="8px" fontWeight="800" color={remaining > 0 ? "orange.500" : remaining < 0 ? "purple.500" : "green.500"}>
+                          {remaining < 0 ? "OVERPAID" : remaining > 0 ? "DUE" : "SETTLED"}
+                        </Text>
+                      </VStack>
+                    </SimpleGrid>
+
+                    {/* Action Bar */}
+                    <Flex justify="space-between" align="center" pt={1} borderTop="1px dashed" borderColor="gray.200">
+                      <HStack spacing={1.5}>
+                        {stores.auth.hasPermission('accountability', 'edit') && (
+                          <IconButton
+                            aria-label="Edit Bill"
+                            icon={<FiEdit2 />}
+                            size="xs"
+                            colorScheme="yellow"
+                            variant="outline"
+                            borderRadius="lg"
+                            onClick={() => {
+                              setEditingBillRecord(record);
+                              setEditBillAmount(bill.toString());
+                              setIsEditBillModalOpen(true);
+                            }}
+                          />
+                        )}
+                        {stores.auth.hasPermission('accountability', 'view') && (
+                          <IconButton
+                            aria-label="History"
+                            icon={<FiEye />}
+                            size="xs"
+                            colorScheme="teal"
+                            variant="outline"
+                            borderRadius="lg"
+                            onClick={() => openHistoryDrawer(record)}
+                          />
+                        )}
+                        {received > 0 && stores.auth.hasPermission('accountability', 'download') && (
+                          <IconButton
+                            aria-label="Receipt"
+                            icon={downloadingRecordId === record._id ? <Spinner size="xs" /> : <FiDownload />}
+                            size="xs"
+                            colorScheme="blue"
+                            variant="outline"
+                            borderRadius="lg"
+                            onClick={() => handleSingleDownload(record._id)}
+                            isDisabled={downloadingRecordId !== null}
+                          />
+                        )}
+                      </HStack>
+
+                      {stores.auth.hasPermission('accountability', 'create') && (
+                        <Button
+                          size="xs"
+                          colorScheme="green"
+                          leftIcon={<FiPlusCircle />}
+                          borderRadius="xl"
+                          fontWeight="800"
+                          px={3}
+                          onClick={() => openPaymentModal(record)}
+                        >
+                          Collect Payment
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+                );
+              })
+            )}
+
+            {/* Mobile Pagination */}
+            {(workDoneStore.workDone.totalPages || 1) > 1 && (
+              <HStack justify="space-between" align="center" p={2} bg="gray.50" borderRadius="xl">
+                <Button
+                  size="xs"
+                  variant="outline"
+                  isDisabled={currentPage <= 1}
+                  onClick={() => handleChangePage(currentPage - 1)}
+                >
+                  Previous
+                </Button>
+                <Text fontSize="11px" fontWeight="700" color="gray.600">
+                  Page {currentPage} of {workDoneStore.workDone.totalPages}
+                </Text>
+                <Button
+                  size="xs"
+                  variant="outline"
+                  isDisabled={currentPage >= (workDoneStore.workDone.totalPages || 1)}
+                  onClick={() => handleChangePage(currentPage + 1)}
+                >
+                  Next
+                </Button>
+              </HStack>
+            )}
+          </VStack>
+        ) : (
+          <CustomTable
+            data={filteredWork.map((wd: any, i: number) => ({
+              ...wd,
+              sno: (currentPage - 1) * 10 + (i + 1)
+            }))}
+            columns={columns}
+            loading={workDoneStore.workDone.loading}
+            actions={{
+              pagination: {
+                show: true,
+                onClick: handleChangePage,
+                currentPage: currentPage,
+                totalPages: workDoneStore.workDone.totalPages || 1,
+              }
+            }}
+          />
+        )}
       </Box>
 
       <Modal isOpen={isCountModalOpen} onClose={() => setIsCountModalOpen(false)} isCentered size="md">
-        <ModalOverlay backdropFilter="blur(10px)" />
-        <ModalContent borderRadius="3xl" p={2}>
-          <ModalHeader borderBottom="1px solid" borderColor="gray.50">
-            <VStack align="start" spacing={3}>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">PATIENT TRENDS</Text>
-                <Heading size="md" fontWeight="1000">Accountability Summary</Heading>
-              </VStack>
-              {backendCounts.length > 0 && (
-                <Grid templateColumns="repeat(2, 1fr)" gap={3} w="full">
-                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
-                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL VISITS</Text>
-                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalVisits}</Text>
-                  </Box>
-                  <Box bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
-                    <Text fontSize="9px" fontWeight="black" color="black">TOTAL RECORDS</Text>
-                    <Text fontSize="lg" fontWeight="black" color="black">{totalSummaryStats.totalTreatments}</Text>
-                  </Box>
-                </Grid>
-              )}
-              <HStack w="full" bg="gray.100" p={2} borderRadius="xl">
-                <Icon as={FiSearch} color="gray.400" />
-                <Input
-                  placeholder="Filter by date or year..."
-                  variant="unstyled"
-                  fontSize="xs"
-                  value={countSearch}
-                  onChange={(e) => setCountSearch(e.target.value)}
-                />
+        <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
+        <ModalContent
+          borderRadius={{ base: "24px", md: "3xl" }}
+          mx={{ base: 3, md: "auto" }}
+          overflow="hidden"
+          boxShadow="2xl"
+        >
+          <Box bgGradient="linear(135deg, #091E42 0%, #0C4A6E 60%, #0D9488 100%)" color="white" px={5} py={4}>
+            <HStack justify="space-between" align="center">
+              <HStack spacing={3}>
+                <Box p={2.5} bg="whiteAlpha.200" borderRadius="xl" backdropFilter="blur(4px)">
+                  <Icon as={FiActivity} fontSize="18px" color="teal.200" />
+                </Box>
+                <Box>
+                  <HStack spacing={2}>
+                    <Text fontSize="9px" fontWeight="900" color="teal.200" textTransform="uppercase" letterSpacing="0.1em">
+                      Patient Trends
+                    </Text>
+                    <Badge colorScheme="teal" variant="solid" fontSize="8px" px={1.5} borderRadius="full">
+                      Live
+                    </Badge>
+                  </HStack>
+                  <Heading size="sm" fontWeight="900" color="white">
+                    Accountability Summary
+                  </Heading>
+                </Box>
               </HStack>
-            </VStack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody py={6} maxH="500px" overflowY="auto">
+              <ModalCloseButton position="static" color="white" _hover={{ bg: "whiteAlpha.200" }} />
+            </HStack>
+          </Box>
+
+          <Box p={4} bg="gray.50" borderBottom="1px solid" borderColor="gray.150">
+            {backendCounts.length > 0 && (
+              <Grid templateColumns="repeat(2, 1fr)" gap={2.5} mb={3}>
+                <Box
+                  bg="white"
+                  p={3}
+                  borderRadius="16px"
+                  border="1px solid"
+                  borderColor="blue.100"
+                  shadow="xs"
+                >
+                  <HStack justify="space-between" align="center" mb={1}>
+                    <Text fontSize="9px" fontWeight="900" color="blue.600" textTransform="uppercase">
+                      Total Visits
+                    </Text>
+                    <Icon as={FiCalendar} color="blue.400" fontSize="12px" />
+                  </HStack>
+                  <Text fontSize="20px" fontWeight="900" color="blue.900" lineHeight="1">
+                    {totalSummaryStats.totalVisits}
+                  </Text>
+                  <Text fontSize="8px" fontWeight="700" color="gray.400" mt={1}>Clinic Sessions</Text>
+                </Box>
+                <Box
+                  bg="white"
+                  p={3}
+                  borderRadius="16px"
+                  border="1px solid"
+                  borderColor="teal.100"
+                  shadow="xs"
+                >
+                  <HStack justify="space-between" align="center" mb={1}>
+                    <Text fontSize="9px" fontWeight="900" color="teal.600" textTransform="uppercase">
+                      Total Records
+                    </Text>
+                    <Icon as={FiTrendingUp} color="teal.400" fontSize="12px" />
+                  </HStack>
+                  <Text fontSize="20px" fontWeight="900" color="teal.900" lineHeight="1">
+                    {totalSummaryStats.totalTreatments}
+                  </Text>
+                  <Text fontSize="8px" fontWeight="700" color="gray.400" mt={1}>Accountability Entries</Text>
+                </Box>
+              </Grid>
+            )}
+
+            <HStack
+              bg="white"
+              px={3}
+              py={1.5}
+              borderRadius="14px"
+              border="1px solid"
+              borderColor="gray.250"
+              shadow="xs"
+            >
+              <Icon as={FiSearch} color="gray.400" fontSize="13px" />
+              <Input
+                placeholder="Filter by session date or year..."
+                variant="unstyled"
+                fontSize="12px"
+                fontWeight="600"
+                value={countSearch}
+                onChange={(e) => setCountSearch(e.target.value)}
+              />
+            </HStack>
+          </Box>
+
+          <ModalBody px={4} py={3} maxH="380px" overflowY="auto" bg="white">
             {filteredCounts.length > 0 ? (
-              <VStack align="stretch" spacing={3}>
+              <VStack align="stretch" spacing={2.5}>
                 {filteredCounts.map((item, idx) => (
                   <HStack
                     key={idx}
-                    p={4}
+                    p={3}
                     bg="gray.50"
-                    borderRadius="2xl"
+                    borderRadius="16px"
                     justify="space-between"
                     border="1px solid"
-                    borderColor="transparent"
-                    _hover={{ borderColor: "blue.200", bg: "blue.50", cursor: "pointer", transform: "translateX(4px)" }}
-                    transition="all 0.2s"
+                    borderColor="gray.150"
+                    _hover={{ borderColor: "blue.300", bg: "blue.50", cursor: "pointer", transform: "translateY(-1px)", shadow: "xs" }}
+                    transition="all 0.15s ease"
                     onClick={() => {
                       setSessionDate(item.date);
                       setStartDate(item.date);
@@ -915,80 +1505,97 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       setIsCountModalOpen(false);
                     }}
                   >
-                    <HStack spacing={4}>
-                      <Box p={2} bg="white" borderRadius="lg" shadow="sm">
-                        <Icon as={FiCalendar} color="blue.500" />
+                    <HStack spacing={3}>
+                      <Box p={2} bg="white" borderRadius="12px" shadow="xs" border="1px solid" borderColor="gray.100">
+                        <Icon as={FiCalendar} color="blue.500" fontSize="16px" />
                       </Box>
                       <VStack align="start" spacing={0}>
-                        <Text fontSize="sm" fontWeight="800" color="gray.700">
+                        <Text fontSize="13px" fontWeight="800" color="gray.800">
                           {new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'long' })}
                         </Text>
-                        <Text fontSize="10px" fontWeight="700" color="gray.400">SESSION DATE</Text>
+                        <Text fontSize="9px" fontWeight="700" color="blue.600">
+                          Tap to view {item.count} {item.count === 1 ? 'record' : 'records'}
+                        </Text>
                       </VStack>
                     </HStack>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      bg="blue.500"
-                      w="32px"
-                      h="32px"
+                    <Badge
+                      colorScheme="blue"
+                      variant="solid"
                       borderRadius="full"
-                      color="white"
-                      fontWeight="1000"
-                      fontSize="sm"
-                      shadow="md"
+                      px={2.5}
+                      py={1}
+                      fontSize="11px"
+                      fontWeight="900"
                     >
-                      {item.count}
-                    </Box>
+                      {item.count} {item.count === 1 ? 'entry' : 'entries'}
+                    </Badge>
                   </HStack>
                 ))}
               </VStack>
             ) : (
-              <VStack py={10} spacing={4} opacity={0.5}>
-                <Icon as={FiActivity} fontSize="40px" />
-                <Text fontWeight="800">{countSearch ? "No matches found" : "No activity history found"}</Text>
+              <VStack py={8} spacing={3} opacity={0.6}>
+                <Icon as={FiActivity} fontSize="36px" color="gray.400" />
+                <Text fontWeight="800" fontSize="13px" color="gray.600">
+                  {countSearch ? "No matching dates found" : "No activity history found"}
+                </Text>
               </VStack>
             )}
           </ModalBody>
-          <ModalFooter bg="gray.50" borderRadius="0 0 2xl 2xl">
-            <Button w="full" variant="ghost" fontWeight="1000" onClick={() => setIsCountModalOpen(false)}>CLOSE SUMMARY</Button>
+
+          <ModalFooter bg="gray.50" borderTop="1px solid" borderColor="gray.100" p={3}>
+            <Button
+              w="full"
+              size="sm"
+              borderRadius="12px"
+              variant="outline"
+              colorScheme="gray"
+              fontWeight="800"
+              onClick={() => setIsCountModalOpen(false)}
+            >
+              Close Summary
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       {/* DOWNLOAD STATEMENT MODAL - PREMIUM REDESIGN */}
       <Modal isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} isCentered size="lg">
-        <ModalOverlay backdropFilter="blur(12px)" bg="blackAlpha.300" />
-        <ModalContent borderRadius="4xl" shadow="dark-lg" overflow="hidden">
+        <ModalOverlay backdropFilter="blur(12px)" bg="blackAlpha.500" />
+        <ModalContent
+          borderRadius={{ base: "24px", md: "3xl" }}
+          shadow="dark-lg"
+          overflow="hidden"
+          mx={{ base: 3, md: "auto" }}
+          maxH={{ base: "90vh", md: "auto" }}
+        >
           <ModalHeader p={0}>
-            <Box bgGradient="linear(to-br, blue.600, blue.800)" p={8} color="white" pos="relative">
+            <Box bgGradient="linear(to-br, blue.600, blue.800)" p={{ base: 4, md: 6 }} color="white" pos="relative">
               <VStack align="start" spacing={1}>
                 <HStack spacing={2} opacity={0.9}>
                   <Icon as={FiEye} />
                   <Text fontSize="xs" fontWeight="900" letterSpacing="0.2em">PDF PREVIEWER</Text>
                 </HStack>
-                <Text fontSize="3xl" fontWeight="1000" letterSpacing="-1px">View Statement</Text>
-                <Text fontSize="sm" opacity={0.8} fontWeight="500">Preview your full clinical statement</Text>
+                <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="1000" letterSpacing="-0.5px">View Statement</Text>
+                <Text fontSize="xs" opacity={0.8} fontWeight="500">Preview clinical financial statement</Text>
               </VStack>
               <Box pos="absolute" right={-10} top={-10} boxSize="150px" bg="whiteAlpha.100" borderRadius="full" />
             </Box>
           </ModalHeader>
-          <ModalCloseButton color="white" top={6} right={6} borderRadius="full" _hover={{ bg: "whiteAlpha.200" }} />
+          <ModalCloseButton color="white" top={4} right={4} borderRadius="full" _hover={{ bg: "whiteAlpha.200" }} />
 
-          <ModalBody p={8}>
-            <VStack spacing={6}>
+          <ModalBody p={{ base: 4, md: 6 }} overflowY="auto">
+            <VStack spacing={4}>
               <Box w="full">
-                <Text fontSize="xs" fontWeight="900" color="blue.500" mb={3} letterSpacing="0.1em">TIMELINE RANGE</Text>
-                <SimpleGrid columns={2} spacing={4}>
+                <Text fontSize="xs" fontWeight="900" color="blue.500" mb={2} letterSpacing="0.1em">TIMELINE RANGE</Text>
+                <SimpleGrid columns={2} spacing={3}>
                   <FormControl>
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>START DATE</FormLabel>
-                    <HStack bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                    <HStack bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
                       <Icon as={FiCalendar} color="gray.400" />
                       <Input
                         type="date"
                         variant="unstyled"
-                        fontSize="sm"
+                        fontSize="xs"
                         fontWeight="700"
                         value={downloadFilters.startDate}
                         onChange={(e) => setDownloadFilters({...downloadFilters, startDate: e.target.value})}
@@ -997,12 +1604,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   </FormControl>
                   <FormControl>
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>END DATE</FormLabel>
-                    <HStack bg="gray.50" p={2} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                    <HStack bg="gray.50" p={2} borderRadius="xl" border="1px solid" borderColor="gray.100">
                       <Icon as={FiCalendar} color="gray.400" />
                       <Input
                         type="date"
                         variant="unstyled"
-                        fontSize="sm"
+                        fontSize="xs"
                         fontWeight="700"
                         value={downloadFilters.endDate}
                         onChange={(e) => setDownloadFilters({...downloadFilters, endDate: e.target.value})}
@@ -1013,18 +1620,18 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               </Box>
 
               <Box w="full">
-                <Text fontSize="xs" fontWeight="900" color="blue.500" mb={3} letterSpacing="0.1em">REPORT SCOPE</Text>
-                <SimpleGrid columns={2} spacing={4}>
+                <Text fontSize="xs" fontWeight="900" color="blue.500" mb={2} letterSpacing="0.1em">REPORT SCOPE</Text>
+                <SimpleGrid columns={2} spacing={3}>
                   <FormControl>
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>ASSIGNED DOCTOR</FormLabel>
                     <Select
                       bg="gray.50"
-                      borderRadius="2xl"
+                      borderRadius="xl"
                       border="1px solid"
                       borderColor="gray.100"
-                      fontSize="sm"
+                      fontSize="xs"
                       fontWeight="700"
-                      h="45px"
+                      h="40px"
                       value={downloadFilters.doctorId}
                       onChange={(e) => setDownloadFilters({...downloadFilters, doctorId: e.target.value})}
                     >
@@ -1038,12 +1645,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     <FormLabel fontSize="10px" fontWeight="800" color="gray.400" mb={1}>PAYMENT STATUS</FormLabel>
                     <Select
                       bg="gray.50"
-                      borderRadius="2xl"
+                      borderRadius="xl"
                       border="1px solid"
                       borderColor="gray.100"
-                      fontSize="sm"
+                      fontSize="xs"
                       fontWeight="700"
-                      h="45px"
+                      h="40px"
                       value={downloadFilters.status}
                       onChange={(e) => setDownloadFilters({...downloadFilters, status: e.target.value})}
                     >
@@ -1059,16 +1666,16 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       options={[]}
                       value={downloadToothNumbers}
                       onChange={(val) => setDownloadToothNumbers(val as any[])}
-                      placeholder="Type tooth numbers and press enter"
+                      placeholder="Type tooth numbers..."
                       formatCreateLabel={(inputValue) => `Add tooth "${inputValue}"`}
                       styles={{
                         control: (base) => ({
                           ...base,
                           background: "#F7FAFC",
-                          borderRadius: "1rem",
+                          borderRadius: "0.75rem",
                           border: "1px solid #EDF2F7",
-                          minHeight: "45px",
-                          fontSize: "14px",
+                          minHeight: "40px",
+                          fontSize: "13px",
                           fontWeight: "700"
                         })
                       }}
@@ -1077,63 +1684,59 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 </SimpleGrid>
               </Box>
 
-              <HStack w="full" p={4} bg="blue.50" borderRadius="2xl" spacing={4}>
-                <Box p={2} bg="blue.100" borderRadius="xl"><Icon as={FiTarget} color="blue.600" /></Box>
+              <HStack w="full" p={3} bg="blue.50" borderRadius="xl" spacing={3}>
+                <Box p={1.5} bg="blue.100" borderRadius="lg"><Icon as={FiTarget} color="blue.600" /></Box>
                 <VStack align="start" spacing={0}>
                   <Text fontSize="xs" fontWeight="bold" color="blue.700">Audit Ready</Text>
-                  <Text fontSize="10px" color="blue.600" opacity={0.8}>This report will include digital signatures and clinic branding.</Text>
+                  <Text fontSize="10px" color="blue.600" opacity={0.8}>Includes digital signatures and clinic branding.</Text>
                 </VStack>
               </HStack>
             </VStack>
           </ModalBody>
 
-          <ModalFooter p={8} pt={0}>
-            <Button
-              variant="ghost"
-              mr={4}
-              onClick={() => setIsDownloadModalOpen(false)}
-              borderRadius="2xl"
-              fontWeight="800"
-              fontSize="sm"
-              color="gray.500"
-            >
-              Discard
-            </Button>
-            <Button
-              bgGradient="linear(to-r, teal.500, teal.700)"
-              color="white"
-              _hover={{ bgGradient: "linear(to-r, teal.600, teal.800)", shadow: "xl", transform: "scale(1.02)" }}
-              _active={{ transform: "scale(0.98)" }}
-              onClick={handleDownloadReceiptsLog}
-              isLoading={isDownloadingReceipts}
-              rightIcon={<FiEye />}
-              borderRadius="2xl"
-              px={6}
-              mr={4}
-              h="55px"
-              fontWeight="900"
-              fontSize="md"
-              shadow="lg"
-            >
-              Receipts Log
-            </Button>
-            <Button
-              bgGradient="linear(to-r, blue.500, blue.700)"
-              color="white"
-              _hover={{ bgGradient: "linear(to-r, blue.600, blue.800)", shadow: "xl", transform: "scale(1.02)" }}
-              _active={{ transform: "scale(0.98)" }}
-              onClick={handleDownload}
-              isLoading={isDownloading}
-              rightIcon={<FiEye />}
-              borderRadius="2xl"
-              px={10}
-              h="55px"
-              fontWeight="900"
-              fontSize="md"
-              shadow="lg"
-            >
-              Preview PDF
-            </Button>
+          <ModalFooter p={{ base: 3, md: 6 }} pt={0} bg="gray.50" borderTop="1px solid" borderColor="gray.100">
+            <Flex w="full" justify="space-between" align="center" gap={2} wrap="wrap">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDownloadModalOpen(false)}
+                borderRadius="xl"
+                fontWeight="800"
+                fontSize="xs"
+                color="gray.500"
+              >
+                Cancel
+              </Button>
+              <HStack spacing={2} flex={{ base: 1, sm: "initial" }} justify="flex-end">
+                <Button
+                  colorScheme="teal"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadReceiptsLog}
+                  isLoading={isDownloadingReceipts}
+                  rightIcon={<FiEye />}
+                  borderRadius="xl"
+                  px={{ base: 3, md: 5 }}
+                  fontWeight="800"
+                  fontSize="xs"
+                >
+                  Receipts Log
+                </Button>
+                <Button
+                  colorScheme="blue"
+                  size="sm"
+                  onClick={handleDownload}
+                  isLoading={isDownloading}
+                  rightIcon={<FiEye />}
+                  borderRadius="xl"
+                  px={{ base: 3, md: 6 }}
+                  fontWeight="800"
+                  fontSize="xs"
+                >
+                  Preview PDF
+                </Button>
+              </HStack>
+            </Flex>
           </ModalFooter>
         </ModalContent>
       </Modal>

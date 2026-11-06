@@ -26,6 +26,7 @@ import {
   AccordionIcon,
   Icon,
   Button,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
@@ -84,12 +85,41 @@ const LegacyPatientHistoryDrawer = observer(({ isOpen, onClose }: LegacyPatientH
     return "N/A";
   };
 
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
   return (
-    <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
-      <DrawerOverlay />
-      <DrawerContent maxW="90vw">
-        <DrawerCloseButton mt={2} mr={2} size="lg" />
-        <DrawerHeader borderBottomWidth="1px" bgGradient="linear(to-r, blue.50, white)" color="blue.800" py={5}>
+    <Drawer
+      isOpen={isOpen}
+      placement={isMobile ? "bottom" : "right"}
+      onClose={onClose}
+      size={isMobile ? "full" : "xl"}
+    >
+      <DrawerOverlay backdropFilter="blur(4px)" />
+      <DrawerContent
+        maxW={isMobile ? "100%" : "90vw"}
+        w={isMobile ? "100%" : "90vw"}
+        maxH={isMobile ? "100dvh" : "100%"}
+        height={isMobile ? "100dvh" : "100%"}
+        borderTopRadius={isMobile ? "20px" : "none"}
+        overflow="hidden"
+      >
+        <DrawerCloseButton mt={isMobile ? 1 : 2} mr={2} size="md" />
+        <DrawerHeader
+          borderBottomWidth="1px"
+          bgGradient="linear(to-r, blue.50, white)"
+          color="blue.800"
+          py={isMobile ? 3 : 5}
+        >
+          {isMobile && (
+            <Box
+              w="38px"
+              h="4px"
+              borderRadius="full"
+              bg="gray.300"
+              mx="auto"
+              mb={2}
+            />
+          )}
           <HStack spacing={3}>
             <Box p={2} bg="purple.500" color="white" rounded="lg" shadow="sm">
               <Icon as={FaHistory} boxSize={5} />

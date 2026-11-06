@@ -34,6 +34,11 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
     themeConfig.colors.custom.dark.primary
   );
 
+  const headerGradient = useColorModeValue(
+    'linear-gradient(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)',
+    'linear-gradient(135deg, #020617 0%, #0F172A 50%, #134E4A 100%)'
+  );
+
   const closeDrawerModel = () => {
     setOpenMobileSideDrawer(false);
   };
@@ -82,7 +87,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
             $mediumScreenMode={mediumScreenMode}
             $fullScreenMode={fullScreenMode}
             $backgroundColor={headerBgColor}
-            style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%)" }}
+            $headerGradient={headerGradient}
           >
             <HeaderLayout />
           </HeaderContainer>
@@ -136,13 +141,19 @@ const HeaderContainer = styled.div<{
   $mediumScreenMode: boolean;
   $backgroundColor: string;
   $isMobile: boolean;
+  $headerGradient: string;
 }>`
   z-index: 99;
   height: ${headerHeight};
   position: fixed;
   top: 0;
   right: 0;
-  background-color: ${(props) => props.$backgroundColor};
+  background: ${(props) =>
+    props.$isMobile ? props.$headerGradient : props.$backgroundColor};
+  box-shadow: ${(props) =>
+    props.$isMobile
+      ? '0 4px 20px rgba(13, 148, 136, 0.2)'
+      : '0 4px 15px rgba(0, 0, 0, 0.05)'};
   left: ${(props) => (props.$isMobile ? '0px' : mediumSidebarWidth)};
   transition: all 0.3s ease-in-out;
 `;

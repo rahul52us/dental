@@ -14,6 +14,12 @@ import {
   Icon,
   Text,
   useColorModeValue,
+  useBreakpointValue,
+  Badge,
+  Input,
+  IconButton,
+  Spinner,
+  Avatar,
   VStack
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
@@ -40,6 +46,7 @@ import AddAppointmentForm from "./component/AddForm";
 import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
 import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
+import { FiSearch } from "react-icons/fi";
 import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
 import { FaClipboardList } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -409,63 +416,339 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
     setSelectedDate((prev: any) => moment(prev).add(1, "day").toDate());
   };
 
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "scheduled":
+        return "blue";
+      case "in-progress":
+        return "yellow";
+      case "completed":
+        return "green";
+      case "cancelled":
+        return "red";
+      case "shift":
+        return "purple";
+      case "no-show":
+        return "gray";
+      case "arrived":
+        return "teal";
+      default:
+        return "gray";
+    }
+  };
+
   return (
     <>
-      <CustomTable
-        title={t("appointments.table.appointments")}
-        subTitle={patientDetails ? subTitle : undefined}
-        data={appointments?.data || []}
-        columns={ContactTableColumn}
-        actions={{
-          actionBtn: {
-            addKey: {
-              showAddButton: stores.auth.hasPermission('appointment', 'create'),
-              function: () => {
-                setOpenReportModal({
-                  open: true,
-                  type: "add",
-                });
+      {isMobile ? (
+        <Box p={3} pb="calc(80px + env(safe-area-inset-bottom, 16px))">
+          {/* Summary Card for Patient */}
+          {patientDetails && (
+            <Box
+              p={3.5}
+              borderRadius="20px"
+              bg={useColorModeValue("blue.50", "rgba(59, 130, 246, 0.12)")}
+              border="1px solid"
+              borderColor={useColorModeValue("blue.200", "rgba(59, 130, 246, 0.25)")}
+              mb={3}
+            >
+              <Text fontSize="13px" fontWeight="800" color={useColorModeValue("blue.900", "blue.100")} mb={1.5} noOfLines={1}>
+                {patientDetails?.name || "Patient"} Appointments
+              </Text>
+              <HStack spacing={2} wrap="wrap">
+                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px">
+                  Cancelled: {patientStatus.cancelled}
+                </Badge>
+                <Badge colorScheme="purple" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px">
+                  Shift: {patientStatus.shift}
+                </Badge>
+                <Badge colorScheme="gray" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px">
+                  No-show: {patientStatus["no-show"]}
+                </Badge>
+              </HStack>
+            </Box>
+          )}
+
+          {/* Search & Add Action Bar */}
+          <Flex gap={2} mb={3} align="center">
+            <HStack
+              flex={1}
+              bg={useColorModeValue("white", "gray.800")}
+              px={3}
+              py={1}
+              borderRadius="16px"
+              border="1px solid"
+              borderColor={useColorModeValue("gray.200", "gray.700")}
+            >
+              <Icon as={FiSearch} color="gray.400" />
+              <Input
+                variant="unstyled"
+                placeholder="Search appointments..."
+                fontSize="13px"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </HStack>
+
+            {stores.auth.hasPermission('appointment', 'create') && (
+              <Button
+                size="sm"
+                bgGradient="linear(to-r, teal.500, teal.600)"
+                color="white"
+                _hover={{ bgGradient: "linear(to-r, teal.600, teal.700)" }}
+                borderRadius="14px"
+                fontWeight="800"
+                fontSize="12px"
+                px={3}
+                onClick={() => setOpenReportModal({ open: true, type: "add" })}
+              >
+                + Add
+              </Button>
+            )}
+          </Flex>
+
+          {/* Appointment List / Loading / Empty State */}
+          {appointments.loading ? (
+            <Flex justify="center" align="center" py={12}>
+              <Spinner size="md" color="teal.500" />
+            </Flex>
+          ) : (appointments?.data || []).length === 0 ? (
+            <Box
+              bg={useColorModeValue("white", "gray.800")}
+              borderRadius="24px"
+              border="1px dashed"
+              borderColor={useColorModeValue("gray.200", "gray.700")}
+              p={6}
+              textAlign="center"
+              my={4}
+            >
+              <Flex
+                w="56px"
+                h="56px"
+                borderRadius="full"
+                bg="blue.50"
+                color="blue.500"
+                align="center"
+                justify="center"
+                mx="auto"
+                mb={3}
+              >
+                <Icon as={FaClipboardList} boxSize={6} />
+              </Flex>
+              <Text fontSize="15px" fontWeight="800" color={useColorModeValue("gray.800", "white")}>
+                No Appointments Scheduled
+              </Text>
+              <Text fontSize="12px" color={useColorModeValue("gray.500", "gray.400")} mt={1} maxW="240px" mx="auto">
+                No past or upcoming appointments found for this patient.
+              </Text>
+              {stores.auth.hasPermission('appointment', 'create') && (
+                <Button
+                  mt={4}
+                  size="sm"
+                  bgGradient="linear(to-r, blue.500, teal.500)"
+                  color="white"
+                  borderRadius="16px"
+                  fontWeight="800"
+                  fontSize="12px"
+                  px={5}
+                  onClick={() => setOpenReportModal({ open: true, type: "add" })}
+                >
+                  + Schedule Appointment
+                </Button>
+              )}
+            </Box>
+          ) : (
+            <VStack align="stretch" spacing={2.5}>
+              {(appointments?.data || []).map((dt: any, idx: number) => {
+                const statusCol = getStatusColor(dt.status);
+                return (
+                  <Box
+                    key={dt._id || idx}
+                    bg={useColorModeValue("white", "gray.800")}
+                    borderRadius="18px"
+                    p={3.5}
+                    border="1px solid"
+                    borderColor={useColorModeValue("gray.150", "whiteAlpha.150")}
+                    boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+                  >
+                    {/* Top Row: Date & Status */}
+                    <Flex justify="space-between" align="center" mb={2}>
+                      <HStack spacing={1.5}>
+                        <Icon as={InfoIcon} color="blue.500" boxSize={3.5} />
+                        <Text fontSize="12px" fontWeight="800" color={useColorModeValue("gray.800", "white")}>
+                          {formatDate(dt?.appointmentDate)}
+                        </Text>
+                      </HStack>
+                      <Badge
+                        colorScheme={statusCol}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="10px"
+                        fontWeight="750"
+                        textTransform="capitalize"
+                      >
+                        {dt.status?.replace("-", " ") || "Scheduled"}
+                      </Badge>
+                    </Flex>
+
+                    {/* Middle Info: Time & Cause */}
+                    <Text fontSize="13px" fontWeight="750" color={useColorModeValue("gray.900", "gray.100")} mb={1}>
+                      {dt?.title || "Clinical Consultation"}
+                    </Text>
+
+                    <HStack spacing={2} fontSize="11px" color={useColorModeValue("gray.600", "gray.400")} mb={2.5}>
+                      <Text fontWeight="600">
+                        ⏰ {dt.startTime || "--"} - {dt?.endTime || "--"}
+                      </Text>
+                      <Text>•</Text>
+                      <Text fontWeight="700" color={useColorModeValue("teal.700", "teal.300")}>
+                        👨‍⚕️ {dt.doctorName || "Doctor"}
+                      </Text>
+                    </HStack>
+
+                    {/* Bottom Action Buttons */}
+                    <Flex justify="space-between" align="center" pt={2} borderTop="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.100")}>
+                      <HStack spacing={2}>
+                        {stores.auth.hasPermission('appointment', 'view') && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            colorScheme="blue"
+                            borderRadius="lg"
+                            fontWeight="700"
+                            onClick={() => setOpenView({ open: true, data: dt })}
+                          >
+                            View
+                          </Button>
+                        )}
+                        {stores.auth.hasPermission('appointment', 'edit') && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            colorScheme="teal"
+                            borderRadius="lg"
+                            fontWeight="700"
+                            onClick={() => setSelectedDateTime({
+                              open: true,
+                              time: undefined,
+                              start: undefined,
+                              end: undefined,
+                              data: dt,
+                              type: "edit",
+                            })}
+                          >
+                            Edit
+                          </Button>
+                        )}
+                      </HStack>
+
+                      {stores.auth.hasPermission('appointment', 'view') && (
+                        <Button
+                          size="xs"
+                          variant="subtle"
+                          colorScheme="purple"
+                          borderRadius="full"
+                          px={2.5}
+                          fontWeight="700"
+                          onClick={() => setHistoryModal({
+                            isOpen: true,
+                            patientId: dt.patient?._id || dt.patient,
+                            patientName: dt.patientName || dt.patient?.name || "Patient"
+                          })}
+                        >
+                          History
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+                );
+              })}
+
+              {/* Mobile Pagination */}
+              {appointments.totalPages > 1 && (
+                <Flex justify="space-between" align="center" pt={2}>
+                  <Button
+                    size="xs"
+                    isDisabled={currentPage <= 1}
+                    onClick={() => handleChangePage(currentPage - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <Text fontSize="11px" fontWeight="700" color="gray.500">
+                    Page {currentPage} of {appointments.totalPages}
+                  </Text>
+                  <Button
+                    size="xs"
+                    isDisabled={currentPage >= appointments.totalPages}
+                    onClick={() => handleChangePage(currentPage + 1)}
+                  >
+                    Next
+                  </Button>
+                </Flex>
+              )}
+            </VStack>
+          )}
+        </Box>
+      ) : (
+        <CustomTable
+          title={t("appointments.table.appointments")}
+          subTitle={patientDetails ? subTitle : undefined}
+          data={appointments?.data || []}
+          columns={ContactTableColumn}
+          actions={{
+            actionBtn: {
+              addKey: {
+                showAddButton: stores.auth.hasPermission('appointment', 'create'),
+                function: () => {
+                  setOpenReportModal({
+                    open: true,
+                    type: "add",
+                  });
+                },
+              },
+              editKey: {
+                showEditButton: stores.auth.hasPermission('appointment', 'edit'),
+                function: (dt: any) => {
+                  setSelectedDateTime({
+                    open: true,
+                    time: undefined,
+                    start: undefined,
+                    end: undefined,
+                    data: dt,
+                    type: "edit",
+                  });
+                },
+              },
+              viewKey: {
+                showViewButton: stores.auth.hasPermission('appointment', 'view'),
+                function: (dt: any) => {
+                  setOpenView({ open: true, data: dt });
+                },
               },
             },
-            editKey: {
-              showEditButton: stores.auth.hasPermission('appointment', 'edit'),
-              function: (dt: any) => {
-                setSelectedDateTime({
-                  open: true,
-                  time: undefined,
-                  start: undefined,
-                  end: undefined,
-                  data: dt,
-                  type: "edit",
-                });
-              },
+            search: {
+              show: true,
+              searchValue: searchQuery,
+              onSearchChange: (e: any) => setSearchQuery(e.target.value),
             },
-            viewKey: {
-              showViewButton: stores.auth.hasPermission('appointment', 'view'),
-              function: (dt: any) => {
-                setOpenView({ open: true, data: dt });
-              },
+            resetData: {
+              show: false,
+              text: t("appointments.table.resetData"),
+              function: resetTableData,
             },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
-          resetData: {
-            show: false,
-            text: t("appointments.table.resetData"),
-            function: resetTableData,
-          },
-          pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage: currentPage,
-            totalPages: appointments.totalPages,
-          },
-        }}
-        loading={appointments.loading}
-      />
+            pagination: {
+              show: true,
+              onClick: handleChangePage,
+              currentPage: currentPage,
+              totalPages: appointments.totalPages,
+            },
+          }}
+          loading={appointments.loading}
+        />
+      )}
 
       <AppointmentHistoryModal
         isOpen={historyModal.isOpen}

@@ -54,39 +54,45 @@ const PatientWorkDoneHistory = observer(({ patientDetails }: PatientWorkDoneHist
   return (
     <Box p={2}>
       <VStack align="stretch" spacing={4} h="full" p={0}>
-        {/* Filter Section */}
-        <Box p={4} bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" shadow="sm">
-          <VStack align="start" spacing={3}>
-            <HStack spacing={2}>
-              <Box w="3px" h="12px" bg="blue.500" borderRadius="full" />
-              <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="widest" fontSize="9px">
+        {/* Compact Treatment Plan Filter */}
+        <Box
+          p={{ base: 2, md: 3 }}
+          bg="white"
+          borderRadius={{ base: "14px", md: "xl" }}
+          border="1px solid"
+          borderColor="gray.150"
+          shadow="xs"
+        >
+          <HStack justify="space-between" align="center" mb={1}>
+            <HStack spacing={1.5}>
+              <Box w="3px" h="10px" bg="blue.500" borderRadius="full" />
+              <Text color="gray.600" textTransform="uppercase" letterSpacing="0.4px" fontSize="9px" fontWeight="800">
                 Filter by Treatment Plan & Tooth
-              </Heading>
+              </Text>
             </HStack>
-            <HStack w="full" spacing={4}>
-              <Select
-                value={selectedTreatmentId}
-                onChange={(e) => setSelectedTreatmentId(e.target.value)}
-                bg="white"
-                borderRadius="xl"
-                h="38px"
-                fontSize="sm"
-                fontWeight="600"
-              >
-                <option value="all">All Treatments</option>
-                {treatments.map((t: any) => {
-                  const toothStr = (typeof t.tooth === 'object' && t.tooth !== null) ? (t.tooth.fdi || t.tooth.id || "") : (t.toothFDI || t.tooth);
-                  const notationStr = (t.toothNotation || 'FDI').toUpperCase();
-                  return (
-                    <option key={t._id} value={t._id}>
-                      {t.treatmentPlan} {toothStr && toothStr !== "General" ? `(${toothStr} ${notationStr})` : ''}
-                    </option>
-                  )
-                })}
-              </Select>
-              {loading && <Spinner size="sm" color="blue.500" />}
-            </HStack>
-          </VStack>
+            {loading && <Spinner size="xs" color="blue.500" />}
+          </HStack>
+          <Select
+            value={selectedTreatmentId}
+            onChange={(e) => setSelectedTreatmentId(e.target.value)}
+            bg="gray.50"
+            borderRadius="10px"
+            h={{ base: "34px", md: "38px" }}
+            fontSize="12px"
+            fontWeight="700"
+            borderColor="gray.200"
+          >
+            <option value="all">All Treatments</option>
+            {treatments.map((t: any) => {
+              const toothStr = (typeof t.tooth === 'object' && t.tooth !== null) ? (t.tooth.fdi || t.tooth.id || "") : (t.toothFDI || t.tooth);
+              const notationStr = (t.toothNotation || 'FDI').toUpperCase();
+              return (
+                <option key={t._id} value={t._id}>
+                  {t.treatmentPlan} {toothStr && toothStr !== "General" ? `(${toothStr} ${notationStr})` : ''}
+                </option>
+              )
+            })}
+          </Select>
         </Box>
 
         <Divider my={1} />

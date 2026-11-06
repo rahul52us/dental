@@ -1,6 +1,6 @@
 "use client"; // Add this for client-side component in Next.js
 
-import { Button, Flex, IconButton, useMediaQuery } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, useMediaQuery } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { FiBookOpen } from "react-icons/fi";
 import { useEffect } from "react";
@@ -26,8 +26,8 @@ const HeaderNavbar = observer(() => {
     <Flex
       justifyContent="flex-end"
       alignItems="center"
-      gap={{ base: 1.5, sm: 2, lg: 3 }}
-      pr={{ base: 1, md: 2 }}
+      gap={{ base: 1.5, sm: 2, lg: 2.5 }}
+      pr={{ base: 0.5, md: 2 }}
       minW={0}
     >
       {stores.globalConfigStore?.config?.tutorialDoc && (
@@ -52,6 +52,7 @@ const HeaderNavbar = observer(() => {
           </Button>
         ) : (
           <IconButton
+            display={{ base: "none", md: "inline-flex" }}
             as="a"
             href={stores.globalConfigStore.config.tutorialDoc}
             target="_blank"
@@ -59,17 +60,18 @@ const HeaderNavbar = observer(() => {
             aria-label="Tutorial"
             title="Tutorial"
             icon={<FiBookOpen />}
-            fontSize="17px"
-            w={{ base: "36px", md: "40px" }}
-            h={{ base: "36px", md: "40px" }}
-            minW={{ base: "36px", md: "40px" }}
-            borderRadius="full"
+            fontSize="15px"
+            w={{ base: "32px", sm: "36px", md: "38px" }}
+            h={{ base: "32px", sm: "36px", md: "38px" }}
+            minW={{ base: "32px", sm: "36px", md: "38px" }}
+            borderRadius="10px"
             color="white"
             variant="ghost"
-            bg="whiteAlpha.150"
-            _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
+            bg="whiteAlpha.180"
+            border="1px solid rgba(255,255,255,0.12)"
+            _hover={{ bg: "whiteAlpha.300", transform: "scale(1.05)" }}
             _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
-            transition="all 0.2s ease"
+            transition="all 0.15s ease"
           />
         )
       )}
@@ -81,7 +83,9 @@ const HeaderNavbar = observer(() => {
         </>
       ) : (
         <>
-          <HeaderLanguageSwitch />
+          <Box display={{ base: "none", md: "block" }}>
+            <HeaderLanguageSwitch />
+          </Box>
           <HeaderThemeSwitch />
           <HeaderProfile />
           <IconButton
@@ -89,15 +93,16 @@ const HeaderNavbar = observer(() => {
             title="Open navigation menu"
             variant="ghost"
             color="white"
-            fontSize="16px"
-            w={{ base: "36px", md: "40px" }}
-            h={{ base: "36px", md: "40px" }}
-            minW={{ base: "36px", md: "40px" }}
-            borderRadius="full"
-            bg="whiteAlpha.150"
-            _hover={{ bg: "whiteAlpha.300", transform: "translateY(-1px)" }}
-            _active={{ bg: "whiteAlpha.400", transform: "scale(0.95)" }}
-            transition="all 0.2s ease"
+            fontSize="15px"
+            w={{ base: "32px", sm: "36px", md: "38px" }}
+            h={{ base: "32px", sm: "36px", md: "38px" }}
+            minW={{ base: "32px", sm: "36px", md: "38px" }}
+            borderRadius="10px"
+            bg="whiteAlpha.220"
+            border="1px solid rgba(255,255,255,0.18)"
+            _hover={{ bg: "whiteAlpha.350", transform: "scale(1.05)" }}
+            _active={{ bg: "whiteAlpha.450", transform: "scale(0.95)" }}
+            transition="all 0.15s ease"
             onClick={() => setOpenMobileSideDrawer(true)}
             icon={<FaBars />}
           />

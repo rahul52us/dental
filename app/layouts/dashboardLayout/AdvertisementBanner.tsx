@@ -1,17 +1,18 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { 
-  Box, 
-  Flex, 
-  Text, 
-  Heading, 
-  Badge, 
-  useColorModeValue, 
-  Tooltip, 
-  HStack, 
-  Icon, 
+import {
+  Box,
+  Flex,
+  Text,
+  Heading,
+  Badge,
+  useColorModeValue,
+  Tooltip,
+  HStack,
+  Icon,
   VStack,
   Circle,
-  Divider
+  Divider,
+  Avatar
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
@@ -53,10 +54,10 @@ const AdvertisementBanner = observer(() => {
   if (pathname !== '/dashboard' && pathname !== '/dashboard/advertisements') return null;
   if (ads.length === 0 && pathname !== '/dashboard') return null;
 
-  const daysRemaining = user?.companyDetails?.subscriptionEndDate 
+  const daysRemaining = user?.companyDetails?.subscriptionEndDate
     ? Math.ceil((new Date(user.companyDetails.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : 0;
-    
+
   const primaryColor = stores.themeStore.themeConfig.colors.custom.light.primary;
 
   // App-like surface colors
@@ -105,8 +106,8 @@ const AdvertisementBanner = observer(() => {
                   </Text>
 
                   {user?.companyDetails?.subscriptionEndDate && (
-                    <Tooltip 
-                      label="Renew your plan from Profile Settings to extend your subscription." 
+                    <Tooltip
+                      label="Renew your plan from Profile Settings to extend your subscription."
                       placement="bottom-start" hasArrow bg="gray.800" color="white" px={3} py={2} borderRadius="lg" fontSize="xs" fontWeight="600"
                     >
                       <Flex
@@ -156,7 +157,7 @@ const AdvertisementBanner = observer(() => {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <Box 
+                    <Box
                       bg={cardBg} rounded="2xl" borderWidth="1px" borderColor={cardBorder} boxShadow={cardShadow} p={2} pr={4} _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }} transition="all 0.3s ease-out"
                       cursor={ads[currentAdIndex].link ? "pointer" : "default"}
                       onClick={() => {
@@ -184,7 +185,7 @@ const AdvertisementBanner = observer(() => {
 
           {/* Desktop Bottom Ticker */}
           {ads.length > 0 && (
-            <Box 
+            <Box
               position="relative" borderRadius="2xl" overflow="hidden" bgGradient={`linear(to-r, ${primaryColor}, ${primaryColor}E6)`} boxShadow="md" py={3}
             >
               <Flex align="center" px={4}>
@@ -203,156 +204,174 @@ const AdvertisementBanner = observer(() => {
       </Box>
 
       {/* ========================================================= */}
-      {/* ==================== MOBILE VIEW (REDESIGNED) =========== */}
+      {/* ==================== MOBILE APK VIEW ==================== */}
       {/* ========================================================= */}
-      <Box display={{ base: "block", md: "none" }} mb={4} px={4} pt={4}>
-        <VStack align="stretch" spacing={4}>
-          
-          {/* 1. Mobile Hero Header (Gradient Card) */}
+      <Box display={{ base: "block", md: "none" }} mb={3} px={4} pt={3}>
+        <VStack align="stretch" spacing={3}>
+
+          {/* Unified Executive Hero Card (Welcome + Avatar + Pro Plan in One Card) */}
           {pathname === '/dashboard' ? (
             <MotionBox
-              p={5}
-              borderRadius="3xl"
-              bgGradient="linear(to-br, blue.600, purple.600)"
+              p={4}
+              borderRadius="28px"
+              bgGradient="linear(135deg, #0284C7 0%, #0D9488 50%, #1E40AF 100%)"
               color="white"
-              boxShadow="0 10px 25px -5px rgba(66, 153, 225, 0.4)"
+              boxShadow="0 12px 28px -6px rgba(14, 165, 233, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35)"
               position="relative"
               overflow="hidden"
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.35 }}
             >
-              <Circle position="absolute" size="140px" bg="whiteAlpha.100" right="-20px" bottom="-40px" />
-              <Circle position="absolute" size="90px" bg="whiteAlpha.100" left="-30px" top="-20px" />
+              {/* Ambient Glowing Glass Elements */}
+              <Circle position="absolute" size="140px" bg="whiteAlpha.150" right="-25px" bottom="-40px" filter="blur(16px)" />
+              <Circle position="absolute" size="90px" bg="cyan.300" opacity="0.2" left="-25px" top="-25px" filter="blur(20px)" />
 
               <Box position="relative" zIndex={1}>
-                <HStack justify="space-between" mb={3}>
-                  <Badge bg="whiteAlpha.300" color="white" rounded="full" px={2.5} py={0.5} fontSize="9px" fontWeight="800" backdropFilter="blur(10px)">
+                {/* Top Info Strip */}
+                <Flex justify="space-between" align="center" mb={2.5}>
+                  <Badge
+                    bg="whiteAlpha.250"
+                    color="white"
+                    rounded="full"
+                    px={2.5}
+                    py={0.5}
+                    fontSize="9px"
+                    fontWeight="800"
+                    backdropFilter="blur(8px)"
+                    border="1px solid"
+                    borderColor="whiteAlpha.300"
+                  >
                     {currentDate}
                   </Badge>
-                  <HStack spacing={1} color="whiteAlpha.800" fontSize="10px" fontWeight="700">
-                    <Icon as={FiCheckCircle} boxSize={3} />
-                    <Text>OVERVIEW</Text>
-                  </HStack>
-                </HStack>
 
-                <Heading size="xl" fontWeight="900" letterSpacing="tight" mb={1}>
-                  {t("dashboard.welcomeBack", { name: user?.name?.split(' ')[0] || "Admin" })}
-                </Heading>
-                <Text color="whiteAlpha.800" fontSize="sm" fontWeight="500">
-                  {t("dashboard.analyticsOverview")}
-                </Text>
-              </Box>
-            </MotionBox>
-          ) : (
-            <Box pt={2}>
-              <Text fontSize="10px" fontWeight="900" color={primaryColor} textTransform="uppercase" letterSpacing="widest" mb={1}>
-                Workspace
-              </Text>
-              <Heading size="lg" letterSpacing="tight" color={isDark ? "white" : "gray.800"} textTransform="capitalize" fontWeight="900">
-                {pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
-              </Heading>
-              <Text color="gray.500" fontWeight="600" mt={0.5} fontSize="xs">
-                Manage and oversee your clinic's {pathname.split('/').pop()?.replace(/-/g, ' ') || 'data'} efficiently.
-              </Text>
-            </Box>
-          )}
+                  {user?.companyDetails?.subscriptionEndDate ? (
+                    <HStack
+                      bg="whiteAlpha.250"
+                      backdropFilter="blur(8px)"
+                      px={2.5}
+                      py={0.5}
+                      rounded="full"
+                      border="1px solid"
+                      borderColor="whiteAlpha.300"
+                      spacing={1}
+                    >
+                      <Icon as={FiStar} color="yellow.300" boxSize={3} />
+                      <Text fontSize="9px" fontWeight="800" color="white" letterSpacing="0.3px">
+                        PRO • {daysRemaining}D LEFT
+                      </Text>
+                    </HStack>
+                  ) : (
+                    <HStack spacing={1} color="whiteAlpha.900" fontSize="9px" fontWeight="700">
+                      <Icon as={FiCheckCircle} boxSize={3} />
+                      <Text>PRACTICE ACTIVE</Text>
+                    </HStack>
+                  )}
+                </Flex>
 
-          {/* 2. Mobile Pro Plan Widget */}
-          {user?.companyDetails?.subscriptionEndDate && (
-            <Box 
-              bg={cardBg}
-              borderWidth="1px"
-              borderColor={cardBorder}
-              rounded="2xl"
-              p={3}
-              boxShadow="sm"
-            >
-              <Flex justify="space-between" align="center">
-                <HStack spacing={3}>
-                  <Circle size="32px" bg="purple.50" color="purple.500">
-                    <Icon as={FiStar} boxSize={4} />
-                  </Circle>
-                  <Box>
-                    <Text fontSize="xs" fontWeight="900" color={isDark ? "white" : "gray.800"}>PRO PLAN</Text>
-                    <Text fontSize="10px" color="gray.500" fontWeight="600">
-                      Until {new Date(user.companyDetails.subscriptionEndDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {/* Friendly Greeting with Avatar */}
+                <HStack spacing={3} align="center">
+                  <Avatar
+                    size="md"
+                    src={user?.pic?.url}
+                    name={user?.name || "Doctor"}
+                    borderRadius="2xl"
+                    border="2px solid white"
+                    boxShadow="0 4px 12px rgba(0,0,0,0.2)"
+                    flexShrink={0}
+                  />
+                  <Box flex="1" minW={0}>
+                    <Text fontSize="10px" fontWeight="800" color="whiteAlpha.800" textTransform="uppercase" letterSpacing="0.5px">
+                      CLINIC DASHBOARD
+                    </Text>
+                    <Heading
+                      fontSize={{ base: "17px", sm: "19px" }}
+                      fontWeight="900"
+                      letterSpacing="-0.3px"
+                      lineHeight="1.2"
+                      color="white"
+                      noOfLines={1}
+                    >
+                      Welcome, {user?.name?.split(' ')[0] || "Doctor"} 👋
+                    </Heading>
+                    <Text color="whiteAlpha.900" fontSize="11px" fontWeight="500" mt={0.5} noOfLines={1}>
+                      {t("dashboard.analyticsOverview")}
                     </Text>
                   </Box>
                 </HStack>
-                <Badge 
-                  colorScheme={daysRemaining > 7 ? "green" : "red"} 
-                  variant="subtle" 
-                  rounded="md" 
-                  px={2} py={1} 
-                  fontSize="9px"
-                  fontWeight="800"
-                >
-                  {daysRemaining} DAYS LEFT
-                </Badge>
-              </Flex>
+              </Box>
+            </MotionBox>
+          ) : (
+            <Box pt={1}>
+              <Text fontSize="10px" fontWeight="900" color={primaryColor} textTransform="uppercase" letterSpacing="widest" mb={0.5}>
+                Workspace
+              </Text>
+              <Heading size="md" letterSpacing="tight" color={isDark ? "white" : "gray.800"} textTransform="capitalize" fontWeight="900">
+                {pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
+              </Heading>
+              <Text color="gray.500" fontWeight="600" fontSize="xs">
+                Manage your clinic's {pathname.split('/').pop()?.replace(/-/g, ' ') || 'data'}.
+              </Text>
             </Box>
           )}
 
-          {/* 3. Mobile Sponsored Ad Widget */}
+          {/* Compact Sponsored Ad Pill (If Available) */}
           {ads[currentAdIndex]?.image?.url && (
-            <Box w="100%">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`mobile-ad-${currentAdIndex}`}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`mobile-ad-${currentAdIndex}`}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.25 }}
+              >
+                <Box
+                  bg={cardBg}
+                  rounded="2xl"
+                  borderWidth="1px"
+                  borderColor={cardBorder}
+                  boxShadow="sm"
+                  p={2}
+                  pr={3}
+                  cursor={ads[currentAdIndex].link ? "pointer" : "default"}
+                  onClick={() => {
+                    if (ads[currentAdIndex].link) window.open(ads[currentAdIndex].link, "_blank");
+                  }}
                 >
-                  <Box 
-                    bg={cardBg}
-                    rounded="2xl"
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    boxShadow="sm"
-                    p={2}
-                    pr={3}
-                    cursor={ads[currentAdIndex].link ? "pointer" : "default"}
-                    onClick={() => {
-                      if (ads[currentAdIndex].link) window.open(ads[currentAdIndex].link, "_blank");
-                    }}
-                  >
-                    <Flex align="center" gap={3}>
-                      <Box w="40px" h="40px" rounded="xl" overflow="hidden" flexShrink={0} borderWidth="1px" borderColor={cardBorder}>
-                        <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      </Box>
-                      <Box flex="1" minW={0}>
-                        <Text fontSize="9px" color="gray.400" fontWeight="800" textTransform="uppercase" letterSpacing="widest">
-                          Sponsored
-                        </Text>
-                        <Text fontSize="xs" fontWeight="800" color={isDark ? "white" : "gray.800"} noOfLines={1}>
-                          {ads[currentAdIndex].title || "Special Offer"}
-                        </Text>
-                      </Box>
-                      <Icon as={FiChevronRight} boxSize={4} color="gray.400" />
-                    </Flex>
-                  </Box>
-                </motion.div>
-              </AnimatePresence>
-            </Box>
+                  <Flex align="center" gap={3}>
+                    <Box w="36px" h="36px" rounded="xl" overflow="hidden" flexShrink={0} borderWidth="1px" borderColor={cardBorder}>
+                      <img src={ads[currentAdIndex].image.url} alt={ads[currentAdIndex].title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </Box>
+                    <Box flex="1" minW={0}>
+                      <Text fontSize="8px" color="blue.500" fontWeight="800" textTransform="uppercase" letterSpacing="widest">
+                        Sponsored
+                      </Text>
+                      <Text fontSize="xs" fontWeight="800" color={isDark ? "white" : "gray.800"} noOfLines={1}>
+                        {ads[currentAdIndex].title || "Special Offer"}
+                      </Text>
+                    </Box>
+                    <Icon as={FiChevronRight} boxSize={4} color="gray.400" />
+                  </Flex>
+                </Box>
+              </motion.div>
+            </AnimatePresence>
           )}
 
-          {/* 4. Mobile Bottom Ticker (Floating Pill) */}
+          {/* Compact Marquee Pill */}
           {ads.length > 0 && (
-            <Box 
-              position="relative" 
-              borderRadius="full" 
-              overflow="hidden" 
+            <Box
+              position="relative"
+              borderRadius="full"
+              overflow="hidden"
               bg={cardBg}
               borderWidth="1px"
               borderColor={cardBorder}
-              boxShadow="sm"
-              px={2}
-              py={1.5}
+              boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+              px={2.5}
+              py={1}
             >
               <Flex align="center">
-                <Circle size="20px" bg={primaryColor} color="white" mr={2} flexShrink={0}>
+                <Circle size="18px" bg="blue.500" color="white" mr={2} flexShrink={0}>
                   <Icon as={FiZap} boxSize={2.5} />
                 </Circle>
                 <Box overflow="hidden" whiteSpace="nowrap" w="100%" position="relative">

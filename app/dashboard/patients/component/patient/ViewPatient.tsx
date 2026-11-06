@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Text,
@@ -18,10 +18,18 @@ import {
   AccordionIcon,
   SimpleGrid,
   Icon,
+  Flex,
+  Avatar,
+  IconButton,
+  Button,
+  Tooltip,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { PhoneIcon, EmailIcon, CheckCircleIcon } from "@chakra-ui/icons";
+import { PhoneIcon, EmailIcon, CheckCircleIcon, CopyIcon } from "@chakra-ui/icons";
 import { MdSecurity, MdHealthAndSafety } from "react-icons/md";
+import { FiPhone, FiMail, FiMapPin, FiCalendar, FiUser, FiActivity, FiAlertCircle, FiCheck, FiCopy } from "react-icons/fi";
 import { useColorModeValue } from "@chakra-ui/react";
+import { copyToClipboard } from "../../../../config/utils/function";
 import ReferredPatientsList from "./ReferredPatientsList";
 
 // --- Info Item Component ---
@@ -462,6 +470,9 @@ const InsuranceItem = ({ insurance, bg, activeColor, activeHoverBg }: any) => {
 
 // --- Main ViewPatient Component ---
 const ViewPatient = ({ user }: any) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [copiedCode, setCopiedCode] = useState(false);
+
   const pageBg = useColorModeValue("gray.50", "gray.900");
   const sectionCardBg = useColorModeValue("white", "gray.800");
   const activeBg = useColorModeValue("linear-gradient(to bottom, teal.50, teal.100)", "linear-gradient(to bottom, teal.900, teal.800)");
@@ -472,6 +483,7 @@ const ViewPatient = ({ user }: any) => {
   const inactiveGroupBg = useColorModeValue("gray.100", "gray.600");
   const headingColor = useColorModeValue("gray.800", "gray.100");
   const textColor = useColorModeValue("gray.700", "gray.200");
+  const subTextColor = useColorModeValue("gray.500", "gray.400");
   const insuranceBg = useColorModeValue("gray.50", "gray.700");
   const activeColor = useColorModeValue("teal.600", "teal.300");
   const bg = useColorModeValue("gray.100", "gray.700");
@@ -481,6 +493,467 @@ const ViewPatient = ({ user }: any) => {
 
   const personalInfo = user;
 
+  // Phone extractor
+  const primaryPhone =
+    personalInfo.phones?.find((p: any) => p.primary)?.number ||
+    personalInfo.phones?.[0]?.number ||
+    personalInfo.mobile ||
+    personalInfo.phone;
+  
+  // Fallback to 10-digit code prefix if phone empty
+  const rawCodeMatch = personalInfo.code ? String(personalInfo.code).match(/^(\d{10})/) : null;
+  const resolvedPhone = primaryPhone || (rawCodeMatch ? rawCodeMatch[1] : null);
+
+  // Gender text
+  const genderText =
+    personalInfo.gender === 1 || personalInfo.gender === "1" || String(personalInfo.gender).toLowerCase() === "male"
+      ? "Male"
+      : personalInfo.gender === 2 || personalInfo.gender === "2" || String(personalInfo.gender).toLowerCase() === "female"
+      ? "Female"
+      : personalInfo.gender ? "Other" : null;
+
+  const handleCopyCode = () => {
+    if (personalInfo.code) {
+      copyToClipboard(personalInfo.code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
+  // ==============================================================
+  // MOBILE DEDICATED VIEW (< 768px)
+  // ==============================================================
+  if (isMobile) {
+    const cardBgColor = sectionCardBg;
+    const cardBorderColor = useColorModeValue("gray.100", "whiteAlpha.200");
+
+    // Collect valid basic info items
+    const validBasicFields = [
+      { label: "Date of Birth", value: personalInfo.dob },
+      { label: "Gender", value: genderText },
+      { label: "Languages", value: personalInfo.languages?.filter(Boolean).join(", ") },
+      { label: "Special Details", value: personalInfo.bio },
+      { label: "Username", value: personalInfo.username && personalInfo.username !== personalInfo.name ? personalInfo.username : null },
+    ].filter((item) => item.value && String(item.value).trim() !== "" && item.value !== "N/A");
+
+    return (
+      <Box p={3} pb="calc(80px + env(safe-area-inset-bottom, 16px))" bg={pageBg}>
+        {/* 1. Executive Profile Header Card */}
+        <Box
+          bg={cardBgColor}
+          borderRadius="24px"
+          p={4}
+          mb={3}
+          border="1px solid"
+          borderColor={cardBorderColor}
+          boxShadow="0 4px 20px rgba(0,0,0,0.04)"
+          position="relative"
+          overflow="hidden"
+        >
+          {/* Subtle Accent Glow */}
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            h="4px"
+            bgGradient="linear(to-r, #0EA5E9, #0D9488, #8B5CF6)"
+          />
+
+          <Flex align="center" gap={3.5} mb={3}>
+            <Avatar
+              size="lg"
+              name={personalInfo.name || "Patient"}
+              src={personalInfo.pic?.url}
+              bg="teal.500"
+              color="white"
+              fontWeight="900"
+              borderRadius="20px"
+              border="2px solid"
+              borderColor={useColorModeValue("white", "gray.700")}
+              boxShadow="0 4px 12px rgba(13, 148, 136, 0.25)"
+            />
+            <Box flex={1} minW={0}>
+              <Heading size="md" fontWeight="900" color={headingColor} noOfLines={1} letterSpacing="-0.3px">
+                {personalInfo.name || "Unnamed Patient"}
+              </Heading>
+
+              <HStack spacing={1.5} mt={1} wrap="wrap">
+                {personalInfo.code && (
+                  <Badge
+                    bg={useColorModeValue("blue.50", "blue.900")}
+                    color={useColorModeValue("blue.700", "blue.200")}
+                    borderRadius="full"
+                    px={2.5}
+                    py={0.5}
+                    fontSize="10px"
+                    fontWeight="800"
+                    cursor="pointer"
+                    onClick={handleCopyCode}
+                    _hover={{ opacity: 0.8 }}
+                  >
+                    #{personalInfo.code} {copiedCode ? "✓" : ""}
+                  </Badge>
+                )}
+
+                {genderText && (
+                  <Badge
+                    colorScheme={genderText === "Male" ? "blue" : genderText === "Female" ? "pink" : "purple"}
+                    borderRadius="full"
+                    px={2}
+                    py={0.5}
+                    fontSize="10px"
+                    fontWeight="750"
+                  >
+                    {genderText}
+                  </Badge>
+                )}
+
+                <Badge
+                  colorScheme="teal"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={2}
+                  py={0.5}
+                  fontSize="10px"
+                  fontWeight="750"
+                  textTransform="uppercase"
+                >
+                  {personalInfo.type || "Patient"}
+                </Badge>
+              </HStack>
+            </Box>
+          </Flex>
+
+          {/* Quick Action Contact Row */}
+          <Flex gap={2} pt={1}>
+            {resolvedPhone ? (
+              <Button
+                as="a"
+                href={`tel:${resolvedPhone}`}
+                flex={1}
+                size="sm"
+                bgGradient="linear(to-r, teal.500, teal.600)"
+                color="white"
+                _hover={{ bgGradient: "linear(to-r, teal.600, teal.700)" }}
+                _active={{ transform: "scale(0.98)" }}
+                leftIcon={<FiPhone />}
+                borderRadius="14px"
+                fontWeight="800"
+                fontSize="12px"
+                boxShadow="0 4px 12px rgba(13, 148, 136, 0.25)"
+              >
+                Call ({resolvedPhone.slice(-4)})
+              </Button>
+            ) : (
+              <Button
+                flex={1}
+                size="sm"
+                variant="outline"
+                isDisabled
+                leftIcon={<FiPhone />}
+                borderRadius="14px"
+                fontSize="12px"
+              >
+                No Phone
+              </Button>
+            )}
+
+            {personalInfo.code && (
+              <IconButton
+                aria-label="Copy Patient ID"
+                icon={<FiCopy />}
+                size="sm"
+                variant="outline"
+                borderColor={cardBorderColor}
+                borderRadius="14px"
+                color={textColor}
+                onClick={handleCopyCode}
+                title="Copy Patient ID"
+              />
+            )}
+          </Flex>
+        </Box>
+
+        {/* 2. Vital Patient Information Card */}
+        {validBasicFields.length > 0 && (
+          <Box
+            bg={cardBgColor}
+            borderRadius="20px"
+            p={4}
+            mb={3}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            boxShadow="0 2px 10px rgba(0,0,0,0.02)"
+          >
+            <HStack spacing={2} mb={3}>
+              <Box w="3px" h="14px" bg="blue.500" borderRadius="full" />
+              <Text fontSize="12px" fontWeight="900" color={headingColor} textTransform="uppercase" letterSpacing="0.5px">
+                Patient Details
+              </Text>
+            </HStack>
+
+            <SimpleGrid columns={2} spacing={2.5}>
+              {validBasicFields.map((field, idx) => (
+                <Box
+                  key={idx}
+                  p={2.5}
+                  bg={useColorModeValue("gray.50", "gray.700")}
+                  borderRadius="14px"
+                  border="1px solid"
+                  borderColor={useColorModeValue("gray.100", "gray.600")}
+                >
+                  <Text fontSize="10px" fontWeight="700" color={subTextColor} textTransform="uppercase">
+                    {field.label}
+                  </Text>
+                  <Text fontSize="13px" fontWeight="800" color={textColor} mt={0.5} noOfLines={2}>
+                    {field.value}
+                  </Text>
+                </Box>
+              ))}
+            </SimpleGrid>
+          </Box>
+        )}
+
+        {/* 3. Contact & Address Details */}
+        <Box
+          bg={cardBgColor}
+          borderRadius="20px"
+          p={4}
+          mb={3}
+          border="1px solid"
+          borderColor={cardBorderColor}
+          boxShadow="0 2px 10px rgba(0,0,0,0.02)"
+        >
+          <HStack spacing={2} mb={3}>
+            <Box w="3px" h="14px" bg="teal.500" borderRadius="full" />
+            <Text fontSize="12px" fontWeight="900" color={headingColor} textTransform="uppercase" letterSpacing="0.5px">
+              Contact & Address
+            </Text>
+          </HStack>
+
+          <VStack align="stretch" spacing={2}>
+            {/* Phone numbers */}
+            {personalInfo.phones?.length > 0 ? (
+              personalInfo.phones
+                .filter((p: any) => p?.number)
+                .map((p: any, idx: number) => (
+                  <Flex
+                    as="a"
+                    href={`tel:${p.number}`}
+                    key={idx}
+                    align="center"
+                    justify="space-between"
+                    p={2.5}
+                    bg={useColorModeValue("teal.50", "teal.900")}
+                    borderRadius="14px"
+                    border="1px solid"
+                    borderColor={useColorModeValue("teal.100", "teal.700")}
+                  >
+                    <HStack spacing={2.5}>
+                      <Icon as={FiPhone} color="teal.500" boxSize={4} />
+                      <Text fontSize="13px" fontWeight="800" color={useColorModeValue("teal.800", "teal.100")}>
+                        {p.number}
+                      </Text>
+                    </HStack>
+                    {p.primary && (
+                      <Badge colorScheme="green" variant="solid" borderRadius="full" px={2} fontSize="9px">
+                        Primary
+                      </Badge>
+                    )}
+                  </Flex>
+                ))
+            ) : resolvedPhone ? (
+              <Flex
+                as="a"
+                href={`tel:${resolvedPhone}`}
+                align="center"
+                justify="space-between"
+                p={2.5}
+                bg={useColorModeValue("teal.50", "teal.900")}
+                borderRadius="14px"
+                border="1px solid"
+                borderColor={useColorModeValue("teal.100", "teal.700")}
+              >
+                <HStack spacing={2.5}>
+                  <Icon as={FiPhone} color="teal.500" boxSize={4} />
+                  <Text fontSize="13px" fontWeight="800" color={useColorModeValue("teal.800", "teal.100")}>
+                    {resolvedPhone}
+                  </Text>
+                </HStack>
+                <Badge colorScheme="teal" borderRadius="full" px={2} fontSize="9px">
+                  Extracted
+                </Badge>
+              </Flex>
+            ) : (
+              <Text fontSize="12px" color={subTextColor} fontStyle="italic">
+                No phone number on record
+              </Text>
+            )}
+
+            {/* Email addresses */}
+            {personalInfo.emails?.filter((e: any) => e?.email).map((e: any, idx: number) => (
+              <Flex
+                as="a"
+                href={`mailto:${e.email}`}
+                key={idx}
+                align="center"
+                justify="space-between"
+                p={2.5}
+                bg={useColorModeValue("blue.50", "blue.900")}
+                borderRadius="14px"
+                border="1px solid"
+                borderColor={useColorModeValue("blue.100", "blue.700")}
+              >
+                <HStack spacing={2.5} minW={0} flex={1}>
+                  <Icon as={FiMail} color="blue.500" boxSize={4} flexShrink={0} />
+                  <Text fontSize="12px" fontWeight="700" color={useColorModeValue("blue.800", "blue.100")} noOfLines={1}>
+                    {e.email}
+                  </Text>
+                </HStack>
+                {e.primary && (
+                  <Badge colorScheme="blue" variant="solid" borderRadius="full" px={2} fontSize="9px" flexShrink={0} ml={2}>
+                    Primary
+                  </Badge>
+                )}
+              </Flex>
+            ))}
+
+            {/* Addresses */}
+            {personalInfo.addresses && (personalInfo.addresses.residential || personalInfo.addresses.office || personalInfo.addresses.other) && (
+              <VStack align="stretch" spacing={1.5} pt={1}>
+                {personalInfo.addresses.residential && (
+                  <Flex align="start" gap={2} p={2} bg={useColorModeValue("gray.50", "gray.700")} borderRadius="12px">
+                    <Icon as={FiMapPin} color="purple.500" boxSize={4} mt={0.5} flexShrink={0} />
+                    <Box>
+                      <Text fontSize="10px" fontWeight="750" color={subTextColor} textTransform="uppercase">Home Address</Text>
+                      <Text fontSize="12px" fontWeight="600" color={textColor}>{personalInfo.addresses.residential}</Text>
+                    </Box>
+                  </Flex>
+                )}
+                {personalInfo.addresses.office && (
+                  <Flex align="start" gap={2} p={2} bg={useColorModeValue("gray.50", "gray.700")} borderRadius="12px">
+                    <Icon as={FiMapPin} color="purple.500" boxSize={4} mt={0.5} flexShrink={0} />
+                    <Box>
+                      <Text fontSize="10px" fontWeight="750" color={subTextColor} textTransform="uppercase">Office Address</Text>
+                      <Text fontSize="12px" fontWeight="600" color={textColor}>{personalInfo.addresses.office}</Text>
+                    </Box>
+                  </Flex>
+                )}
+              </VStack>
+            )}
+          </VStack>
+        </Box>
+
+        {/* 4. Medical History & Alerts */}
+        <Box
+          bg={cardBgColor}
+          borderRadius="20px"
+          p={4}
+          mb={3}
+          border="1px solid"
+          borderColor={cardBorderColor}
+          boxShadow="0 2px 10px rgba(0,0,0,0.02)"
+        >
+          <HStack spacing={2} mb={3}>
+            <Box w="3px" h="14px" bg="red.500" borderRadius="full" />
+            <Text fontSize="12px" fontWeight="900" color={headingColor} textTransform="uppercase" letterSpacing="0.5px">
+              Clinical & Medical Alerts
+            </Text>
+          </HStack>
+
+          <RenderMedicalHistory
+            history={personalInfo.medicalHistory}
+            activeBg={activeBg}
+            inactiveBg={inactiveBg}
+            activeBorder={activeBorder}
+            inactiveBorder={inactiveBorder}
+            activeGroupBg={activeGroupBg}
+            inactiveGroupBg={inactiveGroupBg}
+            headingColor={headingColor}
+            activeColor={activeColor}
+            bg={bg}
+            activeHoverBg={activeHoverBg}
+            textColor={textColor}
+          />
+        </Box>
+
+        {/* 5. References & Insurances (If Present) */}
+        {personalInfo.references?.length > 0 && (
+          <Box
+            bg={cardBgColor}
+            borderRadius="20px"
+            p={4}
+            mb={3}
+            border="1px solid"
+            borderColor={cardBorderColor}
+          >
+            <HStack spacing={2} mb={2.5}>
+              <Box w="3px" h="14px" bg="purple.500" borderRadius="full" />
+              <Text fontSize="12px" fontWeight="900" color={headingColor} textTransform="uppercase">
+                References ({personalInfo.references.length})
+              </Text>
+            </HStack>
+            <VStack align="stretch" spacing={2}>
+              {personalInfo.references.map((ref: any, idx: number) => (
+                <Box key={idx} p={2.5} bg={useColorModeValue("purple.50", "purple.900")} borderRadius="12px">
+                  <Text fontSize="12px" fontWeight="800" color={useColorModeValue("purple.800", "purple.200")}>
+                    {ref.refrenceBy?.label || ref.refrenceBy?.name || ref.refrenceBy?.username || "Reference"}
+                  </Text>
+                  {ref.refrenceNote && (
+                    <Text fontSize="11px" color={subTextColor} mt={0.5}>
+                      Note: {ref.refrenceNote}
+                    </Text>
+                  )}
+                </Box>
+              ))}
+            </VStack>
+          </Box>
+        )}
+
+        {personalInfo.insurances?.length > 0 && (
+          <Box
+            bg={cardBgColor}
+            borderRadius="20px"
+            p={4}
+            mb={3}
+            border="1px solid"
+            borderColor={cardBorderColor}
+          >
+            <HStack spacing={2} mb={2.5}>
+              <Box w="3px" h="14px" bg="green.500" borderRadius="full" />
+              <Text fontSize="12px" fontWeight="900" color={headingColor} textTransform="uppercase">
+                Insurance Coverage
+              </Text>
+            </HStack>
+            <VStack align="stretch" spacing={2}>
+              {personalInfo.insurances.map((ins: any, idx: number) => (
+                <Box key={idx} p={2.5} bg={useColorModeValue("green.50", "green.900")} borderRadius="12px">
+                  <Text fontSize="12px" fontWeight="800" color={useColorModeValue("green.800", "green.200")}>
+                    {ins.type || "Insurance Plan"}
+                  </Text>
+                  {ins.amountInsured && (
+                    <Text fontSize="11px" color={subTextColor}>
+                      Insured Amount: ₹{ins.amountInsured}
+                    </Text>
+                  )}
+                </Box>
+              ))}
+            </VStack>
+          </Box>
+        )}
+
+        {/* 6. Referred Patients Section */}
+        <Box mt={2}>
+          <ReferredPatientsList userId={personalInfo._id} />
+        </Box>
+      </Box>
+    );
+  }
+
+  // ==============================================================
+  // DESKTOP VIEW (>= 768px) - 100% UNCHANGED
+  // ==============================================================
   return (
     <Box p={4} bg={pageBg}>
       {/* Profile Header */}
@@ -643,7 +1116,6 @@ const ViewPatient = ({ user }: any) => {
                   <Text fontWeight="bold" color="teal.600">
                     {ref.refrenceBy?.label || ref.refrenceBy?.name || ref.refrenceBy?.username || "N/A"}
                   </Text>
-
                 </HStack>
                 {ref.refrenceNote && (
                   <Text fontSize="sm" color="gray.600" mt={1}>
