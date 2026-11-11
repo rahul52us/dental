@@ -19,6 +19,7 @@ import { observer } from 'mobx-react-lite';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { FiStar, FiZap, FiChevronRight, FiCheckCircle } from 'react-icons/fi';
+import { FaTooth } from 'react-icons/fa';
 import stores from '../../store/stores';
 
 const marqueeStyle = `marqueeAnimation 25s linear infinite`;
@@ -212,11 +213,11 @@ const AdvertisementBanner = observer(() => {
           {/* Unified Executive Hero Card (Welcome + Avatar + Pro Plan in One Card) */}
           {pathname === '/dashboard' ? (
             <MotionBox
-              p={4}
-              borderRadius="28px"
-              bgGradient="linear(135deg, #0284C7 0%, #0D9488 50%, #1E40AF 100%)"
+              p={{ base: 4, sm: 4.5 }}
+              borderRadius="26px"
+              bgGradient="linear(135deg, #123B50 0%, #11756F 58%, #3159A4 100%)"
               color="white"
-              boxShadow="0 12px 28px -6px rgba(14, 165, 233, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35)"
+              boxShadow="0 14px 28px -8px rgba(19, 84, 105, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.24)"
               position="relative"
               overflow="hidden"
               initial={{ opacity: 0, y: -8 }}
@@ -224,36 +225,46 @@ const AdvertisementBanner = observer(() => {
               transition={{ duration: 0.35 }}
             >
               {/* Ambient Glowing Glass Elements */}
-              <Circle position="absolute" size="140px" bg="whiteAlpha.150" right="-25px" bottom="-40px" filter="blur(16px)" />
-              <Circle position="absolute" size="90px" bg="cyan.300" opacity="0.2" left="-25px" top="-25px" filter="blur(20px)" />
+              <Circle position="absolute" size="150px" bg="whiteAlpha.150" right="-36px" bottom="-58px" />
+              <Circle position="absolute" size="92px" bg="cyan.300" opacity="0.15" left="-28px" top="-30px" />
+              <Icon
+                as={FaTooth}
+                position="absolute"
+                right="13px"
+                bottom="-12px"
+                boxSize="82px"
+                color="whiteAlpha.200"
+                transform="rotate(-18deg)"
+              />
 
               <Box position="relative" zIndex={1}>
                 {/* Top Info Strip */}
-                <Flex justify="space-between" align="center" mb={2.5}>
+                <Flex justify="space-between" align="center" mb={3}>
                   <Badge
-                    bg="whiteAlpha.250"
+                    bg="rgba(255,255,255,0.16)"
                     color="white"
                     rounded="full"
                     px={2.5}
-                    py={0.5}
+                    py={1}
                     fontSize="9px"
                     fontWeight="800"
                     backdropFilter="blur(8px)"
                     border="1px solid"
-                    borderColor="whiteAlpha.300"
+                    borderColor="whiteAlpha.400"
+                    letterSpacing="0.35px"
                   >
                     {currentDate}
                   </Badge>
 
                   {user?.companyDetails?.subscriptionEndDate ? (
                     <HStack
-                      bg="whiteAlpha.250"
+                      bg="rgba(255,255,255,0.16)"
                       backdropFilter="blur(8px)"
                       px={2.5}
-                      py={0.5}
+                      py={1}
                       rounded="full"
                       border="1px solid"
-                      borderColor="whiteAlpha.300"
+                      borderColor="whiteAlpha.400"
                       spacing={1}
                     >
                       <Icon as={FiStar} color="yellow.300" boxSize={3} />
@@ -262,9 +273,9 @@ const AdvertisementBanner = observer(() => {
                       </Text>
                     </HStack>
                   ) : (
-                    <HStack spacing={1} color="whiteAlpha.900" fontSize="9px" fontWeight="700">
-                      <Icon as={FiCheckCircle} boxSize={3} />
-                      <Text>PRACTICE ACTIVE</Text>
+                    <HStack spacing={1.5} color="whiteAlpha.900" fontSize="9px" fontWeight="700">
+                      <Box w="6px" h="6px" rounded="full" bg="#86EFAC" boxShadow="0 0 8px rgba(134,239,172,0.8)" />
+                      <Text>CLINIC ACTIVE</Text>
                     </HStack>
                   )}
                 </Flex>
@@ -275,26 +286,26 @@ const AdvertisementBanner = observer(() => {
                     size="md"
                     src={user?.pic?.url}
                     name={user?.name || "Doctor"}
-                    borderRadius="2xl"
-                    border="2px solid white"
-                    boxShadow="0 4px 12px rgba(0,0,0,0.2)"
+                    borderRadius="16px"
+                    border="2px solid rgba(255,255,255,0.82)"
+                    boxShadow="0 6px 16px rgba(0,0,0,0.2)"
                     flexShrink={0}
                   />
                   <Box flex="1" minW={0}>
-                    <Text fontSize="10px" fontWeight="800" color="whiteAlpha.800" textTransform="uppercase" letterSpacing="0.5px">
+                    <Text fontSize="9px" fontWeight="800" color="whiteAlpha.800" textTransform="uppercase" letterSpacing="1px">
                       CLINIC DASHBOARD
                     </Text>
                     <Heading
-                      fontSize={{ base: "17px", sm: "19px" }}
+                      fontSize={{ base: "18px", sm: "20px" }}
                       fontWeight="900"
-                      letterSpacing="-0.3px"
+                      letterSpacing="-0.5px"
                       lineHeight="1.2"
                       color="white"
                       noOfLines={1}
                     >
-                      Welcome, {user?.name?.split(' ')[0] || "Doctor"} 👋
+                      Good day, {user?.name?.split(' ')[0] || "Doctor"}
                     </Heading>
-                    <Text color="whiteAlpha.900" fontSize="11px" fontWeight="500" mt={0.5} noOfLines={1}>
+                    <Text color="whiteAlpha.900" fontSize="10px" fontWeight="500" mt={1} noOfLines={1}>
                       {t("dashboard.analyticsOverview")}
                     </Text>
                   </Box>

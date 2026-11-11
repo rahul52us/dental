@@ -442,11 +442,11 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
   return (
     <>
       {isMobile ? (
-        <Box p={3} pb="calc(80px + env(safe-area-inset-bottom, 16px))">
+        <Box p={{ base: 2, sm: 3 }} pb="calc(88px + env(safe-area-inset-bottom, 16px))">
           {/* Summary Card for Patient */}
           {patientDetails && (
             <Box
-              p={3.5}
+              p={{ base: 3, sm: 4 }}
               borderRadius="20px"
               bg={useColorModeValue("blue.50", "rgba(59, 130, 246, 0.12)")}
               border="1px solid"
@@ -456,15 +456,15 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               <Text fontSize="13px" fontWeight="800" color={useColorModeValue("blue.900", "blue.100")} mb={1.5} noOfLines={1}>
                 {patientDetails?.name || "Patient"} Appointments
               </Text>
-              <HStack spacing={2} wrap="wrap">
-                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px">
-                  Cancelled: {patientStatus.cancelled}
+              <HStack spacing={2} wrap="wrap" rowGap={2}>
+                <Badge colorScheme="red" variant="subtle" borderRadius="full" px={2.5} py={1} fontSize="11px">
+                  Cancelled · {patientStatus.cancelled}
                 </Badge>
-                <Badge colorScheme="purple" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px">
-                  Shift: {patientStatus.shift}
+                <Badge colorScheme="purple" variant="subtle" borderRadius="full" px={2.5} py={1} fontSize="11px">
+                  Shifted · {patientStatus.shift}
                 </Badge>
-                <Badge colorScheme="gray" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="10px">
-                  No-show: {patientStatus["no-show"]}
+                <Badge colorScheme="gray" variant="subtle" borderRadius="full" px={2.5} py={1} fontSize="11px">
+                  No-show · {patientStatus["no-show"]}
                 </Badge>
               </HStack>
             </Box>
@@ -480,12 +480,14 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               borderRadius="16px"
               border="1px solid"
               borderColor={useColorModeValue("gray.200", "gray.700")}
+              minH="46px"
             >
               <Icon as={FiSearch} color="gray.400" />
               <Input
                 variant="unstyled"
                 placeholder="Search appointments..."
                 fontSize="13px"
+                minH="44px"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -501,6 +503,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                 fontWeight="800"
                 fontSize="12px"
                 px={3}
+                minH="46px"
                 onClick={() => setOpenReportModal({ open: true, type: "add" })}
               >
                 + Add
@@ -567,7 +570,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                     key={dt._id || idx}
                     bg={useColorModeValue("white", "gray.800")}
                     borderRadius="18px"
-                    p={3.5}
+                    p={{ base: 3, sm: 4 }}
                     border="1px solid"
                     borderColor={useColorModeValue("gray.150", "whiteAlpha.150")}
                     boxShadow="0 2px 8px rgba(0,0,0,0.03)"
@@ -599,7 +602,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                       {dt?.title || "Clinical Consultation"}
                     </Text>
 
-                    <HStack spacing={2} fontSize="11px" color={useColorModeValue("gray.600", "gray.400")} mb={2.5}>
+                    <HStack spacing={2} fontSize="12px" color={useColorModeValue("gray.600", "gray.400")} mb={2.5} wrap="wrap" rowGap={1}>
                       <Text fontWeight="600">
                         ⏰ {dt.startTime || "--"} - {dt?.endTime || "--"}
                       </Text>
@@ -610,11 +613,13 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                     </HStack>
 
                     {/* Bottom Action Buttons */}
-                    <Flex justify="space-between" align="center" pt={2} borderTop="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.100")}>
-                      <HStack spacing={2}>
+                    <Flex justify="space-between" align="center" pt={2} borderTop="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.100")} gap={2} wrap="wrap">
+                      <HStack spacing={2} flex={1}>
                         {stores.auth.hasPermission('appointment', 'view') && (
                           <Button
-                            size="xs"
+                            size="sm"
+                            minH="44px"
+                            flex={1}
                             variant="ghost"
                             colorScheme="blue"
                             borderRadius="lg"
@@ -626,7 +631,9 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                         )}
                         {stores.auth.hasPermission('appointment', 'edit') && (
                           <Button
-                            size="xs"
+                            size="sm"
+                            minH="44px"
+                            flex={1}
                             variant="ghost"
                             colorScheme="teal"
                             borderRadius="lg"
@@ -647,7 +654,8 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
 
                       {stores.auth.hasPermission('appointment', 'view') && (
                         <Button
-                          size="xs"
+                          size="sm"
+                          minH="44px"
                           variant="subtle"
                           colorScheme="purple"
                           borderRadius="full"
@@ -671,7 +679,8 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               {appointments.totalPages > 1 && (
                 <Flex justify="space-between" align="center" pt={2}>
                   <Button
-                    size="xs"
+                    size="sm"
+                    minH="44px"
                     isDisabled={currentPage <= 1}
                     onClick={() => handleChangePage(currentPage - 1)}
                   >
@@ -681,7 +690,8 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                     Page {currentPage} of {appointments.totalPages}
                   </Text>
                   <Button
-                    size="xs"
+                    size="sm"
+                    minH="44px"
                     isDisabled={currentPage >= appointments.totalPages}
                     onClick={() => handleChangePage(currentPage + 1)}
                   >

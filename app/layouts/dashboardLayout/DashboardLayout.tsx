@@ -166,7 +166,7 @@ const ContentContainer = styled.div<{
 }>`
   padding: ${({ $isMobile }) =>
     $isMobile
-      ? `${contentSmallBodyPadding} ${contentSmallBodyPadding} calc(72px + env(safe-area-inset-bottom, 0px)) ${contentSmallBodyPadding}`
+      ? `${contentSmallBodyPadding} ${contentSmallBodyPadding} calc(80px + env(safe-area-inset-bottom, 0px)) ${contentSmallBodyPadding}`
       : `${contentLargeBodyPadding}`};
   width: ${({ $isMobile }) =>
     $isMobile ? '100vw' : `calc(100vw - ${mediumSidebarWidth})`};

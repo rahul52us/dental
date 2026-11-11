@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState, useMemo } from "react";
@@ -53,7 +53,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
       borderColor="gray.300"
       borderRadius="lg"
       bg="white"
-      w="100px"
+      w={{ base: "120px", md: "100px" }}
       overflow="hidden"
       _focusWithin={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
     >
@@ -68,9 +68,9 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
           if (e.key === "Enter") handleSave();
         }}
         px={2}
-        h="32px"
+        h={{ base: "40px", md: "32px" }}
       />
-      <Divider orientation="vertical" h="20px" borderColor="gray.300" />
+      <Divider orientation="vertical"       h={{ base: "24px", md: "20px" }} borderColor="gray.300" />
       <IconButton
         size="sm"
         variant="ghost"
@@ -79,8 +79,8 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         colorScheme="blue"
         onClick={handleSave}
         isDisabled={loading || val === String(dt.sittingNo)}
-        minW="32px"
-        h="32px"
+        minW={{ base: "40px", md: "32px" }}
+        h={{ base: "40px", md: "32px" }}
         borderRadius="0"
         _hover={{ bg: "blue.50", color: "blue.600" }}
       />
@@ -90,6 +90,19 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
 
 const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const mobileCardBg = useColorModeValue("white", "gray.800");
+  const mobileCardShadow = useColorModeValue(
+    "0 8px 24px -14px rgba(15, 23, 42, 0.3)",
+    "0 8px 24px -14px rgba(0, 0, 0, 0.8)"
+  );
+  const mobileBorderColor = useColorModeValue("gray.100", "whiteAlpha.200");
+  const mobileDateColor = useColorModeValue("gray.500", "gray.400");
+  const mobileToothBg = useColorModeValue("blue.50", "blue.900");
+  const mobileToothBorder = useColorModeValue("blue.200", "blue.700");
+  const mobileToothText = useColorModeValue("blue.800", "blue.100");
+  const mobileToothLabel = useColorModeValue("blue.600", "blue.200");
+  const mobileText = useColorModeValue("gray.900", "white");
+  const mobileMutedText = useColorModeValue("gray.600", "gray.300");
   const {
     toothTreatmentStore: { getToothTreatments, toothTreatment, deleteToothTreatment },
     auth: { openNotification, userType },
@@ -654,18 +667,18 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
       return (
         <Box
           key={dt._id}
-          bg="white"
-          p={3.5}
-          borderRadius="24px"
-          shadow="sm"
+          bg={mobileCardBg}
+          p={{ base: 3, sm: 4 }}
+          borderRadius="22px"
+          shadow={mobileCardShadow}
           border="1px solid"
-          borderColor="gray.150"
+          borderColor={mobileBorderColor}
           position="relative"
           mb={3}
         >
           {/* 1. Header Bar: Date & Status Badges */}
           <Flex justify="space-between" align="center" mb={2.5} wrap="wrap" gap={1.5}>
-            <Text fontSize="11px" fontWeight="800" color="gray.400" letterSpacing="0.05em" textTransform="uppercase">
+            <Text fontSize="12px" fontWeight="800" color={mobileDateColor} letterSpacing="0.05em" textTransform="uppercase">
               📅 {formatDate(dt.treatmentDate)}
             </Text>
 
@@ -700,23 +713,23 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             <VStack
               align="center"
               justify="center"
-              bg="blue.50"
+              bg={mobileToothBg}
               border="1.5px solid"
-              borderColor="blue.300"
+              borderColor={mobileToothBorder}
               borderRadius="18px"
               p={2}
               minW="68px"
               maxW="68px"
               flexShrink={0}
             >
-              <Text fontSize="22px" fontWeight="900" color="blue.800" lineHeight="1" my={1}>
+              <Text fontSize="22px" fontWeight="900" color={mobileToothText} lineHeight="1" my={1}>
                 {displayToothFDI === "General" || toothValue === "General" ? "GEN" : (displayToothFDI || toothValue || "??")}
               </Text>
-              <Text fontSize="8px" fontWeight="900" color="blue.600" textTransform="uppercase" textAlign="center" noOfLines={1}>
+              <Text fontSize="9px" fontWeight="900" color={mobileToothLabel} textTransform="uppercase" textAlign="center" noOfLines={1}>
                 {line1}
               </Text>
               {line2 && (
-                <Text fontSize="7px" fontWeight="800" color="gray.500" textTransform="uppercase" textAlign="center" noOfLines={1}>
+                <Text fontSize="8px" fontWeight="800" color={mobileDateColor} textTransform="uppercase" textAlign="center" noOfLines={1}>
                   {line2}
                 </Text>
               )}
@@ -729,11 +742,11 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   {dt.generalTitle}
                 </Badge>
               )}
-              <Text fontSize="15px" fontWeight="800" color="gray.900" lineHeight="1.3">
+              <Text fontSize="15px" fontWeight="800" color={mobileText} lineHeight="1.3">
                 {dt.treatmentPlan || "General Consultation"}
               </Text>
               {dt.notes && (
-                <Text fontSize="12px" color="gray.600" fontStyle="italic" mt={1} noOfLines={2}>
+                <Text fontSize="12px" color={mobileMutedText} fontStyle="italic" mt={1} noOfLines={2}>
                   "{dt.notes}"
                 </Text>
               )}
@@ -796,7 +809,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
           >
             {/* Add Work Done Action */}
             <Button
-              size="xs"
+              size="sm"
+              minH="44px"
               colorScheme="orange"
               bgGradient="linear(to-r, orange.400, orange.500)"
               color="white"
@@ -817,7 +831,9 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             <HStack spacing={1}>
               {stores.auth.hasPermission('treatment', 'view') && (
                 <IconButton
-                  size="xs"
+                  size="sm"
+                  minW="44px"
+                  h="44px"
                   variant="ghost"
                   colorScheme="blue"
                   icon={<FiEye />}
@@ -827,7 +843,9 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               )}
               {stores.auth.hasPermission('treatment', 'edit') && (
                 <IconButton
-                  size="xs"
+                  size="sm"
+                  minW="44px"
+                  h="44px"
                   variant="ghost"
                   colorScheme="teal"
                   icon={<FiEdit3 />}
@@ -837,7 +855,9 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               )}
               {stores.auth.hasPermission('treatment', 'delete') && (
                 <IconButton
-                  size="xs"
+                  size="sm"
+                  minW="44px"
+                  h="44px"
                   variant="ghost"
                   colorScheme="red"
                   icon={<FiTrash2 />}
@@ -1086,7 +1106,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
   return (
     <>
       <Tabs
-        variant="line"
+        variant={isMobile ? "soft-rounded" : "line"}
         colorScheme="blue"
         index={activeTab}
         onChange={(idx) => {
@@ -1097,29 +1117,35 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
         }}
         isLazy
         lazyBehavior="unmount"
+        isFitted={!!isMobile}
       >
         <TabList
-          mb={0}
-          borderBottom="2px solid"
-          borderColor="gray.100"
-          px={{ base: 1, md: 2 }}
+          mb={{ base: 3, md: 0 }}
+          borderBottom={{ base: "none", md: "2px solid" }}
+          borderColor={useColorModeValue("gray.100", "gray.700")}
+          bg={isMobile ? useColorModeValue("gray.100", "gray.800") : "transparent"}
+          borderRadius={isMobile ? "16px" : "none"}
+          p={isMobile ? 1 : 0}
           display="flex"
           w="100%"
+          gap={1}
         >
           <Tab
             flex={{ base: 1, md: "initial" }}
             fontWeight="bold"
-            fontSize={{ base: "11px", sm: "13px", md: "14px" }}
-            px={{ base: 1, sm: 5, md: 6 }}
-            py={{ base: 2.5, md: 3 }}
+            fontSize={{ base: "10px", sm: "12px", md: "14px" }}
+            px={{ base: 1, sm: 4, md: 6 }}
+            py={{ base: 3, md: 3 }}
             textAlign="center"
             whiteSpace="nowrap"
+            minH="44px"
             _selected={{
               color: "blue.700",
-              borderColor: "blue.600",
-              borderBottomWidth: "3px",
-              bg: "blue.50",
-              borderTopRadius: "lg",
+              borderColor: isMobile ? "transparent" : "blue.600",
+              borderBottomWidth: isMobile ? 0 : "3px",
+              bg: isMobile ? "white" : "blue.50",
+              borderRadius: isMobile ? "12px" : "lg",
+              boxShadow: isMobile ? "sm" : "none",
             }}
           >
             New Advise
@@ -1127,17 +1153,19 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
           <Tab
             flex={{ base: 1, md: "initial" }}
             fontWeight="bold"
-            fontSize={{ base: "11px", sm: "13px", md: "14px" }}
-            px={{ base: 1, sm: 5, md: 6 }}
+            fontSize={{ base: "10px", sm: "12px", md: "14px" }}
+            px={{ base: 1, sm: 4, md: 6 }}
             py={{ base: 2.5, md: 3 }}
             textAlign="center"
             whiteSpace="nowrap"
+            minH="44px"
             _selected={{
               color: "blue.700",
-              borderColor: "blue.600",
-              borderBottomWidth: "3px",
-              bg: "blue.50",
-              borderTopRadius: "lg",
+              borderColor: isMobile ? "transparent" : "blue.600",
+              borderBottomWidth: isMobile ? 0 : "3px",
+              bg: isMobile ? "white" : "blue.50",
+              borderRadius: isMobile ? "12px" : "lg",
+              boxShadow: isMobile ? "sm" : "none",
             }}
           >
             Plans History
@@ -1145,17 +1173,19 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
           <Tab
             flex={{ base: 1, md: "initial" }}
             fontWeight="bold"
-            fontSize={{ base: "11px", sm: "13px", md: "14px" }}
-            px={{ base: 1, sm: 5, md: 6 }}
+            fontSize={{ base: "10px", sm: "12px", md: "14px" }}
+            px={{ base: 1, sm: 4, md: 6 }}
             py={{ base: 2.5, md: 3 }}
             textAlign="center"
             whiteSpace="nowrap"
+            minH="44px"
             _selected={{
               color: "blue.700",
-              borderColor: "blue.600",
-              borderBottomWidth: "3px",
-              bg: "blue.50",
-              borderTopRadius: "lg",
+              borderColor: isMobile ? "transparent" : "blue.600",
+              borderBottomWidth: isMobile ? 0 : "3px",
+              bg: isMobile ? "white" : "blue.50",
+              borderRadius: isMobile ? "12px" : "lg",
+              boxShadow: isMobile ? "sm" : "none",
             }}
           >
             Work History
@@ -1233,7 +1263,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                               ...base,
                               borderRadius: 'full',
                               borderColor: '#E2E8F0',
-                              minHeight: '38px',
+                              minHeight: '44px',
                               fontSize: '13px',
                               boxShadow: 'none',
                               '&:hover': {
@@ -1255,7 +1285,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                         value={complaintTypeFilter}
                         onChange={(e) => setComplaintTypeFilter(e.target.value)}
                         style={{
-                          width: '100%', height: '38px', borderRadius: '16px',
+                          width: '100%', height: '44px', borderRadius: '14px',
                           padding: '0 12px', fontSize: '13px', border: '1px solid #E2E8F0',
                           background: 'white', fontWeight: '700', color: '#4A5568',
                           outline: 'none', cursor: 'pointer'
@@ -1273,7 +1303,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         style={{
-                          width: '100%', height: '38px', borderRadius: '16px',
+                          width: '100%', height: '44px', borderRadius: '14px',
                           padding: '0 12px', fontSize: '13px', border: '1px solid #E2E8F0',
                           background: 'white', fontWeight: '700', color: '#4A5568',
                           outline: 'none', cursor: 'pointer'
@@ -1293,7 +1323,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   <HStack spacing={2} wrap="wrap">
                     {selectedDateFilter && (
                       <Button
-                        size={{ base: "xs", md: "sm" }}
+                        size="sm"
+                        minH={{ base: "44px", md: "36px" }}
                         colorScheme="red"
                         variant="outline"
                         borderRadius="xl"
@@ -1304,7 +1335,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     )}
                     <Button
                       leftIcon={<FiRefreshCw />}
-                      size={{ base: "xs", md: "sm" }}
+                      size="sm"
+                      minH={{ base: "44px", md: "36px" }}
                       colorScheme="blue"
                       variant="outline"
                       borderRadius="xl"
@@ -1315,7 +1347,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     </Button>
                     {stores.auth.hasPermission('treatment', 'view') && (
                       <Button
-                        size={{ base: "xs", md: "sm" }}
+                        size="sm"
+                        minH={{ base: "44px", md: "36px" }}
                         colorScheme="purple"
                         variant="solid"
                         borderRadius="xl"
@@ -1338,7 +1371,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     )}
                     {stores.auth.hasPermission('treatment', 'download') && (
                       <Button
-                        size={{ base: "xs", md: "sm" }}
+                        size="sm"
+                        minH={{ base: "44px", md: "36px" }}
                         colorScheme="orange"
                         variant="solid"
                         borderRadius="xl"
@@ -1357,7 +1391,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
 
                   <HStack bg="gray.100" p={1} borderRadius="xl" ml="auto">
                     <IconButton
-                      size={{ base: "xs", md: "sm" }}
+                      size="sm"
+                      minH={{ base: "44px", md: "36px" }}
                       variant={isTableView === "card" ? "solid" : "ghost"}
                       colorScheme={isTableView === "card" ? "blue" : "gray"}
                       icon={<FiGrid />}
@@ -1365,7 +1400,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                       aria-label="Grid View"
                     />
                     <IconButton
-                      size={{ base: "xs", md: "sm" }}
+                      size="sm"
+                      minH={{ base: "44px", md: "36px" }}
                       variant={isTableView === "table" ? "solid" : "ghost"}
                       colorScheme={isTableView === "table" ? "blue" : "gray"}
                       icon={<FiList />}

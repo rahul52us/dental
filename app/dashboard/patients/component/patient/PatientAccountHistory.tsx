@@ -601,10 +601,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         {isMobile ? (
           <Box mb={4}>
             <Flex justify="space-between" align="center" mb={2} px={1}>
-              <Text fontSize="10px" fontWeight="900" color="gray.500" letterSpacing="0.1em">
+              <Text fontSize="11px" fontWeight="900" color="gray.500" letterSpacing="0.1em">
                 {doctorFilter === 'all' ? 'ACCOUNT SUMMARY' : 'FILTERED BY DOCTOR'}
               </Text>
-              <Badge colorScheme={doctorFilter === 'all' ? 'teal' : 'blue'} variant="subtle" fontSize="9px" px={2} borderRadius="full">
+              <Badge colorScheme={doctorFilter === 'all' ? 'teal' : 'blue'} variant="subtle" fontSize="10px" px={2.5} py={1} borderRadius="full">
                 {doctorFilter === 'all' ? 'OVERALL' : 'DOCTOR VIEW'}
               </Badge>
             </Flex>
@@ -619,7 +619,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 borderColor={useColorModeValue('purple.100', 'purple.800')}
                 textAlign="center"
               >
-                <Text fontSize="9px" fontWeight="800" color={useColorModeValue('purple.600', 'purple.300')} textTransform="uppercase">
+                <Text fontSize="10px" fontWeight="800" color={useColorModeValue('purple.600', 'purple.300')} textTransform="uppercase">
                   Total Bill
                 </Text>
                 {workDoneStore.overallStats.loading ? (
@@ -629,7 +629,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     ₹{(workDoneStore.overallStats.totalBill || 0).toLocaleString('en-IN')}
                   </Text>
                 )}
-                <Text fontSize="8px" fontWeight="700" color="purple.400" noOfLines={1}>Revenue</Text>
+                <Text fontSize="10px" fontWeight="700" color="purple.400" noOfLines={1}>Revenue</Text>
               </Box>
 
               {/* 2. Collected */}
@@ -641,7 +641,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 borderColor={useColorModeValue('teal.100', 'teal.800')}
                 textAlign="center"
               >
-                <Text fontSize="9px" fontWeight="800" color={useColorModeValue('teal.600', 'teal.300')} textTransform="uppercase">
+                <Text fontSize="10px" fontWeight="800" color={useColorModeValue('teal.600', 'teal.300')} textTransform="uppercase">
                   Collected
                 </Text>
                 {workDoneStore.overallStats.loading ? (
@@ -651,7 +651,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     ₹{((workDoneStore.overallStats.totalBill - workDoneStore.overallStats.patientPending) || 0).toLocaleString('en-IN')}
                   </Text>
                 )}
-                <Text fontSize="8px" fontWeight="700" color="teal.500" noOfLines={1}>Received</Text>
+                <Text fontSize="10px" fontWeight="700" color="teal.500" noOfLines={1}>Received</Text>
               </Box>
 
               {/* 3. Outstanding */}
@@ -663,7 +663,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 borderColor={useColorModeValue('pink.100', 'pink.800')}
                 textAlign="center"
               >
-                <Text fontSize="9px" fontWeight="800" color={useColorModeValue('pink.600', 'pink.300')} textTransform="uppercase">
+                <Text fontSize="10px" fontWeight="800" color={useColorModeValue('pink.600', 'pink.300')} textTransform="uppercase">
                   Due
                 </Text>
                 {workDoneStore.overallStats.loading ? (
@@ -673,7 +673,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     ₹{(workDoneStore.overallStats.patientPending || 0).toLocaleString('en-IN')}
                   </Text>
                 )}
-                <Text fontSize="8px" fontWeight="700" color="pink.500" noOfLines={1}>Balance</Text>
+                <Text fontSize="10px" fontWeight="700" color="pink.500" noOfLines={1}>Balance</Text>
               </Box>
             </SimpleGrid>
 
@@ -770,7 +770,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   color="white"
                   _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)" }}
                   size="sm"
-                  h="38px"
+                  h="46px"
                   borderRadius="14px"
                   fontWeight="800"
                   fontSize="12px"
@@ -788,7 +788,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 color="white"
                 _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)" }}
                 size="sm"
-                h="38px"
+                h="46px"
                 borderRadius="14px"
                 fontWeight="800"
                 fontSize="12px"
@@ -800,7 +800,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             </HStack>
 
             {/* Row 2: Search Input & Doctor Dropdown */}
-            <Grid templateColumns="1fr 1fr" gap={2} w="full">
+            <Grid templateColumns={{ base: "1fr", sm: "1fr 1fr" }} gap={2} w="full">
               <HStack
                 spacing={1.5}
                 px={2.5}
@@ -808,13 +808,13 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 borderRadius="12px"
                 border="1px solid"
                 borderColor={borderColor}
-                h="36px"
+                h="44px"
               >
                 <Icon as={FiSearch} color="gray.400" fontSize="13px" />
                 <Input
                   variant="unstyled"
                   placeholder="Search tooth/note..."
-                  fontSize="11.5px"
+                  fontSize="13px"
                   fontWeight="600"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -862,8 +862,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
               <HStack spacing={2} minW="max-content">
                 {stores.auth.hasPermission('accountability', 'view') && (
                   <Button
-                    size="xs"
-                    h="30px"
+                    size="sm"
+                    h="40px"
                     colorScheme="blue"
                     variant="solid"
                     leftIcon={<FiCalendar />}
@@ -896,13 +896,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   borderRadius="full"
                   border="1px solid"
                   borderColor="gray.200"
-                  h="30px"
+                  h="40px"
                 >
                   <Input
                     type="date"
                     variant="unstyled"
-                    fontSize="10px"
+                    fontSize="12px"
                     w="100px"
+                    h="40px"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     fontWeight="700"
@@ -912,8 +913,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   <Input
                     type="date"
                     variant="unstyled"
-                    fontSize="10px"
+                    fontSize="12px"
                     w="100px"
+                    h="40px"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     fontWeight="700"
@@ -921,8 +923,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   />
                   {(startDate || endDate) && (
                     <Button
-                      size="xs"
-                      h="22px"
+                      size="sm"
+                      h="36px"
                       colorScheme="blue"
                       borderRadius="full"
                       px={2}
@@ -940,8 +942,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
                 {(searchQuery || doctorFilter !== "all" || startDate || endDate || appliedStartDate || appliedEndDate) && (
                   <Button
-                    size="xs"
-                    h="30px"
+                    size="sm"
+                    h="40px"
                     variant="outline"
                     colorScheme="red"
                     borderRadius="full"
@@ -1186,7 +1188,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     borderRadius="20px"
                     border="1px solid"
                     borderColor={borderColor}
-                    p={3.5}
+                    p={{ base: 3, sm: 4 }}
                     shadow="sm"
                   >
                     {/* Header: S.No, Date, Status */}
@@ -1240,7 +1242,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     {/* Financials Bento: Total Bill | Paid | Balance */}
                     <SimpleGrid columns={3} gap={1.5} p={2} bg="gray.50" borderRadius="14px" mb={3} border="1px solid" borderColor="gray.150">
                       <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="8.5px" fontWeight="800" color="gray.500" textTransform="uppercase">Bill</Text>
+                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Bill</Text>
                         <Text fontSize="12.5px" fontWeight="900" color="purple.800">
                           ₹{bill.toLocaleString('en-IN')}
                         </Text>
@@ -1252,7 +1254,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       </VStack>
 
                       <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="8.5px" fontWeight="800" color="gray.500" textTransform="uppercase">Paid</Text>
+                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Paid</Text>
                         <Text fontSize="12.5px" fontWeight="900" color="green.700">
                           ₹{received.toLocaleString('en-IN')}
                         </Text>
@@ -1264,7 +1266,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       </VStack>
 
                       <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="8.5px" fontWeight="800" color="gray.500" textTransform="uppercase">Balance</Text>
+                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Balance</Text>
                         <Text
                           fontSize="12.5px"
                           fontWeight="900"
@@ -1285,7 +1287,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                           <IconButton
                             aria-label="Edit Bill"
                             icon={<FiEdit2 />}
-                            size="xs"
+                            size="sm"
+                            minW="44px"
+                            h="44px"
                             colorScheme="yellow"
                             variant="outline"
                             borderRadius="lg"
@@ -1300,7 +1304,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                           <IconButton
                             aria-label="History"
                             icon={<FiEye />}
-                            size="xs"
+                            size="sm"
+                            minW="44px"
+                            h="44px"
                             colorScheme="teal"
                             variant="outline"
                             borderRadius="lg"
@@ -1311,7 +1317,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                           <IconButton
                             aria-label="Receipt"
                             icon={downloadingRecordId === record._id ? <Spinner size="xs" /> : <FiDownload />}
-                            size="xs"
+                            size="sm"
+                            minW="44px"
+                            h="44px"
                             colorScheme="blue"
                             variant="outline"
                             borderRadius="lg"
@@ -1323,7 +1331,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
                       {stores.auth.hasPermission('accountability', 'create') && (
                         <Button
-                          size="xs"
+                          size="sm"
+                          minH="44px"
+                          flexShrink={0}
                           colorScheme="green"
                           leftIcon={<FiPlusCircle />}
                           borderRadius="xl"
@@ -1344,7 +1354,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
             {(workDoneStore.workDone.totalPages || 1) > 1 && (
               <HStack justify="space-between" align="center" p={2} bg="gray.50" borderRadius="xl">
                 <Button
-                  size="xs"
+                  size="sm"
+                  minH="44px"
                   variant="outline"
                   isDisabled={currentPage <= 1}
                   onClick={() => handleChangePage(currentPage - 1)}
@@ -1355,7 +1366,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   Page {currentPage} of {workDoneStore.workDone.totalPages}
                 </Text>
                 <Button
-                  size="xs"
+                  size="sm"
+                  minH="44px"
                   variant="outline"
                   isDisabled={currentPage >= (workDoneStore.workDone.totalPages || 1)}
                   onClick={() => handleChangePage(currentPage + 1)}

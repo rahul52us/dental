@@ -4,7 +4,6 @@ import {
   Badge,
   Box,
   Button,
-  Collapse,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -38,8 +37,6 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import PatientWorkDoneHistory from "./PatientWorkDoneHistory";
 import {
-  FiFileText,
-  FiDollarSign,
   FiPaperclip,
   FiCreditCard,
   FiDatabase,
@@ -53,9 +50,6 @@ import {
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiChevronDown,
-  FiChevronUp,
-  FiLayers,
   FiEye,
   FiUserX,
   FiCalendar,
@@ -124,11 +118,6 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     open: false,
     data: null as any,
   });
-
-  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
-  const toggleCardExpand = (id: string) => {
-    setExpandedCards((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
 
   const [mobileFilter, setMobileFilter] = useState<"all" | "pending" | "male" | "female">("all");
 
@@ -695,20 +684,20 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   return (
     <>
-      <Box p={{ base: 2, md: 4 }} overflowX={{ base: "hidden", md: "auto" }} maxW="100vw">
+      <Box p={{ base: 1.5, sm: 2, md: 4 }} overflowX={{ base: "hidden", md: "auto" }} maxW="100vw">
         {/* ============================================================== */}
         {/* MOBILE APK DEDICATED INTERFACE (< 768px)                       */}
         {/* ============================================================== */}
         {isMobile ? (
-          <Box pb="calc(80px + env(safe-area-inset-bottom, 12px))">
+          <Box pb="calc(88px + env(safe-area-inset-bottom, 12px))">
             {/* Mobile Header & Search Bar */}
-            <Box px={1} pt={1} pb={3}>
+            <Box px={{ base: 1, sm: 1.5 }} pt={1} pb={3}>
               {/* App Bar Header */}
-              <Flex align="center" justify="space-between" mb={3}>
+              <Flex align="center" justify="space-between" gap={2} mb={3}>
                 <Box>
                   <HStack spacing={2} align="center">
                     <Text
-                      fontSize="19px"
+                      fontSize={{ base: "20px", sm: "22px" }}
                       fontWeight="900"
                       color={textColor}
                       letterSpacing="-0.4px"
@@ -730,21 +719,23 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                       </Badge>
                     )}
                   </HStack>
-                  <Text fontSize="11.5px" color={subtextColor} fontWeight="500" mt={0.5}>
+                  <Text fontSize="12px" color={subtextColor} fontWeight="500" mt={0.5}>
                     Clinic Directory & Medical Records
                   </Text>
                 </Box>
 
                 {canCreate && (
                   <Button
-                    size="sm"
+                    aria-label="Add new patient"
+                    title="Add new patient"
+                    h="42px"
+                    minW={{ base: "42px", sm: "auto" }}
                     leftIcon={<FiPlus size={14} />}
                     bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
                     color="white"
-                    borderRadius="full"
-                    px={3.5}
-                    py={1.5}
-                    fontSize="12px"
+                    borderRadius={{ base: "14px", sm: "full" }}
+                    px={{ base: 0, sm: 4 }}
+                    fontSize="13px"
                     fontWeight="800"
                     boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
                     _hover={{
@@ -754,26 +745,27 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     _active={{ transform: "scale(0.96)" }}
                     onClick={onAdd}
                   >
-                    New Patient
+                    <Text display={{ base: "none", sm: "inline" }}>New Patient</Text>
                   </Button>
                 )}
               </Flex>
 
               {/* Instant Search Bar */}
-              <InputGroup size="md" mb={2.5}>
-                <InputLeftElement pointerEvents="none" h="42px">
+              <InputGroup size="md" mb={3}>
+                <InputLeftElement pointerEvents="none" h="46px" w="44px">
                   <FiSearch color="#0D9488" size={16} />
                 </InputLeftElement>
                 <Input
                   placeholder="Search patient by name, mobile, code..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  borderRadius="16px"
+                  borderRadius="15px"
                   bg={useColorModeValue("white", "gray.800")}
                   borderColor={useColorModeValue("#E2E8F0", "gray.700")}
                   fontSize="13px"
                   fontWeight="600"
-                  h="42px"
+                  h="46px"
+                  px={11}
                   boxShadow="0 2px 8px rgba(0,0,0,0.03)"
                   _focus={{
                     borderColor: "#0EA5E9",
@@ -783,11 +775,13 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   _placeholder={{ color: "gray.400", fontWeight: "400" }}
                 />
                 {searchQuery && (
-                  <InputRightElement h="42px">
+                  <InputRightElement h="46px">
                     <IconButton
                       aria-label="Clear search"
                       icon={<FiX size={14} />}
-                      size="xs"
+                      size="sm"
+                      minW="40px"
+                      h="40px"
                       variant="ghost"
                       rounded="full"
                       onClick={resetTableData}
@@ -797,13 +791,13 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               </InputGroup>
 
               {/* Quick Filter Pills Row */}
-              <HStack spacing={2} overflowX="auto" py={0.5} sx={{ "&::-webkit-scrollbar": { display: "none" } }}>
+              <HStack spacing={2} overflowX="auto" py={1} px={0.5} sx={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}>
                 <Button
-                  size="xs"
+                  size="sm"
                   rounded="full"
-                  px={3}
-                  py={1.5}
-                  fontSize="11px"
+                  minH="40px"
+                  px={3.5}
+                  fontSize="12px"
                   fontWeight="750"
                   bg={mobileFilter === "all" ? "teal.600" : useColorModeValue("gray.100", "gray.800")}
                   color={mobileFilter === "all" ? "white" : subtextColor}
@@ -814,11 +808,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   All Patients
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   rounded="full"
-                  px={3}
-                  py={1.5}
-                  fontSize="11px"
+                  minH="40px"
+                  px={3.5}
+                  fontSize="12px"
                   fontWeight="750"
                   bg={mobileFilter === "pending" ? "purple.600" : useColorModeValue("purple.50", "whiteAlpha.100")}
                   color={mobileFilter === "pending" ? "white" : "purple.600"}
@@ -830,11 +824,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   Pending Tx
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   rounded="full"
-                  px={3}
-                  py={1.5}
-                  fontSize="11px"
+                  minH="40px"
+                  px={3.5}
+                  fontSize="12px"
                   fontWeight="750"
                   bg={mobileFilter === "male" ? "blue.600" : useColorModeValue("blue.50", "whiteAlpha.100")}
                   color={mobileFilter === "male" ? "white" : "blue.600"}
@@ -845,11 +839,11 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   Male
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   rounded="full"
-                  px={3}
-                  py={1.5}
-                  fontSize="11px"
+                  minH="40px"
+                  px={3.5}
+                  fontSize="12px"
                   fontWeight="750"
                   bg={mobileFilter === "female" ? "pink.600" : useColorModeValue("pink.50", "whiteAlpha.100")}
                   color={mobileFilter === "female" ? "white" : "pink.600"}
@@ -929,7 +923,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               }
 
               return (
-                <VStack spacing={3} align="stretch">
+                <VStack spacing={3} align="stretch" px={{ base: 0.5, sm: 1 }} pt={1}>
                   {mobileFilteredPatients.map((patient: any) => {
                     const genderLabel =
                       genderOptions.find(
@@ -955,23 +949,24 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     const hasPendingTreatments =
                       Number(patient?.pendingTreatmentCount) > 0;
 
-                    const cardKey = String(patient._id || patient.id || patient.code);
-                    const isExpanded = !!expandedCards[cardKey];
-
                     return (
                       <Box
                         key={patient._id || patient.id}
                         bg={cardBg}
                         border="1px solid"
-                        borderColor={useColorModeValue("#F1F5F9", "gray.700")}
-                        borderRadius="20px"
-                        p={3.5}
-                        boxShadow="0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(0,0,0,0.03)"
+                        borderColor={useColorModeValue("#E8EEF4", "gray.700")}
+                        borderRadius="22px"
+                        p={{ base: 3, sm: 4 }}
+                        boxShadow={useColorModeValue(
+                          "0 8px 24px -12px rgba(15, 23, 42, 0.22)",
+                          "0 8px 24px -12px rgba(0, 0, 0, 0.8)"
+                        )}
                         position="relative"
                         transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                        _hover={{ borderColor: useColorModeValue("teal.200", "teal.700") }}
                       >
                         {/* Top Patient Identity Strip */}
-                        <Flex align="center" justify="space-between" mb={2.5}>
+                        <Flex align="center" justify="space-between" gap={2} mb={3}>
                           <Flex
                             align="center"
                             gap={3}
@@ -986,7 +981,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                 size="md"
                                 name={patient?.name || "Patient"}
                                 src={patient?.pic?.url || undefined}
-                                rounded="16px"
+                                rounded="15px"
                                 bg={
                                   isMale
                                     ? "linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)"
@@ -996,42 +991,44 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                 }
                                 color={isMale ? "blue.700" : isFemale ? "pink.700" : "teal.700"}
                                 fontWeight="900"
-                                border="2px solid white"
-                                boxShadow="0 3px 8px rgba(0,0,0,0.08)"
+                                border="2px solid"
+                                borderColor={cardBg}
+                                boxShadow="0 4px 10px rgba(15,23,42,0.1)"
                               />
                               <Box
                                 position="absolute"
-                                bottom="-1px"
-                                right="-1px"
-                                w="9px"
-                                h="9px"
+                                bottom="0"
+                                right="0"
+                                w="10px"
+                                h="10px"
                                 rounded="full"
                                 bg="#10B981"
-                                border="2px solid white"
+                                border="2px solid"
+                                borderColor={cardBg}
                               />
                             </Box>
 
                             <Box flex={1} minW={0}>
                               <Text
-                                fontSize="15px"
-                                fontWeight="800"
+                                fontSize={{ base: "14px", sm: "15px" }}
+                                fontWeight="850"
                                 color={textColor}
                                 noOfLines={1}
-                                letterSpacing="-0.2px"
+                                letterSpacing="-0.25px"
                               >
                                 {fullName}
                               </Text>
 
-                              <HStack spacing={1.5} mt={0.5} wrap="wrap">
+                              <HStack spacing={1.5} mt={1} wrap="wrap" rowGap={1}>
                                 {genderLabel !== "--" && (
                                   <Badge
                                     colorScheme={genderColor}
                                     variant="subtle"
                                     borderRadius="full"
-                                    fontSize="9px"
+                                    fontSize="10px"
                                     fontWeight="800"
-                                    px={2}
-                                    py={0.2}
+                                    px={2.5}
+                                    py={0.5}
                                   >
                                     {genderLabel.toUpperCase()}
                                   </Badge>
@@ -1042,10 +1039,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                     bg={useColorModeValue("gray.100", "gray.700")}
                                     color={useColorModeValue("gray.600", "gray.300")}
                                     borderRadius="full"
-                                    fontSize="9px"
+                                    fontSize="10px"
                                     fontWeight="700"
-                                    px={2}
-                                    py={0.2}
+                                    px={2.5}
+                                    py={0.5}
                                   >
                                     #{patient.code}
                                   </Badge>
@@ -1056,10 +1053,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                     bgGradient="linear(to-r, purple.500, indigo.500)"
                                     color="white"
                                     borderRadius="full"
-                                    fontSize="9px"
+                                    fontSize="10px"
                                     fontWeight="800"
-                                    px={2}
-                                    py={0.2}
+                                    px={2.5}
+                                    py={0.5}
                                     boxShadow="0 2px 6px rgba(139, 92, 246, 0.3)"
                                     cursor="pointer"
                                     onClick={(e) => {
@@ -1085,10 +1082,12 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                               as={IconButton}
                               aria-label="Patient options"
                               icon={<FiMoreVertical size={16} />}
-                              size="sm"
+                              size="md"
                               variant="ghost"
                               color={subtextColor}
                               borderRadius="full"
+                              minW="40px"
+                              h="40px"
                               _hover={{ bg: "gray.100" }}
                             />
                             <MenuList
@@ -1099,6 +1098,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                               fontSize="13px"
                               bg={cardBg}
                               borderColor={cardBorder}
+                              sx={{ "& [role=menuitem]": { minH: "44px" } }}
                             >
                               {canView && (
                                 <MenuItem
@@ -1117,6 +1117,23 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                   onClick={() => onEdit(patient)}
                                 >
                                   Edit Patient
+                                </MenuItem>
+                              )}
+
+                              {phoneContact.display !== "--" && (
+                                <MenuItem
+                                  icon={<FiCopy size={15} />}
+                                  borderRadius="10px"
+                                  onClick={() => {
+                                    copyToClipboard(phoneContact.display);
+                                    openNotification({
+                                      type: "success",
+                                      title: "Phone Copied",
+                                      message: `${phoneContact.display} copied to clipboard`,
+                                    });
+                                  }}
+                                >
+                                  Copy phone number
                                 </MenuItem>
                               )}
 
@@ -1225,41 +1242,46 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                         <Flex
                           align="center"
                           justify="space-between"
-                          py={1.5}
-                          px={3}
-                          borderRadius="14px"
+                          gap={2}
+                          py={2}
+                          px={{ base: 2.5, sm: 3 }}
+                          borderRadius="15px"
                           bg={useColorModeValue("#F8FAFC", "whiteAlpha.50")}
                           border="1px solid"
-                          borderColor={useColorModeValue("#F1F5F9", "transparent")}
-                          mb={2.5}
+                          borderColor={useColorModeValue("#EDF2F7", "whiteAlpha.100")}
+                          mb={3}
                         >
-                          <HStack spacing={2} align="center">
-                            <Icon as={FiPhoneCall} color={phoneContact.raw ? "teal.500" : "gray.400"} boxSize={3.5} />
+                          <HStack spacing={2} align="center" minW={0} flex={1}>
+                            <Icon as={FiPhoneCall} color={phoneContact.raw ? "teal.500" : "gray.400"} boxSize={4} flexShrink={0} />
                             <Text
-                              fontSize="12.5px"
+                              fontSize={{ base: "11px", sm: "12px" }}
                               fontWeight="700"
                               color={phoneContact.raw ? textColor : "gray.400"}
-                              letterSpacing="0.2px"
+                              letterSpacing="0.1px"
+                              noOfLines={1}
                             >
                               {phoneContact.display !== "--"
-                                ? `+91 •••• ${phoneContact.display.slice(-4)}`
+                                ? `+91  •••• ${phoneContact.display.slice(-4)}`
                                 : "No phone on file"}
                             </Text>
                           </HStack>
 
-                          <HStack spacing={1.5}>
+                          <HStack spacing={1} flexShrink={0}>
                             {phoneContact.raw && (
                               <>
                                 <IconButton
                                   as="a"
                                   href={`tel:${phoneContact.raw}`}
                                   aria-label="Call patient"
-                                  icon={<FiPhoneCall size={12} />}
-                                  size="xs"
+                                  title="Call patient"
+                                  icon={<FiPhoneCall size={15} />}
+                                  size="sm"
+                                  minW="40px"
+                                  h="40px"
                                   rounded="full"
                                   colorScheme="teal"
                                   variant="solid"
-                                  boxShadow="0 2px 6px rgba(13, 148, 136, 0.3)"
+                                  boxShadow="0 3px 8px rgba(13, 148, 136, 0.25)"
                                 />
                                 <IconButton
                                   as="a"
@@ -1267,45 +1289,35 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   aria-label="WhatsApp patient"
-                                  icon={<FaWhatsapp size={13} />}
-                                  size="xs"
+                                  title="WhatsApp patient"
+                                  icon={<FaWhatsapp size={16} />}
+                                  size="sm"
+                                  minW="40px"
+                                  h="40px"
                                   rounded="full"
                                   colorScheme="whatsapp"
                                   variant="solid"
-                                  boxShadow="0 2px 6px rgba(37, 211, 102, 0.3)"
-                                />
-                                <IconButton
-                                  aria-label="Copy phone"
-                                  icon={<FiCopy size={11} />}
-                                  size="xs"
-                                  rounded="full"
-                                  variant="ghost"
-                                  color="gray.500"
-                                  onClick={() => {
-                                    copyToClipboard(phoneContact.display);
-                                    openNotification({
-                                      type: "success",
-                                      title: "Phone Copied",
-                                      message: `${phoneContact.display} copied to clipboard`,
-                                    });
-                                  }}
+                                  boxShadow="0 3px 8px rgba(37, 211, 102, 0.22)"
                                 />
                               </>
                             )}
                           </HStack>
                         </Flex>
 
-                        {/* Clean Ergonomic 2x2 Bento Action Grid (Proper Fit, Never Truncates!) */}
-                        <SimpleGrid columns={2} spacing={2} pt={1.5}>
+                        {/* Primary patient actions use a consistent, touch-friendly grid. */}
+                        <SimpleGrid columns={2} spacing={2}>
                           {canTreatment && (
                             <Button
-                              h="38px"
-                              rounded="13px"
+                              h="46px"
+                              minW={0}
+                              px={2}
+                              rounded="14px"
                               bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
                               color="white"
                               fontWeight="800"
-                              fontSize="12px"
-                              leftIcon={<GiMedicalDrip size={14} color="white" />}
+                              fontSize={{ base: "11px", sm: "12px" }}
+                              whiteSpace="nowrap"
+                              leftIcon={<GiMedicalDrip size={15} color="white" />}
                               boxShadow="0 3px 10px -2px rgba(13, 148, 136, 0.4)"
                               _hover={{
                                 bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
@@ -1327,15 +1339,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
                           {canAppointment && (
                             <Button
-                              h="38px"
-                              rounded="13px"
+                              h="46px"
+                              minW={0}
+                              px={2}
+                              rounded="14px"
                               bg={useColorModeValue("#F8FAFC", "gray.800")}
                               border="1px solid"
                               borderColor={useColorModeValue("#E2E8F0", "gray.700")}
                               color={useColorModeValue("gray.800", "gray.100")}
                               fontWeight="750"
-                              fontSize="12px"
-                              leftIcon={<CalendarIcon boxSize="13px" color="teal.500" />}
+                              fontSize={{ base: "11px", sm: "12px" }}
+                              whiteSpace="nowrap"
+                              leftIcon={<CalendarIcon boxSize="14px" color="teal.500" />}
                               _hover={{ bg: useColorModeValue("teal.50", "gray.700"), borderColor: "teal.300" }}
                               _active={{ transform: "scale(0.97)" }}
                               onClick={() => setOpenAppointmentDetails({ open: true, data: patient })}
@@ -1346,15 +1361,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
                           {canAccount && (
                             <Button
-                              h="38px"
-                              rounded="13px"
+                              h="46px"
+                              minW={0}
+                              px={2}
+                              rounded="14px"
                               bg={useColorModeValue("#F8FAFC", "gray.800")}
                               border="1px solid"
                               borderColor={useColorModeValue("#E2E8F0", "gray.700")}
                               color={useColorModeValue("gray.800", "gray.100")}
                               fontWeight="750"
-                              fontSize="12px"
-                              leftIcon={<FiCreditCard size={13} color="#0D9488" />}
+                              fontSize={{ base: "11px", sm: "12px" }}
+                              whiteSpace="nowrap"
+                              leftIcon={<FiCreditCard size={14} color="#0D9488" />}
                               _hover={{ bg: useColorModeValue("cyan.50", "gray.700"), borderColor: "cyan.300" }}
                               _active={{ transform: "scale(0.97)" }}
                               onClick={() => setOpenAccountDetails({ open: true, data: patient })}
@@ -1365,15 +1383,18 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
                           {canView && (
                             <Button
-                              h="38px"
-                              rounded="13px"
+                              h="46px"
+                              minW={0}
+                              px={2}
+                              rounded="14px"
                               bg={useColorModeValue("#F8FAFC", "gray.800")}
                               border="1px solid"
                               borderColor={useColorModeValue("#E2E8F0", "gray.700")}
                               color={useColorModeValue("gray.800", "gray.100")}
                               fontWeight="750"
-                              fontSize="12px"
-                              leftIcon={<FiEye size={13} color="#2563EB" />}
+                              fontSize={{ base: "11px", sm: "12px" }}
+                              whiteSpace="nowrap"
+                              leftIcon={<FiEye size={14} color="#2563EB" />}
                               _hover={{ bg: useColorModeValue("blue.50", "gray.700"), borderColor: "blue.300" }}
                               _active={{ transform: "scale(0.97)" }}
                               onClick={() => handleRowClick(patient)}
@@ -1404,7 +1425,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 boxShadow="xs"
               >
                 <Button
-                  size="xs"
+                  size="sm"
+                  minH="40px"
                   leftIcon={<FiChevronLeft />}
                   onClick={() => handleChangePage(currentPage - 1)}
                   isDisabled={currentPage <= 1}
@@ -1418,7 +1440,8 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   Page {currentPage} of {totalPages}
                 </Text>
                 <Button
-                  size="xs"
+                  size="sm"
+                  minH="40px"
                   rightIcon={<FiChevronRight />}
                   onClick={() => handleChangePage(currentPage + 1)}
                   isDisabled={currentPage >= totalPages}

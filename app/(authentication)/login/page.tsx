@@ -9,31 +9,30 @@ import {
   FormLabel,
   Heading,
   HStack,
+  Icon,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Text,
   Spinner,
+  Text,
   VStack,
-  Icon,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
+  RiArrowRightLine,
   RiEyeLine,
   RiEyeOffLine,
-  RiMailCheckLine,
-  RiUserSmileLine,
-  RiLockPasswordLine,
-  RiArrowRightLine,
-  RiShieldCheckLine,
-  RiSparklingFill,
   RiHeartPulseLine,
+  RiLockPasswordLine,
+  RiShieldCheckLine,
+  RiMailLine,
+  RiUserSmileLine,
 } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import { observer } from "mobx-react-lite";
-import { motion, AnimatePresence } from "framer-motion";
 import stores from "../../store/stores";
 
 const Login = observer(() => {
@@ -46,33 +45,28 @@ const Login = observer(() => {
     password: "",
     loginType: "code",
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
   const isEmail = formData.loginType === "email";
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value } = event.target;
+    setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
   const handleLoginType = (type: "email" | "code") => {
-    setFormData({ ...formData, loginType: type });
+    setFormData((previous) => ({ ...previous, loginType: type }));
   };
 
-  const handleTogglePassword = () => setShowPassword(!showPassword);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
 
     try {
-      const response: any = await login(formData);
-
+      const response = await login(formData);
       openNotification({
         title: "Login Successful",
         message: `${response.message}!`,
@@ -98,363 +92,274 @@ const Login = observer(() => {
   };
 
   const inputStyle = {
+    h: { base: "44px", md: "54px" },
     bg: "#F8FAFC",
-    border: "1.5px solid",
-    borderColor: "#E2E8F0",
-    _hover: { borderColor: "gray.300", bg: "white" },
+    border: "1px solid",
+    borderColor: "#E3EAE9",
+    borderRadius: "14px",
+    color: "#183438",
+    fontSize: "sm",
+    fontWeight: "600",
+    _hover: { borderColor: "#BCD5D1", bg: "white" },
     _focus: {
-      borderColor: "#0EA5E9",
+      borderColor: "#16877D",
       bg: "white",
-      boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.2)",
+      boxShadow: "0 0 0 3px rgba(22, 135, 125, 0.12)",
     },
+    _placeholder: { color: "#9AAEAD", fontWeight: "400" },
     sx: {
       "&:-webkit-autofill": {
         WebkitBoxShadow: "0 0 0 100px #F8FAFC inset !important",
-        WebkitTextFillColor: "gray.800",
+        WebkitTextFillColor: "#183438",
         transition: "background-color 5000s ease-in-out 0s",
       },
     },
   };
 
   return (
-    <Flex direction="column" justify="center" w="100%" style={{ perspective: "1000px" }}>
-      <VStack spacing={{ base: 1.5, md: 3.5 }} align="stretch" w="100%">
-        {/* Greeting Header */}
-        <Box textAlign={{ base: "center", md: "start" }} mb={{ base: 1, md: 3 }}>
-          <HStack
-            display={{ base: "none", md: "inline-flex" }}
-            spacing={1.5}
-            bg="teal.50"
+    <VStack spacing={0} align="stretch" w="100%">
+      <Box mb={{ base: 2, md: 7 }} textAlign={{ base: "center", md: "left" }}>
+        <Text
+          display={{ base: "none", md: "block" }}
+          color="#16877D"
+          fontSize="10px"
+          fontWeight="800"
+          letterSpacing="1.6px"
+          textTransform="uppercase"
+          mb={2}
+        >
+          YOUR PRACTICE PORTAL
+        </Text>
+        <Heading
+          color="#17363A"
+          fontSize={{ base: "24px", md: "34px" }}
+          fontWeight="800"
+          letterSpacing="-1.1px"
+          lineHeight="1.1"
+        >
+          Good to see you.
+        </Heading>
+        <Text
+          color="#718483"
+          fontSize={{ base: "xs", md: "sm" }}
+          mt={{ base: 1, md: 2 }}
+        >
+          Sign in to pick up right where you left off.
+        </Text>
+      </Box>
+
+      <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+        <VStack spacing={{ base: 2, md: 5 }} align="stretch">
+          <Box
+            p="5px"
+            bg="#F2F6F5"
             border="1px solid"
-            borderColor="teal.150"
-            px={2.5}
-            py={0.8}
-            rounded="full"
-            w="fit-content"
-            mx={{ base: "auto", md: "0" }}
-            mb={2}
+            borderColor="#E7EFED"
+            rounded="16px"
           >
-            <Icon as={RiSparklingFill} color="teal.500" boxSize={3} />
-            <Text fontSize="10px" fontWeight="800" color="teal.700" letterSpacing="0.4px" textTransform="uppercase">
-              Clinical Portal Access
-            </Text>
-          </HStack>
-          <Heading
-            fontSize={{ base: "17px", sm: "19px", md: "26px" }}
-            color="gray.900"
-            fontWeight="900"
-            letterSpacing="tight"
-          >
-            Welcome back 👋
-          </Heading>
-          <Text
-            fontSize={{ base: "10.5px", sm: "11.5px", md: "sm" }}
-            color="gray.500"
-            mt={0.5}
-            fontWeight="500"
-          >
-            Sign in to access patient records and schedule
-          </Text>
-        </Box>
+            <HStack spacing={1}>
+              {[
+                {
+                  value: "code" as const,
+                  label: "User code",
+                  icon: RiUserSmileLine,
+                },
+                {
+                  value: "email" as const,
+                  label: "Email address",
+                  icon: RiMailLine,
+                },
+              ].map(({ value, label, icon }) => {
+                const active = formData.loginType === value;
 
-        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-          <VStack spacing={{ base: 1.5, md: 3 }} align="stretch" w="100%">
-            {/* Segmented Switcher */}
-            <Box
-              p={{ base: "2.5px", md: "4px" }}
-              bg="#F1F5F9"
-              rounded={{ base: "14px", md: "18px" }}
-              border="1px solid"
-              borderColor="#E2E8F0"
-              boxShadow="inset 0 1px 2px rgba(0,0,0,0.03)"
+                return (
+                  <Button
+                    key={value}
+                    type="button"
+                    flex={1}
+                    h={{ base: "38px", md: "42px" }}
+                    px={2}
+                    rounded="12px"
+                    bg={active ? "white" : "transparent"}
+                    color={active ? "#1A4E4C" : "#7C9290"}
+                    fontSize={{ base: "xs", sm: "sm" }}
+                    fontWeight={active ? "700" : "600"}
+                    boxShadow={
+                      active ? "0 2px 8px rgba(26, 78, 76, 0.09)" : "none"
+                    }
+                    leftIcon={<Icon as={icon} boxSize={4} />}
+                    _hover={{
+                      bg: active ? "white" : "rgba(255,255,255,0.65)",
+                    }}
+                    onClick={() => handleLoginType(value)}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
+            </HStack>
+          </Box>
+
+          <FormControl isRequired>
+            <FormLabel
+              color="#345354"
+              fontSize="xs"
+              fontWeight="700"
+              mb={2}
             >
-              <HStack spacing={1}>
-                <Button
-                  flex={1}
-                  height={{ base: "32px", md: "42px" }}
-                  rounded={{ base: "11px", md: "14px" }}
-                  bg={!isEmail ? "white" : "transparent"}
-                  color={!isEmail ? "teal.900" : "gray.500"}
-                  fontWeight={!isEmail ? "800" : "600"}
-                  fontSize={{ base: "11px", md: "xs" }}
-                  letterSpacing="0.2px"
-                  boxShadow={!isEmail ? "0 2px 6px rgba(0,0,0,0.08)" : "none"}
-                  _hover={{ color: !isEmail ? "teal.900" : "gray.800" }}
-                  onClick={() => handleLoginType("code")}
-                  leftIcon={
-                    <RiUserSmileLine
-                      size={15}
-                      color={!isEmail ? "#0D9488" : "currentColor"}
-                    />
-                  }
-                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                >
-                  User Code
-                </Button>
-                <Button
-                  flex={1}
-                  height={{ base: "32px", md: "42px" }}
-                  rounded={{ base: "11px", md: "14px" }}
-                  bg={isEmail ? "white" : "transparent"}
-                  color={isEmail ? "teal.900" : "gray.500"}
-                  fontWeight={isEmail ? "800" : "600"}
-                  fontSize={{ base: "11px", md: "xs" }}
-                  letterSpacing="0.2px"
-                  boxShadow={isEmail ? "0 2px 6px rgba(0,0,0,0.08)" : "none"}
-                  _hover={{ color: isEmail ? "teal.900" : "gray.800" }}
-                  onClick={() => handleLoginType("email")}
-                  leftIcon={
-                    <RiMailCheckLine
-                      size={15}
-                      color={isEmail ? "#0D9488" : "currentColor"}
-                    />
-                  }
-                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                >
-                  Email Address
-                </Button>
-              </HStack>
-            </Box>
-
-            {/* Username / Code Field */}
-            <FormControl>
-              <FormLabel
-                fontSize={{ base: "10.5px", md: "xs" }}
-                fontWeight="700"
-                letterSpacing="0.3px"
-                color="gray.700"
-                mb={0.5}
+              {isEmail ? "Email address" : "User code"}
+            </FormLabel>
+            <InputGroup>
+              <InputLeftElement
+                h={{ base: "44px", md: "54px" }}
+                w="48px"
+                pointerEvents="none"
               >
-                {isEmail ? "Email Address" : "User Code"}
-              </FormLabel>
+                <Icon
+                  as={isEmail ? RiMailLine : RiUserSmileLine}
+                  boxSize={4}
+                  color="#16877D"
+                />
+              </InputLeftElement>
+              <Input
+                {...inputStyle}
+                type={isEmail ? "email" : "text"}
+                name="username"
+                autoComplete={isEmail ? "email" : "username"}
+                placeholder={
+                  isEmail ? "you@yourpractice.com" : "e.g. USR-9042"
+                }
+                value={formData.username}
+                onChange={handleInputChange}
+                pl="48px"
+                required
+              />
+            </InputGroup>
+          </FormControl>
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isEmail ? "email" : "code"}
-                  initial={{ rotateX: 90, opacity: 0 }}
-                  animate={{ rotateX: 0, opacity: 1 }}
-                  exit={{ rotateX: -90, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: "easeInOut" }}
-                  style={{ width: "100%", transformStyle: "preserve-3d" }}
-                >
-                  <InputGroup size={{ base: "sm", md: "lg" }}>
-                    <InputLeftElement
-                      h={{ base: "38px", md: "50px" }}
-                      w={{ base: "38px", md: "48px" }}
-                      pointerEvents="none"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Flex
-                        w={{ base: "26px", md: "34px" }}
-                        h={{ base: "26px", md: "34px" }}
-                        rounded={{ base: "lg", md: "xl" }}
-                        bg="teal.50"
-                        align="center"
-                        justify="center"
-                        boxShadow="0 1px 2px rgba(0,0,0,0.04)"
-                      >
-                        {isEmail ? (
-                          <RiMailCheckLine size={14} color="#0D9488" />
-                        ) : (
-                          <RiUserSmileLine size={14} color="#0D9488" />
-                        )}
-                      </Flex>
-                    </InputLeftElement>
-                    <Input
-                      type="text"
-                      name="username"
-                      placeholder={
-                        isEmail ? "name@practice.com" : "e.g. USR-9042"
-                      }
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      height={{ base: "38px", md: "50px" }}
-                      rounded={{ base: "12px", md: "16px" }}
-                      required
-                      pl={{ base: "40px", md: "50px" }}
-                      fontSize={{ base: "12px", md: "sm" }}
-                      fontWeight="600"
-                      color="gray.800"
-                      _placeholder={{ color: "gray.400", fontWeight: "400" }}
-                      transition="all 0.2s"
-                      {...inputStyle}
-                    />
-                  </InputGroup>
-                </motion.div>
-              </AnimatePresence>
-            </FormControl>
-
-            {/* Password Field */}
-            <FormControl>
+          <FormControl isRequired>
+            <Flex justify="space-between" align="center" mb={2}>
               <FormLabel
-                fontSize={{ base: "10.5px", md: "xs" }}
+                color="#345354"
+                fontSize="xs"
                 fontWeight="700"
-                letterSpacing="0.3px"
-                color="gray.700"
-                mb={0.5}
+                mb={0}
               >
                 Password
               </FormLabel>
-              <InputGroup size={{ base: "sm", md: "lg" }}>
-                <InputLeftElement
-                  h={{ base: "38px", md: "50px" }}
-                  w={{ base: "38px", md: "48px" }}
-                  pointerEvents="none"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Flex
-                    w={{ base: "26px", md: "34px" }}
-                    h={{ base: "26px", md: "34px" }}
-                    rounded={{ base: "lg", md: "xl" }}
-                    bg="cyan.50"
-                    align="center"
-                    justify="center"
-                    boxShadow="0 1px 2px rgba(0,0,0,0.04)"
-                  >
-                    <RiLockPasswordLine size={14} color="#0284C7" />
-                  </Flex>
-                </InputLeftElement>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="••••••••••••"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  height={{ base: "38px", md: "50px" }}
-                  rounded={{ base: "12px", md: "16px" }}
-                  required
-                  pl={{ base: "40px", md: "50px" }}
-                  fontSize={{ base: "12px", md: "sm" }}
-                  fontWeight="600"
-                  color="gray.800"
-                  _placeholder={{ color: "gray.400", fontWeight: "400" }}
-                  transition="all 0.2s"
-                  {...inputStyle}
-                />
-                <InputRightElement
-                  h={{ base: "38px", md: "50px" }}
-                  w={{ base: "38px", md: "48px" }}
-                  cursor="pointer"
-                  onClick={handleTogglePassword}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Flex
-                    w={{ base: "26px", md: "34px" }}
-                    h={{ base: "26px", md: "34px" }}
-                    rounded={{ base: "lg", md: "xl" }}
-                    bg="gray.100"
-                    align="center"
-                    justify="center"
-                    color="gray.500"
-                    _hover={{ bg: "teal.50", color: "teal.600" }}
-                    transition="all 0.2s"
-                  >
-                    {showPassword ? (
-                      <RiEyeOffLine size={14} />
-                    ) : (
-                      <RiEyeLine size={14} />
-                    )}
-                  </Flex>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-
-            {/* Options Row */}
-            <Flex justify="space-between" align="center" pt={0} px={0.5}>
-              <Checkbox
-                colorScheme="teal"
-                size="sm"
-                rounded="md"
-                iconColor="white"
-              >
-                <Text fontSize={{ base: "10.5px", md: "xs" }} color="gray.600" fontWeight="600">
-                  Remember me
-                </Text>
-              </Checkbox>
               <Link href="/forgot-password">
                 <Text
-                  fontSize={{ base: "10.5px", md: "xs" }}
-                  color="teal.600"
+                  color="#16877D"
+                  fontSize="xs"
                   fontWeight="700"
-                  _hover={{
-                    color: "teal.700",
-                    textDecoration: "underline",
-                  }}
+                  _hover={{ color: "#106E66", textDecoration: "underline" }}
                 >
-                  Forgot Password?
+                  Forgot password?
                 </Text>
               </Link>
             </Flex>
+            <InputGroup>
+              <InputLeftElement
+                h={{ base: "44px", md: "54px" }}
+                w="48px"
+                pointerEvents="none"
+              >
+                <Icon as={RiLockPasswordLine} boxSize={4} color="#16877D" />
+              </InputLeftElement>
+              <Input
+                {...inputStyle}
+                type={showPassword ? "text" : "password"}
+                name="password"
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleInputChange}
+                pl="48px"
+                pr="52px"
+                required
+              />
+              <InputRightElement h={{ base: "44px", md: "54px" }} w="48px">
+                <IconButton
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  icon={
+                    <Icon
+                      as={showPassword ? RiEyeOffLine : RiEyeLine}
+                      boxSize={4}
+                    />
+                  }
+                  size="sm"
+                  variant="ghost"
+                  color="#7C9290"
+                  rounded="lg"
+                  _hover={{ color: "#16877D", bg: "#EAF5F2" }}
+                  onClick={() => setShowPassword((previous) => !previous)}
+                />
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
 
-            {/* Submit Button */}
-            <Button
-              size="md"
-              width="100%"
-              type="submit"
-              height={{ base: "40px", md: "52px" }}
-              rounded={{ base: "13px", md: "16px" }}
-              bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 45%, #4F46E5 100%)"
-              color="white"
-              fontWeight="800"
-              fontSize={{ base: "13px", md: "15px" }}
-              letterSpacing="0.3px"
-              mt={0.5}
-              boxShadow="0 6px 18px -3px rgba(13, 148, 136, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35)"
-              _hover={{
-                bgGradient:
-                  "linear(135deg, #0284C7 0%, #0F766E 45%, #4338CA 100%)",
-                transform: "translateY(-1px)",
-                boxShadow: "0 10px 22px -3px rgba(13, 148, 136, 0.55)",
-              }}
-              _active={{ transform: "scale(0.98)" }}
-              transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-              isDisabled={!formData.username || !formData.password || isLoading}
-              rightIcon={
-                !isLoading ? (
-                  <Icon as={RiArrowRightLine} w={3.5} h={3.5} />
-                ) : undefined
-              }
-            >
-              {isLoading ? (
-                <Spinner size="sm" color="white" />
-              ) : (
-                "Sign In to Portal"
-              )}
-            </Button>
+          <Checkbox
+            colorScheme="teal"
+            size="sm"
+            alignSelf="flex-start"
+            iconColor="white"
+          >
+            <Text color="#718483" fontSize="xs" fontWeight="500">
+              Keep me signed in
+            </Text>
+          </Checkbox>
 
-            {/* Micro Security & Trust Badges */}
-            <HStack justify="center" spacing={2.5} pt={1} opacity={0.85}>
-              <HStack spacing={1}>
-                <Icon as={RiShieldCheckLine} color="teal.500" boxSize={3} />
-                <Text fontSize={{ base: "9.5px", md: "11px" }} fontWeight="700" color="gray.600">
-                  256-Bit SSL
-                </Text>
-              </HStack>
-              <Text fontSize="9px" color="gray.300">•</Text>
-              <HStack spacing={1}>
-                <Icon as={RiSparklingFill} color="cyan.500" boxSize={2.8} />
-                <Text fontSize={{ base: "9.5px", md: "11px" }} fontWeight="700" color="gray.600">
-                  Instant Sync
-                </Text>
-              </HStack>
-              <Text fontSize="9px" color="gray.300">•</Text>
-              <HStack spacing={1}>
-                <Icon as={RiHeartPulseLine} color="pink.500" boxSize={3} />
-                <Text fontSize={{ base: "9.5px", md: "11px" }} fontWeight="700" color="gray.600">
-                  24/7 Care
-                </Text>
-              </HStack>
-            </HStack>
-          </VStack>
-        </form>
-      </VStack>
-    </Flex>
+          <Button
+            type="submit"
+            h={{ base: "46px", md: "54px" }}
+            mt={1}
+            rounded="14px"
+            bg="#167F76"
+            color="white"
+            fontSize="sm"
+            fontWeight="800"
+            letterSpacing="0.15px"
+            boxShadow="0 9px 22px rgba(22, 127, 118, 0.2)"
+            isDisabled={!formData.username || !formData.password || isLoading}
+            rightIcon={
+              !isLoading ? <Icon as={RiArrowRightLine} boxSize={4} /> : undefined
+            }
+            _hover={{
+              bg: "#126D66",
+              transform: "translateY(-1px)",
+              boxShadow: "0 12px 26px rgba(22, 127, 118, 0.26)",
+            }}
+            _active={{ transform: "translateY(0)" }}
+            transition="all 180ms ease"
+          >
+            {isLoading ? <Spinner size="sm" color="white" /> : "Sign in to portal"}
+          </Button>
+        </VStack>
+      </form>
+
+      <HStack
+        justify="center"
+        display={{ base: "none", md: "flex" }}
+        spacing={5}
+        mt={7}
+        color="#758A89"
+      >
+        <HStack spacing={1.5}>
+          <Icon as={RiShieldCheckLine} color="#16877D" boxSize={3.5} />
+          <Text fontSize="10px" fontWeight="600">
+            Secure access
+          </Text>
+        </HStack>
+        <Box w="3px" h="3px" rounded="full" bg="#C6D3D1" />
+        <HStack spacing={1.5}>
+          <Icon as={RiHeartPulseLine} color="#16877D" boxSize={3.5} />
+          <Text fontSize="10px" fontWeight="600">
+            Patient-first care
+          </Text>
+        </HStack>
+      </HStack>
+    </VStack>
   );
 });
 

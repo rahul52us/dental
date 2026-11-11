@@ -108,8 +108,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
     const activeColor = useColorModeValue('#0D9488', '#5EEAD4');
     const activeTextColor = useColorModeValue('#0F766E', '#5EEAD4');
     const activeBgPill = useColorModeValue(
-      'linear-gradient(135deg, rgba(204, 251, 241, 0.75) 0%, rgba(224, 242, 254, 0.75) 100%)',
-      'rgba(20, 184, 166, 0.22)'
+      'linear-gradient(135deg, rgba(204, 251, 241, 0.9) 0%, rgba(224, 242, 254, 0.9) 100%)',
+      'rgba(20, 184, 166, 0.18)'
     );
 
     const isItemActive = (item: NavItemConfig): boolean => {
@@ -163,19 +163,20 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
         left={0}
         right={0}
         width="100%"
-        minH="64px"
-        height="calc(64px + env(safe-area-inset-bottom, 8px))"
+        minH="72px"
+        height="calc(72px + env(safe-area-inset-bottom, 8px))"
         paddingBottom="env(safe-area-inset-bottom, 8px)"
         bg={bgColor}
         backdropFilter="blur(20px)"
         borderTop="1px solid"
         borderTopColor={borderColor}
-        boxShadow="0 -8px 25px rgba(0, 0, 0, 0.07)"
+        borderTopRadius="20px"
+        boxShadow="0 -10px 32px rgba(15, 23, 42, 0.10)"
         zIndex={100}
         display={{ base: 'flex', lg: 'none' }}
         alignItems="center"
         justifyContent="space-around"
-        px={1}
+        px={{ base: 1.5, sm: 3 }}
         userSelect="none"
         style={{
           WebkitTapHighlightColor: 'transparent',
@@ -192,63 +193,74 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
               key={item.id}
               flex={1}
               height="100%"
+              minH="56px"
               direction="column"
               align="center"
               justify="center"
-              py={1}
-              px={0.5}
+              py={1.5}
+              px={1}
+              gap={0}
               bg="transparent"
               border="none"
               outline="none"
               cursor="pointer"
               aria-current={active ? 'page' : undefined}
+              aria-expanded={item.isMore ? openMobileSideDrawer : undefined}
               aria-label={t(item.labelKey, item.defaultLabel)}
               onClick={() => handleClick(item)}
               transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-              _active={{ transform: 'scale(0.92)' }}
-              _focus={{ boxShadow: 'none' }}
+              _active={{ transform: 'scale(0.96)' }}
+              _focusVisible={{ boxShadow: '0 0 0 2px #0D9488', borderRadius: '14px' }}
               minW={0}
             >
               {/* Active Squircle / Pill */}
               <Flex
                 align="center"
                 justify="center"
-                w="46px"
-                h="28px"
-                borderRadius="12px"
+                w="48px"
+                h="32px"
+                borderRadius="13px"
                 bg={active ? activeBgPill : 'transparent'}
                 boxShadow={
-                  active ? '0 2px 8px rgba(13, 148, 136, 0.16)' : 'none'
+                  active ? '0 3px 10px rgba(13, 148, 136, 0.14)' : 'none'
                 }
                 transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                 transform={active ? 'scale(1.05)' : 'scale(1)'}
-                mb="2px"
+                mb="3px"
+                flexShrink={0}
               >
-                {item.icon({ color: itemColor, isActive: active })}
+                <Box
+                  transition="transform 0.2s ease"
+                  transform={active ? 'translateY(-1px)' : 'none'}
+                  sx={{ "& svg": { width: "21px", height: "21px" } }}
+                >
+                  {item.icon({ color: itemColor, isActive: active })}
+                </Box>
               </Flex>
 
               {/* Tab Label (No Truncation) */}
               <Text
                 fontSize={{ base: '10px', sm: '11px' }}
-                fontWeight={active ? 750 : 550}
+                fontWeight={active ? 800 : 600}
                 color={active ? activeTextColor : inactiveTextColor}
                 textAlign="center"
                 lineHeight="1.2"
                 whiteSpace="nowrap"
                 noOfLines={1}
-                letterSpacing="-0.15px"
-                px="1px"
+                letterSpacing="-0.1px"
+                px="2px"
+                maxW="100%"
               >
                 {displayLabel}
               </Text>
 
               {/* Glowing Bottom Indicator Pill */}
               <Box
-                w={active ? '14px' : '0px'}
-                h="2.5px"
+                w={active ? '18px' : '0px'}
+                h="3px"
                 borderRadius="full"
                 bgGradient="linear(to-r, #0EA5E9, #0D9488)"
-                mt="2px"
+                mt="3px"
                 transition="all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
                 opacity={active ? 1 : 0}
               />

@@ -45,6 +45,7 @@ import {
   FaUserPlus,
   FaCalendarPlus,
   FaChair,
+  FaTooth,
 } from "react-icons/fa";
 import DashboardCard from "../common/DashboardCard/DashboardCard";
 import { observer } from "mobx-react-lite";
@@ -53,6 +54,7 @@ import stores from "../../../store/stores";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import DarkSkeleton from "../common/DarkSkeleton";
+import { useRouter } from "next/navigation";
 
 // Chart.js Registration
 ChartJS.register(
@@ -144,6 +146,7 @@ const HERO_SLIDES = [
 ];
 
 const Dashboard = observer(() => {
+  const router = useRouter();
   const {
     dashboardStore: { getDashboardCount, count },
     auth: { user },
@@ -188,6 +191,17 @@ const Dashboard = observer(() => {
   const showWeeklyGrowth = hasPatientPerm || hasReportsPerm;
   const showTimeSlot = hasAppointmentPerm;
   const showLiveActivity = hasStaffPerm || hasPatientPerm;
+  const analyticsTabs = [
+    { id: "weekly", label: "Weekly", visible: showWeeklyGrowth },
+    { id: "slots", label: "Slots", visible: showTimeSlot },
+    { id: "treatments", label: "Treatments", visible: showWeeklyGrowth },
+    { id: "trends", label: "Trends", visible: showTimeSlot },
+  ].filter((tab) => tab.visible);
+  const selectedMobileTab = analyticsTabs.some(
+    (tab) => tab.id === activeMobileTab
+  )
+    ? activeMobileTab
+    : analyticsTabs[0]?.id || "weekly";
 
   const dashboardData = [
     { label: t("dashboard.doctors"), value: count?.data?.doctors || 0, icon: FaUserMd, color: "blue", href: "/dashboard/doctors", show: stores.auth.hasPermission("doctor", "view") },
@@ -276,7 +290,7 @@ const Dashboard = observer(() => {
   }, [timeSlotData]);
 
   return (
-    <Box p={{ base: 0, md: 8 }} minH="100vh" bg={useColorModeValue("gray.50", "#0B0E14")} position="relative" overflowX="hidden">
+    <Box p={{ base: 0, md: 8 }} minH="100vh" bg={useColorModeValue("#F4F8FA", "#0B0E14")} position="relative" overflowX="hidden">
       <Box mx="auto" position="relative" zIndex={1}>
         {/* ========================================================= */}
         {/* ==================== MOBILE VIEW (REDESIGNED) =========== */}
@@ -284,15 +298,32 @@ const Dashboard = observer(() => {
         <Box display={{ base: "block", md: "none" }} pb="calc(84px + env(safe-area-inset-bottom, 0px))">
           
           {/* 1. Lovable Clinic Spotlight Carousel */}
-          <Box px={4} pt={1} mb={3.5}>
+          <Box px={4} pt={1} mb={4}>
             <Box
-              borderRadius="24px"
+              borderRadius="26px"
               overflow="hidden"
               position="relative"
-              boxShadow="0 8px 24px rgba(0,0,0,0.08)"
-              h="150px"
-              bg="gray.100"
+              boxShadow="0 14px 28px rgba(16, 51, 68, 0.18)"
+              h="158px"
+              bgGradient="linear(135deg, #12354B 0%, #116C71 58%, #43A99B 100%)"
             >
+              <Box
+                position="absolute"
+                inset={0}
+                bgGradient="linear(to-r, rgba(10,35,48,0.72) 0%, rgba(10,55,61,0.35) 70%, rgba(10,55,61,0.12) 100%)"
+                zIndex={1}
+              />
+              <Icon
+                as={FaTooth}
+                position="absolute"
+                right="-12px"
+                top="-16px"
+                boxSize="128px"
+                color="whiteAlpha.200"
+                transform="rotate(-18deg)"
+                zIndex={1}
+                pointerEvents="none"
+              />
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentHeroSlide}
@@ -308,36 +339,40 @@ const Dashboard = observer(() => {
                     w="100%"
                     h="100%"
                     objectFit="cover"
-                    objectPosition="center"
+                    objectPosition="center 42%"
+                    opacity={0.46}
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
                   />
-                  {/* Frosted Clinic Spotlight Overlay */}
                   <Box
                     position="absolute"
                     inset={0}
-                    bgGradient="linear(to-t, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.3) 55%, transparent 100%)"
+                    bgGradient="linear(to-t, rgba(8,28,38,0.72) 0%, rgba(8,28,38,0.08) 78%)"
                     display="flex"
                     flexDirection="column"
                     justifyContent="flex-end"
-                    p={3.5}
+                    p={4}
+                    zIndex={2}
                   >
-                    <HStack spacing={1.5} mb={0.5}>
+                    <HStack spacing={1.5} mb={1}>
                       <Badge
-                        bg="cyan.400"
-                        color="gray.950"
+                        bg="rgba(179, 245, 224, 0.94)"
+                        color="#14594F"
                         fontSize="8px"
                         fontWeight="900"
-                        px={1.5}
-                        py={0.2}
-                        rounded="md"
-                        letterSpacing="0.5px"
+                        px={2}
+                        py={1}
+                        rounded="full"
+                        letterSpacing="0.65px"
                       >
                         {HERO_SLIDES[currentHeroSlide].tag}
                       </Badge>
                     </HStack>
-                    <Text color="white" fontWeight="900" fontSize="sm" lineHeight="1.2">
+                    <Text color="white" fontWeight="800" fontSize="md" lineHeight="1.2" letterSpacing="-0.2px">
                       {HERO_SLIDES[currentHeroSlide].title}
                     </Text>
-                    <Text color="whiteAlpha.800" fontSize="10px" fontWeight="500" noOfLines={1}>
+                    <Text color="whiteAlpha.900" fontSize="10px" fontWeight="500" noOfLines={1} mt={1}>
                       {HERO_SLIDES[currentHeroSlide].subtitle}
                     </Text>
                   </Box>
@@ -346,7 +381,7 @@ const Dashboard = observer(() => {
             </Box>
             
             {/* Slide Indicators (Pills) */}
-            <HStack justify="center" spacing={1.5} mt={2.5}>
+            <HStack justify="center" spacing={1.5} mt={2}>
               {HERO_SLIDES.map((_, idx) => (
                 <Box
                   key={idx}
@@ -355,33 +390,46 @@ const Dashboard = observer(() => {
                   borderRadius="full"
                   bg={currentHeroSlide === idx ? "blue.500" : "gray.300"}
                   transition="all 0.3s ease"
+                  cursor="pointer"
+                  onClick={() => setCurrentHeroSlide(idx)}
                 />
               ))}
             </HStack>
           </Box>
 
           {/* 2. Quick Clinical Shortcuts Row */}
-          <Box px={4} mb={4}>
-            <SimpleGrid columns={4} spacing={2.5}>
+          <Box px={4} mb={5}>
+            <Flex justify="space-between" align="center" mb={2.5}>
+              <Text fontSize="xs" fontWeight="800" color={textColor}>
+                Your shortcuts
+              </Text>
+              <Text fontSize="10px" color={subTextColor} fontWeight="600">
+                Everything at a tap
+              </Text>
+            </Flex>
+            <SimpleGrid columns={4} spacing={2}>
               {quickActions.map((qa, i) => (
                 <MotionBox
                   key={i}
-                  p={2}
-                  borderRadius="18px"
+                  as="button"
+                  type="button"
+                  p={{ base: 2, sm: 2.5 }}
+                  borderRadius="20px"
                   bg={appCardBg}
                   borderWidth="1px"
                   borderColor={appCardBorder}
-                  boxShadow="0 2px 10px rgba(0,0,0,0.02)"
+                  boxShadow="0 5px 16px rgba(18, 53, 75, 0.045)"
                   textAlign="center"
-                  onClick={() => (window.location.href = qa.href)}
+                  onClick={() => router.push(qa.href)}
                   whileTap={{ scale: 0.94 }}
                   cursor="pointer"
                   transition={{ duration: 0.2 }}
+                  _focusVisible={{ outline: "2px solid", outlineColor: "teal.400", outlineOffset: "2px" }}
                 >
-                  <Circle size="34px" mx="auto" mb={1} bg={`${qa.color}.50`} color={`${qa.color}.600`}>
-                    <Icon as={qa.icon} boxSize={3.5} />
+                  <Circle size="38px" mx="auto" mb={1.5} bg={`${qa.color}.50`} color={`${qa.color}.600`}>
+                    <Icon as={qa.icon} boxSize={4} />
                   </Circle>
-                  <Text fontSize="10px" fontWeight="800" color={textColor} noOfLines={1}>
+                  <Text fontSize="10px" fontWeight="750" color={textColor} noOfLines={1}>
                     {qa.label}
                   </Text>
                 </MotionBox>
@@ -392,13 +440,15 @@ const Dashboard = observer(() => {
           {/* 3. Key Metrics Stat Cards (Vibrant Pastel Bento Cards) */}
           <Box mb={5}>
             <Flex justify="space-between" align="center" px={4} mb={2.5}>
-              <HStack spacing={1.5}>
-                <Box w="3px" h="12px" bg="blue.500" rounded="full" />
-                <Text fontSize="xs" fontWeight="900" color={textColor} letterSpacing="0.2px">
-                  Key Metrics
+              <HStack spacing={2}>
+                <Circle size="26px" bg="blue.50" color="blue.600">
+                  <Icon as={FaChartLine} boxSize={3} />
+                </Circle>
+                <Text fontSize="sm" fontWeight="800" color={textColor} letterSpacing="-0.2px">
+                  Practice at a glance
                 </Text>
               </HStack>
-              <Text fontSize="10px" fontWeight="800" color="blue.500">Swipe →</Text>
+              <Text fontSize="10px" fontWeight="700" color={subTextColor}>Swipe to explore</Text>
             </Flex>
 
             <Flex
@@ -413,19 +463,23 @@ const Dashboard = observer(() => {
                 return (
                   <MotionBox
                     key={index}
-                    minW="148px"
+                    as="button"
+                    type="button"
+                    minW="154px"
                     bgGradient={theme.bg}
-                    p={3.5}
-                    borderRadius="22px"
-                    boxShadow="0 4px 16px rgba(0,0,0,0.03)"
-                    borderWidth="1.5px"
+                    p={4}
+                    borderRadius="23px"
+                    boxShadow="0 8px 22px rgba(22, 55, 74, 0.06)"
+                    borderWidth="1px"
                     borderColor={theme.border}
-                    onClick={() => (window.location.href = item.href)}
+                    onClick={() => router.push(item.href)}
                     whileTap={{ scale: 0.95 }}
                     flexShrink={0}
                     cursor="pointer"
+                    textAlign="left"
+                    _focusVisible={{ outline: "2px solid", outlineColor: "teal.400", outlineOffset: "2px" }}
                   >
-                    <Flex justify="space-between" align="center" mb={2.5}>
+                      <Flex justify="space-between" align="center" mb={3}>
                       <Circle 
                         size="34px" 
                         bgGradient={theme.iconGrad}
@@ -438,10 +492,10 @@ const Dashboard = observer(() => {
                         <Icon as={FaChevronRight} boxSize={2} color="gray.600" />
                       </Flex>
                     </Flex>
-                    <Text fontSize="24px" fontWeight="900" color="gray.900" lineHeight="1" mb={0.5}>
-                      {item.value}
+                    <Text fontSize="26px" fontWeight="900" color={textColor} lineHeight="1" mb={1}>
+                      {new Intl.NumberFormat().format(Number(item.value) || 0)}
                     </Text>
-                    <Text fontSize="10px" fontWeight="800" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" noOfLines={1}>
+                    <Text fontSize="9px" fontWeight="800" color={subTextColor} textTransform="uppercase" letterSpacing="0.65px" noOfLines={1}>
                       {item.label}
                     </Text>
                   </MotionBox>
@@ -452,109 +506,94 @@ const Dashboard = observer(() => {
 
           {/* 4. Interactive Analytics Segment */}
           <Box px={4} mb={5}>
-            <HStack spacing={1.5} mb={2.5}>
-              <Box w="3px" h="12px" bg="purple.500" rounded="full" />
-              <Text fontSize="xs" fontWeight="900" color={textColor} letterSpacing="0.2px">
-                Analytics Hub
-              </Text>
+            <HStack spacing={2} mb={3}>
+              <Circle size="26px" bg="purple.50" color="purple.600">
+                <Icon as={FaChartLine} boxSize={3} />
+              </Circle>
+              <Box>
+                <Text fontSize="sm" fontWeight="800" color={textColor} letterSpacing="-0.2px">
+                  Analytics
+                </Text>
+                <Text fontSize="10px" color={subTextColor} fontWeight="500">
+                  Your clinic, in perspective
+                </Text>
+              </Box>
             </HStack>
 
             {/* Segment Tabs */}
-            <Flex 
-              bg={isDark ? "gray.800" : "gray.200"} 
-              p="3px" 
-              borderRadius="18px" 
-              mb={3} 
-              gap={1} 
-              overflowX="auto" 
-              css={{ "&::-webkit-scrollbar": { display: "none" } }}
+            <Flex
+              role="tablist"
+              bg={isDark ? "gray.800" : "white"}
+              p="4px"
+              borderRadius="16px"
+              borderWidth="1px"
+              borderColor={appCardBorder}
+              boxShadow="0 5px 16px rgba(18, 53, 75, 0.045)"
+              mb={3}
+              gap={1}
+              overflowX="auto"
+              css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}
             >
-              {showWeeklyGrowth && (
-                <Flex 
-                  flex={1} 
-                  py={2} 
-                  px={2.5} 
-                  justify="center" 
-                  align="center" 
-                  borderRadius="14px" 
-                  cursor="pointer" 
-                  bg={activeMobileTab === "weekly" ? (isDark ? "gray.700" : "white") : "transparent"} 
-                  boxShadow={activeMobileTab === "weekly" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
-                  onClick={() => setActiveMobileTab("weekly")} 
-                  transition="all 0.2s"
-                >
-                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "weekly" ? "blue.500" : "gray.500"}>Weekly</Text>
-                </Flex>
-              )}
-              {showTimeSlot && (
-                <Flex 
-                  flex={1} 
-                  py={2} 
-                  px={2.5} 
-                  justify="center" 
-                  align="center" 
-                  borderRadius="14px" 
-                  cursor="pointer" 
-                  bg={activeMobileTab === "slots" ? (isDark ? "gray.700" : "white") : "transparent"} 
-                  boxShadow={activeMobileTab === "slots" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
-                  onClick={() => setActiveMobileTab("slots")} 
-                  transition="all 0.2s"
-                >
-                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "slots" ? "green.500" : "gray.500"}>Slots</Text>
-                </Flex>
-              )}
-              {showWeeklyGrowth && (
-                <Flex 
-                  flex={1} 
-                  py={2} 
-                  px={2.5} 
-                  justify="center" 
-                  align="center" 
-                  borderRadius="14px" 
-                  cursor="pointer" 
-                  bg={activeMobileTab === "treatments" ? (isDark ? "gray.700" : "white") : "transparent"} 
-                  boxShadow={activeMobileTab === "treatments" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
-                  onClick={() => setActiveMobileTab("treatments")} 
-                  transition="all 0.2s"
-                >
-                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "treatments" ? "purple.500" : "gray.500"}>Treatments</Text>
-                </Flex>
-              )}
-              {showTimeSlot && (
-                <Flex 
-                  flex={1} 
-                  py={2} 
-                  px={2.5} 
-                  justify="center" 
-                  align="center" 
-                  borderRadius="14px" 
-                  cursor="pointer" 
-                  bg={activeMobileTab === "trends" ? (isDark ? "gray.700" : "white") : "transparent"} 
-                  boxShadow={activeMobileTab === "trends" ? "0 2px 6px rgba(0,0,0,0.08)" : "none"} 
-                  onClick={() => setActiveMobileTab("trends")} 
-                  transition="all 0.2s"
-                >
-                  <Text fontSize="10px" fontWeight="800" color={activeMobileTab === "trends" ? "orange.500" : "gray.500"}>Trends</Text>
-                </Flex>
-              )}
+              {analyticsTabs.map((tab) => {
+                const isActive = selectedMobileTab === tab.id;
+
+                return (
+                  <Flex
+                    key={tab.id}
+                    as="button"
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    flex="1 0 auto"
+                    minW={tab.id === "treatments" ? "76px" : "62px"}
+                    py={2.5}
+                    px={2}
+                    justify="center"
+                    align="center"
+                    borderRadius="12px"
+                    cursor="pointer"
+                    bg={isActive ? (isDark ? "gray.700" : "#EAF5F3") : "transparent"}
+                    boxShadow={
+                      isActive
+                        ? "inset 0 0 0 1px rgba(13,148,136,0.12)"
+                        : "none"
+                    }
+                    onClick={() => setActiveMobileTab(tab.id)}
+                    transition="all 0.2s"
+                    _focusVisible={{
+                      outline: "2px solid",
+                      outlineColor: "teal.400",
+                      outlineOffset: "1px",
+                    }}
+                  >
+                    <Text
+                      fontSize="10px"
+                      fontWeight="800"
+                      color={isActive ? "teal.700" : "gray.500"}
+                    >
+                      {tab.label}
+                    </Text>
+                  </Flex>
+                );
+              })}
             </Flex>
 
             {/* Active Chart Card */}
             <AnimatePresence mode="wait">
-              <MotionBox 
-                key={activeMobileTab} 
-                initial={{ opacity: 0, y: 8 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                exit={{ opacity: 0, y: -8 }} 
-                transition={{ duration: 0.2 }} 
-                bg={appCardBg} 
-                p={4} 
-                borderRadius="24px" 
-                boxShadow="0 4px 20px rgba(0,0,0,0.03)" 
-                borderWidth="1px" 
+              <MotionBox
+                key={selectedMobileTab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                bg={appCardBg}
+                p={4}
+                borderRadius="22px"
+                boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+                borderWidth="1px"
                 borderColor={appCardBorder}
               >
-                {activeMobileTab === "weekly" && showWeeklyGrowth && (
+                {selectedMobileTab === "weekly" && showWeeklyGrowth && (
                   <Box>
                     <Flex justify="space-between" align="center" mb={3}>
                       <Box>
@@ -567,7 +606,7 @@ const Dashboard = observer(() => {
                   </Box>
                 )}
 
-                {activeMobileTab === "slots" && showTimeSlot && (
+                {selectedMobileTab === "slots" && showTimeSlot && (
                   <Box>
                     <Flex justify="space-between" align="center" mb={3}>
                       <Box>
@@ -582,7 +621,7 @@ const Dashboard = observer(() => {
                   </Box>
                 )}
 
-                {activeMobileTab === "treatments" && showWeeklyGrowth && (
+                {selectedMobileTab === "treatments" && showWeeklyGrowth && (
                   <Box>
                     <Flex justify="space-between" align="center" mb={3}>
                       <Box>
@@ -595,7 +634,7 @@ const Dashboard = observer(() => {
                   </Box>
                 )}
 
-                {activeMobileTab === "trends" && showTimeSlot && (
+                {selectedMobileTab === "trends" && showTimeSlot && (
                   <Box>
                     <Flex justify="space-between" align="center" mb={3}>
                       <Box>

@@ -42,6 +42,7 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
   const bgHover = useColorModeValue("gray.100", "gray.700");
   const bgActive = useColorModeValue("teal.50", "teal.900");
   const bgActiveHover = activeHoverBg || useColorModeValue("teal.100", "teal.800");
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
   return (
     <Box
@@ -50,10 +51,10 @@ export const InfoItem = ({ label, value, isActive, subItems, activeColor, bg, ac
       bg={isActive ? bgActive : bgIdle}
       _hover={{
         bg: isActive ? bgActiveHover : bgHover,
-        transform: "scale(1.02)",
-        transition: "all 0.3s ease",
+        transform: isMobile ? undefined : "scale(1.02)",
+        transition: "background 0.2s ease",
       }}
-      transition="all 0.3s ease"
+      transition="background 0.2s ease"
     >
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} alignItems={{ base: "start", md: "center" }}>
         <Text fontWeight="medium" fontSize="sm" color={textColor}>
@@ -140,6 +141,7 @@ export const RenderMedicalHistory = ({
   activeHoverBg,
   textColor,
 }: any) => {
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
   // Default to empty object to prevent undefined errors
   const safeHistory: any = history || {};
 
@@ -340,7 +342,7 @@ export const RenderMedicalHistory = ({
 
   return (
     <Box
-      p={5}
+      p={{ base: 3, md: 5 }}
       borderWidth={1}
       borderRadius="xl"
       bg={groups.some((group) => group.isActive) ? activeBg : inactiveBg}
@@ -350,10 +352,10 @@ export const RenderMedicalHistory = ({
       transition="box-shadow 0.3s ease"
       aria-label="Medical History"
     >
-      <Heading size="lg" mb={5} color={headingColor} fontWeight="bold">
+      <Heading size={{ base: "md", md: "lg" }} mb={{ base: 3, md: 5 }} color={headingColor} fontWeight="bold">
         Medical History
       </Heading>
-      <Accordion allowMultiple defaultIndex={groups.map((_, idx) => idx)}>
+      <Accordion allowMultiple defaultIndex={isMobile ? [] : groups.map((_, idx) => idx)}>
         {groups.map((group, idx) => (
           <AccordionItem key={idx} border="none" mb={2}>
             <AccordionButton
@@ -366,11 +368,12 @@ export const RenderMedicalHistory = ({
               }}
               px={4}
               py={3}
+              minH="48px"
               transition="all 0.3s ease"
             >
               <HStack flex="1" textAlign="left" spacing={3}>
                 <Icon as={group.icon} boxSize={6} color="teal.500" />
-                <Text fontWeight="bold" fontSize="md" color={textColor}>
+                <Text fontWeight="bold" fontSize={{ base: "sm", md: "md" }} color={textColor}>
                   {group.label}
                 </Text>
                 {group.isActive && (
@@ -638,6 +641,7 @@ const ViewPatient = ({ user }: any) => {
                 _hover={{ bgGradient: "linear(to-r, teal.600, teal.700)" }}
                 _active={{ transform: "scale(0.98)" }}
                 leftIcon={<FiPhone />}
+                minH="46px"
                 borderRadius="14px"
                 fontWeight="800"
                 fontSize="12px"
@@ -652,6 +656,7 @@ const ViewPatient = ({ user }: any) => {
                 variant="outline"
                 isDisabled
                 leftIcon={<FiPhone />}
+                minH="46px"
                 borderRadius="14px"
                 fontSize="12px"
               >
@@ -664,6 +669,8 @@ const ViewPatient = ({ user }: any) => {
                 aria-label="Copy Patient ID"
                 icon={<FiCopy />}
                 size="sm"
+                minW="46px"
+                h="46px"
                 variant="outline"
                 borderColor={cardBorderColor}
                 borderRadius="14px"
