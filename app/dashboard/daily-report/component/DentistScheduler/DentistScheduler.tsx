@@ -1,10 +1,11 @@
 import { RepeatClockIcon, EditIcon } from "@chakra-ui/icons";
-import { FiCheckCircle } from "react-icons/fi";
+import { FiCheckCircle, FiPlus } from "react-icons/fi";
 import {
   Box,
   Center,
   Flex,
   Grid,
+  HStack,
   IconButton,
   Spinner,
   Text,
@@ -12,8 +13,9 @@ import {
   Tooltip,
   Divider,
   Input,
+  VStack,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import stores from "../../../../store/stores";
 import { observer } from "mobx-react-lite";
 import { SLOT_DURATION } from "../../utils/constant";
@@ -585,7 +587,126 @@ const ScheduleGrid = ({
   );
 };
 
-/* ---------------------- MOBILE TABBED GRID ---------------------- */
+/* ---------------------- MOBILE AGENDA ---------------------- */
+
+const MobileAppointmentCard = ({
+  appointment,
+  chair,
+  selectedDate,
+  handleTimeSlots,
+  onOpenDetails,
+  shouldNotEditIcon,
+  onRefresh,
+}: any) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const editable = canEditAppointment(selectedDate, appointment.startTime);
+  const cardBg = useColorModeValue("white", "gray.700");
+  const titleColor = useColorModeValue("gray.800", "white");
+  const detailColor = useColorModeValue("gray.500", "gray.300");
+
+  const markAsArrived = async (event: MouseEvent) => {
+    event.stopPropagation();
+    setIsLoading(true);
+    try {
+      await stores.DoctorAppointment.updateAppointmentStatus({
+        id: appointment.id,
+        status: "arrived",
+      });
+      stores.auth.openNotification({
+        type: "success",
+        title: "Success",
+        message: "Appointment marked as arrived",
+      });
+      if (onRefresh) onRefresh();
+    } catch (error: any) {
+      stores.auth.openNotification({
+        type: "error",
+        title: "Error",
+        message: error?.message || "Failed to update status",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Box
+      role="button"
+      tabIndex={0}
+      aria-label={`Appointment for ${appointment.patientName} at ${appointment.startTime}`}
+      width="100%"
+      minH="62px"
+      p={2.5}
+      borderRadius="12px"
+      border="1px solid"
+      borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+      borderLeftWidth="3px"
+      borderLeftColor={chair.color}
+      bg={cardBg}
+      boxShadow="0 2px 6px rgba(15, 23, 42, 0.06)"
+      cursor="pointer"
+      onClick={() => onOpenDetails(appointment)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenDetails(appointment);
+        }
+      }}
+      _focusVisible={{ outline: "2px solid", outlineColor: "teal.400", outlineOffset: "1px" }}
+    >
+      <Flex align="center" justify="space-between" gap={2}>
+        <Box minW={0} flex={1}>
+          <Text fontSize="xs" fontWeight="800" color={titleColor} noOfLines={1}>
+            {appointment.patientName || "Patient"}
+          </Text>
+          <Text mt={0.5} fontSize="10px" color={detailColor} noOfLines={1}>
+            Dr. {appointment.doctorName || "—"}
+          </Text>
+        </Box>
+        <HStack
+          spacing={1}
+          flexShrink={0}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          {editable && !shouldNotEditIcon && (
+            <IconButton
+              aria-label="Edit appointment"
+              icon={<EditIcon boxSize={3} />}
+              size="xs"
+              minW="32px"
+              h="34px"
+              variant="ghost"
+              colorScheme="teal"
+              onClick={() =>
+                handleTimeSlots({
+                  open: true,
+                  mode: "edit",
+                  appointment,
+                  chair,
+                  selectedDate,
+                })
+              }
+            />
+          )}
+          {editable && appointment.status === "scheduled" && !shouldNotEditIcon && (
+            <IconButton
+              aria-label="Mark as arrived"
+              icon={<FiCheckCircle />}
+              size="xs"
+              minW="32px"
+              h="34px"
+              variant="ghost"
+              colorScheme="green"
+              isLoading={isLoading}
+              onClick={markAsArrived}
+            />
+          )}
+        </HStack>
+      </Flex>
+    </Box>
+  );
+};
 
 const MobileScheduleView = ({
   timeSlots,
@@ -593,7 +714,6 @@ const MobileScheduleView = ({
   appointments,
   handleTimeSlots,
   selectedDate,
-  setSelectedDate,
   allowedSlots,
   onOpenDetails,
   shouldNotEditIcon,
@@ -601,30 +721,35 @@ const MobileScheduleView = ({
 }: any) => {
   const [selectedChairIndex, setSelectedChairIndex] = useState(0);
 
-  const bg = useColorModeValue("white", "gray.800");
-  const timeHeaderBg = useColorModeValue("gray.50", "gray.900");
+  const pageBg = useColorModeValue("gray.50", "gray.900");
+  const surfaceBg = useColorModeValue("white", "gray.800");
+  const subtleText = useColorModeValue("gray.500", "gray.400");
+  const dividerColor = useColorModeValue("gray.100", "whiteAlpha.200");
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const isPastDate = selectedDate < today;
 
-  if (!chairs || chairs.length === 0) return null;
+  if (!chairs || chairs.length === 0) {
+    return (
+      <Center py={10}>
+        <Text fontSize="sm" color={subtleText}>No chairs are available for this schedule.</Text>
+      </Center>
+    );
+  }
 
   const safeIndex = selectedChairIndex < chairs.length ? selectedChairIndex : 0;
   const currentChair = chairs[safeIndex];
+  const chairAppointments = appointments.filter((appointment: any) => appointment.chairId === currentChair.id);
 
   const getAppointmentsStartingAt = (time: string) =>
-    appointments.filter(
-      (apt: any) => apt.startTime === time && apt.chairId === currentChair.id
-    );
+    chairAppointments.filter((apt: any) => apt.startTime === time);
 
   const isSlotOccupied = (time: string) => {
     const slotMinutes = toMinutes(time);
-    return appointments.some((apt: any) => {
-      if (apt.chairId !== currentChair.id) return false;
+    return chairAppointments.some((apt: any) => {
       const start = toMinutes(apt.startTime);
-      const end = start + apt.duration;
-      return slotMinutes >= start && slotMinutes < end;
+      return slotMinutes >= start && slotMinutes < start + apt.duration;
     });
   };
 
@@ -634,138 +759,150 @@ const MobileScheduleView = ({
     return allowedSlots.some((slot: any) => {
       const start = toMinutes(slot.startTime);
       const end = toMinutes(slot.endTime);
-      if (end > start) {
-        return slotMinutes >= start && slotMinutes < end;
-      }
-      return slotMinutes >= start && slotMinutes < 24 * 60;
+      return end > start
+        ? slotMinutes >= start && slotMinutes < end
+        : slotMinutes >= start && slotMinutes < 24 * 60;
     });
   };
 
   return (
-    <Box flex="1" px={0} pb={4} overflowY="auto" maxH={{ base: "75vh", md: "calc(100vh - 100px)" }} bg={bg}>
-      {/* Doctor Tabs (Pill Style) */}
-      <Flex 
-        overflowX="auto" 
-        bg={bg} 
-        py={4} 
-        px={4} 
-        gap={3} 
+    <Box flex="1" px={{ base: 0, sm: 2 }} pb={4} bg={pageBg}>
+      <Box
         position="sticky"
         top={0}
-        zIndex={100}
-        borderBottomWidth="1px"
-        borderColor="gray.100"
-        css={{
-            '&::-webkit-scrollbar': { display: 'none' },
-            scrollbarWidth: 'none'
-        }}
+        zIndex={20}
+        mx={{ base: 0, sm: 1 }}
+        px={{ base: 3, sm: 4 }}
+        pt={3}
+        pb={3}
+        bg={surfaceBg}
+        borderBottom="1px solid"
+        borderColor={dividerColor}
+        borderTopRadius="18px"
       >
-        {chairs.map((chair: any, index: number) => {
-          const isSelected = safeIndex === index;
-          return (
-            <Flex
-              key={chair.id}
-              direction="row"
-              align="center"
-              justify="center"
-              bg={isSelected ? chair.color : "gray.50"}
-              borderRadius="full"
-              py={2.5}
-              px={5}
-              minW="fit-content"
-              onClick={() => setSelectedChairIndex(index)}
-              cursor="pointer"
-              transition="all 0.2s"
-              boxShadow={isSelected ? "md" : "none"}
-            >
-              {!isSelected && <Box w={2.5} h={2.5} borderRadius="full" bg={chair.color} mr={2} />}
-              <Text fontWeight={isSelected ? "bold" : "semibold"} fontSize="sm" color={isSelected ? "white" : "gray.600"}>
-                {chair.name}
-              </Text>
-            </Flex>
-          );
-        })}
-      </Flex>
+        <Flex justify="space-between" align="center" mb={2.5}>
+          <Box>
+            <Text fontSize="xs" fontWeight="800" color={useColorModeValue("gray.800", "white")}>
+              Choose a chair
+            </Text>
+            <Text fontSize="10px" color={subtleText} mt={0.5}>
+              {chairAppointments.length} {chairAppointments.length === 1 ? "appointment" : "appointments"} scheduled
+            </Text>
+          </Box>
+        </Flex>
+        <Flex
+          overflowX="auto"
+          gap={2}
+          css={{
+            "&::-webkit-scrollbar": { display: "none" },
+            scrollbarWidth: "none",
+          }}
+        >
+          {chairs.map((chair: any, index: number) => {
+            const isSelected = safeIndex === index;
+            const count = appointments.filter((apt: any) => apt.chairId === chair.id).length;
+            return (
+              <Flex
+                as="button"
+                type="button"
+                key={chair.id}
+                align="center"
+                gap={2}
+                flexShrink={0}
+                minH="38px"
+                px={3}
+                borderRadius="12px"
+                border="1px solid"
+                borderColor={isSelected ? chair.color : dividerColor}
+                bg={isSelected ? hexToRGBA(chair.color, 0.12) : surfaceBg}
+                color={useColorModeValue("gray.700", "gray.200")}
+                onClick={() => setSelectedChairIndex(index)}
+                aria-pressed={isSelected}
+                aria-label={`Show ${chair.name} schedule, ${count} appointments`}
+                _focusVisible={{ outline: "2px solid", outlineColor: "teal.400", outlineOffset: "1px" }}
+              >
+                <Box w="8px" h="8px" borderRadius="full" bg={chair.color} />
+                <Text fontSize="xs" fontWeight={isSelected ? "800" : "600"} noOfLines={1}>
+                  {chair.name}
+                </Text>
+                <Text fontSize="10px" color={subtleText}>{count}</Text>
+              </Flex>
+            );
+          })}
+        </Flex>
+      </Box>
 
-      {/* Grid for selected chair */}
-      <Box bg={bg} mt={2} w="100%" minW="100%">
-        {timeSlots.map((time: string) => {
+      <Box px={{ base: 3, sm: 4 }} py={2} bg={surfaceBg} borderBottomRadius="18px">
+        {timeSlots.length === 0 ? (
+          <Center py={8}>
+            <VStack spacing={1}>
+              <Text fontSize="sm" fontWeight="700" color={useColorModeValue("gray.700", "gray.200")}>
+                No hours scheduled
+              </Text>
+              <Text fontSize="xs" color={subtleText}>There are no open time slots for this day.</Text>
+            </VStack>
+          </Center>
+        ) : timeSlots.filter((time: string) => {
+          const minute = toMinutes(time);
+          const startsAtTime = chairAppointments.some((apt: any) => apt.startTime === time);
+          if (startsAtTime) return true;
+          return !chairAppointments.some((apt: any) => {
+            const start = toMinutes(apt.startTime);
+            return minute > start && minute < start + apt.duration;
+          });
+        }).map((time: string) => {
           const startingAppointments = getAppointmentsStartingAt(time);
           const occupied = isSlotOccupied(time);
           const allowed = isSlotAllowed(time);
 
           return (
-            <Flex
-              key={time}
-              w="100%"
-              minH="70px"
-              position="relative"
-            >
-              {/* Time Column */}
-              <Flex
-                w="65px"
-                justify="center"
-                pt={2}
-                bg={bg}
-                zIndex={50}
-              >
-                <Text fontWeight="600" fontSize="xs" color="gray.400">
-                  {time}
-                </Text>
-              </Flex>
-
-              {/* Slot Area */}
-              <Box
-                flex="1"
-                position="relative"
-                borderBottomWidth="1px"
-                borderColor="gray.200"
-                borderLeftWidth="2px"
-                borderLeftColor={allowed ? hexToRGBA(currentChair.color, 0.4) : "transparent"}
-                bg={allowed ? hexToRGBA(currentChair.color, 0.07) : "gray.100"}
-                opacity={allowed ? 1 : 0.45}
-                onClick={() => {
-                  if (!occupied && allowed) {
-                    handleTimeSlots({ open: true, time, chair: currentChair, selectedDate });
-                  }
-                }}
-                cursor={!occupied && allowed ? "pointer" : "default"}
-                _active={!occupied && allowed ? { bg: "gray.50" } : {}}
-              >
-                {/* Existing Appointments */}
-                {startingAppointments.map((apt: any, index: number) => (
-                  <AppointmentCard
-                    key={apt.id}
-                    appointment={apt}
-                    selectedDate={selectedDate}
-                    handleTimeSlots={handleTimeSlots}
-                    chairColor={currentChair.color}
-                    overlapIndex={index}
-                    totalOverlaps={startingAppointments.length}
-                    onOpenDetails={onOpenDetails}
-                    shouldNotEditIcon={shouldNotEditIcon}
-                    onRefresh={onRefresh}
-                  />
-                ))}
-
-                {/* Closed Slot Label */}
-                {!allowed && startingAppointments.length === 0 && (
-                  <Center h="100%">
-                    <Text fontSize="xs" color="gray.400" fontWeight="medium">
-                      Closed
-                    </Text>
-                  </Center>
-                )}
-
-                {/* Subtle Add Hint (Visible on touch, no hover needed) */}
-                {!occupied && allowed && (
-                  <Flex align="center" pl={4} h="100%" opacity={0.3}>
-                    <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-                      + Tap to add
-                    </Text>
+            <Flex key={time} align="flex-start" gap={3} py={1.5}>
+              <Box w="42px" flexShrink={0} pt={2}>
+                <Text fontSize="10px" fontWeight="700" textAlign="right" color={subtleText}>{time}</Text>
+              </Box>
+              <VStack align="stretch" flex={1} minW={0} spacing={1.5}>
+                {startingAppointments.length > 0 ? (
+                  startingAppointments.map((apt: any) => (
+                    <MobileAppointmentCard
+                      key={apt.id}
+                      appointment={apt}
+                      chair={currentChair}
+                      selectedDate={selectedDate}
+                      handleTimeSlots={handleTimeSlots}
+                      onOpenDetails={onOpenDetails}
+                      shouldNotEditIcon={shouldNotEditIcon}
+                      onRefresh={onRefresh}
+                    />
+                  ))
+                ) : !occupied && allowed ? (
+                  <Flex
+                    as="button"
+                    type="button"
+                    w="100%"
+                    minH="48px"
+                    align="center"
+                    justify="space-between"
+                    px={3}
+                    border="1px solid"
+                    borderColor={useColorModeValue("gray.100", "whiteAlpha.100")}
+                    borderRadius="11px"
+                    bg={useColorModeValue("gray.50", "whiteAlpha.50")}
+                    onClick={() => handleTimeSlots({ open: true, time, chair: currentChair, selectedDate })}
+                    aria-label={`Book ${time} with ${currentChair.name}`}
+                    _active={{ bg: useColorModeValue("teal.50", "whiteAlpha.100") }}
+                    _focusVisible={{ outline: "2px solid", outlineColor: "teal.400", outlineOffset: "1px" }}
+                  >
+                    <Text fontSize="xs" fontWeight="600" color={subtleText}>Available</Text>
+                    <Flex w="26px" h="26px" align="center" justify="center" borderRadius="full" bg={useColorModeValue("teal.100", "teal.900")} color={useColorModeValue("teal.700", "teal.200")}>
+                      <FiPlus />
+                    </Flex>
+                  </Flex>
+                ) : (
+                  <Flex minH="40px" align="center" px={3} borderBottom="1px solid" borderColor={dividerColor}>
+                    <Text fontSize="xs" color={subtleText}>Unavailable</Text>
                   </Flex>
                 )}
-              </Box>
+              </VStack>
             </Flex>
           );
         })}

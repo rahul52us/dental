@@ -82,7 +82,7 @@ const HeaderLogo = observer(() => {
               {stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url ? (
                 <Box
                   p="2px"
-                  borderRadius="11px"
+                  borderRadius={{ base: "9px", md: "11px" }}
                   bg="whiteAlpha.350"
                   boxShadow="0 2px 8px rgba(0,0,0,0.18)"
                   backdropFilter="blur(6px)"
@@ -91,7 +91,7 @@ const HeaderLogo = observer(() => {
                   <Image 
                     src={stores.auth.user?.companyDetail?.logo?.url || stores.auth.user?.companyDetails?.logo?.url} 
                     alt={stores.auth.user?.companyDetail?.company_name || stores.auth.user?.companyDetails?.company_name}
-                    boxSize={{ base: "32px", md: "36px" }}
+                    boxSize={{ base: "28px", md: "36px" }}
                     objectFit="contain"
                     bg="white"
                     borderRadius="9px"
@@ -106,7 +106,7 @@ const HeaderLogo = observer(() => {
                   color="teal.600"
                   borderRadius="11px"
                   boxShadow="0 2px 8px rgba(0,0,0,0.18)"
-                  boxSize={{ base: "32px", md: "36px" }}
+                  boxSize={{ base: "28px", md: "36px" }}
                   flexShrink={0}
                 />
               )}
@@ -116,7 +116,7 @@ const HeaderLogo = observer(() => {
                   color="white"
                   fontWeight="800"
                   letterSpacing="-0.2px"
-                  fontSize={{ base: "13px", sm: "14px", md: "16px" }}
+                  fontSize={{ base: "12px", sm: "14px", md: "16px" }}
                   whiteSpace="nowrap"
                   noOfLines={1}
                   maxW={{ base: "115px", sm: "160px", md: "none" }}

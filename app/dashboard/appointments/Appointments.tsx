@@ -46,7 +46,7 @@ import AddAppointmentForm from "./component/AddForm";
 import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
 import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
-import { FiSearch } from "react-icons/fi";
+import { FiClock, FiSearch, FiUser } from "react-icons/fi";
 import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
 import { FaClipboardList } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -443,6 +443,42 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
     <>
       {isMobile ? (
         <Box p={{ base: 2, sm: 3 }} pb="calc(88px + env(safe-area-inset-bottom, 16px))">
+          <Flex
+            align="center"
+            gap={3}
+            p={{ base: 4, sm: 5 }}
+            mb={3}
+            borderRadius="22px"
+            bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+            color="white"
+            boxShadow="0 10px 24px rgba(18, 83, 96, 0.16)"
+          >
+            <Flex
+              w="44px"
+              h="44px"
+              flexShrink={0}
+              align="center"
+              justify="center"
+              borderRadius="15px"
+              bg="whiteAlpha.200"
+              border="1px solid"
+              borderColor="whiteAlpha.300"
+            >
+              <Icon as={FaClipboardList} boxSize={5} />
+            </Flex>
+            <Box minW={0}>
+              <Text fontSize="10px" fontWeight="800" letterSpacing="1.2px" color="whiteAlpha.800" textTransform="uppercase">
+                Clinic care
+              </Text>
+              <Text fontSize={{ base: "md", sm: "lg" }} fontWeight="800" noOfLines={1}>
+                {t("appointments.table.appointments", "Appointments")}
+              </Text>
+              <Text fontSize="xs" color="whiteAlpha.800" noOfLines={1}>
+                Manage visits, schedules and patient history
+              </Text>
+            </Box>
+          </Flex>
+
           {/* Summary Card for Patient */}
           {patientDetails && (
             <Box
@@ -569,47 +605,77 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                   <Box
                     key={dt._id || idx}
                     bg={useColorModeValue("white", "gray.800")}
-                    borderRadius="18px"
+                    borderRadius="20px"
                     p={{ base: 3, sm: 4 }}
                     border="1px solid"
-                    borderColor={useColorModeValue("gray.150", "whiteAlpha.150")}
-                    boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+                    borderColor={useColorModeValue("gray.100", "whiteAlpha.150")}
+                    borderLeft="4px solid"
+                    borderLeftColor="teal.400"
+                    boxShadow="0 6px 18px rgba(19, 52, 69, 0.06)"
                   >
-                    {/* Top Row: Date & Status */}
-                    <Flex justify="space-between" align="center" mb={2}>
-                      <HStack spacing={1.5}>
-                        <Icon as={InfoIcon} color="blue.500" boxSize={3.5} />
-                        <Text fontSize="12px" fontWeight="800" color={useColorModeValue("gray.800", "white")}>
-                          {formatDate(dt?.appointmentDate)}
-                        </Text>
-                      </HStack>
-                      <Badge
-                        colorScheme={statusCol}
-                        variant="subtle"
-                        borderRadius="full"
-                        px={2.5}
-                        py={0.5}
-                        fontSize="10px"
-                        fontWeight="750"
-                        textTransform="capitalize"
+                    <Flex align="center" gap={3} mb={3}>
+                      <Flex
+                        direction="column"
+                        align="center"
+                        justify="center"
+                        flexShrink={0}
+                        w="52px"
+                        h="56px"
+                        borderRadius="16px"
+                        bg={useColorModeValue("teal.50", "whiteAlpha.100")}
+                        color={useColorModeValue("teal.700", "teal.200")}
                       >
-                        {dt.status?.replace("-", " ") || "Scheduled"}
-                      </Badge>
+                        <Text fontSize="lg" lineHeight={1} fontWeight="900">
+                          {moment(dt?.appointmentDate).format("DD")}
+                        </Text>
+                        <Text mt={1} fontSize="9px" fontWeight="800" letterSpacing="0.7px" textTransform="uppercase">
+                          {moment(dt?.appointmentDate).format("MMM")}
+                        </Text>
+                      </Flex>
+
+                      <Box flex={1} minW={0}>
+                        <Flex justify="space-between" align="center" gap={2} mb={1}>
+                          <Text fontSize="10px" fontWeight="700" color={useColorModeValue("gray.500", "gray.400")} noOfLines={1}>
+                            {formatDate(dt?.appointmentDate)}
+                          </Text>
+                          <Badge
+                            colorScheme={statusCol}
+                            variant="subtle"
+                            borderRadius="full"
+                            px={2.5}
+                            py={0.5}
+                            fontSize="10px"
+                            fontWeight="750"
+                            textTransform="capitalize"
+                            flexShrink={0}
+                          >
+                            {dt.status?.replace("-", " ") || "Scheduled"}
+                          </Badge>
+                        </Flex>
+                        <Text fontSize="14px" fontWeight="800" color={useColorModeValue("gray.900", "gray.100")} noOfLines={1}>
+                          {dt?.title || "Clinical Consultation"}
+                        </Text>
+                      </Box>
                     </Flex>
 
-                    {/* Middle Info: Time & Cause */}
-                    <Text fontSize="13px" fontWeight="750" color={useColorModeValue("gray.900", "gray.100")} mb={1}>
-                      {dt?.title || "Clinical Consultation"}
-                    </Text>
-
-                    <HStack spacing={2} fontSize="12px" color={useColorModeValue("gray.600", "gray.400")} mb={2.5} wrap="wrap" rowGap={1}>
-                      <Text fontWeight="600">
-                        ⏰ {dt.startTime || "--"} - {dt?.endTime || "--"}
-                      </Text>
-                      <Text>•</Text>
-                      <Text fontWeight="700" color={useColorModeValue("teal.700", "teal.300")}>
-                        👨‍⚕️ {dt.doctorName || "Doctor"}
-                      </Text>
+                    <HStack
+                      spacing={4}
+                      fontSize="12px"
+                      color={useColorModeValue("gray.600", "gray.400")}
+                      mb={2.5}
+                      wrap="wrap"
+                      rowGap={1}
+                    >
+                      <HStack spacing={1.5}>
+                        <Icon as={FiClock} color="teal.500" />
+                        <Text fontWeight="700">{dt.startTime || "--"} - {dt?.endTime || "--"}</Text>
+                      </HStack>
+                      <HStack spacing={1.5} minW={0}>
+                        <Icon as={FiUser} color="teal.500" />
+                        <Text fontWeight="700" color={useColorModeValue("teal.700", "teal.300")} noOfLines={1}>
+                          {dt.doctorName || "Doctor"}
+                        </Text>
+                      </HStack>
                     </HStack>
 
                     {/* Bottom Action Buttons */}

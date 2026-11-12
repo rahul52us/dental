@@ -318,8 +318,9 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="sm">
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(6px)" />
         <DrawerContent
-          maxW={{ base: '88vw', sm: '375px' }}
-          borderLeftRadius={{ base: '26px', sm: '30px' }}
+          w={{ base: '100vw', sm: '375px' }}
+          maxW={{ base: '100vw', sm: '375px' }}
+          borderLeftRadius={{ base: 0, sm: '30px' }}
           overflow="hidden"
           bg={drawerBg}
           boxShadow="-12px 0 35px rgba(0, 0, 0, 0.28)"

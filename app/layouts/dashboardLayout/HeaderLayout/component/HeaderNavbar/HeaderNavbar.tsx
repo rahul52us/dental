@@ -26,8 +26,8 @@ const HeaderNavbar = observer(() => {
     <Flex
       justifyContent="flex-end"
       alignItems="center"
-      gap={{ base: 1.5, sm: 2, lg: 2.5 }}
-      pr={{ base: 0.5, md: 2 }}
+      gap={{ base: 1, sm: 2, lg: 2.5 }}
+      pr={{ base: 0, md: 2 }}
       minW={0}
     >
       {stores.globalConfigStore?.config?.tutorialDoc && (
@@ -61,9 +61,9 @@ const HeaderNavbar = observer(() => {
             title="Tutorial"
             icon={<FiBookOpen />}
             fontSize="15px"
-            w={{ base: "32px", sm: "36px", md: "38px" }}
-            h={{ base: "32px", sm: "36px", md: "38px" }}
-            minW={{ base: "32px", sm: "36px", md: "38px" }}
+            w={{ base: "30px", sm: "36px", md: "38px" }}
+            h={{ base: "30px", sm: "36px", md: "38px" }}
+            minW={{ base: "30px", sm: "36px", md: "38px" }}
             borderRadius="10px"
             color="white"
             variant="ghost"
@@ -94,9 +94,9 @@ const HeaderNavbar = observer(() => {
             variant="ghost"
             color="white"
             fontSize="15px"
-            w={{ base: "32px", sm: "36px", md: "38px" }}
-            h={{ base: "32px", sm: "36px", md: "38px" }}
-            minW={{ base: "32px", sm: "36px", md: "38px" }}
+            w={{ base: "30px", sm: "36px", md: "38px" }}
+            h={{ base: "30px", sm: "36px", md: "38px" }}
+            minW={{ base: "30px", sm: "36px", md: "38px" }}
             borderRadius="10px"
             bg="whiteAlpha.220"
             border="1px solid rgba(255,255,255,0.18)"

@@ -1,19 +1,15 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Box, Heading, Flex, Button, Text, useColorModeValue, HStack, IconButton, Icon, VStack, Badge } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import WaitingRoomWhatsApp from "./component/WaitingRoomWhatsApp";
 import moment from "moment";
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, RepeatIcon } from "@chakra-ui/icons";
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { MdOutlineAirlineSeatReclineExtra } from "react-icons/md";
 import stores from "../../../store/stores";
 import { useTranslation } from "react-i18next";
 
 const WaitingRoomPage = observer((): any => {
-    const {
-        auth: { userType },
-    } = stores;
-
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const ads = stores.advertisementStore.activeAdvertisements?.data || [];
@@ -43,46 +39,44 @@ const WaitingRoomPage = observer((): any => {
     const bgColor = useColorModeValue("gray.50", "#0a0a0b");
     const containerBg = useColorModeValue("whiteAlpha.900", "whiteAlpha.50");
     const borderColor = useColorModeValue("gray.100", "whiteAlpha.100");
-    const todayBtnBg = useColorModeValue("blue.50", "whiteAlpha.100");
-    const datePillBg = useColorModeValue("gray.50", "blackAlpha.400");
-
     const resetToToday = () => {
         setSelectedDate(new Date());
     };
 
     return (
-        <Box p={{ base: 4, xl: 8 }} bg={bgColor} maxH="80vh">
+        <Box p={{ base: 2, sm: 3, xl: 6 }} bg={bgColor} minH="100%">
             {/* Elite Command Header */}
             <Flex
                 direction={{ base: "column", lg: "row" }}
                 align={{ base: "stretch", lg: "center" }}
                 justify="space-between"
-                mb={10}
+                mb={{ base: 4, md: 6 }}
                 bg={containerBg}
                 backdropFilter="blur(20px)"
-                p={7}
-                borderRadius="3xl"
-                boxShadow={useColorModeValue("0 20px 40px -15px rgba(0,0,0,0.05)", "0 30px 60px -20px rgba(0,0,0,0.5)")}
+                p={{ base: 4, md: 6 }}
+                borderRadius={{ base: "22px", md: "3xl" }}
+                boxShadow={useColorModeValue("0 12px 28px -16px rgba(0,0,0,0.16)", "0 20px 40px -20px rgba(0,0,0,0.5)")}
                 border="1px solid"
                 borderColor={borderColor}
-                gap={6}
+                gap={{ base: 4, md: 6 }}
             >
-                <HStack spacing={6} flexWrap="wrap" align="center">
+                <HStack spacing={{ base: 3, md: 6 }} flexWrap="wrap" align="center">
                     <Box
-                        p={4}
+                        w={{ base: "48px", md: "64px" }}
+                        h={{ base: "48px", md: "64px" }}
                         bgGradient="linear(to-br, blue.400, teal.400)"
-                        borderRadius="2xl"
+                        borderRadius={{ base: "16px", md: "2xl" }}
                         color="white"
                         boxShadow="0 15px 35px -10px rgba(49, 130, 206, 0.6)"
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
                     >
-                        <MdOutlineAirlineSeatReclineExtra size={32} />
+                        <MdOutlineAirlineSeatReclineExtra size={26} />
                     </Box>
-                    <VStack align="start" spacing={1}>
-                        <HStack spacing={4} flexWrap="wrap">
-                            <Heading size="lg" fontWeight="900" letterSpacing="-0.04em" color={useColorModeValue("gray.800", "white")}>
+                    <VStack align="start" spacing={1} minW={0}>
+                        <HStack spacing={{ base: 2, md: 4 }} flexWrap="wrap">
+                            <Heading size={{ base: "md", md: "lg" }} fontWeight="900" letterSpacing="-0.04em" color={useColorModeValue("gray.800", "white")}>
                                 {t("waitingRoom.title")}
                             </Heading>
                             <Badge
@@ -103,15 +97,16 @@ const WaitingRoomPage = observer((): any => {
                                 {t("waitingRoom.liveQueue")}
                             </Badge>
                         </HStack>
-                        <Text fontSize="xs" fontWeight="700" color={useColorModeValue("gray.500", "gray.300")} letterSpacing="0.05em">
+                        <Text fontSize="xs" fontWeight="700" color={useColorModeValue("gray.500", "gray.300")} letterSpacing="0.02em">
                             {t("waitingRoom.subtitle")}
                         </Text>
                     </VStack>
                 </HStack>
 
                 <Box
+                    display={ads.length > 0 ? "block" : "none"}
                     w={{ base: "100%", lg: "400px", xl: "450px" }}
-                    h={{ base: "85px", md: "110px" }}
+                    h={{ base: "82px", md: "110px" }}
                     borderRadius="2xl"
                     overflow="hidden"
                     position="relative"
@@ -268,6 +263,77 @@ const WaitingRoomPage = observer((): any => {
                         </Flex>
                     )}
                 </Box>
+            </Flex>
+
+            <Flex
+                align="center"
+                justify="space-between"
+                gap={2}
+                mb={4}
+                px={{ base: 2, md: 4 }}
+                py={3}
+                bg={useColorModeValue("white", "gray.800")}
+                border="1px solid"
+                borderColor={borderColor}
+                borderRadius="20px"
+                boxShadow="0 5px 18px rgba(19, 52, 69, 0.05)"
+            >
+                <HStack spacing={2} minW={0} display={{ base: "none", sm: "flex" }}>
+                    <CalendarIcon color="teal.500" />
+                    <Text fontSize="xs" fontWeight="700" color={useColorModeValue("gray.500", "gray.400")} display={{ base: "none", sm: "block" }}>
+                        Queue for
+                    </Text>
+                </HStack>
+                <HStack
+                    spacing={{ base: 0, sm: 1 }}
+                    w={{ base: "100%", sm: "auto" }}
+                    justify={{ base: "space-between", sm: "flex-start" }}
+                >
+                    <IconButton
+                        aria-label="Previous day"
+                        icon={<ChevronLeftIcon />}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="teal"
+                        minW="32px"
+                        h="36px"
+                        borderRadius="12px"
+                        onClick={goToPreviousDate}
+                    />
+                    <Text
+                        flex={1}
+                        minW={{ base: "60px", sm: "175px" }}
+                        textAlign="center"
+                        fontSize={{ base: "xs", sm: "sm" }}
+                        fontWeight="800"
+                        color={useColorModeValue("#183B48", "white")}
+                        noOfLines={1}
+                    >
+                        {moment(selectedDate).format("ddd, DD MMM YYYY")}
+                    </Text>
+                    <IconButton
+                        aria-label="Next day"
+                        icon={<ChevronRightIcon />}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="teal"
+                        minW="32px"
+                        h="36px"
+                        borderRadius="12px"
+                        onClick={goToNextDate}
+                    />
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        colorScheme="teal"
+                        borderRadius="12px"
+                        px={{ base: 2, sm: 4 }}
+                        minH="36px"
+                        onClick={resetToToday}
+                    >
+                        Today
+                    </Button>
+                </HStack>
             </Flex>
 
             <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2}>

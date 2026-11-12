@@ -14,9 +14,9 @@ const HeaderThemeSwitch = () => {
       variant="ghost"
       fontSize={{ base: "16px", md: "18px" }}
       color="white"
-      w={{ base: "32px", sm: "36px", md: "38px" }}
-      h={{ base: "32px", sm: "36px", md: "38px" }}
-      minW={{ base: "32px", sm: "36px", md: "38px" }}
+      w={{ base: "30px", sm: "36px", md: "38px" }}
+      h={{ base: "30px", sm: "36px", md: "38px" }}
+      minW={{ base: "30px", sm: "36px", md: "38px" }}
       borderRadius="10px"
       bg="whiteAlpha.180"
       border="1px solid rgba(255,255,255,0.12)"

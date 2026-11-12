@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useCallback } from "react";
-import { Box, Heading, Flex, Button, Text, useColorModeValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from "@chakra-ui/react";
+import { Box, Heading, Flex, Button, Text, useColorModeValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, HStack, Icon, VStack } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import DentistScheduler from "../../daily-report/component/DentistScheduler/DentistScheduler";
 import stores from "../../../store/stores";
@@ -12,6 +12,7 @@ import EditAppointmentForm from "../component/EditForm";
 import { SLOT_DURATION } from "../../daily-report/utils/constant";
 import CustomDrawer from "../../../component/common/Drawer/CustomDrawer";
 import { FiDownload } from "react-icons/fi";
+import { RiCalendarScheduleLine } from "react-icons/ri";
 import { useTranslation } from "react-i18next";
 
 const BookAppointmentPage = observer(() => {
@@ -531,55 +532,117 @@ const BookAppointmentPage = observer(() => {
         setSelectedDate((prev: any) => moment(prev).add(1, "day").toDate());
     };
 
-    const bgColor = useColorModeValue("gray.50", "gray.900");
+    const bgColor = useColorModeValue("#F4F7FA", "gray.900");
 
     return (
-        <Box p={4} bg={bgColor} minH="100vh">
+        <Box p={{ base: 2, sm: 3, lg: 5 }} bg={bgColor} minH="100%">
             <Flex
-                direction={{ base: "column", lg: "row" }}
-                align={{ base: "center", lg: "center" }}
+                direction={{ base: "column", md: "row" }}
+                align={{ base: "stretch", md: "center" }}
                 justify="space-between"
                 gap={4}
-                mb={6}
-                bg={useColorModeValue("white", "gray.800")}
-                p={4}
-                borderRadius="xl"
-                boxShadow="sm"
+                mb={4}
+                p={{ base: 4, md: 5 }}
+                borderRadius="24px"
+                bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+                color="white"
+                boxShadow="0 12px 28px rgba(18, 83, 96, 0.18)"
+                position="relative"
+                overflow="hidden"
             >
-                <Heading size="lg" textAlign={{ base: "center", lg: "left" }}>{t("sidebar.Book Appointment", "Book Appointment")}</Heading>
-                <Flex direction={{ base: "column", sm: "row" }} align="center" gap={4} width={{ base: "100%", lg: "auto" }}>
+                <Box
+                    position="absolute"
+                    w="180px"
+                    h="180px"
+                    rounded="full"
+                    border="1px solid"
+                    borderColor="whiteAlpha.200"
+                    right="-45px"
+                    top="-92px"
+                    pointerEvents="none"
+                />
+                <HStack spacing={3} position="relative" zIndex={1}>
+                    <Flex
+                        w="46px"
+                        h="46px"
+                        rounded="16px"
+                        align="center"
+                        justify="center"
+                        bg="whiteAlpha.200"
+                        border="1px solid"
+                        borderColor="whiteAlpha.300"
+                        flexShrink={0}
+                    >
+                        <Icon as={RiCalendarScheduleLine} boxSize={5} />
+                    </Flex>
+                    <VStack align="start" spacing={0.5} minW={0}>
+                        <Text fontSize="10px" fontWeight="800" letterSpacing="1.2px" color="whiteAlpha.800" textTransform="uppercase">
+                            Clinic schedule
+                        </Text>
+                        <Heading size={{ base: "md", md: "lg" }} letterSpacing="-0.5px" noOfLines={1}>
+                            {t("sidebar.Book Appointment", "Book Appointment")}
+                        </Heading>
+                        <Text fontSize="xs" color="whiteAlpha.800" noOfLines={1}>
+                            Select an open time to schedule a visit.
+                        </Text>
+                    </VStack>
+                </HStack>
+
+                <Flex direction={{ base: "column", sm: "row" }} align="stretch" gap={3} width={{ base: "100%", md: "auto" }} position="relative" zIndex={1}>
                     {stores.auth.hasPermission('appointment', 'download') && (
                         <Button
                             leftIcon={<FiDownload />}
-                            colorScheme="teal"
-                            variant="solid"
+                            bg="whiteAlpha.200"
+                            color="white"
+                            border="1px solid"
+                            borderColor="whiteAlpha.300"
                             onClick={handleDownloadSchedule}
                             isLoading={isDownloading}
-                            borderRadius="xl"
-                            boxShadow="sm"
+                            borderRadius="14px"
+                            h="44px"
                             width={{ base: "100%", sm: "auto" }}
-                            _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
-                            _active={{ transform: "translateY(0)" }}
-                            transition="all 0.2s"
+                            _hover={{ bg: "whiteAlpha.300" }}
                         >
                             {t("appointments.page.downloadSchedule", "Download Schedule")}
                         </Button>
                     )}
-                    <Flex align="center" justify="center" gap={3} width={{ base: "100%", sm: "auto" }}>
-                        <Button size="md" colorScheme="blue" onClick={goToPreviousDate} p={1}>
-                            <ChevronLeftIcon fontSize={28} />
-                        </Button>
-                        <Text fontWeight="700" fontSize={{ base: "sm", sm: "lg" }} minW={{ base: "150px", sm: "220px" }} textAlign="center">
-                            {moment(selectedDate).locale(i18n.language || "en").format("ddd, DD MMM YYYY")}
-                        </Text>
-                        <Button size="md" colorScheme="blue" onClick={goToNextDate} p={1}>
-                            <ChevronRightIcon fontSize={28} />
-                        </Button>
-                    </Flex>
                 </Flex>
             </Flex>
 
-            <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2} overflowX="auto" w="100%">
+            <Flex
+                direction={{ base: "column", sm: "row" }}
+                align={{ base: "stretch", sm: "center" }}
+                justify="space-between"
+                gap={3}
+                mb={4}
+                p={{ base: 3, sm: 3.5 }}
+                bg={useColorModeValue("white", "gray.800")}
+                border="1px solid"
+                borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+                borderRadius="20px"
+                boxShadow="0 5px 18px rgba(19, 52, 69, 0.05)"
+            >
+                <HStack spacing={2} color={useColorModeValue("gray.500", "gray.400")}>
+                    <Icon as={RiCalendarScheduleLine} color="teal.500" boxSize={4} />
+                    <Text fontSize="xs" fontWeight="700">Selected day</Text>
+                </HStack>
+                <Flex align="center" justify="center" gap={2} width={{ base: "100%", sm: "auto" }}>
+                        <Button aria-label="Previous day" size="sm" colorScheme="teal" variant="ghost" onClick={goToPreviousDate} p={1} minW="40px" h="40px" borderRadius="12px">
+                            <ChevronLeftIcon fontSize={28} />
+                        </Button>
+                        <Text flex={1} minW={{ base: "100px", sm: "190px" }} fontWeight="800" color={useColorModeValue("#183B48", "white")} fontSize={{ base: "sm", sm: "md" }} textAlign="center" noOfLines={1}>
+                            {moment(selectedDate).locale(i18n.language || "en").format("ddd, DD MMM YYYY")}
+                        </Text>
+                        <Button aria-label="Next day" size="sm" colorScheme="teal" variant="ghost" onClick={goToNextDate} p={1} minW="40px" h="40px" borderRadius="12px">
+                            <ChevronRightIcon fontSize={28} />
+                        </Button>
+                        <Button size="sm" variant="outline" colorScheme="teal" borderRadius="12px" h="40px" onClick={() => setSelectedDate(new Date())}>
+                            Today
+                        </Button>
+                </Flex>
+            </Flex>
+
+            <Box bg={useColorModeValue("white", "gray.800")} borderRadius="22px" boxShadow="0 8px 26px rgba(19, 52, 69, 0.06)" border="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} p={{ base: 1, md: 3 }} overflow="hidden" w="100%">
                 <DentistScheduler
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}

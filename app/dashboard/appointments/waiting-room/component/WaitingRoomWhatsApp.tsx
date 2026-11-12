@@ -189,20 +189,20 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
     if (loading) {
         return (
-            <Center py={10}>
-                <Spinner size="xl" color="brand.500" thickness="4px" />
+            <Center py={{ base: 8, md: 10 }}>
+                <Spinner size="lg" color="brand.500" thickness="4px" />
             </Center>
         );
     }
 
     if (appointments.length === 0) {
         return (
-            <Center py={32} flexDir="column" textAlign="center">
+            <Center py={{ base: 8, md: 24 }} flexDir="column" textAlign="center">
                 <Box
-                    p={8}
+                    p={{ base: 4, md: 7 }}
                     bg={colorMode === 'light' ? "blue.50" : "whiteAlpha.50"}
-                    borderRadius="3xl"
-                    mb={6}
+                    borderRadius={{ base: "2xl", md: "3xl" }}
+                    mb={{ base: 4, md: 6 }}
                     position="relative"
                     _before={{
                         content: '""',
@@ -213,26 +213,26 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                         bottom: "-4px",
                         border: "1px dashed",
                         borderColor: "blue.200",
-                        borderRadius: "4xl",
+                        borderRadius: "3xl",
                         opacity: 0.5
                     }}
                 >
                     <Icon
                         as={MdOutlineAirlineSeatReclineExtra}
-                        boxSize={14}
+                        boxSize={{ base: 10, md: 14 }}
                         color="blue.400"
                         animation={`${pulse} 3s infinite ease-in-out`}
                     />
                 </Box>
                 <VStack spacing={2}>
-                    <Heading size="md" color={labelTextColor} fontWeight="900" letterSpacing="tight">
-                        Queue is Empty
+                    <Heading size={{ base: "sm", md: "md" }} color={labelTextColor} fontWeight="900" letterSpacing="tight">
+                        No patients waiting
                     </Heading>
-                    <Text fontSize="sm" color="gray.500" maxW="280px" fontWeight="600" lineHeight="tall">
-                        Arrived patients will show up here. Everything is currently up to date!
+                    <Text fontSize="sm" color="gray.500" maxW="280px" px={2} fontWeight="600" lineHeight="tall">
+                        Patients marked as arrived will appear here.
                     </Text>
                     <Button
-                        mt={6}
+                        mt={2}
                         size="sm"
                         variant="ghost"
                         colorScheme="blue"
@@ -240,6 +240,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                         onClick={fetchArrivedAppointments}
                         borderRadius="xl"
                         fontWeight="800"
+                        minH="44px"
                     >
                         Refresh Queue
                     </Button>
@@ -249,8 +250,26 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
     }
 
     return (
-        <Box w="100%" pb={8}>
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={7} p={3}>
+        <Box w="100%" pb={{ base: 2, md: 8 }}>
+            <Flex
+                justify="space-between"
+                align="center"
+                px={{ base: 1, md: 3 }}
+                mb={{ base: 2, md: 3 }}
+            >
+                <Box>
+                    <Heading size="sm" color={labelTextColor} fontWeight="800">
+                        Arrived patients
+                    </Heading>
+                    <Text fontSize="xs" color={mutedTextColor} mt={0.5}>
+                        Patients currently in the waiting room
+                    </Text>
+                </Box>
+                <Badge colorScheme="teal" borderRadius="full" px={3} py={1} fontSize="xs">
+                    {appointments.length} waiting
+                </Badge>
+            </Flex>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={{ base: 3, md: 7 }} p={{ base: 0, md: 3 }}>
                 {appointments.map((apt: any) => {
                     const patient = apt.patient || {};
                     const chairColor = apt.chairColor || "#3182ce";
@@ -287,7 +306,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                         <Box
                             key={apt._id}
                             bg={silkBg}
-                            borderRadius="3xl"
+                            borderRadius={{ base: "2xl", md: "3xl" }}
                             borderWidth="1.5px"
                             borderColor={borderColor}
                             boxShadow={softShadow}
@@ -318,10 +337,12 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     bgGradient="linear(to-br, teal.400, teal.600)"
                                     color="white"
                                     position="absolute"
-                                    top={4}
-                                    right={4}
+                                    top={{ base: 3, md: 4 }}
+                                    right={{ base: 3, md: 4 }}
                                     zIndex={10}
                                     borderRadius="full"
+                                    minW="40px"
+                                    minH="40px"
                                     boxShadow="0 4px 15px rgba(45, 170, 150, 0.4)"
                                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                                     _hover={{
@@ -352,10 +373,10 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             {/* Refined Breathing Pillar */}
                             <Box
                                 position="absolute"
-                                left="12px"
+                                left={{ base: "10px", md: "12px" }}
                                 top="50%"
                                 h="55%"
-                                w="8px"
+                                w={{ base: "5px", md: "8px" }}
                                 bg={chairColor}
                                 borderRadius="full"
                                 animation={`${pulse} 5s infinite ease-in-out`}
@@ -363,8 +384,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 zIndex={2}
                             />
 
-                            <Box p={6} pl={10} flex={1} position="relative" zIndex={1}>
-                                <Flex align="center" gap={5} mb={5}>
+                            <Box p={{ base: 4, md: 6 }} pl={{ base: 6, md: 10 }} flex={1} position="relative" zIndex={1}>
+                                <Flex align="center" gap={{ base: 3, md: 5 }} mb={{ base: 4, md: 5 }}>
                                     <Box position="relative">
                                         <Avatar
                                             src={patient?.pic?.url}
@@ -394,7 +415,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         <HStack spacing={2} align="center">
                                             <Text
                                                 fontWeight="800"
-                                                fontSize="lg"
+                                                fontSize={{ base: "md", md: "lg" }}
                                                 color={labelTextColor}
                                                 noOfLines={1}
                                                 letterSpacing="-0.03em"
@@ -440,7 +461,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     </Box>
                                 </Flex>
 
-                                <VStack align="stretch" spacing={4} w="100%">
+                                <VStack align="stretch" spacing={{ base: 3, md: 4 }} w="100%">
                                     <HStack justify="space-between">
                                         <Flex align="center" gap={2} fontSize="xs" fontWeight="700" color={mutedTextColor} letterSpacing="tight">
                                             <CalendarIcon boxSize={3} color={chairColor} />
@@ -452,8 +473,8 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                     {/* Glass Content Panel */}
                                     <Box
                                         bg={colorMode === 'light' ? "whiteAlpha.700" : "whiteAlpha.100"}
-                                        p={4}
-                                        borderRadius="2xl"
+                                        p={{ base: 3, md: 4 }}
+                                        borderRadius={{ base: "xl", md: "2xl" }}
                                         borderLeft="4px solid"
                                         borderLeftColor={chairColor}
                                         backdropFilter="blur(8px)"
@@ -469,7 +490,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                         {/* 💰 Patient Balance Summary */}
                                         <Box
                                             mt={2}
-                                            p={2.5}
+                                            p={{ base: 2, md: 2.5 }}
                                             borderRadius="xl"
                                             w="100%"
                                             bg={colorMode === 'light' 
@@ -512,7 +533,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                                         </Badge>
                                                     )}
                                                 </HStack>
-                                                <HStack justify="space-between" spacing={3}>
+                                                <HStack justify="space-between" spacing={{ base: 1, md: 3 }}>
                                                     <VStack spacing={0} align="start">
                                                         <Text fontSize="9px" color={colorMode === 'light' ? "gray.400" : "gray.500"} fontWeight="600">Total Bill</Text>
                                                         <Text fontSize="13px" fontWeight="800" color={colorMode === 'light' ? "gray.700" : "gray.200"}>
@@ -549,7 +570,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             {/* Action Buttons Panel */}
                             <Flex
                                 justify="stretch"
-                                p={3}
+                                p={{ base: 2, md: 3 }}
                                 bg={toolbarBg}
                                 backdropFilter="blur(20px)"
                                 borderTop="1px solid"
@@ -557,7 +578,15 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 gap={3}
                                 zIndex={2}
                             >
-                                <SimpleGrid columns={2} spacing={3} width="100%" px={4} pb={4} onClick={(e) => e.stopPropagation()}>
+                                <SimpleGrid
+                                    columns={{ base: 2, sm: 3, md: 2 }}
+                                    spacing={{ base: 2, md: 3 }}
+                                    width="100%"
+                                    px={{ base: 0, md: 4 }}
+                                    pb={{ base: 0, md: 4 }}
+                                    sx={{ "& button": { minH: "44px" } }}
+                                    onClick={(e) => e.stopPropagation()}
+                                >
 
                                     {stores.auth.hasPermission('treatment', 'view') && (
                                         <Tooltip label={`Incomplete: ${patient?.incompleteTreatmentCount || 0} | Pending: ${patient?.pendingTreatmentCount || 0}`} hasArrow placement="top" isDisabled={!patient?.incompleteTreatmentCount && !patient?.pendingTreatmentCount}>
@@ -903,7 +932,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
             {/* Arrived Appointment Details Drawer */}
             <CustomDrawer
-                width={"80vw"}
+                width={{ base: "100%", md: "80vw" }}
                 open={openDetails}
                 close={() => setOpenDetails(false)}
                 title="Appointment Details"
@@ -914,7 +943,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {/* History Drawer */}
             {openHistory.open && (
                 <CustomDrawer
-                    width="92%"
+                    width={{ base: "100%", md: "92%" }}
                     title={`Appointments History: ${openHistory.data?.name}`}
                     open={openHistory.open}
                     close={() => setOpenHistory({ open: false, data: null })}
@@ -929,7 +958,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {/* Treatment Drawer */}
             {openTreatment.open && (
                 <CustomDrawer
-                    width="92%"
+                    width={{ base: "100%", md: "92%" }}
                     title={`Treatment advise: ${openTreatment.data?.name}`}
                     open={openTreatment.open}
                     close={() => setOpenTreatment({ open: false, data: null, defaultTab: 0, defaultStatusFilter: "all" })}
@@ -946,7 +975,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {/* Appointment Drawer */}
             {openAppointment.open && (
                 <CustomDrawer
-                    width="92%"
+                    width={{ base: "100%", md: "92%" }}
                     title={`Patient Appointments: ${openAppointment.data?.name}`}
                     open={openAppointment.open}
                     close={() => setOpenAppointment({ open: false, data: null })}
@@ -974,7 +1003,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {/* Lab Drawer */}
             {openLab.open && (
                 <CustomDrawer
-                    width="92%"
+                    width={{ base: "100%", md: "92%" }}
                     title={openLab.workType === "in-house" ? `In-house Laboratory: ${openLab.data?.name}` : `Laboratory History: ${openLab.data?.name}`}
                     open={openLab.open}
                     close={() => setOpenLab({ open: false, data: null, workType: "all" })}
@@ -991,7 +1020,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
             {/* Recall Drawer */}
             {openRecall.open && (
                 <CustomDrawer
-                    width="92%"
+                    width={{ base: "100%", md: "92%" }}
                     title={`Recall Appointments ${openRecall.data?.name ? `(${openRecall.data.name})` : ""}`}
                     open={openRecall.open}
                     close={() => setOpenRecall({ open: false, data: null })}
@@ -1009,7 +1038,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                     open={openAccountDetails.open}
                     close={() => setOpenAccountDetails({ open: false, data: null })}
                     title={`Accountability Management: ${openAccountDetails.data?.name}`}
-                    width="92vw"
+                    width={{ base: "100%", md: "92vw" }}
                 >
                     <PatientAccountHistory patientDetails={openAccountDetails.data} />
                 </CustomDrawer>
@@ -1017,7 +1046,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
             {/* Profile Drawer */}
             <CustomDrawer
-                width="90vw"
+                width={{ base: "100%", md: "90vw" }}
                 open={openProfile}
                 close={() => setOpenProfile(false)}
                 title="Patient Profile"
@@ -1034,7 +1063,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
             {/* Medical History Drawer */}
             <CustomDrawer
-                width="60vw"
+                width={{ base: "100%", md: "60vw" }}
                 open={openMedicalHistory.open}
                 close={() => setOpenMedicalHistory({ open: false, data: null })}
                 title={`Medical History: ${openMedicalHistory.data?.name || "Patient"}`}
@@ -1067,9 +1096,9 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                 isCentered
             >
                 <AlertDialogOverlay backdropFilter="blur(10px)">
-                    <AlertDialogContent borderRadius="3xl" overflow="hidden" boxShadow="2xl">
-                        <Box bgGradient="linear(to-r, green.500, green.600)" py={6} px={8} color="white">
-                            <AlertDialogHeader fontSize="xl" fontWeight="900" p={0} letterSpacing="tight">
+                    <AlertDialogContent borderRadius={{ base: "2xl", md: "3xl" }} overflow="hidden" boxShadow="2xl" mx={4}>
+                        <Box bgGradient="linear(to-r, green.500, green.600)" py={{ base: 5, md: 6 }} px={{ base: 5, md: 8 }} color="white">
+                            <AlertDialogHeader fontSize={{ base: "lg", md: "xl" }} fontWeight="900" p={0} letterSpacing="tight">
                                 Complete Appointment
                             </AlertDialogHeader>
                             <Text fontSize="xs" opacity={0.9} mt={1} fontWeight="600" letterSpacing="widest" textTransform="uppercase">
@@ -1077,7 +1106,7 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             </Text>
                         </Box>
 
-                        <AlertDialogBody py={8} px={8} fontWeight="700" color="gray.600" bg={colorMode === 'light' ? "white" : "gray.800"}>
+                        <AlertDialogBody py={{ base: 5, md: 8 }} px={{ base: 5, md: 8 }} fontWeight="700" color="gray.600" bg={colorMode === 'light' ? "white" : "gray.800"}>
                             <VStack align="start" spacing={3}>
                                 <Text fontSize="md" color={colorMode === 'light' ? "gray.800" : "white"}>
                                     Are you ready to mark this visit as finished?
@@ -1088,15 +1117,24 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                             </VStack>
                         </AlertDialogBody>
 
-                        <AlertDialogFooter px={8} py={6} gap={3} bg={colorMode === 'light' ? "gray.50" : "gray.900/50"} borderTopWidth="1px" borderColor={borderColor}>
+                        <AlertDialogFooter
+                            px={{ base: 4, md: 8 }}
+                            py={{ base: 4, md: 6 }}
+                            gap={3}
+                            flexDirection={{ base: "column-reverse", sm: "row" }}
+                            bg={colorMode === 'light' ? "gray.50" : "gray.900/50"}
+                            borderTopWidth="1px"
+                            borderColor={borderColor}
+                        >
                             <Button
                                 ref={cancelRef}
                                 onClick={() => setOpenConfirm({ open: false, id: "" })}
                                 borderRadius="2xl"
                                 fontWeight="800"
                                 variant="ghost"
-                                size="lg"
+                                size="md"
                                 fontSize="sm"
+                                w={{ base: "100%", sm: "auto" }}
                             >
                                 Cancel
                             </Button>
@@ -1106,10 +1144,11 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
                                 isLoading={isCompleting}
                                 borderRadius="2xl"
                                 fontWeight="800"
-                                size="lg"
+                                size="md"
                                 fontSize="sm"
                                 boxShadow="0 10px 20px -5px rgba(72, 187, 120, 0.4)"
-                                px={8}
+                                px={{ base: 4, md: 8 }}
+                                w={{ base: "100%", sm: "auto" }}
                                 _hover={{
                                     transform: "translateY(-2px)",
                                     boxShadow: "0 15px 25px -5px rgba(72, 187, 120, 0.5)",

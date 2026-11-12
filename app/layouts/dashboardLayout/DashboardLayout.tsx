@@ -9,7 +9,7 @@ import stores from '../../store/stores';
 import SidebarLayout from './SidebarLayout/SidebarLayout';
 import HeaderLayout from './HeaderLayout/HeaderLayout';
 // import PermissionDeniedPage from '../../component/common/Loader/PermissionDeniedPage';
-import { contentLargeBodyPadding, contentSmallBodyPadding, headerHeight, mediumSidebarWidth } from '../../component/config/utils/variable';
+import { contentLargeBodyPadding, contentSmallBodyPadding, headerHeight, mobileHeaderHeight, mediumSidebarWidth } from '../../component/config/utils/variable';
 import PageLoader from '../../component/common/Loader/PageLoader';
 import ProfileDetailsModal from '../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal';
 import AdvertisementBanner from './AdvertisementBanner';
@@ -70,7 +70,10 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
 
   return user ? (
     <Box>
-      <MainContainer $isMobile={isMobile}>
+      <MainContainer
+        $isMobile={isMobile}
+        $sidebarWidth={isCallapse ? mediumSidebarWidth : '250px'}
+      >
         <Box ref={sidebarRef}>
           <SidebarLayout
             onItemClick={handleSidebarItemClick}
@@ -88,6 +91,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
             $fullScreenMode={fullScreenMode}
             $backgroundColor={headerBgColor}
             $headerGradient={headerGradient}
+            $sidebarWidth={isCallapse ? mediumSidebarWidth : '250px'}
           >
             <HeaderLayout />
           </HeaderContainer>
@@ -99,6 +103,7 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
             }
             $fullScreenMode={fullScreenMode}
             $sizeStatus={sizeStatus}
+            $sidebarWidth={isCallapse ? mediumSidebarWidth : '250px'}
           >
             <AdvertisementBanner />
             {children}
@@ -122,11 +127,14 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
 
 export default DashboardLayout;
 
-const MainContainer = styled.div<{ $isMobile: boolean }>`
+const MainContainer = styled.div<{
+  $isMobile: boolean;
+  $sidebarWidth: string;
+}>`
   display: flex;
   transition: all 0.3s ease-in-out;
   overflow: hidden;
-  margin-left: ${(props) => (props.$isMobile ? '0px' : mediumSidebarWidth)};
+  margin-left: ${(props) => (props.$isMobile ? '0px' : props.$sidebarWidth)};
 `;
 
 const Container = styled.div<{ $fullScreenMode: boolean }>`
@@ -142,9 +150,10 @@ const HeaderContainer = styled.div<{
   $backgroundColor: string;
   $isMobile: boolean;
   $headerGradient: string;
+  $sidebarWidth: string;
 }>`
   z-index: 99;
-  height: ${headerHeight};
+  height: ${(props) => (props.$isMobile ? mobileHeaderHeight : headerHeight)};
   position: fixed;
   top: 0;
   right: 0;
@@ -154,7 +163,7 @@ const HeaderContainer = styled.div<{
     props.$isMobile
       ? '0 4px 20px rgba(13, 148, 136, 0.2)'
       : '0 4px 15px rgba(0, 0, 0, 0.05)'};
-  left: ${(props) => (props.$isMobile ? '0px' : mediumSidebarWidth)};
+  left: ${(props) => (props.$isMobile ? '0px' : props.$sidebarWidth)};
   transition: all 0.3s ease-in-out;
 `;
 
@@ -163,15 +172,20 @@ const ContentContainer = styled.div<{
   $fullScreenMode: boolean;
   $mediumScreenMode: boolean;
   $isMobile: boolean;
+  $sidebarWidth: string;
 }>`
   padding: ${({ $isMobile }) =>
     $isMobile
       ? `${contentSmallBodyPadding} ${contentSmallBodyPadding} calc(80px + env(safe-area-inset-bottom, 0px)) ${contentSmallBodyPadding}`
       : `${contentLargeBodyPadding}`};
-  width: ${({ $isMobile }) =>
-    $isMobile ? '100vw' : `calc(100vw - ${mediumSidebarWidth})`};
+  width: ${({ $isMobile, $sidebarWidth }) =>
+    $isMobile ? '100vw' : `calc(100vw - ${$sidebarWidth})`};
   overflow-x: hidden;
-  height: calc(100vh - ${headerHeight});
+  height: ${({ $isMobile }) =>
+    $isMobile
+      ? `calc(100vh - ${mobileHeaderHeight})`
+      : `calc(100vh - ${headerHeight})`};
   transition: all 0.3s ease-in-out;
-  margin-top: ${headerHeight};
+  margin-top: ${({ $isMobile }) =>
+    $isMobile ? mobileHeaderHeight : headerHeight};
 `;
