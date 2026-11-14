@@ -2,6 +2,9 @@ import {
   Avatar,
   Badge,
   Box,
+  Card,
+  CardBody,
+  Divider,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -9,6 +12,7 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  HStack,
   IconButton,
   Text,
   Button,
@@ -16,9 +20,10 @@ import {
   useDisclosure,
   VStack,
   Icon,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import FormModel from "../../../../component/common/FormModel/FormModel";
-import { FiPower, FiAlertCircle, FiLock, FiKey } from "react-icons/fi";
+import { FiPower, FiAlertCircle, FiLock, FiKey, FiEye, FiEdit2, FiTrash2, FiPhone } from "react-icons/fi";
 import StaffPermissionsModal from "./StaffPermissionsModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { observer } from "mobx-react-lite";
@@ -40,6 +45,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   } = stores;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const detailsPlacement =
+    useBreakpointValue<"bottom" | "right">({ base: "bottom", md: "right" }) ?? "right";
   const { isOpen: isStatusOpen, onOpen: onStatusOpen, onClose: onStatusClose } = useDisclosure();
   const [selectedUser, setSelectedTherapist] = useState<any>(null);
   const [statusUser, setStatusUser] = useState<any>(null);
@@ -295,7 +302,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   });
 
   return (
-    <Box p={4}>
+    <Box p={{ base: 2, md: 4 }}>
       <CustomTable
         title={t("staffs.table.staffs")}
         data={
@@ -390,15 +397,136 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           },
         }}
         loading={user.loading}
+        mobileCard={(row: any) => {
+          const genderLabel =
+            genderOptions.find((option: any) => option.value === row.gender)?.label || "";
+          const displayTitle =
+            row.title || (genderLabel === "Male" ? "Mr." : genderLabel === "Female" ? "Mrs." : "");
+          const phone = row.phones?.find((item: any) => item.primary)?.number;
+
+          return (
+            <Card
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+              borderLeft="4px solid"
+              borderLeftColor="blue.500"
+              borderRadius="xl"
+              boxShadow="sm"
+            >
+              <CardBody p={3}>
+                <Flex align="center" gap={3}>
+                  <Avatar src={row.pic?.url} name={row.name} size="md" />
+                  <Box minW={0} flex={1}>
+                    <Text fontWeight="bold" fontSize="sm" noOfLines={1} color="gray.800">
+                      {displayTitle ? `${displayTitle} ${row.name}` : row.name}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" mt={0.5}>
+                      Staff code · {row.code || "—"}
+                    </Text>
+                  </Box>
+                  <Badge
+                    colorScheme={row.is_active ? "green" : "gray"}
+                    variant="subtle"
+                    borderRadius="full"
+                    px={2}
+                    py={1}
+                    fontSize="10px"
+                  >
+                    {row.is_active ? t("staffs.table.active") : t("staffs.table.inactive")}
+                  </Badge>
+                </Flex>
+
+                <Flex mt={3} align="center" justify="space-between" gap={2}>
+                  <HStack
+                    as={phone ? "button" : "div"}
+                    onClick={() => phone && copyToClipboard(phone)}
+                    spacing={2}
+                    minW={0}
+                    color={phone ? "blue.600" : "gray.400"}
+                    fontSize="xs"
+                    aria-label={phone ? "Copy phone number" : undefined}
+                  >
+                    <FiPhone />
+                    <Text noOfLines={1}>{phone ? `••• ${phone.slice(-4)}` : "No phone number"}</Text>
+                  </HStack>
+                  {stores.auth.hasPermission("staffs", "edit") && (
+                    <Tooltip label={row.is_active ? t("staffs.table.deactivate") : t("staffs.table.activate")}>
+                      <IconButton
+                        aria-label={t("staffs.table.toggleStatus")}
+                        icon={<FiPower />}
+                        size="xs"
+                        minW="40px"
+                        minH="40px"
+                        colorScheme={row.is_active ? "orange" : "green"}
+                        variant="ghost"
+                        onClick={() => handleStatusClick(row)}
+                      />
+                    </Tooltip>
+                  )}
+                </Flex>
+
+                <Divider my={2} />
+                <Flex justify="space-between" align="center" gap={1}>
+                  <HStack spacing={1}>
+                    {stores.auth.hasPermission("staffs", "view") && (
+                      <Tooltip label="View profile">
+                        <IconButton aria-label="View profile" icon={<FiEye />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="teal" onClick={() => handleRowClick(row)} />
+                      </Tooltip>
+                    )}
+                    {stores.auth.hasPermission("staffs", "edit") && (
+                      <Tooltip label="Edit staff">
+                        <IconButton aria-label="Edit staff" icon={<FiEdit2 />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="blue" onClick={() => onEdit(row)} />
+                      </Tooltip>
+                    )}
+                    {stores.auth.hasPermission("staffs", "delete") && (
+                      <Tooltip label="Delete staff">
+                        <IconButton aria-label="Delete staff" icon={<FiTrash2 />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="red" onClick={() => onDelete(row)} />
+                      </Tooltip>
+                    )}
+                  </HStack>
+                  {stores.auth.hasPermission("staffs", "edit") && (
+                    <HStack spacing={1}>
+                      <Tooltip label="Manage permissions">
+                        <IconButton aria-label="Manage permissions" icon={<FiLock />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="purple" onClick={() => { setPermUser(row); setIsPermOpen(true); }} />
+                      </Tooltip>
+                      <Tooltip label="Change password">
+                        <IconButton aria-label="Change password" icon={<FiKey />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="orange" onClick={() => { setSelectedPassUser(row); setIsPassModalOpen(true); }} />
+                      </Tooltip>
+                    </HStack>
+                  )}
+                </Flex>
+              </CardBody>
+            </Card>
+          );
+        }}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer
+        isOpen={isOpen}
+        placement={detailsPlacement}
+        onClose={() => {
+          onClose();
+          setSelectedTherapist(null);
+        }}
+      >
         <DrawerOverlay />
-        <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
-          <DrawerCloseButton />
+        <DrawerContent
+          w={{ base: "100vw", md: "80vw" }}
+          maxW={{ base: "100vw", md: "80vw" }}
+          h="100dvh"
+          maxH="100dvh"
+          borderRadius={0}
+          overflow="hidden"
+          display="flex"
+          flexDirection="column"
+        >
+          <DrawerCloseButton color="white" _hover={{ bg: "whiteAlpha.200" }} />
           <DrawerHeader
             bg={stores.themeStore.themeConfig.colors.custom.light.primary}
             color="white"
+            py={{ base: 3, md: 4 }}
+            fontSize={{ base: "sm", md: "lg" }}
           >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
@@ -407,7 +535,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </DrawerHeader>
 
           {selectedUser && (
-            <DrawerBody>
+            <DrawerBody p={0} minH={0} overflowY="auto" overscrollBehaviorY="contain">
               <ViewUser
                 user={{
                   ...selectedUser.profileDetails?.personalInfo,

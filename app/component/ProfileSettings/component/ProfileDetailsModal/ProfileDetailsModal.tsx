@@ -348,18 +348,31 @@ const ProfileDetailsModal = observer(({ user }: any) => {
       size={"xl"}
     >
       <DrawerOverlay backdropFilter="blur(2px)" />
-      <DrawerContent maxW="85vw">
+      <DrawerContent
+        w={{ base: "100vw", md: "85vw" }}
+        maxW={{ base: "100vw", md: "85vw" }}
+        h={{ base: "100dvh", md: "100vh" }}
+        maxH={{ base: "100dvh", md: "100vh" }}
+        borderRadius={0}
+      >
         {/* Header Section: Identity */}
-        <Box bg="blue.600" p={5} color="white" position="relative">
+        <Box
+          bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+          p={{ base: 3, md: 5 }}
+          color="white"
+          position="relative"
+        >
           <DrawerCloseButton color="white" onClick={handleClose} />
           <Flex
-            direction={{ base: "column", sm: "row" }}
+            direction="row"
             align="center"
-            gap={5}
+            gap={{ base: 3, md: 5 }}
+            pr={{ base: 8, md: 0 }}
           >
             <Box position="relative" cursor="pointer" onClick={() => fileInputRef.current?.click()}>
               <Avatar
-                size="lg"
+                size="md"
+                boxSize={{ base: "48px", md: "64px" }}
                 src={pic?.url}
                 name={name}
                 border="4px solid white"
@@ -398,13 +411,14 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                 )}
               </Flex>
             </Box>
-            <Box textAlign={{ base: "center", sm: "left" }}>
+            <Box minW={0} flex={1} textAlign="left">
               <Flex
                 align="center"
                 gap={2}
-                justify={{ base: "center", sm: "flex-start" }}
+                justify="flex-start"
+                wrap="wrap"
               >
-                <Heading size="md">
+                <Heading size={{ base: "sm", md: "md" }} noOfLines={1}>
                   {title} {name}
                 </Heading>
                 <Badge
@@ -416,41 +430,63 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   {is_active ? "Active" : "Inactive"}
                 </Badge>
               </Flex>
-              <Text fontSize="md" opacity={0.9} mt={1}>
+              <Text fontSize={{ base: "xs", md: "md" }} opacity={0.9} mt={1} noOfLines={1}>
                 {username}
               </Text>
-              <Badge mt={2} colorScheme="orange" variant="subtle">
+              <Badge mt={{ base: 1, md: 2 }} colorScheme="orange" variant="subtle">
                 {role}
               </Badge>
             </Box>
           </Flex>
         </Box>
 
-        <DrawerBody p={0}>
-          <Tabs isFitted variant="enclosed" colorScheme="blue" index={profileModal.defaultTab} onChange={(index) => setProfileModal(true, index)}>
-            <TabList px={4} pt={4}>
-              <Tab fontWeight="bold">Profile</Tab>
-              {user?.role === "admin" && <Tab fontWeight="bold">Operating Hours</Tab>}
-              <Tab fontWeight="bold">Sidebar</Tab>
-              <Tab fontWeight="bold">Theme</Tab>
-              {user?.role === "admin" && <Tab fontWeight="bold">WhatsApp</Tab>}
+        <DrawerBody p={0} overflow="hidden">
+          <Tabs
+            display="flex"
+            flexDirection="column"
+            h="100%"
+            minH={0}
+            variant="line"
+            colorScheme="teal"
+            index={profileModal.defaultTab}
+            onChange={(index) => setProfileModal(true, index)}
+          >
+            <TabList
+              px={{ base: 2, md: 4 }}
+              pt={{ base: 1, md: 3 }}
+              gap={{ base: 1, md: 2 }}
+              overflowX="auto"
+              flexShrink={0}
+              borderBottom="1px solid"
+              borderColor="gray.200"
+              css={{
+                "&::-webkit-scrollbar": { display: "none" },
+                scrollbarWidth: "none",
+              }}
+            >
+              <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Profile</Tab>
+              {user?.role === "admin" && <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Operating Hours</Tab>}
+              <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Sidebar</Tab>
+              <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Theme</Tab>
+              {user?.role === "admin" && <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">WhatsApp</Tab>}
             </TabList>
 
-            <TabPanels>
+            <TabPanels flex={1} minH={0} overflowY="auto">
               {/* TAB 1: Profile Overview */}
-              <TabPanel p={6}>
-                <VStack spacing={6} align="stretch">
+              <TabPanel p={{ base: 3, md: 6 }}>
+                <VStack spacing={{ base: 4, md: 6 }} align="stretch">
                   <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
-                    <Flex align="center" justify="space-between">
-                      <HStack spacing={4}>
-                        <Avatar size="md" src={pic?.url} name={name} />
-                        <Box>
+                    <Flex align={{ base: "flex-start", sm: "center" }} justify="space-between" direction={{ base: "column", sm: "row" }} gap={3}>
+                      <HStack spacing={3} minW={0}>
+                        <Avatar size="md" flexShrink={0} src={pic?.url} name={name} />
+                        <Box minW={0}>
                           <Text fontWeight="bold">Profile Picture</Text>
-                          <Text fontSize="sm" color="gray.500">Upload a new avatar to personalize your account</Text>
+                          <Text fontSize="xs" color="gray.500">Upload a new avatar to personalize your account</Text>
                         </Box>
                       </HStack>
                       <Button
                         size="sm"
+                        minH="40px"
                         colorScheme="blue"
                         leftIcon={<Icon as={FiUpload} />}
                         onClick={() => fileInputRef.current?.click()}
@@ -463,16 +499,17 @@ const ProfileDetailsModal = observer(({ user }: any) => {
 
                   {user?.role === "admin" && (
                     <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
-                      <Flex align="center" justify="space-between">
-                        <HStack spacing={4}>
-                          <Avatar size="md" src={companyLogo?.url} name={user?.companyDetail?.company_name} borderRadius="md" />
-                          <Box>
+                      <Flex align={{ base: "flex-start", sm: "center" }} justify="space-between" direction={{ base: "column", sm: "row" }} gap={3}>
+                        <HStack spacing={3} minW={0}>
+                          <Avatar size="md" flexShrink={0} src={companyLogo?.url} name={user?.companyDetail?.company_name} borderRadius="md" />
+                          <Box minW={0}>
                             <Text fontWeight="bold">Company Logo</Text>
                             <Text fontSize="sm" color="gray.500">Update the logo for your clinic/company</Text>
                           </Box>
                         </HStack>
                         <Button
                           size="sm"
+                          minH="40px"
                           colorScheme="teal"
                           leftIcon={<Icon as={FiUpload} />}
                           onClick={() => logoInputRef.current?.click()}
@@ -690,12 +727,12 @@ const ProfileDetailsModal = observer(({ user }: any) => {
 
               {/* TAB 2: Operating Hours */}
               {user?.role === "admin" && (
-                <TabPanel p={6}>
+                <TabPanel p={{ base: 2, md: 6 }}>
                   <OperatingHours schedule={schedule} setSchedule={setSchedule} />
                 </TabPanel>
               )}
 
-              <TabPanel p={6}>
+              <TabPanel p={{ base: 2, md: 6 }}>
                 <ProfileSettings />
               </TabPanel>
 
@@ -706,7 +743,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
 
               {/* TAB 5: WhatsApp Settings */}
               {user?.role === "admin" && (
-                <TabPanel p={6}>
+                <TabPanel p={{ base: 2, md: 6 }}>
                   <WhatsappSettings user={user} />
                 </TabPanel>
               )}
@@ -714,14 +751,28 @@ const ProfileDetailsModal = observer(({ user }: any) => {
           </Tabs>
         </DrawerBody>
 
-        <DrawerFooter bg="gray.50">
-          <Button variant="ghost" mr={3} onClick={handleClose}>
+        <DrawerFooter
+          bg="gray.50"
+          px={{ base: 3, md: 6 }}
+          py={{ base: 2, md: 4 }}
+          gap={2}
+          borderTop="1px solid"
+          borderColor="gray.200"
+        >
+          <Button
+            variant="ghost"
+            flex={{ base: 1, md: "initial" }}
+            minH="44px"
+            onClick={handleClose}
+          >
             Close
           </Button>
 
           <Button
             colorScheme="blue"
             leftIcon={<CheckIcon />}
+            flex={{ base: 2, md: "initial" }}
+            minH="44px"
             onClick={handleSave}
             isLoading={isSaving}
           >

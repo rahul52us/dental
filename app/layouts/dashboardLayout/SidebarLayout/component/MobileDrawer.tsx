@@ -320,7 +320,9 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
         <DrawerContent
           w={{ base: '100vw', sm: '375px' }}
           maxW={{ base: '100vw', sm: '375px' }}
-          borderLeftRadius={{ base: 0, sm: '30px' }}
+          h="100dvh"
+          maxH="100dvh"
+          borderRadius={0}
           overflow="hidden"
           bg={drawerBg}
           boxShadow="-12px 0 35px rgba(0, 0, 0, 0.28)"
@@ -532,7 +534,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
           </Box>
 
           {/* Scrollable Modern Modules List */}
-          <DrawerBody px={3.5} py={2} className="customScrollBar" flex={1}>
+          <DrawerBody px={3.5} py={2} className="customScrollBar" flex={1} minH={0} overflowY="auto">
             {filteredItems.length === 0 ? (
               <Flex
                 direction="column"

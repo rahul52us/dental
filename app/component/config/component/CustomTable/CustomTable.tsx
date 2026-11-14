@@ -23,8 +23,10 @@ import {
   InputRightElement,
   InputLeftElement,
   Icon,
+  Spinner,
   useColorModeValue,
   Text,
+  Stack,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
@@ -73,6 +75,7 @@ interface CustomTableProps {
   cells?: boolean;
   tableProps?: any;
   subTitle?: any;
+  mobileCard?: (row: RowData) => React.ReactNode;
 }
 
 interface TableActionsProps {
@@ -307,6 +310,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   actions,
   cells = false,
   tableProps = {},
+  mobileCard,
   // isActions = false,
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -605,14 +609,34 @@ const CustomTable: React.FC<CustomTableProps> = ({
         px={{ base: 0, md: 2 }}
         {...tableProps.tableBox}
       >
-        <Table
-          size={isMobile ? "xs" : "sm"}
-          variant="striped"
-          {...tableProps.table}
-          bg={bodyBg}
-          borderRadius="md"
-          overflow="hidden"
-        >
+        {mobileCard && (
+          <Box display={{ base: "block", md: "none" }} px={3} py={3}>
+            {loading ? (
+              <Flex minH="30vh" align="center" justify="center">
+                <Spinner size="lg" color="teal.500" thickness="3px" />
+              </Flex>
+            ) : data.length === 0 ? (
+              <Text py={10} textAlign="center" color="gray.500" fontSize="sm">
+                No related data found
+              </Text>
+            ) : (
+              <Stack spacing={3}>
+                {data.map((row, rowIndex) => (
+                  <Box key={row._id || row.id || rowIndex}>{mobileCard(row)}</Box>
+                ))}
+              </Stack>
+            )}
+          </Box>
+        )}
+        <Box display={mobileCard ? { base: "none", md: "block" } : undefined}>
+          <Table
+            size={isMobile ? "xs" : "sm"}
+            variant="striped"
+            {...tableProps.table}
+            bg={bodyBg}
+            borderRadius="md"
+            overflow="hidden"
+          >
           <Thead
             bg={headerBg}
             position="sticky"
@@ -692,7 +716,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
               ))}
             </Tbody>
           </TableLoader>
-        </Table>
+          </Table>
+        </Box>
       </Box>
       <Box px={{ base: 2, md: 0 }} pb={{ base: 2, md: 0 }}>
         {actions?.pagination?.show && (

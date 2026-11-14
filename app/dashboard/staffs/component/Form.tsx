@@ -375,9 +375,19 @@ const Form = observer(
 
                   {/* Mobile Actions Only */}
                   <HStack
-                    spacing={3}
-                    mt={6}
+                    spacing={2}
+                    position={{ base: "sticky", md: "static" }}
+                    bottom={0}
                     display={{ base: "flex", md: "none" }}
+                    zIndex={10}
+                    mx={{ base: -2, md: 0 }}
+                    px={{ base: 3, md: 0 }}
+                    py={{ base: 3, md: 0 }}
+                    pb={{ base: "calc(12px + env(safe-area-inset-bottom))", md: 0 }}
+                    bg={{ base: "white", md: "transparent" }}
+                    borderTop={{ base: "1px solid", md: "none" }}
+                    borderColor="gray.200"
+                    boxShadow={{ base: "0 -6px 18px rgba(15, 23, 42, 0.08)", md: "none" }}
                   >
                     <Button
                       variant="outline"
@@ -385,6 +395,7 @@ const Form = observer(
                       onClick={onClose}
                       size="lg"
                       flex={1}
+                      minH="48px"
                       borderRadius="xl"
                     >
                       {t("staffs.form.cancel")}
@@ -395,6 +406,7 @@ const Form = observer(
                       isLoading={loading}
                       size="lg"
                       flex={2}
+                      minH="48px"
                       borderRadius="xl"
                       shadow="md"
                     >

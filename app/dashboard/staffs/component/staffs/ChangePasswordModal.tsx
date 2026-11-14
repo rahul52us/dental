@@ -75,10 +75,28 @@ const ChangePasswordModal = observer(({ isOpen, onClose, userId, userName }: Cha
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered motionPreset="slideInBottom">
       <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.400" />
-      <ModalContent borderRadius="2xl" p={2} boxShadow="2xl">
-        <ModalCloseButton mt={3} mr={3} borderRadius="full" />
+      <ModalContent
+        w={{ base: "100vw", md: "lg" }}
+        maxW={{ base: "100vw", md: "lg" }}
+        h={{ base: "100dvh", md: "auto" }}
+        maxH={{ base: "100dvh", md: "calc(100vh - 2rem)" }}
+        borderRadius={{ base: 0, md: "2xl" }}
+        p={{ base: 0, md: 2 }}
+        boxShadow="2xl"
+        display="flex"
+        flexDirection="column"
+        overflowY="auto"
+      >
+        <ModalCloseButton
+          top={{ base: 3, md: 3 }}
+          right={{ base: 3, md: 3 }}
+          borderRadius="full"
+          minW="44px"
+          minH="44px"
+          zIndex={1}
+        />
         
-        <ModalHeader pt={6} pb={2}>
+        <ModalHeader pt={{ base: 16, md: 6 }} pb={2}>
           <Flex direction="column" align="center" gap={3}>
             <Flex
               w={14}
@@ -105,7 +123,7 @@ const ChangePasswordModal = observer(({ isOpen, onClose, userId, userName }: Cha
           </Flex>
         </ModalHeader>
         
-        <ModalBody py={4}>
+        <ModalBody py={4} px={{ base: 5, md: 6 }} flex={1}>
           {/* Hidden dummy inputs to stop browser autofill from hijacking the page's search bar */}
           <input type="text" autoComplete="username" style={{ display: 'none' }} />
           <input type="password" autoComplete="current-password" style={{ display: 'none' }} />
@@ -122,6 +140,7 @@ const ChangePasswordModal = observer(({ isOpen, onClose, userId, userName }: Cha
                 autoComplete="new-password"
                 borderRadius="xl"
                 fontSize="md"
+                minH="52px"
                 bg="gray.50"
                 _focus={{ bg: "white", borderColor: "brand.400", boxShadow: "0 0 0 1px var(--chakra-colors-brand-400)" }}
               />
@@ -141,7 +160,13 @@ const ChangePasswordModal = observer(({ isOpen, onClose, userId, userName }: Cha
           </FormControl>
         </ModalBody>
 
-        <ModalFooter pb={6}>
+        <ModalFooter
+          pb={{ base: "calc(16px + env(safe-area-inset-bottom))", md: 6 }}
+          px={{ base: 5, md: 6 }}
+          mt="auto"
+          borderTopWidth={{ base: "1px", md: 0 }}
+          borderColor="gray.100"
+        >
           <Flex w="full" gap={3}>
             <Button 
               flex={1} 
@@ -149,6 +174,7 @@ const ChangePasswordModal = observer(({ isOpen, onClose, userId, userName }: Cha
               onClick={onClose} 
               borderRadius="xl"
               size="lg"
+              minH="48px"
               fontSize="md"
               borderColor="gray.200"
               _hover={{ bg: "gray.50" }}
@@ -162,6 +188,7 @@ const ChangePasswordModal = observer(({ isOpen, onClose, userId, userName }: Cha
               onClick={handleSubmit}
               borderRadius="xl"
               size="lg"
+              minH="48px"
               fontSize="md"
               boxShadow="md"
               _hover={{ transform: "translateY(-1px)", boxShadow: "lg" }}

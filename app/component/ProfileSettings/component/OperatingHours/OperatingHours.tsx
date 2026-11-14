@@ -43,16 +43,24 @@ const OperatingHours = ({ schedule, setSchedule }) => {
   }
 
   return (
-    <Box w="100%" p={4} bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" shadow="sm">
+    <Box
+      w="100%"
+      p={{ base: 3, md: 4 }}
+      bg="white"
+      borderRadius={{ base: "lg", md: "xl" }}
+      borderWidth="1px"
+      borderColor="gray.200"
+      shadow="sm"
+    >
       {/* Header */}
-      <Flex justify="space-between" align="center" mb={4} pb={4} borderBottomWidth="1px" borderColor="gray.100">
+      <Flex justify="space-between" align="center" mb={3} pb={3} borderBottomWidth="1px" borderColor="gray.100">
         <Box>
             <HStack mb={1}>
-                <TimeIcon color="blue.500" boxSize={5} />
-                <Heading size="md" color="gray.700">Operating Hours</Heading>
+                <TimeIcon color="teal.500" boxSize={4} />
+                <Heading size={{ base: "sm", md: "md" }} color="gray.700">Operating hours</Heading>
             </HStack>
-            <Text fontSize="sm" color="gray.500">
-                Configure your weekly availability. Toggle days to mark them as closed.
+            <Text fontSize="xs" color="gray.500">
+                Set your weekly availability and appointment time slots.
             </Text>
         </Box>
       </Flex>
@@ -62,24 +70,24 @@ const OperatingHours = ({ schedule, setSchedule }) => {
         {schedule.map((dayData, dayIndex) => (
           <Flex 
             key={dayData.day} 
-            py={5} 
+            py={{ base: 3, md: 5 }}
             direction={{ base: 'column', md: 'row' }} 
             align={{ base: 'flex-start', md: 'flex-start' }}
             bg={dayData.isOpen ? 'transparent' : 'gray.50'}
             _hover={{ bg: dayData.isOpen ? 'gray.50' : 'gray.100' }}
             transition="background 0.2s"
             borderRadius="md"
-            px={4}
-            mx={-4} // Negative margin to make hover effect full width inside padding
+            px={{ base: 2, md: 4 }}
+            mx={{ base: -2, md: -4 }}
           >
             {/* Left Column: Day Toggle */}
             <Flex width={{ base: '100%', md: '200px' }} align="center" mb={{ base: 3, md: 0 }}>
-              <Switch 
+              <Switch
                 isChecked={dayData.isOpen} 
                 onChange={() => handleToggleDay(dayIndex)} 
                 colorScheme="green"
-                mr={4}
-                size="lg"
+                mr={{ base: 3, md: 4 }}
+                size="md"
               />
               <Box>
                 <Text fontWeight="bold" color="gray.700">{dayData.day}</Text>
@@ -98,34 +106,48 @@ const OperatingHours = ({ schedule, setSchedule }) => {
               {dayData.isOpen ? (
                 <VStack align="stretch" spacing={3}>
                   {dayData.slots.map((slot, slotIndex) => (
-                    <Flex key={slotIndex} gap={3} align="flex-end">
-                      <FormControl maxW="150px">
+                    <Flex
+                      key={slotIndex}
+                      direction={{ base: "column", md: "row" }}
+                      gap={{ base: 2, md: 3 }}
+                      align={{ base: "stretch", md: "flex-end" }}
+                      w="100%"
+                      p={{ base: 2, md: 0 }}
+                      border={{ base: "1px solid", md: "none" }}
+                      borderColor={{ base: "gray.200", md: "transparent" }}
+                      borderRadius="lg"
+                    >
+                      <FormControl flex={1} minW={0} maxW={{ md: "150px" }}>
                         {slotIndex === 0 && (
-                            <FormLabel fontSize="xs" color="gray.400" mb={1} textTransform="uppercase" fontWeight="bold">
+                            <FormLabel fontSize="10px" color="gray.500" mb={1} textTransform="uppercase" fontWeight="bold">
                                 Opens at
                             </FormLabel>
                         )}
                         <Input 
                           type="time" 
-                          size="sm" 
+                          size="sm"
                           bg="white"
+                          minW={0}
+                          minH="40px"
                           value={slot.start} 
                           onChange={(e) => handleTimeChange(dayIndex, slotIndex, 'start', e.target.value)}
                         />
                       </FormControl>
                       
-                      <Text pb={1} color="gray.300">—</Text>
+                      <Text display={{ base: "none", md: "block" }} pb={2} color="gray.400" fontSize="xs">to</Text>
 
-                      <FormControl maxW="150px">
+                      <FormControl flex={1} minW={0} maxW={{ md: "150px" }}>
                          {slotIndex === 0 && (
-                            <FormLabel fontSize="xs" color="gray.400" mb={1} textTransform="uppercase" fontWeight="bold">
+                            <FormLabel fontSize="10px" color="gray.500" mb={1} textTransform="uppercase" fontWeight="bold">
                                 Closes at
                             </FormLabel>
                         )}
                         <Input 
                           type="time" 
-                          size="sm" 
+                          size="sm"
                           bg="white"
+                          minW={0}
+                          minH="40px"
                           value={slot.end}
                           onChange={(e) => handleTimeChange(dayIndex, slotIndex, 'end', e.target.value)}
                         />
@@ -135,12 +157,15 @@ const OperatingHours = ({ schedule, setSchedule }) => {
                         <IconButton
                             aria-label="Remove slot"
                             icon={<DeleteIcon />}
-                            size="xs"
+                            size="sm"
+                            minW="40px"
+                            minH="40px"
                             variant="ghost"
                             colorScheme="red"
                             opacity={0.6}
                             _hover={{ opacity: 1, bg: 'red.50' }}
-                            mb={1}
+                            mb={0}
+                            alignSelf={{ base: "flex-end", md: "auto" }}
                             onClick={() => handleRemoveSlot(dayIndex, slotIndex)}
                             isDisabled={dayData.slots.length === 1 && slotIndex === 0} 
                         />
@@ -149,13 +174,14 @@ const OperatingHours = ({ schedule, setSchedule }) => {
                   ))}
 
                   {/* Add Slot Button */}
-                  <Button 
-                    size="xs" 
-                    leftIcon={<AddIcon />} 
-                    variant="link" 
-                    colorScheme="blue" 
+                  <Button
+                    size="sm"
+                    leftIcon={<AddIcon />}
+                    variant="link"
+                    colorScheme="blue"
                     alignSelf="flex-start"
                     mt={1}
+                    minH="40px"
                     onClick={() => handleAddSlot(dayIndex)}
                   >
                     Add split shift

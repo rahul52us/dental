@@ -26,14 +26,14 @@ const InfoItem = ({ label, value, icon, color = "blue.500" }: any) => {
   const valColor = useColorModeValue("gray.800", "white");
   
   return (
-    <VStack align="start" spacing={1} p={3} borderRadius="xl" _hover={{ bg: "gray.50" }} transition="0.2s">
+    <VStack align="start" spacing={1} p={{ base: 2, md: 3 }} borderRadius="xl" _hover={{ bg: "gray.50" }} transition="0.2s">
       <HStack spacing={2}>
         <Icon as={icon} color={color} />
         <Text fontSize="xs" fontWeight="bold" color={labelColor} textTransform="uppercase" letterSpacing="wider">
           {label}
         </Text>
       </HStack>
-      <Text fontSize="md" fontWeight="bold" color={valColor}>
+      <Text fontSize={{ base: "sm", md: "md" }} fontWeight="bold" color={valColor} wordBreak="break-word">
         {value || "—"}
       </Text>
     </VStack>
@@ -48,12 +48,12 @@ const ViewLineItems = ({ data }: { data: any }) => {
   if (!data) return <Text>No data available</Text>;
 
   return (
-    <Box p={6}>
-      <VStack align="stretch" spacing={6}>
+    <Box p={{ base: 3, md: 6 }}>
+      <VStack align="stretch" spacing={{ base: 3, md: 6 }}>
         {/* Header Section */}
         <Box 
-          p={6} 
-          borderRadius="2xl" 
+          p={{ base: 4, md: 6 }}
+          borderRadius="2xl"
           bg={bg} 
           shadow={shadow} 
           borderTop="4px solid" 
@@ -63,7 +63,7 @@ const ViewLineItems = ({ data }: { data: any }) => {
             <Badge colorScheme="blue" borderRadius="full" px={4} py={1} fontSize="xs">
               Transaction Detailed Overview
             </Badge>
-            <Heading size="lg" color="gray.700" _dark={{ color: "white" }}>
+            <Heading size={{ base: "md", md: "lg" }} color="gray.700" _dark={{ color: "white" }} wordBreak="break-word">
               {data.itemName}
             </Heading>
             <HStack spacing={2}>
@@ -76,22 +76,22 @@ const ViewLineItems = ({ data }: { data: any }) => {
         </Box>
 
         {/* Quantities & Pricing Section */}
-        <Box p={6} borderRadius="2xl" bg={bg} shadow={shadow}>
-          <Text fontSize="md" fontWeight="black" mb={4} color="gray.600" textTransform="uppercase">
+        <Box p={{ base: 4, md: 6 }} borderRadius="2xl" bg={bg} shadow={shadow}>
+          <Text fontSize={{ base: "sm", md: "md" }} fontWeight="black" mb={4} color="gray.600" textTransform="uppercase">
             Financial & Inventory Metadata
           </Text>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+          <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={2}>
             <InfoItem icon={MdFingerprint} label="Inventory Code" value={data.itemCode} />
             <InfoItem icon={MdCalendarToday} label="Registration Date" value={formatDate(data.createdAt)} />
             <InfoItem icon={MdNumbers} label="Total Units" value={data.quantity} color="purple.500" />
             <InfoItem icon={MdAttachMoney} label="Unit Price" value={`₹ ${data.price}`} color="green.500" />
           </SimpleGrid>
 
-          <Divider my={6} borderStyle="dashed" />
+          <Divider my={{ base: 4, md: 6 }} borderStyle="dashed" />
 
           {/* Grand Total Highlight */}
           <Box 
-            p={6} 
+            p={{ base: 4, md: 6 }}
             borderRadius="2xl" 
             bgGradient="linear(to-br, blue.600, purple.700)" 
             color="white" 
@@ -112,7 +112,7 @@ const ViewLineItems = ({ data }: { data: any }) => {
               <Text fontSize="xs" fontWeight="black" textTransform="uppercase" letterSpacing="widest" opacity={0.8}>
                 Final Transaction Value
               </Text>
-              <Text fontSize="4xl" fontWeight="black">
+              <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="black">
                 ₹ {Number(data.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </Text>
             </VStack>
@@ -121,7 +121,7 @@ const ViewLineItems = ({ data }: { data: any }) => {
 
         {/* Company/Company Details (If available in data) */}
         {data.dealerDetails && (
-          <Box p={6} borderRadius="2xl" bg={bg} shadow={shadow}>
+          <Box p={{ base: 4, md: 6 }} borderRadius="2xl" bg={bg} shadow={shadow}>
             <VStack align="start" spacing={3}>
               <HStack spacing={2}>
                 <Icon as={MdBusiness} color="gray.400" />

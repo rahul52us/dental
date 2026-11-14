@@ -1,5 +1,7 @@
 import {
   Box,
+  Card,
+  CardBody,
   SimpleGrid,
   Text,
   VStack,
@@ -181,38 +183,38 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   ];
 
   return (
-    <Box p={4} bg="gray.50" minH="80vh">
-      <Box bg="white" borderRadius="3xl" shadow="xl" p={{ base: 3, md: 6 }} overflowX="auto">
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mb={10}>
-            <VStack align="start" p={5} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
+    <Box p={{ base: 2, md: 4 }} bg="gray.50" minH={{ base: "100%", md: "80vh" }}>
+      <Box bg="white" borderRadius={{ base: "xl", md: "3xl" }} shadow="xl" p={{ base: 2, md: 6 }} overflowX="hidden">
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap={{ base: 2, md: 6 }} mb={{ base: 5, md: 10 }}>
+            <VStack align="start" p={{ base: 3, md: 5 }} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="blue.500" letterSpacing="0.05em">TOTAL BILLED</Text>
                     <Icon as={FiPieChart} color="blue.300" />
                 </HStack>
                 {loading ? <Spinner size="sm" /> : (
-                  <Text fontSize="24px" fontWeight="1000" color="blue.700">₹{(totalBill || 0).toLocaleString()}</Text>
+                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color="blue.700">₹{(totalBill || 0).toLocaleString()}</Text>
                 )}
                 <Text fontSize="9px" color="blue.400" fontWeight="bold">GROSS EARNINGS</Text>
             </VStack>
 
-            <VStack align="start" p={5} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
+            <VStack align="start" p={{ base: 3, md: 5 }} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="green.500" letterSpacing="0.05em">TOTAL COLLECTED</Text>
                     <Icon as={FiDownloadCloud} color="green.300" />
                 </HStack>
                 {loading ? <Spinner size="sm" /> : (
-                  <Text fontSize="24px" fontWeight="1000" color="green.700">₹{(collected || 0).toLocaleString()}</Text>
+                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color="green.700">₹{(collected || 0).toLocaleString()}</Text>
                 )}
                 <Text fontSize="9px" color="green.400" fontWeight="bold">CASH IN HAND</Text>
             </VStack>
 
-            <VStack align="start" p={5} bg="orange.50" borderRadius="2xl" border="1px solid" borderColor="orange.100">
+            <VStack align="start" p={{ base: 3, md: 5 }} bg="orange.50" borderRadius="2xl" border="1px solid" borderColor="orange.100">
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="orange.500" letterSpacing="0.05em">PENDING</Text>
                     <Icon as={FiTrendingUp} color="orange.300" />
                 </HStack>
                 {loading ? <Spinner size="sm" /> : (
-                  <Text fontSize="24px" fontWeight="1000" color="orange.700">₹{(pending || 0).toLocaleString()}</Text>
+                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color="orange.700">₹{(pending || 0).toLocaleString()}</Text>
                 )}
                 <Text fontSize="9px" color="orange.400" fontWeight="bold">REMAINING TO COLLECT</Text>
             </VStack>
@@ -256,6 +258,56 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
               currentPage: currentPage,
               totalPages: workDoneStore.workDone.totalPages || 1,
             }
+          }}
+          mobileCard={(row: any) => {
+            const bill = Number(row.amount || 0) - Number(row.discount || 0);
+            const received = Number(row.receivedAmount || 0);
+            const isSettled = received >= bill;
+
+            return (
+              <Card borderWidth="1px" borderColor="gray.200" borderRadius="xl" shadow="sm" bg="white">
+                <CardBody p={3}>
+                  <Flex justify="space-between" align="flex-start" gap={3}>
+                    <Box minW={0} flex={1}>
+                      <Text fontWeight="bold" fontSize="sm" color="gray.800" noOfLines={1}>
+                        {row.patient?.name || "Unknown patient"}
+                      </Text>
+                      <Text mt={1} fontSize="xs" color="gray.500" wordBreak="break-word">
+                        {row.treatment?.treatmentPlan || row.workDoneNote || "Treatment details unavailable"}
+                      </Text>
+                    </Box>
+                    <Badge flexShrink={0} px={2} py={1} borderRadius="full" fontSize="10px" colorScheme={isSettled ? "green" : "orange"}>
+                      {isSettled ? "SETTLED" : "PENDING"}
+                    </Badge>
+                  </Flex>
+                  <SimpleGrid columns={2} spacing={2} mt={3}>
+                    <Box p={2} bg="blue.50" borderRadius="lg">
+                      <Text fontSize="10px" color="blue.600" fontWeight="bold">BILLED</Text>
+                      <Text fontSize="sm" fontWeight="bold" color="blue.800">₹{bill.toLocaleString()}</Text>
+                    </Box>
+                    <Box p={2} bg="green.50" borderRadius="lg">
+                      <Text fontSize="10px" color="green.600" fontWeight="bold">RECEIVED</Text>
+                      <Text fontSize="sm" fontWeight="bold" color="green.800">₹{received.toLocaleString()}</Text>
+                    </Box>
+                  </SimpleGrid>
+                  {stores.auth.hasPermission("accountability", "download") && (
+                    <Flex justify="flex-end" mt={2}>
+                      <Button
+                        size="sm"
+                        minH="40px"
+                        variant="ghost"
+                        colorScheme="blue"
+                        leftIcon={<FiEye />}
+                        isLoading={downloadingRecordId === row._id}
+                        onClick={() => handleSingleDownload(row._id)}
+                      >
+                        View receipt
+                      </Button>
+                    </Flex>
+                  )}
+                </CardBody>
+              </Card>
+            );
           }}
         />
       </Box>

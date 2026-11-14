@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading, SimpleGrid, VStack, Text, useColorModeValue, Flex, Button } from "@chakra-ui/react";
+import { Box, Heading, VStack, Text, useColorModeValue, Flex, Button } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../store/stores";
 import { sidebarDatas, sidebarFooterData } from "../../layouts/dashboardLayout/SidebarLayout/utils/SidebarItems";
@@ -16,9 +16,7 @@ const ProfileSettings = observer(() => {
 
 
   const handleColorChange = (name: string, newColor: { light: string; dark: string }) => {
-    console.log("handleColorChange called for Name:", name, "New Color:", newColor);
     setThemeConfig(`sidebarColors.${name}`, newColor);
-    console.log("Updated themeConfig:", stores.themeStore.themeConfig.sidebarColors);
   };
 
   const handleResetColor = (name: string) => {
@@ -32,20 +30,26 @@ const ProfileSettings = observer(() => {
     return items.map((item) => (
       <Box
         key={item.id}
-        py={5}
-        px={4}
+        py={{ base: 3, md: 5 }}
+        px={{ base: 3, md: 4 }}
         borderBottomWidth="1px"
         borderColor={useColorModeValue("gray.100", "gray.700")}
         _hover={{ bg: useColorModeValue("gray.50", "gray.800") }}
         transition="background 0.2s"
       >
-        <Flex align="flex-start" justify="space-between" width="100%" gap={6}>
-          <Box flex={1}>
-            <Text fontWeight="600" fontSize="md" color={useColorModeValue("gray.700", "white")}>
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          align={{ base: "stretch", md: "flex-start" }}
+          justify="space-between"
+          width="100%"
+          gap={{ base: 3, md: 6 }}
+        >
+          <Box flex={1} minW={0}>
+            <Text fontWeight="700" fontSize={{ base: "sm", md: "md" }} color={useColorModeValue("gray.700", "white")}>
               {item.name}
             </Text>
             {item.children && (
-              <Text fontSize="xs" color="gray.500" mt={1}>Sub-items available</Text>
+              <Text fontSize="xs" color="gray.500" mt={0.5}>Sub-items available</Text>
             )}
             {themeConfig.sidebarColors?.[item.name] && (
               <Button
@@ -54,14 +58,15 @@ const ProfileSettings = observer(() => {
                 colorScheme="red"
                 leftIcon={<DeleteIcon />}
                 onClick={() => handleResetColor(item.name)}
-                mt={2}
+                mt={1}
+                minH="36px"
                 fontWeight="normal"
               >
                 Reset to Default
               </Button>
             )}
           </Box>
-          <Box w="320px">
+          <Box w={{ base: "100%", md: "320px" }} maxW="100%">
             <ColorPickerComponent
               label={item.name}
               color={
@@ -77,7 +82,7 @@ const ProfileSettings = observer(() => {
           </Box>
         </Flex>
         {item.children && (
-          <Box pl={6} mt={4} borderLeftWidth="2px" borderColor={useColorModeValue("blue.100", "gray.600")}>
+          <Box pl={{ base: 3, md: 6 }} mt={{ base: 2, md: 4 }} borderLeftWidth="2px" borderColor={useColorModeValue("blue.100", "gray.600")}>
             <VStack align="stretch" spacing={0} width="100%">
               {traverseSidebarItems(item.children)}
             </VStack>
@@ -88,12 +93,12 @@ const ProfileSettings = observer(() => {
   };
 
   return (
-    <Box w="100%" p={4} bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" shadow="sm">
-      <Flex justify="space-between" align="center" mb={4} pb={4} borderBottomWidth="1px" borderColor="gray.100">
+    <Box w="100%" p={{ base: 3, md: 4 }} bg={useColorModeValue("white", "gray.800")} borderRadius={{ base: "lg", md: "xl" }} borderWidth="1px" borderColor={useColorModeValue("gray.200", "whiteAlpha.200")} shadow="sm">
+      <Flex justify="space-between" align="center" mb={{ base: 2, md: 4 }} pb={{ base: 3, md: 4 }} borderBottomWidth="1px" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}>
         <Box>
-          <Heading size="md" color="gray.700">Sidebar Customization</Heading>
-          <Text fontSize="sm" color="gray.500">
-            Set custom background colors for sidebar items.
+          <Heading size={{ base: "sm", md: "md" }} color={useColorModeValue("gray.800", "white")}>Sidebar customization</Heading>
+          <Text fontSize="xs" color="gray.500" mt={1}>
+            Choose a color theme for each navigation item.
           </Text>
         </Box>
       </Flex>

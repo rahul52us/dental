@@ -79,7 +79,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
         maxW={isDesktop ? (width || undefined) : "100%"}
         maxH={isMobile ? "100dvh" : "100%"}
         height={isMobile ? "100dvh" : "100%"}
-        borderTopRadius={isMobile ? "20px" : "none"}
+        borderRadius="0"
         overflow="hidden"
         display="flex"
         flexDirection="column"
@@ -101,16 +101,6 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
             py={isMobile ? 3.5 : 6}
             px={{ base: 4, md: 8 }}
           >
-            {isMobile && (
-              <Box
-                w="38px"
-                h="4.5px"
-                borderRadius="full"
-                bg="whiteAlpha.400"
-                mx="auto"
-                mb={2.5}
-              />
-            )}
             <Flex justify="space-between" align="center" width="100%">
               <HStack spacing={3} flex="1" pr={3}>
                 {typeof title === "string" ? (

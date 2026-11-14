@@ -667,7 +667,10 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             bottom={0}
             left={0}
             width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
-            minH={"100vh"}
+            height="100dvh"
+            minH={0}
+            display="flex"
+            flexDirection="column"
             transition="width 0.3s"
             color="gray.700"
             zIndex={1000}
@@ -692,7 +695,8 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
               overflowY="auto"
               overflowX={"hidden"}
               className="customScrollBar"
-              height="calc(100vh - 165px)"
+              flex={1}
+              minH={0}
             >
               {isCollapsed ? (
                 <VStack align="start" spacing={1}>
@@ -719,10 +723,10 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
               )}
             </Box>
             <Box
-              position="fixed"
-              bottom={0}
-              left={0}
-              width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
+              position="relative"
+              width="100%"
+              flexShrink={0}
+              mt="auto"
               transition="width 0.3s"
               py={4}
               zIndex={11}

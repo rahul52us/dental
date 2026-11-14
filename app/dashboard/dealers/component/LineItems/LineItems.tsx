@@ -1,8 +1,11 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
+  Badge,
   Box,
   Button,
+  Card,
+  CardBody,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -10,6 +13,7 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  IconButton,
   useDisclosure,
   Text,
   ModalFooter,
@@ -24,6 +28,7 @@ import {
   HStack,
   useToast,
   Icon,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
 import { Formik, Form } from "formik";
@@ -37,6 +42,7 @@ import { formatDate } from "../../../../component/config/utils/dateUtils";
 import ViewLineItems from "./component/ViewLineItems";
 import CustomInput from "../../../../component/config/component/customInput/CustomInput";
 import FormModel from "../../../../component/common/FormModel/FormModel";
+import { FiEdit2, FiEye, FiTrash2 } from "react-icons/fi";
 
 const MotionBox = motion(Box);
 
@@ -64,6 +70,8 @@ const LineItems = observer(({ data }: any) => {
   const toast = useToast();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const detailsPlacement =
+    useBreakpointValue<"bottom" | "right">({ base: "bottom", md: "right" }) ?? "right";
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const {
@@ -254,7 +262,7 @@ const LineItems = observer(({ data }: any) => {
   };
 
   return (
-    <Box p={4} bg="gray.50" borderRadius="2xl">
+    <Box p={{ base: 2, md: 4 }} bg="gray.50" borderRadius={{ base: 0, md: "2xl" }}>
       <CustomTable
         title="Portfolio Items"
         data={
@@ -288,20 +296,105 @@ const LineItems = observer(({ data }: any) => {
           },
         }}
         loading={lineItems.loading}
+        mobileCard={(item: any) => (
+          <Card bg="white" borderWidth="1px" borderColor="gray.200" borderRadius="xl" shadow="sm">
+            <CardBody p={3}>
+              <Flex justify="space-between" align="flex-start" gap={3}>
+                <Box minW={0} flex={1}>
+                  <Text fontWeight="bold" fontSize="sm" color="gray.800" wordBreak="break-word">
+                    {item.itemName || "Portfolio item"}
+                  </Text>
+                  <Text mt={1} fontSize="xs" color="gray.500" wordBreak="break-word">
+                    {item.brandName || "Standard portfolio"}{item.itemCode ? ` · ${item.itemCode}` : ""}
+                  </Text>
+                </Box>
+                <Badge colorScheme="teal" borderRadius="full" px={2} py={1} flexShrink={0}>
+                  Qty {item.quantity || 0}
+                </Badge>
+              </Flex>
+              <SimpleGrid columns={2} spacing={2} mt={3}>
+                <Box p={2} bg="gray.50" borderRadius="lg">
+                  <Text fontSize="10px" color="gray.500" fontWeight="bold">UNIT PRICE</Text>
+                  <Text fontSize="sm" fontWeight="bold" color="gray.800">
+                    ₹{Number(item.price || 0).toLocaleString("en-IN")}
+                  </Text>
+                </Box>
+                <Box p={2} bg="teal.50" borderRadius="lg">
+                  <Text fontSize="10px" color="teal.600" fontWeight="bold">TOTAL</Text>
+                  <Text fontSize="sm" fontWeight="bold" color="teal.700">
+                    ₹{Number(item.total || 0).toLocaleString("en-IN")}
+                  </Text>
+                </Box>
+              </SimpleGrid>
+              <Flex justify="space-between" align="center" mt={2}>
+                <Text fontSize="xs" color="gray.500">
+                  {item.createdAt ? formatDate(item.createdAt) : "—"}
+                </Text>
+                <Flex gap={1}>
+                  {stores.auth.hasPermission("masters", "view") && (
+                    <IconButton
+                      aria-label="View portfolio item"
+                      icon={<FiEye />}
+                      size="sm"
+                      minW="40px"
+                      minH="40px"
+                      variant="ghost"
+                      colorScheme="teal"
+                      onClick={() => handleRowClick(item)}
+                    />
+                  )}
+                  {stores.auth.hasPermission("masters", "edit") && (
+                    <IconButton
+                      aria-label="Edit portfolio item"
+                      icon={<FiEdit2 />}
+                      size="sm"
+                      minW="40px"
+                      minH="40px"
+                      variant="ghost"
+                      colorScheme="blue"
+                      onClick={() => handleEdit(item)}
+                    />
+                  )}
+                  {stores.auth.hasPermission("masters", "delete") && (
+                    <IconButton
+                      aria-label="Delete portfolio item"
+                      icon={<FiTrash2 />}
+                      size="sm"
+                      minW="40px"
+                      minH="40px"
+                      variant="ghost"
+                      colorScheme="red"
+                      onClick={() => handleDelete(item)}
+                    />
+                  )}
+                </Flex>
+              </Flex>
+            </CardBody>
+          </Card>
+        )}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer isOpen={isOpen} placement={detailsPlacement} onClose={onClose}>
         <DrawerOverlay backdropFilter="blur(4px)" />
-        <DrawerContent minW={{ md: "60vw", sm: "100vw" }}>
-          <DrawerCloseButton />
-          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
+        <DrawerContent
+          w={{ base: "100vw", md: "60vw" }}
+          maxW={{ base: "100vw", md: "60vw" }}
+          h="100dvh"
+          maxH="100dvh"
+          borderRadius={0}
+          display="flex"
+          flexDirection="column"
+          overflow="hidden"
+        >
+          <DrawerCloseButton color="white" _hover={{ bg: "whiteAlpha.200" }} />
+          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" py={{ base: 3, md: 4 }}>
             <Flex align="center" gap={3}>
               <Icon as={GiPsychicWaves} size="24px" />
               Line Item Overview
             </Flex>
           </DrawerHeader>
           {selectedUser && (
-            <DrawerBody p={0}>
+            <DrawerBody p={0} minH={0} overflowY="auto">
               <ViewLineItems data={selectedUser} />
             </DrawerBody>
           )}
@@ -309,6 +402,7 @@ const LineItems = observer(({ data }: any) => {
       </Drawer>
 
       <FormModel
+        mobileFullScreen
         footer={false}
         title={editData ? "Edit Line Item" : "Add New Line Item"}
         isOpen={isFormOpen}
@@ -333,8 +427,8 @@ const LineItems = observer(({ data }: any) => {
             return (
               <Form>
                 <VStack spacing={6} align="stretch" p={2}>
-                  <Box p={6} bg="gray.50" borderRadius="2xl" border="1px solid" borderColor="gray.100">
-                    <VStack spacing={5} align="stretch">
+                  <Box p={{ base: 3, md: 6 }} bg="gray.50" borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                    <VStack spacing={{ base: 3, md: 5 }} align="stretch">
                       <CustomInput
                         name="brandName"
                         label="Portfolio Brand"
@@ -344,7 +438,7 @@ const LineItems = observer(({ data }: any) => {
                         showError={errors.brandName}
                         placeholder="e.g. Oral-B, Sensodyne"
                       />
-                      <SimpleGrid columns={2} spacing={4}>
+                      <SimpleGrid columns={2} spacing={{ base: 2, md: 4 }}>
                         <CustomInput
                           name="itemName"
                           label="Item Description"
@@ -365,8 +459,8 @@ const LineItems = observer(({ data }: any) => {
                     </VStack>
                   </Box>
 
-                  <Box p={6} bg="white" borderRadius="2xl" shadow="inner" border="1px dashed" borderColor={stores.themeStore.themeConfig.colors.custom.light.primary + "33"}>
-                    <SimpleGrid columns={2} spacing={8}>
+                  <Box p={{ base: 3, md: 6 }} bg="white" borderRadius="2xl" shadow="inner" border="1px dashed" borderColor={stores.themeStore.themeConfig.colors.custom.light.primary + "33"}>
+                    <SimpleGrid columns={2} spacing={{ base: 2, md: 8 }}>
                       <CustomInput
                         name="quantity"
                         label="Order Quantity"
@@ -396,8 +490,8 @@ const LineItems = observer(({ data }: any) => {
                     </SimpleGrid>
 
                     <MotionBox
-                      mt={8}
-                      p={5}
+                      mt={{ base: 4, md: 8 }}
+                      p={{ base: 3, md: 5 }}
                       borderRadius="2xl"
                       bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                       color="white"
@@ -412,15 +506,25 @@ const LineItems = observer(({ data }: any) => {
                       <Text fontSize="xs" fontWeight="black" textTransform="uppercase" letterSpacing="widest" opacity={0.9} mb={1}>
                         Projected Total
                       </Text>
-                      <Text fontSize="3xl" fontWeight="black">
+                      <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="black">
                         ₹ {Number(values.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </Text>
                     </MotionBox>
                   </Box>
                   
-                  <ModalFooter borderTopWidth="1px" pt={6} pb={2} px={0}>
-                    <HStack spacing={4} w="full" justify="flex-end">
-                      <Button onClick={onFormClose} variant="ghost" px={8} borderRadius="xl" _hover={{ bg: "red.50", color: "red.500" }}>
+                  <ModalFooter
+                    position={{ base: "sticky", md: "static" }}
+                    bottom={0}
+                    zIndex={10}
+                    borderTopWidth="1px"
+                    pt={{ base: 3, md: 6 }}
+                    pb={{ base: "calc(12px + env(safe-area-inset-bottom))", md: 2 }}
+                    px={{ base: 3, md: 0 }}
+                    mx={{ base: -3, md: 0 }}
+                    bg="white"
+                  >
+                    <HStack spacing={2} w="full" justify="flex-end">
+                      <Button onClick={onFormClose} variant="ghost" px={{ base: 3, md: 8 }} minH="48px" flex={{ base: 1, md: "initial" }} borderRadius="xl" _hover={{ bg: "red.50", color: "red.500" }}>
                         Dismiss
                       </Button>
                       <Button
@@ -429,6 +533,8 @@ const LineItems = observer(({ data }: any) => {
                         _hover={{ filter: "brightness(0.9)", shadow: "lg" }}
                         type="submit"
                         shadow="md"
+                        minH="48px"
+                        flex={{ base: 2, md: "initial" }}
                       >
                         {editData ? "Confirm Update" : "Establish Entry"}
                       </Button>
@@ -447,16 +553,37 @@ const LineItems = observer(({ data }: any) => {
         onClose={onDeleteClose}
         isCentered
       >
-        <AlertDialogOverlay backdropFilter="blur(4px)">
-          <AlertDialogContent borderRadius="2xl" p={2}>
-            <AlertDialogHeader fontSize="xl" fontWeight="black" color="red.600">
+        <AlertDialogOverlay
+          backdropFilter="blur(4px)"
+          alignItems={{ base: "flex-end", md: "center" }}
+        >
+          <AlertDialogContent
+            w={{ base: "100vw", md: "auto" }}
+            maxW={{ base: "100vw", md: "lg" }}
+            m={{ base: 0, md: 4 }}
+            borderTopRadius={{ base: "2xl", md: "2xl" }}
+            borderBottomRadius={{ base: 0, md: "2xl" }}
+            p={{ base: 2, md: 3 }}
+          >
+            <AlertDialogHeader fontSize={{ base: "lg", md: "xl" }} fontWeight="black" color="red.600">
               Redaction Warning
             </AlertDialogHeader>
             <AlertDialogBody color="gray.600">
-              Are you certain you wish to permanently remove **{deleteItem?.itemName}**? This data cannot be recovered.
+              Are you certain you wish to permanently remove{" "}
+              <Text as="span" fontWeight="bold" color="gray.800">
+                {deleteItem?.itemName}
+              </Text>
+              ? This data cannot be recovered.
             </AlertDialogBody>
-            <AlertDialogFooter gap={3}>
-              <Button ref={cancelRef} onClick={onDeleteClose} variant="ghost" borderRadius="xl">
+            <AlertDialogFooter gap={2} flexDirection={{ base: "column-reverse", sm: "row" }}>
+              <Button
+                ref={cancelRef}
+                onClick={onDeleteClose}
+                variant="ghost"
+                borderRadius="xl"
+                minH="48px"
+                w={{ base: "full", sm: "auto" }}
+              >
                 Keep Item
               </Button>
               <Button
@@ -467,6 +594,8 @@ const LineItems = observer(({ data }: any) => {
                 shadow="md"
                 _hover={{ shadow: "lg" }}
                 px={6}
+                minH="48px"
+                w={{ base: "full", sm: "auto" }}
               >
                 Delete Permanently
               </Button>

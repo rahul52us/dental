@@ -72,10 +72,10 @@ const Form = ({
                 {/* Header with Actions */}
                 <GridItem colSpan={2}>
                   <Flex justify="space-between" align="center" mb={4}>
-                    <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                    <Text fontSize="2xl" fontWeight="bold" color="gray.800" display={{ base: "none", md: "block" }}>
                       {isEdit ? "Edit Dealer" : "New Dealer"}
                     </Text>
-                    <HStack spacing={3}>
+                    <HStack spacing={3} display={{ base: "none", md: "flex" }}>
                       <Button
                         variant="outline"
                         colorScheme="red"
@@ -161,6 +161,44 @@ const Form = ({
                   values={values}
                 />
               </Grid>
+              <Flex
+                display={{ base: "flex", md: "none" }}
+                position="sticky"
+                bottom={0}
+                zIndex={10}
+                mx={{ base: -2, md: 0 }}
+                px={{ base: 3, md: 0 }}
+                py={3}
+                pb="calc(12px + env(safe-area-inset-bottom))"
+                gap={2}
+                bg="white"
+                borderTop="1px solid"
+                borderColor="gray.200"
+                boxShadow="0 -6px 18px rgba(15, 23, 42, 0.08)"
+              >
+                <Button
+                  flex={1}
+                  minH="48px"
+                  variant="outline"
+                  colorScheme="gray"
+                  onClick={onClose}
+                  borderRadius="xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  flex={2}
+                  minH="48px"
+                  type="submit"
+                  colorScheme="teal"
+                  isLoading={loading}
+                  loadingText="Saving"
+                  borderRadius="xl"
+                  shadow="md"
+                >
+                  {initialData?.name || isEdit ? "Update dealer" : "Save dealer"}
+                </Button>
+              </Flex>
             </FormikForm>
           );
         }}

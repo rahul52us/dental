@@ -1,8 +1,13 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
 import {
+  Avatar,
   Badge,
   Box,
+  Button,
+  Card,
+  CardBody,
+  Divider,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -10,10 +15,16 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  HStack,
+  IconButton,
+  Text,
+  Tooltip,
+  useBreakpointValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
 import { MdShoppingBasket } from "react-icons/md";
+import { FiEye, FiEdit2, FiTrash2, FiCalendar } from "react-icons/fi";
 import stores from "../../../../store/stores";
 import useDebounce from "../../../../component/config/component/customHooks/useDebounce";
 import { tablePageLimit } from "../../../../component/config/utils/variable";
@@ -28,6 +39,8 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
   } = stores;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const detailsPlacement =
+    useBreakpointValue<"bottom" | "right">({ base: "bottom", md: "right" }) ?? "right";
   const [selectedUser, setSelectedDealer] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -154,7 +167,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
   });
 
   return (
-    <Box p={4}>
+    <Box p={{ base: 2, md: 4 }}>
       <CustomTable
         title="Dealers"
         data={
@@ -211,13 +224,103 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
           },
         }}
         loading={dealers.loading}
+        mobileCard={(row: any) => (
+          <Card
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            borderLeft="4px solid"
+            borderLeftColor="teal.500"
+            borderRadius="xl"
+            boxShadow="sm"
+          >
+            <CardBody p={3}>
+              <Flex align="center" gap={3}>
+                <Avatar name={row.name} size="md" bg="teal.100" color="teal.700" />
+                <Box minW={0} flex={1}>
+                  <Text fontWeight="bold" fontSize="sm" noOfLines={1} color="gray.800">
+                    {row.name}
+                  </Text>
+                  <HStack mt={1} spacing={1.5} color="gray.500" fontSize="xs">
+                    <FiCalendar />
+                    <Text>Added {row.createdAt ? formatDate(row.createdAt) : "—"}</Text>
+                  </HStack>
+                </Box>
+                <Badge colorScheme="teal" variant="subtle" borderRadius="full" px={2} py={1} fontSize="10px">
+                  Dealer
+                </Badge>
+              </Flex>
+
+              {stores.auth.hasPermission("masters", "view") && (
+                <Button
+                  mt={3}
+                  size="sm"
+                  w="full"
+                  minH="40px"
+                  leftIcon={<MdShoppingBasket />}
+                  colorScheme="teal"
+                  variant="outline"
+                  borderRadius="lg"
+                  onClick={() => onItemView(row)}
+                >
+                  View orders portfolio
+                </Button>
+              )}
+
+              <Divider my={2} />
+              <Flex justify="space-between" align="center">
+                <Text fontSize="xs" color="gray.500" fontWeight="medium">
+                  Dealer actions
+                </Text>
+                <HStack spacing={1}>
+                  {stores.auth.hasPermission("masters", "view") && (
+                    <Tooltip label="View dealer">
+                      <IconButton aria-label="View dealer" icon={<FiEye />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="teal" onClick={() => handleRowClick(row)} />
+                    </Tooltip>
+                  )}
+                  {stores.auth.hasPermission("masters", "edit") && (
+                    <Tooltip label="Edit dealer">
+                      <IconButton aria-label="Edit dealer" icon={<FiEdit2 />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="blue" onClick={() => onEdit(row)} />
+                    </Tooltip>
+                  )}
+                  {stores.auth.hasPermission("masters", "delete") && (
+                    <Tooltip label="Delete dealer">
+                      <IconButton aria-label="Delete dealer" icon={<FiTrash2 />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="red" onClick={() => onDelete(row)} />
+                    </Tooltip>
+                  )}
+                </HStack>
+              </Flex>
+            </CardBody>
+          </Card>
+        )}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer
+        isOpen={isOpen}
+        placement={detailsPlacement}
+        onClose={() => {
+          onClose();
+          setSelectedDealer(null);
+        }}
+      >
         <DrawerOverlay />
-        <DrawerContent minW={{ md: "80vw", sm: "100vw" }}>
-          <DrawerCloseButton />
-          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
+        <DrawerContent
+          w={{ base: "100vw", md: "80vw" }}
+          maxW={{ base: "100vw", md: "80vw" }}
+          h="100dvh"
+          maxH="100dvh"
+          borderRadius={0}
+          overflow="hidden"
+          display="flex"
+          flexDirection="column"
+        >
+          <DrawerCloseButton color="white" _hover={{ bg: "whiteAlpha.200" }} />
+          <DrawerHeader
+            bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+            color="white"
+            py={{ base: 3, md: 4 }}
+            fontSize={{ base: "sm", md: "lg" }}
+          >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
               Dealer Profile
@@ -225,7 +328,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
           </DrawerHeader>
 
           {selectedUser && (
-            <DrawerBody>
+            <DrawerBody p={0} minH={0} overflowY="auto" overscrollBehaviorY="contain">
               <ViewDealer
                 data={{
                   ...selectedUser,

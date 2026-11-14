@@ -131,14 +131,15 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
 
   return (
     <Box>
-      <InputGroup mb={6}>
+      <InputGroup mb={{ base: 4, md: 6 }}>
         <InputLeftElement pointerEvents="none" h="full" ml={2}>
           <FiSearch color="gray.400" />
         </InputLeftElement>
         <Input
           placeholder="Search modules or categories..."
-          size="lg"
-          borderRadius="2xl"
+          size="md"
+          h={{ base: "48px", md: "56px" }}
+          borderRadius="xl"
           bg="white"
           borderWidth="2px"
           _focus={{ borderColor: "brand.500", shadow: "md" }}
@@ -147,7 +148,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
         />
       </InputGroup>
 
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 3, md: 6 }}>
         {filteredModules.map((m) => {
           const keysToRender = m.keys || PERMISSIONS.map(p => p.id);
           const allChecked = keysToRender.every((k) => permissions[m.id]?.[k]);
@@ -155,22 +156,22 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
           return (
             <Box
               key={m.id}
-              p={5}
+              p={{ base: 3, md: 5 }}
               bg="white"
-              border="2px solid"
+              border="1px solid"
               borderColor={allChecked ? `${m.color}.200` : "gray.100"}
-              borderRadius="2xl"
+              borderRadius="xl"
               shadow="sm"
               transition="all 0.2s"
               _hover={{ shadow: "md", borderColor: `${m.color}.300` }}
             >
-              <HStack justify="space-between" mb={4}>
-                <HStack spacing={4}>
-                  <Box p={3} bg={`${m.color}.50`} borderRadius="xl">
-                    <Icon as={m.icon} color={`${m.color}.500`} boxSize={6} />
+              <HStack justify="space-between" mb={3} spacing={2}>
+                <HStack spacing={{ base: 2, md: 4 }} minW={0}>
+                  <Box p={{ base: 2, md: 3 }} bg={`${m.color}.50`} borderRadius="xl" flexShrink={0}>
+                    <Icon as={m.icon} color={`${m.color}.500`} boxSize={{ base: 5, md: 6 }} />
                   </Box>
-                  <VStack align="start" spacing={1}>
-                    <Text fontWeight="800" color="gray.800" fontSize="md">{m.label}</Text>
+                  <VStack align="start" spacing={1} minW={0}>
+                    <Text fontWeight="800" color="gray.800" fontSize={{ base: "sm", md: "md" }} noOfLines={2}>{m.label}</Text>
                     <Badge colorScheme={m.color} variant="subtle" fontSize="10px" borderRadius="full" px={3}>
                       {m.category}
                     </Badge>
@@ -195,6 +196,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                       as="label"
                       display="flex"
                       alignItems="center"
+                      minH="44px"
                       p={2}
                       px={3}
                       bg={isChecked ? `${m.color}.50` : "gray.50"}

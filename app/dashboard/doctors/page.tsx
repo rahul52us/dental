@@ -7,6 +7,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -34,6 +35,8 @@ const DoctorsPage = observer(() => {
   const [thumbnail, setThumbnail] = useState([]);
   const toast = useToast();
   const { t } = useTranslation();
+  const formPlacement =
+    useBreakpointValue<"bottom" | "right">({ base: "bottom", md: "right" }) ?? "right";
 
   const handleAddSubmit = async (formData: any) => {
     try {
@@ -173,40 +176,47 @@ const DoctorsPage = observer(() => {
       />
       {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
         <Drawer
-          size="md"
+          size="full"
           isOpen={isDrawerOpen.isOpen}
-          placement="right"
+          placement={formPlacement}
           onClose={() =>
             setIsDrawerOpen({ isOpen: false, type: "add", data: null })
           }
           autoFocus={false}
         >
-          <DrawerOverlay backdropFilter="blur(5px)">
-            <DrawerContent
-              bg="white"
-              borderLeftRadius={{ base: "none", md: "3xl" }}
-              boxShadow="2xl"
-              maxW={{ base: "100%", md: "80%" }}
-            >
+          <DrawerOverlay backdropFilter="blur(5px)" />
+          <DrawerContent
+            bg="white"
+            borderRadius={{ base: 0, md: "3xl" }}
+            boxShadow="2xl"
+            w={{ base: "100vw", md: "80vw" }}
+            maxW={{ base: "100vw", md: "80vw" }}
+            h={{ base: "100dvh", md: "100vh" }}
+            maxH={{ base: "100dvh", md: "100vh" }}
+            display="flex"
+            flexDirection="column"
+            overflow="hidden"
+          >
               <DrawerHeader
                 bg={stores.themeStore.themeConfig.colors.custom.light.primary}
                 color="white"
-                fontSize="lg"
+                fontSize={{ base: "md", md: "lg" }}
                 fontWeight="bold"
                 textAlign="center"
-                py={6}
+                py={{ base: 3, md: 6 }}
                 px={{ base: 4, md: 8 }}
               >
                 {isDrawerOpen?.type === "edit" ? t("doctors.page.editDoctors") : t("doctors.page.addDoctors")}
               </DrawerHeader>
-              <DrawerCloseButton 
-                color="white" 
-                bg="red.500" 
-                borderRadius="full" 
-                _hover={{ bg: "red.600" }} 
-                mt={4}
+              <DrawerCloseButton
+                color="white"
+                bg="whiteAlpha.200"
+                borderRadius="full"
+                _hover={{ bg: "whiteAlpha.300" }}
+                top={{ base: 2, md: 4 }}
+                right={{ base: 2, md: 4 }}
               />
-              <DrawerBody p={{ base: 4, md: 6 }} bg="gray.50">
+              <DrawerBody p={{ base: 2, md: 6 }} bg="gray.50" minH={0} overflowY="auto">
                 <Form
                   initialData={
                     isDrawerOpen?.type === "edit"
@@ -228,8 +238,7 @@ const DoctorsPage = observer(() => {
                   loading={formLoading}
                 />
               </DrawerBody>
-            </DrawerContent>
-          </DrawerOverlay>
+          </DrawerContent>
         </Drawer>
       )}
       {isDrawerOpen.type === "delete" && isDrawerOpen.open && (

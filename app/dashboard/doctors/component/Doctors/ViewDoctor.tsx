@@ -1,201 +1,261 @@
 import React from "react";
 import {
-  Box,
-  Text,
-  Image,
-  Heading,
-  Stack,
+  Avatar,
   Badge,
+  Box,
   Card,
-  CardHeader,
   CardBody,
-  VStack,
+  CardHeader,
+  Flex,
+  Heading,
   HStack,
-  useColorModeValue,
   Icon,
+  Stack,
+  Text,
+  useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
-import { PhoneIcon, EmailIcon } from "@chakra-ui/icons";
-import { MdAccountBalance, MdVaccines, MdSecurity } from "react-icons/md";
+import { EmailIcon, PhoneIcon } from "@chakra-ui/icons";
+import { MdAccountBalance, MdSecurity, MdVaccines } from "react-icons/md";
 import ReferredPatientsList from "../../../patients/component/patient/ReferredPatientsList";
 
+const valueText = (value: any) => {
+  if (value === undefined || value === null || value === "") return "—";
+  if (value === false) return "No";
+  if (value === true) return "Yes";
+  if (Array.isArray(value)) return value.filter(Boolean).join(", ") || "—";
+  if (typeof value === "object") return Object.values(value).filter(Boolean).join(", ") || "—";
+  return String(value);
+};
+
+const hasRecordData = (record: any) =>
+  record &&
+  Object.values(record).some(
+    (value) => value !== undefined && value !== null && value !== "" && (!Array.isArray(value) || value.length > 0)
+  );
+
 const InfoItem = ({ label, value }: { label: string; value: any }) => (
-  <Stack direction={{ base: "column", md: "row" }} align={{ base: "stretch", md: "start" }} spacing={{ base: 0, md: 2 }} mb={{ base: 2, md: 0 }}>
-    <Text fontWeight="semibold" minW={{ md: "140px" }} color="gray.600">
-      {label}:
+  <Stack
+    direction={{ base: "column", sm: "row" }}
+    align={{ base: "stretch", sm: "flex-start" }}
+    justify="space-between"
+    spacing={{ base: 0.5, sm: 3 }}
+    py={2}
+    borderBottomWidth="1px"
+    borderColor={useColorModeValue("gray.100", "gray.700")}
+    _last={{ borderBottomWidth: 0, pb: 0 }}
+  >
+    <Text flexShrink={0} fontSize="xs" fontWeight="semibold" color="gray.500">
+      {label}
     </Text>
-    <Text flex="1" wordBreak="break-word">{value || "—"}</Text>
+    <Text
+      minW={0}
+      flex={1}
+      fontSize="sm"
+      color={useColorModeValue("gray.800", "gray.100")}
+      wordBreak="break-word"
+      whiteSpace="normal"
+    >
+      {valueText(value)}
+    </Text>
   </Stack>
 );
 
-const SectionCard = ({ icon, title, children }: any) => {
-  const bg = useColorModeValue("white", "gray.800");
-  return (
-    <Card bg={bg} borderWidth="1px" borderRadius="lg" shadow="sm" mb={5}>
-      <CardHeader pb={2}>
-        <HStack spacing={2}>
-          {icon && <Icon as={icon} boxSize={5} color="teal.500" />}
-          <Heading size="sm">{title}</Heading>
-        </HStack>
-      </CardHeader>
-      <CardBody pt={2}>{children}</CardBody>
-    </Card>
-  );
-};
+const SectionCard = ({
+  icon,
+  title,
+  children,
+}: {
+  icon?: any;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <Card
+    w="100%"
+    bg={useColorModeValue("white", "gray.800")}
+    borderWidth="1px"
+    borderColor={useColorModeValue("gray.200", "gray.700")}
+    borderRadius="xl"
+    shadow="sm"
+  >
+    <CardHeader px={{ base: 4, md: 5 }} pt={4} pb={2}>
+      <HStack spacing={2}>
+        {icon && <Icon as={icon} boxSize={4} color="teal.500" />}
+        <Heading size="sm">{title}</Heading>
+      </HStack>
+    </CardHeader>
+    <CardBody px={{ base: 4, md: 5 }} pt={1} pb={4}>
+      {children}
+    </CardBody>
+  </Card>
+);
 
-const ViewDoctor = ({ doctor }) => {
+const ViewDoctor = ({ doctor }: { doctor: any }) => {
   const pageBg = useColorModeValue("gray.50", "gray.900");
-  const sectionItemBg = useColorModeValue("gray.50", "gray.700");
+  const mutedBg = useColorModeValue("gray.50", "gray.700");
 
-  if (!doctor) return <Text>No doctor data available</Text>;
+  if (!doctor) return <Text p={4}>No doctor data available</Text>;
 
-  const personalInfo = doctor?.profileDetails?.personalInfo || {};
-
-  // ✅ Declare hook values only once at top level
+  const personalInfo = doctor.profileDetails?.personalInfo || {};
+  const phones = (personalInfo.phones || doctor.phones || []).filter((item: any) => item?.number);
+  const emails = (personalInfo.emails || doctor.emails || []).filter((item: any) => item?.email);
+  const bankAccounts = (personalInfo.bankAccounts || doctor.bankAccounts || []).filter(hasRecordData);
+  const vaccinations = (personalInfo.vaccinations || doctor.vaccinations || []).filter(hasRecordData);
+  const insurances = (personalInfo.insurances || doctor.insurances || []).filter(hasRecordData);
+  const degrees = (personalInfo.degreeInfo || doctor.degreeInfo || []).filter(hasRecordData);
+  const addresses = personalInfo.addresses || doctor.addresses || {};
+  const title =
+    typeof doctor.title === "string" ? doctor.title : doctor.title?.label || "Dr.";
+  const isActive = doctor.is_active ?? doctor.isActive;
 
   return (
-    <Box p={2} bg={pageBg}>
-      {/* Profile Header */}
-      <Card mb={6} shadow="sm">
-        <CardBody>
-          <Stack direction={["column", "row"]} spacing={4} align="center">
-            {doctor.pic?.url && (
-              <Image
-                src={doctor.pic.url}
-                alt={doctor.name}
-                boxSize="80px"
-                borderRadius="full"
-                shadow="md"
-              />
-            )}
-            <Box>
-              <Heading size="md">{doctor.name}</Heading>
-              <Text fontSize="sm" color="gray.500">
-                {doctor.userType} — {doctor.code}
+    <VStack align="stretch" spacing={4} w="100%" maxW="900px" mx="auto" p={{ base: 3, md: 5 }} bg={pageBg}>
+      <Card
+        overflow="hidden"
+        borderRadius="2xl"
+        color="white"
+        bgGradient="linear(120deg, teal.700, cyan.600)"
+        shadow="md"
+      >
+        <CardBody p={{ base: 4, md: 5 }}>
+          <Flex align="center" gap={3}>
+            <Avatar
+              src={doctor.pic?.url}
+              name={doctor.name}
+              size="md"
+              boxSize={{ base: "48px", md: "64px" }}
+              border="2px solid"
+              borderColor="whiteAlpha.800"
+            />
+            <Box minW={0} flex={1}>
+              <Heading size={{ base: "sm", md: "md" }} noOfLines={2}>
+                {title} {doctor.name || "Doctor"}
+              </Heading>
+              <Text mt={1} fontSize="sm" color="whiteAlpha.800" noOfLines={1}>
+                Doctor {doctor.code ? `· ${doctor.code}` : ""}
               </Text>
             </Box>
-          </Stack>
+            {isActive !== undefined && (
+              <Badge colorScheme={isActive ? "green" : "gray"} borderRadius="full" px={2} py={1}>
+                {isActive ? "Active" : "Inactive"}
+              </Badge>
+            )}
+          </Flex>
         </CardBody>
       </Card>
 
-      {/* Basic Info */}
-      <SectionCard title="Basic Information">
-        <VStack align="stretch" spacing={2}>
-          <InfoItem label="Username" value={doctor.username} />
-          <InfoItem label="Special Details" value={doctor.bio} />
-          <InfoItem label="DOB" value={personalInfo.dob} />
-          <InfoItem
-            label="Languages"
-            value={personalInfo.languages?.join(", ")}
-          />
-          <InfoItem
-            label="Medical History"
-            value={personalInfo.medicalHistory}
-          />
+      <SectionCard title="Basic information">
+        <VStack align="stretch" spacing={0}>
+          <InfoItem label="Username" value={doctor.username || emails.find((item: any) => item.primary)?.email} />
+          <InfoItem label="Date of birth" value={personalInfo.dob || doctor.dob} />
+          <InfoItem label="Gender" value={personalInfo.gender?.label || personalInfo.gender || doctor.gender?.label || doctor.gender} />
+          <InfoItem label="Languages" value={personalInfo.languages} />
+          <InfoItem label="About" value={doctor.bio || personalInfo.bio} />
+          <InfoItem label="Medical history" value={personalInfo.medicalHistory || doctor.medicalHistory} />
         </VStack>
       </SectionCard>
 
-      {/* Contact Info */}
-      <SectionCard title="Contact Information">
-        <VStack align="stretch" spacing={2}>
-          {personalInfo.phones
-            ?.filter((p) => p.number) // only keep non-empty
-            .map((p, idx) => (
-              <HStack key={idx}>
-                <PhoneIcon color="teal.500" />
-                <Text>
-                  {p.number}{" "}
-                  {p.primary && (
-                    <Badge ml={1} colorScheme="green">
-                      Primary
-                    </Badge>
-                  )}
-                </Text>
-              </HStack>
-            ))}
-
-          {/* Emails */}
-          {personalInfo.emails
-            ?.filter((e) => e.email) // only keep non-empty
-            .map((e, idx) => (
-              <HStack key={idx}>
-                <EmailIcon color="teal.500" />
-                <Text>
-                  {e.email}{" "}
-                  {e.primary && (
-                    <Badge ml={1} colorScheme="green">
-                      Primary
-                    </Badge>
-                  )}
-                </Text>
-              </HStack>
-            ))}
+      <SectionCard title="Contact information">
+        <VStack align="stretch" spacing={3}>
+          {phones.map((phone: any, index: number) => (
+            <HStack key={`phone-${index}`} align="flex-start" spacing={3} minW={0}>
+              <PhoneIcon mt={1} color="teal.500" />
+              <Text minW={0} flex={1} fontSize="sm" wordBreak="break-word">
+                {phone.countryCode ? `${phone.countryCode} ` : ""}{phone.number}
+              </Text>
+              {phone.primary && <Badge colorScheme="green" flexShrink={0}>Primary</Badge>}
+            </HStack>
+          ))}
+          {emails.map((email: any, index: number) => (
+            <HStack key={`email-${index}`} align="flex-start" spacing={3} minW={0}>
+              <EmailIcon mt={1} color="teal.500" />
+              <Text minW={0} flex={1} fontSize="sm" wordBreak="break-word">
+                {email.email}
+              </Text>
+              {email.primary && <Badge colorScheme="green" flexShrink={0}>Primary</Badge>}
+            </HStack>
+          ))}
+          {!phones.length && !emails.length && (
+            <Text color="gray.500" fontSize="sm">No contact details provided</Text>
+          )}
         </VStack>
       </SectionCard>
 
-      {/* Bank Accounts */}
-      <SectionCard icon={MdAccountBalance} title="Bank Accounts">
-        {personalInfo.bankAccounts?.map((b, idx) => (
-          <Box
-            key={idx}
-            p={3}
-            borderWidth="1px"
-            borderRadius="md"
-            mb={2}
-            bg={sectionItemBg} // ✅ Precomputed value
-          >
-            <InfoItem label="Account Holder" value={b.accountHolder} />
-            <InfoItem label="Bank Name" value={b.bankName} />
-            <InfoItem label="Account Number" value={b.accountNumber} />
-            <InfoItem label="IFSC" value={b.ifscCode} />
-            <InfoItem label="Branch" value={b.branch} />
-            {b.primary && <Badge colorScheme="green">Primary</Badge>}
-          </Box>
-        ))}
-      </SectionCard>
+      {(addresses.residential || addresses.office || addresses.other) && (
+        <SectionCard title="Addresses">
+          <VStack align="stretch" spacing={0}>
+            {addresses.residential && <InfoItem label="Residential" value={addresses.residential} />}
+            {addresses.office && <InfoItem label="Office" value={addresses.office} />}
+            {addresses.other && <InfoItem label="Other" value={addresses.other} />}
+          </VStack>
+        </SectionCard>
+      )}
 
-      {/* Vaccinations */}
-      <SectionCard icon={MdVaccines} title="Vaccinations">
-        {personalInfo.vaccinations?.map((v, idx) => (
-          <Box
-            key={idx}
-            p={3}
-            borderWidth="1px"
-            borderRadius="md"
-            mb={2}
-            bg={sectionItemBg} // ✅ Precomputed value
-          >
-            <InfoItem label="Type" value={v.type} />
-            <InfoItem label="Date Administered" value={v.dateAdministered} />
-            <InfoItem label="Next Due" value={v.nextDueDate || "N/A"} />
-            <InfoItem label="Remarks" value={v.remarks || "None"} />
-          </Box>
-        ))}
-      </SectionCard>
+      {degrees.length > 0 && (
+        <SectionCard title="Qualifications">
+          <VStack align="stretch" spacing={2}>
+            {degrees.map((degree: any, index: number) => (
+              <Box key={index} p={3} bg={mutedBg} borderRadius="lg">
+                <InfoItem label="Degree" value={degree.name} />
+                <InfoItem label="University" value={degree.university || degree.universary} />
+                <InfoItem label="Year" value={degree.year} />
+              </Box>
+            ))}
+          </VStack>
+        </SectionCard>
+      )}
 
-      {/* Insurances */}
-      <SectionCard icon={MdSecurity} title="Insurances">
-        {personalInfo.insurances?.map((i, idx) => (
-          <Box
-            key={idx}
-            p={3}
-            borderWidth="1px"
-            borderRadius="md"
-            mb={2}
-            bg={sectionItemBg} // ✅ Precomputed value
-          >
-            <InfoItem label="Type" value={i.type} />
-            <InfoItem label="Start Date" value={i.startDate} />
-            <InfoItem label="Renewal Date" value={i.renewalDate} />
-            <InfoItem label="Amount Insured" value={i.amountInsured} />
-            <InfoItem label="Amount Paid" value={i.amountPaid} />
-            <InfoItem label="Remarks" value={i.remarks || "None"} />
-          </Box>
-        ))}
-      </SectionCard>
+      {bankAccounts.length > 0 && (
+        <SectionCard icon={MdAccountBalance} title="Bank accounts">
+          <VStack align="stretch" spacing={2}>
+            {bankAccounts.map((account: any, index: number) => (
+              <Box key={index} p={3} bg={mutedBg} borderRadius="lg">
+                <InfoItem label="Account holder" value={account.accountHolder} />
+                <InfoItem label="Bank" value={account.bankName} />
+                <InfoItem label="Account number" value={account.accountNumber} />
+                <InfoItem label="IFSC" value={account.ifscCode} />
+                <InfoItem label="Branch" value={account.branch} />
+                {account.primary && <Badge mt={2} colorScheme="green">Primary account</Badge>}
+              </Box>
+            ))}
+          </VStack>
+        </SectionCard>
+      )}
 
-      {/* Referred Patients List */}
-      <ReferredPatientsList userId={doctor._id} />
-    </Box>
+      {vaccinations.length > 0 && (
+        <SectionCard icon={MdVaccines} title="Vaccinations">
+          <VStack align="stretch" spacing={2}>
+            {vaccinations.map((item: any, index: number) => (
+              <Box key={index} p={3} bg={mutedBg} borderRadius="lg">
+                <InfoItem label="Type" value={item.type} />
+                <InfoItem label="Date administered" value={item.dateAdministered} />
+                <InfoItem label="Next due" value={item.nextDueDate} />
+                <InfoItem label="Remarks" value={item.remarks} />
+              </Box>
+            ))}
+          </VStack>
+        </SectionCard>
+      )}
+
+      {insurances.length > 0 && (
+        <SectionCard icon={MdSecurity} title="Insurance">
+          <VStack align="stretch" spacing={2}>
+            {insurances.map((item: any, index: number) => (
+              <Box key={index} p={3} bg={mutedBg} borderRadius="lg">
+                <InfoItem label="Type" value={item.type} />
+                <InfoItem label="Start date" value={item.startDate} />
+                <InfoItem label="Renewal date" value={item.renewalDate} />
+                <InfoItem label="Amount insured" value={item.amountInsured} />
+                <InfoItem label="Amount paid" value={item.amountPaid} />
+                <InfoItem label="Remarks" value={item.remarks} />
+              </Box>
+            ))}
+          </VStack>
+        </SectionCard>
+      )}
+
+      {doctor._id && <ReferredPatientsList userId={doctor._id} />}
+    </VStack>
   );
 };
 
