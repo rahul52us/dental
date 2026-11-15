@@ -421,8 +421,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
       type: "component",
       metaData: {
         component: (dt: any) => (
-          <Box textAlign="left" maxW="300px">
-            <Text noOfLines={2} fontSize="sm" fontWeight="semibold">{dt?.workDoneNote || dt?.toothNote || "--"}</Text>
+          <Box textAlign="left" maxW="450px">
+            <Text fontSize="sm" fontWeight="semibold" whiteSpace="normal" wordBreak="break-word">{dt?.workDoneNote || dt?.toothNote || "--"}</Text>
           </Box>
         ),
       },

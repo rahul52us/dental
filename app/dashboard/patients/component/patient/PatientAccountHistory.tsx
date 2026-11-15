@@ -419,7 +419,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           <HStack spacing={3}>
             <Box p={1.5} bg="blue.50" borderRadius="lg"><Icon as={FiActivity} color="blue.500" /></Box>
             <VStack align="start" spacing={0}>
-              <Text fontSize="md" fontWeight="900" color="gray.800">{dt.workDoneNote || dt.toothNote || dt.treatmentPlan || dt.treatmentCode || "General"}</Text>
+              <Text fontSize="md" fontWeight="900" color="gray.800" whiteSpace="normal" wordBreak="break-word">
+                {dt.treatment?.treatmentPlan || dt.treatmentPlan || dt.workDoneNote || dt.toothNote || dt.treatmentCode || "General"}
+              </Text>
               <HStack spacing={2} mt={1}>
                 <Badge colorScheme="blue" variant="subtle" fontSize="11px" px={2} py={0.5} borderRadius="md">T: {dt.tooth || "N/A"}</Badge>
                 <Text fontSize="xs" color="gray.500" fontWeight="700"><Icon as={FiUser} mr={1} boxSize="12px" />{dt.doctor?.name}</Text>

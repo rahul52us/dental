@@ -349,12 +349,12 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               {dt.notes && <Text fontStyle="italic" fontSize="xs" mt={1}>{dt.notes}</Text>}
             </Box>
           } placement="top" hasArrow>
-            <VStack align="start" spacing={0} maxW="200px">
-              <Text fontSize="sm" fontWeight="bold" color="gray.800" noOfLines={1}>
+            <VStack align="start" spacing={0} maxW="350px">
+              <Text fontSize="sm" fontWeight="bold" color="gray.800" whiteSpace="normal" wordBreak="break-word">
                 {dt.treatmentPlan || "General Consultation"}
               </Text>
               {dt.notes && (
-                <Text fontSize="xs" color="gray.500" fontStyle="italic" noOfLines={1}>
+                <Text fontSize="xs" color="gray.500" fontStyle="italic" whiteSpace="normal" wordBreak="break-word">
                   {dt.notes}
                 </Text>
               )}
@@ -691,7 +691,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                 </Text>
               )}
             </VStack>
-            
+
             {dt.generalTitle && (
               <Box bg="blue.600" borderRadius="md" px={3} py={1.5} w="full" textAlign="center" shadow="sm">
                 <Text fontSize="11px" fontWeight="900" color="white" noOfLines={2} textTransform="uppercase" letterSpacing="0.05em">
@@ -709,11 +709,11 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
 
             <HStack spacing={2}>
               {dt.complaintType && (
-                <Badge 
+                <Badge
                   colorScheme={
                     dt.complaintType?.toUpperCase() === "EXISTING FINDING" ? "green" :
                     dt.complaintType?.toUpperCase() === "OTHER FINDING" ? "orange" : "red"
-                  } 
+                  }
                   variant="subtle" borderRadius="full" px={3} fontSize="14px" fontWeight="800"
                 >
                   {dt.complaintType?.toUpperCase()}
@@ -750,7 +750,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               </Box>
             )}
 
-            <Text fontSize="lg" fontWeight="800" color="gray.800" noOfLines={2} pt={1}>
+            <Text fontSize="lg" fontWeight="800" color="gray.800" pt={1} whiteSpace="normal" wordBreak="break-word">
               {dt.treatmentPlan || "General Consultation"}
             </Text>
 
@@ -1301,8 +1301,8 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                   />
                 </TabPanel>
                 <TabPanel p={0}>
-                  <PatientWorkDoneHistory 
-                    patientDetails={typeof openWorkDone.data?.patient === 'object' ? openWorkDone.data.patient : patientDetails} 
+                  <PatientWorkDoneHistory
+                    patientDetails={typeof openWorkDone.data?.patient === 'object' ? openWorkDone.data.patient : patientDetails}
                   />
                 </TabPanel>
               </TabPanels>
