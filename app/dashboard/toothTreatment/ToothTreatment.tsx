@@ -1,4 +1,5 @@
 "use client";
+import { GiMedicalDrip } from "react-icons/gi";
 import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
@@ -1234,7 +1235,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
         />
       </CustomDrawer>
 
-      {/* Work Done Drawer */}
+            {/* Work Done Drawer */}
       {openWorkDone.open && (
         <CustomDrawer
           open={openWorkDone.open}
@@ -1244,19 +1245,44 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
         >
           <Box px={6}>
             <Tabs variant="line" colorScheme="blue" index={workDoneTab} onChange={(idx) => setWorkDoneTab(idx)} isLazy lazyBehavior="unmount">
-              <TabList mb="1em">
-                <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
-                  New Work Entry
-                </Tab>
-                <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
-                  <Tooltip label="To View full work go to main Work Done History" hasArrow placement="top">
-                    <span>Previous work done entered through tmt Plan</span>
-                  </Tooltip>
-                </Tab>
-                <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
-                  All Work Done History
-                </Tab>
-              </TabList>
+              <Flex align="center" mb="1em" borderBottom="1px solid" borderColor="gray.200">
+                <TabList borderBottom="none" mb={0}>
+                  <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
+                    New Work Entry
+                  </Tab>
+                  <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
+                    <Tooltip label="To View full work go to main Work Done History" hasArrow placement="top">
+                      <span>Previous work done entered through tmt Plan</span>
+                    </Tooltip>
+                  </Tab>
+                  <Tab fontWeight="bold" fontSize="14px" px={6} _selected={{ color: "blue.700", borderColor: "blue.600", borderBottomWidth: "3px", bg: "blue.100", borderTopRadius: "lg" }}>
+                    All Work Done History
+                  </Tab>
+                </TabList>
+
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  variant="solid"
+                  leftIcon={<GiMedicalDrip size={16} />}
+                  borderRadius="xl"
+                  fontSize="12px"
+                  fontWeight="bold"
+                  px={4}
+                  h="32px"
+                  ml={4}
+                  mb={1}
+                  shadow="sm"
+                  _hover={{ transform: "translateY(-1px)", shadow: "md" }}
+                  transition="all 0.15s ease"
+                  onClick={() => {
+                    setOpenWorkDone({ open: false, data: null });
+                    setActiveTab(0);
+                  }}
+                >
+                  Treatment Advise
+                </Button>
+              </Flex>
               <TabPanels>
                 <TabPanel p={0}>
                   <WorkDoneForm

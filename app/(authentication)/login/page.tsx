@@ -114,7 +114,10 @@ const Login = observer(() => {
           </Box>
 
           {/* Form */}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
+            {/* Hidden dummy fields to prevent Chrome/browser autofill */}
+            <input type="text" name="prevent_autofill_user" tabIndex={-1} style={{ display: "none" }} autoComplete="off" />
+            <input type="password" name="prevent_autofill_pwd" tabIndex={-1} style={{ display: "none" }} autoComplete="off" />
             <VStack spacing={4} align="stretch">
               {/* LOGIN TYPE + USERNAME */}
               <FormControl id="username">
@@ -141,6 +144,7 @@ const Login = observer(() => {
                 <Input
                   type="text"
                   name="username"
+                  autoComplete="one-time-code"
                   placeholder={
                     formData.loginType === "email"
                       ? "Enter your email"
@@ -169,6 +173,7 @@ const Login = observer(() => {
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
+                    autoComplete="new-password"
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
