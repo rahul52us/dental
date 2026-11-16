@@ -8,6 +8,7 @@ import {
   DrawerHeader,
   DrawerOverlay,
   useToast,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import stores from "../../store/stores";
@@ -23,6 +24,7 @@ import LineItems from "./component/LineItems/LineItems";
 import { useTranslation } from "react-i18next";
 
 const LabPage = observer(() => {
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -149,9 +151,9 @@ const LabPage = observer(() => {
       {/* Add / Edit Drawer */}
       {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
         <Drawer
-          size="md"
+          size={isMobile ? "full" : "md"}
           isOpen={isDrawerOpen.isOpen}
-          placement="right"
+          placement={isMobile ? "bottom" : "right"}
           onClose={() =>
             setIsDrawerOpen({ isOpen: false, type: "add", data: null })
           }
@@ -160,15 +162,21 @@ const LabPage = observer(() => {
           <DrawerOverlay>
             <DrawerContent
               bg="white"
-              borderRadius="lg"
+              borderRadius={isMobile ? 0 : "lg"}
+              borderTopRadius={0}
               boxShadow="xl"
+              h={isMobile ? "100dvh" : undefined}
+              maxH={isMobile ? "100dvh" : undefined}
               maxW={{ base: "100%", md: "93%" }}
               width={{ base: "100%", md: "95%" }}
+              overflow="hidden"
             >
-              <DrawerCloseButton />
+              <DrawerCloseButton color="white" zIndex={2} />
               <DrawerHeader
-                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
                 color="white"
+                borderRadius={0}
+                borderTopRadius={0}
                 fontSize="lg"
                 fontWeight="bold"
                 textAlign="center"

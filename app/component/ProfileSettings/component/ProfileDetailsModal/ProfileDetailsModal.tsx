@@ -35,7 +35,8 @@ import {
   Select,
   Textarea
 } from "@chakra-ui/react";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiUser, FiClock, FiSidebar, FiMoon } from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
 import { observer } from "mobx-react-lite";
 import { useState, useRef, useEffect } from "react";
 import stores from "../../../../store/stores";
@@ -357,26 +358,38 @@ const ProfileDetailsModal = observer(({ user }: any) => {
       >
         {/* Header Section: Identity */}
         <Box
-          bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
-          p={{ base: 3, md: 5 }}
+          bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+          p={{ base: 4, md: 5 }}
           color="white"
           position="relative"
+          boxShadow="0 4px 20px rgba(12, 74, 110, 0.25)"
         >
-          <DrawerCloseButton color="white" onClick={handleClose} />
+          <DrawerCloseButton
+            color="white"
+            onClick={handleClose}
+            top={{ base: 3, md: 4 }}
+            right={{ base: 3, md: 4 }}
+            bg="whiteAlpha.200"
+            borderRadius="full"
+            w="32px"
+            h="32px"
+            _hover={{ bg: "whiteAlpha.350" }}
+          />
           <Flex
             direction="row"
             align="center"
-            gap={{ base: 3, md: 5 }}
+            gap={{ base: 3, md: 4 }}
             pr={{ base: 8, md: 0 }}
           >
-            <Box position="relative" cursor="pointer" onClick={() => fileInputRef.current?.click()}>
+            <Box position="relative" cursor="pointer" onClick={() => fileInputRef.current?.click()} flexShrink={0}>
               <Avatar
                 size="md"
-                boxSize={{ base: "48px", md: "64px" }}
+                boxSize={{ base: "52px", md: "64px" }}
                 src={pic?.url}
                 name={name}
-                border="4px solid white"
-                boxShadow="lg"
+                border="3px solid"
+                borderColor="whiteAlpha.800"
+                boxShadow="0 4px 14px rgba(0,0,0,0.25)"
                 opacity={uploadingImage ? 0.5 : 1}
               />
               <input
@@ -388,52 +401,70 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               />
               <Flex
                 position="absolute"
-                bottom={-1}
-                right={-1}
+                bottom={0}
+                right={0}
                 bg="blue.500"
                 color="white"
                 borderRadius="full"
-                w={6}
-                h={6}
+                w="20px"
+                h="20px"
                 align="center"
                 justify="center"
                 boxShadow="sm"
-                border="2px solid white"
+                border="1.5px solid white"
                 _hover={{ bg: "blue.600" }}
               >
                 {uploadingImage ? (
                   <Icon as={CheckCircleIcon} opacity={0} boxSize={3} />
                 ) : (
-                  <Icon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" boxSize={3}>
+                  <Icon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" boxSize={2.5}>
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                   </Icon>
                 )}
               </Flex>
             </Box>
-            <Box minW={0} flex={1} textAlign="left">
-              <Flex
-                align="center"
-                gap={2}
-                justify="flex-start"
-                wrap="wrap"
-              >
-                <Heading size={{ base: "sm", md: "md" }} noOfLines={1}>
-                  {title} {name}
+
+            <Box minW={0} flex={1}>
+              <HStack spacing={2} align="center" wrap="wrap">
+                <Heading size={{ base: "xs", md: "sm" }} fontSize={{ base: "15px", md: "17px" }} fontWeight="900" noOfLines={1} color="white">
+                  {title ? `${title} ` : ''}{name}
                 </Heading>
                 <Badge
-                  colorScheme={is_active ? "green" : "red"}
-                  variant="solid"
+                  bg={is_active ? "rgba(16, 185, 129, 0.25)" : "rgba(239, 68, 68, 0.25)"}
+                  color={is_active ? "#34D399" : "#F87171"}
+                  border="1px solid"
+                  borderColor={is_active ? "rgba(52, 211, 153, 0.4)" : "rgba(248, 113, 113, 0.4)"}
                   borderRadius="full"
                   px={2}
+                  py={0.5}
+                  fontSize="9px"
+                  fontWeight="800"
+                  textTransform="uppercase"
+                  letterSpacing="0.4px"
                 >
                   {is_active ? "Active" : "Inactive"}
                 </Badge>
-              </Flex>
-              <Text fontSize={{ base: "xs", md: "md" }} opacity={0.9} mt={1} noOfLines={1}>
+              </HStack>
+
+              <Text fontSize={{ base: "11.5px", md: "13px" }} color="whiteAlpha.850" fontWeight="600" mt={0.5} noOfLines={1}>
                 {username}
               </Text>
-              <Badge mt={{ base: 1, md: 2 }} colorScheme="orange" variant="subtle">
+
+              <Badge
+                mt={1}
+                bg="whiteAlpha.200"
+                color="white"
+                border="1px solid"
+                borderColor="whiteAlpha.300"
+                fontSize="9px"
+                fontWeight="800"
+                px={2}
+                py={0.5}
+                borderRadius="md"
+                textTransform="uppercase"
+                letterSpacing="0.5px"
+              >
                 {role}
               </Badge>
             </Box>
@@ -446,30 +477,163 @@ const ProfileDetailsModal = observer(({ user }: any) => {
             flexDirection="column"
             h="100%"
             minH={0}
-            variant="line"
-            colorScheme="teal"
+            variant="unstyled"
             index={profileModal.defaultTab}
             onChange={(index) => setProfileModal(true, index)}
           >
-            <TabList
-              px={{ base: 2, md: 4 }}
-              pt={{ base: 1, md: 3 }}
-              gap={{ base: 1, md: 2 }}
-              overflowX="auto"
-              flexShrink={0}
+            <Box
+              bg="white"
               borderBottom="1px solid"
-              borderColor="gray.200"
-              css={{
-                "&::-webkit-scrollbar": { display: "none" },
-                scrollbarWidth: "none",
-              }}
+              borderColor="gray.150"
+              px={{ base: 2, md: 4 }}
+              py={{ base: 2, md: 0 }}
+              pt={{ base: 2, md: 3 }}
             >
-              <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Profile</Tab>
-              {user?.role === "admin" && <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Operating Hours</Tab>}
-              <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Sidebar</Tab>
-              <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">Theme</Tab>
-              {user?.role === "admin" && <Tab flexShrink={0} minH="44px" px={{ base: 3, md: 5 }} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold">WhatsApp</Tab>}
-            </TabList>
+              <TabList
+                gap={{ base: 1, md: 2 }}
+                overflowX="auto"
+                flexShrink={0}
+                p={{ base: 1, md: 0 }}
+                bg={{ base: "gray.100", md: "transparent" }}
+                borderRadius={{ base: "14px", md: "none" }}
+                borderBottom={{ base: "none", md: "1px solid" }}
+                borderColor={{ base: "transparent", md: "gray.200" }}
+                css={{
+                  "&::-webkit-scrollbar": { display: "none" },
+                  scrollbarWidth: "none",
+                }}
+              >
+                <Tab
+                  flexShrink={0}
+                  h={{ base: "32px", md: "44px" }}
+                  px={{ base: 2.5, md: 5 }}
+                  borderRadius={{ base: "10px", md: "none" }}
+                  fontSize={{ base: "12px", md: "sm" }}
+                  fontWeight={{ base: "700", md: "bold" }}
+                  color={{ base: "gray.600", md: "gray.600" }}
+                  borderBottom={{ base: "none", md: "2px solid transparent" }}
+                  _selected={{
+                    bg: { base: "white", md: "transparent" },
+                    color: { base: "teal.800", md: "teal.600" },
+                    borderColor: { base: "transparent", md: "teal.600" },
+                    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+                    fontWeight: { base: "800", md: "bold" },
+                  }}
+                  _hover={{ color: "gray.900" }}
+                  transition="all 0.15s ease"
+                >
+                  <HStack spacing={1.5}>
+                    <Icon as={FiUser} fontSize="12px" display={{ base: "inline-block", md: "none" }} />
+                    <Text>Profile</Text>
+                  </HStack>
+                </Tab>
+
+                {user?.role === "admin" && (
+                  <Tab
+                    flexShrink={0}
+                    h={{ base: "32px", md: "44px" }}
+                    px={{ base: 2.5, md: 5 }}
+                    borderRadius={{ base: "10px", md: "none" }}
+                    fontSize={{ base: "12px", md: "sm" }}
+                    fontWeight={{ base: "700", md: "bold" }}
+                    color={{ base: "gray.600", md: "gray.600" }}
+                    borderBottom={{ base: "none", md: "2px solid transparent" }}
+                    _selected={{
+                      bg: { base: "white", md: "transparent" },
+                      color: { base: "teal.800", md: "teal.600" },
+                      borderColor: { base: "transparent", md: "teal.600" },
+                      shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+                      fontWeight: { base: "800", md: "bold" },
+                    }}
+                    _hover={{ color: "gray.900" }}
+                    transition="all 0.15s ease"
+                  >
+                    <HStack spacing={1.5}>
+                      <Icon as={FiClock} fontSize="12px" display={{ base: "inline-block", md: "none" }} />
+                      <Text display={{ base: "none", md: "inline" }}>Operating Hours</Text>
+                      <Text display={{ base: "inline", md: "none" }}>Hours</Text>
+                    </HStack>
+                  </Tab>
+                )}
+
+                <Tab
+                  flexShrink={0}
+                  h={{ base: "32px", md: "44px" }}
+                  px={{ base: 2.5, md: 5 }}
+                  borderRadius={{ base: "10px", md: "none" }}
+                  fontSize={{ base: "12px", md: "sm" }}
+                  fontWeight={{ base: "700", md: "bold" }}
+                  color={{ base: "gray.600", md: "gray.600" }}
+                  borderBottom={{ base: "none", md: "2px solid transparent" }}
+                  _selected={{
+                    bg: { base: "white", md: "transparent" },
+                    color: { base: "teal.800", md: "teal.600" },
+                    borderColor: { base: "transparent", md: "teal.600" },
+                    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+                    fontWeight: { base: "800", md: "bold" },
+                  }}
+                  _hover={{ color: "gray.900" }}
+                  transition="all 0.15s ease"
+                >
+                  <HStack spacing={1.5}>
+                    <Icon as={FiSidebar} fontSize="12px" display={{ base: "inline-block", md: "none" }} />
+                    <Text>Sidebar</Text>
+                  </HStack>
+                </Tab>
+
+                <Tab
+                  flexShrink={0}
+                  h={{ base: "32px", md: "44px" }}
+                  px={{ base: 2.5, md: 5 }}
+                  borderRadius={{ base: "10px", md: "none" }}
+                  fontSize={{ base: "12px", md: "sm" }}
+                  fontWeight={{ base: "700", md: "bold" }}
+                  color={{ base: "gray.600", md: "gray.600" }}
+                  borderBottom={{ base: "none", md: "2px solid transparent" }}
+                  _selected={{
+                    bg: { base: "white", md: "transparent" },
+                    color: { base: "teal.800", md: "teal.600" },
+                    borderColor: { base: "transparent", md: "teal.600" },
+                    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+                    fontWeight: { base: "800", md: "bold" },
+                  }}
+                  _hover={{ color: "gray.900" }}
+                  transition="all 0.15s ease"
+                >
+                  <HStack spacing={1.5}>
+                    <Icon as={FiMoon} fontSize="12px" display={{ base: "inline-block", md: "none" }} />
+                    <Text>Theme</Text>
+                  </HStack>
+                </Tab>
+
+                {user?.role === "admin" && (
+                  <Tab
+                    flexShrink={0}
+                    h={{ base: "32px", md: "44px" }}
+                    px={{ base: 2.5, md: 5 }}
+                    borderRadius={{ base: "10px", md: "none" }}
+                    fontSize={{ base: "12px", md: "sm" }}
+                    fontWeight={{ base: "700", md: "bold" }}
+                    color={{ base: "gray.600", md: "gray.600" }}
+                    borderBottom={{ base: "none", md: "2px solid transparent" }}
+                    _selected={{
+                      bg: { base: "white", md: "transparent" },
+                      color: { base: "teal.800", md: "teal.600" },
+                      borderColor: { base: "transparent", md: "teal.600" },
+                      shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+                      fontWeight: { base: "800", md: "bold" },
+                    }}
+                    _hover={{ color: "gray.900" }}
+                    transition="all 0.15s ease"
+                  >
+                    <HStack spacing={1.5}>
+                      <Icon as={FaWhatsapp} fontSize="12px" color="#25D366" display={{ base: "inline-block", md: "none" }} />
+                      <Text>WhatsApp</Text>
+                    </HStack>
+                  </Tab>
+                )}
+              </TabList>
+            </Box>
 
             <TabPanels flex={1} minH={0} overflowY="auto">
               {/* TAB 1: Profile Overview */}
@@ -752,32 +916,63 @@ const ProfileDetailsModal = observer(({ user }: any) => {
         </DrawerBody>
 
         <DrawerFooter
-          bg="gray.50"
+          bg={{ base: "white", md: "gray.50" }}
           px={{ base: 3, md: 6 }}
-          py={{ base: 2, md: 4 }}
-          gap={2}
+          py={{ base: 3, md: 4 }}
+          pb={{ base: "calc(22px + env(safe-area-inset-bottom, 12px))", md: 4 }}
           borderTop="1px solid"
           borderColor="gray.200"
+          boxShadow={{ base: "0 -4px 15px rgba(0,0,0,0.04)", md: "none" }}
         >
-          <Button
-            variant="ghost"
-            flex={{ base: 1, md: "initial" }}
-            minH="44px"
-            onClick={handleClose}
-          >
-            Close
-          </Button>
+          {/* MOBILE BUTTONS (base: < md) */}
+          <HStack spacing={2.5} w="full" display={{ base: "flex", md: "none" }}>
+            <Button
+              variant="outline"
+              colorScheme="gray"
+              flex={1}
+              minH="42px"
+              borderRadius="xl"
+              fontWeight="700"
+              fontSize="sm"
+              onClick={handleClose}
+            >
+              Close
+            </Button>
 
-          <Button
-            colorScheme="blue"
-            leftIcon={<CheckIcon />}
-            flex={{ base: 2, md: "initial" }}
-            minH="44px"
-            onClick={handleSave}
-            isLoading={isSaving}
-          >
-            Save Changes
-          </Button>
+            <Button
+              bgGradient="linear(to-r, #0C4A6E, #0D9488)"
+              color="white"
+              _hover={{ bgGradient: "linear(to-r, #082F49, #0F766E)", shadow: "md" }}
+              _active={{ transform: "scale(0.98)" }}
+              leftIcon={<CheckIcon />}
+              flex={2}
+              minH="42px"
+              borderRadius="xl"
+              fontWeight="800"
+              fontSize="sm"
+              onClick={handleSave}
+              isLoading={isSaving}
+              shadow="sm"
+            >
+              Save Changes
+            </Button>
+          </HStack>
+
+          {/* DESKTOP BUTTONS (md: >= md, exact original desktop footer) */}
+          <Flex justify="flex-end" w="full" display={{ base: "none", md: "flex" }}>
+            <Button variant="ghost" mr={3} minH="40px" onClick={handleClose}>
+              Close
+            </Button>
+            <Button
+              colorScheme="blue"
+              leftIcon={<CheckIcon />}
+              minH="40px"
+              onClick={handleSave}
+              isLoading={isSaving}
+            >
+              Save Changes
+            </Button>
+          </Flex>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

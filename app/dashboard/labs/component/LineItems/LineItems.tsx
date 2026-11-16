@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
+  Badge,
   Box,
   Button,
   Drawer,
@@ -23,8 +24,29 @@ import {
   VStack,
   HStack,
   useToast,
+  useBreakpointValue,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  IconButton,
+  Spinner,
+  Icon,
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
+import { IoMdAdd } from "react-icons/io";
+import {
+  FiSearch,
+  FiX,
+  FiPackage,
+  FiUser,
+  FiCalendar,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import stores from "../../../../store/stores";
@@ -45,6 +67,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const LineItems = observer(({ data }: any) => {
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
   const {
     labStore: {
       getLabLineItems,
@@ -53,7 +76,7 @@ const LineItems = observer(({ data }: any) => {
       updateLabItem,
       deleteLabItem,
     },
-    auth:{
+    auth: {
       userType
     }
   } = stores;
@@ -91,37 +114,37 @@ const LineItems = observer(({ data }: any) => {
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   const applyGetAllTherapists = useCallback(
-  ({ page = 1, limit = tablePageLimit, reset = false }) => {
-    const query: any = { page, limit };
+    ({ page = 1, limit = tablePageLimit, reset = false }) => {
+      const query: any = { page, limit };
 
-    if (debouncedSearchQuery?.trim()) {
-      query.search = debouncedSearchQuery.trim();
-    }
+      if (debouncedSearchQuery?.trim()) {
+        query.search = debouncedSearchQuery.trim();
+      }
 
-    if (reset) {
-      query.page = 1;
-      query.limit = tablePageLimit;
-    }
+      if (reset) {
+        query.page = 1;
+        query.limit = tablePageLimit;
+      }
 
-    // 👇 condition: pass patientId OR lab
-    if (data?.isPatient) {
-      query.patientId = data?.patientData?._id;
-    } else {
-      query.lab = data?._id;
-    }
+      // 👇 condition: pass patientId OR lab
+      if (data?.isPatient) {
+        query.patientId = data?.patientData?._id;
+      } else {
+        query.lab = data?._id;
+      }
 
-    getLabLineItems(query).catch((err) => {
-      toast({
-        title: "Failed to get line items",
-        description: err?.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
+      getLabLineItems(query).catch((err) => {
+        toast({
+          title: "Failed to get line items",
+          description: err?.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       });
-    });
-  },
-  [debouncedSearchQuery, getLabLineItems, toast, data]
-);
+    },
+    [debouncedSearchQuery, getLabLineItems, toast, data]
+  );
 
 
   useEffect(() => {
@@ -287,48 +310,338 @@ const LineItems = observer(({ data }: any) => {
   };
 
   return (
-    <Box p={4}>
-      <CustomTable
-        title="Line Items"
-        data={
-          lineItems.data?.map((t: any, index: number) => ({
-            ...t,
-            sno: index + 1,
-          })) || []
-        }
-        columns={TherapistTableColumns}
-        actions={{
-          actionBtn: {
-            addKey: { showAddButton: stores.auth.hasPermission('lab', 'create'), function: handleAdd },
-            editKey: { showEditButton: stores.auth.hasPermission('lab', 'edit'), function: handleEdit },
-            viewKey: {
-              showViewButton: stores.auth.hasPermission('lab', 'view'),
-              function: (e: any) => handleRowClick(e),
+    <Box p={{ base: 2, md: 4 }}>
+      {isMobile ? (
+        /* ============================================================== */
+        /* MOBILE VIEW: DEDICATED NATIVE APP PERSPECTIVE                  */
+        /* ============================================================== */
+        <Box pb={8}>
+          {/* Top App Bar / Actions Strip */}
+          <Flex justify="space-between" align="center" mb={3} gap={2} px={1}>
+            <HStack spacing={2}>
+              <Text fontSize="16px" fontWeight="900" color="gray.800" letterSpacing="-0.3px">
+                Line Items
+              </Text>
+              <Badge
+                bg="rgba(13, 148, 136, 0.12)"
+                color="teal.700"
+                border="1px solid"
+                borderColor="rgba(13, 148, 136, 0.25)"
+                borderRadius="full"
+                px={2}
+                py={0.5}
+                fontSize="11px"
+                fontWeight="800"
+              >
+                {lineItems.data?.length || 0}
+              </Badge>
+            </HStack>
+
+            {stores.auth.hasPermission("lab", "create") && (
+              <Button
+                size="sm"
+                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                color="white"
+                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _active={{ transform: "scale(0.96)" }}
+                leftIcon={<IoMdAdd fontSize="16px" />}
+                borderRadius="xl"
+                fontWeight="800"
+                px={3.5}
+                h="36px"
+                boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+                onClick={handleAdd}
+              >
+                Add Item
+              </Button>
+            )}
+          </Flex>
+
+          {/* Search Box */}
+          <InputGroup size="sm" mb={3}>
+            <InputLeftElement pointerEvents="none">
+              <FiSearch color="#94A3B8" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search item name, code..."
+              value={searchQuery}
+              onChange={(e: any) => setSearchQuery(e.target.value)}
+              borderRadius="xl"
+              bg="white"
+              borderColor="gray.200"
+              _focus={{
+                borderColor: "teal.500",
+                boxShadow: "0 0 0 1px #0D9488",
+              }}
+            />
+            {searchQuery && (
+              <InputRightElement>
+                <IconButton
+                  aria-label="Clear search"
+                  icon={<FiX size={12} />}
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => setSearchQuery("")}
+                />
+              </InputRightElement>
+            )}
+          </InputGroup>
+
+          {/* List or Empty / Loading State */}
+          {lineItems.loading ? (
+            <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
+              <Spinner size="lg" color="teal.500" thickness="3px" />
+              <Text fontSize="13px" color="gray.500">Loading line items...</Text>
+            </Flex>
+          ) : !lineItems.data || lineItems.data.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              p={8}
+              bg="white"
+              borderRadius="22px"
+              border="1px dashed"
+              borderColor="gray.200"
+              textAlign="center"
+            >
+              <Icon as={FiPackage} boxSize="36px" color="gray.400" mb={2} />
+              <Text fontSize="14px" fontWeight="750" color="gray.700">
+                No Line Items
+              </Text>
+              <Text fontSize="12px" color="gray.500" mt={1}>
+                {searchQuery ? `No matching items for "${searchQuery}"` : "Tap + Add Item to create a line item."}
+              </Text>
+            </Flex>
+          ) : (
+            <VStack spacing={3} align="stretch">
+              {lineItems.data.map((item: any, idx: number) => {
+                const qty = Number(item.quantity) || 0;
+                const price = Number(item.price) || 0;
+                const total = item.total ? Number(item.total) : qty * price;
+                return (
+                  <Box
+                    key={item._id || idx}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="#E8EEF4"
+                    borderRadius="20px"
+                    p={3.5}
+                    boxShadow="0 6px 18px -8px rgba(15, 23, 42, 0.12)"
+                    position="relative"
+                  >
+                    {/* Item Top Row */}
+                    <Flex justify="space-between" align="flex-start" gap={2} mb={2}>
+                      <Box flex={1} minW={0} cursor="pointer" onClick={() => handleRowClick(item)}>
+                        <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          {item.itemName}
+                        </Text>
+                        {item.itemCode && (
+                          <Badge
+                            mt={1}
+                            bg="gray.100"
+                            color="gray.700"
+                            borderRadius="md"
+                            px={1.5}
+                            py={0.5}
+                            fontSize="10px"
+                            fontWeight="700"
+                          >
+                            Code: {item.itemCode}
+                          </Badge>
+                        )}
+                      </Box>
+                      <Badge
+                        bg="rgba(13, 148, 136, 0.12)"
+                        color="teal.700"
+                        borderRadius="full"
+                        px={2.5}
+                        py={1}
+                        fontSize="11px"
+                        fontWeight="850"
+                        flexShrink={0}
+                      >
+                        Qty: {qty}
+                      </Badge>
+                    </Flex>
+
+                    {/* Patient & Date Meta */}
+                    <Flex justify="space-between" align="center" py={1.5} borderTop="1px dashed" borderColor="gray.100" fontSize="11.5px" color="gray.500">
+                      <HStack spacing={1.5} minW={0} flex={1}>
+                        <Icon as={FiUser} color="teal.500" boxSize={3} />
+                        <Text fontWeight="600" color="gray.700" noOfLines={1}>
+                          {item.patientDetails?.name || "No Patient"}
+                        </Text>
+                      </HStack>
+                      <HStack spacing={1} flexShrink={0}>
+                        <Icon as={FiCalendar} boxSize={3} />
+                        <Text>{item.createdAt ? formatDate(item.createdAt) : "—"}</Text>
+                      </HStack>
+                    </Flex>
+
+                    {/* Pricing Metric Strip */}
+                    <SimpleGrid columns={2} spacing={2} my={2.5} p={2.5} bg="gray.50" borderRadius="xl">
+                      <Box>
+                        <Text fontSize="10px" fontWeight="700" color="gray.500" textTransform="uppercase">
+                          Unit Price
+                        </Text>
+                        <Text fontSize="13px" fontWeight="800" color="gray.800">
+                          ₹{price.toLocaleString("en-IN")}
+                        </Text>
+                      </Box>
+                      <Box textAlign="right">
+                        <Text fontSize="10px" fontWeight="700" color="teal.600" textTransform="uppercase">
+                          Total
+                        </Text>
+                        <Text fontSize="14px" fontWeight="900" color="teal.700">
+                          ₹{total.toLocaleString("en-IN")}
+                        </Text>
+                      </Box>
+                    </SimpleGrid>
+
+                    {/* Action Toolbar */}
+                    <Flex justify="flex-end" align="center" pt={1} borderTop="1px dashed" borderColor="gray.100" gap={1}>
+                      {stores.auth.hasPermission("lab", "view") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="teal"
+                          leftIcon={<FiEye size={12} />}
+                          onClick={() => handleRowClick(item)}
+                          borderRadius="lg"
+                          fontSize="11px"
+                          fontWeight="700"
+                        >
+                          View
+                        </Button>
+                      )}
+                      {stores.auth.hasPermission("lab", "edit") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="blue"
+                          leftIcon={<FiEdit2 size={12} />}
+                          onClick={() => handleEdit(item)}
+                          borderRadius="lg"
+                          fontSize="11px"
+                          fontWeight="700"
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {stores.auth.hasPermission("lab", "delete") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="red"
+                          leftIcon={<FiTrash2 size={12} />}
+                          onClick={() => handleDelete(item)}
+                          borderRadius="lg"
+                          fontSize="11px"
+                          fontWeight="700"
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </VStack>
+          )}
+
+          {/* Pagination Controls */}
+          {lineItems.TotalPages > 1 && (
+            <Flex justify="space-between" align="center" mt={4} pt={2}>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="xl"
+                leftIcon={<FiChevronLeft size={14} />}
+                isDisabled={currentPage <= 1}
+                onClick={() => handleChangePage(currentPage - 1)}
+              >
+                Previous
+              </Button>
+              <Text fontSize="12px" fontWeight="700" color="gray.600">
+                Page {currentPage} of {lineItems.TotalPages}
+              </Text>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="xl"
+                rightIcon={<FiChevronRight size={14} />}
+                isDisabled={currentPage >= lineItems.TotalPages}
+                onClick={() => handleChangePage(currentPage + 1)}
+              >
+                Next
+              </Button>
+            </Flex>
+          )}
+        </Box>
+      ) : (
+        /* ============================================================== */
+        /* DESKTOP VIEW: 100% UNCHANGED AS ORIGINAL                       */
+        /* ============================================================== */
+        <CustomTable
+          title="Line Items"
+          data={
+            lineItems.data?.map((t: any, index: number) => ({
+              ...t,
+              sno: index + 1,
+            })) || []
+          }
+          columns={TherapistTableColumns}
+          actions={{
+            actionBtn: {
+              addKey: { showAddButton: stores.auth.hasPermission('lab', 'create'), function: handleAdd },
+              editKey: { showEditButton: stores.auth.hasPermission('lab', 'edit'), function: handleEdit },
+              viewKey: {
+                showViewButton: stores.auth.hasPermission('lab', 'view'),
+                function: (e: any) => handleRowClick(e),
+              },
+              deleteKey: { showDeleteButton: stores.auth.hasPermission('lab', 'delete'), function: handleDelete },
             },
-            deleteKey: { showDeleteButton: stores.auth.hasPermission('lab', 'delete'), function: handleDelete },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
-          resetData: { show: false, function: resetTableData },
-          pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage,
-            totalPages: lineItems.TotalPages || 1,
-          },
-        }}
-        loading={lineItems.loading}
-      />
+            search: {
+              show: true,
+              searchValue: searchQuery,
+              onSearchChange: (e: any) => setSearchQuery(e.target.value),
+            },
+            resetData: { show: false, function: resetTableData },
+            pagination: {
+              show: true,
+              onClick: handleChangePage,
+              currentPage,
+              totalPages: lineItems.TotalPages || 1,
+            },
+          }}
+          loading={lineItems.loading}
+        />
+      )}
 
       {/* Drawer for viewing details */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer
+        isOpen={isOpen}
+        placement={isMobile ? "bottom" : "right"}
+        onClose={onClose}
+        size={isMobile ? "full" : undefined}
+      >
         <DrawerOverlay />
-        <DrawerContent minW={{ md: "60vw", sm: "100vw" }}>
-          <DrawerCloseButton />
-          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white">
+        <DrawerContent
+          minW={{ md: "60vw", sm: "100vw" }}
+          h={isMobile ? "100dvh" : undefined}
+          maxH={isMobile ? "100dvh" : undefined}
+          borderTopRadius={0}
+          borderRadius={0}
+          overflow="hidden"
+        >
+          <DrawerCloseButton color="white" zIndex={2} />
+          <DrawerHeader
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            color="white"
+            borderRadius={0}
+            borderTopRadius={0}
+          >
             <Flex align="center" gap={3}>
               <GiPsychicWaves size="24px" />
               Line Item Details
@@ -366,7 +679,7 @@ const LineItems = observer(({ data }: any) => {
           {({ values, setFieldValue, errors }: any) => {
             return (
               <Form>
-                <Box mb={6}>
+                <Box mb={4}>
                   <VStack spacing={4} align="stretch">
                     <CustomInput
                       name="patientName"
@@ -379,36 +692,32 @@ const LineItems = observer(({ data }: any) => {
                       showError={errors.patientName}
                       query={{ userType: "patient" }}
                     />
-                    <HStack spacing={4}>
-                      <Box flex="1">
-                        <CustomInput
-                          name="itemName"
-                          label="Item Name"
-                          value={values.itemName}
-                          onChange={(e: any) =>
-                            setFieldValue("itemName", e.target.value)
-                          }
-                          error={errors.itemName}
-                          showError={errors.itemName}
-                        />
-                      </Box>
-                      <Box flex="1">
-                        <CustomInput
-                          name="itemCode"
-                          label="Item Code"
-                          value={values.itemCode}
-                          onChange={(e: any) =>
-                            setFieldValue("itemCode", e.target.value)
-                          }
-                        />
-                      </Box>
-                    </HStack>
+                    <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={3}>
+                      <CustomInput
+                        name="itemName"
+                        label="Item Name"
+                        value={values.itemName}
+                        onChange={(e: any) =>
+                          setFieldValue("itemName", e.target.value)
+                        }
+                        error={errors.itemName}
+                        showError={errors.itemName}
+                      />
+                      <CustomInput
+                        name="itemCode"
+                        label="Item Code"
+                        value={values.itemCode}
+                        onChange={(e: any) =>
+                          setFieldValue("itemCode", e.target.value)
+                        }
+                      />
+                    </SimpleGrid>
                   </VStack>
                 </Box>
 
                 {/* Pricing */}
                 <Box>
-                  <SimpleGrid columns={2} spacing={4}>
+                  <SimpleGrid columns={2} spacing={3}>
                     <CustomInput
                       name="quantity"
                       label="Quantity"
@@ -451,34 +760,40 @@ const LineItems = observer(({ data }: any) => {
 
                   {/* Total */}
                   <Box
-                    mt={5}
-                    p={4}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    bg={stores.themeStore.themeConfig.colors.custom.light.primary + "1A"}
+                    mt={4}
+                    p={3.5}
+                    borderRadius="xl"
+                    bg="teal.50"
+                    border="1px solid"
+                    borderColor="teal.200"
                     textAlign="center"
                   >
-                    <Text fontSize="sm" color="gray.600">
-                      Total
+                    <Text fontSize="11px" fontWeight="700" color="teal.800" textTransform="uppercase" letterSpacing="0.5px">
+                      Total Amount
                     </Text>
-                    <Text fontSize="2xl" fontWeight="bold" color={stores.themeStore.themeConfig.colors.custom.light.primary}>
-                      {values.total || 0}
+                    <Text fontSize="24px" fontWeight="900" color="teal.700">
+                      ₹{values.total || 0}
                     </Text>
                   </Box>
                 </Box>
-                <ModalFooter borderTopWidth="1px" py={4} px={6}>
-                  <Button onClick={onFormClose} variant="outline" mr={3}>
+                <ModalFooter borderTopWidth="1px" py={3.5} px={{ base: 2, md: 6 }} gap={3} mt={4}>
+                  <Button onClick={onFormClose} variant="outline" borderRadius="xl" flex={{ base: 1, md: "initial" }}>
                     Cancel
                   </Button>
                   <Button
-                    bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                    bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
                     color="white"
-                    _hover={{ filter: "brightness(0.9)" }}
+                    _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                    _active={{ transform: "scale(0.98)" }}
                     type="submit"
                     isLoading={formLoading}
                     loadingText="Saving..."
+                    borderRadius="xl"
+                    fontWeight="800"
+                    flex={{ base: 1, md: "initial" }}
+                    px={6}
                   >
-                    {editData ? "Update" : "Add"}
+                    {editData ? "Update Item" : "Add Item"}
                   </Button>
                 </ModalFooter>
               </Form>
@@ -492,10 +807,18 @@ const LineItems = observer(({ data }: any) => {
         isOpen={isDeleteOpen}
         leastDestructiveRef={cancelRef}
         onClose={onDeleteClose}
-        isCentered
+        isCentered={!isMobile}
       >
-        <AlertDialogOverlay>
-          <AlertDialogContent borderRadius="xl">
+        <AlertDialogOverlay bg="blackAlpha.700" backdropFilter="blur(4px)">
+          <AlertDialogContent
+            borderRadius={isMobile ? 0 : "xl"}
+            borderTopRadius={0}
+            position={isMobile ? "fixed" : undefined}
+            bottom={isMobile ? 0 : undefined}
+            m={isMobile ? 0 : undefined}
+            w={isMobile ? "100vw" : undefined}
+            maxW={isMobile ? "100vw" : undefined}
+          >
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Delete Line Item
             </AlertDialogHeader>
@@ -504,7 +827,7 @@ const LineItems = observer(({ data }: any) => {
               be undone.
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onDeleteClose}>
+              <Button ref={cancelRef} onClick={onDeleteClose} borderRadius="xl">
                 Cancel
               </Button>
               <Button
@@ -512,6 +835,7 @@ const LineItems = observer(({ data }: any) => {
                 colorScheme="red"
                 ml={3}
                 onClick={confirmDelete}
+                borderRadius="xl"
               >
                 Delete
               </Button>

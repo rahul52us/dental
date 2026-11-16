@@ -172,7 +172,7 @@ const DealerPage = observer(() => {
             overflow="hidden"
           >
               <DrawerHeader
-                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
                 color="white"
                 fontSize={{ base: "md", md: "lg" }}
                 fontWeight="bold"

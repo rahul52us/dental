@@ -43,8 +43,35 @@ import {
   IconButton,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
+  Spinner,
+  Avatar,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { FiList, FiDownload, FiCalendar, FiSend, FiClock, FiCheckCircle, FiRefreshCw, FiUser, FiColumns } from "react-icons/fi";
+import {
+  FiList,
+  FiDownload,
+  FiCalendar,
+  FiSend,
+  FiClock,
+  FiCheckCircle,
+  FiRefreshCw,
+  FiUser,
+  FiColumns,
+  FiSearch,
+  FiPlus,
+  FiX,
+  FiChevronLeft,
+  FiChevronRight,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+  FiLayers,
+  FiFilter,
+} from "react-icons/fi";
 
 import stores from "../../store/stores";
 import CustomTable from "../../component/config/component/CustomTable/CustomTable";
@@ -115,6 +142,19 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
   const [isDownloading, setIsDownloading] = useState(false);
   const [noReceivedDate, setNoReceivedDate] = useState(false);
   const [noSendDate, setNoSendDate] = useState(false);
+
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (statusFilter !== "all") count++;
+    if (fromDate || toDate) count++;
+    if (doctorSearch?.trim()) count++;
+    if (noReceivedDate) count++;
+    if (noSendDate) count++;
+    return count;
+  }, [statusFilter, fromDate, toDate, doctorSearch, noReceivedDate, noSendDate]);
 
   const [previewData, setPreviewData] = useState<{ columns: any[]; rows: any[] } | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -504,267 +544,1118 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
   return (
     <Box p={isDrawer ? 0 : { base: 2, md: 4 }}>
-      {!isDrawer && (
-        <>
-          <Box display="none">
-            <DashPageHeader breadcrumb={[]} />
-          </Box>
-          <DashPageTitle
-            title="Lab Management"
-            subTitle="Manage In-house and Outside laboratory orders and tracking"
-          />
-        </>
-      )}
-      <Box mt={isDrawer ? 0 : 2}>
-        <CustomTable
-          title={activeTab === 0 ? "All Lab Sheets" : undefined}
-          data={labWorkStore.labWorks.map((item, index) => ({
-            ...item,
-            sno: (currentPage - 1) * tablePageLimit + index + 1,
-          }))}
-          columns={columns}
-          actions={{
-            customComponent: (
-              <Flex gap={3} align="center" justify="flex-start" wrap="wrap" pb={1}>
-                {/* Advanced Filters Popover */}
-                <Popover placement="bottom-start" closeOnBlur={true}>
-                  <PopoverTrigger>
-                    <Button
-                      size="sm"
-                      borderRadius="xl"
-                      colorScheme="blue"
-                      variant="outline"
-                      leftIcon={<FiList />}
-                    >
-                      Filters
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent p={2} w="300px" boxShadow="xl" borderRadius="xl" border="1px solid" borderColor="gray.200">
-                    <PopoverArrow />
-                    <PopoverCloseButton />
-                    <PopoverBody>
-                      <VStack spacing={4} align="stretch" mt={4}>
-                        <Box>
-                          <Text fontSize="xs" fontWeight="bold" mb={2} color="gray.500">DATE RANGE</Text>
-                          <VStack spacing={2}>
-                            <Input
-                              type="date"
-                              size="sm"
-                              borderRadius="md"
-                              value={tempFromDate}
-                              onChange={(e) => setTempFromDate(e.target.value)}
-                              bg={useColorModeValue("white", "gray.800")}
-                            />
-                            <Input
-                              type="date"
-                              size="sm"
-                              borderRadius="md"
-                              value={tempToDate}
-                              onChange={(e) => setTempToDate(e.target.value)}
-                              bg={useColorModeValue("white", "gray.800")}
-                            />
-                            <Button
-                              size="sm"
-                              colorScheme="blue"
-                              w="full"
-                              onClick={() => {
-                                setFromDate(tempFromDate);
-                                setToDate(tempToDate);
-                                setCurrentPage(1);
-                              }}
-                            >
-                              Apply Date Filter
-                            </Button>
-                          </VStack>
-                        </Box>
+      {/* ============================================================== */}
+      {/* MOBILE APK DEDICATED INTERFACE (< 768px)                       */}
+      {/* ============================================================== */}
+      {isMobile ? (
+        <Box pb="calc(80px + env(safe-area-inset-bottom, 12px))">
+          {/* Mobile App Bar */}
+          <Flex align="center" justify="space-between" gap={2} mb={3}>
+            <Box>
+              <HStack spacing={2} align="center">
+                <Text
+                  fontSize={{ base: "20px", sm: "22px" }}
+                  fontWeight="900"
+                  color="gray.850"
+                  letterSpacing="-0.4px"
+                >
+                  Lab Orders
+                </Text>
+                {labWorkStore.totalCount !== undefined && (
+                  <Badge
+                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    color="white"
+                    fontSize="10px"
+                    fontWeight="800"
+                    px={2}
+                    py={0.5}
+                    rounded="full"
+                    boxShadow="0 2px 6px rgba(13, 148, 136, 0.25)"
+                  >
+                    {labWorkStore.totalCount}
+                  </Badge>
+                )}
+              </HStack>
+              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+                Manage dental fabrication & track lab orders
+              </Text>
+            </Box>
 
-                        <Box>
-                          <Text fontSize="xs" fontWeight="bold" mb={2} color="gray.500">DOCTOR</Text>
-                          <InputGroup size="sm">
-                            <InputLeftElement pointerEvents="none">
-                              <FiUser color="gray.400" />
-                            </InputLeftElement>
-                            <Input
-                              placeholder="Search Doctor..."
-                              borderRadius="md"
-                              value={doctorSearch}
-                              onChange={(e) => {
-                                setDoctorSearch(e.target.value);
-                                setCurrentPage(1);
-                              }}
-                              bg={useColorModeValue("white", "gray.800")}
-                            />
-                          </InputGroup>
-                        </Box>
+            {hasTabPermission("create") && (
+              <Button
+                h="40px"
+                leftIcon={<FiPlus size={15} />}
+                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                color="white"
+                borderRadius="14px"
+                px={4}
+                fontSize="13px"
+                fontWeight="800"
+                boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
+                _hover={{
+                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  transform: "translateY(-1px)",
+                }}
+                _active={{ transform: "scale(0.96)" }}
+                onClick={handleAdd}
+              >
+                New Order
+              </Button>
+            )}
+          </Flex>
 
-                      </VStack>
-                    </PopoverBody>
-                  </PopoverContent>
-                </Popover>
+          {/* Work Type Segmented Pills */}
+          <HStack spacing={1.5} p={1} bg="gray.100" borderRadius="18px" mb={3}>
+            {[
+              { id: 0, label: "All Orders" },
+              { id: 1, label: "In-House" },
+              { id: 2, label: "Outside" },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <Button
+                  key={tab.id}
+                  flex={1}
+                  size="sm"
+                  h="34px"
+                  fontSize="12px"
+                  fontWeight="800"
+                  borderRadius="14px"
+                  bg={
+                    isActive
+                      ? "linear-gradient(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                      : "transparent"
+                  }
+                  color={isActive ? "white" : "gray.600"}
+                  boxShadow={isActive ? "0 2px 8px rgba(12, 74, 110, 0.25)" : "none"}
+                  _hover={{
+                    bg: isActive
+                      ? "linear-gradient(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                      : "gray.200",
+                  }}
+                  onClick={() => handleTabChange(tab.id)}
+                >
+                  {tab.label}
+                </Button>
+              );
+            })}
+          </HStack>
 
-                <Box w="180px" zIndex={10}>
-                  <CustomInput
-                    name="statusFilter"
-                    type="select"
-                    isPortal={true}
-                    options={[
-                      { label: "All Statuses", value: "all" },
-                      ...labWorkStatusStore.statuses
-                        .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
-                        .sort((a: any, b: any) => a.status.localeCompare(b.status))
-                        .map((s: any) => ({ label: s.status, value: s.status }))
-                    ]}
-                    value={{ label: statusFilter === "all" ? "All Statuses" : statusFilter, value: statusFilter }}
-                    onChange={(val: any) => {
-                      setStatusFilter(val ? val.value : "all");
+          {/* Search Bar */}
+          <InputGroup size="md" mb={2.5}>
+            <InputLeftElement pointerEvents="none" h="46px" w="44px">
+              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+            </InputLeftElement>
+            <Input
+              placeholder="Search patient, order or doctor..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              borderRadius="15px"
+              bg="white"
+              borderColor="#E2E8F0"
+              fontSize="13px"
+              fontWeight="600"
+              h="46px"
+              px={11}
+              boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+              _focus={{
+                borderColor: "#0EA5E9",
+                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+              }}
+              _placeholder={{ color: "gray.400", fontWeight: "400" }}
+            />
+            {searchQuery && (
+              <InputRightElement h="46px">
+                <IconButton
+                  aria-label="Clear search"
+                  icon={<FiX size={14} />}
+                  size="sm"
+                  minW="40px"
+                  h="40px"
+                  variant="ghost"
+                  rounded="full"
+                  onClick={() => setSearchQuery("")}
+                />
+              </InputRightElement>
+            )}
+          </InputGroup>
+
+          {/* Quick Actions Row */}
+          <Flex align="center" gap={2} mb={3} overflowX="auto" pb={1}>
+            <Button
+              size="sm"
+              borderRadius="12px"
+              bg={activeFiltersCount > 0 ? "teal.50" : "white"}
+              border="1px solid"
+              borderColor={activeFiltersCount > 0 ? "teal.400" : "gray.200"}
+              color={activeFiltersCount > 0 ? "teal.700" : "gray.700"}
+              leftIcon={<FiFilter size={13} />}
+              fontSize="12px"
+              fontWeight="700"
+              h="36px"
+              flexShrink={0}
+              onClick={() => setIsMobileFilterOpen(true)}
+            >
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge
+                  ml={1.5}
+                  bg="teal.600"
+                  color="white"
+                  borderRadius="full"
+                  fontSize="10px"
+                  px={1.5}
+                >
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </Button>
+
+            {hasTabPermission("download") && (
+              <Button
+                size="sm"
+                borderRadius="12px"
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                color="blue.700"
+                leftIcon={<FiDownload size={13} />}
+                fontSize="12px"
+                fontWeight="700"
+                h="36px"
+                flexShrink={0}
+                onClick={() => {
+                  const workType = activeTab === 1 ? "in-house" : "outside";
+                  const dateType = activeTab === 1 ? "sendDate" : "receivedDate";
+                  setReportFilters((prev) => ({ ...prev, workType, dateType }));
+                  onReportOpen();
+                }}
+              >
+                Report
+              </Button>
+            )}
+
+            {hasTabPermission("download") && (
+              <Button
+                size="sm"
+                borderRadius="12px"
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                color="teal.700"
+                leftIcon={<FiDownload size={13} />}
+                fontSize="12px"
+                fontWeight="700"
+                h="36px"
+                flexShrink={0}
+                onClick={() => setIsTechnicianReportOpen(true)}
+              >
+                Tech Report
+              </Button>
+            )}
+
+            {(activeFiltersCount > 0 || searchQuery) && (
+              <IconButton
+                aria-label="Reset Filters"
+                icon={<FiRefreshCw size={13} />}
+                size="sm"
+                h="36px"
+                w="36px"
+                minW="36px"
+                colorScheme="red"
+                variant="outline"
+                borderRadius="12px"
+                onClick={resetTableData}
+                title="Reset Filters"
+                flexShrink={0}
+              />
+            )}
+          </Flex>
+
+          {/* Active Filter Tags */}
+          {activeFiltersCount > 0 && (
+            <Flex gap={1.5} wrap="wrap" mb={3}>
+              {statusFilter !== "all" && (
+                <Tag size="sm" borderRadius="full" variant="subtle" colorScheme="blue">
+                  <TagLabel fontSize="11px">Status: {statusFilter}</TagLabel>
+                  <TagCloseButton
+                    onClick={() => {
+                      setStatusFilter("all");
                       setCurrentPage(1);
                     }}
                   />
-                </Box>
-
-                {activeTab === 1 && (
-                  <Button
-                    size="sm"
-                    borderRadius="xl"
-                    colorScheme={noReceivedDate ? "orange" : "gray"}
-                    variant={noReceivedDate ? "solid" : "outline"}
+                </Tag>
+              )}
+              {doctorSearch && (
+                <Tag size="sm" borderRadius="full" variant="subtle" colorScheme="purple">
+                  <TagLabel fontSize="11px">Dr: {doctorSearch}</TagLabel>
+                  <TagCloseButton
                     onClick={() => {
-                      setNoReceivedDate(prev => !prev);
-                      setNoSendDate(false);
+                      setDoctorSearch("");
                       setCurrentPage(1);
                     }}
-                    leftIcon={<FiClock />}
-                    flexShrink={0}
-                  >
-                    {noReceivedDate ? "✓ No Received Date" : "No Received Date"}
-                  </Button>
-                )}
-
-                {activeTab === 2 && (
-                  <Button
-                    size="sm"
-                    borderRadius="xl"
-                    colorScheme={noSendDate ? "orange" : "gray"}
-                    variant={noSendDate ? "solid" : "outline"}
+                  />
+                </Tag>
+              )}
+              {(fromDate || toDate) && (
+                <Tag size="sm" borderRadius="full" variant="subtle" colorScheme="teal">
+                  <TagLabel fontSize="11px">
+                    {fromDate || "start"} → {toDate || "end"}
+                  </TagLabel>
+                  <TagCloseButton
                     onClick={() => {
-                      setNoSendDate(prev => !prev);
+                      setFromDate("");
+                      setToDate("");
+                      setTempFromDate("");
+                      setTempToDate("");
+                      setCurrentPage(1);
+                    }}
+                  />
+                </Tag>
+              )}
+              {noReceivedDate && (
+                <Tag size="sm" borderRadius="full" variant="subtle" colorScheme="orange">
+                  <TagLabel fontSize="11px">No Received Date</TagLabel>
+                  <TagCloseButton
+                    onClick={() => {
                       setNoReceivedDate(false);
                       setCurrentPage(1);
                     }}
-                    leftIcon={<FiClock />}
-                    flexShrink={0}
-                  >
-                    {noSendDate ? "✓ No Send Date" : "No Send Date"}
-                  </Button>
-                )}
-
-                {hasTabPermission('download') && (
-                  <Button
-                    leftIcon={<FiDownload />}
-                    colorScheme="blue"
-                    variant="outline"
-                    size="sm"
-                    borderRadius="xl"
-                    onClick={() => {
-                      const workType = activeTab === 1 ? "in-house" : "outside";
-                      const dateType = activeTab === 1 ? "sendDate" : "receivedDate";
-                      setReportFilters(prev => ({ ...prev, workType, dateType }));
-                      onReportOpen();
-                    }}
-                    isLoading={isDownloading}
-                    loadingText="Downloading..."
-                    flexShrink={0}
-                  >
-                    Download Report
-                  </Button>
-                )}
-
-                {hasTabPermission('download') && (
-                  <Button
-                    leftIcon={<FiDownload />}
-                    colorScheme="teal"
-                    variant="outline"
-                    size="sm"
-                    borderRadius="xl"
-                    onClick={() => setIsTechnicianReportOpen(true)}
-                    flexShrink={0}
-                  >
-                    Technician Report
-                  </Button>
-                )}
-
-                {(fromDate || toDate || doctorSearch || statusFilter !== "all" || noReceivedDate || noSendDate) && (
-                  <IconButton
-                    aria-label="Reset All Filters"
-                    icon={<FiRefreshCw />}
-                    size="sm"
-                    colorScheme="red"
-                    borderRadius="xl"
-                    onClick={resetTableData}
-                    title="Reset All Filters"
-                    flexShrink={0}
                   />
-                )}
-              </Flex>
-            ),
-            actionBtn: {
-              addKey: {
-                showAddButton: hasTabPermission('create'),
-                function: handleAdd
-              },
-              editKey: {
-                showEditButton: hasTabPermission('edit'),
-                function: handleEdit
-              },
-              deleteKey: {
-                showDeleteButton: hasTabPermission('delete'),
-                function: handleDelete
-              },
-              viewKey: {
-                showViewButton: hasTabPermission('view'),
-                function: handleView
-              },
-            },
-            pagination: {
-              show: true,
-              onClick: setCurrentPage,
-              currentPage: currentPage,
-              totalPages: Math.ceil(labWorkStore.totalCount / tablePageLimit),
-            },
-            search: {
-              show: true,
-              searchValue: searchQuery,
-              onSearchChange: (e: any) => setSearchQuery(e.target.value),
-            },
-            resetData: {
-              show: true,
-              text: "Reset Filters",
-              function: resetTableData,
-            },
-          }}
-          loading={labWorkStore.loading}
-        />
+                </Tag>
+              )}
+              {noSendDate && (
+                <Tag size="sm" borderRadius="full" variant="subtle" colorScheme="orange">
+                  <TagLabel fontSize="11px">No Send Date</TagLabel>
+                  <TagCloseButton
+                    onClick={() => {
+                      setNoSendDate(false);
+                      setCurrentPage(1);
+                    }}
+                  />
+                </Tag>
+              )}
+            </Flex>
+          )}
+
+          {/* Orders Stack */}
+          {labWorkStore.loading ? (
+            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
+              <Spinner size="lg" color="teal.500" thickness="3px" />
+              <Text fontSize="13px" color="gray.500" fontWeight="600">
+                Loading lab orders...
+              </Text>
+            </Flex>
+          ) : !labWorkStore.labWorks || labWorkStore.labWorks.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              py={14}
+              textAlign="center"
+              bg="white"
+              borderRadius="20px"
+              border="1px dashed"
+              borderColor="gray.200"
+              px={4}
+            >
+              <Icon as={FiLayers} boxSize="36px" color="gray.400" mb={2} />
+              <Text fontSize="14px" fontWeight="750" color="gray.700">
+                No Lab Orders Found
+              </Text>
+              <Text fontSize="12px" color="gray.500" mt={1}>
+                {searchQuery || activeFiltersCount > 0
+                  ? "No matching orders found. Try resetting filters."
+                  : "No lab sheets created yet."}
+              </Text>
+            </Flex>
+          ) : (
+            <VStack spacing={3} align="stretch">
+              {labWorkStore.labWorks.map((item: any, idx: number) => {
+                const works =
+                  item.selectedWorks?.map((w: any) =>
+                    labWorkHierarchyStore.getNamePath(w.selections)
+                  ) || [];
+
+                return (
+                  <Box
+                    key={item._id || item.id || idx}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="#E8EEF4"
+                    borderRadius="22px"
+                    p={3.5}
+                    boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
+                    transition="all 0.2s ease"
+                  >
+                    {/* Top Identity Strip */}
+                    <Flex align="flex-start" justify="space-between" gap={2} mb={2.5}>
+                      <Flex
+                        align="center"
+                        gap={2.5}
+                        flex={1}
+                        minW={0}
+                        cursor="pointer"
+                        onClick={() => handleView(item)}
+                      >
+                        <Avatar
+                          size="sm"
+                          name={item.patient?.name || item.patientNameManual || "Patient"}
+                          bg="linear-gradient(135deg, #CCFBF1 0%, #99F6E4 100%)"
+                          color="teal.800"
+                          fontWeight="800"
+                          flexShrink={0}
+                        />
+                        <Box flex={1} minW={0}>
+                          <Text
+                            fontSize="14.5px"
+                            fontWeight="800"
+                            color="gray.850"
+                            noOfLines={1}
+                            letterSpacing="-0.2px"
+                          >
+                            {item.patient?.name || item.patientNameManual || "N/A"}
+                          </Text>
+                          <Text fontSize="11px" color="gray.500" noOfLines={1}>
+                            Dr.{" "}
+                            {item.primaryDoctor?.name ||
+                              item.primaryDoctor?.labDoctorName ||
+                              item.doctorNameManual ||
+                              "N/A"}
+                          </Text>
+                        </Box>
+                      </Flex>
+
+                      <HStack spacing={1.5} flexShrink={0} wrap="wrap" justify="flex-end">
+                        <Badge
+                          colorScheme={item.workType === "in-house" ? "purple" : "cyan"}
+                          fontSize="9.5px"
+                          fontWeight="800"
+                          borderRadius="full"
+                          px={2}
+                          py={0.5}
+                        >
+                          {item.workType === "in-house" ? "IN-HOUSE" : "OUTSIDE"}
+                        </Badge>
+                        <StatusBadge status={item.status} />
+                      </HStack>
+                    </Flex>
+
+                    {/* Lab / Technician info */}
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      bg="gray.50"
+                      borderRadius="xl"
+                      px={3}
+                      py={1.5}
+                      mb={2.5}
+                      fontSize="11.5px"
+                      border="1px solid"
+                      borderColor="gray.100"
+                    >
+                      <HStack spacing={1.5} color="gray.600" flex={1} minW={0} mr={2}>
+                        <Icon as={FiLayers} color="teal.600" boxSize={3.5} flexShrink={0} />
+                        <Text fontWeight="600" noOfLines={1} fontSize="11.5px">
+                          {item.workType === "in-house"
+                            ? item.technicianName
+                              ? `Tech: ${item.technicianName}`
+                              : "In-House Lab"
+                            : item.lab?.name || item.labNameManual
+                            ? `Lab: ${item.lab?.name || item.labNameManual}`
+                            : "Outside Lab"}
+                        </Text>
+                      </HStack>
+                      {item.price ? (
+                        <Text fontWeight="800" color="teal.700" flexShrink={0} fontSize="12px">
+                          ₹{item.price}
+                        </Text>
+                      ) : null}
+                    </Flex>
+
+                    {/* Selected Works Chips - Full Wrap, Never Overflows */}
+                    {works.length > 0 && (
+                      <VStack align="stretch" spacing={1.5} mb={2.5}>
+                        {works.slice(0, 3).map((wText: string, wIdx: number) => (
+                          <Box
+                            key={wIdx}
+                            bg="rgba(14, 165, 233, 0.08)"
+                            color="#0284C7"
+                            border="1px solid"
+                            borderColor="rgba(14, 165, 233, 0.22)"
+                            borderRadius="10px"
+                            px={2.5}
+                            py={1}
+                            fontSize="11px"
+                            fontWeight="700"
+                            whiteSpace="normal"
+                            wordBreak="break-word"
+                            lineHeight="1.3"
+                          >
+                            • {wText}
+                          </Box>
+                        ))}
+                        {works.length > 3 && (
+                          <Badge
+                            alignSelf="flex-start"
+                            colorScheme="blue"
+                            variant="solid"
+                            fontSize="10px"
+                            borderRadius="full"
+                            px={2}
+                            py={0.5}
+                          >
+                            +{works.length - 3} more works
+                          </Badge>
+                        )}
+                      </VStack>
+                    )}
+
+                    {/* Dates & Timeline Grid */}
+                    <SimpleGrid
+                      columns={3}
+                      spacing={2}
+                      mb={2.5}
+                      p={2.5}
+                      bg="#F8FAFC"
+                      borderRadius="14px"
+                      border="1px solid"
+                      borderColor="#E2E8F0"
+                    >
+                      <VStack spacing={0.5} align="center">
+                        <Text
+                          fontSize="10px"
+                          fontWeight="800"
+                          color="gray.500"
+                          textTransform="uppercase"
+                          letterSpacing="0.3px"
+                        >
+                          Send
+                        </Text>
+                        <Text fontSize="11px" fontWeight="750" color="gray.800" textAlign="center">
+                          {item.sendDate
+                            ? formatDateTime(item.sendDate).split(",")[0]
+                            : "—"}
+                        </Text>
+                      </VStack>
+
+                      <VStack spacing={0.5} align="center">
+                        <Text
+                          fontSize="10px"
+                          fontWeight="800"
+                          color="gray.500"
+                          textTransform="uppercase"
+                          letterSpacing="0.3px"
+                        >
+                          Due
+                        </Text>
+                        <Text fontSize="11px" fontWeight="750" color="orange.700" textAlign="center">
+                          {item.dueDate
+                            ? formatDateTime(item.dueDate).split(",")[0]
+                            : "—"}
+                        </Text>
+                      </VStack>
+
+                      <VStack spacing={0.5} align="center">
+                        <Text
+                          fontSize="10px"
+                          fontWeight="800"
+                          color="gray.500"
+                          textTransform="uppercase"
+                          letterSpacing="0.3px"
+                        >
+                          Received
+                        </Text>
+                        <Text fontSize="11px" fontWeight="750" color="teal.700" textAlign="center">
+                          {item.receivedDate
+                            ? formatDateTime(item.receivedDate).split(",")[0]
+                            : "—"}
+                        </Text>
+                      </VStack>
+                    </SimpleGrid>
+
+                    {item.delay !== undefined &&
+                      item.delay !== null &&
+                      item.delay !== "" && (
+                        <Flex justify="flex-end" mb={2}>
+                          <Badge
+                            colorScheme={
+                              item.delay < 0
+                                ? "red"
+                                : item.delay > 0
+                                ? "green"
+                                : "gray"
+                            }
+                            borderRadius="full"
+                            px={2.5}
+                            py={0.5}
+                            fontSize="10px"
+                            fontWeight="800"
+                          >
+                            {item.delay} DAYS DELAY
+                          </Badge>
+                        </Flex>
+                      )}
+
+                    {/* Action Toolbelt */}
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      pt={2}
+                      borderTop="1px dashed"
+                      borderColor="#E2E8F0"
+                      gap={1}
+                    >
+                      {hasTabPermission("view") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="teal"
+                          leftIcon={<FiEye size={12} />}
+                          fontSize="11px"
+                          fontWeight="700"
+                          h="30px"
+                          px={2.5}
+                          borderRadius="lg"
+                          onClick={() => handleView(item)}
+                        >
+                          View Sheet
+                        </Button>
+                      )}
+
+                      {hasTabPermission("edit") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="blue"
+                          leftIcon={<FiEdit2 size={12} />}
+                          fontSize="11px"
+                          fontWeight="700"
+                          h="30px"
+                          px={2.5}
+                          borderRadius="lg"
+                          onClick={() => handleEdit(item)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+
+                      {hasTabPermission("delete") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="red"
+                          leftIcon={<FiTrash2 size={12} />}
+                          fontSize="11px"
+                          fontWeight="700"
+                          h="30px"
+                          px={2.5}
+                          borderRadius="lg"
+                          onClick={() => handleDelete(item)}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </VStack>
+          )}
+
+          {/* Mobile Pagination */}
+          {Math.ceil(labWorkStore.totalCount / tablePageLimit) > 1 && (
+            <Flex align="center" justify="space-between" mt={4} px={1}>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="12px"
+                leftIcon={<FiChevronLeft />}
+                isDisabled={currentPage <= 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
+                fontSize="12px"
+                fontWeight="700"
+              >
+                Previous
+              </Button>
+              <Text fontSize="12px" fontWeight="700" color="gray.600">
+                Page {currentPage} of{" "}
+                {Math.ceil(labWorkStore.totalCount / tablePageLimit) || 1}
+              </Text>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="12px"
+                rightIcon={<FiChevronRight />}
+                isDisabled={
+                  currentPage >=
+                  Math.ceil(labWorkStore.totalCount / tablePageLimit)
+                }
+                onClick={() => setCurrentPage(currentPage + 1)}
+                fontSize="12px"
+                fontWeight="700"
+              >
+                Next
+              </Button>
+            </Flex>
+          )}
+        </Box>
+      ) : (
+        /* ============================================================== */
+        /* DESKTOP INTERFACE (>= 768px)                                   */
+        /* ============================================================== */
+        <>
+          {!isDrawer && (
+            <>
+              <Box display="none">
+                <DashPageHeader breadcrumb={[]} />
+              </Box>
+              <DashPageTitle
+                title="Lab Management"
+                subTitle="Manage In-house and Outside laboratory orders and tracking"
+              />
+            </>
+          )}
+          <Box mt={isDrawer ? 0 : 2}>
+            <CustomTable
+              title={activeTab === 0 ? "All Lab Sheets" : undefined}
+              data={labWorkStore.labWorks.map((item, index) => ({
+                ...item,
+                sno: (currentPage - 1) * tablePageLimit + index + 1,
+              }))}
+              columns={columns}
+              actions={{
+                customComponent: (
+                  <Flex gap={3} align="center" justify="flex-start" wrap="wrap" pb={1}>
+                    {/* Advanced Filters Popover */}
+                    <Popover placement="bottom-start" closeOnBlur={true}>
+                      <PopoverTrigger>
+                        <Button
+                          size="sm"
+                          borderRadius="xl"
+                          colorScheme="blue"
+                          variant="outline"
+                          leftIcon={<FiList />}
+                        >
+                          Filters
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent p={2} w="300px" boxShadow="xl" borderRadius="xl" border="1px solid" borderColor="gray.200">
+                        <PopoverArrow />
+                        <PopoverCloseButton />
+                        <PopoverBody>
+                          <VStack spacing={4} align="stretch" mt={4}>
+                            <Box>
+                              <Text fontSize="xs" fontWeight="bold" mb={2} color="gray.500">DATE RANGE</Text>
+                              <VStack spacing={2}>
+                                <Input
+                                  type="date"
+                                  size="sm"
+                                  borderRadius="md"
+                                  value={tempFromDate}
+                                  onChange={(e) => setTempFromDate(e.target.value)}
+                                  bg={useColorModeValue("white", "gray.800")}
+                                />
+                                <Input
+                                  type="date"
+                                  size="sm"
+                                  borderRadius="md"
+                                  value={tempToDate}
+                                  onChange={(e) => setTempToDate(e.target.value)}
+                                  bg={useColorModeValue("white", "gray.800")}
+                                />
+                                <Button
+                                  size="sm"
+                                  colorScheme="blue"
+                                  w="full"
+                                  onClick={() => {
+                                    setFromDate(tempFromDate);
+                                    setToDate(tempToDate);
+                                    setCurrentPage(1);
+                                  }}
+                                >
+                                  Apply Date Filter
+                                </Button>
+                              </VStack>
+                            </Box>
+
+                            <Box>
+                              <Text fontSize="xs" fontWeight="bold" mb={2} color="gray.500">DOCTOR</Text>
+                              <InputGroup size="sm">
+                                <InputLeftElement pointerEvents="none">
+                                  <FiUser color="gray.400" />
+                                </InputLeftElement>
+                                <Input
+                                  placeholder="Search Doctor..."
+                                  borderRadius="md"
+                                  value={doctorSearch}
+                                  onChange={(e) => {
+                                    setDoctorSearch(e.target.value);
+                                    setCurrentPage(1);
+                                  }}
+                                  bg={useColorModeValue("white", "gray.800")}
+                                />
+                              </InputGroup>
+                            </Box>
+                          </VStack>
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+
+                    <Box w="180px" zIndex={10}>
+                      <CustomInput
+                        name="statusFilter"
+                        type="select"
+                        isPortal={true}
+                        options={[
+                          { label: "All Statuses", value: "all" },
+                          ...labWorkStatusStore.statuses
+                            .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
+                            .sort((a: any, b: any) => a.status.localeCompare(b.status))
+                            .map((s: any) => ({ label: s.status, value: s.status }))
+                        ]}
+                        value={{ label: statusFilter === "all" ? "All Statuses" : statusFilter, value: statusFilter }}
+                        onChange={(val: any) => {
+                          setStatusFilter(val ? val.value : "all");
+                          setCurrentPage(1);
+                        }}
+                      />
+                    </Box>
+
+                    {activeTab === 1 && (
+                      <Button
+                        size="sm"
+                        borderRadius="xl"
+                        colorScheme={noReceivedDate ? "orange" : "gray"}
+                        variant={noReceivedDate ? "solid" : "outline"}
+                        onClick={() => {
+                          setNoReceivedDate(prev => !prev);
+                          setNoSendDate(false);
+                          setCurrentPage(1);
+                        }}
+                        leftIcon={<FiClock />}
+                        flexShrink={0}
+                      >
+                        {noReceivedDate ? "✓ No Received Date" : "No Received Date"}
+                      </Button>
+                    )}
+
+                    {activeTab === 2 && (
+                      <Button
+                        size="sm"
+                        borderRadius="xl"
+                        colorScheme={noSendDate ? "orange" : "gray"}
+                        variant={noSendDate ? "solid" : "outline"}
+                        onClick={() => {
+                          setNoSendDate(prev => !prev);
+                          setNoReceivedDate(false);
+                          setCurrentPage(1);
+                        }}
+                        leftIcon={<FiClock />}
+                        flexShrink={0}
+                      >
+                        {noSendDate ? "✓ No Send Date" : "No Send Date"}
+                      </Button>
+                    )}
+
+                    {hasTabPermission('download') && (
+                      <Button
+                        leftIcon={<FiDownload />}
+                        colorScheme="blue"
+                        variant="outline"
+                        size="sm"
+                        borderRadius="xl"
+                        onClick={() => {
+                          const workType = activeTab === 1 ? "in-house" : "outside";
+                          const dateType = activeTab === 1 ? "sendDate" : "receivedDate";
+                          setReportFilters(prev => ({ ...prev, workType, dateType }));
+                          onReportOpen();
+                        }}
+                        isLoading={isDownloading}
+                        loadingText="Downloading..."
+                        flexShrink={0}
+                      >
+                        Download Report
+                      </Button>
+                    )}
+
+                    {hasTabPermission('download') && (
+                      <Button
+                        leftIcon={<FiDownload />}
+                        colorScheme="teal"
+                        variant="outline"
+                        size="sm"
+                        borderRadius="xl"
+                        onClick={() => setIsTechnicianReportOpen(true)}
+                        flexShrink={0}
+                      >
+                        Technician Report
+                      </Button>
+                    )}
+
+                    {(fromDate || toDate || doctorSearch || statusFilter !== "all" || noReceivedDate || noSendDate) && (
+                      <IconButton
+                        aria-label="Reset All Filters"
+                        icon={<FiRefreshCw />}
+                        size="sm"
+                        colorScheme="red"
+                        borderRadius="xl"
+                        onClick={resetTableData}
+                        title="Reset All Filters"
+                        flexShrink={0}
+                      />
+                    )}
+                  </Flex>
+                ),
+                actionBtn: {
+                  addKey: {
+                    showAddButton: hasTabPermission('create'),
+                    function: handleAdd
+                  },
+                  editKey: {
+                    showEditButton: hasTabPermission('edit'),
+                    function: handleEdit
+                  },
+                  deleteKey: {
+                    showDeleteButton: hasTabPermission('delete'),
+                    function: handleDelete
+                  },
+                  viewKey: {
+                    showViewButton: hasTabPermission('view'),
+                    function: handleView
+                  },
+                },
+                pagination: {
+                  show: true,
+                  onClick: setCurrentPage,
+                  currentPage: currentPage,
+                  totalPages: Math.ceil(labWorkStore.totalCount / tablePageLimit),
+                },
+                search: {
+                  show: true,
+                  searchValue: searchQuery,
+                  onSearchChange: (e: any) => setSearchQuery(e.target.value),
+                },
+                resetData: {
+                  show: true,
+                  text: "Reset Filters",
+                  function: resetTableData,
+                },
+              }}
+              loading={labWorkStore.loading}
+            />
+          </Box>
+        </>
+      )}
+
+      {/* Mobile Filter Half-Bottom Sheet */}
+      <Drawer
+        isOpen={isMobileFilterOpen}
+        onClose={() => setIsMobileFilterOpen(false)}
+        placement="bottom"
+      >
+        <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
+        <DrawerContent
+          borderTopRadius={0}
+          borderRadius={0}
+          maxH="75vh"
+          bg="white"
+          boxShadow="0 -10px 30px rgba(0,0,0,0.2)"
+          overflow="hidden"
+        >
+          <DrawerCloseButton color="white" zIndex={3} mt={1} />
+          <DrawerHeader
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            color="white"
+            borderRadius={0}
+            borderTopRadius={0}
+            fontSize="16px"
+            fontWeight="800"
+            py={3.5}
+            px={4}
+          >
+            <HStack spacing={2}>
+              <Icon as={FiFilter} boxSize={4} />
+              <Text>Filter Lab Orders</Text>
+            </HStack>
+          </DrawerHeader>
+          <DrawerBody p={4} overflowY="auto">
+            <VStack spacing={3.5} align="stretch">
+              <Box>
+                <Text fontSize="11px" fontWeight="700" color="gray.500" mb={1} textTransform="uppercase">
+                  Status
+                </Text>
+                <Select
+                  size="sm"
+                  borderRadius="xl"
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                  }}
+                  fontWeight="600"
+                >
+                  <option value="all">All Statuses</option>
+                  {labWorkStatusStore.statuses
+                    .filter((s: any) => activeTab === 0 || s.type === (activeTab === 1 ? "in-house" : "outside"))
+                    .sort((a: any, b: any) => a.status.localeCompare(b.status))
+                    .map((s: any) => (
+                      <option key={s._id || s.status} value={s.status}>
+                        {s.status}
+                      </option>
+                    ))}
+                </Select>
+              </Box>
+
+              <Box>
+                <Text fontSize="11px" fontWeight="700" color="gray.500" mb={1} textTransform="uppercase">
+                  Doctor Name
+                </Text>
+                <InputGroup size="sm">
+                  <InputLeftElement pointerEvents="none">
+                    <FiUser color="gray.400" />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Search doctor..."
+                    borderRadius="xl"
+                    value={doctorSearch}
+                    onChange={(e) => setDoctorSearch(e.target.value)}
+                    fontWeight="600"
+                  />
+                </InputGroup>
+              </Box>
+
+              <Box>
+                <Text fontSize="11px" fontWeight="700" color="gray.500" mb={1} textTransform="uppercase">
+                  Date Range
+                </Text>
+                <SimpleGrid columns={2} spacing={2}>
+                  <Box>
+                    <Text fontSize="10px" color="gray.400" mb={0.5}>
+                      From
+                    </Text>
+                    <Input
+                      type="date"
+                      size="sm"
+                      borderRadius="lg"
+                      value={tempFromDate}
+                      onChange={(e) => setTempFromDate(e.target.value)}
+                    />
+                  </Box>
+                  <Box>
+                    <Text fontSize="10px" color="gray.400" mb={0.5}>
+                      To
+                    </Text>
+                    <Input
+                      type="date"
+                      size="sm"
+                      borderRadius="lg"
+                      value={tempToDate}
+                      onChange={(e) => setTempToDate(e.target.value)}
+                    />
+                  </Box>
+                </SimpleGrid>
+              </Box>
+
+              {activeTab === 1 && (
+                <Button
+                  size="sm"
+                  borderRadius="xl"
+                  colorScheme={noReceivedDate ? "orange" : "gray"}
+                  variant={noReceivedDate ? "solid" : "outline"}
+                  onClick={() => {
+                    setNoReceivedDate((prev) => !prev);
+                    setNoSendDate(false);
+                  }}
+                  leftIcon={<FiClock />}
+                >
+                  {noReceivedDate ? "✓ No Received Date Filtered" : "Filter: No Received Date"}
+                </Button>
+              )}
+
+              {activeTab === 2 && (
+                <Button
+                  size="sm"
+                  borderRadius="xl"
+                  colorScheme={noSendDate ? "orange" : "gray"}
+                  variant={noSendDate ? "solid" : "outline"}
+                  onClick={() => {
+                    setNoSendDate((prev) => !prev);
+                    setNoReceivedDate(false);
+                  }}
+                  leftIcon={<FiClock />}
+                >
+                  {noSendDate ? "✓ No Send Date Filtered" : "Filter: No Send Date"}
+                </Button>
+              )}
+            </VStack>
+          </DrawerBody>
+          <DrawerFooter bg="gray.50" py={3} px={4} borderTop="1px solid" borderColor="gray.100">
+            <HStack spacing={2} w="full">
+              <Button
+                size="sm"
+                variant="ghost"
+                flex={1}
+                borderRadius="xl"
+                onClick={() => {
+                  resetTableData();
+                  setIsMobileFilterOpen(false);
+                }}
+              >
+                Reset All
+              </Button>
+              <Button
+                size="sm"
+                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                color="white"
+                flex={1}
+                borderRadius="xl"
+                fontWeight="700"
+                onClick={() => {
+                  setFromDate(tempFromDate);
+                  setToDate(tempToDate);
+                  setCurrentPage(1);
+                  setIsMobileFilterOpen(false);
+                }}
+              >
+                Apply Filters
+              </Button>
+            </HStack>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
 
         {/* Edit/Add Drawer */}
-        <Drawer isOpen={isOpen} onClose={onClose} size="full" placement="right">
+        <Drawer
+          isOpen={isOpen}
+          onClose={onClose}
+          size={isMobile ? "full" : "full"}
+          placement={isMobile ? "bottom" : "right"}
+        >
           <DrawerOverlay />
-          <DrawerContent maxW={{ base: "100%", md: "85%", lg: "50%" }}>
+          <DrawerContent
+            maxW={{ base: "100%", md: "85%", lg: "50%" }}
+            h={isMobile ? "100dvh" : undefined}
+            maxH={isMobile ? "100dvh" : undefined}
+            borderTopRadius={0}
+            borderRadius={0}
+            overflow="hidden"
+          >
+            <DrawerCloseButton 
+              color="white" 
+              zIndex={2}
+              mt={2}
+            />
             <DrawerHeader
-              bg={useColorModeValue(stores.themeStore.themeConfig.colors.custom.light.primary, "darkBrand.200")}
+              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
               color="white"
+              borderRadius={0}
+              borderTopRadius={0}
               fontWeight="700"
               fontSize={{ base: "lg", md: "xl" }}
               boxShadow="md"
             >
               {selectedLabWork && (selectedLabWork as any)._id ? "Update Lab Order" : "New Lab Order"}
             </DrawerHeader>
-            <DrawerCloseButton 
-              color="white" 
-              bg="red.500" 
-              borderRadius="full" 
-              _hover={{ bg: "red.600" }} 
-              mt={2}
-            />
             <DrawerBody p={{ base: 2, md: 6 }}>
               <Box mt={{ base: 2, md: 4 }}>
                 <LabSheet
@@ -778,24 +1669,43 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         </Drawer>
 
         {/* Report Filter Drawer */}
-        <Drawer isOpen={isReportOpen} onClose={onReportClose} size="full" placement="right">
+        <Drawer
+          isOpen={isReportOpen}
+          onClose={onReportClose}
+          size={isMobile ? "full" : "full"}
+          placement={isMobile ? "bottom" : "right"}
+        >
           <DrawerOverlay backdropFilter="blur(5px)" />
-          <DrawerContent maxW={{ base: "100%", md: "75%", lg: "50%" }} borderLeftRadius={{ base: "none", md: "3xl" }} shadow="2xl">
-            <DrawerHeader bg="blue.600" color="white" py={6} px={{ base: 4, md: 8 }}>
+          <DrawerContent
+            maxW={{ base: "100%", md: "75%", lg: "50%" }}
+            h={isMobile ? "100dvh" : undefined}
+            maxH={isMobile ? "100dvh" : undefined}
+            borderTopRadius={0}
+            borderRadius={0}
+            borderLeftRadius={{ base: "none", md: "3xl" }}
+            shadow="2xl"
+            overflow="hidden"
+          >
+            <DrawerCloseButton 
+              color="white" 
+              zIndex={2}
+              mt={3} 
+            />
+            <DrawerHeader
+              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              color="white"
+              borderRadius={0}
+              borderTopRadius={0}
+              py={5}
+              px={{ base: 4, md: 8 }}
+            >
               <HStack spacing={3}>
-                <Icon as={FiDownload} boxSize={6} />
+                <Icon as={FiDownload} boxSize={5} />
                 <VStack align="start" spacing={0}>
-                  <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">Report Configuration</Text>
+                  <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">Report Configuration</Text>
                   <Text fontSize="xs" fontWeight="normal" opacity={0.8}>Fine-tune your lab work export</Text>
                 </VStack>
               </HStack>
-              <DrawerCloseButton 
-                color="white" 
-                bg="red.500" 
-                borderRadius="full" 
-                _hover={{ bg: "red.600" }} 
-                mt={4} 
-              />
             </DrawerHeader>
 
             <DrawerBody p={{ base: 4, md: 8 }}>
@@ -1021,19 +1931,39 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         </Drawer>
 
         {/* View Drawer */}
-        <Drawer isOpen={isViewOpen} onClose={onViewClose} size="full" placement="right">
+        <Drawer
+          isOpen={isViewOpen}
+          onClose={onViewClose}
+          size={isMobile ? "full" : "full"}
+          placement={isMobile ? "bottom" : "right"}
+        >
           <DrawerOverlay backdropFilter="blur(5px)" />
-          <DrawerContent maxW={{ base: "100%", md: "80%" }} borderLeftRadius={{ base: "none", md: "3xl" }} shadow="2xl">
-            <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white" py={6} px={{ base: 4, md: 8 }}>
-              Lab Order Details
-            </DrawerHeader>
+          <DrawerContent
+            maxW={{ base: "100%", md: "80%" }}
+            h={isMobile ? "100dvh" : undefined}
+            maxH={isMobile ? "100dvh" : undefined}
+            borderTopRadius={0}
+            borderRadius={0}
+            borderLeftRadius={{ base: "none", md: "3xl" }}
+            shadow="2xl"
+            overflow="hidden"
+          >
             <DrawerCloseButton 
               color="white" 
-              bg="red.500" 
-              borderRadius="full" 
-              _hover={{ bg: "red.600" }} 
-              mt={4} 
+              zIndex={2}
+              mt={3} 
             />
+            <DrawerHeader
+              borderBottomWidth="1px"
+              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              color="white"
+              borderRadius={0}
+              borderTopRadius={0}
+              py={4}
+              px={{ base: 4, md: 8 }}
+            >
+              Lab Order Details
+            </DrawerHeader>
             <DrawerBody p={0}>
               {selectedLabWork && <LabSheetView data={selectedLabWork} />}
             </DrawerBody>
@@ -1082,24 +2012,43 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           isDownloading={isDownloading}
         />
 
-        <Drawer isOpen={isTechnicianReportOpen} onClose={() => setIsTechnicianReportOpen(false)} size="xl" placement="right">
+        <Drawer
+          isOpen={isTechnicianReportOpen}
+          onClose={() => setIsTechnicianReportOpen(false)}
+          size={isMobile ? "full" : "xl"}
+          placement={isMobile ? "bottom" : "right"}
+        >
           <DrawerOverlay backdropFilter="blur(5px)" />
-          <DrawerContent maxW={{ base: "100%", md: "75%", lg: "50%" }} borderLeftRadius={{ base: "none", md: "3xl" }} shadow="2xl">
-            <DrawerHeader bg="blue.600" color="white" py={6} px={{ base: 4, md: 8 }}>
+          <DrawerContent
+            maxW={{ base: "100%", md: "75%", lg: "50%" }}
+            h={isMobile ? "100dvh" : undefined}
+            maxH={isMobile ? "100dvh" : undefined}
+            borderTopRadius={0}
+            borderRadius={0}
+            borderLeftRadius={{ base: "none", md: "3xl" }}
+            shadow="2xl"
+            overflow="hidden"
+          >
+            <DrawerCloseButton 
+              color="white" 
+              zIndex={2}
+              mt={3} 
+            />
+            <DrawerHeader
+              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              color="white"
+              borderRadius={0}
+              borderTopRadius={0}
+              py={5}
+              px={{ base: 4, md: 8 }}
+            >
               <HStack spacing={3}>
-                <Icon as={FiDownload} boxSize={6} />
+                <Icon as={FiDownload} boxSize={5} />
                 <VStack align="start" spacing={0}>
                   <Text fontSize="xl" fontWeight="bold">Technician Report</Text>
                   <Text fontSize="xs" fontWeight="normal" opacity={0.8}>Download report grouped by technician</Text>
                 </VStack>
               </HStack>
-              <DrawerCloseButton 
-                color="white" 
-                bg="red.500" 
-                borderRadius="full" 
-                _hover={{ bg: "red.600" }} 
-                mt={4} 
-              />
             </DrawerHeader>
             <DrawerBody p={{ base: 4, md: 6 }}>
               <VStack spacing={6} align="stretch">
@@ -1250,7 +2199,6 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
-      </Box>
     </Box>
   );
 });

@@ -36,7 +36,7 @@ interface ColorPickerProps {
   onChangeComplete: any;
 }
 
-const COLOR_SUGGESTIONS = [
+export const COLOR_SUGGESTIONS = [
   { light: "#3182CE", dark: "#2C5282", label: "Dental Blue" }, // Vibrant blue
   { light: "#38B2AC", dark: "#2C7A7B", label: "Hygienic Teal" }, // Vibrant teal
   { light: "#48BB78", dark: "#2F855A", label: "Fresh Green" }, // Vibrant green
@@ -84,40 +84,42 @@ const ColorPickerComponent: React.FC<ColorPickerProps> = ({
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   return (
-    <SimpleGrid columns={3} spacing={3} w="100%">
+    <SimpleGrid columns={{ base: 4, sm: 4, md: 3 }} spacing={{ base: 2, md: 3 }} w="100%">
       {COLOR_SUGGESTIONS.map((sug, index) => {
         const isSelected = color.light === sug.light && color.dark === sug.dark;
         return (
           <VStack
             key={index}
             as="button"
-            p={3}
-            borderRadius="xl"
-            border="2px solid"
-            borderColor={isSelected ? "blue.500" : "transparent"}
+            p={{ base: 2, md: 2 }}
+            borderRadius={{ base: "xl", md: "md" }}
+            border={{ base: "2px solid", md: "1px solid" }}
+            borderColor={isSelected ? "blue.500" : borderColor}
             bg={isSelected ? selectedBg : useColorModeValue("white", "gray.800")}
             onClick={() => handleSuggestionClick(sug)}
-            spacing={2}
+            spacing={{ base: 1.5, md: 1 }}
             _hover={{
-              transform: "translateY(-2px)",
-              shadow: "md",
-              bg: isSelected ? selectedBg : useColorModeValue("gray.50", "gray.700")
+              transform: { base: "translateY(-2px)", md: "none" },
+              shadow: { base: "md", md: "none" },
+              bg: isSelected ? selectedBg : useColorModeValue("gray.50", "gray.700"),
+              borderColor: isSelected ? "blue.500" : "blue.200",
             }}
-            transition="all 0.2s"
+            transition="all 0.2s ease"
             align="center"
             position="relative"
-            boxShadow="sm"
+            boxShadow={isSelected ? { base: "md", md: "none" } : "none"}
           >
             <Box
-              w="40px"
-              h="40px"
+              w={{ base: "34px", md: "24px" }}
+              h={{ base: "34px", md: "24px" }}
               borderRadius="full"
               bg={sug.light}
               border="2px solid"
               borderColor="white"
-              boxShadow="0 0 0 1px #CBD5E0"
+              boxShadow="sm"
               position="relative"
               overflow="hidden"
+              flexShrink={0}
             >
               {/* Dark mode wedge indicator */}
               <Box
@@ -139,17 +141,22 @@ const ColorPickerComponent: React.FC<ColorPickerProps> = ({
                   borderRadius="full"
                   zIndex={2}
                 >
-                  <CheckIcon color="white" boxSize={3} />
+                  <CheckIcon color="white" boxSize={{ base: 2.5, md: 2 }} />
                 </Flex>
               )}
             </Box>
             <Text
-              fontSize="10px"
-              fontWeight="bold"
-              color={isSelected ? "blue.600" : useColorModeValue("gray.600", "gray.300")}
+              fontSize={{ base: "9.5px", md: "xs" }}
+              fontWeight={isSelected ? { base: "700", md: "bold" } : { base: "700", md: "normal" }}
+              color={isSelected ? "blue.600" : useColorModeValue("gray.700", "gray.300")}
               textAlign="center"
               lineHeight="1.2"
-              noOfLines={1}
+              noOfLines={{ base: 2, md: 1 }}
+              maxW={{ base: "none", md: "80px" }}
+              h={{ base: "24px", md: "auto" }}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
               {sug.label}
             </Text>

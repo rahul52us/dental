@@ -26,7 +26,8 @@ import {
   DrawerFooter,
   DrawerBody,
   DrawerCloseButton,
-  useDisclosure
+  useDisclosure,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import stores from "../../../store/stores";
@@ -41,7 +42,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
   const { labWorkHierarchyStore } = stores;
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const headerBg = useColorModeValue("blue.50", "gray.700");
-  
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
 
@@ -73,7 +75,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
       theme: 'grid',
       headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], cellPadding: 1.5, fontStyle: 'normal' },
       styles: { fontSize: 10, cellPadding: 1.5, textColor: [0, 0, 0] },
-      columnStyles: { 
+      columnStyles: {
         0: { fontStyle: 'normal', cellWidth: 35 },
         1: { fontStyle: 'bold', cellWidth: 55 },
         2: { fontStyle: 'normal', cellWidth: 35 },
@@ -87,7 +89,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
     if (data.selectedWorks && data.selectedWorks.length > 0) {
       doc.setFontSize(9);
       doc.text("Selected Works & Specifications", 14, currentY);
-      
+
       const worksData = data.selectedWorks.map((work: any) => [
         labWorkHierarchyStore.getNamePath(work.selections),
         work.teethNumbers?.join(", ") || "-",
@@ -134,7 +136,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
     if (selectedReceivedItems.length > 0) {
       doc.setFontSize(11);
       doc.text("Received Items", 14, currentY);
-      
+
       autoTable(doc, {
         startY: currentY + 5,
         head: [["Item Name", "Details"]],
@@ -180,25 +182,43 @@ const LabSheetView = observer(({ data }: { data: any }) => {
   };
 
   return (
-    <Box p={4}>
+    <Box p={4} pb={{ base: "calc(100px + env(safe-area-inset-bottom, 24px))", md: 6 }}>
       {/* PDF Preview Drawer */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
+      <Drawer
+        isOpen={isOpen}
+        placement={isMobile ? "bottom" : "right"}
+        onClose={onClose}
+        size={isMobile ? "full" : "xl"}
+      >
         <DrawerOverlay />
-        <DrawerContent maxW={{ base: "100%", md: "80%" }}>
-          <DrawerHeader borderBottomWidth="1px" bg="blue.600" color="white">PDF Preview</DrawerHeader>
-          <DrawerCloseButton 
-            color="white" 
-            bg="red.500" 
-            borderRadius="full" 
-            _hover={{ bg: "red.600" }} 
-            mt={2} 
+        <DrawerContent
+          maxW={{ base: "100%", md: "80%" }}
+          h={isMobile ? "100dvh" : undefined}
+          maxH={isMobile ? "100dvh" : undefined}
+          borderTopRadius={0}
+          borderRadius={0}
+          overflow="hidden"
+        >
+          <DrawerHeader
+            borderBottomWidth="1px"
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            color="white"
+            borderRadius={0}
+            borderTopRadius={0}
+          >
+            PDF Preview
+          </DrawerHeader>
+          <DrawerCloseButton
+            color="white"
+            zIndex={2}
+            mt={2}
           />
           <DrawerBody p={0}>
             {pdfUrl ? (
-              <iframe 
-                src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`} 
-                width="100%" 
-                height="100%" 
+              <iframe
+                src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
+                width="100%"
+                height="100%"
                 style={{ border: 'none' }}
                 title="PDF Preview"
               />
@@ -304,86 +324,86 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
         {/* Dates, Status & Billing */}
         <SimpleGrid columns={{ base: 1, md: 6 }} gap={4}>
-           <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
-             <VStack align="start" spacing={1}>
-                <HStack color="gray.600"><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
-                <Text fontWeight="bold">{data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent"}</Text>
-             </VStack>
-           </Box>
-           <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
-             <VStack align="start" spacing={1}>
-                <HStack color="gray.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">DUE DATE</Text></HStack>
-                <Text fontWeight="bold">
-                  {data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"}
-                </Text>
-             </VStack>
-           </Box>
-           <Box p={4} borderRadius="xl" bg="teal.50" border="1px solid" borderColor="teal.100">
-             <VStack align="start" spacing={1}>
-                <HStack color="teal.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">RECEIVED DATE</Text></HStack>
-                <Text fontWeight="bold" color="teal.700">
-                  {data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"}
-                </Text>
-             </VStack>
-           </Box>
-           <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
-             <VStack align="start" spacing={1}>
-                <HStack color="orange.600"><Icon as={FiActivity} /><Text fontSize="xs" fontWeight="bold">DELAY (DAYS)</Text></HStack>
-                <Text fontWeight="bold" color="orange.700">
-                  {data.delay !== undefined && data.delay !== null ? `${data.delay} Days` : "N/A"}
-                </Text>
-             </VStack>
-           </Box>
-           {/* Prominent Status Card */}
-           <Box
-             p={4}
-             borderRadius="xl"
-             bg={getStatusColor(data.status).bg}
-             color="white"
-           >
-             <VStack align="start" spacing={1}>
-               <HStack>
-                 <Icon as={FiCheckCircle} />
-                 <Text fontSize="xs" fontWeight="bold" opacity={0.85}>CURRENT STATUS</Text>
-               </HStack>
-               <Text fontSize="md" fontWeight="extrabold" letterSpacing="wide">
-                 {data.status?.toUpperCase() || "N/A"}
-               </Text>
-             </VStack>
-           </Box>
-           <Box p={4} borderRadius="xl" bg="blue.600" color="white">
-             <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="bold" opacity={0.8}>TOTAL BILLING AMOUNT</Text>
-                <Text fontSize="xl" fontWeight="bold">₹{data.price || 0}</Text>
-             </VStack>
-           </Box>
+          <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
+            <VStack align="start" spacing={1}>
+              <HStack color="gray.600"><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
+              <Text fontWeight="bold">{data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent"}</Text>
+            </VStack>
+          </Box>
+          <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
+            <VStack align="start" spacing={1}>
+              <HStack color="gray.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">DUE DATE</Text></HStack>
+              <Text fontWeight="bold">
+                {data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"}
+              </Text>
+            </VStack>
+          </Box>
+          <Box p={4} borderRadius="xl" bg="teal.50" border="1px solid" borderColor="teal.100">
+            <VStack align="start" spacing={1}>
+              <HStack color="teal.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">RECEIVED DATE</Text></HStack>
+              <Text fontWeight="bold" color="teal.700">
+                {data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"}
+              </Text>
+            </VStack>
+          </Box>
+          <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
+            <VStack align="start" spacing={1}>
+              <HStack color="orange.600"><Icon as={FiActivity} /><Text fontSize="xs" fontWeight="bold">DELAY (DAYS)</Text></HStack>
+              <Text fontWeight="bold" color="orange.700">
+                {data.delay !== undefined && data.delay !== null ? `${data.delay} Days` : "N/A"}
+              </Text>
+            </VStack>
+          </Box>
+          {/* Prominent Status Card */}
+          <Box
+            p={4}
+            borderRadius="xl"
+            bg={getStatusColor(data.status).bg}
+            color="white"
+          >
+            <VStack align="start" spacing={1}>
+              <HStack>
+                <Icon as={FiCheckCircle} />
+                <Text fontSize="xs" fontWeight="bold" opacity={0.85}>CURRENT STATUS</Text>
+              </HStack>
+              <Text fontSize="md" fontWeight="extrabold" letterSpacing="wide">
+                {data.status?.toUpperCase() || "N/A"}
+              </Text>
+            </VStack>
+          </Box>
+          <Box p={4} borderRadius="xl" bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white">
+            <VStack align="start" spacing={1}>
+              <Text fontSize="xs" fontWeight="bold" opacity={0.8}>TOTAL BILLING AMOUNT</Text>
+              <Text fontSize="xl" fontWeight="bold">₹{data.price || 0}</Text>
+            </VStack>
+          </Box>
         </SimpleGrid>
 
 
         {/* Instructions */}
         <Box>
-           <Heading size="sm" mb={2}>Lab Instructions</Heading>
-           <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
-              <Text fontSize="sm" fontStyle={data.labInstructions ? "normal" : "italic"} color="gray.700">
-                {data.labInstructions || "No special instructions provided."}
-              </Text>
-           </Box>
+          <Heading size="sm" mb={2}>Lab Instructions</Heading>
+          <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
+            <Text fontSize="sm" fontStyle={data.labInstructions ? "normal" : "italic"} color="gray.700">
+              {data.labInstructions || "No special instructions provided."}
+            </Text>
+          </Box>
         </Box>
 
         {/* Warranty */}
         {(data.warrantyCardNumber || data.warrantyYears) && (
-           <Box p={4} borderRadius="xl" border="1px solid" borderColor="green.100" bg="green.50">
-             <HStack spacing={6}>
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="xs" color="green.700" fontWeight="bold">WARRANTY CARD #</Text>
-                  <Text fontWeight="bold">{data.warrantyCardNumber || "N/A"}</Text>
-                </VStack>
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="xs" color="green.700" fontWeight="bold">DURATION</Text>
-                  <Text fontWeight="bold">{data.warrantyYears ? `${data.warrantyYears} Years` : "N/A"}</Text>
-                </VStack>
-             </HStack>
-           </Box>
+          <Box p={4} borderRadius="xl" border="1px solid" borderColor="green.100" bg="green.50">
+            <HStack spacing={6}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="green.700" fontWeight="bold">WARRANTY CARD #</Text>
+                <Text fontWeight="bold">{data.warrantyCardNumber || "N/A"}</Text>
+              </VStack>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="green.700" fontWeight="bold">DURATION</Text>
+                <Text fontWeight="bold">{data.warrantyYears ? `${data.warrantyYears} Years` : "N/A"}</Text>
+              </VStack>
+            </HStack>
+          </Box>
         )}
 
         {/* Status Tracking History */}
@@ -409,7 +429,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                   <Tbody>
                     {(() => {
                       const fullList = data.statusHistory || [];
-                      
+
                       return fullList.map((historyItem: any, idx: number) => {
                         const isDone = !!historyItem.date;
                         return (
@@ -507,8 +527,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
               {data.returnableItems && (
                 <Box p={4} borderRadius="xl" bg="blue.50" border="1px dashed" borderColor="blue.200">
                   <VStack align="start" spacing={1}>
-                     <Text fontSize="xs" fontWeight="bold" color="blue.700">RETURNABLE ITEMS NOTE</Text>
-                     <Text fontSize="sm" color="gray.800" fontWeight="500">{data.returnableItems}</Text>
+                    <Text fontSize="xs" fontWeight="bold" color="blue.700">RETURNABLE ITEMS NOTE</Text>
+                    <Text fontSize="sm" color="gray.800" fontWeight="500">{data.returnableItems}</Text>
                   </VStack>
                 </Box>
               )}

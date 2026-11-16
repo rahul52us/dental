@@ -1,176 +1,235 @@
 import React from "react";
 import {
-  Box,
-  Text,
-  Heading,
-  Stack,
+  Avatar,
   Badge,
+  Box,
   Card,
-  CardHeader,
   CardBody,
-  VStack,
+  CardHeader,
+  Flex,
+  Heading,
   HStack,
-  useColorModeValue,
   Icon,
   SimpleGrid,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Divider,
+  Stack,
+  Text,
+  useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
-import { MdLocationOn, MdGroup, MdAccountBalance } from "react-icons/md";
+import { MdAccountBalance, MdGroups, MdLocationOn } from "react-icons/md";
+import { formatDate } from "../../../../component/config/utils/dateUtils";
 
-// Circle Icon for Section Header
-const CircleIcon = ({ icon }: { icon: any }) => {
-  const bg = useColorModeValue("teal.100", "teal.700");
-  const color = useColorModeValue("teal.600", "teal.200");
-  return (
-    <Box
-      w={10}
-      h={10}
-      borderRadius="full"
-      bg={bg}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
+const valueText = (value: any) => {
+  if (value === undefined || value === null || value === "") return "—";
+  if (value === false) return "No";
+  if (value === true) return "Yes";
+  if (Array.isArray(value)) return value.filter(Boolean).join(", ") || "—";
+  if (typeof value === "object") return Object.values(value).filter(Boolean).join(", ") || "—";
+  return String(value);
+};
+
+const InfoItem = ({ label, value }: { label: string; value: any }) => (
+  <Stack
+    direction={{ base: "column", sm: "row" }}
+    align={{ base: "stretch", sm: "flex-start" }}
+    justify="space-between"
+    spacing={{ base: 0.5, sm: 3 }}
+    py={2}
+    borderBottomWidth="1px"
+    borderColor={useColorModeValue("gray.100", "gray.700")}
+    _last={{ borderBottomWidth: 0, pb: 0 }}
+  >
+    <Text flexShrink={0} fontSize="xs" fontWeight="semibold" color="gray.500">
+      {label}
+    </Text>
+    <Text
+      minW={0}
+      flex={1}
+      fontSize="sm"
+      color={useColorModeValue("gray.800", "gray.100")}
+      wordBreak="break-word"
+      whiteSpace="normal"
     >
-      <Icon as={icon} boxSize={5} color={color} />
-    </Box>
-  );
-};
+      {valueText(value)}
+    </Text>
+  </Stack>
+);
 
-// Card Component for each Section
-const SectionCard = ({ icon, title, children }: any) => {
-  const bg = useColorModeValue("white", "gray.800");
-  return (
-    <Card bg={bg} borderRadius="xl" shadow="lg" overflow="hidden">
-      <Box h="2px" bg="teal.400" />
-      <CardHeader pb={0}>
-        <HStack spacing={3} mt={2}>
-          <CircleIcon icon={icon} />
-          <Heading size="sm">{title}</Heading>
-        </HStack>
-      </CardHeader>
-      <CardBody>{children}</CardBody>
-    </Card>
-  );
-};
+const SectionCard = ({
+  icon,
+  title,
+  children,
+}: {
+  icon: any;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <Card
+    w="100%"
+    bg={useColorModeValue("white", "gray.800")}
+    borderWidth="1px"
+    borderColor={useColorModeValue("gray.200", "gray.700")}
+    borderRadius="xl"
+    shadow="sm"
+  >
+    <CardHeader px={{ base: 4, md: 5 }} pt={4} pb={2}>
+      <HStack spacing={2}>
+        <Icon as={icon} boxSize={4} color="teal.500" />
+        <Heading size="sm">{title}</Heading>
+      </HStack>
+    </CardHeader>
+    <CardBody px={{ base: 4, md: 5 }} pt={1} pb={4}>
+      {children}
+    </CardBody>
+  </Card>
+);
 
-// Main Component
 const ViewLab = ({ data }: { data: any }) => {
-  // ✅ Call hooks at top level only
-  const theadBg = useColorModeValue("gray.100", "gray.700");
+  const staffCardBg = useColorModeValue("gray.50", "gray.700");
 
   if (!data) return <Text>No data available</Text>;
 
-  return (
-    <Box p={6}>
-      {/* Avatar & Info */}
-      <Stack direction={["column", "row"]} spacing={6} align="center">
-        <Box mb={10}>
-          <Heading size="xl" mb={2}>
-            {data.name}
-          </Heading>
-          <HStack spacing={4} align="center">
-            <Badge
-              colorScheme={data.isActive ? "green" : "red"}
-              px={4}
-              py={1}
-              borderRadius="full"
-              fontSize="0.9rem"
-            >
-              {data.isActive ? "Active" : "Inactive"}
-            </Badge>
-            <Text fontSize="sm" color="gray.400">
-              Created: {new Date(data.createdAt).toLocaleDateString('en-IN')}
-            </Text>
-          </HStack>
-        </Box>
-      </Stack>
+  const initial = data?.name ? data.name.charAt(0).toUpperCase() : "L";
 
-      <SimpleGrid columns={[1, 2]} spacing={6}>
+  return (
+    <Box p={{ base: 2, md: 4 }} pb={{ base: "calc(100px + env(safe-area-inset-bottom, 24px))", md: 6 }}>
+      {/* Hero Banner */}
+      <Box
+        p={{ base: 4, md: 5 }}
+        borderRadius="2xl"
+        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+        color="white"
+        mb={4}
+        shadow="md"
+      >
+        <Flex
+          direction={{ base: "column", sm: "row" }}
+          align={{ base: "flex-start", sm: "center" }}
+          gap={3}
+        >
+          <Avatar
+            size="lg"
+            name={data.name}
+            bg="whiteAlpha.300"
+            color="white"
+            fontWeight="bold"
+            fontSize="xl"
+          >
+            {initial}
+          </Avatar>
+          <Box flex={1} minW={0}>
+            <Heading size="md" noOfLines={1} color="white">
+              {data.name || "—"}
+            </Heading>
+            <HStack spacing={2} mt={1} wrap="wrap">
+              <Text fontSize="xs" opacity={0.9}>
+                Lab profile • Created {data.createdAt ? formatDate(data.createdAt) : "—"}
+              </Text>
+              <Badge
+                bg={data.isActive !== false ? "green.400" : "red.400"}
+                color="white"
+                borderRadius="full"
+                px={2.5}
+                py={0.5}
+                fontSize="10px"
+                fontWeight="bold"
+              >
+                {data.isActive !== false ? "ACTIVE" : "INACTIVE"}
+              </Badge>
+            </HStack>
+          </Box>
+        </Flex>
+      </Box>
+
+      <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
         {/* Addresses */}
         <SectionCard icon={MdLocationOn} title="Addresses">
-          <VStack align="stretch" spacing={3}>
-            <Text>
-              <b>Residential:</b> {data.addresses?.residential || "—"}
-            </Text>
-            <Divider />
-            <Text>
-              <b>Office:</b> {data.addresses?.office || "—"}
-            </Text>
-            <Divider />
-            <Text>
-              <b>Other:</b> {data.addresses?.other || "—"}
-            </Text>
-          </VStack>
+          <InfoItem label="Residential" value={data.addresses?.residential} />
+          <InfoItem label="Office" value={data.addresses?.office} />
+          <InfoItem label="Other" value={data.addresses?.other} />
         </SectionCard>
 
-        {/* Staffs in Table Format */}
-        <SectionCard icon={MdGroup} title="Staff Members">
-          {data.staffs?.length ? (
-            <Table size="sm" variant="striped" colorScheme="teal">
-              <Thead bg={theadBg}>
-                <Tr>
-                  <Th>Name</Th>
-                  <Th>Email</Th>
-                  <Th>Phone</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {data.staffs.map((s: any, idx: number) => (
-                  <Tr key={idx}>
-                    <Td>{s.name}</Td>
-                    <Td>{s.email}</Td>
-                    <Td>{s.phone}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
+        {/* Staff Members */}
+        <SectionCard icon={MdGroups} title="Staff members">
+          {data.staffs && data.staffs.length > 0 ? (
+            <VStack spacing={2.5} align="stretch">
+              {data.staffs.map((staff: any, idx: number) => (
+                <Box
+                  key={idx}
+                  p={3}
+                  bg={staffCardBg}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor={useColorModeValue("gray.200", "gray.600")}
+                >
+                  <Text fontWeight="bold" fontSize="sm" color="teal.700">
+                    {staff.name || "—"}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500" mt={0.5}>
+                    Email: {staff.email || "—"}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Phone: {staff.phone || "—"}
+                  </Text>
+                </Box>
+              ))}
+            </VStack>
           ) : (
-            <Text>No staff members</Text>
+            <Text fontSize="sm" color="gray.400">
+              No staff members added
+            </Text>
           )}
         </SectionCard>
+
+        {/* Bank Accounts */}
+        <Box gridColumn={{ base: "1", lg: "1 / -1" }}>
+          <SectionCard icon={MdAccountBalance} title="Bank accounts">
+            {data.bankAccounts && data.bankAccounts.length > 0 ? (
+              <VStack spacing={2.5} align="stretch">
+                {data.bankAccounts.map((account: any, idx: number) => (
+                  <Box
+                    key={idx}
+                    p={3}
+                    bg={staffCardBg}
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor={useColorModeValue("gray.200", "gray.600")}
+                  >
+                    <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
+                      <Text fontWeight="bold" fontSize="sm">
+                        {account.bankName || "—"}
+                      </Text>
+                      {account.primary && (
+                        <Badge colorScheme="green" fontSize="10px">
+                          Primary
+                        </Badge>
+                      )}
+                    </Flex>
+                    <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={1} mt={1}>
+                      <Text fontSize="xs" color="gray.500">
+                        Holder: {account.accountHolder || "—"}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        A/C: {account.accountNumber || "—"}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        IFSC: {account.ifscCode || "—"}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        Branch: {account.branch || "—"}
+                      </Text>
+                    </SimpleGrid>
+                  </Box>
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="sm" color="gray.400">
+                No bank accounts added
+              </Text>
+            )}
+          </SectionCard>
+        </Box>
       </SimpleGrid>
-
-      {/* Bank Accounts */}
-      <Box mt={6}>
-        <SectionCard icon={MdAccountBalance} title="Bank Accounts">
-          {data.bankAccounts?.length ? (
-            <Table size="sm" variant="simple">
-              <Thead bg={theadBg}>
-                <Tr>
-                  <Th>Holder</Th>
-                  <Th>Bank</Th>
-                  <Th>Account No.</Th>
-                  <Th>IFSC</Th>
-                  <Th>Branch</Th>
-                  <Th>Status</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {data.bankAccounts.map((b: any, idx: number) => (
-                  <Tr key={idx}>
-                    <Td>{b.accountHolder}</Td>
-                    <Td>{b.bankName}</Td>
-                    <Td>{b.accountNumber}</Td>
-                    <Td>{b.ifscCode}</Td>
-                    <Td>{b.branch}</Td>
-                    <Td>
-                      {b.primary && <Badge colorScheme="green">Primary</Badge>}
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          ) : (
-            <Text>No bank accounts</Text>
-          )}
-        </SectionCard>
-      </Box>
     </Box>
   );
 };

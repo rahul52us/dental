@@ -71,7 +71,7 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
   const LayoutComponent = getLayout();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
@@ -83,7 +83,7 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
         <meta charSet="UTF-8" />
         <ColorModeScript initialColorMode="light" />
       </head>
-      <body className={`${lato.className} ${montserrat.className}`}>
+      <body className={`${lato.className} ${montserrat.className}`} suppressHydrationWarning>
         <ChakraProvider theme={theme}>
           <Notification />
           <LayoutComponent>{children}</LayoutComponent>

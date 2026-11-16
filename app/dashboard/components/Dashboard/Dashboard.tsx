@@ -164,6 +164,11 @@ const Dashboard = observer(() => {
   const appCardBorder = useColorModeValue("gray.100", "whiteAlpha.100");
   const textColor = useColorModeValue("gray.800", "white");
   const subTextColor = useColorModeValue("gray.500", "gray.400");
+  const userCardBg = useColorModeValue("gray.50", "whiteAlpha.50");
+  const userCardHoverBg = useColorModeValue("white", "whiteAlpha.100");
+  const userAvatarBorder = useColorModeValue("white", "gray.800");
+  const userCardNameColor = useColorModeValue("gray.800", "white");
+  const userCardTimeColor = useColorModeValue("gray.600", "gray.300");
 
   // Fetch Data
   useEffect(() => {
@@ -860,28 +865,28 @@ const Dashboard = observer(() => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut", delay: idx * 0.1 }}
                         p={6}
-                        bg={useColorModeValue("gray.50", "whiteAlpha.50")}
+                        bg={userCardBg}
                         borderRadius="2xl"
                         borderWidth="1px"
                         borderColor="transparent"
-                        _hover={{ borderColor: style.color, transform: "translateY(-4px)", boxShadow: "xl", bg: useColorModeValue("white", "whiteAlpha.100") }}
+                        _hover={{ borderColor: style.color, transform: "translateY(-4px)", boxShadow: "xl", bg: userCardHoverBg }}
                       >
                         <Flex gap={5} align="center">
                           <Box position="relative">
                             <Avatar size="lg" src={u.pic?.url} name={u.name} borderRadius="2xl" border="3px solid" borderColor={style.color} />
-                            <Box position="absolute" bottom="-2px" right="-2px" boxSize={6} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={useColorModeValue("white", "gray.800")}>
+                            <Box position="absolute" bottom="-2px" right="-2px" boxSize={6} bg={style.bg} color={style.color} borderRadius="lg" display="flex" alignItems="center" justifyContent="center" borderWidth="2px" borderColor={userAvatarBorder}>
                               <Icon as={style.icon} boxSize={3} />
                             </Box>
                           </Box>
                           <Box flex={1} minW={0}>
                             <Flex direction="row" justify="space-between" align="center" gap={2}>
                               <Box minW={0} flex={1}>
-                                <Text fontSize="lg" fontWeight="900" color={useColorModeValue("gray.800", "white")} mb={0.5} noOfLines={1}>{u.name}</Text>
+                                <Text fontSize="lg" fontWeight="900" color={userCardNameColor} mb={0.5} noOfLines={1}>{u.name}</Text>
                                 <Badge variant="subtle" colorScheme={style.color.split(".")[0]} fontSize="10px" px={2} py={0.5} borderRadius="full" fontWeight="900" textTransform="uppercase" letterSpacing="1px">{u.userType}</Badge>
                               </Box>
                               <VStack align="flex-end" spacing={0}>
                                 <Text fontSize="xs" fontWeight="900" color={style.color}>{dayName}</Text>
-                                <Text fontSize="14px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")}>{formattedTime}</Text>
+                                <Text fontSize="14px" fontWeight="800" color={userCardTimeColor}>{formattedTime}</Text>
                                 <Text fontSize="10px" fontWeight="700" color="gray.400">{formattedDate}</Text>
                               </VStack>
                             </Flex>

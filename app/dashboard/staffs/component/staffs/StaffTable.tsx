@@ -2,8 +2,6 @@ import {
   Avatar,
   Badge,
   Box,
-  Card,
-  CardBody,
   Divider,
   Drawer,
   DrawerBody,
@@ -21,9 +19,31 @@ import {
   VStack,
   Icon,
   useBreakpointValue,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Input,
+  Spinner,
 } from "@chakra-ui/react";
 import FormModel from "../../../../component/common/FormModel/FormModel";
-import { FiPower, FiAlertCircle, FiLock, FiKey, FiEye, FiEdit2, FiTrash2, FiPhone } from "react-icons/fi";
+import {
+  FiPower,
+  FiAlertCircle,
+  FiLock,
+  FiKey,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+  FiPhone,
+  FiPlus,
+  FiSearch,
+  FiX,
+  FiChevronLeft,
+  FiChevronRight,
+  FiCopy,
+  FiPhoneCall,
+  FiUserX,
+} from "react-icons/fi";
 import StaffPermissionsModal from "./StaffPermissionsModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { observer } from "mobx-react-lite";
@@ -301,53 +321,540 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
     return true;
   });
 
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
   return (
     <Box p={{ base: 2, md: 4 }}>
-      <CustomTable
-        title={t("staffs.table.staffs")}
-        data={
-          user.data?.map((t: any, index: number) => {
-            return {
-              ...t,
-              ...t.profileDetails?.personalInfo,
-              permissions: t.permissions,
-              sno: index + 1,
-            };
-          }) || []
-        }
-        columns={UserTableColumns}
-        actions={{
-          actionBtn: {
-            addKey: {
-              showAddButton: stores.auth.hasPermission('staffs', 'create'),
-              function: () => {
-                onAdd();
+      {/* ============================================================== */}
+      {/* MOBILE APK DEDICATED INTERFACE (< 768px)                       */}
+      {/* ============================================================== */}
+      {isMobile ? (
+        <Box pb="calc(80px + env(safe-area-inset-bottom, 12px))">
+          {/* Header */}
+          <Flex align="center" justify="space-between" gap={2} mb={3}>
+            <Box>
+              <HStack spacing={2} align="center">
+                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color="gray.850" letterSpacing="-0.4px">
+                  {t("staffs.table.staffs") || "Staff"}
+                </Text>
+                {user.data?.length !== undefined && (
+                  <Badge
+                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    color="white"
+                    fontSize="10px"
+                    fontWeight="800"
+                    px={2}
+                    py={0.5}
+                    rounded="full"
+                    boxShadow="0 2px 6px rgba(13, 148, 136, 0.25)"
+                  >
+                    {user.totalCount || user.data?.length}
+                  </Badge>
+                )}
+              </HStack>
+              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+                Clinic Staff & Access Control
+              </Text>
+            </Box>
+
+            {stores.auth.hasPermission("staffs", "create") && (
+              <Button
+                h="40px"
+                leftIcon={<FiPlus size={15} />}
+                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                color="white"
+                borderRadius="14px"
+                px={4}
+                fontSize="13px"
+                fontWeight="800"
+                boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
+                _hover={{
+                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  transform: "translateY(-1px)",
+                }}
+                _active={{ transform: "scale(0.96)" }}
+                onClick={onAdd}
+              >
+                Add Staff
+              </Button>
+            )}
+          </Flex>
+
+          {/* Search Bar */}
+          <InputGroup size="md" mb={3}>
+            <InputLeftElement pointerEvents="none" h="46px" w="44px">
+              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+            </InputLeftElement>
+            <Input
+              placeholder="Search staff by name, mobile, code..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              borderRadius="15px"
+              bg="white"
+              borderColor="#E2E8F0"
+              fontSize="13px"
+              fontWeight="600"
+              h="46px"
+              px={11}
+              boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+              _focus={{
+                borderColor: "#0EA5E9",
+                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+              }}
+              _placeholder={{ color: "gray.400", fontWeight: "400" }}
+            />
+            {searchQuery && (
+              <InputRightElement h="46px">
+                <IconButton
+                  aria-label="Clear search"
+                  icon={<FiX size={14} />}
+                  size="sm"
+                  minW="40px"
+                  h="40px"
+                  variant="ghost"
+                  rounded="full"
+                  onClick={() => setSearchQuery("")}
+                />
+              </InputRightElement>
+            )}
+          </InputGroup>
+
+          {/* Filter Pills */}
+          <HStack spacing={2} overflowX="auto" pb={3} sx={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}>
+            <Button
+              size="sm"
+              rounded="full"
+              minH="36px"
+              px={4}
+              fontSize="12px"
+              fontWeight="750"
+              bg={isActiveFilter === "all" ? "teal.600" : "gray.100"}
+              color={isActiveFilter === "all" ? "white" : "gray.600"}
+              boxShadow={isActiveFilter === "all" ? "0 2px 6px rgba(13, 148, 136, 0.3)" : "none"}
+              onClick={() => {
+                setIsActiveFilter("all");
+                setCurrentPage(1);
+              }}
+            >
+              All Staff
+            </Button>
+            <Button
+              size="sm"
+              rounded="full"
+              minH="36px"
+              px={4}
+              fontSize="12px"
+              fontWeight="750"
+              bg={isActiveFilter === true ? "teal.600" : "gray.100"}
+              color={isActiveFilter === true ? "white" : "gray.600"}
+              boxShadow={isActiveFilter === true ? "0 2px 6px rgba(13, 148, 136, 0.3)" : "none"}
+              leftIcon={<Box as="span" w="7px" h="7px" borderRadius="full" bg={isActiveFilter === true ? "white" : "#10B981"} />}
+              onClick={() => {
+                setIsActiveFilter(true);
+                setCurrentPage(1);
+              }}
+            >
+              Active
+            </Button>
+            <Button
+              size="sm"
+              rounded="full"
+              minH="36px"
+              px={4}
+              fontSize="12px"
+              fontWeight="750"
+              bg={isActiveFilter === false ? "red.600" : "gray.100"}
+              color={isActiveFilter === false ? "white" : "gray.600"}
+              boxShadow={isActiveFilter === false ? "0 2px 6px rgba(220, 38, 38, 0.3)" : "none"}
+              leftIcon={<Box as="span" w="7px" h="7px" borderRadius="full" bg={isActiveFilter === false ? "white" : "#EF4444"} />}
+              onClick={() => {
+                setIsActiveFilter(false);
+                setCurrentPage(1);
+              }}
+            >
+              Inactive
+            </Button>
+          </HStack>
+
+          {/* Cards Stack */}
+          {user.loading ? (
+            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
+              <Spinner size="lg" color="teal.500" thickness="3px" />
+              <Text fontSize="13px" color="gray.500" fontWeight="600">
+                Loading staff...
+              </Text>
+            </Flex>
+          ) : !user.data || user.data.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              py={14}
+              textAlign="center"
+              bg="white"
+              borderRadius="20px"
+              border="1px dashed"
+              borderColor="gray.200"
+              px={4}
+            >
+              <Icon as={FiUserX} boxSize="36px" color="gray.400" mb={2} />
+              <Text fontSize="14px" fontWeight="750" color="gray.700">
+                No Staff Members Found
+              </Text>
+              <Text fontSize="12px" color="gray.500" mt={1}>
+                {searchQuery ? `No matching staff for "${searchQuery}"` : "No staff members recorded yet."}
+              </Text>
+            </Flex>
+          ) : (
+            <VStack spacing={3} align="stretch">
+              {user.data.map((staff: any) => {
+                const genderLabel =
+                  genderOptions.find((option: any) => option.value === staff.gender)?.label || "";
+                const isMale = genderLabel === "Male";
+                const isFemale = genderLabel === "Female";
+                const displayTitle = staff.title || (isMale ? "Mr." : isFemale ? "Mrs." : "");
+                const phone = staff.phones?.find((item: any) => item.primary)?.number;
+
+                return (
+                  <Box
+                    key={staff._id || staff.id}
+                    bg="white"
+                    border="1px solid"
+                    borderColor="#E8EEF4"
+                    borderRadius="22px"
+                    p={3.5}
+                    boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
+                    position="relative"
+                    transition="all 0.2s ease"
+                  >
+                    {/* Top Identity Strip */}
+                    <Flex align="center" justify="space-between" gap={3} mb={2.5}>
+                      <Flex align="center" gap={3} flex={1} minW={0} cursor="pointer" onClick={() => handleRowClick(staff)}>
+                        <Box position="relative">
+                          <Avatar
+                            size="md"
+                            name={staff.name}
+                            src={staff.pic?.url}
+                            rounded="16px"
+                            bg={isMale ? "linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)" : "linear-gradient(135deg, #FCE7F3 0%, #FBCFE8 100%)"}
+                            color={isMale ? "blue.700" : "pink.700"}
+                            fontWeight="900"
+                            border="2px solid white"
+                            boxShadow="0 4px 10px rgba(15,23,42,0.1)"
+                          />
+                          <Box
+                            position="absolute"
+                            bottom="-1px"
+                            right="-1px"
+                            w="10px"
+                            h="10px"
+                            rounded="full"
+                            bg={staff.is_active ? "#10B981" : "#EF4444"}
+                            border="2px solid white"
+                          />
+                        </Box>
+
+                        <Box flex={1} minW={0}>
+                          <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                            {displayTitle ? `${displayTitle} ${staff.name}` : staff.name}
+                          </Text>
+                          <HStack spacing={1.5} mt={0.5} wrap="wrap">
+                            <Badge
+                              bg={staff.is_active ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)"}
+                              color={staff.is_active ? "#059669" : "#DC2626"}
+                              border="1px solid"
+                              borderColor={staff.is_active ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)"}
+                              borderRadius="full"
+                              fontSize="9.5px"
+                              fontWeight="800"
+                              px={2}
+                              py={0.5}
+                              textTransform="uppercase"
+                              letterSpacing="0.3px"
+                            >
+                              {staff.is_active ? "Active" : "Inactive"}
+                            </Badge>
+
+                            {staff.code && (
+                              <Badge
+                                bg="gray.100"
+                                color="gray.600"
+                                borderRadius="full"
+                                fontSize="9.5px"
+                                fontWeight="700"
+                                px={2}
+                                py={0.5}
+                              >
+                                #{staff.code}
+                              </Badge>
+                            )}
+                          </HStack>
+                        </Box>
+                      </Flex>
+
+                      {stores.auth.hasPermission("staffs", "edit") && (
+                        <Tooltip label={staff.is_active ? "Deactivate Staff" : "Activate Staff"}>
+                          <IconButton
+                            aria-label="Toggle status"
+                            icon={<FiPower size={15} />}
+                            size="sm"
+                            w="34px"
+                            h="34px"
+                            borderRadius="xl"
+                            colorScheme={staff.is_active ? "green" : "red"}
+                            variant="ghost"
+                            bg={staff.is_active ? "green.50" : "red.50"}
+                            color={staff.is_active ? "green.600" : "red.500"}
+                            _hover={{ bg: staff.is_active ? "green.100" : "red.100" }}
+                            onClick={() => handleStatusClick(staff)}
+                          />
+                        </Tooltip>
+                      )}
+                    </Flex>
+
+                    {/* Phone strip */}
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      bg="gray.50"
+                      borderRadius="14px"
+                      px={3}
+                      py={1.5}
+                      mb={2.5}
+                      border="1px solid"
+                      borderColor="gray.150"
+                    >
+                      <HStack
+                        spacing={2}
+                        minW={0}
+                        flex={1}
+                        cursor={phone ? "pointer" : "default"}
+                        onClick={() => {
+                          if (phone) {
+                            copyToClipboard(phone);
+                            openNotification({ type: "success", title: "Copied", message: `Phone: ${phone}` });
+                          }
+                        }}
+                      >
+                        <Icon as={FiPhone} color="teal.600" fontSize="13px" />
+                        <Text fontSize="12px" fontWeight="600" color={phone ? "gray.750" : "gray.400"} noOfLines={1}>
+                          {phone ? `+91 •••• ${phone.slice(-4)}` : "No phone registered"}
+                        </Text>
+                        {phone && <Icon as={FiCopy} color="gray.400" fontSize="11px" />}
+                      </HStack>
+
+                      {phone && (
+                        <IconButton
+                          as="a"
+                          href={`tel:${phone}`}
+                          aria-label="Call Staff"
+                          icon={<FiPhoneCall size={13} />}
+                          size="xs"
+                          w="28px"
+                          h="28px"
+                          borderRadius="lg"
+                          colorScheme="teal"
+                          variant="solid"
+                        />
+                      )}
+                    </Flex>
+
+                    {/* Primary Action Buttons */}
+                    <HStack spacing={2} mb={2}>
+                      {stores.auth.hasPermission("staffs", "view") && (
+                        <Button
+                          size="sm"
+                          flex={1}
+                          minH="36px"
+                          borderRadius="xl"
+                          bg="teal.50"
+                          color="teal.700"
+                          border="1px solid"
+                          borderColor="teal.100"
+                          _hover={{ bg: "teal.100" }}
+                          _active={{ transform: "scale(0.98)" }}
+                          leftIcon={<FiEye size={13} />}
+                          fontSize="12px"
+                          fontWeight="750"
+                          onClick={() => handleRowClick(staff)}
+                        >
+                          Profile
+                        </Button>
+                      )}
+
+                      {stores.auth.hasPermission("staffs", "edit") && (
+                        <Button
+                          size="sm"
+                          flex={1}
+                          minH="36px"
+                          borderRadius="xl"
+                          bg="blue.50"
+                          color="blue.700"
+                          border="1px solid"
+                          borderColor="blue.100"
+                          _hover={{ bg: "blue.100" }}
+                          _active={{ transform: "scale(0.98)" }}
+                          leftIcon={<FiEdit2 size={13} />}
+                          fontSize="12px"
+                          fontWeight="750"
+                          onClick={() => onEdit(staff)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+
+                      {stores.auth.hasPermission("staffs", "edit") && (
+                        <Button
+                          size="sm"
+                          flex={1}
+                          minH="36px"
+                          borderRadius="xl"
+                          bg="purple.50"
+                          color="purple.700"
+                          border="1px solid"
+                          borderColor="purple.100"
+                          _hover={{ bg: "purple.100" }}
+                          _active={{ transform: "scale(0.98)" }}
+                          leftIcon={<FiLock size={13} />}
+                          fontSize="12px"
+                          fontWeight="750"
+                          onClick={() => {
+                            setPermUser(staff);
+                            setIsPermOpen(true);
+                          }}
+                        >
+                          Access
+                        </Button>
+                      )}
+                    </HStack>
+
+                    {/* Security & Secondary Actions */}
+                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor="gray.200">
+                      <Text fontSize="11px" fontWeight="600" color="gray.400">
+                        Account & Security
+                      </Text>
+                      <HStack spacing={1.5}>
+                        {stores.auth.hasPermission("staffs", "edit") && (
+                          <Tooltip label="Change Password">
+                            <IconButton
+                              aria-label="Change Password"
+                              icon={<FiKey size={13} />}
+                              size="xs"
+                              w="30px"
+                              h="30px"
+                              borderRadius="lg"
+                              bg="orange.50"
+                              color="orange.600"
+                              _hover={{ bg: "orange.100" }}
+                              onClick={() => {
+                                setSelectedPassUser(staff);
+                                setIsPassModalOpen(true);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                        {stores.auth.hasPermission("staffs", "delete") && (
+                          <Tooltip label="Delete Staff">
+                            <IconButton
+                              aria-label="Delete Staff"
+                              icon={<FiTrash2 size={13} />}
+                              size="xs"
+                              w="30px"
+                              h="30px"
+                              borderRadius="lg"
+                              bg="red.50"
+                              color="red.600"
+                              _hover={{ bg: "red.100" }}
+                              onClick={() => onDelete(staff)}
+                            />
+                          </Tooltip>
+                        )}
+                      </HStack>
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </VStack>
+          )}
+
+          {/* Mobile Pagination */}
+          {user.totalPages && user.totalPages > 1 && (
+            <Flex justify="space-between" align="center" pt={4} pb={2}>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="xl"
+                leftIcon={<FiChevronLeft size={14} />}
+                isDisabled={currentPage <= 1}
+                onClick={() => handleChangePage(currentPage - 1)}
+              >
+                Previous
+              </Button>
+              <Text fontSize="12px" fontWeight="700" color="gray.600">
+                Page {currentPage} of {user.totalPages}
+              </Text>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="xl"
+                rightIcon={<FiChevronRight size={14} />}
+                isDisabled={currentPage >= user.totalPages}
+                onClick={() => handleChangePage(currentPage + 1)}
+              >
+                Next
+              </Button>
+            </Flex>
+          )}
+        </Box>
+      ) : (
+        /* ============================================================== */
+        /* DESKTOP VIEW (100% UNCHANGED AS OLD >= 768px)                  */
+        /* ============================================================== */
+        <CustomTable
+          title={t("staffs.table.staffs")}
+          data={
+            user.data?.map((t: any, index: number) => {
+              return {
+                ...t,
+                ...t.profileDetails?.personalInfo,
+                permissions: t.permissions,
+                sno: index + 1,
+              };
+            }) || []
+          }
+          columns={UserTableColumns}
+          actions={{
+            actionBtn: {
+              addKey: {
+                showAddButton: stores.auth.hasPermission('staffs', 'create'),
+                function: () => {
+                  onAdd();
+                },
+              },
+              editKey: {
+                showEditButton: stores.auth.hasPermission('staffs', 'edit'),
+                function: (e: any) => {
+                  onEdit(e);
+                },
+              },
+              viewKey: {
+                showViewButton: stores.auth.hasPermission('staffs', 'view'),
+                function: (e: any) => {
+                  handleRowClick(e);
+                },
+              },
+              deleteKey: {
+                showDeleteButton: stores.auth.hasPermission('staffs', 'delete'),
+                function: (e: any) => {
+                  onDelete(e);
+                },
               },
             },
-            editKey: {
-              showEditButton: stores.auth.hasPermission('staffs', 'edit'),
-              function: (e: any) => {
-                onEdit(e);
-              },
+            search: {
+              show: true,
+              searchValue: searchQuery,
+              onSearchChange: (e: any) => setSearchQuery(e.target.value),
             },
-            viewKey: {
-              showViewButton: stores.auth.hasPermission('staffs', 'view'),
-              function: (e: any) => {
-                handleRowClick(e);
-              },
-            },
-            deleteKey: {
-              showDeleteButton: stores.auth.hasPermission('staffs', 'delete'),
-              function: (e: any) => {
-                onDelete(e);
-              },
-            },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
             resetData: {
               show: true,
               text: t("staffs.table.resetData"),
@@ -390,117 +897,15 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               },
             },
             pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage: currentPage,
-            totalPages: user.totalPages || 1,
-          },
-        }}
-        loading={user.loading}
-        mobileCard={(row: any) => {
-          const genderLabel =
-            genderOptions.find((option: any) => option.value === row.gender)?.label || "";
-          const displayTitle =
-            row.title || (genderLabel === "Male" ? "Mr." : genderLabel === "Female" ? "Mrs." : "");
-          const phone = row.phones?.find((item: any) => item.primary)?.number;
-
-          return (
-            <Card
-              bg="white"
-              border="1px solid"
-              borderColor="gray.200"
-              borderLeft="4px solid"
-              borderLeftColor="blue.500"
-              borderRadius="xl"
-              boxShadow="sm"
-            >
-              <CardBody p={3}>
-                <Flex align="center" gap={3}>
-                  <Avatar src={row.pic?.url} name={row.name} size="md" />
-                  <Box minW={0} flex={1}>
-                    <Text fontWeight="bold" fontSize="sm" noOfLines={1} color="gray.800">
-                      {displayTitle ? `${displayTitle} ${row.name}` : row.name}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500" mt={0.5}>
-                      Staff code · {row.code || "—"}
-                    </Text>
-                  </Box>
-                  <Badge
-                    colorScheme={row.is_active ? "green" : "gray"}
-                    variant="subtle"
-                    borderRadius="full"
-                    px={2}
-                    py={1}
-                    fontSize="10px"
-                  >
-                    {row.is_active ? t("staffs.table.active") : t("staffs.table.inactive")}
-                  </Badge>
-                </Flex>
-
-                <Flex mt={3} align="center" justify="space-between" gap={2}>
-                  <HStack
-                    as={phone ? "button" : "div"}
-                    onClick={() => phone && copyToClipboard(phone)}
-                    spacing={2}
-                    minW={0}
-                    color={phone ? "blue.600" : "gray.400"}
-                    fontSize="xs"
-                    aria-label={phone ? "Copy phone number" : undefined}
-                  >
-                    <FiPhone />
-                    <Text noOfLines={1}>{phone ? `••• ${phone.slice(-4)}` : "No phone number"}</Text>
-                  </HStack>
-                  {stores.auth.hasPermission("staffs", "edit") && (
-                    <Tooltip label={row.is_active ? t("staffs.table.deactivate") : t("staffs.table.activate")}>
-                      <IconButton
-                        aria-label={t("staffs.table.toggleStatus")}
-                        icon={<FiPower />}
-                        size="xs"
-                        minW="40px"
-                        minH="40px"
-                        colorScheme={row.is_active ? "orange" : "green"}
-                        variant="ghost"
-                        onClick={() => handleStatusClick(row)}
-                      />
-                    </Tooltip>
-                  )}
-                </Flex>
-
-                <Divider my={2} />
-                <Flex justify="space-between" align="center" gap={1}>
-                  <HStack spacing={1}>
-                    {stores.auth.hasPermission("staffs", "view") && (
-                      <Tooltip label="View profile">
-                        <IconButton aria-label="View profile" icon={<FiEye />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="teal" onClick={() => handleRowClick(row)} />
-                      </Tooltip>
-                    )}
-                    {stores.auth.hasPermission("staffs", "edit") && (
-                      <Tooltip label="Edit staff">
-                        <IconButton aria-label="Edit staff" icon={<FiEdit2 />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="blue" onClick={() => onEdit(row)} />
-                      </Tooltip>
-                    )}
-                    {stores.auth.hasPermission("staffs", "delete") && (
-                      <Tooltip label="Delete staff">
-                        <IconButton aria-label="Delete staff" icon={<FiTrash2 />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="red" onClick={() => onDelete(row)} />
-                      </Tooltip>
-                    )}
-                  </HStack>
-                  {stores.auth.hasPermission("staffs", "edit") && (
-                    <HStack spacing={1}>
-                      <Tooltip label="Manage permissions">
-                        <IconButton aria-label="Manage permissions" icon={<FiLock />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="purple" onClick={() => { setPermUser(row); setIsPermOpen(true); }} />
-                      </Tooltip>
-                      <Tooltip label="Change password">
-                        <IconButton aria-label="Change password" icon={<FiKey />} size="sm" minW="40px" minH="40px" variant="ghost" colorScheme="orange" onClick={() => { setSelectedPassUser(row); setIsPassModalOpen(true); }} />
-                      </Tooltip>
-                    </HStack>
-                  )}
-                </Flex>
-              </CardBody>
-            </Card>
-          );
-        }}
-      />
+              show: true,
+              onClick: handleChangePage,
+              currentPage: currentPage,
+              totalPages: user.totalPages || 1,
+            },
+          }}
+          loading={user.loading}
+        />
+      )}
 
       <Drawer
         isOpen={isOpen}
@@ -521,9 +926,9 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           display="flex"
           flexDirection="column"
         >
-          <DrawerCloseButton color="white" _hover={{ bg: "whiteAlpha.200" }} />
+          <DrawerCloseButton color="white" bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.350" }} top={{ base: 2, md: 4 }} right={{ base: 2, md: 4 }} />
           <DrawerHeader
-            bg={stores.themeStore.themeConfig.colors.custom.light.primary}
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
             color="white"
             py={{ base: 3, md: 4 }}
             fontSize={{ base: "sm", md: "lg" }}

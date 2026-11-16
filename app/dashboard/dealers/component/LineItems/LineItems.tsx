@@ -386,8 +386,8 @@ const LineItems = observer(({ data }: any) => {
           flexDirection="column"
           overflow="hidden"
         >
-          <DrawerCloseButton color="white" _hover={{ bg: "whiteAlpha.200" }} />
-          <DrawerHeader bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" py={{ base: 3, md: 4 }}>
+          <DrawerCloseButton color="white" bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.350" }} top={{ base: 2, md: 4 }} right={{ base: 2, md: 4 }} />
+          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={{ base: 3, md: 4 }}>
             <Flex align="center" gap={3}>
               <Icon as={GiPsychicWaves} size="24px" />
               Line Item Overview

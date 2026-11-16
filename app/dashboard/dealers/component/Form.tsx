@@ -190,11 +190,15 @@ const Form = ({
                   flex={2}
                   minH="48px"
                   type="submit"
-                  colorScheme="teal"
+                  bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                  color="white"
+                  _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)", shadow: "lg" }}
+                  _active={{ transform: "scale(0.98)" }}
                   isLoading={loading}
                   loadingText="Saving"
                   borderRadius="xl"
                   shadow="md"
+                  fontWeight="800"
                 >
                   {initialData?.name || isEdit ? "Update dealer" : "Save dealer"}
                 </Button>
