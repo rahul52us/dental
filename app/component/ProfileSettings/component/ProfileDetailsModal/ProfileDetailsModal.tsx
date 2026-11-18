@@ -359,37 +359,41 @@ const ProfileDetailsModal = observer(({ user }: any) => {
         {/* Header Section: Identity */}
         <Box
           bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
-          p={{ base: 4, md: 5 }}
+          px={{ base: 3.5, md: 5 }}
+          py={{ base: 2.5, md: 5 }}
           color="white"
           position="relative"
-          boxShadow="0 4px 20px rgba(12, 74, 110, 0.25)"
+          boxShadow="0 4px 16px rgba(12, 74, 110, 0.2)"
         >
           <DrawerCloseButton
             color="white"
             onClick={handleClose}
-            top={{ base: 3, md: 4 }}
-            right={{ base: 3, md: 4 }}
+            top={{ base: 2, md: 4 }}
+            right={{ base: 2, md: 4 }}
             bg="whiteAlpha.200"
             borderRadius="full"
-            w="32px"
-            h="32px"
-            _hover={{ bg: "whiteAlpha.350" }}
+            w={{ base: "28px", md: "32px" }}
+            h={{ base: "28px", md: "32px" }}
+            size="sm"
+            _hover={{ bg: "whiteAlpha.350", transform: "scale(1.05)" }}
+            transition="all 0.2s"
           />
           <Flex
             direction="row"
             align="center"
-            gap={{ base: 3, md: 4 }}
-            pr={{ base: 8, md: 0 }}
+            gap={{ base: 2.5, md: 4 }}
+            pr={{ base: 9, md: 0 }}
           >
             <Box position="relative" cursor="pointer" onClick={() => fileInputRef.current?.click()} flexShrink={0}>
               <Avatar
                 size="md"
-                boxSize={{ base: "52px", md: "64px" }}
+                boxSize={{ base: "42px", md: "64px" }}
                 src={pic?.url}
                 name={name}
-                border="3px solid"
+                borderRadius={{ base: "13px", md: "full" }}
+                border="2px solid"
                 borderColor="whiteAlpha.800"
-                boxShadow="0 4px 14px rgba(0,0,0,0.25)"
+                boxShadow="0 4px 12px rgba(0,0,0,0.2)"
                 opacity={uploadingImage ? 0.5 : 1}
               />
               <input
@@ -401,13 +405,13 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               />
               <Flex
                 position="absolute"
-                bottom={0}
-                right={0}
+                bottom={-1}
+                right={-1}
                 bg="blue.500"
                 color="white"
                 borderRadius="full"
-                w="20px"
-                h="20px"
+                w={{ base: "16px", md: "20px" }}
+                h={{ base: "16px", md: "20px" }}
                 align="center"
                 justify="center"
                 boxShadow="sm"
@@ -415,9 +419,9 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                 _hover={{ bg: "blue.600" }}
               >
                 {uploadingImage ? (
-                  <Icon as={CheckCircleIcon} opacity={0} boxSize={3} />
+                  <Icon as={CheckCircleIcon} opacity={0} boxSize={2.5} />
                 ) : (
-                  <Icon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" boxSize={2.5}>
+                  <Icon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" boxSize={{ base: 2, md: 2.5 }}>
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                   </Icon>
@@ -426,8 +430,8 @@ const ProfileDetailsModal = observer(({ user }: any) => {
             </Box>
 
             <Box minW={0} flex={1}>
-              <HStack spacing={2} align="center" wrap="wrap">
-                <Heading size={{ base: "xs", md: "sm" }} fontSize={{ base: "15px", md: "17px" }} fontWeight="900" noOfLines={1} color="white">
+              <HStack spacing={1.5} align="center" wrap="wrap">
+                <Heading size={{ base: "xs", md: "sm" }} fontSize={{ base: "14px", md: "17px" }} fontWeight="900" noOfLines={1} color="white">
                   {title ? `${title} ` : ''}{name}
                 </Heading>
                 <Badge
@@ -436,37 +440,35 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   border="1px solid"
                   borderColor={is_active ? "rgba(52, 211, 153, 0.4)" : "rgba(248, 113, 113, 0.4)"}
                   borderRadius="full"
-                  px={2}
-                  py={0.5}
-                  fontSize="9px"
+                  px={1.5}
+                  py={0.2}
+                  fontSize="8.5px"
                   fontWeight="800"
                   textTransform="uppercase"
-                  letterSpacing="0.4px"
+                  letterSpacing="0.3px"
                 >
                   {is_active ? "Active" : "Inactive"}
                 </Badge>
+                <Badge
+                  bg="whiteAlpha.200"
+                  color="white"
+                  border="1px solid"
+                  borderColor="whiteAlpha.300"
+                  fontSize="8.5px"
+                  fontWeight="800"
+                  px={1.5}
+                  py={0.2}
+                  borderRadius="md"
+                  textTransform="uppercase"
+                  letterSpacing="0.4px"
+                >
+                  {role}
+                </Badge>
               </HStack>
 
-              <Text fontSize={{ base: "11.5px", md: "13px" }} color="whiteAlpha.850" fontWeight="600" mt={0.5} noOfLines={1}>
+              <Text fontSize={{ base: "11px", md: "13px" }} color="whiteAlpha.850" fontWeight="600" mt={0.5} noOfLines={1}>
                 {username}
               </Text>
-
-              <Badge
-                mt={1}
-                bg="whiteAlpha.200"
-                color="white"
-                border="1px solid"
-                borderColor="whiteAlpha.300"
-                fontSize="9px"
-                fontWeight="800"
-                px={2}
-                py={0.5}
-                borderRadius="md"
-                textTransform="uppercase"
-                letterSpacing="0.5px"
-              >
-                {role}
-              </Badge>
             </Box>
           </Flex>
         </Box>

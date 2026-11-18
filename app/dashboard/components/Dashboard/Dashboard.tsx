@@ -303,13 +303,13 @@ const Dashboard = observer(() => {
         <Box display={{ base: "block", md: "none" }} pb="calc(84px + env(safe-area-inset-bottom, 0px))">
           
           {/* 1. Lovable Clinic Spotlight Carousel */}
-          <Box px={4} pt={1} mb={4}>
+          <Box px={1} pt={0} mb={3.5}>
             <Box
-              borderRadius="26px"
+              borderRadius="22px"
               overflow="hidden"
               position="relative"
-              boxShadow="0 14px 28px rgba(16, 51, 68, 0.18)"
-              h="158px"
+              boxShadow="0 10px 24px rgba(16, 51, 68, 0.16)"
+              h={{ base: "148px", sm: "158px" }}
               bgGradient="linear(135deg, #12354B 0%, #116C71 58%, #43A99B 100%)"
             >
               <Box
@@ -403,8 +403,8 @@ const Dashboard = observer(() => {
           </Box>
 
           {/* 2. Quick Clinical Shortcuts Row */}
-          <Box px={4} mb={5}>
-            <Flex justify="space-between" align="center" mb={2.5}>
+          <Box px={1} mb={4.5}>
+            <Flex justify="space-between" align="center" mb={2}>
               <Text fontSize="xs" fontWeight="800" color={textColor}>
                 Your shortcuts
               </Text>
@@ -443,8 +443,8 @@ const Dashboard = observer(() => {
           </Box>
 
           {/* 3. Key Metrics Stat Cards (Vibrant Pastel Bento Cards) */}
-          <Box mb={5}>
-            <Flex justify="space-between" align="center" px={4} mb={2.5}>
+          <Box mb={4.5}>
+            <Flex justify="space-between" align="center" px={1} mb={2}>
               <HStack spacing={2}>
                 <Circle size="26px" bg="blue.50" color="blue.600">
                   <Icon as={FaChartLine} boxSize={3} />
@@ -458,7 +458,7 @@ const Dashboard = observer(() => {
 
             <Flex
               overflowX="auto"
-              px={4}
+              px={1}
               py={1}
               gap={3}
               css={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}
@@ -510,8 +510,8 @@ const Dashboard = observer(() => {
           </Box>
 
           {/* 4. Interactive Analytics Segment */}
-          <Box px={4} mb={5}>
-            <HStack spacing={2} mb={3}>
+          <Box px={1} mb={4.5}>
+            <HStack spacing={2} mb={2.5}>
               <Circle size="26px" bg="purple.50" color="purple.600">
                 <Icon as={FaChartLine} boxSize={3} />
               </Circle>
@@ -657,8 +657,8 @@ const Dashboard = observer(() => {
 
           {/* 5. Timeline Activity Feed */}
           {showLiveActivity && (
-            <Box px={4}>
-              <Flex justify="space-between" align="center" mb={3}>
+            <Box px={1}>
+              <Flex justify="space-between" align="center" mb={2.5}>
                 <HStack spacing={1.5}>
                   <Box w="3px" h="12px" bg="green.500" rounded="full" />
                   <Text fontSize="xs" fontWeight="900" color={textColor} letterSpacing="0.2px">

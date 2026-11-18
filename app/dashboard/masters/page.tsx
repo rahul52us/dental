@@ -1,30 +1,47 @@
 'use client';
-import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon, InfoIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
   Button,
-  Card,
-  CardBody,
-  CardHeader,
   Center,
   Collapse,
   Divider,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Input,
   SimpleGrid,
   Text,
   Tooltip,
+  useBreakpointValue,
   useDisclosure,
   useToast,
   VStack,
 } from '@chakra-ui/react';
+import {
+  FiCheck,
+  FiEdit2,
+  FiFolderPlus,
+  FiLayers,
+  FiMenu,
+  FiPlus,
+  FiSave,
+  FiTrash2,
+  FiX,
+  FiInfo,
+} from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -33,13 +50,13 @@ import stores from '../../store/stores';
 type Option = { optionName: string; code: string };
 type MasterData = { category: string; options: Option[] };
 
-const MotionBox = motion(Box);
 interface Sidebar {
   showSidebar?: boolean;
-  handleCloseDrawer?: () => void
+  handleCloseDrawer?: () => void;
 }
 
 const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handleCloseDrawer }) => {
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
   const { dashboardStore: { getMasterData, createOrUpdateMasterData } } = stores;
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -49,8 +66,9 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
   const [masterData, setMasterData] = useState<MasterData[]>([]);
   const [editing, setEditing] = useState<Option | null>(null);
   const [errors, setErrors] = useState<{ category?: string; option?: string; code?: string }>({});
-  const [loading, setLoading] = useState(false); // Loading state for Save button
+  const [loading, setLoading] = useState(false);
   const { isOpen: isSidebarOpen, onToggle: toggleSidebar } = useDisclosure({ defaultIsOpen: true });
+  const { isOpen: isAddCatOpen, onOpen: openAddCat, onClose: closeAddCat } = useDisclosure();
   const toast = useToast();
 
   // Fetch master data on mount
@@ -66,12 +84,17 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
 
         if (cats.length > 0) setSelectedCategory(cats[0]);
       } catch (err: any) {
-        alert(err?.message);
+        toast({
+          title: 'Failed to load master data',
+          description: err?.message,
+          status: 'error',
+          duration: 3000,
+        });
       }
     };
 
     fetchData();
-  }, [getMasterData]);
+  }, [getMasterData, toast]);
 
   // Add category
   const handleAddCategory = useCallback(() => {
@@ -87,6 +110,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
     setSelectedCategory(newCategory.trim());
     setNewCategory('');
     setErrors({});
+    closeAddCat();
     toast({
       title: 'Category added',
       description: `${newCategory} has been created.`,
@@ -94,7 +118,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
       duration: 3000,
       isClosable: true,
     });
-  }, [newCategory, categories, toast]);
+  }, [newCategory, categories, toast, closeAddCat]);
 
   // Add or update option in current category
   const handleAddOption = useCallback(() => {
@@ -182,7 +206,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
     return (
       <Box p={10} textAlign="center" bg="white" borderRadius="2xl" m={4} shadow="sm">
         <VStack spacing={4}>
-          <InfoIcon boxSize={12} color="red.500" />
+          <Icon as={FiInfo} boxSize={12} color="red.500" />
           <Heading size="md" color="gray.700">Access Denied</Heading>
           <Text color="gray.500">You do not have permission to view or manage master settings.</Text>
         </VStack>
@@ -193,125 +217,601 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
   const currentOptions = masterData.find(c => c.category === selectedCategory)?.options || [];
 
   return (
-    <Flex direction={{ base: 'column', md: 'row' }} h="100%" bg={stores.themeStore.themeConfig.colors.custom.light.primary + "0D"} overflow="hidden" p={4} gap={4}>
-      {/* Sidebar */}
-      {showSidebar && (
-        <Box w={{ base: '100%', md: isSidebarOpen ? '280px' : '70px' }} bg={stores.themeStore.themeConfig.colors.custom.light.primary} color="white" borderRadius="2xl" boxShadow="lg" p={4} transition="all 0.3s ease">
-          <HStack justify="space-between" mb={4}>
-            {isSidebarOpen && <Heading size="md">Categories</Heading>}
-            <IconButton aria-label="Toggle sidebar" icon={<HamburgerIcon />} variant="ghost" color="white" onClick={toggleSidebar} />
-          </HStack>
-          <Collapse in={isSidebarOpen}>
-            <VStack align="stretch" spacing={2}>
-              {categories.map(cat => (
-                <Button
-                  key={cat}
-                  justifyContent="space-between"
-                  onClick={() => setSelectedCategory(cat)}
-                  colorScheme={selectedCategory === cat ? 'blue' : 'whiteAlpha'}
-                  bg={selectedCategory === cat ? stores.themeStore.themeConfig.colors.custom.light.primary + "33" : 'transparent'}
-                  border={selectedCategory === cat ? "1px solid white" : "none"}
-                  borderRadius="lg"
-                  size="sm"
+    <Box p={{ base: 3, md: 6 }} pb={{ base: 20, md: 6 }} minH="100%">
+      {isMobile ? (
+        /* ================= MOBILE APK INTERFACE ================= */
+        <VStack align="stretch" spacing={3.5}>
+          {/* Header Action Row */}
+          <Flex justify="space-between" align="center">
+            <VStack align="start" spacing={0}>
+              <HStack spacing={2}>
+                <Icon as={FiLayers} color="teal.600" boxSize={5} />
+                <Text fontSize="18px" fontWeight="800" color="gray.800">
+                  {selectedCategory || "Categories"}
+                </Text>
+                <Badge
+                  bg="rgba(13, 148, 136, 0.12)"
+                  color="teal.700"
+                  borderRadius="full"
+                  px={2}
+                  py={0.5}
+                  fontSize="11px"
+                  fontWeight="800"
                 >
-                  {cat}
-                  <Badge colorScheme="whiteAlpha">{masterData.find(c => c.category === cat)?.options.length || 0}</Badge>
-                </Button>
-              ))}
-              <FormControl isInvalid={!!errors.category} mt={4}>
-                <Input
-                  size="sm"
-                  placeholder="New Category"
-                  value={newCategory}
-                  onChange={e => setNewCategory(e.target.value)}
-                  bg="whiteAlpha.800"
-                  color="blue.900"
-                />
-                <FormErrorMessage>{errors.category}</FormErrorMessage>
-              </FormControl>
-              {stores.auth.hasPermission('masters', 'create') && (
-                <Button leftIcon={<AddIcon />} size="sm" mt={2} bg="white" color={stores.themeStore.themeConfig.colors.custom.light.primary} _hover={{ bg: "gray.100" }} variant="solid" onClick={handleAddCategory}>
-                  Add
-                </Button>
-              )}
+                  {currentOptions.length}
+                </Badge>
+              </HStack>
+              <Text fontSize="12px" color="gray.500">
+                Manage options & codes
+              </Text>
             </VStack>
-          </Collapse>
-        </Box>
-      )}
 
-      {/* Main area */}
-      <Box flex="1" bg="white" borderRadius="2xl" boxShadow="xl" p={{ base: 4, md: 6 }} overflowY="auto">
-        {!selectedCategory ? (
-          <Center h="100%">
-            <VStack spacing={3}>
-              <InfoIcon boxSize={10} color="blue.400" />
-              <Text fontSize="lg" color="gray.600">Select or create a category to manage options.</Text>
-            </VStack>
-          </Center>
-        ) : (
-          <>
-            <HStack justify="space-between" mb={6}>
-              <VStack align="start" spacing={0}>
-                <Heading size="lg" color="blue.600">{selectedCategory}</Heading>
-                <Text color="gray.500" fontSize="sm">Manage options and codes for this category</Text>
-              </VStack>
-              {(stores.auth.hasPermission('masters', 'create') || stores.auth.hasPermission('masters', 'edit')) && (
-                <Button colorScheme="blue" leftIcon={<InfoIcon />} onClick={handleSaveAll} isLoading={loading} shadow="md" borderRadius="full" px={8}>
-                  Save All
+            {(stores.auth.hasPermission('masters', 'create') || stores.auth.hasPermission('masters', 'edit')) && (
+              <Button
+                size="sm"
+                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                color="white"
+                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _active={{ transform: "scale(0.96)" }}
+                borderRadius="xl"
+                fontWeight="800"
+                fontSize="12px"
+                leftIcon={<FiSave />}
+                onClick={handleSaveAll}
+                isLoading={loading}
+                boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+                h="36px"
+                px={3.5}
+              >
+                Save All
+              </Button>
+            )}
+          </Flex>
+
+          {/* Horizontal Scrollable Categories Strip */}
+          <Box
+            overflowX="auto"
+            py={1}
+            css={{
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none',
+            }}
+          >
+            <HStack spacing={2} minW="max-content">
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat;
+                const count = masterData.find((c) => c.category === cat)?.options.length || 0;
+                return (
+                  <Button
+                    key={cat}
+                    size="sm"
+                    borderRadius="full"
+                    px={3.5}
+                    h="36px"
+                    fontSize="13px"
+                    fontWeight="750"
+                    color={isSelected ? "white" : "gray.700"}
+                    bgGradient={isSelected ? "linear(135deg, #0C4A6E 0%, #0D9488 100%)" : undefined}
+                    bg={isSelected ? undefined : "white"}
+                    border="1px solid"
+                    borderColor={isSelected ? "transparent" : "gray.200"}
+                    boxShadow={isSelected ? "0 2px 8px rgba(13, 148, 136, 0.3)" : "sm"}
+                    _active={{ transform: "scale(0.97)" }}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setEditing(null);
+                      setOptionName('');
+                      setCode('');
+                    }}
+                    flexShrink={0}
+                  >
+                    {cat}
+                    <Badge
+                      ml={2}
+                      borderRadius="full"
+                      px={1.5}
+                      py={0.2}
+                      fontSize="10px"
+                      fontWeight="800"
+                      bg={isSelected ? "whiteAlpha.300" : "gray.100"}
+                      color={isSelected ? "white" : "gray.600"}
+                    >
+                      {count}
+                    </Badge>
+                  </Button>
+                );
+              })}
+
+              {stores.auth.hasPermission("masters", "create") && (
+                <Button
+                  size="sm"
+                  borderRadius="full"
+                  variant="outline"
+                  colorScheme="teal"
+                  borderStyle="dashed"
+                  px={3}
+                  h="36px"
+                  fontSize="12px"
+                  fontWeight="750"
+                  leftIcon={<FiFolderPlus />}
+                  onClick={openAddCat}
+                  flexShrink={0}
+                >
+                  + Category
                 </Button>
               )}
             </HStack>
+          </Box>
 
-            <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mb={8}>
+          {/* Add / Edit Option Card */}
+          <Box
+            bg="white"
+            p={3.5}
+            borderRadius="20px"
+            boxShadow="0 2px 10px rgba(0,0,0,0.04)"
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <Text fontSize="12px" fontWeight="800" color="gray.700" mb={2}>
+              {editing ? `Editing: ${editing.optionName}` : `Add Option to "${selectedCategory}"`}
+            </Text>
+
+            <SimpleGrid columns={1} spacing={2.5}>
               <FormControl isInvalid={!!errors.option}>
-                <FormLabel fontWeight="bold">Full Name</FormLabel>
-                <Input placeholder="e.g. Engineer" value={optionName} onChange={e => setOptionName(e.target.value)} focusBorderColor="blue.400" />
-                <FormErrorMessage>{errors.option}</FormErrorMessage>
+                <Input
+                  size="sm"
+                  placeholder="Full Name (e.g. Engineer, Doctor)"
+                  value={optionName}
+                  onChange={(e) => setOptionName(e.target.value)}
+                  borderRadius="xl"
+                  bg="gray.50"
+                  borderColor="gray.200"
+                  fontWeight="600"
+                  fontSize="13px"
+                  _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                />
+                <FormErrorMessage fontSize="11px">{errors.option}</FormErrorMessage>
               </FormControl>
+
               <FormControl isInvalid={!!errors.code}>
-                <FormLabel fontWeight="bold">Short Name (for display)</FormLabel>
-                <Input placeholder="e.g. Eg." value={code} onChange={e => setCode(e.target.value)} focusBorderColor="blue.400" />
-                <FormErrorMessage>{errors.code}</FormErrorMessage>
+                <Input
+                  size="sm"
+                  placeholder="Short Name (for display, e.g. Eng., Dr.)"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  borderRadius="xl"
+                  bg="gray.50"
+                  borderColor="gray.200"
+                  fontWeight="600"
+                  fontSize="13px"
+                  _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                />
+                <FormErrorMessage fontSize="11px">{errors.code}</FormErrorMessage>
               </FormControl>
-              <Flex align="end">
+
+              <Flex gap={2}>
+                {editing && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    colorScheme="gray"
+                    borderRadius="xl"
+                    fontSize="12px"
+                    fontWeight="750"
+                    h="36px"
+                    flex={1}
+                    onClick={() => {
+                      setEditing(null);
+                      setOptionName('');
+                      setCode('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
                 {((!editing && stores.auth.hasPermission('masters', 'create')) || (editing && stores.auth.hasPermission('masters', 'edit'))) && (
-                  <Button colorScheme={editing ? "orange" : "blue"} leftIcon={editing ? <EditIcon /> : <AddIcon />} onClick={handleAddOption} w="full" shadow="sm">
-                    {editing ? "Update Option" : "Add Option"}
+                  <Button
+                    size="sm"
+                    bgGradient={editing ? "linear(135deg, #D97706 0%, #B45309 100%)" : "linear(135deg, #0C4A6E 0%, #0D9488 100%)"}
+                    color="white"
+                    _hover={{ opacity: 0.9 }}
+                    _active={{ transform: "scale(0.97)" }}
+                    leftIcon={editing ? <FiCheck /> : <FiPlus />}
+                    onClick={handleAddOption}
+                    borderRadius="xl"
+                    fontSize="12px"
+                    fontWeight="800"
+                    h="36px"
+                    flex={editing ? 2 : 1}
+                    boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+                  >
+                    {editing ? "Update Option" : "+ Add Option"}
                   </Button>
                 )}
               </Flex>
             </SimpleGrid>
+          </Box>
 
-            <Divider mb={6} />
+          {/* Options List Cards */}
+          <Text fontSize="13px" fontWeight="800" color="gray.700" mt={1}>
+            Options in {selectedCategory} ({currentOptions.length})
+          </Text>
 
-            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+          {currentOptions.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              p={6}
+              bg="white"
+              borderRadius="20px"
+              border="1px dashed"
+              borderColor="gray.200"
+              textAlign="center"
+            >
+              <Icon as={FiLayers} boxSize="32px" color="gray.400" mb={2} />
+              <Text fontSize="13px" fontWeight="750" color="gray.700">
+                No Options Yet
+              </Text>
+              <Text fontSize="12px" color="gray.500" mt={1}>
+                Use the box above to add options for {selectedCategory}.
+              </Text>
+            </Flex>
+          ) : (
+            <VStack spacing={2} align="stretch">
               {currentOptions.map((opt, idx) => (
-                <Box key={idx} p={4} border="1px solid" borderColor="gray.100" borderRadius="xl" _hover={{ shadow: "md", borderColor: "blue.200" }} transition="all 0.2s" bg="gray.50">
-                  <HStack justify="space-between" mb={2}>
-                    <Badge colorScheme="blue" variant="solid" borderRadius="full" px={3}>{opt.code}</Badge>
-                    <HStack spacing={1}>
-                      {stores.auth.hasPermission('masters', 'edit') && (
-                        <IconButton size="xs" variant="ghost" colorScheme="blue" icon={<EditIcon />} onClick={() => handleEditOption(opt)} aria-label="Edit" />
-                      )}
-                      {stores.auth.hasPermission('masters', 'delete') && (
-                        <IconButton size="xs" variant="ghost" colorScheme="red" icon={<DeleteIcon />} onClick={() => handleDeleteOption(opt.optionName)} aria-label="Delete" />
-                      )}
-                    </HStack>
+                <Flex
+                  key={idx}
+                  bg="white"
+                  p={3.5}
+                  borderRadius="18px"
+                  boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+                  border="1px solid"
+                  borderColor="gray.100"
+                  align="center"
+                  justify="space-between"
+                  gap={3}
+                >
+                  <HStack spacing={2.5} flex={1} minW={0}>
+                    <Badge
+                      bg="rgba(13, 148, 136, 0.12)"
+                      color="teal.800"
+                      border="1px solid"
+                      borderColor="rgba(13, 148, 136, 0.25)"
+                      borderRadius="lg"
+                      px={2.5}
+                      py={1}
+                      fontSize="11px"
+                      fontWeight="800"
+                      flexShrink={0}
+                    >
+                      {opt.code}
+                    </Badge>
+                    <Text fontSize="14px" fontWeight="750" color="gray.800" noOfLines={1}>
+                      {opt.optionName}
+                    </Text>
                   </HStack>
-                  <Text fontWeight="bold" fontSize="md" color="gray.700">{opt.optionName}</Text>
-                </Box>
-              ))}
-              {currentOptions.length === 0 && (
-                <Flex gridColumn="span 3" justify="center" align="center" py={12} direction="column" color="gray.400">
-                  <InfoIcon boxSize={8} mb={2} />
-                  <Text>No options added yet for this category.</Text>
+
+                  <HStack spacing={1} flexShrink={0}>
+                    {stores.auth.hasPermission('masters', 'edit') && (
+                      <IconButton
+                        size="xs"
+                        variant="ghost"
+                        colorScheme="blue"
+                        icon={<FiEdit2 fontSize="13px" />}
+                        onClick={() => handleEditOption(opt)}
+                        aria-label="Edit"
+                        borderRadius="lg"
+                      />
+                    )}
+                    {stores.auth.hasPermission('masters', 'delete') && (
+                      <IconButton
+                        size="xs"
+                        variant="ghost"
+                        colorScheme="red"
+                        icon={<FiTrash2 fontSize="13px" />}
+                        onClick={() => handleDeleteOption(opt.optionName)}
+                        aria-label="Delete"
+                        borderRadius="lg"
+                      />
+                    )}
+                  </HStack>
                 </Flex>
-              )}
-            </SimpleGrid>
-          </>
-        )}
-      </Box>
-    </Flex>
+              ))}
+            </VStack>
+          )}
+
+          {/* Mobile Category Half-Bottom Sheet Drawer */}
+          <Drawer isOpen={isAddCatOpen} onClose={closeAddCat} placement="bottom">
+            <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
+            <DrawerContent
+              borderTopRadius={0}
+              borderRadius={0}
+              maxH="50vh"
+              bg="white"
+              boxShadow="0 -10px 30px rgba(0,0,0,0.25)"
+              overflow="hidden"
+            >
+              <DrawerCloseButton color="white" zIndex={3} mt={1} />
+              <DrawerHeader
+                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                color="white"
+                borderTopRadius={0}
+                borderRadius={0}
+                fontSize="16px"
+                fontWeight="800"
+                py={3.5}
+                px={4}
+              >
+                <HStack spacing={2}>
+                  <Icon as={FiFolderPlus} boxSize={4} />
+                  <Text>Create New Category</Text>
+                </HStack>
+              </DrawerHeader>
+              <DrawerBody p={4}>
+                <FormControl isInvalid={!!errors.category}>
+                  <FormLabel fontSize="12px" fontWeight="700" color="gray.600">
+                    Category Name
+                  </FormLabel>
+                  <Input
+                    placeholder="e.g. departments, blood_group, titles"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    borderRadius="xl"
+                    bg="gray.50"
+                    fontWeight="600"
+                    _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                  />
+                  <FormErrorMessage fontSize="11px">{errors.category}</FormErrorMessage>
+                </FormControl>
+              </DrawerBody>
+              <DrawerFooter bg="gray.50" py={3} px={4} borderTop="1px solid" borderColor="gray.100">
+                <HStack spacing={2} w="full">
+                  <Button size="sm" variant="ghost" flex={1} borderRadius="xl" onClick={closeAddCat}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                    color="white"
+                    flex={1}
+                    borderRadius="xl"
+                    fontWeight="700"
+                    onClick={handleAddCategory}
+                  >
+                    Add Category
+                  </Button>
+                </HStack>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        </VStack>
+      ) : (
+        /* ================= DESKTOP INTERFACE ================= */
+        <Flex direction="row" h="100%" bg="gray.50" borderRadius="2xl" overflow="hidden" gap={4}>
+          {/* Sidebar */}
+          {showSidebar && (
+            <Box
+              w={isSidebarOpen ? '280px' : '70px'}
+              bgGradient="linear(180deg, #091E42 0%, #0C4A6E 100%)"
+              color="white"
+              borderRadius="2xl"
+              boxShadow="lg"
+              p={4}
+              transition="all 0.3s ease"
+              flexShrink={0}
+            >
+              <HStack justify="space-between" mb={4}>
+                {isSidebarOpen && <Heading size="md" color="white">Categories</Heading>}
+                <IconButton
+                  aria-label="Toggle sidebar"
+                  icon={<FiMenu />}
+                  variant="ghost"
+                  color="white"
+                  _hover={{ bg: "whiteAlpha.200" }}
+                  onClick={toggleSidebar}
+                />
+              </HStack>
+              <Collapse in={isSidebarOpen}>
+                <VStack align="stretch" spacing={2}>
+                  {categories.map((cat) => (
+                    <Button
+                      key={cat}
+                      justifyContent="space-between"
+                      onClick={() => setSelectedCategory(cat)}
+                      colorScheme={selectedCategory === cat ? 'teal' : 'whiteAlpha'}
+                      bg={selectedCategory === cat ? 'whiteAlpha.300' : 'transparent'}
+                      border={selectedCategory === cat ? "1px solid white" : "none"}
+                      borderRadius="lg"
+                      size="sm"
+                      fontWeight="700"
+                    >
+                      {cat}
+                      <Badge colorScheme={selectedCategory === cat ? 'teal' : 'whiteAlpha'}>
+                        {masterData.find((c) => c.category === cat)?.options.length || 0}
+                      </Badge>
+                    </Button>
+                  ))}
+                  <FormControl isInvalid={!!errors.category} mt={4}>
+                    <Input
+                      size="sm"
+                      placeholder="New Category"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      bg="whiteAlpha.900"
+                      color="gray.800"
+                      borderRadius="md"
+                    />
+                    <FormErrorMessage>{errors.category}</FormErrorMessage>
+                  </FormControl>
+                  {stores.auth.hasPermission('masters', 'create') && (
+                    <Button
+                      leftIcon={<FiPlus />}
+                      size="sm"
+                      mt={2}
+                      bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                      color="white"
+                      _hover={{ opacity: 0.9 }}
+                      variant="solid"
+                      onClick={handleAddCategory}
+                      borderRadius="md"
+                    >
+                      Add
+                    </Button>
+                  )}
+                </VStack>
+              </Collapse>
+            </Box>
+          )}
+
+          {/* Main area */}
+          <Box flex="1" bg="white" borderRadius="2xl" boxShadow="sm" p={6} overflowY="auto">
+            {!selectedCategory ? (
+              <Center h="100%">
+                <VStack spacing={3}>
+                  <Icon as={FiLayers} boxSize={10} color="teal.400" />
+                  <Text fontSize="lg" color="gray.600">
+                    Select or create a category to manage options.
+                  </Text>
+                </VStack>
+              </Center>
+            ) : (
+              <>
+                <HStack justify="space-between" mb={6}>
+                  <VStack align="start" spacing={0}>
+                    <Heading size="lg" color="gray.800">
+                      {selectedCategory}
+                    </Heading>
+                    <Text color="gray.500" fontSize="sm">
+                      Manage options and codes for this category
+                    </Text>
+                  </VStack>
+                  {(stores.auth.hasPermission('masters', 'create') || stores.auth.hasPermission('masters', 'edit')) && (
+                    <Button
+                      bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                      color="white"
+                      _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                      leftIcon={<FiSave />}
+                      onClick={handleSaveAll}
+                      isLoading={loading}
+                      shadow="md"
+                      borderRadius="xl"
+                      px={6}
+                    >
+                      Save All
+                    </Button>
+                  )}
+                </HStack>
+
+                <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mb={8}>
+                  <FormControl isInvalid={!!errors.option}>
+                    <FormLabel fontWeight="bold">Full Name</FormLabel>
+                    <Input
+                      placeholder="e.g. Engineer"
+                      value={optionName}
+                      onChange={(e) => setOptionName(e.target.value)}
+                      focusBorderColor="teal.400"
+                      borderRadius="lg"
+                    />
+                    <FormErrorMessage>{errors.option}</FormErrorMessage>
+                  </FormControl>
+                  <FormControl isInvalid={!!errors.code}>
+                    <FormLabel fontWeight="bold">Short Name (for display)</FormLabel>
+                    <Input
+                      placeholder="e.g. Eg."
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      focusBorderColor="teal.400"
+                      borderRadius="lg"
+                    />
+                    <FormErrorMessage>{errors.code}</FormErrorMessage>
+                  </FormControl>
+                  <Flex align="end">
+                    {((!editing && stores.auth.hasPermission('masters', 'create')) || (editing && stores.auth.hasPermission('masters', 'edit'))) && (
+                      <Button
+                        bgGradient={editing ? "linear(135deg, #D97706, #B45309)" : "linear(135deg, #0C4A6E 0%, #0D9488 100%)"}
+                        color="white"
+                        leftIcon={editing ? <FiEdit2 /> : <FiPlus />}
+                        onClick={handleAddOption}
+                        w="full"
+                        borderRadius="lg"
+                        shadow="sm"
+                      >
+                        {editing ? "Update Option" : "Add Option"}
+                      </Button>
+                    )}
+                  </Flex>
+                </SimpleGrid>
+
+                <Divider mb={6} />
+
+                <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+                  {currentOptions.map((opt, idx) => (
+                    <Box
+                      key={idx}
+                      p={4}
+                      border="1px solid"
+                      borderColor="gray.100"
+                      borderRadius="xl"
+                      _hover={{ shadow: "md", borderColor: "teal.200" }}
+                      transition="all 0.2s"
+                      bg="gray.50"
+                    >
+                      <HStack justify="space-between" mb={2}>
+                        <Badge
+                          bg="rgba(13, 148, 136, 0.12)"
+                          color="teal.800"
+                          variant="solid"
+                          borderRadius="full"
+                          px={3}
+                          py={0.5}
+                          fontWeight="800"
+                        >
+                          {opt.code}
+                        </Badge>
+                        <HStack spacing={1}>
+                          {stores.auth.hasPermission('masters', 'edit') && (
+                            <IconButton
+                              size="xs"
+                              variant="ghost"
+                              colorScheme="teal"
+                              icon={<FiEdit2 />}
+                              onClick={() => handleEditOption(opt)}
+                              aria-label="Edit"
+                              borderRadius="lg"
+                            />
+                          )}
+                          {stores.auth.hasPermission('masters', 'delete') && (
+                            <IconButton
+                              size="xs"
+                              variant="ghost"
+                              colorScheme="red"
+                              icon={<FiTrash2 />}
+                              onClick={() => handleDeleteOption(opt.optionName)}
+                              aria-label="Delete"
+                              borderRadius="lg"
+                            />
+                          )}
+                        </HStack>
+                      </HStack>
+                      <Text fontWeight="bold" fontSize="md" color="gray.700">
+                        {opt.optionName}
+                      </Text>
+                    </Box>
+                  ))}
+                  {currentOptions.length === 0 && (
+                    <Flex gridColumn="span 3" justify="center" align="center" py={12} direction="column" color="gray.400">
+                      <Icon as={FiLayers} boxSize={8} mb={2} />
+                      <Text>No options added yet for this category.</Text>
+                    </Flex>
+                  )}
+                </SimpleGrid>
+              </>
+            )}
+          </Box>
+        </Flex>
+      )}
+    </Box>
   );
 });
 

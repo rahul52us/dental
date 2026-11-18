@@ -84,32 +84,34 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
         }: any) => {
           return (
             <FormikForm onSubmit={handleSubmit}>
-              <Grid templateColumns="1fr" gap={6} mb={6}>
+              <Grid templateColumns="1fr" gap={{ base: 4, md: 6 }} mb={6}>
                 <GridItem>
-                  <Flex justify="space-between" align="center" mb={6}>
-                    <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                  <Flex justify={{ base: "flex-end", md: "space-between" }} align="center" mb={{ base: 3, md: 6 }}>
+                    <Text fontSize="2xl" fontWeight="bold" color="gray.800" display={{ base: "none", md: "block" }}>
                       {isEdit ? "Edit Lab Doctor" : "New Lab Doctor"}
                     </Text>
-                    <HStack spacing={3}>
+                    <HStack spacing={3} w={{ base: "100%", md: "auto" }}>
                       <Button
                         variant="outline"
-                        colorScheme="red"
+                        colorScheme="gray"
                         onClick={onClose}
                         borderRadius="xl"
+                        flex={{ base: 1, md: "initial" }}
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
-                        colorScheme="brand"
+                        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                        color="white"
+                        _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                        _active={{ transform: "scale(0.98)" }}
                         isLoading={loading}
                         borderRadius="xl"
+                        fontWeight="800"
+                        px={6}
                         shadow="md"
-                        _hover={{
-                          bg: "brand.600",
-                          shadow: "lg",
-                          transform: "translateY(-1px)",
-                        }}
+                        flex={{ base: 1, md: "initial" }}
                       >
                         {isEdit ? "Update" : "Save"}
                       </Button>
@@ -118,7 +120,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                 </GridItem>
 
                 <GridItem>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5} p={5} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor} boxShadow="sm">
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 3.5, md: 5 }} p={{ base: 3.5, md: 5 }} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor} boxShadow="sm">
                     <CustomInput
                       label="Doctor Name"
                       name="labDoctorName"
@@ -198,18 +200,22 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                 </GridItem>
 
                 <GridItem>
-                  <Box p={5} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor} boxShadow="sm">
+                  <Box p={{ base: 3.5, md: 5 }} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor} boxShadow="sm">
                     <FieldArray name="staffDetails">
                       {({ push, remove }) => (
                         <Box>
                           <Flex justify="space-between" align="center" mb={4}>
-                            <Text fontSize="lg" fontWeight="bold">
+                            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
                               Staff Details
                             </Text>
                             <Button
                               leftIcon={<AddIcon />}
-                              colorScheme="brand"
+                              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                              color="white"
+                              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
                               size="sm"
+                              borderRadius="lg"
+                              fontWeight="700"
                               onClick={() => push({ name: "", email: "", address: "", phone: "" })}
                             >
                               Add Staff

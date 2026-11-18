@@ -21,6 +21,7 @@ import {
   Spinner,
   Heading,
   IconButton,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
 import {
@@ -121,21 +122,56 @@ const AppointmentHistoryModal = observer(
       }
     };
 
+    const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
     return (
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
-        <ModalOverlay backdropFilter="blur(8px)" bg={useColorModeValue("blackAlpha.300", "blackAlpha.800")} />
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size={isMobile ? "full" : "xl"}
+        scrollBehavior="inside"
+        motionPreset={isMobile ? "none" : undefined}
+      >
+        <ModalOverlay backdropFilter="blur(8px)" bg={useColorModeValue("blackAlpha.400", "blackAlpha.800")} />
         <ModalContent
-          borderRadius="3xl"
+          w={isMobile ? "100vw" : undefined}
+          maxW={isMobile ? "100vw" : undefined}
+          maxH={isMobile ? "86dvh" : undefined}
+          m={isMobile ? 0 : 8}
+          position={isMobile ? "fixed" : undefined}
+          bottom={isMobile ? 0 : undefined}
+          left={isMobile ? 0 : undefined}
+          right={isMobile ? 0 : undefined}
+          borderTopRadius={0}
+          borderRadius={isMobile ? 0 : "3xl"}
           overflow="hidden"
           boxShadow={useColorModeValue("0 20px 40px rgba(0,0,0,0.1)", "0 0 40px rgba(0,0,0,0.4)")}
           bg={bgColor}
           border="1px solid"
           borderColor={borderColor}
           color={textColor}
-          my={8}
+          display={isMobile ? "flex" : undefined}
+          flexDirection={isMobile ? "column" : undefined}
+          sx={
+            isMobile
+              ? {
+                  animation: "modalSlideUpMobile 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                  "@keyframes modalSlideUpMobile": {
+                    "0%": {
+                      transform: "translateY(100%)",
+                      opacity: 0.85,
+                    },
+                    "100%": {
+                      transform: "translateY(0%)",
+                      opacity: 1,
+                    },
+                  },
+                }
+              : undefined
+          }
         >
           {/* Luminous Header */}
-          <ModalHeader p={8} position="relative" overflow="hidden" bg={bgColor}>
+          <ModalHeader p={isMobile ? 4 : 8} position="relative" overflow="hidden" bg={bgColor} borderTopRadius={0} borderRadius={0}>
              <Box
               position="absolute"
               top="-20%"
@@ -154,7 +190,7 @@ const AppointmentHistoryModal = observer(
                   Reliability Timeline
                 </Text>
               </HStack>
-              <Heading size="lg" fontWeight="900" letterSpacing="tight" color={textColor}>
+              <Heading size={isMobile ? "md" : "lg"} fontWeight="900" letterSpacing="tight" color={textColor}>
                 {patientName}
               </Heading>
               <Badge 
@@ -175,15 +211,15 @@ const AppointmentHistoryModal = observer(
           </ModalHeader>
           <ModalCloseButton 
             color={useColorModeValue("gray.400", "whiteAlpha.500")} 
-            size="lg" 
-            top={6} 
-            right={6} 
+            size={isMobile ? "md" : "lg"} 
+            top={isMobile ? 3 : 6} 
+            right={isMobile ? 3 : 6} 
             borderRadius="full" 
             zIndex={10}
             _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.100"), color: textColor }} 
           />
 
-          <ModalBody p={6} position="relative" bg={bgColor}>
+          <ModalBody p={isMobile ? 4 : 6} flex={isMobile ? 1 : undefined} overflowY={isMobile ? "auto" : undefined} position="relative" bg={bgColor}>
              {isLoading ? (
                <VStack p={24} spacing={6}>
                  <Spinner color="purple.500" size="xl" thickness="3px" speed="0.8s" />
@@ -366,21 +402,21 @@ const AppointmentHistoryModal = observer(
              )}
           </ModalBody>
 
-          <ModalFooter p={8} bg={bgColor} borderTop="1px solid" borderColor={borderColor}>
+          <ModalFooter p={isMobile ? 3.5 : 8} bg={bgColor} borderTop="1px solid" borderColor={borderColor}>
             <Button
               w="100%"
-              h="56px"
-              bgGradient={useColorModeValue("linear(to-r, purple.500, blue.500)", "linear(to-r, purple.600, blue.600)")}
+              h={isMobile ? "44px" : "56px"}
+              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
               color="white"
-              borderRadius="2xl"
-              fontSize="md"
-              fontWeight="900"
+              borderRadius={isMobile ? "xl" : "2xl"}
+              fontSize={isMobile ? "sm" : "md"}
+              fontWeight="800"
               letterSpacing="wider"
-              _hover={{ transform: "scale(1.02)", boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }}
+              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)", transform: "scale(1.01)" }}
               _active={{ transform: "scale(0.98)" }}
-              transition="all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+              transition="all 0.2s ease"
               onClick={onClose}
-              boxShadow={useColorModeValue("0 10px 20px rgba(90, 103, 216, 0.2)", "0 10px 30px rgba(90, 103, 216, 0.3)")}
+              boxShadow="0 4px 14px rgba(13, 148, 136, 0.25)"
             >
               FINISH REVIEW
             </Button>

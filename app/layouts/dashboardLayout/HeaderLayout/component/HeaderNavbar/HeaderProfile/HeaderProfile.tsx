@@ -2,6 +2,7 @@
 
 import {
   Avatar,
+  Badge,
   Menu,
   MenuButton,
   MenuList,
@@ -100,39 +101,58 @@ const HeaderProfile = observer(() => {
           bg={useColorModeValue("gray.50", "gray.900")}
         >
           <DrawerHeader
-            p={5}
+            py={2.5}
+            px={3.5}
             color="white"
-            bgGradient="linear(135deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
             borderBottom="1px solid"
             borderColor="whiteAlpha.200"
+            position="relative"
           >
-            <HStack spacing={3} pr={8} align="center">
+            <HStack spacing={3} pr={10} align="center">
               <Avatar
                 src={user?.pic?.url || undefined}
                 name={user?.name}
-                size="md"
+                boxSize="40px"
+                borderRadius="12px"
                 border="2px solid"
-                borderColor="whiteAlpha.700"
+                borderColor="whiteAlpha.800"
+                boxShadow="0 4px 10px rgba(0,0,0,0.2)"
+                flexShrink={0}
               />
-              <Box minW={0}>
-                <Text fontSize="xs" color="whiteAlpha.800" fontWeight="700">
-                  Account
-                </Text>
-                <Text mt={0.5} fontSize="md" fontWeight="800" noOfLines={1}>
-                  {user?.name || "User"}
-                </Text>
-                <Text fontSize="xs" color="whiteAlpha.800" noOfLines={1}>
-                  {user?.email || user?.userType || WEBSITE_TITLE?.split("-").join(" ")}
+              <Box minW={0} flex={1}>
+                <HStack spacing={2} align="center" wrap="wrap">
+                  <Text fontSize="15px" fontWeight="900" noOfLines={1} color="white">
+                    {user?.name || "User"}
+                  </Text>
+                  <Badge
+                    bg="rgba(255,255,255,0.2)"
+                    color="white"
+                    fontSize="9px"
+                    fontWeight="800"
+                    px={1.5}
+                    py={0.2}
+                    borderRadius="md"
+                    textTransform="uppercase"
+                    letterSpacing="0.4px"
+                  >
+                    {user?.userType || user?.role || "ADMIN"}
+                  </Badge>
+                </HStack>
+                <Text fontSize="11px" color="whiteAlpha.850" fontWeight="600" mt={0.5} noOfLines={1}>
+                  {user?.email || WEBSITE_TITLE?.split("-").join(" ")}
                 </Text>
               </Box>
             </HStack>
             <DrawerCloseButton
-              top={4}
-              right={4}
+              top={2.5}
+              right={2.5}
               color="white"
+              size="sm"
               borderRadius="full"
               bg="whiteAlpha.200"
-              _hover={{ bg: "whiteAlpha.300" }}
+              _hover={{ bg: "whiteAlpha.350", transform: "scale(1.05)" }}
+              transition="all 0.2s"
             />
           </DrawerHeader>
           <DrawerBody px={4} py={5}>

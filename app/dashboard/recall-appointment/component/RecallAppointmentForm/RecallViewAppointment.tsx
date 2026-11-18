@@ -49,30 +49,33 @@ const RecallViewAppointment = ({ data }: any) => {
 
   return (
     <Flex
+      direction={{ base: "column", sm: "row" }}
       border="1px solid"
       borderColor="gray.200"
-      borderRadius="lg"
+      borderRadius="xl"
       overflow="hidden"
       bg="white"
-      minH="320px"
+      minH={{ base: "auto", sm: "320px" }}
     >
       {/* ===== LEFT STATUS PANEL ===== */}
       <Flex
-        direction="column"
+        direction={{ base: "row", sm: "column" }}
         align="center"
         justify="space-between"
-        w="130px"
+        w={{ base: "100%", sm: "130px" }}
         bg="gray.900"
         color="white"
-        px={3}
-        py={4}
+        px={{ base: 4, sm: 3 }}
+        py={{ base: 3, sm: 4 }}
+        gap={{ base: 2, sm: 0 }}
+        flexWrap={{ base: "wrap", sm: "nowrap" }}
       >
         <Badge
-          bg={statusColor[recall.status]}
+          bg={statusColor[recall.status] || "teal.500"}
           color="white"
           px={3}
           py={1}
-          borderRadius="sm"
+          borderRadius="md"
           textTransform="uppercase"
           fontSize="0.7rem"
           letterSpacing="0.5px"
@@ -80,7 +83,7 @@ const RecallViewAppointment = ({ data }: any) => {
           {recall.status}
         </Badge>
 
-        <Box textAlign="center">
+        <Box textAlign={{ base: "left", sm: "center" }}>
           <Text fontSize="xs" opacity={0.6}>
             Recall Date
           </Text>
@@ -91,7 +94,7 @@ const RecallViewAppointment = ({ data }: any) => {
           </Text>
         </Box>
 
-        <Box textAlign="center">
+        <Box textAlign={{ base: "right", sm: "center" }}>
           <Text fontSize="xs" opacity={0.6}>
             Created On
           </Text>
@@ -102,7 +105,7 @@ const RecallViewAppointment = ({ data }: any) => {
       </Flex>
 
       {/* ===== RIGHT DETAILS PANEL ===== */}
-      <Box flex="1" px={6} py={5}>
+      <Box flex="1" px={{ base: 4, md: 6 }} py={{ base: 4, md: 5 }}>
 
         <Row
           label="Patient"

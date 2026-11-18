@@ -46,9 +46,9 @@ import AddAppointmentForm from "./component/AddForm";
 import EditAppointmentForm from "./component/EditForm";
 import { toJS } from "mobx";
 import { ChevronLeftIcon, ChevronRightIcon, InfoIcon } from "@chakra-ui/icons";
-import { FiClock, FiSearch, FiUser } from "react-icons/fi";
+import { FiClock, FiSearch, FiUser, FiEye, FiEdit2, FiX } from "react-icons/fi";
 import AppointmentHistoryModal from "./component/AppointmentHistoryModal";
-import { FaClipboardList } from "react-icons/fa";
+import { FaClipboardList, FaHistory } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
 const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, defaultOpenCalendar = false }: any) => {
@@ -516,30 +516,40 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
               borderRadius="16px"
               border="1px solid"
               borderColor={useColorModeValue("gray.200", "gray.700")}
-              minH="46px"
+              h="42px"
             >
               <Icon as={FiSearch} color="gray.400" />
               <Input
                 variant="unstyled"
                 placeholder="Search appointments..."
                 fontSize="13px"
-                minH="44px"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+              {searchQuery && (
+                <IconButton
+                  aria-label="Clear search"
+                  icon={<FiX size={12} />}
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => setSearchQuery("")}
+                />
+              )}
             </HStack>
 
             {stores.auth.hasPermission('appointment', 'create') && (
               <Button
                 size="sm"
-                bgGradient="linear(to-r, teal.500, teal.600)"
+                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(to-r, teal.600, teal.700)" }}
+                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _active={{ transform: "scale(0.96)" }}
                 borderRadius="14px"
                 fontWeight="800"
                 fontSize="12px"
-                px={3}
-                minH="46px"
+                px={3.5}
+                h="42px"
+                boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
                 onClick={() => setOpenReportModal({ open: true, type: "add" })}
               >
                 + Add
@@ -679,54 +689,64 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                     </HStack>
 
                     {/* Bottom Action Buttons */}
-                    <Flex justify="space-between" align="center" pt={2} borderTop="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.100")} gap={2} wrap="wrap">
-                      <HStack spacing={2} flex={1}>
-                        {stores.auth.hasPermission('appointment', 'view') && (
-                          <Button
-                            size="sm"
-                            minH="44px"
-                            flex={1}
-                            variant="ghost"
-                            colorScheme="blue"
-                            borderRadius="lg"
-                            fontWeight="700"
-                            onClick={() => setOpenView({ open: true, data: dt })}
-                          >
-                            View
-                          </Button>
-                        )}
-                        {stores.auth.hasPermission('appointment', 'edit') && (
-                          <Button
-                            size="sm"
-                            minH="44px"
-                            flex={1}
-                            variant="ghost"
-                            colorScheme="teal"
-                            borderRadius="lg"
-                            fontWeight="700"
-                            onClick={() => setSelectedDateTime({
-                              open: true,
-                              time: undefined,
-                              start: undefined,
-                              end: undefined,
-                              data: dt,
-                              type: "edit",
-                            })}
-                          >
-                            Edit
-                          </Button>
-                        )}
-                      </HStack>
-
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      pt={2}
+                      borderTop="1px solid"
+                      borderColor={useColorModeValue("gray.100", "whiteAlpha.100")}
+                      gap={1.5}
+                    >
                       {stores.auth.hasPermission('appointment', 'view') && (
                         <Button
-                          size="sm"
-                          minH="44px"
-                          variant="subtle"
-                          colorScheme="purple"
-                          borderRadius="full"
-                          px={2.5}
+                          size="xs"
+                          h="30px"
+                          flex={1}
+                          variant="ghost"
+                          colorScheme="teal"
+                          borderRadius="lg"
                           fontWeight="700"
+                          fontSize="12px"
+                          leftIcon={<FiEye fontSize="13px" />}
+                          onClick={() => setOpenView({ open: true, data: dt })}
+                        >
+                          View
+                        </Button>
+                      )}
+                      {stores.auth.hasPermission('appointment', 'edit') && (
+                        <Button
+                          size="xs"
+                          h="30px"
+                          flex={1}
+                          variant="ghost"
+                          colorScheme="blue"
+                          borderRadius="lg"
+                          fontWeight="700"
+                          fontSize="12px"
+                          leftIcon={<FiEdit2 fontSize="13px" />}
+                          onClick={() => setSelectedDateTime({
+                            open: true,
+                            time: undefined,
+                            start: undefined,
+                            end: undefined,
+                            data: dt,
+                            type: "edit",
+                          })}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {stores.auth.hasPermission('appointment', 'view') && (
+                        <Button
+                          size="xs"
+                          h="30px"
+                          flex={1}
+                          variant="ghost"
+                          colorScheme="purple"
+                          borderRadius="lg"
+                          fontWeight="700"
+                          fontSize="12px"
+                          leftIcon={<FaHistory fontSize="12px" />}
                           onClick={() => setHistoryModal({
                             isOpen: true,
                             patientId: dt.patient?._id || dt.patient,
@@ -865,22 +885,63 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
           })
         }
         title={
-          <Flex align={{ base: "flex-start", md: "center" }} justify="space-between" width="100%" pr={{ base: 8, md: 10 }} flexDir={{ base: "column", lg: "row" }} gap={{ base: 2, lg: 0 }}>
-            <Flex align="center" gap={{ base: 1, md: 3 }}>
-              <Button size={{ base: "sm", md: "md" }} onClick={goToPreviousDate} p={1}>
-                <ChevronLeftIcon color="white" fontSize={{ base: 24, md: 32 }} />
-              </Button>
+          <Flex
+            align={{ base: "stretch", md: "center" }}
+            justify="space-between"
+            width="100%"
+            pr={{ base: 6, md: 10 }}
+            flexDir={{ base: "column", lg: "row" }}
+            gap={{ base: 2, lg: 0 }}
+          >
+            <Flex align="center" justify="space-between" gap={{ base: 1.5, md: 3 }} w={{ base: "100%", lg: "auto" }}>
+              <IconButton
+                aria-label="Previous Date"
+                icon={<ChevronLeftIcon fontSize={{ base: "20px", md: "26px" }} />}
+                size={{ base: "xs", md: "sm" }}
+                variant="ghost"
+                bg="whiteAlpha.200"
+                color="white"
+                _hover={{ bg: "whiteAlpha.350" }}
+                borderRadius="full"
+                minW={{ base: "28px", md: "36px" }}
+                h={{ base: "28px", md: "36px" }}
+                onClick={goToPreviousDate}
+              />
 
-              <Text fontWeight="800" fontSize={{ base: "md", md: "xl" }} textAlign="center" noOfLines={{ base: 2, md: 1 }}>
-                {t("appointments.table.appointment")} {isPatient && patientDetails?.name ? `(${patientDetails.name}) ` : ""} 
-                <Box as="span" display={{ base: "none", md: "inline" }}>→ </Box>
-                <Box as="span" display={{ base: "inline", md: "none" }}><br/></Box>
-                {moment(selectedDate).format("dddd, DD MMM YYYY")}
-              </Text>
+              <Box flex="1" textAlign="center" minW={0} px={1}>
+                <Text
+                  fontSize="10px"
+                  fontWeight="700"
+                  color="whiteAlpha.800"
+                  textTransform="uppercase"
+                  letterSpacing="0.5px"
+                  noOfLines={1}
+                >
+                  {t("appointments.table.appointment")} {isPatient && patientDetails?.name ? `(${patientDetails.name})` : ""}
+                </Text>
+                <Text
+                  fontWeight="800"
+                  fontSize={{ base: "13px", md: "16px" }}
+                  color="white"
+                  noOfLines={1}
+                >
+                  {moment(selectedDate).format("ddd, DD MMM YYYY")}
+                </Text>
+              </Box>
 
-              <Button size={{ base: "sm", md: "md" }} onClick={goToNextDate} p={1}>
-                <ChevronRightIcon fontWeight="800" color="white" fontSize={{ base: 24, md: 32 }} />
-              </Button>
+              <IconButton
+                aria-label="Next Date"
+                icon={<ChevronRightIcon fontSize={{ base: "20px", md: "26px" }} />}
+                size={{ base: "xs", md: "sm" }}
+                variant="ghost"
+                bg="whiteAlpha.200"
+                color="white"
+                _hover={{ bg: "whiteAlpha.350" }}
+                borderRadius="full"
+                minW={{ base: "28px", md: "36px" }}
+                h={{ base: "28px", md: "36px" }}
+                onClick={goToNextDate}
+              />
             </Flex>
 
             {isPatient && (patientStatus.shift > 0 || patientStatus.cancelled > 0) && stores.auth.hasPermission('appointment', 'view') && (
@@ -972,19 +1033,24 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
           })
         }
         title={
-          <Flex align="center" gap={3}>
-            <Icon as={FaClipboardList} boxSize={5} />
-            <Text fontSize="xl" fontWeight="900">
-               {selectedDateAndTime?.type === "edit" ? t("appointments.table.editAppointment") : t("appointments.table.addAppointment")}
-            </Text>
-            <Divider orientation="vertical" h="20px" borderColor="whiteAlpha.400" />
-            <Text fontSize="lg" fontWeight="700" color="whiteAlpha.900" noOfLines={1}>
-               {isPatient ? patientDetails?.name : (selectedDateAndTime?.data?.patientName || t("appointments.table.selectPatient"))}
-            </Text>
+          <Flex align="center" gap={2.5} minW={0} pr={{ base: 6, md: 2 }}>
+            <Icon as={FaClipboardList} boxSize={{ base: 4, md: 5 }} color="white" flexShrink={0} />
+            <Box minW={0} flex={1}>
+              <Text fontSize={{ base: "14px", md: "16px" }} fontWeight="800" noOfLines={1} lineHeight="1.2" color="white">
+                {selectedDateAndTime?.type === "edit"
+                  ? t("appointments.table.editAppointment")
+                  : t("appointments.table.addAppointment")}
+              </Text>
+              {(isPatient ? patientDetails?.name : selectedDateAndTime?.data?.patientName) && (
+                <Text fontSize="11px" fontWeight="600" color="whiteAlpha.800" noOfLines={1} mt={0.5}>
+                  {isPatient ? patientDetails?.name : selectedDateAndTime?.data?.patientName}
+                </Text>
+              )}
+            </Box>
           </Flex>
         }
       >
-        <Box p={2}>
+        <Box p={{ base: 0, md: 2 }}>
           {selectedDateAndTime.type === "add" ? (
             <AddAppointmentForm
               patientDetails={patientDetails}

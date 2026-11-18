@@ -117,19 +117,24 @@ const toUtcISOString = (date: string, time: string) => {
 const SectionCard = ({ title, children }: { title?: string; children: any }) => (
   <Card
     variant="outline"
-    borderRadius="2xl"
-    shadow="md"
-    p={1}
-  // _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-  // transition="all 0.2s ease"
+    borderRadius={{ base: "xl", md: "2xl" }}
+    shadow="sm"
+    overflow="hidden"
+    w="100%"
+    maxW="100%"
+    p={0}
   >
-    {title && <CardHeader pb={2}>
-      <Text fontSize="xl" fontWeight="semibold" color="blue.600">
-        {title}
-      </Text>
-    </CardHeader>}
-    {title && <Divider mb={4} />}
-    <CardBody>{children}</CardBody>
+    {title && (
+      <CardHeader pb={2} px={{ base: 3.5, md: 6 }} pt={{ base: 3, md: 5 }}>
+        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold" color="blue.600">
+          {title}
+        </Text>
+      </CardHeader>
+    )}
+    {title && <Divider mb={2} />}
+    <CardBody px={{ base: 3, md: 6 }} py={{ base: 3, md: 4 }}>
+      {children}
+    </CardBody>
   </Card>
 );
 
@@ -480,65 +485,65 @@ const AddAppointmentForm = observer(
                       <Grid
                         gap={4}
                         gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                        w="100%"
+                        maxW="100%"
                       >
-                        <Flex align="center" gap={3} alignItems="center">
-                          <CustomInput
-                            name="patient"
-                            placeholder="Search Patient"
-                            type="real-time-user-search"
-                            label="Patient"
-                            required
-                            value={values.patient}
-                            onChange={(val: any) => {
-                              setFieldValue("patient", val);
-                              if (val?.value) {
-                                fetchPatientHistoryCount(val.value);
-                              } else {
-                                setPatientHistoryCount({ shift: 0, cancelled: 0, noShow: 0 });
-                              }
-                            }}
-                            options={
-                              isPatient
-                                ? [
-                                  {
-                                    label: `${patientDetails?.name}${patientDetails?.code
-                                      ? ` (${patientDetails.code})`
-                                      : ""
-                                      }`,
-                                    value: patientDetails?._id || patientDetails?.id,
-                                  },
-                                ]
-                                : haveCreateProfile
-                                  ? [haveCreateProfile]
-                                  : values?.patient
-                                    ? [values?.patient]
-                                    : []
+                        <CustomInput
+                          name="patient"
+                          placeholder="Search Patient"
+                          type="real-time-user-search"
+                          label="Patient"
+                          required
+                          value={values.patient}
+                          onChange={(val: any) => {
+                            setFieldValue("patient", val);
+                            if (val?.value) {
+                              fetchPatientHistoryCount(val.value);
+                            } else {
+                              setPatientHistoryCount({ shift: 0, cancelled: 0, noShow: 0 });
                             }
-                            shouldUpdateSelectWithValue={true}
-                            error={errors.patient as string}
-                            showError={touched.patient}
-                            query={{ type: "patient" }}
-                          />
-
-                          {!isPatient && (
-                            <Text
-                              as="button"
-                              type="button"
-                              fontSize="sm"
-                              fontWeight="medium"
-                              color="blue.600"
-                              _hover={{
-                                color: "blue.700",
-                                textDecoration: "underline",
-                              }}
-                              onClick={() => setIsDrawerOpen({ isOpen: true })}
-                              whiteSpace="nowrap"
-                              mt={4}
-                            >
-                              + Add new
-                            </Text>
-                          )}
-                        </Flex>
+                          }}
+                          labelRightElement={
+                            !isPatient && (
+                              <Text
+                                as="button"
+                                type="button"
+                                fontSize="xs"
+                                fontWeight="700"
+                                color="teal.600"
+                                _hover={{
+                                  color: "teal.700",
+                                  textDecoration: "underline",
+                                }}
+                                onClick={() => setIsDrawerOpen({ isOpen: true })}
+                                cursor="pointer"
+                              >
+                                + Add new
+                              </Text>
+                            )
+                          }
+                          options={
+                            isPatient
+                              ? [
+                                {
+                                  label: `${patientDetails?.name}${patientDetails?.code
+                                    ? ` (${patientDetails.code})`
+                                    : ""
+                                    }`,
+                                  value: patientDetails?._id || patientDetails?.id,
+                                },
+                              ]
+                              : haveCreateProfile
+                                ? [haveCreateProfile]
+                                : values?.patient
+                                  ? [values?.patient]
+                                  : []
+                          }
+                          shouldUpdateSelectWithValue={true}
+                          error={errors.patient as string}
+                          showError={touched.patient}
+                          query={{ type: "patient" }}
+                        />
 
                         <CustomInput
                           name="primaryDoctor"

@@ -41,7 +41,7 @@ const FormModel = observer(({
       size={isMobile ? "full" : (size || "2xl")}
       isOpen={modalIsOpen}
       onClose={modalClose}
-      motionPreset={isMobile ? "slideInBottom" : undefined}
+      motionPreset={isMobile ? "none" : undefined}
       {...rest}
     >
       <ModalOverlay bg="blackAlpha.700" backdropFilter="blur(4px)" />
@@ -62,6 +62,23 @@ const FormModel = observer(({
         display={isMobile ? "flex" : undefined}
         flexDirection={isMobile ? "column" : undefined}
         bg={useColorModeValue("white", "darkBrand.50")}
+        sx={
+          isMobile
+            ? {
+                animation: "modalSlideUpMobile 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                "@keyframes modalSlideUpMobile": {
+                  "0%": {
+                    transform: "translateY(100%)",
+                    opacity: 0.85,
+                  },
+                  "100%": {
+                    transform: "translateY(0%)",
+                    opacity: 1,
+                  },
+                },
+              }
+            : undefined
+        }
       >
         {title && (
           <Flex

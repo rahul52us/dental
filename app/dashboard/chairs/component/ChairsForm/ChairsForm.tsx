@@ -4,9 +4,10 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
-  GridItem,
+  HStack,
   SimpleGrid,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
@@ -85,15 +86,9 @@ const ChairsForm = observer(
           setFieldValue,
         }: any) => (
           <FormikForm onSubmit={handleSubmit}>
-            <Grid
-              templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-              gap={6}
-              mb={6}
-              p={4}
-              alignItems="center"
-            >
-              <GridItem colSpan={2}>
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+            <VStack spacing={5} align="stretch" p={{ base: 2, md: 4 }} mb={4}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                <Box w="100%">
                   <CustomInput
                     label="Chair Name"
                     name="chairName"
@@ -104,6 +99,8 @@ const ChairsForm = observer(
                     error={errors.chairName}
                     showError={touched.chairName}
                   />
+                </Box>
+                <Box w="100%">
                   <CustomInput
                     label="Chair Number"
                     name="chairNo"
@@ -114,57 +111,82 @@ const ChairsForm = observer(
                     error={errors.chairNo}
                     showError={touched.chairNo}
                   />
+                </Box>
+              </SimpleGrid>
 
-                  <Box gridColumn="span 2">
-                    <CustomInput
-                      label="Chair Details"
-                      name="chairDetails"
-                      type="textarea"
-                      placeholder="Enter Chair Description"
-                      value={values.chairDetails}
-                      onChange={handleChange}
-                      required
-                      error={errors.chairDetails}
-                      showError={touched.chairDetails}
-                    />
-                  </Box>
-                </SimpleGrid>
-              </GridItem>
-              <GridItem colSpan={2}>
+              <Box w="100%">
+                <CustomInput
+                  label="Chair Details"
+                  name="chairDetails"
+                  type="textarea"
+                  placeholder="Enter Chair Description"
+                  value={values.chairDetails}
+                  onChange={handleChange}
+                  required
+                  error={errors.chairDetails}
+                  showError={touched.chairDetails}
+                />
+              </Box>
+
+              <Box w="100%">
                 <ChairColorPicker
                   value={values.chairColor}
                   onChange={(col: string) => setFieldValue("chairColor", col)}
                 />
 
                 {errors.chairColor && touched.chairColor && (
-                  <p style={{ color: "red", fontSize: "12px" }}>
+                  <Text color="red.500" fontSize="xs" mt={1}>
                     {errors.chairColor}
-                  </p>
+                  </Text>
                 )}
-              </GridItem>
-            </Grid>
+              </Box>
+            </VStack>
 
-            <Flex justifyContent="flex-end" mt={4}>
-              <Flex gap={4} align={"end"}>
-                <Button
-                  colorScheme="red"
-                  bgColor="red"
-                  onClick={onClose}
-                  _hover={{ bg: "red.500" }}
-                >
-                  Close
-                </Button>
+            <HStack
+              spacing={3}
+              mt={6}
+              pt={4}
+              pb={{ base: 6, md: 2 }}
+              px={{ base: 2, md: 4 }}
+              borderTop="1px solid"
+              borderColor="gray.100"
+              w="100%"
+              justify="flex-end"
+            >
+              <Button
+                variant="outline"
+                borderColor="gray.300"
+                color="gray.700"
+                bg="white"
+                _hover={{ bg: "gray.50" }}
+                _active={{ bg: "gray.100" }}
+                onClick={onClose}
+                borderRadius="xl"
+                h="46px"
+                flex={{ base: 1, sm: "initial" }}
+                px={{ base: 4, sm: 6 }}
+                fontWeight="600"
+              >
+                Close
+              </Button>
 
-                <Button
-                  type="submit"
-                  colorScheme="teal"
-                  isLoading={loading}
-                  _hover={{ bg: "teal.500" }}
-                >
-                  Save
-                </Button>
-              </Flex>
-            </Flex>
+              <Button
+                type="submit"
+                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                color="white"
+                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _active={{ transform: "scale(0.98)" }}
+                isLoading={loading}
+                borderRadius="xl"
+                fontWeight="700"
+                h="46px"
+                px={{ base: 6, sm: 8 }}
+                flex={{ base: 2, sm: "initial" }}
+                boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+              >
+                {isEdit ? "Update Chair" : "Save Chair"}
+              </Button>
+            </HStack>
           </FormikForm>
         )}
       </Formik>

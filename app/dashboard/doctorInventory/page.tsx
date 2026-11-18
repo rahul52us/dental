@@ -9,6 +9,7 @@ import {
   DrawerOverlay,
   useToast,
   Text,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import stores from "../../store/stores";
@@ -20,6 +21,7 @@ import { tablePageLimit } from "../../component/config/utils/variable";
 import { observer } from "mobx-react-lite";
 
 const DoctorInventoryPage = observer(() => {
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -142,54 +144,72 @@ const DoctorInventoryPage = observer(() => {
       {/* Add / Edit Drawer */}
       {(isDrawerOpen.type === "add" || isDrawerOpen.type === "edit") && (
         <Drawer
-          size="md"
+          size={isMobile ? "full" : "md"}
           isOpen={isDrawerOpen.isOpen}
-          placement="right"
+          placement={isMobile ? "bottom" : "right"}
           onClose={() =>
             setIsDrawerOpen({ isOpen: false, type: "add", data: null })
           }
           autoFocus={false}
         >
-          <DrawerOverlay>
-            <DrawerContent
-              bg="white"
-              borderRadius="lg"
-              boxShadow="xl"
-              maxW={{ base: "100%", md: "93%" }}
-              width={{ base: "100%", md: "95%" }}
+          <DrawerOverlay bg="blackAlpha.700" backdropFilter="blur(4px)" />
+          <DrawerContent
+            bg="white"
+            borderRadius={isMobile ? 0 : "lg"}
+            borderTopRadius={0}
+            boxShadow="xl"
+            maxW={isMobile ? "100vw" : { base: "100%", md: "93%" }}
+            width={isMobile ? "100vw" : { base: "100%", md: "95%" }}
+            h={isMobile ? "100dvh" : undefined}
+            maxH={isMobile ? "100dvh" : undefined}
+            overflow="hidden"
+          >
+            <DrawerCloseButton
+              color="white"
+              bg="whiteAlpha.200"
+              borderRadius="full"
+              top={3}
+              right={3}
+              _hover={{ bg: "whiteAlpha.350", transform: "scale(1.05)" }}
+              transition="all 0.2s"
+              zIndex={2}
+            />
+            <DrawerHeader
+              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              color="white"
+              fontSize={{ base: "16px", md: "lg" }}
+              fontWeight="800"
+              textAlign={{ base: "left", md: "center" }}
+              py={3}
+              px={4}
+              borderRadius={0}
+              borderTopRadius={0}
+              borderBottom="1px solid"
+              borderColor="whiteAlpha.200"
             >
-              <DrawerCloseButton />
-              <DrawerHeader
-                bg={stores.themeStore.themeConfig.colors.custom.light.primary}
-                color="white"
-                fontSize="lg"
-                fontWeight="bold"
-                textAlign="center"
-              >
-                {isDrawerOpen?.type === "edit" ? "Edit In & Out Ledger" : "Add In & Out Ledger"}
-              </DrawerHeader>
-              <DrawerBody p={6} bg="gray.50">
-                <Form
-                  initialData={
-                    isDrawerOpen?.type === "edit"
-                      ? { ...isDrawerOpen?.data }
-                      : { labDoctor: "", description: "" }
-                  }
-                  onSubmit={
-                    isDrawerOpen?.type === "edit"
-                      ? handleEditSubmit
-                      : handleAddSubmit
-                  }
-                  isOpen={isDrawerOpen}
-                  onClose={() =>
-                    setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-                  }
-                  isEdit={isDrawerOpen.type === "edit"}
-                  loading={formLoading}
-                />
-              </DrawerBody>
-            </DrawerContent>
-          </DrawerOverlay>
+              {isDrawerOpen?.type === "edit" ? "Edit In & Out Ledger" : "Add In & Out Ledger"}
+            </DrawerHeader>
+            <DrawerBody p={{ base: 3, md: 6 }} bg="gray.50" overflowY="auto" overscrollBehaviorY="contain">
+              <Form
+                initialData={
+                  isDrawerOpen?.type === "edit"
+                    ? { ...isDrawerOpen?.data }
+                    : { labDoctor: "", description: "" }
+                }
+                onSubmit={
+                  isDrawerOpen?.type === "edit"
+                    ? handleEditSubmit
+                    : handleAddSubmit
+                }
+                isOpen={isDrawerOpen}
+                onClose={() =>
+                  setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+                }
+                isEdit={isDrawerOpen.type === "edit"}
+                loading={formLoading}
+              />
+            </DrawerBody>
+          </DrawerContent>
         </Drawer>
       )}
 

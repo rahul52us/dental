@@ -207,17 +207,17 @@ const AdvertisementBanner = observer(() => {
       {/* ========================================================= */}
       {/* ==================== MOBILE APK VIEW ==================== */}
       {/* ========================================================= */}
-      <Box display={{ base: "block", md: "none" }} mb={3} px={4} pt={3}>
-        <VStack align="stretch" spacing={3}>
+      <Box display={{ base: "block", md: "none" }} mb={2} px={1} pt={1}>
+        <VStack align="stretch" spacing={2.5}>
 
           {/* Unified Executive Hero Card (Welcome + Avatar + Pro Plan in One Card) */}
           {pathname === '/dashboard' ? (
             <MotionBox
-              p={{ base: 4, sm: 4.5 }}
-              borderRadius="26px"
+              p={{ base: 3.5, sm: 4 }}
+              borderRadius="22px"
               bgGradient="linear(135deg, #123B50 0%, #11756F 58%, #3159A4 100%)"
               color="white"
-              boxShadow="0 14px 28px -8px rgba(19, 84, 105, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.24)"
+              boxShadow="0 10px 24px -6px rgba(19, 84, 105, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.24)"
               position="relative"
               overflow="hidden"
               initial={{ opacity: 0, y: -8 }}
@@ -225,27 +225,27 @@ const AdvertisementBanner = observer(() => {
               transition={{ duration: 0.35 }}
             >
               {/* Ambient Glowing Glass Elements */}
-              <Circle position="absolute" size="150px" bg="whiteAlpha.150" right="-36px" bottom="-58px" />
-              <Circle position="absolute" size="92px" bg="cyan.300" opacity="0.15" left="-28px" top="-30px" />
+              <Circle position="absolute" size="130px" bg="whiteAlpha.150" right="-30px" bottom="-45px" />
+              <Circle position="absolute" size="80px" bg="cyan.300" opacity="0.15" left="-24px" top="-24px" />
               <Icon
                 as={FaTooth}
                 position="absolute"
-                right="13px"
-                bottom="-12px"
-                boxSize="82px"
+                right="12px"
+                bottom="-10px"
+                boxSize="74px"
                 color="whiteAlpha.200"
                 transform="rotate(-18deg)"
               />
 
               <Box position="relative" zIndex={1}>
                 {/* Top Info Strip */}
-                <Flex justify="space-between" align="center" mb={3}>
+                <Flex justify="space-between" align="center" mb={2.5}>
                   <Badge
                     bg="rgba(255,255,255,0.16)"
                     color="white"
                     rounded="full"
                     px={2.5}
-                    py={1}
+                    py={0.8}
                     fontSize="9px"
                     fontWeight="800"
                     backdropFilter="blur(8px)"
@@ -261,7 +261,7 @@ const AdvertisementBanner = observer(() => {
                       bg="rgba(255,255,255,0.16)"
                       backdropFilter="blur(8px)"
                       px={2.5}
-                      py={1}
+                      py={0.8}
                       rounded="full"
                       border="1px solid"
                       borderColor="whiteAlpha.400"
@@ -284,28 +284,29 @@ const AdvertisementBanner = observer(() => {
                 <HStack spacing={3} align="center">
                   <Avatar
                     size="md"
+                    boxSize="44px"
                     src={user?.pic?.url}
                     name={user?.name || "Doctor"}
-                    borderRadius="16px"
+                    borderRadius="14px"
                     border="2px solid rgba(255,255,255,0.82)"
-                    boxShadow="0 6px 16px rgba(0,0,0,0.2)"
+                    boxShadow="0 4px 12px rgba(0,0,0,0.2)"
                     flexShrink={0}
                   />
                   <Box flex="1" minW={0}>
-                    <Text fontSize="9px" fontWeight="800" color="whiteAlpha.800" textTransform="uppercase" letterSpacing="1px">
+                    <Text fontSize="8.5px" fontWeight="800" color="whiteAlpha.800" textTransform="uppercase" letterSpacing="0.8px">
                       CLINIC DASHBOARD
                     </Text>
                     <Heading
-                      fontSize={{ base: "18px", sm: "20px" }}
+                      fontSize={{ base: "17px", sm: "19px" }}
                       fontWeight="900"
-                      letterSpacing="-0.5px"
+                      letterSpacing="-0.4px"
                       lineHeight="1.2"
                       color="white"
                       noOfLines={1}
                     >
                       Good day, {user?.name?.split(' ')[0] || "Doctor"}
                     </Heading>
-                    <Text color="whiteAlpha.900" fontSize="10px" fontWeight="500" mt={1} noOfLines={1}>
+                    <Text color="whiteAlpha.900" fontSize="10px" fontWeight="500" mt={0.5} noOfLines={1}>
                       {t("dashboard.analyticsOverview")}
                     </Text>
                   </Box>

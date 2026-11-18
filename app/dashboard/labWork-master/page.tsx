@@ -27,9 +27,6 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  SimpleGrid,
-  Card,
-  CardBody,
   Spinner,
   Tooltip,
   Breadcrumb,
@@ -40,12 +37,26 @@ import {
   Icon,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
+  Card,
+  CardBody,
+  useBreakpointValue,
 } from '@chakra-ui/react';
-import { SearchIcon } from '@chakra-ui/icons';
-
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useMemo } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiChevronRight, FiFolder, FiFileText, FiArrowLeft, FiDatabase } from 'react-icons/fi';
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiChevronRight,
+  FiFolder,
+  FiFileText,
+  FiArrowLeft,
+  FiDatabase,
+  FiSearch,
+  FiX,
+  FiClock,
+} from 'react-icons/fi';
 import stores from '../../store/stores';
 import { labWorkHierarchy } from '../labWork/utils/constants';
 
@@ -53,6 +64,7 @@ const LabWorkHierarchyMaster = observer(() => {
   const { labWorkHierarchyStore } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
   const [currentParentId, setCurrentParentId] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<any[]>([]);
@@ -74,7 +86,7 @@ const LabWorkHierarchyMaster = observer(() => {
       setLoading(true);
       try {
         const createRecursive = async (node: any, parentId: string | null = null) => {
-          if (node.type === "text") return; // Skip text input markers in constants
+          if (node.type === "text") return;
 
           const res = await labWorkHierarchyStore.createHierarchy({
             name: node.label,
@@ -129,7 +141,7 @@ const LabWorkHierarchyMaster = observer(() => {
       try {
         await labWorkHierarchyStore.deleteHierarchy(id);
         toast({ title: 'Deleted', status: 'success', duration: 2000 });
-        labWorkHierarchyStore.getAllHierarchies(); // Refresh
+        labWorkHierarchyStore.getAllHierarchies();
       } catch (err: any) {
         toast({ title: 'Error', description: err.message, status: 'error' });
       }
@@ -169,7 +181,7 @@ const LabWorkHierarchyMaster = observer(() => {
       }
       onClose();
       resetForm();
-      labWorkHierarchyStore.getAllHierarchies(); // Refresh
+      labWorkHierarchyStore.getAllHierarchies();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, status: 'error' });
     } finally {
@@ -202,58 +214,108 @@ const LabWorkHierarchyMaster = observer(() => {
   };
 
   return (
-    <Box p={6}>
-      <VStack align="stretch" spacing={6}>
-        <Flex justify="space-between" align="center">
-          <VStack align="start" spacing={1}>
-            <Heading size="lg" color="blue.600">Lab Work Hierarchy Master</Heading>
-            <Text color="gray.500">Create infinite levels of lab work classifications</Text>
-          </VStack>
-          <HStack spacing={3}>
+    <Box p={{ base: 2, sm: 3, md: 6 }}>
+      <VStack align="stretch" spacing={{ base: 3, md: 6 }}>
+        {/* Header Strip */}
+        <Flex
+          direction={{ base: 'column', sm: 'row' }}
+          justify="space-between"
+          align={{ base: 'stretch', sm: 'center' }}
+          gap={3}
+        >
+          <HStack spacing={2} align="center">
+            <VStack align="start" spacing={0}>
+              <HStack spacing={2}>
+                <Heading size={{ base: "md", md: "lg" }} color="#0C4A6E" fontWeight="900" letterSpacing="-0.3px">
+                  Lab Work Hierarchy
+                </Heading>
+                <Badge
+                  bg="rgba(13, 148, 136, 0.12)"
+                  color="teal.700"
+                  border="1px solid"
+                  borderColor="rgba(13, 148, 136, 0.25)"
+                  borderRadius="full"
+                  px={2}
+                  py={0.5}
+                  fontSize="11px"
+                  fontWeight="800"
+                >
+                  {currentItems.length}
+                </Badge>
+              </HStack>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
+                {breadcrumb.length > 0
+                  ? `In folder: ${breadcrumb[breadcrumb.length - 1]?.name}`
+                  : "Create infinite levels of lab classifications"}
+              </Text>
+            </VStack>
+          </HStack>
+
+          <HStack spacing={2} align="center" justify={{ base: "flex-end", sm: "auto" }}>
             <Button
               leftIcon={<FiDatabase />}
               colorScheme="orange"
               variant="outline"
               onClick={seedData}
               isLoading={loading}
-              size="md"
-              borderRadius="full"
-              px={6}
+              size="sm"
+              borderRadius="xl"
+              fontWeight="700"
+              fontSize="12px"
+              h="36px"
+              px={3}
             >
-              Seed Default Data
+              Seed Data
             </Button>
             <Button
               leftIcon={<FiPlus />}
-              colorScheme="blue"
+              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+              color="white"
+              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+              _active={{ transform: "scale(0.96)" }}
               onClick={() => { resetForm(); onOpen(); }}
-              size="md"
-              borderRadius="full"
-              px={6}
+              size="sm"
+              borderRadius="xl"
+              fontWeight="800"
+              fontSize="12px"
+              h="36px"
+              px={3.5}
+              boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
             >
-              Add {currentParentId ? 'Sub-item' : 'Category'}
+              Add {currentParentId ? 'Sub-item' : 'Item'}
             </Button>
           </HStack>
         </Flex>
 
-        <Card variant="outline" borderRadius="2xl" border="none" shadow="sm" bg="white">
-          <CardBody p={4}>
-            <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-              <HStack spacing={4}>
+        {/* Navigation & Search Card */}
+        <Card variant="outline" borderRadius="20px" border="1px solid" borderColor="gray.100" shadow="sm" bg="white">
+          <CardBody p={{ base: 3, md: 4 }}>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justify="space-between"
+              align={{ base: 'stretch', md: 'center' }}
+              gap={3}
+            >
+              {/* Breadcrumb Strip */}
+              <HStack spacing={2} overflowX="auto" py={0.5} minW={0}>
                 {breadcrumb.length > 0 && (
                   <IconButton
                     icon={<FiArrowLeft />}
                     aria-label="Back"
                     onClick={navigateBack}
                     variant="ghost"
+                    size="sm"
                     borderRadius="full"
+                    color="teal.600"
+                    flexShrink={0}
                   />
                 )}
-                <Breadcrumb spacing="8px" separator={<FiChevronRight color="gray.500" />}>
+                <Breadcrumb spacing="6px" separator={<FiChevronRight color="#94A3B8" size={12} />} fontSize="13px">
                   <BreadcrumbItem>
                     <BreadcrumbLink 
                       onClick={() => goToBreadcrumb(-1)} 
-                      fontWeight={currentParentId === null ? "bold" : "normal"}
-                      color={currentParentId === null ? "blue.600" : "gray.600"}
+                      fontWeight={currentParentId === null ? "800" : "600"}
+                      color={currentParentId === null ? "teal.600" : "gray.600"}
                     >
                       Root
                     </BreadcrumbLink>
@@ -262,8 +324,10 @@ const LabWorkHierarchyMaster = observer(() => {
                     <BreadcrumbItem key={item._id}>
                       <BreadcrumbLink 
                         onClick={() => goToBreadcrumb(index)}
-                        fontWeight={currentParentId === item._id ? "bold" : "normal"}
-                        color={currentParentId === item._id ? "blue.600" : "gray.600"}
+                        fontWeight={currentParentId === item._id ? "800" : "600"}
+                        color={currentParentId === item._id ? "teal.600" : "gray.600"}
+                        noOfLines={1}
+                        maxW="130px"
                       >
                         {item.name}
                       </BreadcrumbLink>
@@ -272,26 +336,210 @@ const LabWorkHierarchyMaster = observer(() => {
                 </Breadcrumb>
               </HStack>
 
-              <InputGroup maxW="250px">
+              {/* Search Box */}
+              <InputGroup size="sm" maxW={{ base: "100%", md: "260px" }}>
                 <InputLeftElement pointerEvents="none">
-                  <SearchIcon color="gray.400" />
+                  <FiSearch color="#94A3B8" />
                 </InputLeftElement>
                 <Input 
                   placeholder="Search in this folder..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   bg="gray.50"
-                  borderRadius="full"
+                  borderRadius="xl"
                   border="1px solid"
-                  borderColor="gray.100"
-                  _focus={{ bg: "white", shadow: "sm", borderColor: "blue.300" }}
+                  borderColor="gray.200"
+                  _focus={{ bg: "white", borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
                 />
+                {searchQuery && (
+                  <InputRightElement>
+                    <IconButton
+                      aria-label="Clear search"
+                      icon={<FiX size={12} />}
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => setSearchQuery("")}
+                    />
+                  </InputRightElement>
+                )}
               </InputGroup>
             </Flex>
           </CardBody>
         </Card>
 
-        <Box bg="white" borderRadius="2xl" shadow="sm" border="1px solid" borderColor="gray.100" overflow="hidden">
+        {/* ============================================================== */}
+        {/* MOBILE VIEW: DEDICATED NATIVE APP PERSPECTIVE (< 768px via CSS)*/}
+        {/* ============================================================== */}
+        <Box display={{ base: "block", md: "none" }} pb={6}>
+          {labWorkHierarchyStore.loading ? (
+            <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
+              <Spinner size="lg" color="teal.500" thickness="3px" />
+              <Text fontSize="13px" color="gray.500">Loading hierarchy items...</Text>
+            </Flex>
+          ) : currentItems.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              p={8}
+              bg="white"
+              borderRadius="20px"
+              border="1px dashed"
+              borderColor="gray.200"
+              textAlign="center"
+            >
+              <Icon as={FiFolder} boxSize="40px" color="gray.400" mb={2} />
+              <Text fontSize="15px" fontWeight="800" color="gray.700">
+                No items here yet
+              </Text>
+              <Text fontSize="12px" color="gray.500" mt={1} mb={3}>
+                {searchQuery ? `No matching items for "${searchQuery}"` : "Add your first classification or seed default data."}
+              </Text>
+              <Button
+                size="sm"
+                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                color="white"
+                borderRadius="xl"
+                onClick={() => { resetForm(); onOpen(); }}
+              >
+                + Add Item
+              </Button>
+            </Flex>
+          ) : (
+            <VStack spacing={3} align="stretch">
+              {currentItems.map((item: any) => (
+                <Box
+                  key={item._id}
+                  bg="white"
+                  border="1px solid"
+                  borderColor="#E8EEF4"
+                  borderRadius="20px"
+                  p={3.5}
+                  boxShadow="0 4px 14px -6px rgba(15, 23, 42, 0.08)"
+                  transition="all 0.2s"
+                  _active={{ bg: "gray.50" }}
+                >
+                  {/* Card Row 1: Icon + Name + Level Badge */}
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    gap={2}
+                    cursor="pointer"
+                    onClick={() => navigateTo(item)}
+                    mb={2}
+                  >
+                    <HStack spacing={2.5} flex={1} minW={0}>
+                      <Flex
+                        w="38px"
+                        h="38px"
+                        borderRadius="12px"
+                        bg={item.isTextInput ? "purple.50" : "teal.50"}
+                        color={item.isTextInput ? "purple.600" : "teal.700"}
+                        align="center"
+                        justify="center"
+                        flexShrink={0}
+                      >
+                        <Icon as={item.isTextInput ? FiFileText : FiFolder} boxSize={5} />
+                      </Flex>
+                      <Box minW={0} flex={1}>
+                        <Text fontSize="14px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          {item.name}
+                        </Text>
+                        <HStack spacing={1} color="gray.400" fontSize="11px" mt={0.5}>
+                          <Icon as={FiClock} boxSize={3} />
+                          <Text>
+                            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'N/A'}
+                          </Text>
+                        </HStack>
+                      </Box>
+                    </HStack>
+
+                    <Badge
+                      bg={item.isTextInput ? "purple.50" : "teal.50"}
+                      color={item.isTextInput ? "purple.700" : "teal.700"}
+                      border="1px solid"
+                      borderColor={item.isTextInput ? "purple.200" : "teal.200"}
+                      borderRadius="full"
+                      px={2.5}
+                      py={0.8}
+                      fontSize="10px"
+                      fontWeight="800"
+                      flexShrink={0}
+                    >
+                      {item.isTextInput ? "Custom Text" : `Level ${breadcrumb.length + 1}`}
+                    </Badge>
+                  </Flex>
+
+                  {/* Card Row 2: Action Toolbar */}
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    pt={2}
+                    borderTop="1px solid"
+                    borderColor="gray.100"
+                    gap={2}
+                  >
+                    <HStack spacing={2}>
+                      <Button
+                        size="xs"
+                        h="28px"
+                        variant="ghost"
+                        colorScheme="teal"
+                        borderRadius="lg"
+                        fontWeight="700"
+                        fontSize="11px"
+                        leftIcon={<FiEdit2 fontSize="12px" />}
+                        onClick={() => handleEdit(item)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="xs"
+                        h="28px"
+                        variant="ghost"
+                        colorScheme="red"
+                        borderRadius="lg"
+                        fontWeight="700"
+                        fontSize="11px"
+                        leftIcon={<FiTrash2 fontSize="12px" />}
+                        onClick={() => handleDelete(item._id)}
+                      >
+                        Delete
+                      </Button>
+                    </HStack>
+
+                    <Button
+                      size="xs"
+                      h="28px"
+                      variant="outline"
+                      colorScheme="teal"
+                      borderRadius="lg"
+                      fontWeight="700"
+                      fontSize="11px"
+                      rightIcon={<FiChevronRight fontSize="13px" />}
+                      onClick={() => navigateTo(item)}
+                    >
+                      Open
+                    </Button>
+                  </Flex>
+                </Box>
+              ))}
+            </VStack>
+          )}
+        </Box>
+
+        {/* ============================================================== */}
+        {/* DESKTOP VIEW: ORIGINAL TABLE (>= 768px via CSS)                */}
+        {/* ============================================================== */}
+        <Box
+          display={{ base: "none", md: "block" }}
+          bg="white"
+          borderRadius="2xl"
+          shadow="sm"
+          border="1px solid"
+          borderColor="gray.100"
+          overflow="hidden"
+        >
           <Table variant="simple">
             <Thead bg="gray.50">
               <Tr>
@@ -382,74 +630,160 @@ const LabWorkHierarchyMaster = observer(() => {
         </Box>
       </VStack>
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay backdropFilter="blur(8px)" />
-        <ModalContent borderRadius="3xl" p={2}>
-          <ModalHeader fontSize="2xl" fontWeight="bold">
-            {editingItem ? 'Edit Item' : 'Add New Item'}
-            <Text fontSize="sm" color="gray.500" mt={1}>
+      {/* Modal - Bottom Sheet on Mobile with Zero Top Corner Radius */}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        isCentered={!isMobile}
+        size={{ base: "full", md: "lg" }}
+        motionPreset={isMobile ? "none" : undefined}
+      >
+        <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.700" />
+        <ModalContent
+          w={{ base: "100vw", md: undefined }}
+          maxW={{ base: "100vw", md: "520px" }}
+          m={{ base: 0, md: "auto" }}
+          position={{ base: "fixed", md: undefined }}
+          bottom={{ base: 0, md: undefined }}
+          left={{ base: 0, md: undefined }}
+          right={{ base: 0, md: undefined }}
+          borderTopRadius={0}
+          borderRadius={{ base: 0, md: "2xl" }}
+          maxH={{ base: "88dvh", md: undefined }}
+          overflow="hidden"
+          boxShadow="2xl"
+          sx={{
+            "@keyframes modalSlideUpMobile": {
+              "0%": {
+                transform: "translateY(100%)",
+                opacity: 0.85,
+              },
+              "100%": {
+                transform: "translateY(0%)",
+                opacity: 1,
+              },
+            },
+            "@media screen and (max-width: 767px)": {
+              position: "fixed !important",
+              bottom: "0 !important",
+              left: "0 !important",
+              right: "0 !important",
+              width: "100vw !important",
+              maxWidth: "100vw !important",
+              margin: "0 !important",
+              borderRadius: "0 !important",
+              borderTopLeftRadius: "0 !important",
+              borderTopRightRadius: "0 !important",
+              borderTopRadius: "0 !important",
+              maxHeight: "88dvh !important",
+              animation: "modalSlideUpMobile 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important",
+            },
+          }}
+        >
+          <ModalHeader
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            color="white"
+            borderRadius={0}
+            borderTopRadius={0}
+            px={{ base: 4, md: 5 }}
+            py={{ base: 3.5, md: 4 }}
+            sx={{
+              "@media screen and (max-width: 767px)": {
+                borderRadius: "0 !important",
+                borderTopLeftRadius: "0 !important",
+                borderTopRightRadius: "0 !important",
+                borderTopRadius: "0 !important",
+              },
+            }}
+          >
+            <Text fontSize={{ base: "16px", md: "xl" }} fontWeight="800">
+              {editingItem ? 'Edit Item' : 'Add New Item'}
+            </Text>
+            <Text fontSize="12px" color="whiteAlpha.800" fontWeight="500" mt={0.5}>
               {currentParentId ? `Adding sub-item to "${breadcrumb[breadcrumb.length-1]?.name}"` : 'Adding a top-level category'}
             </Text>
           </ModalHeader>
-          <ModalCloseButton mt={4} mr={4} />
-          <ModalBody py={6}>
+          <ModalCloseButton color="white" zIndex={2} mt={{ base: 2, md: 1 }} />
+          <ModalBody py={{ base: 4, md: 6 }} px={{ base: 4, md: 6 }} overflowY="auto">
             <VStack align="stretch" spacing={4}>
-                 <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Item Name(s)</FormLabel>
-                  {editingItem ? (
-                    <Input
-                      placeholder="e.g. Zirconia"
+              <FormControl isRequired>
+                <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Item Name(s)</FormLabel>
+                {editingItem ? (
+                  <Input
+                    placeholder="e.g. Zirconia"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    size="md"
+                    borderRadius="xl"
+                    focusBorderColor="teal.400"
+                  />
+                ) : (
+                  <VStack align="stretch" spacing={2}>
+                    <Text fontSize="xs" color="gray.500">You can enter multiple items, one per line.</Text>
+                    <Textarea
+                      placeholder="e.g.&#10;Zirconia&#10;E-Max&#10;Ceramic"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      size="lg"
+                      size="md"
                       borderRadius="xl"
-                      focusBorderColor="blue.400"
+                      focusBorderColor="teal.400"
+                      rows={4}
                     />
-                  ) : (
-                    <VStack align="stretch" spacing={2}>
-                       <Text fontSize="xs" color="gray.500">You can enter multiple items, one per line.</Text>
-                       <Textarea
-                        placeholder="e.g.&#10;Zirconia&#10;E-Max&#10;Ceramic"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        size="lg"
-                        borderRadius="xl"
-                        focusBorderColor="blue.400"
-                        rows={5}
-                      />
-                    </VStack>
-                  )}
-                </FormControl>
+                  </VStack>
+                )}
+              </FormControl>
 
-                <FormControl display="flex" alignItems="center">
-                  <FormLabel mb="0" fontWeight="bold">
+              <FormControl display="flex" alignItems="center" justifyContent="space-between" p={3} bg="gray.50" borderRadius="xl">
+                <Box>
+                  <FormLabel mb="0" fontWeight="700" fontSize="13px" color="gray.700">
                     Enable Custom Text Input?
                   </FormLabel>
-                  <Switch 
-                    colorScheme="purple" 
-                    isChecked={formData.isTextInput}
-                    onChange={(e) => setFormData({ ...formData, isTextInput: e.target.checked })}
-                  />
-                </FormControl>
-                <Text fontSize="xs" color="gray.500">
-                  If enabled, this item will show a text box instead of a dropdown in the lab sheet.
-                </Text>
-              </VStack>
+                  <Text fontSize="11px" color="gray.500">
+                    Shows text box instead of dropdown in lab sheet.
+                  </Text>
+                </Box>
+                <Switch 
+                  colorScheme="teal" 
+                  isChecked={formData.isTextInput}
+                  onChange={(e) => setFormData({ ...formData, isTextInput: e.target.checked })}
+                />
+              </FormControl>
+            </VStack>
           </ModalBody>
 
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose} borderRadius="xl">Cancel</Button>
-            <Button
-              colorScheme="blue"
-              onClick={handleSubmit}
-              isLoading={loading}
-              px={10}
-              size="lg"
-              borderRadius="xl"
-              shadow="md"
-            >
-              {editingItem ? 'Update' : 'Save Item'}
-            </Button>
+          <ModalFooter
+            borderTop="1px solid"
+            borderColor="gray.100"
+            py={3}
+            px={{ base: 4, md: 6 }}
+            bg="gray.50"
+          >
+            <HStack spacing={2} w="full">
+              <Button
+                variant="ghost"
+                flex={1}
+                onClick={onClose}
+                borderRadius="xl"
+                size="md"
+              >
+                Cancel
+              </Button>
+              <Button
+                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                color="white"
+                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _active={{ transform: "scale(0.98)" }}
+                onClick={handleSubmit}
+                isLoading={loading}
+                flex={1.5}
+                size="md"
+                borderRadius="xl"
+                fontWeight="800"
+                boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+              >
+                {editingItem ? 'Update' : 'Save Item'}
+              </Button>
+            </HStack>
           </ModalFooter>
         </ModalContent>
       </Modal>

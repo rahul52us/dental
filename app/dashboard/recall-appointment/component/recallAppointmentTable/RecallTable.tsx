@@ -1,6 +1,47 @@
 "use client";
-import { Box, Text, Flex, Input, IconButton, Tooltip } from "@chakra-ui/react";
-import { FiRefreshCw } from "react-icons/fi";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  Flex,
+  HStack,
+  Icon,
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Select,
+  SimpleGrid,
+  Spinner,
+  Text,
+  Tooltip,
+  useBreakpointValue,
+  VStack,
+} from "@chakra-ui/react";
+import {
+  FiCalendar,
+  FiChevronLeft,
+  FiChevronRight,
+  FiClock,
+  FiEdit2,
+  FiEye,
+  FiFilter,
+  FiPhone,
+  FiRefreshCw,
+  FiSearch,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
+import { IoMdAdd } from "react-icons/io";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import moment from "moment";
@@ -42,17 +83,52 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
     data: null,
   });
 
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
+  const [tempStartDate, setTempStartDate] = useState("");
+  const [tempEndDate, setTempEndDate] = useState("");
+  const [tempStatus, setTempStatus] = useState("");
   const [openReportModal, setOpenReportModal] = useState({
     open: false,
     type: "add",
   });
   const [haveAppointmentDetails, setHaveAppointmentDetails] = useState(null);
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+
+  const hasActiveFilters = Boolean(filterStartDate || filterEndDate || filterStatus);
+
+  const openFilterDrawer = () => {
+    setTempStartDate(filterStartDate);
+    setTempEndDate(filterEndDate);
+    setTempStatus(filterStatus);
+    setIsFilterDrawerOpen(true);
+  };
+
+  const getRecallStatusBadge = (st: string) => {
+    switch (st) {
+      case "scheduled":
+        return { bg: "blue.50", color: "blue.700", border: "blue.200", label: "Scheduled" };
+      case "in-progress":
+        return { bg: "yellow.50", color: "yellow.800", border: "yellow.200", label: "In Progress" };
+      case "completed":
+        return { bg: "green.50", color: "green.700", border: "green.200", label: "Completed" };
+      case "cancelled":
+        return { bg: "red.50", color: "red.700", border: "red.200", label: "Cancelled" };
+      case "shift":
+        return { bg: "purple.50", color: "purple.700", border: "purple.200", label: "Shift" };
+      case "no-show":
+        return { bg: "gray.100", color: "gray.700", border: "gray.300", label: "No Show" };
+      case "arrived":
+        return { bg: "teal.50", color: "teal.700", border: "teal.200", label: "Arrived" };
+      default:
+        return { bg: "gray.50", color: "gray.600", border: "gray.200", label: st?.replace("-", " ") || "—" };
+    }
+  };
 
   const [selectedDateAndTime, setSelectedDateTime] = useState<any>({
     open: false,
@@ -102,7 +178,7 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
       }
 
       getRecallAppointments(query)
-        .then(() => {})
+        .then(() => { })
         .catch((err) => {
           openNotification({
             type: "error",
@@ -138,6 +214,9 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
     setFilterStatus("");
     setFilterStartDate("");
     setFilterEndDate("");
+    setTempStartDate("");
+    setTempEndDate("");
+    setTempStatus("");
     applyGetAllRecords({ page: 1, reset: true });
   };
 
@@ -313,118 +392,663 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
 
   return (
     <>
-      <CustomTable
-        title={t("recall.table.recallAppointment")}
-        subTitle={patientDetails ? subTitle : undefined}
-        data={recallAppointment?.data || []}
-        columns={ContactTableColumn}
-        actions={{
-          actionBtn: {
-            addKey: {
-              showAddButton: stores.auth.hasPermission('recall', 'create'),
-              function: () => {
-                setFormModal({
-                  open: true,
-                  type: "add",
-                });
-                setSelectedRecallDoctor(null);
-              },
-            },
-            editKey: {
-              showEditButton: stores.auth.hasPermission('recall', 'edit'),
-              function: (dt: any) => {
-                setFormModal({
-                  open: true,
-                  data: dt,
-                  type: "edit",
-                });
-                if(dt.doctor) {
-                     setSelectedRecallDoctor({ name: dt.doctor.name, _id: dt.doctor._id });
-                 } else {
-                     setSelectedRecallDoctor(null);
-                 }
-              },
-            },
-            viewKey: {
-              showViewButton: stores.auth.hasPermission('recall', 'view'),
-              function: (dt: any) => {
-                setOpenView({ open: true, data: dt });
-              },
-            },
-          },
-          search: {
-            show: true,
-            searchValue: searchQuery,
-            onSearchChange: (e: any) => setSearchQuery(e.target.value),
-          },
-          customComponent: (
-            <Flex gap={2} alignItems="center">
-              <Input
-                type="date"
-                size="sm"
-                value={filterStartDate}
-                onChange={(e) => setFilterStartDate(e.target.value)}
-                bg="white"
-                borderRadius="md"
-              />
-              <Text fontSize="sm" color="gray.500">to</Text>
-              <Input
-                type="date"
-                size="sm"
-                value={filterEndDate}
-                onChange={(e) => setFilterEndDate(e.target.value)}
-                bg="white"
-                borderRadius="md"
-              />
-              <select
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                  backgroundColor: "white",
-                  fontSize: "14px",
-                  outline: "none",
-                  marginLeft: "8px"
-                }}
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
+      {isMobile ? (
+        <Box p={3} pb={20}>
+          {/* Header Bar */}
+          <Flex justify="space-between" align="center" mb={3}>
+            <HStack spacing={2}>
+              <Text fontSize="18px" fontWeight="800" color="gray.800">
+                {patientDetails ? `${patientDetails?.name}` : t("recall.table.recallAppointment")}
+              </Text>
+              <Badge
+                bg="rgba(13, 148, 136, 0.12)"
+                color="teal.700"
+                border="1px solid"
+                borderColor="rgba(13, 148, 136, 0.25)"
+                borderRadius="full"
+                px={2}
+                py={0.5}
+                fontSize="11px"
+                fontWeight="800"
               >
-                <option value="">All Statuses</option>
-                {status.map((st: any) => (
-                  <option key={st.value} value={st.value}>{st.label}</option>
-                ))}
-              </select>
-              <Tooltip label="Reset" placement="top" hasArrow>
-                <IconButton
-                  aria-label="Reset Filters"
-                  icon={<FiRefreshCw />}
+                {recallAppointment?.data?.length || 0}
+              </Badge>
+            </HStack>
+
+            <HStack spacing={2}>
+              <Button
+                size="sm"
+                variant={hasActiveFilters ? "solid" : "outline"}
+                colorScheme={hasActiveFilters ? "teal" : "gray"}
+                leftIcon={<FiFilter fontSize="14px" />}
+                borderRadius="xl"
+                fontWeight="700"
+                h="36px"
+                fontSize="12px"
+                onClick={openFilterDrawer}
+              >
+                Filter {hasActiveFilters && "•"}
+              </Button>
+
+              {stores.auth.hasPermission("recall", "create") && (
+                <Button
                   size="sm"
-                  colorScheme="red"
-                  variant="outline"
-                  borderRadius="md"
-                  border="1px solid"
-                  borderColor="red.400"
-                  ml={3}
-                  onClick={resetTableData}
-                  _hover={{ bg: "red.50" }}
+                  bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                  color="white"
+                  _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                  _active={{ transform: "scale(0.96)" }}
+                  leftIcon={<IoMdAdd fontSize="16px" />}
+                  borderRadius="xl"
+                  fontWeight="800"
+                  px={3}
+                  h="36px"
+                  boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+                  onClick={() => {
+                    setFormModal({
+                      open: true,
+                      type: "add",
+                    });
+                    setSelectedRecallDoctor(null);
+                  }}
+                >
+                  Add
+                </Button>
+              )}
+            </HStack>
+          </Flex>
+
+          {/* Search Box */}
+          <InputGroup size="sm" mb={3}>
+            <InputLeftElement pointerEvents="none">
+              <FiSearch color="#94A3B8" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search patient, doctor, reason..."
+              value={searchQuery}
+              onChange={(e: any) => setSearchQuery(e.target.value)}
+              borderRadius="xl"
+              bg="white"
+              borderColor="gray.200"
+              _focus={{
+                borderColor: "teal.500",
+                boxShadow: "0 0 0 1px #0D9488",
+              }}
+            />
+            {searchQuery && (
+              <InputRightElement>
+                <IconButton
+                  aria-label="Clear search"
+                  icon={<FiX size={12} />}
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => setSearchQuery("")}
                 />
-              </Tooltip>
+              </InputRightElement>
+            )}
+          </InputGroup>
+
+          {/* Mobile Filter Half-Bottom Sheet */}
+          <Drawer
+            isOpen={isFilterDrawerOpen}
+            onClose={() => setIsFilterDrawerOpen(false)}
+            placement="bottom"
+          >
+            <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
+            <DrawerContent
+              borderTopRadius={0}
+              borderRadius={0}
+              maxH="68vh"
+              bg="white"
+              boxShadow="0 -10px 30px rgba(0,0,0,0.25)"
+              overflow="hidden"
+            >
+              <DrawerCloseButton color="white" zIndex={3} mt={1} />
+              <DrawerHeader
+                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                color="white"
+                borderRadius={0}
+                borderTopRadius={0}
+                fontSize="16px"
+                fontWeight="800"
+                py={3.5}
+                px={4}
+              >
+                <HStack spacing={2}>
+                  <Icon as={FiFilter} boxSize={4} />
+                  <Text>Filter Recall Appointments</Text>
+                </HStack>
+              </DrawerHeader>
+
+              <DrawerBody p={4} overflowY="auto">
+                <VStack spacing={4} align="stretch">
+                  {/* Date Range Section */}
+                  <Box>
+                    <Text
+                      fontSize="11px"
+                      fontWeight="700"
+                      color="gray.500"
+                      textTransform="uppercase"
+                      letterSpacing="0.5px"
+                      mb={1.5}
+                    >
+                      Recall Date Range
+                    </Text>
+                    <SimpleGrid columns={2} spacing={3}>
+                      <Box>
+                        <Text fontSize="11px" color="gray.600" mb={1} fontWeight="600">
+                          From Date
+                        </Text>
+                        <Input
+                          type="date"
+                          size="sm"
+                          borderRadius="xl"
+                          bg="gray.50"
+                          borderColor="gray.200"
+                          value={tempStartDate}
+                          onChange={(e) => setTempStartDate(e.target.value)}
+                          fontWeight="600"
+                          _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                        />
+                      </Box>
+                      <Box>
+                        <Text fontSize="11px" color="gray.600" mb={1} fontWeight="600">
+                          To Date
+                        </Text>
+                        <Input
+                          type="date"
+                          size="sm"
+                          borderRadius="xl"
+                          bg="gray.50"
+                          borderColor="gray.200"
+                          value={tempEndDate}
+                          onChange={(e) => setTempEndDate(e.target.value)}
+                          fontWeight="600"
+                          _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                        />
+                      </Box>
+                    </SimpleGrid>
+                  </Box>
+
+                  {/* Status Section */}
+                  <Box>
+                    <Text
+                      fontSize="11px"
+                      fontWeight="700"
+                      color="gray.500"
+                      textTransform="uppercase"
+                      letterSpacing="0.5px"
+                      mb={1.5}
+                    >
+                      Appointment Status
+                    </Text>
+                    <Select
+                      size="sm"
+                      borderRadius="xl"
+                      bg="gray.50"
+                      borderColor="gray.200"
+                      fontWeight="600"
+                      value={tempStatus}
+                      onChange={(e) => setTempStatus(e.target.value)}
+                      _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                    >
+                      <option value="">All Statuses</option>
+                      {status.map((st: any) => (
+                        <option key={st.value} value={st.value}>
+                          {st.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
+
+                  {/* Active Filter Indicators */}
+                  {(tempStartDate || tempEndDate || tempStatus) && (
+                    <Box
+                      p={2.5}
+                      bg="teal.50"
+                      borderRadius="xl"
+                      border="1px solid"
+                      borderColor="teal.100"
+                    >
+                      <Text fontSize="11px" fontWeight="700" color="teal.800" mb={1}>
+                        Active Selections:
+                      </Text>
+                      <HStack spacing={1.5} flexWrap="wrap">
+                        {tempStartDate && (
+                          <Badge colorScheme="teal" borderRadius="full" px={2} py={0.5} fontSize="10px">
+                            From: {tempStartDate}
+                          </Badge>
+                        )}
+                        {tempEndDate && (
+                          <Badge colorScheme="teal" borderRadius="full" px={2} py={0.5} fontSize="10px">
+                            To: {tempEndDate}
+                          </Badge>
+                        )}
+                        {tempStatus && (
+                          <Badge colorScheme="purple" borderRadius="full" px={2} py={0.5} fontSize="10px">
+                            Status: {tempStatus}
+                          </Badge>
+                        )}
+                      </HStack>
+                    </Box>
+                  )}
+                </VStack>
+              </DrawerBody>
+
+              <DrawerFooter bg="gray.50" py={3} px={4} borderTop="1px solid" borderColor="gray.100">
+                <HStack spacing={2} w="full">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    flex={1}
+                    borderRadius="xl"
+                    colorScheme="gray"
+                    leftIcon={<FiRefreshCw />}
+                    onClick={() => {
+                      setTempStartDate("");
+                      setTempEndDate("");
+                      setTempStatus("");
+                      resetTableData();
+                      setIsFilterDrawerOpen(false);
+                    }}
+                  >
+                    Reset All
+                  </Button>
+                  <Button
+                    size="sm"
+                    bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                    color="white"
+                    flex={1}
+                    borderRadius="xl"
+                    fontWeight="700"
+                    _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                    _active={{ transform: "scale(0.98)" }}
+                    onClick={() => {
+                      setFilterStartDate(tempStartDate);
+                      setFilterEndDate(tempEndDate);
+                      setFilterStatus(tempStatus);
+                      setCurrentPage(1);
+                      setIsFilterDrawerOpen(false);
+                    }}
+                  >
+                    Apply Filters
+                  </Button>
+                </HStack>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+
+          {/* Cards List or Loading / Empty state */}
+          {recallAppointment.loading ? (
+            <Flex minH="220px" align="center" justify="center" direction="column" gap={3}>
+              <Spinner size="lg" color="teal.500" thickness="3px" />
+              <Text fontSize="13px" color="gray.500">Loading recall appointments...</Text>
             </Flex>
-          ),
-          resetData: {
-            show: true,
-            text: t("recall.table.resetData"),
-            function: resetTableData,
-          },
-          pagination: {
-            show: true,
-            onClick: handleChangePage,
-            currentPage: currentPage,
-            totalPages: recallAppointment.totalPages,
-          },
-        }}
-        loading={recallAppointment.loading}
-      />
+          ) : !recallAppointment.data || recallAppointment.data.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              p={8}
+              bg="white"
+              borderRadius="22px"
+              border="1px dashed"
+              borderColor="gray.200"
+              textAlign="center"
+            >
+              <Icon as={FiCalendar} boxSize="36px" color="gray.400" mb={2} />
+              <Text fontSize="14px" fontWeight="750" color="gray.700">
+                No Recall Appointments Found
+              </Text>
+              <Text fontSize="12px" color="gray.500" mt={1} maxW="240px">
+                {hasActiveFilters
+                  ? "Try resetting your search or filters to see appointments."
+                  : "Tap + Add to create a new recall appointment."}
+              </Text>
+              {hasActiveFilters && (
+                <Button
+                  size="xs"
+                  mt={3}
+                  variant="outline"
+                  colorScheme="teal"
+                  onClick={resetTableData}
+                  borderRadius="lg"
+                >
+                  Reset Filters
+                </Button>
+              )}
+            </Flex>
+          ) : (
+            <VStack spacing={3} align="stretch">
+              {recallAppointment.data.map((dt: any, idx: number) => {
+                const statusBadge = getRecallStatusBadge(dt.status);
+                const patientName = dt?.patientName || dt?.patient?.name || "--";
+                const patientMobile = dt?.patientMobileNumber || dt?.patient?.mobileNumber;
+                const doctorName = dt?.doctorName || dt?.doctor?.name;
+                const recallDateStr = formatDate(dt?.recallDate);
+
+                return (
+                  <Box
+                    key={dt._id || idx}
+                    bg="white"
+                    p={4}
+                    borderRadius="20px"
+                    boxShadow="0 2px 10px rgba(0,0,0,0.04)"
+                    border="1px solid"
+                    borderColor="gray.100"
+                    borderLeft="4px solid #0D9488"
+                    position="relative"
+                    transition="all 0.2s ease"
+                  >
+                    {/* Top Row: Avatar + Name + Status */}
+                    <Flex justify="space-between" align="flex-start" gap={2} mb={2.5}>
+                      <HStack spacing={3} align="center" flex={1} minW={0}>
+                        <Avatar
+                          size="sm"
+                          name={patientName}
+                          bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                          color="white"
+                          fontWeight="700"
+                          fontSize="13px"
+                        />
+                        <Box minW={0} flex={1}>
+                          <Text
+                            fontSize="14px"
+                            fontWeight="800"
+                            color="gray.800"
+                            noOfLines={1}
+                          >
+                            {patientName}
+                          </Text>
+                          {patientMobile && (
+                            <HStack
+                              as="a"
+                              href={`tel:${patientMobile}`}
+                              spacing={1}
+                              color="gray.500"
+                              fontSize="12px"
+                              mt={0.5}
+                              _hover={{ color: "teal.600" }}
+                            >
+                              <Icon as={FiPhone} boxSize="11px" />
+                              <Text noOfLines={1}>{patientMobile}</Text>
+                            </HStack>
+                          )}
+                        </Box>
+                      </HStack>
+
+                      <Badge
+                        bg={statusBadge.bg}
+                        color={statusBadge.color}
+                        border="1px solid"
+                        borderColor={statusBadge.border}
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="11px"
+                        fontWeight="750"
+                        textTransform="capitalize"
+                        flexShrink={0}
+                      >
+                        {statusBadge.label}
+                      </Badge>
+                    </Flex>
+
+                    {/* Middle Info Row: Doctor & Recall Date */}
+                    <SimpleGrid columns={2} spacing={2} pt={1} pb={2}>
+                      <HStack spacing={1.5} align="center" minW={0}>
+                        <Icon as={FiUser} boxSize="13px" color="gray.400" flexShrink={0} />
+                        <Box minW={0}>
+                          <Text fontSize="10px" color="gray.400" fontWeight="600" lineHeight="1">
+                            DOCTOR
+                          </Text>
+                          <Text fontSize="12px" color="gray.700" fontWeight="600" noOfLines={1} mt={0.5}>
+                            {doctorName || "--"}
+                          </Text>
+                        </Box>
+                      </HStack>
+
+                      <HStack spacing={1.5} align="center" minW={0}>
+                        <Icon as={FiCalendar} boxSize="13px" color="teal.500" flexShrink={0} />
+                        <Box minW={0}>
+                          <Text fontSize="10px" color="gray.400" fontWeight="600" lineHeight="1">
+                            RECALL DATE
+                          </Text>
+                          <Text fontSize="12px" color="teal.700" fontWeight="700" noOfLines={1} mt={0.5}>
+                            {recallDateStr || "--"}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    </SimpleGrid>
+
+                    {/* Reason box if present */}
+                    {dt?.reason && (
+                      <Box
+                        bg="gray.50"
+                        p={2.5}
+                        borderRadius="lg"
+                        border="1px dashed"
+                        borderColor="gray.200"
+                        mb={2.5}
+                      >
+                        <Text fontSize="10px" fontWeight="750" color="gray.400" textTransform="uppercase" mb={0.5}>
+                          Recall Reason
+                        </Text>
+                        <Text fontSize="12px" color="gray.700" lineHeight="1.5">
+                          {dt.reason}
+                        </Text>
+                      </Box>
+                    )}
+
+                    {/* Created by info if available */}
+                    {dt?.createdBy && (
+                      <HStack spacing={1} color="gray.400" fontSize="11px" mb={2}>
+                        <Icon as={FiClock} boxSize="11px" />
+                        <Text>Created by: {dt.createdBy}</Text>
+                      </HStack>
+                    )}
+
+                    {/* Action Toolbar */}
+                    <Flex
+                      pt={2}
+                      borderTop="1px solid"
+                      borderColor="gray.100"
+                      justify="flex-end"
+                      gap={2}
+                    >
+                      {stores.auth.hasPermission("recall", "view") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="teal"
+                          leftIcon={<FiEye fontSize="13px" />}
+                          borderRadius="lg"
+                          fontSize="12px"
+                          fontWeight="700"
+                          h="30px"
+                          onClick={() => setOpenView({ open: true, data: dt })}
+                        >
+                          View
+                        </Button>
+                      )}
+
+                      {stores.auth.hasPermission("recall", "edit") && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="blue"
+                          leftIcon={<FiEdit2 fontSize="13px" />}
+                          borderRadius="lg"
+                          fontSize="12px"
+                          fontWeight="700"
+                          h="30px"
+                          onClick={() => {
+                            setFormModal({
+                              open: true,
+                              data: dt,
+                              type: "edit",
+                            });
+                            if (dt.doctor) {
+                              setSelectedRecallDoctor({ name: dt.doctor.name, _id: dt.doctor._id });
+                            } else {
+                              setSelectedRecallDoctor(null);
+                            }
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </VStack>
+          )}
+
+          {/* Pagination */}
+          {recallAppointment.totalPages > 1 && (
+            <Flex justify="space-between" align="center" mt={4} pt={2}>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="xl"
+                leftIcon={<FiChevronLeft />}
+                isDisabled={currentPage <= 1}
+                onClick={() => handleChangePage(currentPage - 1)}
+                fontSize="12px"
+              >
+                Previous
+              </Button>
+              <Text fontSize="12px" fontWeight="700" color="gray.600">
+                Page {currentPage} of {recallAppointment.totalPages}
+              </Text>
+              <Button
+                size="sm"
+                variant="outline"
+                borderRadius="xl"
+                rightIcon={<FiChevronRight />}
+                isDisabled={currentPage >= recallAppointment.totalPages}
+                onClick={() => handleChangePage(currentPage + 1)}
+                fontSize="12px"
+              >
+                Next
+              </Button>
+            </Flex>
+          )}
+        </Box>
+      ) : (
+        <CustomTable
+          title={t("recall.table.recallAppointment")}
+          subTitle={patientDetails ? subTitle : undefined}
+          data={recallAppointment?.data || []}
+          columns={ContactTableColumn}
+          actions={{
+            actionBtn: {
+              addKey: {
+                showAddButton: stores.auth.hasPermission('recall', 'create'),
+                function: () => {
+                  setFormModal({
+                    open: true,
+                    type: "add",
+                  });
+                  setSelectedRecallDoctor(null);
+                },
+              },
+              editKey: {
+                showEditButton: stores.auth.hasPermission('recall', 'edit'),
+                function: (dt: any) => {
+                  setFormModal({
+                    open: true,
+                    data: dt,
+                    type: "edit",
+                  });
+                  if (dt.doctor) {
+                    setSelectedRecallDoctor({ name: dt.doctor.name, _id: dt.doctor._id });
+                  } else {
+                    setSelectedRecallDoctor(null);
+                  }
+                },
+              },
+              viewKey: {
+                showViewButton: stores.auth.hasPermission('recall', 'view'),
+                function: (dt: any) => {
+                  setOpenView({ open: true, data: dt });
+                },
+              },
+            },
+            search: {
+              show: true,
+              searchValue: searchQuery,
+              onSearchChange: (e: any) => setSearchQuery(e.target.value),
+            },
+            customComponent: (
+              <Flex gap={2} alignItems="center">
+                <Input
+                  type="date"
+                  size="sm"
+                  value={filterStartDate}
+                  onChange={(e) => setFilterStartDate(e.target.value)}
+                  bg="white"
+                  borderRadius="md"
+                />
+                <Text fontSize="sm" color="gray.500">to</Text>
+                <Input
+                  type="date"
+                  size="sm"
+                  value={filterEndDate}
+                  onChange={(e) => setFilterEndDate(e.target.value)}
+                  bg="white"
+                  borderRadius="md"
+                />
+                <select
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #e2e8f0",
+                    backgroundColor: "white",
+                    fontSize: "14px",
+                    outline: "none",
+                    marginLeft: "8px"
+                  }}
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  {status.map((st: any) => (
+                    <option key={st.value} value={st.value}>{st.label}</option>
+                  ))}
+                </select>
+                <Tooltip label="Reset" placement="top" hasArrow>
+                  <IconButton
+                    aria-label="Reset Filters"
+                    icon={<FiRefreshCw />}
+                    size="sm"
+                    colorScheme="red"
+                    variant="outline"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor="red.400"
+                    ml={3}
+                    onClick={resetTableData}
+                    _hover={{ bg: "red.50" }}
+                  />
+                </Tooltip>
+              </Flex>
+            ),
+            resetData: {
+              show: true,
+              text: t("recall.table.resetData"),
+              function: resetTableData,
+            },
+            pagination: {
+              show: true,
+              onClick: handleChangePage,
+              currentPage: currentPage,
+              totalPages: recallAppointment.totalPages,
+            },
+          }}
+          loading={recallAppointment.loading}
+        />
+      )}
 
       {/* View Appointment Details Drawer */}
       <FormModel
@@ -470,9 +1094,9 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   setSelectionMode('recall');
                   setSelectedDate(new Date(dt?.appointmentDate));
                   if (dt?.doctor?.value) {
-                      setSelectedRecallDoctor({ name: dt.doctor.label, _id: dt.doctor.value });
+                    setSelectedRecallDoctor({ name: dt.doctor.label, _id: dt.doctor.value });
                   } else {
-                      setSelectedRecallDoctor(null);
+                    setSelectedRecallDoctor(null);
                   }
                 }}
                 applyGetAllRecords={applyGetAllRecords}
@@ -484,8 +1108,8 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                   })
                 }
                 initialValues={{
-                  patient: isPatient && patientDetails 
-                    ? { label: patientDetails.name, value: patientDetails._id } 
+                  patient: isPatient && patientDetails
+                    ? { label: patientDetails.name, value: patientDetails._id }
                     : undefined,
                   doctor: undefined,
                   reason: undefined,
@@ -510,47 +1134,47 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                     name: dt?.patient?.label,
                     _id: dt?.patient?.value,
                   });
-                   console.log('the dt is', dt)
-                   setOpenReportModal({ open: true, type: "add" });
-                   setSelectionMode('recall');
-                   setSelectedDate(new Date(dt?.appointmentDate));
-                   if (dt?.doctor?.value) {
-                        setSelectedRecallDoctor({ name: dt.doctor.label, _id: dt.doctor.value });
-                   } else {
-                        setSelectedRecallDoctor(null);
-                   }
-                 }}
+                  console.log('the dt is', dt)
+                  setOpenReportModal({ open: true, type: "add" });
+                  setSelectionMode('recall');
+                  setSelectedDate(new Date(dt?.appointmentDate));
+                  if (dt?.doctor?.value) {
+                    setSelectedRecallDoctor({ name: dt.doctor.label, _id: dt.doctor.value });
+                  } else {
+                    setSelectedRecallDoctor(null);
+                  }
+                }}
                 initialValues={
                   formModal?.data
                     ? {
-                        ...formModal.data,
+                      ...formModal.data,
 
-                        status:
-                          status.find(
-                            (it: any) => it.value === formModal.data.status,
-                          ) || status[0],
+                      status:
+                        status.find(
+                          (it: any) => it.value === formModal.data.status,
+                        ) || status[0],
 
-                        patient: {
-                          label: formModal.data.patient?.name,
-                          value: formModal.data.patient?._id,
-                        },
-                        recallDate: formatDate(
-                          formModal?.data?.recallDate,
-                          "YYYY-MM-DD",
-                        ),
-                        appointmentDate : formatDate(
-                          formModal?.data?.appointmentDate,
-                          "YYYY-MM-DD",
-                        ),
-                        doctor: formModal.data.doctor
-                          ? {
-                              label: formModal.data.doctor.name,
-                              value: formModal.data.doctor._id,
-                            }
-                          : null,
-                        startTime: formModal.data.startTime || "",
-                        endTime: formModal.data.endTime || "",
-                      }
+                      patient: {
+                        label: formModal.data.patient?.name,
+                        value: formModal.data.patient?._id,
+                      },
+                      recallDate: formatDate(
+                        formModal?.data?.recallDate,
+                        "YYYY-MM-DD",
+                      ),
+                      appointmentDate: formatDate(
+                        formModal?.data?.appointmentDate,
+                        "YYYY-MM-DD",
+                      ),
+                      doctor: formModal.data.doctor
+                        ? {
+                          label: formModal.data.doctor.name,
+                          value: formModal.data.doctor._id,
+                        }
+                        : null,
+                      startTime: formModal.data.startTime || "",
+                      endTime: formModal.data.endTime || "",
+                    }
                     : {}
                 }
                 applyGetAllRecords={applyGetAllRecords}
@@ -592,10 +1216,10 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           patientDetails={havePatientDetails}
           applyGetAllRecords={applyGetAllRecords}
           handleTimeSlots={(e: any) => {
-             console.log("DEBUG: handleTimeSlots called", e);
-             console.log("DEBUG: selectionMode:", selectionMode);
-             // Always open the add drawer to create/edit appointment
-             handleOpenAddDrawer(e);
+            console.log("DEBUG: handleTimeSlots called", e);
+            console.log("DEBUG: selectionMode:", selectionMode);
+            // Always open the add drawer to create/edit appointment
+            handleOpenAddDrawer(e);
           }}
           createdAppointmentByCalender={true}
           selectedDate={selectedDate}
@@ -632,10 +1256,10 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
           */
         }}
         title={
-  selectedDateAndTime
-    ? t("recall.table.appointmentSelected", { date: moment(selectedDateAndTime.start).format("dddd, DD MMM YYYY") })
-    : t("recall.table.selectDate")
-}
+          selectedDateAndTime
+            ? t("recall.table.appointmentSelected", { date: moment(selectedDateAndTime.start).format("dddd, DD MMM YYYY") })
+            : t("recall.table.selectDate")
+        }
 
       >
         <Box p={2}>
@@ -646,20 +1270,20 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
               setHaveAppointmentDetails={(dt: any) => {
                 setHaveAppointmentDetails(dt);
                 if (selectionMode === 'recall' && dt) {
-                     // Autofill logic from the NEWLY created appointment
-                     console.log("DEBUG: New Appointment Created for Recall:", dt);
-                     setAutofillData({
-                        appointmentDate: dt.appointmentDate,
-                        startTime: dt.startTime,
-                        endTime: dt.endTime,
-                        doctor: dt.primaryDoctor || undefined,
-                         // Note: dt structure depends on backend response.
-                         // AddForm calls setHaveAppointmentDetails(dt?.data).
-                     });
+                  // Autofill logic from the NEWLY created appointment
+                  console.log("DEBUG: New Appointment Created for Recall:", dt);
+                  setAutofillData({
+                    appointmentDate: dt.appointmentDate,
+                    startTime: dt.startTime,
+                    endTime: dt.endTime,
+                    doctor: dt.primaryDoctor || undefined,
+                    // Note: dt structure depends on backend response.
+                    // AddForm calls setHaveAppointmentDetails(dt?.data).
+                  });
 
-                     // Close Scheduler Drawer
-                     setOpenReportModal({ open: false, type: "add" });
-                     setSelectionMode('default');
+                  // Close Scheduler Drawer
+                  setOpenReportModal({ open: false, type: "add" });
+                  setSelectionMode('default');
                 }
               }}
               isPatient={havePatient}
@@ -675,14 +1299,14 @@ const RecallAppointmentList = observer(({ isPatient, patientDetails }: any) => {
                 });
 
                 if (selectionMode === 'recall') {
-                     // If we are just closing (e.g. cancel), maybe we keep scheduler open?
-                     // But if we came from success, we handled it.
-                     // Let's assume on Cancel we go back to Scheduler.
+                  // If we are just closing (e.g. cancel), maybe we keep scheduler open?
+                  // But if we came from success, we handled it.
+                  // Let's assume on Cancel we go back to Scheduler.
                 } else {
-                     setOpenReportModal({
-                       open: false,
-                       type: "add",
-                     });
+                  setOpenReportModal({
+                    open: false,
+                    type: "add",
+                  });
                 }
               }}
               selectedDateAndTime={selectedDateAndTime}

@@ -163,11 +163,11 @@ const RecallAppointmentForm = observer(
             <FormikForm onSubmit={handleSubmit}>
   <Box
     bg="white"
-    borderRadius="xl"
-    boxShadow="sm"
-    p={{ base: 4, md: 6 }}
+    borderRadius={{ base: "none", md: "xl" }}
+    boxShadow={{ base: "none", md: "sm" }}
+    p={{ base: 3, md: 6 }}
   >
-    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 6 }}>
       {/* -------- Patient & Doctor -------- */}
       <Box>
         <CustomInput
@@ -279,6 +279,7 @@ const RecallAppointmentForm = observer(
 
     {/* -------- Footer Actions -------- */}
     <Flex
+      direction={{ base: "column-reverse", sm: "row" }}
       justify="flex-end"
       gap={3}
       mt={6}
@@ -286,10 +287,20 @@ const RecallAppointmentForm = observer(
       borderTop="1px solid"
       borderColor="gray.100"
     >
-      <Button variant="ghost" onClick={onClose}>
+      <Button variant="ghost" onClick={onClose} w={{ base: "100%", sm: "auto" }}>
         {t("recall.form.cancel")}
       </Button>
-      <Button type="submit" colorScheme="teal" isLoading={loading}>
+      <Button
+        type="submit"
+        color="white"
+        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+        _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+        _active={{ transform: "scale(0.98)" }}
+        borderRadius="xl"
+        fontWeight="700"
+        isLoading={loading}
+        w={{ base: "100%", sm: "auto" }}
+      >
         {isEdit ? t("recall.form.updateRecall") : t("recall.form.createRecall")}
       </Button>
     </Flex>

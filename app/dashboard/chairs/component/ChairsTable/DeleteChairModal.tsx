@@ -37,23 +37,42 @@ export default function DeleteChairModal({ isOpen, onClose, data, refresh }: any
         </Text>
         <Text fontSize="xs" color="gray.500">This action cannot be undone.</Text>
       </Box>
-      <Flex justify="space-between" align="center" p={4} borderTopWidth="1px">
-        <HStack spacing={3}>
-          <Button
-            colorScheme="red"
-            variant="outline"
-            onClick={handleDelete}
-            borderRadius="full"
-            size="sm"
-            isLoading={loading}
-          >
-            Delete
-          </Button>
-        </HStack>
-        <Button variant="ghost" onClick={onClose} size="sm">
+      <HStack
+        spacing={3}
+        p={4}
+        pb={{ base: 6, md: 4 }}
+        borderTopWidth="1px"
+        w="100%"
+      >
+        <Button
+          variant="outline"
+          borderColor="gray.300"
+          color="gray.700"
+          bg="white"
+          _hover={{ bg: "gray.50" }}
+          onClick={onClose}
+          size="md"
+          h="44px"
+          flex={1}
+          borderRadius="xl"
+          fontWeight="600"
+        >
           Cancel
         </Button>
-      </Flex>
+        <Button
+          colorScheme="red"
+          onClick={handleDelete}
+          borderRadius="xl"
+          size="md"
+          h="44px"
+          isLoading={loading}
+          flex={1}
+          fontWeight="700"
+          px={6}
+        >
+          Delete Chair
+        </Button>
+      </HStack>
     </FormModel>
   );
 }
