@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Badge,
   Box,
   Button,
   SimpleGrid,
@@ -16,6 +17,7 @@ import {
   StatNumber,
   StatGroup,
   useToast,
+  Heading,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -29,6 +31,7 @@ import {
   RiFlaskLine,
   RiEyeLine,
   RiHealthBookLine,
+  RiFileChartLine,
 } from "react-icons/ri";
 import ReceiptPreviewDrawer from "../patients/component/patient/ReceiptPreviewDrawer";
 
@@ -292,122 +295,262 @@ const ReportsPage = observer(() => {
 
   return (
     <Box bg={bgPage} minH="100vh">
-      <Box maxW="1400px" mx="auto" p={5}>
-        {/* Header */}
-        <VStack align="start" spacing={4} mb={8}>
-          <Text
-            fontSize={{ base: "2xl", md: "3xl" }}
-            fontWeight="extrabold"
-            bgGradient="linear(to-r, gray.700, gray.900)"
-            bgClip="text"
-            _dark={{ bgGradient: "linear(to-r, gray.100, gray.300)" }}
+      <Box maxW="1400px" mx="auto" p={{ base: 2.5, md: 5 }}>
+        {/* ============================================================== */}
+        {/* MOBILE VIEW (< 768px via CSS): HERO & TACTILE SELECTOR       */}
+        {/* ============================================================== */}
+        <Box display={{ base: "block", md: "none" }}>
+          {/* Mobile Hero Banner */}
+          <Box
+            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            borderRadius="2xl"
+            p={4}
+            mb={3.5}
+            color="white"
+            boxShadow="0 8px 24px rgba(12, 74, 110, 0.25)"
           >
-            Reports Dashboard
-          </Text>
-        </VStack>
-
-        {/* Report Type Cards */}
-        <SimpleGrid columns={{ base: 1, sm: 2, md: Math.min(visibleTabs.length, 5) }} spacing={8} mb={16}>
-          {visibleTabs.map((tab) => {
-            const isActive = activeTab === tab.value;
-            const IconComponent = tab.icon;
-
-            return (
-              <Box
-                key={tab.value}
-                position="relative"
-                bg={bgCard}
-                borderRadius="3xl"
-                p={10}
-                textAlign="center"
-                cursor="pointer"
-                border={`3px solid ${isActive ? `var(--chakra-colors-${tab.colorScheme}-400)` : "transparent"}`}
-                boxShadow={isActive ? "0 20px 40px rgba(0,0,0,0.08)" : "0 8px 24px rgba(0,0,0,0.05)"}
-                transition="all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1)"
-                _hover={{
-                  transform: "translateY(-16px) scale(1.02)",
-                  boxShadow: "0 32px 64px rgba(0,0,0,0.12)",
-                }}
-                onClick={() => handleTabChange(tab.value)}
-                overflow="hidden"
-              >
-                {isActive && (
-                  <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    right={0}
-                    h="8px"
-                    bgGradient={`linear(to-r, ${tab.colorScheme}.400, ${tab.colorScheme}.600)`}
-                    borderTopRadius="3xl"
-                  />
-                )}
-
+            <Flex justify="space-between" align="center">
+              <HStack spacing={3}>
                 <Box
+                  p={2.5}
+                  bg="whiteAlpha.200"
+                  borderRadius="xl"
+                  border="1px solid"
+                  borderColor="whiteAlpha.300"
+                  backdropFilter="blur(8px)"
+                >
+                  <RiFileChartLine size={24} color="#5EEAD4" />
+                </Box>
+                <VStack align="start" spacing={0.5}>
+                  <HStack spacing={2}>
+                    <Text
+                      fontSize="9px"
+                      fontWeight="800"
+                      color="#5EEAD4"
+                      letterSpacing="0.8px"
+                      textTransform="uppercase"
+                    >
+                      CLINICAL INTELLIGENCE
+                    </Text>
+                    <Badge
+                      bg="whiteAlpha.300"
+                      color="white"
+                      fontSize="9px"
+                      px={1.5}
+                      py={0.2}
+                      borderRadius="full"
+                    >
+                      {visibleTabs.length} MODULES
+                    </Badge>
+                  </HStack>
+                  <Heading size="md" fontWeight="900" letterSpacing="-0.3px">
+                    Reports Dashboard
+                  </Heading>
+                </VStack>
+              </HStack>
+            </Flex>
+          </Box>
+
+          {/* Mobile Report Tab Switcher */}
+          <SimpleGrid columns={Math.min(visibleTabs.length, 2)} spacing={2.5} mb={3.5}>
+            {visibleTabs.map((tab) => {
+              const isActive = activeTab === tab.value;
+              const IconComponent = tab.icon;
+
+              return (
+                <Box
+                  key={tab.value}
+                  as="button"
+                  type="button"
+                  onClick={() => handleTabChange(tab.value)}
+                  bg={isActive ? "white" : "gray.50"}
+                  _dark={{ bg: isActive ? "gray.800" : "gray.900" }}
+                  p={3}
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor={isActive ? `${tab.colorScheme}.500` : "gray.200"}
+                  boxShadow={isActive ? "0 4px 14px rgba(0,0,0,0.08)" : "none"}
+                  textAlign="left"
                   position="relative"
-                  w={24}
-                  h={24}
-                  mx="auto"
-                  mb={6}
-                  borderRadius="full"
-                  bgGradient={`linear(to-br, ${tab.colorScheme}.50, ${tab.colorScheme}.100)`}
-                  _dark={{ bgGradient: `linear(to-br, ${tab.colorScheme}.900, ${tab.colorScheme}.800)` }}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  transform={isActive ? "scale(1.2)" : "scale(1)"}
-                  transition="transform 0.4s ease"
+                  overflow="hidden"
+                  transition="all 0.2s ease"
+                  _active={{ transform: "scale(0.98)" }}
                 >
                   {isActive && (
                     <Box
                       position="absolute"
-                      inset={-2}
-                      borderRadius="full"
-                      border={`4px solid var(--chakra-colors-${tab.colorScheme}-300)`}
-                      opacity={0.4}
-                      animation="pulse 2s infinite"
+                      top={0}
+                      left={0}
+                      right={0}
+                      h="3px"
+                      bgGradient={`linear(to-r, ${tab.colorScheme}.400, ${tab.colorScheme}.600)`}
                     />
                   )}
-                  <IconComponent size={48} color={`var(--chakra-colors-${tab.colorScheme}-600)`} />
+                  <Flex align="center" gap={2.5}>
+                    <Box
+                      w="36px"
+                      h="36px"
+                      borderRadius="lg"
+                      bg={isActive ? `${tab.colorScheme}.50` : "gray.100"}
+                      _dark={{ bg: isActive ? `${tab.colorScheme}.900` : "gray.800" }}
+                      color={isActive ? `${tab.colorScheme}.600` : "gray.500"}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
+                    >
+                      <IconComponent size={20} />
+                    </Box>
+                    <VStack align="start" spacing={0} flex={1} minW={0}>
+                      <Text
+                        fontSize="xs"
+                        fontWeight={isActive ? "800" : "600"}
+                        color={isActive ? `${tab.colorScheme}.700` : "gray.700"}
+                        _dark={{ color: isActive ? `${tab.colorScheme}.200` : "gray.300" }}
+                        isTruncated
+                      >
+                        {tab.label}
+                      </Text>
+                      <Text fontSize="10px" color="gray.400" fontWeight="500">
+                        {isActive ? "Active" : "Report"}
+                      </Text>
+                    </VStack>
+                    {isActive && (
+                      <Box
+                        w="8px"
+                        h="8px"
+                        borderRadius="full"
+                        bg={`${tab.colorScheme}.500`}
+                        flexShrink={0}
+                      />
+                    )}
+                  </Flex>
                 </Box>
+              );
+            })}
+          </SimpleGrid>
+        </Box>
 
-                <Text
-                  fontSize="lg"
-                  fontWeight="bold"
-                  color={isActive ? `${tab.colorScheme}.600` : "gray.700"}
-                  _dark={{ color: isActive ? `${tab.colorScheme}.300` : "gray.200" }}
-                  mt={4}
+        {/* ============================================================== */}
+        {/* DESKTOP VIEW (>= 768px via CSS): ORIGINAL SPACIOUS CARDS       */}
+        {/* ============================================================== */}
+        <Box display={{ base: "none", md: "block" }}>
+          {/* Header */}
+          <VStack align="start" spacing={4} mb={8}>
+            <Text
+              fontSize="3xl"
+              fontWeight="extrabold"
+              bgGradient="linear(to-r, gray.700, gray.900)"
+              bgClip="text"
+              _dark={{ bgGradient: "linear(to-r, gray.100, gray.300)" }}
+            >
+              Reports Dashboard
+            </Text>
+          </VStack>
+
+          {/* Report Type Cards */}
+          <SimpleGrid columns={{ base: 1, sm: 2, md: Math.min(visibleTabs.length, 5) }} spacing={8} mb={16}>
+            {visibleTabs.map((tab) => {
+              const isActive = activeTab === tab.value;
+              const IconComponent = tab.icon;
+
+              return (
+                <Box
+                  key={tab.value}
+                  position="relative"
+                  bg={bgCard}
+                  borderRadius="3xl"
+                  p={10}
+                  textAlign="center"
+                  cursor="pointer"
+                  border={`3px solid ${isActive ? `var(--chakra-colors-${tab.colorScheme}-400)` : "transparent"}`}
+                  boxShadow={isActive ? "0 20px 40px rgba(0,0,0,0.08)" : "0 8px 24px rgba(0,0,0,0.05)"}
+                  transition="all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1)"
+                  _hover={{
+                    transform: "translateY(-16px) scale(1.02)",
+                    boxShadow: "0 32px 64px rgba(0,0,0,0.12)",
+                  }}
+                  onClick={() => handleTabChange(tab.value)}
+                  overflow="hidden"
                 >
-                  {tab.label} Report
-                </Text>
+                  {isActive && (
+                    <Box
+                      position="absolute"
+                      top={0}
+                      left={0}
+                      right={0}
+                      h="8px"
+                      bgGradient={`linear(to-r, ${tab.colorScheme}.400, ${tab.colorScheme}.600)`}
+                      borderTopRadius="3xl"
+                    />
+                  )}
 
-                {isActive && (
-                  <Tag size="lg" colorScheme={tab.colorScheme} mt={4} fontWeight="extrabold" borderRadius="full" px={6}>
-                    ACTIVE
-                  </Tag>
-                )}
-              </Box>
-            );
-          })}
-        </SimpleGrid>
+                  <Box
+                    position="relative"
+                    w={24}
+                    h={24}
+                    mx="auto"
+                    mb={6}
+                    borderRadius="full"
+                    bgGradient={`linear(to-br, ${tab.colorScheme}.50, ${tab.colorScheme}.100)`}
+                    _dark={{ bgGradient: `linear(to-br, ${tab.colorScheme}.900, ${tab.colorScheme}.800)` }}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    transform={isActive ? "scale(1.2)" : "scale(1)"}
+                    transition="transform 0.4s ease"
+                  >
+                    {isActive && (
+                      <Box
+                        position="absolute"
+                        inset={-2}
+                        borderRadius="full"
+                        border={`4px solid var(--chakra-colors-${tab.colorScheme}-300)`}
+                        opacity={0.4}
+                        animation="pulse 2s infinite"
+                      />
+                    )}
+                    <IconComponent size={48} color={`var(--chakra-colors-${tab.colorScheme}-600)`} />
+                  </Box>
+
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    color={isActive ? `${tab.colorScheme}.600` : "gray.700"}
+                    _dark={{ color: isActive ? `${tab.colorScheme}.300` : "gray.200" }}
+                    mt={4}
+                  >
+                    {tab.label} Report
+                  </Text>
+
+                  {isActive && (
+                    <Tag size="lg" colorScheme={tab.colorScheme} mt={4} fontWeight="extrabold" borderRadius="full" px={6}>
+                      ACTIVE
+                    </Tag>
+                  )}
+                </Box>
+              );
+            })}
+          </SimpleGrid>
+        </Box>
 
         {/* Main Report Card */}
-        <Box bg={bgCard} borderRadius="3xl" overflow="hidden" boxShadow="xl" border={`1px solid ${borderColor}`}>
+        <Box bg={bgCard} borderRadius={{ base: "2xl", md: "3xl" }} overflow="hidden" boxShadow="xl" border={`1px solid ${borderColor}`}>
           {/* Header */}
           <Box
             bgGradient={`linear(to-r, ${activeTabConfig.colorScheme}.500, ${activeTabConfig.colorScheme}.700)`}
-            px={{ base: 8, md: 12 }}
-            py={10}
+            px={{ base: 4, md: 12 }}
+            py={{ base: 4, md: 10 }}
           >
-            <Flex align="center" gap={6} color="white">
-              <Box bg="whiteAlpha.200" p={5} borderRadius="2xl">
-                <activeTabConfig.icon size={56} />
+            <Flex align="center" gap={{ base: 3, md: 6 }} color="white">
+              <Box bg="whiteAlpha.200" p={{ base: 2.5, md: 5 }} borderRadius={{ base: "xl", md: "2xl" }}>
+                <activeTabConfig.icon size={32} />
               </Box>
               <Box>
-                <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="extrabold">
+                <Text fontSize={{ base: "lg", md: "4xl" }} fontWeight="extrabold">
                   {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Report
                 </Text>
-                <Text fontSize="lg" opacity={0.95} mt={2}>
+                <Text fontSize={{ base: "xs", md: "lg" }} opacity={0.95} mt={{ base: 0.5, md: 2 }}>
                   Customize filters to generate detailed reports
                 </Text>
               </Box>
@@ -441,12 +584,12 @@ const ReportsPage = observer(() => {
           <Divider />
 
           {/* Filters Section */}
-          <Box p={{ base: 8, md: 12 }} pb={10}>
+          <Box p={{ base: 3.5, md: 12 }} pb={{ base: 4, md: 10 }}>
             {/* Quick Date Buttons */}
-            <HStack mb={10} spacing={5} flexWrap="wrap" gap={4}>
+            <HStack mb={{ base: 4, md: 10 }} spacing={{ base: 2, md: 5 }} flexWrap="wrap">
               <Button
-                leftIcon={<RiCalendar2Line size={20} />}
-                size="lg"
+                leftIcon={<RiCalendar2Line size={16} />}
+                size={{ base: "sm", md: "lg" }}
                 variant="solid"
                 colorScheme={activeTabConfig.colorScheme}
                 bg={`${activeTabConfig.colorScheme}.100`}
@@ -458,8 +601,8 @@ const ReportsPage = observer(() => {
                 Today
               </Button>
               <Button
-                leftIcon={<RiCalendar2Line size={20} />}
-                size="lg"
+                leftIcon={<RiCalendar2Line size={16} />}
+                size={{ base: "sm", md: "lg" }}
                 variant="solid"
                 colorScheme={activeTabConfig.colorScheme}
                 bg={`${activeTabConfig.colorScheme}.100`}
@@ -474,19 +617,18 @@ const ReportsPage = observer(() => {
 
             {/* Filter Panel */}
             <Box
-              bg="whiteAlpha.900"
-              _dark={{ bg: "blackAlpha.400" }}
-              backdropFilter="blur(20px)"
-              borderRadius="3xl"
-              p={10}
-              border={`1px solid ${useColorModeValue("whiteAlpha.600", "whiteAlpha.300")}`}
-              boxShadow="lg"
+              bg={useColorModeValue("white", "gray.850")}
+              borderRadius={{ base: "xl", md: "3xl" }}
+              p={{ base: 3.5, md: 10 }}
+              border="1px solid"
+              borderColor={useColorModeValue("gray.200", "gray.700")}
+              boxShadow="sm"
             >
-              <Text fontSize="2xl" fontWeight="bold" mb={8}>
+              <Text fontSize={{ base: "sm", md: "2xl" }} fontWeight="bold" mb={{ base: 3, md: 8 }}>
                 Filter Configuration
               </Text>
 
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 3.5, md: 10 }}>
                 {/* Common Date Filters */}
                 <CustomInput
                   name="fromDate"
@@ -723,94 +865,110 @@ const ReportsPage = observer(() => {
           </Box>
 
           {/* Download Button */}
-          <Box px={{ base: 8, md: 12 }} py={8} bg={useColorModeValue("gray.50", "gray.800")} borderTop={`1px solid ${borderColor}`}>
-            <Flex justify="space-between" align="center" direction={{ base: "column", md: "row" }} gap={6}>
-              <Text fontSize="lg" color={textSecondary} textAlign={{ base: "center", md: "left" }}>
+          <Box px={{ base: 4, md: 12 }} py={{ base: 4, md: 8 }} bg={useColorModeValue("gray.50", "gray.800")} borderTop={`1px solid ${borderColor}`}>
+            <Flex justify="space-between" align="center" direction={{ base: "column", md: "row" }} gap={{ base: 3, md: 6 }}>
+              <Text fontSize={{ base: "xs", md: "lg" }} color={textSecondary} textAlign={{ base: "center", md: "left" }}>
                 Your <Text as="span" fontWeight="bold" color={`${activeTabConfig.colorScheme}.600`}>
                   {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                 </Text> report is ready
               </Text>
 
-              <HStack spacing={4}>
+              <HStack spacing={3} w={{ base: "100%", md: "auto" }}>
                 {stores.auth.hasPermission('reports', 'download') && (
                   <>
                     {activeTab === "doctor" && (
-                        <Button
-                          size="xl"
-                          colorScheme="red"
-                          variant="outline"
-                          leftIcon={<RiEyeLine size={24} />}
-                          px={10}
-                          py={8}
-                          fontSize="lg"
-                          fontWeight="bold"
-                          borderRadius="full"
-                          isLoading={isPDFDownloading}
-                          onClick={handleDoctorPDFDownload}
-                        >
-                          View PDF Performance
-                        </Button>
-                      )}
-                      {activeTab === "workDone" && (
-                          <Button
-                            size="xl"
-                            colorScheme="red"
-                            variant="outline"
-                            leftIcon={<RiEyeLine size={24} />}
-                            px={10}
-                            py={8}
-                            fontSize="lg"
-                            fontWeight="bold"
-                            borderRadius="full"
-                            isLoading={isPDFDownloading}
-                            onClick={handleWorkDonePDFDownload}
-                          >
-                            View WorkDone PDF
-                          </Button>
-                      )}
-                      {activeTab === "treatment" && (
-                          <Button
-                            size="xl"
-                            colorScheme="purple"
-                            variant="outline"
-                            leftIcon={<RiEyeLine size={24} />}
-                            px={10}
-                            py={8}
-                            fontSize="lg"
-                            fontWeight="bold"
-                            borderRadius="full"
-                            isLoading={isPDFDownloading}
-                            onClick={handleTreatmentPDFDownload}
-                          >
-                            View Treatment PDF
-                          </Button>
-                      )}
-                      {activeTab !== "doctor" && activeTab !== "workDone" && activeTab !== "treatment" && (
-                        <Button
-                          size="xl"
-                          colorScheme={activeTabConfig.colorScheme}
-                          rightIcon={<RiDownload2Line size={28} />}
-                          px={12}
-                          py={8}
-                          fontSize="xl"
-                          fontWeight="extrabold"
-                          borderRadius="full"
-                          boxShadow="0 20px 40px rgba(0,0,0,0.15)"
-                          _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
-                          isDisabled={isDownloadDisabled()}
-                          isLoading={isDownloading}
-                          loadingText="Generating..."
-                          onClick={handleDownload}
-                        >
-                          Download Excel Report
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </HStack>
-              </Flex>
-            </Box>
+                      <Button
+                        size={{ base: "md", md: "xl" }}
+                        w={{ base: "100%", md: "auto" }}
+                        h={{ base: "48px", md: "auto" }}
+                        colorScheme="red"
+                        variant="outline"
+                        leftIcon={<RiEyeLine size={20} />}
+                        px={{ base: 4, md: 10 }}
+                        py={{ base: 3, md: 8 }}
+                        fontSize={{ base: "sm", md: "lg" }}
+                        fontWeight="bold"
+                        borderRadius={{ base: "xl", md: "full" }}
+                        isLoading={isPDFDownloading}
+                        onClick={handleDoctorPDFDownload}
+                      >
+                        View PDF Performance
+                      </Button>
+                    )}
+                    {activeTab === "workDone" && (
+                      <Button
+                        size={{ base: "md", md: "xl" }}
+                        w={{ base: "100%", md: "auto" }}
+                        h={{ base: "48px", md: "auto" }}
+                        colorScheme="teal"
+                        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                        color="white"
+                        _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                        _active={{ transform: "scale(0.98)" }}
+                        leftIcon={<RiEyeLine size={20} />}
+                        px={{ base: 4, md: 10 }}
+                        py={{ base: 3, md: 8 }}
+                        fontSize={{ base: "sm", md: "lg" }}
+                        fontWeight="bold"
+                        borderRadius={{ base: "xl", md: "full" }}
+                        boxShadow="0 2px 10px rgba(13, 148, 136, 0.25)"
+                        isLoading={isPDFDownloading}
+                        onClick={handleWorkDonePDFDownload}
+                      >
+                        View WorkDone PDF
+                      </Button>
+                    )}
+                    {activeTab === "treatment" && (
+                      <Button
+                        size={{ base: "md", md: "xl" }}
+                        w={{ base: "100%", md: "auto" }}
+                        h={{ base: "48px", md: "auto" }}
+                        colorScheme="purple"
+                        bgGradient="linear(135deg, #4C1D95 0%, #7C3AED 100%)"
+                        color="white"
+                        _hover={{ bgGradient: "linear(135deg, #3B0764, #6D28D9)" }}
+                        _active={{ transform: "scale(0.98)" }}
+                        leftIcon={<RiEyeLine size={20} />}
+                        px={{ base: 4, md: 10 }}
+                        py={{ base: 3, md: 8 }}
+                        fontSize={{ base: "sm", md: "lg" }}
+                        fontWeight="bold"
+                        borderRadius={{ base: "xl", md: "full" }}
+                        boxShadow="0 2px 10px rgba(124, 58, 237, 0.25)"
+                        isLoading={isPDFDownloading}
+                        onClick={handleTreatmentPDFDownload}
+                      >
+                        View Treatment PDF
+                      </Button>
+                    )}
+                    {activeTab !== "doctor" && activeTab !== "workDone" && activeTab !== "treatment" && (
+                      <Button
+                        size={{ base: "md", md: "xl" }}
+                        w={{ base: "100%", md: "auto" }}
+                        h={{ base: "48px", md: "auto" }}
+                        colorScheme={activeTabConfig.colorScheme}
+                        rightIcon={<RiDownload2Line size={24} />}
+                        px={{ base: 4, md: 12 }}
+                        py={{ base: 3, md: 8 }}
+                        fontSize={{ base: "sm", md: "xl" }}
+                        fontWeight="extrabold"
+                        borderRadius={{ base: "xl", md: "full" }}
+                        boxShadow="0 20px 40px rgba(0,0,0,0.15)"
+                        _hover={{ transform: "translateY(-6px)", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}
+                        isDisabled={isDownloadDisabled()}
+                        isLoading={isDownloading}
+                        loadingText="Generating..."
+                        onClick={handleDownload}
+                      >
+                        Download Excel Report
+                      </Button>
+                    )}
+                  </>
+                )}
+              </HStack>
+            </Flex>
           </Box>
+        </Box>
 
         {/* Pulse Animation */}
         <style jsx global>{`

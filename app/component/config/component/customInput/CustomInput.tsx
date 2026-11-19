@@ -433,11 +433,34 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             style={style}
             bg={inputBg}
             color={colorMode === "dark" ? "white" : "inherit"}
-            sx={{ colorScheme: colorMode === "dark" ? "dark" : "light" }}
+            sx={{
+              colorScheme: colorMode === "dark" ? "dark" : "light",
+              cursor: "pointer",
+              "&::-webkit-calendar-picker-indicator": {
+                cursor: "pointer",
+                padding: "6px",
+                marginRight: "-2px",
+                filter: colorMode === "dark" ? "invert(1)" : "none",
+                opacity: 0.85,
+                transition: "opacity 0.2s, transform 0.15s",
+                "&:hover": {
+                  opacity: 1,
+                  transform: "scale(1.1)",
+                },
+              },
+            }}
             type="datetime-local"
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            onClick={(e: any) => {
+              if (readOnly || disabled) return;
+              try {
+                if (typeof e.currentTarget.showPicker === "function") {
+                  e.currentTarget.showPicker();
+                }
+              } catch (err) {}
+            }}
             name={name}
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
@@ -564,11 +587,48 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             style={style}
             bg={inputBg}
             color={colorMode === "dark" ? "white" : "inherit"}
-            sx={{ colorScheme: colorMode === "dark" ? "dark" : "light" }}
+            sx={{
+              colorScheme: colorMode === "dark" ? "dark" : "light",
+              cursor: "pointer",
+              "&::-webkit-calendar-picker-indicator": {
+                cursor: "pointer",
+                padding: "6px",
+                marginRight: "-2px",
+                filter: colorMode === "dark" ? "invert(1)" : "none",
+                opacity: 0.85,
+                transition: "opacity 0.2s, transform 0.15s",
+                "&:hover": {
+                  opacity: 1,
+                  transform: "scale(1.1)",
+                },
+                "&:active": {
+                  transform: "scale(0.95)",
+                },
+              },
+            }}
             type="date"
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            onClick={(e: any) => {
+              if (readOnly || disabled) return;
+              try {
+                if (typeof e.currentTarget.showPicker === "function") {
+                  e.currentTarget.showPicker();
+                }
+              } catch (err) {
+                // Fallback for browsers with active pickers
+              }
+            }}
+            onKeyDown={(e: any) => {
+              if (e.key === "Enter" || e.key === " ") {
+                try {
+                  if (typeof e.currentTarget.showPicker === "function") {
+                    e.currentTarget.showPicker();
+                  }
+                } catch (err) {}
+              }
+            }}
             name={name}
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
@@ -692,10 +752,32 @@ const CustomInput: React.FC<CustomInputProps> = observer(({
             readOnly={readOnly}
             style={style}
             bg={inputBg}
+            sx={{
+              cursor: "pointer",
+              "&::-webkit-calendar-picker-indicator": {
+                cursor: "pointer",
+                padding: "6px",
+                marginRight: "-2px",
+                opacity: 0.85,
+                transition: "opacity 0.2s, transform 0.15s",
+                "&:hover": {
+                  opacity: 1,
+                  transform: "scale(1.1)",
+                },
+              },
+            }}
             type="time"
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            onClick={(e: any) => {
+              if (readOnly || disabled) return;
+              try {
+                if (typeof e.currentTarget.showPicker === "function") {
+                  e.currentTarget.showPicker();
+                }
+              } catch (err) {}
+            }}
             name={name}
             disabled={disabled}
             borderColor={borderColor}

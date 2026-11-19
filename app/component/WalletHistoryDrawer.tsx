@@ -162,8 +162,9 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
       >
         <DrawerOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
         <DrawerContent
-          borderTopRadius={isMobile ? "20px" : "none"}
-          borderLeftRadius={isMobile ? "none" : "3xl"}
+          borderTopRadius={0}
+          borderRadius={isMobile ? 0 : undefined}
+          borderLeftRadius={isMobile ? 0 : "3xl"}
           maxH={isMobile ? "100dvh" : "100%"}
           height={isMobile ? "100dvh" : "100%"}
           overflow="hidden"
@@ -297,9 +298,9 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
         </DrawerContent>
       </Drawer>
 
-      <Modal isOpen={isCreditModalOpen} onClose={() => setIsCreditModalOpen(false)} isCentered size="md">
+      <Modal isOpen={isCreditModalOpen} onClose={() => setIsCreditModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
-        <ModalContent borderRadius="3xl" shadow="2xl" overflow="hidden" bg="white">
+        <ModalContent borderRadius={{ base: 0, md: "3xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} shadow="2xl" overflow="hidden" bg="white">
           <Box bgGradient="linear(to-br, purple.500, purple.700)" px={6} py={8} position="relative" overflow="hidden">
             <Box position="absolute" top="-20%" right="-10%" opacity={0.1}>
               <Icon as={FiPlus} boxSize="150px" color="white" transform="rotate(-15deg)" />
@@ -398,9 +399,9 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
       </Modal>
 
       {/* Deduct Credit Modal */}
-      <Modal isOpen={isDeductModalOpen} onClose={() => setIsDeductModalOpen(false)} isCentered size="md">
+      <Modal isOpen={isDeductModalOpen} onClose={() => setIsDeductModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
-        <ModalContent borderRadius="3xl" shadow="2xl" overflow="hidden" bg="white">
+        <ModalContent borderRadius={{ base: 0, md: "3xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} shadow="2xl" overflow="hidden" bg="white">
           <Box bgGradient="linear(to-br, orange.400, orange.600)" px={6} py={8} position="relative" overflow="hidden">
             <Box position="absolute" top="-20%" right="-10%" opacity={0.1}>
               <Icon as={FiMinus} boxSize="150px" color="white" transform="rotate(-15deg)" />
