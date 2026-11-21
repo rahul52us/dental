@@ -35,6 +35,7 @@ import {
   InputGroup,
   InputRightElement,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { FiTrash2, FiActivity, FiUser, FiChevronDown, FiClock, FiFileText, FiEye, FiEdit, FiPrinter, FiPlus, FiPackage, FiDownload, FiBarChart2, FiCalendar, FiSearch, FiDollarSign, FiGrid, FiList, FiCheckCircle } from "react-icons/fi";
@@ -85,13 +86,17 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
     }
   };
 
+  const assignerBg = useColorModeValue("white", "gray.800");
+  const assignerBorder = useColorModeValue("gray.300", "gray.600");
+  const assignerText = useColorModeValue("gray.800", "gray.100");
+
   return (
     <Flex
       align="center"
       border="1px solid"
-      borderColor="gray.300"
+      borderColor={assignerBorder}
       borderRadius="lg"
-      bg="white"
+      bg={assignerBg}
       w="100px"
       overflow="hidden"
       _focusWithin={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
@@ -102,6 +107,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         textAlign="center"
         placeholder="No."
         value={val}
+        color={assignerText}
         onChange={(e) => setVal(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") handleSave();
@@ -110,7 +116,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         px={2}
         h="32px"
       />
-      <Divider orientation="vertical" h="20px" borderColor="gray.300" />
+      <Divider orientation="vertical" h="20px" borderColor={assignerBorder} />
       <IconButton
         size="sm"
         variant="ghost"
@@ -122,7 +128,7 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         minW="32px"
         h="32px"
         borderRadius="0"
-        _hover={{ bg: "blue.50", color: "blue.600" }}
+        _hover={{ bg: useColorModeValue("blue.50", "whiteAlpha.100"), color: "blue.400" }}
       />
     </Flex>
   );
@@ -130,6 +136,19 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
 
 const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDoneListProps) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
+
+  // Dark mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.400");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const blueNoteBg = useColorModeValue("blue.50", "whiteAlpha.100");
+  const blueNoteText = useColorModeValue("gray.800", "gray.100");
 
 
   const getToothNameParts = (toothId: string, fallbackPosition?: string, fallbackSide?: string) => {
@@ -580,10 +599,10 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           <HStack spacing={2} w="full">
             <HStack
               flex={1}
-              bg="white"
+              bg={inputBg}
               borderRadius="12px"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               px={2.5}
               h="36px"
               shadow="xs"
@@ -595,6 +614,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 h="100%"
                 fontSize="12px"
                 fontWeight="600"
+                color={textPrimary}
                 w="full"
                 value={searchTooth}
                 onChange={(e) => setSearchTooth(e.target.value)}
@@ -604,10 +624,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              bg="white"
+              bg={inputBg}
+              color={textPrimary}
               borderRadius="12px"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               size="sm"
               h="36px"
               w="115px"
@@ -852,7 +873,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           </HStack>
 
           <HStack spacing={2} flex={1} justify="flex-end">
-            <HStack spacing={2} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.300" px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
+            <HStack spacing={2} bg={inputBg} borderRadius="xl" border="1px solid" borderColor={borderSubtle} px={3} mr={1} h="32px" _hover={{ borderColor: "gray.400" }} transition="all 0.2s">
               <Icon as={FiSearch} color="gray.500" fontSize="14px" />
               <Input
                 placeholder="Search..."
@@ -860,6 +881,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 h="100%"
                 fontSize="11px"
                 fontWeight="bold"
+                color={textPrimary}
                 w="160px"
                 value={searchTooth}
                 onChange={(e) => setSearchTooth(e.target.value)}
@@ -897,10 +919,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              bg="white"
+              bg={inputBg}
+              color={textPrimary}
               borderRadius="xl"
               border="1px solid"
-              borderColor="gray.300"
+              borderColor={borderSubtle}
               size="sm"
               h="32px"
               w="140px"
@@ -1026,9 +1049,9 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
             </VStack>
           </Center>
         ) : displayedRecords.length === 0 ? (
-          <VStack py={14} bg="gray.50" borderRadius="2xl" border="1px dashed" borderColor="gray.200">
+          <VStack py={14} bg={cardBg} borderRadius="2xl" border="1px dashed" borderColor={borderSubtle}>
             <Icon as={FiActivity} fontSize="40px" color="gray.300" />
-            <Text fontWeight="bold" color="gray.400" fontSize="14px">No clinical history found</Text>
+            <Text fontWeight="bold" color={textFaint} fontSize="14px">No clinical history found</Text>
           </VStack>
         ) : isTableView === "table" ? (
           <CustomTable
@@ -1079,11 +1102,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                 return (
                   <Box
                     key={record._id}
-                    bg="white"
+                    bg={cardBg}
                     p={3.5}
                     borderRadius="22px"
                     border="1px solid"
-                    borderColor="gray.200"
+                    borderColor={borderSubtle}
                     shadow="sm"
                     mb={2}
                   >
@@ -1149,11 +1172,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                     {/* Doctor Row */}
                     <HStack spacing={1.5} mb={2.5} px={1}>
                       <Icon as={FiUser} fontSize="13px" color="blue.500" />
-                      <Text fontSize="12px" fontWeight="800" color="gray.700" noOfLines={1}>
+                      <Text fontSize="12px" fontWeight="800" color={textSecondary} noOfLines={1}>
                         Treating: Dr. {record.doctor?.name || "N/A"}
                       </Text>
                       {record.examiningDoctor && (
-                        <Text fontSize="10px" fontWeight="600" color="gray.500" noOfLines={1}>
+                        <Text fontSize="10px" fontWeight="600" color={textFaint} noOfLines={1}>
                           (Exam: Dr. {record.examiningDoctor?.name})
                         </Text>
                       )}
@@ -1208,40 +1231,40 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
 
                     {/* Work Done Advice Note (Full Width & Clean) */}
                     {(record.workDoneNote || record.toothNote) ? (
-                      <Box bg="blue.50" p={2.5} borderRadius="12px" borderLeft="3.5px solid" borderColor="blue.500" mb={2}>
-                        <Text fontSize="9px" fontWeight="900" color="blue.600" textTransform="uppercase" letterSpacing="0.4px" mb={0.5}>
+                      <Box bg={blueNoteBg} p={2.5} borderRadius="12px" borderLeft="3.5px solid" borderColor="blue.500" mb={2}>
+                        <Text fontSize="9px" fontWeight="900" color="blue.400" textTransform="uppercase" letterSpacing="0.4px" mb={0.5}>
                           Work Done Advice
                         </Text>
-                        <Text fontSize="12.5px" fontWeight="700" color="gray.800" lineHeight="1.4">
+                        <Text fontSize="12.5px" fontWeight="700" color={blueNoteText} lineHeight="1.4">
                           {record.workDoneNote || record.toothNote}
                         </Text>
                       </Box>
                     ) : null}
 
                     {record.treatmentCode && (
-                      <Text fontSize="10.5px" fontWeight="700" color="gray.500" mb={2} px={1}>
+                      <Text fontSize="10.5px" fontWeight="700" color={textFaint} mb={2} px={1}>
                         Code: {record.treatmentCode}
                       </Text>
                     )}
 
                     {/* Row 4: Financials Bento */}
-                    <SimpleGrid columns={3} gap={2} p={2} bg="gray.50" borderRadius="14px" mb={3}>
+                    <SimpleGrid columns={3} gap={2} p={2} bg={subtleBg} borderRadius="14px" mb={3}>
                       <VStack align="center" spacing={0}>
-                        <Text fontSize="8px" fontWeight="800" color="gray.500" textTransform="uppercase">AMOUNT</Text>
-                        <Text fontSize="13px" fontWeight="800" color="blue.700">₹{record.amount?.toLocaleString()}</Text>
+                        <Text fontSize="8px" fontWeight="800" color={textFaint} textTransform="uppercase">AMOUNT</Text>
+                        <Text fontSize="13px" fontWeight="800" color="blue.400">₹{record.amount?.toLocaleString()}</Text>
                       </VStack>
                       <VStack align="center" spacing={0}>
-                        <Text fontSize="8px" fontWeight="800" color="gray.500" textTransform="uppercase">DISCOUNT</Text>
-                        <Text fontSize="13px" fontWeight="800" color="red.500">₹{record.discount?.toLocaleString()}</Text>
+                        <Text fontSize="8px" fontWeight="800" color={textFaint} textTransform="uppercase">DISCOUNT</Text>
+                        <Text fontSize="13px" fontWeight="800" color="red.400">₹{record.discount?.toLocaleString()}</Text>
                       </VStack>
                       <VStack align="center" spacing={0}>
-                        <Text fontSize="8px" fontWeight="800" color="green.600" textTransform="uppercase">NET TOTAL</Text>
-                        <Text fontSize="14px" fontWeight="900" color="green.700">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
+                        <Text fontSize="8px" fontWeight="800" color="green.400" textTransform="uppercase">NET TOTAL</Text>
+                        <Text fontSize="14px" fontWeight="900" color="green.400">₹{(record.amount - record.discount)?.toLocaleString()}</Text>
                       </VStack>
                     </SimpleGrid>
 
                     {/* Row 5: Action Buttons */}
-                    <Flex justify="space-between" align="center" pt={1} borderTop="1px solid" borderColor="gray.100">
+                    <Flex justify="space-between" align="center" pt={1} borderTop="1px solid" borderColor={borderLight}>
                       {record.treatment && stores.auth.hasPermission('workdone', 'view') ? (
                         <Button
                           size="xs"
@@ -1312,11 +1335,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
               return (
                 <Box
                   key={record._id}
-                  bg="white"
+                  bg={cardBg}
                   p={6}
                   borderRadius="2xl"
                   border="2px solid"
-                  borderColor="gray.100"
+                  borderColor={borderLight}
                   shadow="sm"
                   transition="all 0.2s"
                   _hover={{ shadow: "lg", borderColor: "blue.300" }}
@@ -1333,11 +1356,11 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       <HStack spacing={1.5} pl={2}>
                         <Icon as={FiUser} fontSize="14px" color="blue.400" />
                         <VStack align="start" spacing={0}>
-                          <Text fontSize="12px" fontWeight="900" color="gray.700" lineHeight="1.2">
+                          <Text fontSize="12px" fontWeight="900" color={textSecondary} lineHeight="1.2">
                             Treating: Dr. {record.doctor?.name || "N/A"}
                           </Text>
                           {record.examiningDoctor && (
-                            <Text fontSize="10px" fontWeight="800" color="gray.700" mt={0.5}>
+                            <Text fontSize="10px" fontWeight="800" color={textFaint} mt={0.5}>
                               Examined: Dr. {record.examiningDoctor?.name}
                             </Text>
                           )}
@@ -1371,8 +1394,8 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
                       )}
 
                       {record.status !== "complete" && (
-                        <Box bg="white" px={2} py={1} borderRadius="lg" border="1px solid" borderColor="gray.200" display="flex" alignItems="center">
-                          <Text fontSize="10px" fontWeight="bold" color="gray.500" mr={2}>SITTING:</Text>
+                        <Box bg={cardBg} px={2} py={1} borderRadius="lg" border="1px solid" borderColor={borderSubtle} display="flex" alignItems="center">
+                          <Text fontSize="10px" fontWeight="bold" color={textFaint} mr={2}>SITTING:</Text>
                           <SittingAssigner dt={record} onSave={fetchRecords} />
                         </Box>
                       )}
@@ -1808,7 +1831,7 @@ const WorkDoneList = observer(({ patientDetails, treatmentId, onEdit }: WorkDone
           overflow="hidden"
           boxShadow="2xl"
         >
-          <Box bgGradient="linear(135deg, #091E42 0%, #0C4A6E 60%, #0D9488 100%)" color="white" px={5} py={4}>
+          <Box bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" px={5} py={4}>
             <HStack justify="space-between" align="center">
               <HStack spacing={3}>
                 <Box p={2.5} bg="whiteAlpha.200" borderRadius="xl" backdropFilter="blur(4px)">

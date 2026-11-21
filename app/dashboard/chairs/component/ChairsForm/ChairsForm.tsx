@@ -172,9 +172,9 @@ const ChairsForm = observer(
 
               <Button
                 type="submit"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.98)" }}
                 isLoading={loading}
                 borderRadius="xl"

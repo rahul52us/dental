@@ -71,6 +71,7 @@ import { tablePageLimit } from "../../../../component/config/utils/variable";
 import { genderOptions } from "../../../../config/constant";
 import { copyToClipboard } from "../../../../config/utils/function";
 import stores from "../../../../store/stores";
+import { CardListSkeleton } from "../../../../component/common/Loader/ContentSkeleton";
 import AppointmentList from "../../../appointments/Appointments";
 import ViewDoctor from "./ViewPatient";
 import Treatment from "../../../toothTreatment/page";
@@ -706,7 +707,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     </Text>
                     {user.totalCount !== undefined && (
                       <Badge
-                        bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                         color="white"
                         fontSize="10px"
                         fontWeight="800"
@@ -728,31 +729,35 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   <Button
                     aria-label="Add new patient"
                     title="Add new patient"
-                    h="42px"
-                    minW={{ base: "42px", sm: "auto" }}
-                    leftIcon={<FiPlus size={14} />}
-                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    h="36px"
+                    minW={{ base: "36px", sm: "auto" }}
+                    w={{ base: "36px", sm: "auto" }}
+                    p={0}
+                    px={{ base: 0, sm: 3.5 }}
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
-                    borderRadius={{ base: "14px", sm: "full" }}
-                    px={{ base: 0, sm: 4 }}
-                    fontSize="13px"
+                    borderRadius="full"
+                    fontSize="12.5px"
                     fontWeight="800"
                     boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
                     _hover={{
-                      bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                      bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                       transform: "translateY(-1px)",
                     }}
                     _active={{ transform: "scale(0.96)" }}
                     onClick={onAdd}
                   >
-                    <Text display={{ base: "none", sm: "inline" }}>New Patient</Text>
+                    <Flex align="center" justify="center" gap={1.5}>
+                      <FiPlus size={16} />
+                      <Text display={{ base: "none", sm: "inline" }}>New Patient</Text>
+                    </Flex>
                   </Button>
                 )}
               </Flex>
 
               {/* Instant Search Bar */}
-              <InputGroup size="md" mb={3}>
-                <InputLeftElement pointerEvents="none" h="46px" w="44px">
+              <InputGroup size="sm" mb={2}>
+                <InputLeftElement pointerEvents="none" h="40px" w="40px">
                   <FiSearch color="#0D9488" size={16} />
                 </InputLeftElement>
                 <Input
@@ -764,18 +769,19 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   borderColor={useColorModeValue("#E2E8F0", "gray.700")}
                   fontSize="13px"
                   fontWeight="600"
-                  h="46px"
-                  px={11}
+                  h="40px"
+                  pl="38px"
+                  pr={searchQuery ? "38px" : 3}
                   boxShadow="0 2px 8px rgba(0,0,0,0.03)"
                   _focus={{
-                    borderColor: "#0EA5E9",
+                    borderColor: "brand.500",
                     bg: useColorModeValue("white", "gray.800"),
-                    boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+                    boxShadow: "0 0 0 3px var(--theme-shadow, rgba(14, 165, 233, 0.15))",
                   }}
                   _placeholder={{ color: "gray.400", fontWeight: "400" }}
                 />
                 {searchQuery && (
-                  <InputRightElement h="46px">
+                  <InputRightElement h="40px">
                     <IconButton
                       aria-label="Clear search"
                       icon={<FiX size={14} />}
@@ -791,13 +797,14 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               </InputGroup>
 
               {/* Quick Filter Pills Row */}
-              <HStack spacing={2} overflowX="auto" py={1} px={0.5} sx={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}>
+              <HStack spacing={2} overflowX="auto" py={0.5} px={0.5} mb={2} sx={{ "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}>
                 <Button
                   size="sm"
                   rounded="full"
-                  minH="40px"
-                  px={3.5}
-                  fontSize="12px"
+                  minH="32px"
+                  h="32px"
+                  px={3}
+                  fontSize="11.5px"
                   fontWeight="750"
                   bg={mobileFilter === "all" ? "teal.600" : useColorModeValue("gray.100", "gray.800")}
                   color={mobileFilter === "all" ? "white" : subtextColor}
@@ -810,9 +817,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 <Button
                   size="sm"
                   rounded="full"
-                  minH="40px"
-                  px={3.5}
-                  fontSize="12px"
+                  minH="32px"
+                  h="32px"
+                  px={3}
+                  fontSize="11.5px"
                   fontWeight="750"
                   bg={mobileFilter === "pending" ? "purple.600" : useColorModeValue("purple.50", "whiteAlpha.100")}
                   color={mobileFilter === "pending" ? "white" : "purple.600"}
@@ -826,9 +834,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 <Button
                   size="sm"
                   rounded="full"
-                  minH="40px"
-                  px={3.5}
-                  fontSize="12px"
+                  minH="32px"
+                  h="32px"
+                  px={3}
+                  fontSize="11.5px"
                   fontWeight="750"
                   bg={mobileFilter === "male" ? "blue.600" : useColorModeValue("blue.50", "whiteAlpha.100")}
                   color={mobileFilter === "male" ? "white" : "blue.600"}
@@ -841,9 +850,10 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 <Button
                   size="sm"
                   rounded="full"
-                  minH="40px"
-                  px={3.5}
-                  fontSize="12px"
+                  minH="32px"
+                  h="32px"
+                  px={3}
+                  fontSize="11.5px"
                   fontWeight="750"
                   bg={mobileFilter === "female" ? "pink.600" : useColorModeValue("pink.50", "whiteAlpha.100")}
                   color={mobileFilter === "female" ? "white" : "pink.600"}
@@ -858,18 +868,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
             {/* Mobile Cards Stack */}
             {user.loading ? (
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                py={16}
-                gap={3}
-              >
-                <Spinner size="lg" color="teal.500" thickness="3px" />
-                <Text fontSize="13px" color={subtextColor} fontWeight="600">
-                  Loading patients...
-                </Text>
-              </Flex>
+              <CardListSkeleton count={4} />
             ) : (() => {
               const mobileFilteredPatients = formattedPatients.filter((p: any) => {
                 if (mobileFilter === "pending") return Number(p.pendingTreatmentCount) > 0;
@@ -1312,7 +1311,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                               minW={0}
                               px={2}
                               rounded="14px"
-                              bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                              bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                               color="white"
                               fontWeight="800"
                               fontSize={{ base: "11px", sm: "12px" }}
@@ -1320,7 +1319,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                               leftIcon={<GiMedicalDrip size={15} color="white" />}
                               boxShadow="0 3px 10px -2px rgba(13, 148, 136, 0.4)"
                               _hover={{
-                                bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                                bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                                 transform: "translateY(-1px)",
                               }}
                               _active={{ transform: "scale(0.97)" }}
@@ -1519,7 +1518,7 @@ const PatientTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <DrawerHeader
               bgGradient={
                 isMobile
-                  ? "linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                  ? "linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                   : undefined
               }
               bg={

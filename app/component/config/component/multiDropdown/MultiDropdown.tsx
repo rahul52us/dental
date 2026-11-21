@@ -58,8 +58,9 @@ const MultiDropdown = ({
   // Use useColorModeValue to set colors for light and dark modes
   const popoverBg = useColorModeValue("white", "gray.900");
   const borderColor = useColorModeValue("gray.300", "gray.600");
-  const buttonTextColor = useColorModeValue("teal.400", "teal.200");
-  const focusBorderColor = useColorModeValue("blue.500", "blue.300");
+  const buttonColor = useColorModeValue("brand.600", "white");
+  const buttonHoverBg = useColorModeValue("brand.50", "whiteAlpha.100");
+  const focusBorderColor = useColorModeValue("brand.500", "brand.300");
 
   useEffect(() => {
     const debouncedHandler = debounce((value: string) => {
@@ -102,12 +103,15 @@ const MultiDropdown = ({
     >
       <PopoverTrigger>
         <Button
-          aria-label=""
-          fontSize="md"
-          onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-          color={buttonTextColor}
+          aria-label={t("common.table.filter")}
+          fontSize="sm"
+          variant="outline"
+          borderColor={borderColor}
+          color={buttonColor}
+          _hover={{ bg: buttonHoverBg }}
           size="md"
           leftIcon={<MdFilterList />}
+          onClick={() => setIsPopoverOpen(!isPopoverOpen)}
         >
           {t("common.table.filter")}
         </Button>
@@ -117,7 +121,7 @@ const MultiDropdown = ({
           mt={-1}
           fontWeight="bold"
           borderBottomWidth="1px"
-          color={buttonTextColor}
+          color={buttonColor}
         >
           {t("common.table.selectOptions")}
         </PopoverHeader>
@@ -176,7 +180,10 @@ const MultiDropdown = ({
               );
             })}
             <Button
-              colorScheme="teal"
+              bg="brand.500"
+              color="white"
+              _hover={{ bg: "brand.600" }}
+              _active={{ bg: "brand.700" }}
               onClick={() => {
                 onApply();
                 handlePopoverClose();

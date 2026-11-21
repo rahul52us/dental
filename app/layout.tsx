@@ -8,7 +8,7 @@ import MainLayout from "./layouts/mainLayout/MainLayout";
 import AuthenticationLayout from "./layouts/authenticationLayout/AuthenticationLayout";
 import DashboardLayout from "./layouts/dashboardLayout/DashboardLayout";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import stores from "./store/stores";
 import Notification from "./component/common/Notification/Notification";
 import { Montserrat } from "next/font/google";
@@ -50,7 +50,9 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // // // console.log('RootLayout hydrated, body classes:', document.body.className);
+      const light = stores.themeStore.themeConfig?.colors?.custom?.light?.primary || "#0D9488";
+      const dark = stores.themeStore.themeConfig?.colors?.custom?.dark?.primary || "#134E4A";
+      stores.themeStore.applyCssVariables(light, dark);
     }
   }, []);
 
@@ -86,7 +88,9 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
       <body className={`${lato.className} ${montserrat.className}`} suppressHydrationWarning>
         <ChakraProvider theme={theme}>
           <Notification />
-          <LayoutComponent>{children}</LayoutComponent>
+          <Suspense fallback={null}>
+            <LayoutComponent>{children}</LayoutComponent>
+          </Suspense>
         </ChakraProvider>
       </body>
     </html>

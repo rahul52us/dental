@@ -17,6 +17,7 @@ import {
   Avatar,
   Circle,
   Button,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaCoins, FaUserMd, FaUser, FaTooth, FaCalendarAlt, FaNotesMedical, FaStethoscope } from "react-icons/fa";
@@ -42,6 +43,23 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   const isMultiple = Array.isArray(data);
   const [activeRecordIndex, setActiveRecordIndex] = useState(0);
   const currentData = isMultiple ? data[activeRecordIndex] : data;
+
+  const cardBg = useColorModeValue("white", "gray.800");
+  const outerBg = useColorModeValue("gray.50", "gray.900");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.500", "gray.400");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const toothBadgeBg = useColorModeValue("blue.50", "rgba(59, 130, 246, 0.15)");
+  const toothBadgeBorder = useColorModeValue("blue.100", "rgba(59, 130, 246, 0.3)");
+  const toothNumberColor = useColorModeValue("blue.800", "blue.200");
+  const bentoBlueBg = useColorModeValue("blue.50", "rgba(59, 130, 246, 0.1)");
+  const bentoBlueBorder = useColorModeValue("blue.100", "rgba(59, 130, 246, 0.2)");
+  const bentoRedBg = useColorModeValue("red.50", "rgba(239, 68, 68, 0.1)");
+  const bentoRedBorder = useColorModeValue("red.100", "rgba(239, 68, 68, 0.2)");
+  const bentoGreenBg = useColorModeValue("green.50", "rgba(34, 197, 94, 0.1)");
+  const bentoGreenBorder = useColorModeValue("green.100", "rgba(34, 197, 94, 0.2)");
 
   const [treatment, setTreatment] = useState<any>(currentData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -159,7 +177,7 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   })();
 
   return (
-    <Box p={6} bg="gray.50" borderRadius="3xl" maxH="85vh" overflowY="auto" sx={{
+    <Box p={6} bg={outerBg} borderRadius="3xl" maxH="85vh" overflowY="auto" sx={{
       '&::-webkit-scrollbar': { width: '6px' },
       '&::-webkit-scrollbar-thumb': { background: 'rgba(0,0,0,0.05)', borderRadius: '10px' }
     }}>
@@ -187,15 +205,15 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
 
         {/* Header Section */}
 
-        <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
+        <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
           <HStack justify="space-between" align="center">
             <HStack spacing={6} align="center">
               {/* Premium Tooth Badge */}
               <VStack
                 spacing={1}
                 border="1px solid"
-                borderColor="blue.100"
-                bg="blue.50/40"
+                borderColor={toothBadgeBorder}
+                bg={toothBadgeBg}
                 borderRadius="2xl"
                 p={3}
                 minW="110px"
@@ -204,13 +222,13 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                 justify="center"
                 boxShadow="sm"
               >
-                <Text fontSize="32px" fontWeight="1000" color="blue.800" lineHeight="1">
+                <Text fontSize="32px" fontWeight="1000" color={toothNumberColor} lineHeight="1">
                   {toothDisplayNumber}
                 </Text>
-                <Text fontSize="9px" fontWeight="1000" color="blue.500" letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
+                <Text fontSize="9px" fontWeight="1000" color="blue.400" letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
                   {toothObj ? `${toothObj.side} ${toothObj.position}` : "GENERAL"}
                 </Text>
-                <Text fontSize="8px" fontWeight="1000" color="gray.500" letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
+                <Text fontSize="8px" fontWeight="1000" color={textMuted} letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
                   {toothObj ? toothObj.name.replace(/primary|left|right|upper|lower/gi, "").trim().replace(/\s+/g, " ") : "RECORD"}
                 </Text>
               </VStack>
@@ -219,21 +237,21 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                   <Badge colorScheme={color} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs" textTransform="uppercase" letterSpacing="wider">
                     {status || "Pending"}
                   </Badge>
-                  <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="0.1em">
+                  <Text fontSize="xs" fontWeight="900" color={textMuted} letterSpacing="0.1em">
                     {workDoneNote !== undefined || amount !== undefined ? "WORK DONE RECORD" : "TREATMENT RECORD"}
                   </Text>
                 </HStack>
-                <Heading size="lg" fontWeight="900" color="gray.800">
+                <Heading size="lg" fontWeight="900" color={textPrimary}>
                   {patient?.name || "Anonymous Patient"}
                 </Heading>
-                <Text fontSize="sm" color="gray.500" fontWeight="600" mt={0.5}>
-                  {notation.toUpperCase()} ID: <Box as="span" color="blue.600" fontWeight="800">{toothDisplayNumber}</Box>
+                <Text fontSize="sm" color={textMuted} fontWeight="600" mt={0.5}>
+                  {notation.toUpperCase()} ID: <Box as="span" color="blue.400" fontWeight="800">{toothDisplayNumber}</Box>
                 </Text>
               </VStack>
             </HStack>
             <VStack align="end" spacing={1}>
-              <Text fontSize="xs" fontWeight="900" color="gray.400" letterSpacing="wider">SERVICE DATE</Text>
-              <HStack color="gray.700">
+              <Text fontSize="xs" fontWeight="900" color={textMuted} letterSpacing="wider">SERVICE DATE</Text>
+              <HStack color={textSecondary}>
                 <Icon as={FaCalendarAlt} size="14px" />
                 <Text fontWeight="800" fontSize="lg">{formatDate(treatmentDate)}</Text>
               </HStack>
@@ -243,21 +261,21 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
 
         <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }} gap={6}>
           {/* Clinical Context */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
+          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
             <VStack align="start" spacing={4} w="full">
 
               <VStack align="stretch" w="full" spacing={4}>
                 <Box>
-                  <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">Complaint Type</Text>
+                  <Text fontSize="xs" fontWeight="900" color={textMuted} mb={1} textTransform="uppercase">Complaint Type</Text>
                   <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="lg" fontSize="xs">
                     {complaintType || "No Complaint Specified"}
                   </Badge>
                 </Box>
                 <Box>
-                  <Text fontSize="xs" fontWeight="900" color="gray.400" mb={1} textTransform="uppercase">
+                  <Text fontSize="xs" fontWeight="900" color={textMuted} mb={1} textTransform="uppercase">
                     {workDoneNote !== undefined || amount !== undefined ? "Procedure Completed" : "Procedure Planned"}
                   </Text>
-                  <Text fontWeight="800" color="gray.700" fontSize="md">
+                  <Text fontWeight="800" color={textSecondary} fontSize="md">
                     {treatmentPlan || treatmentCode || "General Consultation"}
                   </Text>
                 </Box>
@@ -266,23 +284,23 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
           </Card>
 
           {/* Assigned Staff */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
+          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
             <VStack align="start" spacing={4} w="full">
-              <Divider />
+              <Divider borderColor={borderColor} />
               <VStack align="stretch" w="full" spacing={4}>
                 <HStack spacing={4}>
                   <Avatar size="sm" name={doctor?.name} src={doctor?.photo} />
                   <Box>
-                    <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Assign Doctor</Text>
-                    <Text fontWeight="800" color="gray.700">{doctor?.name || "Unassigned"}</Text>
+                    <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase">Assign Doctor</Text>
+                    <Text fontWeight="800" color={textSecondary}>{doctor?.name || "Unassigned"}</Text>
                   </Box>
                 </HStack>
                 {examiningDoctor && (
                   <HStack spacing={4}>
                     <Avatar size="sm" name={examiningDoctor?.name} src={examiningDoctor?.photo} />
                     <Box>
-                      <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Examining Doctor</Text>
-                      <Text fontWeight="800" color="gray.700">{examiningDoctor?.name}</Text>
+                      <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase">Examining Doctor</Text>
+                      <Text fontWeight="800" color={textSecondary}>{examiningDoctor?.name}</Text>
                     </Box>
                   </HStack>
                 )}
@@ -290,15 +308,15 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
             </VStack>
           </Card>
 
-                    <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
             <VStack align="start" spacing={4} w="full">
               <HStack>
                 <Icon as={FaNotesMedical} color="orange.500" />
-                <Heading size="sm" color="gray.700">Clinical Findings & Notes</Heading>
+                <Heading size="sm" color={textSecondary}>Clinical Findings & Notes</Heading>
               </HStack>
-              <Divider />
-              <Box w="full" bg="gray.50" p={5} borderRadius="2xl" border="1px dashed" borderColor="gray.200">
-                <Text color="gray.700" whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
+              <Divider borderColor={borderColor} />
+              <Box w="full" bg={subtleBg} p={5} borderRadius="2xl" border="1px dashed" borderColor={borderColor}>
+                <Text color={textSecondary} whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
                   {notes || workDoneNote || toothNote || "No clinical notes provided for this record."}
                 </Text>
               </Box>
@@ -307,21 +325,21 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
 
 
           {/* Financial Summary */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
             <VStack align="start" spacing={4} w="full">
               <HStack>
                 <Icon as={FaCoins} color="green.500" />
-                <Heading size="sm" color="gray.700">
+                <Heading size="sm" color={textSecondary}>
                   {workDoneNote !== undefined || amount !== undefined ? "Billing Summary" : "Financial Summary"}
                 </Heading>
               </HStack>
-              <Divider />
+              <Divider borderColor={borderColor} />
               <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} w="full">
-                <VStack align="start" spacing={1} p={4} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
-                  <Text fontSize="10px" fontWeight="900" color="blue.500" letterSpacing="0.05em" textTransform="uppercase">
+                <VStack align="start" spacing={1} p={4} bg={bentoBlueBg} borderRadius="2xl" border="1px solid" borderColor={bentoBlueBorder}>
+                  <Text fontSize="10px" fontWeight="900" color="blue.400" letterSpacing="0.05em" textTransform="uppercase">
                     {workDoneNote !== undefined || amount !== undefined ? "Actual Amount" : "Gross Estimate"}
                   </Text>
-                  <Text fontSize="18px" fontWeight="1000" color="blue.700">
+                  <Text fontSize="18px" fontWeight="1000" color={useColorModeValue("blue.700", "blue.300")}>
                     {workDoneNote !== undefined || amount !== undefined
                       ? `₹${(amount || 0).toLocaleString()}`
                       : estimateMin === estimateMax
@@ -329,15 +347,15 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                         : `₹${(estimateMin || 0).toLocaleString()} - ₹${(estimateMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
-                <VStack align="start" spacing={1} p={4} bg="red.50" borderRadius="2xl" border="1px solid" borderColor="red.100">
-                  <Text fontSize="10px" fontWeight="900" color="red.500" letterSpacing="0.05em" textTransform="uppercase">Discount</Text>
-                  <Text fontSize="18px" fontWeight="1000" color="red.600">₹{(discount || 0).toLocaleString()}</Text>
+                <VStack align="start" spacing={1} p={4} bg={bentoRedBg} borderRadius="2xl" border="1px solid" borderColor={bentoRedBorder}>
+                  <Text fontSize="10px" fontWeight="900" color="red.400" letterSpacing="0.05em" textTransform="uppercase">Discount</Text>
+                  <Text fontSize="18px" fontWeight="1000" color={useColorModeValue("red.600", "red.300")}>₹{(discount || 0).toLocaleString()}</Text>
                 </VStack>
-                <VStack align="start" spacing={1} p={4} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
-                  <Text fontSize="10px" fontWeight="900" color="green.600" letterSpacing="0.05em" textTransform="uppercase">
+                <VStack align="start" spacing={1} p={4} bg={bentoGreenBg} borderRadius="2xl" border="1px solid" borderColor={bentoGreenBorder}>
+                  <Text fontSize="10px" fontWeight="900" color="green.400" letterSpacing="0.05em" textTransform="uppercase">
                     {workDoneNote !== undefined || amount !== undefined ? "Net Total Paid" : "Net Total (Estimated)"}
                   </Text>
-                  <Text fontSize="20px" fontWeight="1000" color="green.700">
+                  <Text fontSize="20px" fontWeight="1000" color={useColorModeValue("green.700", "green.300")}>
                     {workDoneNote !== undefined || amount !== undefined
                       ? `₹${((amount || 0) - (discount || 0)).toLocaleString()}`
                       : totalMin === totalMax
@@ -352,14 +370,14 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
           {/* Notes & Clinical Findings */}
 
           {/* Administrative Info */}
-          <Card variant="unstyled" bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
+          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
             <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={8}>
               <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase">Record Created</Text>
-                <Text color="gray.700" fontWeight="800">{formatDate(createdAt)}</Text>
+                <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase">Record Created</Text>
+                <Text color={textSecondary} fontWeight="800">{formatDate(createdAt)}</Text>
               </VStack>
               <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="900" color="gray.400" textTransform="uppercase" letterSpacing="wider">DENTITION</Text>
+                <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase" letterSpacing="wider">DENTITION</Text>
                 <Badge colorScheme={dentition === "child" ? "pink" : "blue"} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs">{dentition.toUpperCase()}</Badge>
               </VStack>
             </Grid>

@@ -10,6 +10,7 @@ import {
   useToast,
   Text,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import stores from "../../store/stores";
@@ -22,6 +23,8 @@ import { observer } from "mobx-react-lite";
 
 const DoctorInventoryPage = observer(() => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+  const drawerBg = useColorModeValue("white", "darkBrand.50");
+  const drawerBodyBg = useColorModeValue("gray.50", "darkBrand.50");
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -154,7 +157,7 @@ const DoctorInventoryPage = observer(() => {
         >
           <DrawerOverlay bg="blackAlpha.700" backdropFilter="blur(4px)" />
           <DrawerContent
-            bg="white"
+            bg={drawerBg}
             borderRadius={isMobile ? 0 : "lg"}
             borderTopRadius={0}
             boxShadow="xl"
@@ -175,7 +178,7 @@ const DoctorInventoryPage = observer(() => {
               zIndex={2}
             />
             <DrawerHeader
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               fontSize={{ base: "16px", md: "lg" }}
               fontWeight="800"
@@ -189,7 +192,7 @@ const DoctorInventoryPage = observer(() => {
             >
               {isDrawerOpen?.type === "edit" ? "Edit In & Out Ledger" : "Add In & Out Ledger"}
             </DrawerHeader>
-            <DrawerBody p={{ base: 3, md: 6 }} bg="gray.50" overflowY="auto" overscrollBehaviorY="contain">
+            <DrawerBody p={{ base: 3, md: 6 }} bg={drawerBodyBg} overflowY="auto" overscrollBehaviorY="contain">
               <Form
                 initialData={
                   isDrawerOpen?.type === "edit"

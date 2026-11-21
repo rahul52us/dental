@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
 import {
+  useColorModeValue,
+
   Avatar,
   Badge,
   Box,
@@ -26,6 +28,7 @@ import {
   InputRightElement,
   Input,
   Spinner,
+
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
 import { MdShoppingBasket } from "react-icons/md";
@@ -46,6 +49,7 @@ import useDebounce from "../../../../component/config/component/customHooks/useD
 import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDate } from "../../../../component/config/utils/dateUtils";
+import { CardListSkeleton } from "../../../../component/common/Loader/ContentSkeleton";
 import ViewDealer from "./ViewDealer";
 
 const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
@@ -184,6 +188,16 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
 
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
+  // Theme & Dark Mode tokens
+  const dealerTitleColor = useColorModeValue("gray.850", "white");
+  const dealerSubtextColor = useColorModeValue("gray.500", "gray.400");
+  const dealerCardBg = useColorModeValue("white", "gray.800");
+  const dealerCardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const dealerSearchBg = useColorModeValue("white", "gray.800");
+  const dealerSearchBorder = useColorModeValue("#E2E8F0", "gray.700");
+  const dealerSearchColor = useColorModeValue("gray.800", "white");
+  const dealerActionBg = useColorModeValue("gray.50", "gray.700");
+
   return (
     <Box p={{ base: 2, md: 4 }}>
       {/* ============================================================== */}
@@ -195,12 +209,12 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
           <Flex align="center" justify="space-between" gap={2} mb={3}>
             <Box>
               <HStack spacing={2} align="center">
-                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color="gray.850" letterSpacing="-0.4px">
+                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color={dealerTitleColor} letterSpacing="-0.4px">
                   Dealers
                 </Text>
                 {dealers.data?.length !== undefined && (
                   <Badge
-                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
                     fontSize="10px"
                     fontWeight="800"
@@ -213,16 +227,16 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
                   </Badge>
                 )}
               </HStack>
-              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+              <Text fontSize="12px" color={dealerSubtextColor} fontWeight="500" mt={0.5}>
                 Vendors & Laboratory Supply Dealers
               </Text>
             </Box>
 
             {stores.auth.hasPermission("masters", "create") && (
               <Button
-                h="40px"
-                leftIcon={<FiPlus size={15} />}
-                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                h="36px"
+                leftIcon={<FiPlus size={14} />}
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="14px"
                 px={4}
@@ -230,7 +244,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
                 fontWeight="800"
                 boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
                 _hover={{
-                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                   transform: "translateY(-1px)",
                 }}
                 _active={{ transform: "scale(0.96)" }}
@@ -243,29 +257,31 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
 
           {/* Search Bar */}
           <InputGroup size="md" mb={3}>
-            <InputLeftElement pointerEvents="none" h="46px" w="44px">
-              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+            <InputLeftElement pointerEvents="none" h="40px" w="40px">
+              <Icon as={FiSearch} color="brand.500" boxSize={4} />
             </InputLeftElement>
             <Input
               placeholder="Search dealer by name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               borderRadius="15px"
-              bg="white"
-              borderColor="#E2E8F0"
+              bg={dealerSearchBg}
+              borderColor={dealerSearchBorder}
+              color={dealerSearchColor}
               fontSize="13px"
               fontWeight="600"
-              h="46px"
-              px={11}
+              h="40px"
+              pl="38px"
+              pr={searchQuery ? "38px" : 3}
               boxShadow="0 2px 8px rgba(0,0,0,0.03)"
               _focus={{
-                borderColor: "#0EA5E9",
-                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+                borderColor: "brand.500",
+                boxShadow: "0 0 0 3px var(--theme-shadow, rgba(14, 165, 233, 0.15))",
               }}
               _placeholder={{ color: "gray.400", fontWeight: "400" }}
             />
             {searchQuery && (
-              <InputRightElement h="46px">
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={14} />}
@@ -282,12 +298,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
 
           {/* Cards Stack */}
           {dealers.loading ? (
-            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500" fontWeight="600">
-                Loading dealers...
-              </Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !dealers.data || dealers.data.length === 0 ? (
             <Flex
               direction="column"
@@ -295,10 +306,10 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
               justify="center"
               py={14}
               textAlign="center"
-              bg="white"
+              bg={dealerCardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={dealerCardBorder}
               px={4}
             >
               <Icon as={FiPackage} boxSize="36px" color="gray.400" mb={2} />
@@ -315,9 +326,9 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
                 return (
                   <Box
                     key={dealer._id || dealer.id}
-                    bg="white"
+                    bg={dealerCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={dealerCardBorder}
                     borderRadius="22px"
                     p={3.5}
                     boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
@@ -339,7 +350,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
                         />
 
                         <Box flex={1} minW={0}>
-                          <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          <Text fontSize="15px" fontWeight="850" color={dealerTitleColor} noOfLines={1} letterSpacing="-0.2px">
                             {dealer.name}
                           </Text>
                           <HStack spacing={1.5} mt={0.5} wrap="wrap">
@@ -374,10 +385,10 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
                         w="full"
                         minH="40px"
                         borderRadius="xl"
-                        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                         color="white"
                         _hover={{
-                          bgGradient: "linear(135deg, #082F49, #0F766E)",
+                          bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                           shadow: "md",
                         }}
                         _active={{ transform: "scale(0.98)" }}
@@ -393,7 +404,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
                     )}
 
                     {/* Quick Actions Row */}
-                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor="gray.200">
+                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor={dealerCardBorder}>
                       <Text fontSize="11px" fontWeight="600" color="gray.400">
                         Dealer Actions
                       </Text>
@@ -567,7 +578,7 @@ const DealersTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => 
         >
           <DrawerCloseButton color="white" bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.350" }} top={{ base: 2, md: 4 }} right={{ base: 2, md: 4 }} />
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             py={{ base: 3, md: 4 }}
             fontSize={{ base: "sm", md: "lg" }}

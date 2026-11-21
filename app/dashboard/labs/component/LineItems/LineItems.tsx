@@ -25,6 +25,7 @@ import {
   HStack,
   useToast,
   useBreakpointValue,
+  useColorModeValue,
   Input,
   InputGroup,
   InputLeftElement,
@@ -68,6 +69,19 @@ const validationSchema = Yup.object().shape({
 
 const LineItems = observer(({ data }: any) => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  const itemCardBg = useColorModeValue("white", "darkBrand.50");
+  const itemBorder = useColorModeValue("#E8EEF4", "whiteAlpha.200");
+  const itemTitle = useColorModeValue("gray.850", "white");
+  const itemText = useColorModeValue("gray.700", "gray.200");
+  const itemMuted = useColorModeValue("gray.500", "gray.400");
+  const itemSearchBg = useColorModeValue("white", "darkBrand.100");
+  const itemSearchBorder = useColorModeValue("gray.200", "whiteAlpha.200");
+  const itemSearchText = useColorModeValue("gray.800", "white");
+  const itemMetricBg = useColorModeValue("gray.50", "whiteAlpha.50");
+  const itemDividerBorder = useColorModeValue("gray.100", "whiteAlpha.150");
+  const itemCodeBg = useColorModeValue("gray.100", "whiteAlpha.200");
+  const itemCodeText = useColorModeValue("gray.700", "gray.300");
   const {
     labStore: {
       getLabLineItems,
@@ -319,14 +333,14 @@ const LineItems = observer(({ data }: any) => {
           {/* Top App Bar / Actions Strip */}
           <Flex justify="space-between" align="center" mb={3} gap={2} px={1}>
             <HStack spacing={2}>
-              <Text fontSize="16px" fontWeight="900" color="gray.800" letterSpacing="-0.3px">
+              <Text fontSize="16px" fontWeight="900" color={itemTitle} letterSpacing="-0.3px">
                 Line Items
               </Text>
               <Badge
-                bg="rgba(13, 148, 136, 0.12)"
-                color="teal.700"
+                bg={useColorModeValue("rgba(13, 148, 136, 0.12)", "rgba(13, 148, 136, 0.25)")}
+                color={useColorModeValue("teal.700", "teal.200")}
                 border="1px solid"
-                borderColor="rgba(13, 148, 136, 0.25)"
+                borderColor={useColorModeValue("rgba(13, 148, 136, 0.25)", "rgba(13, 148, 136, 0.4)")}
                 borderRadius="full"
                 px={2}
                 py={0.5}
@@ -340,9 +354,9 @@ const LineItems = observer(({ data }: any) => {
             {stores.auth.hasPermission("lab", "create") && (
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.96)" }}
                 leftIcon={<IoMdAdd fontSize="16px" />}
                 borderRadius="xl"
@@ -367,8 +381,9 @@ const LineItems = observer(({ data }: any) => {
               value={searchQuery}
               onChange={(e: any) => setSearchQuery(e.target.value)}
               borderRadius="xl"
-              bg="white"
-              borderColor="gray.200"
+              bg={itemSearchBg}
+              borderColor={itemSearchBorder}
+              color={itemSearchText}
               _focus={{
                 borderColor: "teal.500",
                 boxShadow: "0 0 0 1px #0D9488",
@@ -399,17 +414,17 @@ const LineItems = observer(({ data }: any) => {
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={itemCardBg}
               borderRadius="22px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={itemBorder}
               textAlign="center"
             >
-              <Icon as={FiPackage} boxSize="36px" color="gray.400" mb={2} />
-              <Text fontSize="14px" fontWeight="750" color="gray.700">
+              <Icon as={FiPackage} boxSize="36px" color={itemMuted} mb={2} />
+              <Text fontSize="14px" fontWeight="750" color={itemTitle}>
                 No Line Items
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1}>
+              <Text fontSize="12px" color={itemMuted} mt={1}>
                 {searchQuery ? `No matching items for "${searchQuery}"` : "Tap + Add Item to create a line item."}
               </Text>
             </Flex>
@@ -422,9 +437,9 @@ const LineItems = observer(({ data }: any) => {
                 return (
                   <Box
                     key={item._id || idx}
-                    bg="white"
+                    bg={itemCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={itemBorder}
                     borderRadius="20px"
                     p={3.5}
                     boxShadow="0 6px 18px -8px rgba(15, 23, 42, 0.12)"
@@ -433,14 +448,14 @@ const LineItems = observer(({ data }: any) => {
                     {/* Item Top Row */}
                     <Flex justify="space-between" align="flex-start" gap={2} mb={2}>
                       <Box flex={1} minW={0} cursor="pointer" onClick={() => handleRowClick(item)}>
-                        <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                        <Text fontSize="15px" fontWeight="850" color={itemTitle} noOfLines={1} letterSpacing="-0.2px">
                           {item.itemName}
                         </Text>
                         {item.itemCode && (
                           <Badge
                             mt={1}
-                            bg="gray.100"
-                            color="gray.700"
+                            bg={itemCodeBg}
+                            color={itemCodeText}
                             borderRadius="md"
                             px={1.5}
                             py={0.5}
@@ -452,8 +467,8 @@ const LineItems = observer(({ data }: any) => {
                         )}
                       </Box>
                       <Badge
-                        bg="rgba(13, 148, 136, 0.12)"
-                        color="teal.700"
+                        bg={useColorModeValue("rgba(13, 148, 136, 0.12)", "rgba(13, 148, 136, 0.25)")}
+                        color={useColorModeValue("teal.700", "teal.200")}
                         borderRadius="full"
                         px={2.5}
                         py={1}
@@ -466,10 +481,10 @@ const LineItems = observer(({ data }: any) => {
                     </Flex>
 
                     {/* Patient & Date Meta */}
-                    <Flex justify="space-between" align="center" py={1.5} borderTop="1px dashed" borderColor="gray.100" fontSize="11.5px" color="gray.500">
+                    <Flex justify="space-between" align="center" py={1.5} borderTop="1px dashed" borderColor={itemDividerBorder} fontSize="11.5px" color={itemMuted}>
                       <HStack spacing={1.5} minW={0} flex={1}>
                         <Icon as={FiUser} color="teal.500" boxSize={3} />
-                        <Text fontWeight="600" color="gray.700" noOfLines={1}>
+                        <Text fontWeight="600" color={itemText} noOfLines={1}>
                           {item.patientDetails?.name || "No Patient"}
                         </Text>
                       </HStack>
@@ -480,27 +495,27 @@ const LineItems = observer(({ data }: any) => {
                     </Flex>
 
                     {/* Pricing Metric Strip */}
-                    <SimpleGrid columns={2} spacing={2} my={2.5} p={2.5} bg="gray.50" borderRadius="xl">
+                    <SimpleGrid columns={2} spacing={2} my={2.5} p={2.5} bg={itemMetricBg} borderRadius="xl">
                       <Box>
-                        <Text fontSize="10px" fontWeight="700" color="gray.500" textTransform="uppercase">
+                        <Text fontSize="10px" fontWeight="700" color={itemMuted} textTransform="uppercase">
                           Unit Price
                         </Text>
-                        <Text fontSize="13px" fontWeight="800" color="gray.800">
+                        <Text fontSize="13px" fontWeight="800" color={itemTitle}>
                           ₹{price.toLocaleString("en-IN")}
                         </Text>
                       </Box>
                       <Box textAlign="right">
-                        <Text fontSize="10px" fontWeight="700" color="teal.600" textTransform="uppercase">
+                        <Text fontSize="10px" fontWeight="700" color={useColorModeValue("teal.600", "teal.300")} textTransform="uppercase">
                           Total
                         </Text>
-                        <Text fontSize="14px" fontWeight="900" color="teal.700">
+                        <Text fontSize="14px" fontWeight="900" color={useColorModeValue("teal.700", "teal.200")}>
                           ₹{total.toLocaleString("en-IN")}
                         </Text>
                       </Box>
                     </SimpleGrid>
 
                     {/* Action Toolbar */}
-                    <Flex justify="flex-end" align="center" pt={1} borderTop="1px dashed" borderColor="gray.100" gap={1}>
+                    <Flex justify="flex-end" align="center" pt={1} borderTop="1px dashed" borderColor={itemDividerBorder} gap={1}>
                       {stores.auth.hasPermission("lab", "view") && (
                         <Button
                           size="xs"
@@ -637,7 +652,7 @@ const LineItems = observer(({ data }: any) => {
         >
           <DrawerCloseButton color="white" zIndex={2} />
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             borderRadius={0}
             borderTopRadius={0}
@@ -781,9 +796,9 @@ const LineItems = observer(({ data }: any) => {
                     Cancel
                   </Button>
                   <Button
-                    bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
-                    _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                    _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                     _active={{ transform: "scale(0.98)" }}
                     type="submit"
                     isLoading={formLoading}

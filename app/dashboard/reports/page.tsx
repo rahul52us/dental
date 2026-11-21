@@ -302,7 +302,7 @@ const ReportsPage = observer(() => {
         <Box display={{ base: "block", md: "none" }}>
           {/* Mobile Hero Banner */}
           <Box
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             borderRadius="2xl"
             p={4}
             mb={3.5}
@@ -901,9 +901,9 @@ const ReportsPage = observer(() => {
                         w={{ base: "100%", md: "auto" }}
                         h={{ base: "48px", md: "auto" }}
                         colorScheme="teal"
-                        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                         color="white"
-                        _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                        _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                         _active={{ transform: "scale(0.98)" }}
                         leftIcon={<RiEyeLine size={20} />}
                         px={{ base: 4, md: 10 }}

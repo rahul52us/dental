@@ -95,7 +95,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
             p={isMobile ? 3 : 4}
             bgGradient={
               isMobile
-                ? "linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                ? "linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 : undefined
             }
             bg={isMobile ? undefined : headerBgColor}

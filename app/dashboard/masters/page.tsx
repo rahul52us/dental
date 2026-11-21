@@ -26,6 +26,7 @@ import {
   Text,
   Tooltip,
   useBreakpointValue,
+  useColorModeValue,
   useDisclosure,
   useToast,
   VStack,
@@ -57,6 +58,19 @@ interface Sidebar {
 
 const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handleCloseDrawer }) => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Dark mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.300");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const drawerBg = useColorModeValue("white", "gray.800");
+
   const { dashboardStore: { getMasterData, createOrUpdateMasterData } } = stores;
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -204,11 +218,11 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
 
   if (!stores.auth.hasPermission('masters', 'view')) {
     return (
-      <Box p={10} textAlign="center" bg="white" borderRadius="2xl" m={4} shadow="sm">
+      <Box p={10} textAlign="center" bg={cardBg} borderRadius="2xl" m={4} shadow="sm">
         <VStack spacing={4}>
           <Icon as={FiInfo} boxSize={12} color="red.500" />
-          <Heading size="md" color="gray.700">Access Denied</Heading>
-          <Text color="gray.500">You do not have permission to view or manage master settings.</Text>
+          <Heading size="md" color={textSecondary}>Access Denied</Heading>
+          <Text color={textFaint}>You do not have permission to view or manage master settings.</Text>
         </VStack>
       </Box>
     );
@@ -225,13 +239,13 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
           <Flex justify="space-between" align="center">
             <VStack align="start" spacing={0}>
               <HStack spacing={2}>
-                <Icon as={FiLayers} color="teal.600" boxSize={5} />
-                <Text fontSize="18px" fontWeight="800" color="gray.800">
+                <Icon as={FiLayers} color="teal.500" boxSize={5} />
+                <Text fontSize="18px" fontWeight="800" color={textPrimary}>
                   {selectedCategory || "Categories"}
                 </Text>
                 <Badge
                   bg="rgba(13, 148, 136, 0.12)"
-                  color="teal.700"
+                  color={useColorModeValue("teal.700", "teal.200")}
                   borderRadius="full"
                   px={2}
                   py={0.5}
@@ -241,7 +255,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   {currentOptions.length}
                 </Badge>
               </HStack>
-              <Text fontSize="12px" color="gray.500">
+              <Text fontSize="12px" color={textFaint}>
                 Manage options & codes
               </Text>
             </VStack>
@@ -249,9 +263,9 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
             {(stores.auth.hasPermission('masters', 'create') || stores.auth.hasPermission('masters', 'edit')) && (
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.96)" }}
                 borderRadius="xl"
                 fontWeight="800"
@@ -290,11 +304,11 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                     h="36px"
                     fontSize="13px"
                     fontWeight="750"
-                    color={isSelected ? "white" : "gray.700"}
-                    bgGradient={isSelected ? "linear(135deg, #0C4A6E 0%, #0D9488 100%)" : undefined}
-                    bg={isSelected ? undefined : "white"}
+                    color={isSelected ? "white" : textSecondary}
+                    bgGradient={isSelected ? "linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" : undefined}
+                    bg={isSelected ? undefined : cardBg}
                     border="1px solid"
-                    borderColor={isSelected ? "transparent" : "gray.200"}
+                    borderColor={isSelected ? "transparent" : borderSubtle}
                     boxShadow={isSelected ? "0 2px 8px rgba(13, 148, 136, 0.3)" : "sm"}
                     _active={{ transform: "scale(0.97)" }}
                     onClick={() => {
@@ -313,8 +327,8 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                       py={0.2}
                       fontSize="10px"
                       fontWeight="800"
-                      bg={isSelected ? "whiteAlpha.300" : "gray.100"}
-                      color={isSelected ? "white" : "gray.600"}
+                      bg={isSelected ? "whiteAlpha.300" : subtleBg}
+                      color={isSelected ? "white" : textMuted}
                     >
                       {count}
                     </Badge>
@@ -345,14 +359,14 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
 
           {/* Add / Edit Option Card */}
           <Box
-            bg="white"
+            bg={cardBg}
             p={3.5}
             borderRadius="20px"
             boxShadow="0 2px 10px rgba(0,0,0,0.04)"
             border="1px solid"
-            borderColor="gray.100"
+            borderColor={borderSubtle}
           >
-            <Text fontSize="12px" fontWeight="800" color="gray.700" mb={2}>
+            <Text fontSize="12px" fontWeight="800" color={textSecondary} mb={2}>
               {editing ? `Editing: ${editing.optionName}` : `Add Option to "${selectedCategory}"`}
             </Text>
 
@@ -364,8 +378,9 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   value={optionName}
                   onChange={(e) => setOptionName(e.target.value)}
                   borderRadius="xl"
-                  bg="gray.50"
-                  borderColor="gray.200"
+                  bg={subtleBg}
+                  color={textPrimary}
+                  borderColor={borderSubtle}
                   fontWeight="600"
                   fontSize="13px"
                   _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
@@ -380,8 +395,9 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   borderRadius="xl"
-                  bg="gray.50"
-                  borderColor="gray.200"
+                  bg={subtleBg}
+                  color={textPrimary}
+                  borderColor={borderSubtle}
                   fontWeight="600"
                   fontSize="13px"
                   _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
@@ -412,7 +428,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                 {((!editing && stores.auth.hasPermission('masters', 'create')) || (editing && stores.auth.hasPermission('masters', 'edit'))) && (
                   <Button
                     size="sm"
-                    bgGradient={editing ? "linear(135deg, #D97706 0%, #B45309 100%)" : "linear(135deg, #0C4A6E 0%, #0D9488 100%)"}
+                    bgGradient={editing ? "linear(135deg, #D97706 0%, #B45309 100%)" : "linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"}
                     color="white"
                     _hover={{ opacity: 0.9 }}
                     _active={{ transform: "scale(0.97)" }}
@@ -433,7 +449,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
           </Box>
 
           {/* Options List Cards */}
-          <Text fontSize="13px" fontWeight="800" color="gray.700" mt={1}>
+          <Text fontSize="13px" fontWeight="800" color={textSecondary} mt={1}>
             Options in {selectedCategory} ({currentOptions.length})
           </Text>
 
@@ -443,17 +459,17 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
               align="center"
               justify="center"
               p={6}
-              bg="white"
+              bg={cardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               textAlign="center"
             >
               <Icon as={FiLayers} boxSize="32px" color="gray.400" mb={2} />
-              <Text fontSize="13px" fontWeight="750" color="gray.700">
+              <Text fontSize="13px" fontWeight="750" color={textSecondary}>
                 No Options Yet
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1}>
+              <Text fontSize="12px" color={textFaint} mt={1}>
                 Use the box above to add options for {selectedCategory}.
               </Text>
             </Flex>
@@ -462,12 +478,12 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
               {currentOptions.map((opt, idx) => (
                 <Flex
                   key={idx}
-                  bg="white"
+                  bg={cardBg}
                   p={3.5}
                   borderRadius="18px"
                   boxShadow="0 2px 8px rgba(0,0,0,0.03)"
                   border="1px solid"
-                  borderColor="gray.100"
+                  borderColor={borderSubtle}
                   align="center"
                   justify="space-between"
                   gap={3}
@@ -475,7 +491,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   <HStack spacing={2.5} flex={1} minW={0}>
                     <Badge
                       bg="rgba(13, 148, 136, 0.12)"
-                      color="teal.800"
+                      color={useColorModeValue("teal.800", "teal.200")}
                       border="1px solid"
                       borderColor="rgba(13, 148, 136, 0.25)"
                       borderRadius="lg"
@@ -487,7 +503,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                     >
                       {opt.code}
                     </Badge>
-                    <Text fontSize="14px" fontWeight="750" color="gray.800" noOfLines={1}>
+                    <Text fontSize="14px" fontWeight="750" color={textPrimary} noOfLines={1}>
                       {opt.optionName}
                     </Text>
                   </HStack>
@@ -498,6 +514,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                         size="xs"
                         variant="ghost"
                         colorScheme="blue"
+                        color={useColorModeValue("blue.600", "blue.300")}
                         icon={<FiEdit2 fontSize="13px" />}
                         onClick={() => handleEditOption(opt)}
                         aria-label="Edit"
@@ -509,6 +526,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                         size="xs"
                         variant="ghost"
                         colorScheme="red"
+                        color={useColorModeValue("red.600", "red.300")}
                         icon={<FiTrash2 fontSize="13px" />}
                         onClick={() => handleDeleteOption(opt.optionName)}
                         aria-label="Delete"
@@ -528,13 +546,13 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
               borderTopRadius={0}
               borderRadius={0}
               maxH="50vh"
-              bg="white"
+              bg={drawerBg}
               boxShadow="0 -10px 30px rgba(0,0,0,0.25)"
               overflow="hidden"
             >
               <DrawerCloseButton color="white" zIndex={3} mt={1} />
               <DrawerHeader
-                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderTopRadius={0}
                 borderRadius={0}
@@ -550,7 +568,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
               </DrawerHeader>
               <DrawerBody p={4}>
                 <FormControl isInvalid={!!errors.category}>
-                  <FormLabel fontSize="12px" fontWeight="700" color="gray.600">
+                  <FormLabel fontSize="12px" fontWeight="700" color={textMuted}>
                     Category Name
                   </FormLabel>
                   <Input
@@ -558,21 +576,23 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     borderRadius="xl"
-                    bg="gray.50"
+                    bg={subtleBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     fontWeight="600"
                     _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
                   />
                   <FormErrorMessage fontSize="11px">{errors.category}</FormErrorMessage>
                 </FormControl>
               </DrawerBody>
-              <DrawerFooter bg="gray.50" py={3} px={4} borderTop="1px solid" borderColor="gray.100">
+              <DrawerFooter bg={subtleBg} py={3} px={4} borderTop="1px solid" borderColor={borderLight}>
                 <HStack spacing={2} w="full">
                   <Button size="sm" variant="ghost" flex={1} borderRadius="xl" onClick={closeAddCat}>
                     Cancel
                   </Button>
                   <Button
                     size="sm"
-                    bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
                     flex={1}
                     borderRadius="xl"
@@ -588,7 +608,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
         </VStack>
       ) : (
         /* ================= DESKTOP INTERFACE ================= */
-        <Flex direction="row" h="100%" bg="gray.50" borderRadius="2xl" overflow="hidden" gap={4}>
+        <Flex direction="row" h="100%" bg={useColorModeValue("gray.50", "gray.900")} borderRadius="2xl" overflow="hidden" gap={4}>
           {/* Sidebar */}
           {showSidebar && (
             <Box
@@ -649,7 +669,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                       leftIcon={<FiPlus />}
                       size="sm"
                       mt={2}
-                      bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                      bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                       color="white"
                       _hover={{ opacity: 0.9 }}
                       variant="solid"
@@ -665,12 +685,12 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
           )}
 
           {/* Main area */}
-          <Box flex="1" bg="white" borderRadius="2xl" boxShadow="sm" p={6} overflowY="auto">
+          <Box flex="1" bg={cardBg} borderRadius="2xl" boxShadow="sm" p={6} overflowY="auto">
             {!selectedCategory ? (
               <Center h="100%">
                 <VStack spacing={3}>
                   <Icon as={FiLayers} boxSize={10} color="teal.400" />
-                  <Text fontSize="lg" color="gray.600">
+                  <Text fontSize="lg" color={textMuted}>
                     Select or create a category to manage options.
                   </Text>
                 </VStack>
@@ -679,18 +699,18 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
               <>
                 <HStack justify="space-between" mb={6}>
                   <VStack align="start" spacing={0}>
-                    <Heading size="lg" color="gray.800">
+                    <Heading size="lg" color={textPrimary}>
                       {selectedCategory}
                     </Heading>
-                    <Text color="gray.500" fontSize="sm">
+                    <Text color={textFaint} fontSize="sm">
                       Manage options and codes for this category
                     </Text>
                   </VStack>
                   {(stores.auth.hasPermission('masters', 'create') || stores.auth.hasPermission('masters', 'edit')) && (
                     <Button
-                      bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                      bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                       color="white"
-                      _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                      _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                       leftIcon={<FiSave />}
                       onClick={handleSaveAll}
                       isLoading={loading}
@@ -705,22 +725,28 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
 
                 <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mb={8}>
                   <FormControl isInvalid={!!errors.option}>
-                    <FormLabel fontWeight="bold">Full Name</FormLabel>
+                    <FormLabel fontWeight="bold" color={textSecondary}>Full Name</FormLabel>
                     <Input
                       placeholder="e.g. Engineer"
                       value={optionName}
                       onChange={(e) => setOptionName(e.target.value)}
+                      bg={inputBg}
+                      color={textPrimary}
+                      borderColor={borderSubtle}
                       focusBorderColor="teal.400"
                       borderRadius="lg"
                     />
                     <FormErrorMessage>{errors.option}</FormErrorMessage>
                   </FormControl>
                   <FormControl isInvalid={!!errors.code}>
-                    <FormLabel fontWeight="bold">Short Name (for display)</FormLabel>
+                    <FormLabel fontWeight="bold" color={textSecondary}>Short Name (for display)</FormLabel>
                     <Input
                       placeholder="e.g. Eg."
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
+                      bg={inputBg}
+                      color={textPrimary}
+                      borderColor={borderSubtle}
                       focusBorderColor="teal.400"
                       borderRadius="lg"
                     />
@@ -729,7 +755,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   <Flex align="end">
                     {((!editing && stores.auth.hasPermission('masters', 'create')) || (editing && stores.auth.hasPermission('masters', 'edit'))) && (
                       <Button
-                        bgGradient={editing ? "linear(135deg, #D97706, #B45309)" : "linear(135deg, #0C4A6E 0%, #0D9488 100%)"}
+                        bgGradient={editing ? "linear(135deg, #D97706, #B45309)" : "linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"}
                         color="white"
                         leftIcon={editing ? <FiEdit2 /> : <FiPlus />}
                         onClick={handleAddOption}
@@ -743,7 +769,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                   </Flex>
                 </SimpleGrid>
 
-                <Divider mb={6} />
+                <Divider mb={6} borderColor={borderSubtle} />
 
                 <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
                   {currentOptions.map((opt, idx) => (
@@ -751,16 +777,16 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                       key={idx}
                       p={4}
                       border="1px solid"
-                      borderColor="gray.100"
+                      borderColor={borderSubtle}
                       borderRadius="xl"
                       _hover={{ shadow: "md", borderColor: "teal.200" }}
                       transition="all 0.2s"
-                      bg="gray.50"
+                      bg={subtleBg}
                     >
                       <HStack justify="space-between" mb={2}>
                         <Badge
                           bg="rgba(13, 148, 136, 0.12)"
-                          color="teal.800"
+                          color={useColorModeValue("teal.800", "teal.200")}
                           variant="solid"
                           borderRadius="full"
                           px={3}
@@ -794,7 +820,7 @@ const MasterDataForm: React.FC<Sidebar> = observer(({ showSidebar = true, handle
                           )}
                         </HStack>
                       </HStack>
-                      <Text fontWeight="bold" fontSize="md" color="gray.700">
+                      <Text fontWeight="bold" fontSize="md" color={textPrimary}>
                         {opt.optionName}
                       </Text>
                     </Box>

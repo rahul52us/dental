@@ -31,6 +31,9 @@ import { FiDownload } from "react-icons/fi";
 const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
   const [val, setVal] = useState<string>(dt.sittingNo ? String(dt.sittingNo) : "");
   const [loading, setLoading] = useState(false);
+  const inputBg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.300", "gray.600");
+  const textCol = useColorModeValue("gray.800", "gray.100");
 
   const handleSave = async () => {
     if (!val || val === String(dt.sittingNo)) return;
@@ -50,9 +53,9 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
     <Flex
       align="center"
       border="1px solid"
-      borderColor="gray.300"
+      borderColor={borderColor}
       borderRadius="lg"
-      bg="white"
+      bg={inputBg}
       w={{ base: "120px", md: "100px" }}
       overflow="hidden"
       _focusWithin={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
@@ -69,8 +72,9 @@ const SittingAssigner = ({ dt, onSave }: { dt: any, onSave: () => void }) => {
         }}
         px={2}
         h={{ base: "40px", md: "32px" }}
+        color={textCol}
       />
-      <Divider orientation="vertical"       h={{ base: "24px", md: "20px" }} borderColor="gray.300" />
+      <Divider orientation="vertical" h={{ base: "24px", md: "20px" }} borderColor={borderColor} />
       <IconButton
         size="sm"
         variant="ghost"
@@ -363,7 +367,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             </Box>
           } placement="top" hasArrow>
             <VStack align="start" spacing={0} maxW="200px">
-              <Text fontSize="sm" fontWeight="bold" color="gray.800" noOfLines={1}>
+              <Text fontSize="sm" fontWeight="bold" color={useColorModeValue("gray.800", "gray.100")} noOfLines={1}>
                 {dt.treatmentPlan || "General Consultation"}
               </Text>
               {dt.notes && (
@@ -758,15 +762,15 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             <Flex
               justify="space-between"
               align="center"
-              bg="gray.50"
+              bg={useColorModeValue("gray.50", "whiteAlpha.100")}
               px={3}
               py={2}
               borderRadius="16px"
               border="1px solid"
-              borderColor="gray.150"
+              borderColor={useColorModeValue("gray.150", "whiteAlpha.200")}
               mb={3}
             >
-              <Text fontSize="11px" fontWeight="800" color="gray.600" textTransform="uppercase">
+              <Text fontSize="11px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")} textTransform="uppercase">
                 Sitting Wise Plan:
               </Text>
               <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />

@@ -114,7 +114,7 @@ const Form = observer(
                     {/* Header with Desktop Actions */}
                     <GridItem colSpan={2} display={{ base: "none", md: "block" }}>
                       <Flex justify="space-between" align="center" mb={4}>
-                        <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                        <Text fontSize="2xl" fontWeight="bold" color={useColorModeValue("gray.800", "gray.100")}>
                           {isEdit ? t("staffs.form.editStaff") : t("staffs.form.newStaff")}
                         </Text>
                         <HStack spacing={3}>
@@ -362,7 +362,7 @@ const Form = observer(
 
                     <GridItem colSpan={2}>
                       <Box p={4} borderWidth={1} borderRadius="xl" bg={bgBox} borderColor={borderColor}>
-                        <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.800">
+                        <Text fontSize="lg" fontWeight="bold" mb={4} color={useColorModeValue("gray.800", "gray.100")}>
                           {t("staffs.form.accessAndPermissions")}
                         </Text>
                         <PermissionsSelector
@@ -402,9 +402,9 @@ const Form = observer(
                     </Button>
                     <Button
                       type="submit"
-                      bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                      bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                       color="white"
-                      _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)", shadow: "lg" }}
+                      _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)", shadow: "lg" }}
                       _active={{ transform: "scale(0.98)" }}
                       isLoading={loading}
                       size="lg"

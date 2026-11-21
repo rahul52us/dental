@@ -1,5 +1,5 @@
 "use client"; // Add this directive since this is a client component
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
 import {
   Accordion,
   AccordionButton,
@@ -161,10 +161,19 @@ const SidebarPopover = observer(
 
     const itemIsActive = isActive(item, activeItemId);
 
-    const userColor = themeConfig.sidebarColors?.[item.name];
-    const customBg = useColorModeValue(userColor?.light, userColor?.dark);
+    const userColor = stores.themeStore.getModuleColor(item.name);
+    const customAccent = useColorModeValue(userColor?.light, userColor?.dark);
 
     const isLeaf = !item.children || item.children.length === 0;
+
+    const activeItemGradient = useColorModeValue(
+      customAccent
+        ? `linear-gradient(to right, ${customAccent}22, transparent)`
+        : "linear-gradient(to right, var(--chakra-colors-brand-50), transparent)",
+      customAccent
+        ? `linear-gradient(to right, ${customAccent}33, transparent)`
+        : "linear-gradient(to right, var(--chakra-colors-darkBrand-200), transparent)"
+    );
 
     const ItemContent = (
       <Flex
@@ -181,20 +190,11 @@ const SidebarPopover = observer(
           cursor="pointer"
           py={depth === 0 ? 3 : 2} // Increased padding for leaf items slightly
           px={depth === 0 ? 0 : 4}
-          bg={
-            customBg ||
-            (itemIsActive
-              ? useColorModeValue(
-                "linear-gradient(to right, var(--chakra-colors-brand-50), transparent)",
-                "linear-gradient(to right, var(--chakra-colors-darkBrand-200), transparent)"
-              )
-              : "transparent")
-          }
+          bg={itemIsActive ? activeItemGradient : "transparent"}
           color={
-            customBg
-              ? "black"
-              : itemIsActive
-              ? useColorModeValue(
+            itemIsActive
+              ? customAccent ||
+                useColorModeValue(
                   themeConfig.colors.custom.light.primary,
                   themeConfig.colors.custom.dark.primary
                 )
@@ -203,21 +203,26 @@ const SidebarPopover = observer(
           fontWeight={itemIsActive ? "700" : "inherit"}
           transition="all 0.2s ease" // Smooth transition
           _hover={{
-            bg: customBg || useColorModeValue("brand.50", "darkBrand.100"),
-            filter: customBg ? "brightness(0.92)" : "none",
-            color: customBg
-              ? "white"
-              : useColorModeValue(
-                  themeConfig.colors.custom.light.primary,
-                  themeConfig.colors.custom.dark.primary
-                ),
+            bg: customAccent
+              ? `${customAccent}14`
+              : useColorModeValue("brand.50", "darkBrand.100"),
+            color:
+              customAccent ||
+              useColorModeValue(
+                themeConfig.colors.custom.light.primary,
+                themeConfig.colors.custom.dark.primary
+              ),
             boxShadow: "sm",
           }}
           borderLeft={itemIsActive && depth > 0 ? "4px solid" : "4px solid transparent"}
           borderRight={itemIsActive && depth > 0 ? "4px solid" : "4px solid transparent"}
           borderColor={
             itemIsActive
-              ? useColorModeValue(themeConfig.colors.custom.light.primary, themeConfig.colors.custom.dark.primary)
+              ? customAccent ||
+                useColorModeValue(
+                  themeConfig.colors.custom.light.primary,
+                  themeConfig.colors.custom.dark.primary
+                )
               : "transparent"
           }
           boxShadow={itemIsActive ? "md" : "none"} // Soft shadow for active
@@ -230,9 +235,9 @@ const SidebarPopover = observer(
             display="flex"
             alignItems="center"
             filter={itemIsActive ? "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" : "none"} // Icon glow
-            color="currentColor"
+            color={customAccent && !itemIsActive ? customAccent : "currentColor"}
           >
-            {renderIcon(depth, item.icon, colorMode, !!customBg)}
+            {renderIcon(depth, item.icon, colorMode, !!customAccent)}
           </Box>
           {depth > 0 && (
             <Flex flex={1} align={"center"} justify={"space-between"}>
@@ -417,9 +422,12 @@ const SidebarAccordion = observer(
       >
         {items.map((item) => {
           const itemIsActive = isActive(item);
-          const userColor = themeConfig.sidebarColors?.[item.name];
-          // FIX: Do not use hook inside loop. Use colorMode directly.
-          const customBg = userColor ? (colorMode === "light" ? userColor.light : userColor.dark) : undefined;
+          const userColor = stores.themeStore.getModuleColor(item.name);
+          const customAccent = userColor ? (colorMode === "light" ? userColor.light : userColor.dark) : undefined;
+          const activeItemBg = customAccent
+            ? (colorMode === "light" ? `${customAccent}22` : `${customAccent}33`)
+            : undefined;
+
           return (
             <AccordionItem key={item.id} border="none" width={"100%"}>
               {() => (
@@ -428,26 +436,34 @@ const SidebarAccordion = observer(
                     my={1} // Increased spacing slightly
                     px={3}
                     borderRadius={"md"} // slightly sharper than 10px
-                    bg={customBg || (itemIsActive ?
-                      useColorModeValue(
-                        "linear-gradient(to right, var(--chakra-colors-brand-50), transparent)",
-                        "linear-gradient(to right, var(--chakra-colors-darkBrand-200), transparent)"
-                      ) : "transparent")}
-                    color={customBg ? "black" : itemIsActive ? primaryColor : "inherit"}
+                    bg={
+                      itemIsActive
+                        ? activeItemBg ||
+                          (colorMode === "light"
+                            ? "var(--chakra-colors-brand-50)"
+                            : "var(--chakra-colors-darkBrand-200)")
+                        : "transparent"
+                    }
+                    color={
+                      itemIsActive
+                        ? customAccent || primaryColor
+                        : "inherit"
+                    }
                     fontWeight={itemIsActive ? "700" : "inherit"}
                     transition="all 0.2s ease"
                     position="relative"
                     _focus={{ boxShadow: "none" }} // Remove default focus outline
                     _hover={{
-                      bg: customBg || hoverBg,
-                      filter: customBg ? "brightness(0.92)" : "none",
-                      color: customBg ? "white" : hoverColor,
+                      bg: customAccent
+                        ? `${customAccent}14`
+                        : hoverBg,
+                      color: customAccent || hoverColor,
                       fontWeight: "700",
                       boxShadow: "sm",
                     }}
                     borderLeft={itemIsActive ? "4px solid" : "4px solid transparent"}
                     borderRight={itemIsActive ? "4px solid" : "4px solid transparent"}
-                    borderColor={itemIsActive ? primaryColor : "transparent"}
+                    borderColor={itemIsActive ? (customAccent || primaryColor) : "transparent"}
                     boxShadow={itemIsActive ? "md" : "none"} // Soft shadow for active
                     borderRightRadius="md" // Rounded right edge
                     borderTopLeftRadius={itemIsActive ? "0" : "md"}
@@ -468,15 +484,11 @@ const SidebarAccordion = observer(
                       my={0}
                       cursor="pointer"
                       color={
-                        customBg
-                          ? "inherit"
-                          : activeItemId === item.id
-                          ? (colorMode === "light"
-                            ? themeConfig.colors.custom.light.primary
-                            : themeConfig.colors.custom.dark.primary)
+                        itemIsActive
+                          ? customAccent || primaryColor
                           : "inherit"
                       }
-                      fontWeight={activeItemId === item.id ? "700" : "inherit"}
+                      fontWeight={itemIsActive ? "700" : "inherit"}
                     >
                       <Flex align="center">
                         <Box
@@ -484,8 +496,9 @@ const SidebarAccordion = observer(
                           display="flex"
                           alignItems="center"
                           filter={itemIsActive ? "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" : "none"} // Icon glow
+                          color={customAccent && !itemIsActive ? customAccent : "currentColor"}
                         >
-                          {renderIcon(depth, item.icon, colorMode, !!customBg)}
+                          {renderIcon(depth, item.icon, colorMode, !!customAccent)}
                         </Box>
                         <Text
                           fontSize="sm"
@@ -527,6 +540,22 @@ const SidebarAccordion = observer(
   }
 );
 
+// Isolated search params reader wrapped in Suspense to prevent SSG bailout
+const SidebarSearchTracker = ({
+  onSearchChange,
+}: {
+  onSearchChange: (search: string) => void;
+}) => {
+  const searchParams = useSearchParams();
+  const searchStr = searchParams?.toString() || "";
+
+  useEffect(() => {
+    onSearchChange(searchStr);
+  }, [searchStr, onSearchChange]);
+
+  return null;
+};
+
 const SidebarLayout: React.FC<SidebarProps> = observer(
   ({
     isCollapsed,
@@ -548,18 +577,23 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
 
     const { colorMode } = useColorMode();
     const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const [searchQueryString, setSearchQueryString] = useState("");
+
+    const handleSearchChange = useCallback((query: string) => {
+      setSearchQueryString(query);
+    }, []);
 
     // Auto-update active sidebar item based on current URL and query parameters
     useEffect(() => {
       if (!sidebarData || sidebarData.length === 0) return;
 
-      const currentUrl = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+      const currentUrl = pathname + (searchQueryString ? `?${searchQueryString}` : "");
 
       let bestMatch: SidebarItem | null = null;
+      let bestParent: SidebarItem | null = null;
       let maxMatchLength = 0;
 
-      const traverse = (items: any[]) => {
+      const traverse = (items: any[], parent: any = null) => {
         for (const item of items) {
           if (item.url && item.url !== "#") {
             const isExactMatch = currentUrl === item.url;
@@ -570,11 +604,12 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
               if (item.url.length > maxMatchLength) {
                 maxMatchLength = item.url.length;
                 bestMatch = item;
+                bestParent = parent;
               }
             }
           }
           if (item.children) {
-            traverse(item.children);
+            traverse(item.children, item);
           }
         }
       };
@@ -584,8 +619,9 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
 
       if (bestMatch) {
         setActiveItemId((bestMatch as SidebarItem).id);
+        // Theme application is handled by DashboardLayout — only update active ID here
       }
-    }, [pathname, searchParams, sidebarData]);
+    }, [pathname, searchQueryString, sidebarData]);
 
     useEffect(() => {
       // Hydrate active item from local storage on client side only
@@ -602,17 +638,12 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
         setSidebarData(getSidebarDataByRole([user.userType]));
       }
 
-      // Sync backend sidebar colors to store if available
-      // Check companyDetails for sidebarColors
+      // Sync backend sidebar colors once on user login if companyDetails has them
       const companyColors = user?.companyDetails?.sidebarColors;
-
       if (companyColors && Object.keys(companyColors).length > 0) {
-        const currentStoreColors = themeConfig.sidebarColors || {};
-        if (JSON.stringify(companyColors) !== JSON.stringify(currentStoreColors)) {
-          stores.themeStore.setThemeConfig("sidebarColors", companyColors);
-        }
+        stores.themeStore.syncBackendColors(companyColors);
       }
-    }, [user, user?.permissions, themeConfig.sidebarColors]);
+    }, [user?.id, user?.userType]);
 
     useEffect(() => {
       if (activeItemId !== null && typeof window !== "undefined") {
@@ -622,9 +653,23 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
 
     const handleLeafItemClick = (item: SidebarItem) => {
       setActiveItemId(item.id);
+      // Find parent of this item so sub-items inherit parent color correctly
+      const findParent = (items: SidebarItem[], target: SidebarItem): SidebarItem | null => {
+        for (const i of items) {
+          if (i.children?.some((c) => c.id === target.id)) return i;
+          if (i.children) {
+            const found = findParent(i.children, target);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      const allItems = [...sidebarData, ...sidebarFooterData];
+      const parentItem = findParent(allItems, item);
+      stores.themeStore.applyActiveModuleTheme(item.name, parentItem?.name);
       onLeafItemClick(item);
-      router.push(item.url); // Replace navigate with router.push
-      setOpenMobileSideDrawer(false); // Auto-close drawer on mobile
+      router.push(item.url);
+      setOpenMobileSideDrawer(false);
     };
 
     useEffect(() => {
@@ -651,6 +696,9 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
 
     return (
       <>
+        <Suspense fallback={null}>
+          <SidebarSearchTracker onSearchChange={handleSearchChange} />
+        </Suspense>
         <MobileDrawer
           isOpen={openMobileSideDrawer}
           onClose={() => setOpenMobileSideDrawer(false)}

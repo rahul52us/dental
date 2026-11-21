@@ -1,4 +1,6 @@
 import {
+  useColorModeValue,
+
   Avatar,
   Badge,
   Box,
@@ -24,7 +26,9 @@ import {
   InputRightElement,
   Input,
   Spinner,
+
 } from "@chakra-ui/react";
+import { CardListSkeleton } from "../../../../component/common/Loader/ContentSkeleton";
 import FormModel from "../../../../component/common/FormModel/FormModel";
 import {
   FiPower,
@@ -323,6 +327,16 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
+  // Theme & Dark Mode tokens
+  const staffTitleColor = useColorModeValue("gray.850", "white");
+  const staffSubtextColor = useColorModeValue("gray.500", "gray.400");
+  const staffCardBg = useColorModeValue("white", "gray.800");
+  const staffCardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const staffSearchBg = useColorModeValue("white", "gray.800");
+  const staffSearchBorder = useColorModeValue("#E2E8F0", "gray.700");
+  const staffSearchColor = useColorModeValue("gray.800", "white");
+  const staffActionBg = useColorModeValue("gray.50", "gray.700");
+
   return (
     <Box p={{ base: 2, md: 4 }}>
       {/* ============================================================== */}
@@ -334,12 +348,12 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Flex align="center" justify="space-between" gap={2} mb={3}>
             <Box>
               <HStack spacing={2} align="center">
-                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color="gray.850" letterSpacing="-0.4px">
+                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color={staffTitleColor} letterSpacing="-0.4px">
                   {t("staffs.table.staffs") || "Staff"}
                 </Text>
                 {user.data?.length !== undefined && (
                   <Badge
-                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
                     fontSize="10px"
                     fontWeight="800"
@@ -352,16 +366,16 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                   </Badge>
                 )}
               </HStack>
-              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+              <Text fontSize="12px" color={staffSubtextColor} fontWeight="500" mt={0.5}>
                 Clinic Staff & Access Control
               </Text>
             </Box>
 
             {stores.auth.hasPermission("staffs", "create") && (
               <Button
-                h="40px"
-                leftIcon={<FiPlus size={15} />}
-                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                h="36px"
+                leftIcon={<FiPlus size={14} />}
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="14px"
                 px={4}
@@ -369,7 +383,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 fontWeight="800"
                 boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
                 _hover={{
-                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                   transform: "translateY(-1px)",
                 }}
                 _active={{ transform: "scale(0.96)" }}
@@ -382,29 +396,31 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
           {/* Search Bar */}
           <InputGroup size="md" mb={3}>
-            <InputLeftElement pointerEvents="none" h="46px" w="44px">
-              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+            <InputLeftElement pointerEvents="none" h="40px" w="40px">
+              <Icon as={FiSearch} color="brand.500" boxSize={4} />
             </InputLeftElement>
             <Input
               placeholder="Search staff by name, mobile, code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               borderRadius="15px"
-              bg="white"
-              borderColor="#E2E8F0"
+              bg={staffSearchBg}
+              borderColor={staffSearchBorder}
+              color={staffSearchColor}
               fontSize="13px"
               fontWeight="600"
-              h="46px"
-              px={11}
+              h="40px"
+              pl="38px"
+              pr={searchQuery ? "38px" : 3}
               boxShadow="0 2px 8px rgba(0,0,0,0.03)"
               _focus={{
-                borderColor: "#0EA5E9",
-                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+                borderColor: "brand.500",
+                boxShadow: "0 0 0 3px var(--theme-shadow, rgba(14, 165, 233, 0.15))",
               }}
               _placeholder={{ color: "gray.400", fontWeight: "400" }}
             />
             {searchQuery && (
-              <InputRightElement h="46px">
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={14} />}
@@ -478,12 +494,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
           {/* Cards Stack */}
           {user.loading ? (
-            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500" fontWeight="600">
-                Loading staff...
-              </Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !user.data || user.data.length === 0 ? (
             <Flex
               direction="column"
@@ -491,10 +502,10 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               justify="center"
               py={14}
               textAlign="center"
-              bg="white"
+              bg={staffCardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={staffCardBorder}
               px={4}
             >
               <Icon as={FiUserX} boxSize="36px" color="gray.400" mb={2} />
@@ -518,9 +529,9 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 return (
                   <Box
                     key={staff._id || staff.id}
-                    bg="white"
+                    bg={staffCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={staffCardBorder}
                     borderRadius="22px"
                     p={3.5}
                     boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
@@ -555,7 +566,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                         </Box>
 
                         <Box flex={1} minW={0}>
-                          <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          <Text fontSize="15px" fontWeight="850" color={staffTitleColor} noOfLines={1} letterSpacing="-0.2px">
                             {displayTitle ? `${displayTitle} ${staff.name}` : staff.name}
                           </Text>
                           <HStack spacing={1.5} mt={0.5} wrap="wrap">
@@ -729,7 +740,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     </HStack>
 
                     {/* Security & Secondary Actions */}
-                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor="gray.200">
+                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor={staffCardBorder}>
                       <Text fontSize="11px" fontWeight="600" color="gray.400">
                         Account & Security
                       </Text>
@@ -928,7 +939,7 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         >
           <DrawerCloseButton color="white" bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.350" }} top={{ base: 2, md: 4 }} right={{ base: 2, md: 4 }} />
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             py={{ base: 3, md: 4 }}
             fontSize={{ base: "sm", md: "lg" }}

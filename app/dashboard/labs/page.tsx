@@ -9,6 +9,7 @@ import {
   DrawerOverlay,
   useToast,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import stores from "../../store/stores";
@@ -103,7 +104,7 @@ const LabPage = observer(() => {
   const handleDeleteData = async (status: boolean, data: any) => {
     setDeleteLoading(true);
     try {
-      await deleteLab({ id : data._id, deleted: status });
+      await deleteLab({ id: data._id, deleted: status });
       toast({
         title: t("labs.page.labDeleted"),
         description: t("labs.page.hasBeenDeleted", { name: data?.name }),
@@ -173,7 +174,7 @@ const LabPage = observer(() => {
             >
               <DrawerCloseButton color="white" zIndex={2} />
               <DrawerHeader
-                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius={0}
                 borderTopRadius={0}
@@ -183,7 +184,7 @@ const LabPage = observer(() => {
               >
                 {isDrawerOpen?.type === "edit" ? t("labs.page.editLab") : t("labs.page.addLab")}
               </DrawerHeader>
-              <DrawerBody p={6} bg="gray.50">
+              <DrawerBody p={6} bg={useColorModeValue("gray.50", "gray.900")}>
                 <Form
                   initialData={
                     isDrawerOpen?.type === "edit"

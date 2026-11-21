@@ -94,7 +94,7 @@ const ItemOrderingInput = ({
                       {/* Card Header */}
                       <Flex justify="space-between" align="center" mb={3}>
                         <Badge
-                          bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                          bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                           color="white"
                           borderRadius="full"
                           px={2.5}

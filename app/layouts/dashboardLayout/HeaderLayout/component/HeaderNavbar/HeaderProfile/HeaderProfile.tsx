@@ -48,9 +48,12 @@ const HeaderProfile = observer(() => {
   const router = useRouter();
   const {
     auth: { user },
-    themeStore: { setProfileModal },
+    themeStore: { setProfileModal, themeConfig },
   } = stores;
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  const currentPrimary = themeConfig?.colors?.custom?.light?.primary || "#0D9488";
+  const currentDarkPrimary = themeConfig?.colors?.custom?.dark?.primary || "#0C4A6E";
   const {
     isOpen: isPasswordOpen,
     onOpen: onPasswordOpen,
@@ -104,7 +107,7 @@ const HeaderProfile = observer(() => {
             py={2.5}
             px={3.5}
             color="white"
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient={`linear(135deg, #091E42 0%, ${currentDarkPrimary} 45%, ${currentPrimary} 100%)`}
             borderBottom="1px solid"
             borderColor="whiteAlpha.200"
             position="relative"

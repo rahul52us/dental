@@ -9,6 +9,7 @@ import {
   DrawerOverlay,
   useBreakpointValue,
   useToast,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import stores from "../../store/stores";
@@ -172,7 +173,7 @@ const DealerPage = observer(() => {
             overflow="hidden"
           >
               <DrawerHeader
-                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 fontSize={{ base: "md", md: "lg" }}
                 fontWeight="bold"
@@ -190,7 +191,7 @@ const DealerPage = observer(() => {
                 top={{ base: 2, md: 4 }}
                 right={{ base: 2, md: 4 }}
               />
-              <DrawerBody p={{ base: 2, md: 6 }} bg="gray.50" minH={0} overflowY="auto">
+              <DrawerBody p={{ base: 2, md: 6 }} bg={useColorModeValue("gray.50", "gray.900")} minH={0} overflowY="auto">
                 <Form
                   initialData={
                     isDrawerOpen?.type === "edit"

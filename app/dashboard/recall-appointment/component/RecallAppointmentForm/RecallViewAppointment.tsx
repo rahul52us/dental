@@ -6,11 +6,22 @@ import {
   Text,
   Badge,
   Divider,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
 const RecallViewAppointment = ({ data }: any) => {
   const recall = toJS(data);
   if (!recall) return null;
+
+  const cardBg = useColorModeValue("white", "gray.800");
+  const leftPanelBg = useColorModeValue("gray.900", "gray.950");
+  const borderCol = useColorModeValue("gray.200", "gray.700");
+  const dashedBorderCol = useColorModeValue("gray.200", "gray.700");
+  const labelColor = useColorModeValue("gray.500", "gray.400");
+  const valueColor = useColorModeValue("gray.800", "gray.100");
+  const reasonBg = useColorModeValue("gray.50", "whiteAlpha.50");
+  const reasonBorder = useColorModeValue("gray.200", "whiteAlpha.200");
+  const reasonText = useColorModeValue("gray.800", "gray.200");
 
   const statusColor: any = {
     pending: "orange.400",
@@ -26,12 +37,12 @@ const RecallViewAppointment = ({ data }: any) => {
       justify="space-between"
       _notLast={{
         borderBottom: "1px dashed",
-        borderColor: "gray.200",
+        borderColor: dashedBorderCol,
       }}
     >
       <Text
         fontSize="sm"
-        color="gray.500"
+        color={labelColor}
         letterSpacing="0.3px"
       >
         {label}
@@ -39,7 +50,7 @@ const RecallViewAppointment = ({ data }: any) => {
       <Text
         fontSize="sm"
         fontWeight="600"
-        color="gray.800"
+        color={valueColor}
         textAlign="right"
       >
         {value || "--"}
@@ -51,10 +62,10 @@ const RecallViewAppointment = ({ data }: any) => {
     <Flex
       direction={{ base: "column", sm: "row" }}
       border="1px solid"
-      borderColor="gray.200"
+      borderColor={borderCol}
       borderRadius="xl"
       overflow="hidden"
-      bg="white"
+      bg={cardBg}
       minH={{ base: "auto", sm: "320px" }}
     >
       {/* ===== LEFT STATUS PANEL ===== */}
@@ -63,7 +74,7 @@ const RecallViewAppointment = ({ data }: any) => {
         align="center"
         justify="space-between"
         w={{ base: "100%", sm: "130px" }}
-        bg="gray.900"
+        bg={leftPanelBg}
         color="white"
         px={{ base: 4, sm: 3 }}
         py={{ base: 3, sm: 4 }}
@@ -124,13 +135,13 @@ const RecallViewAppointment = ({ data }: any) => {
           value={`${recall.createdDetails?.name} (${recall.createdDetails?.code})`}
         />
 
-        <Divider my={5} />
+        <Divider my={5} borderColor={borderCol} />
 
         {/* Reason */}
         <Box>
           <Text
             fontSize="sm"
-            color="gray.500"
+            color={labelColor}
             mb={2}
             letterSpacing="0.3px"
           >
@@ -138,15 +149,15 @@ const RecallViewAppointment = ({ data }: any) => {
           </Text>
 
           <Box
-            bg="gray.50"
+            bg={reasonBg}
             border="1px solid"
-            borderColor="gray.200"
+            borderColor={reasonBorder}
             p={4}
             borderRadius="md"
           >
             <Text
               fontSize="sm"
-              color="gray.800"
+              color={reasonText}
               lineHeight="1.7"
             >
               {recall.reason}

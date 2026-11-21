@@ -86,7 +86,7 @@ const FormModel = observer(({
             align="center"
             px={isMobile ? 4 : 5}
             py={isMobile ? 3 : 4}
-            bgGradient={isMobile ? "linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" : undefined}
+            bgGradient={isMobile ? "linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" : undefined}
             bg={isMobile ? undefined : headerBg}
             color="white"
             borderBottom="1px solid"
@@ -131,9 +131,9 @@ const FormModel = observer(({
                 Cancel
               </Button>
               <Button
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 borderRadius="xl"
                 onClick={() => {}}
               >

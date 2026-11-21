@@ -98,7 +98,7 @@ const AppointmentDetailsView = observer(
     if (isLoading) {
       return (
         <Box p={{ base: 3, md: 6 }} bg={pageBg}>
-          <Box p={{ base: 4, md: 5 }} mb={4} borderRadius="2xl" bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)">
+          <Box p={{ base: 4, md: 5 }} mb={4} borderRadius="2xl" bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)">
             <Skeleton height="12px" width="38%" mb={3} />
             <Skeleton height="24px" width="70%" mb={4} />
             <Skeleton height="14px" width="55%" />
@@ -187,7 +187,7 @@ const AppointmentDetailsView = observer(
             p={{ base: 4, md: 5 }}
             borderRadius="2xl"
             color="white"
-            bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             boxShadow="0 12px 26px rgba(18, 83, 96, 0.18)"
           >
             <Flex align="start" justify="space-between" gap={3}>

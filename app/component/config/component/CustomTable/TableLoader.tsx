@@ -1,5 +1,4 @@
-import { Flex, Heading, Tbody, Td, Tr } from "@chakra-ui/react";
-import SpinnerLoader from "../../../common/Loader/SpinnerLoader";
+import { Box, Flex, Heading, Skeleton, Tbody, Td, Tr, VStack } from "@chakra-ui/react";
 
 interface TableLoaderProps {
   loader: boolean;
@@ -15,13 +14,20 @@ const TableLoader: React.FC<TableLoaderProps> = ({
   if (loader) {
     return (
       <Tbody>
-        <Tr>
-          <Td colSpan={10} p={5}>
-            <Flex justifyContent="center">
-              <SpinnerLoader size="lg"/>
-            </Flex>
-          </Td>
-        </Tr>
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <Tr key={idx}>
+            <Td colSpan={12} p={3}>
+              <Flex gap={4} align="center">
+                <Skeleton h="16px" w="40px" borderRadius="md" />
+                <Skeleton h="16px" flex={2} borderRadius="md" />
+                <Skeleton h="16px" flex={2} borderRadius="md" />
+                <Skeleton h="16px" flex={1} borderRadius="md" />
+                <Skeleton h="16px" flex={1} borderRadius="md" />
+                <Skeleton h="16px" w="60px" borderRadius="md" />
+              </Flex>
+            </Td>
+          </Tr>
+        ))}
       </Tbody>
     );
   }

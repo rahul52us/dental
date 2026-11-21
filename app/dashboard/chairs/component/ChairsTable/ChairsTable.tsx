@@ -19,6 +19,7 @@ import {
   VStack,
   Heading,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -44,6 +45,21 @@ import DeleteChairModal from "./DeleteChairModal";
 const ChairsTable = observer(() => {
   const { chairsStore } = stores;
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Dark-mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("#0C4A6E", "teal.300");
+  const textMuted = useColorModeValue("gray.600", "gray.300");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const pageLabelColor = useColorModeValue("gray.600", "gray.300");
+  const cyanBadgeBg = useColorModeValue("cyan.50", "cyan.900");
+  const cyanBadgeColor = useColorModeValue("cyan.800", "cyan.200");
+  const cyanBadgeBorder = useColorModeValue("cyan.200", "cyan.700");
+  const editBtnBg = useColorModeValue("blue.50", "blue.900");
+  const deleteBtnBg = useColorModeValue("red.50", "red.900");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -153,7 +169,7 @@ const ChairsTable = observer(() => {
           <Box
             p={4}
             borderRadius="22px"
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             boxShadow="0 8px 20px -4px rgba(12, 74, 110, 0.35)"
             position="relative"
@@ -215,11 +231,12 @@ const ChairsTable = observer(() => {
                 placeholder="Search chair name, number..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                bg="white"
+                bg={inputBg}
+                color={useColorModeValue("gray.800", "gray.100")}
                 focusBorderColor="teal.500"
                 borderRadius="16px"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor={borderSubtle}
                 h="42px"
                 fontSize="13px"
                 boxShadow="0 2px 6px rgba(0,0,0,0.02)"
@@ -241,9 +258,9 @@ const ChairsTable = observer(() => {
               <Button
                 size="sm"
                 h="42px"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.96)" }}
                 leftIcon={<FiPlus fontSize="16px" />}
                 borderRadius="16px"
@@ -274,23 +291,23 @@ const ChairsTable = observer(() => {
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={cardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               textAlign="center"
             >
               <Icon as={FaChair} boxSize={40} color="gray.400" mb={2} />
-              <Text fontSize="15px" fontWeight="800" color="gray.700">
+              <Text fontSize="15px" fontWeight="800" color={textSecondary}>
                 No chairs found
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1} mb={3}>
+              <Text fontSize="12px" color={useColorModeValue("gray.500", "gray.400")} mt={1} mb={3}>
                 {search ? `No chairs matching "${search}"` : "Add your first dental chair operatory station."}
               </Text>
               {stores.auth.hasPermission('chairs', 'create') && (
                 <Button
                   size="sm"
-                  bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                  bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                   color="white"
                   borderRadius="xl"
                   onClick={() => {
@@ -309,14 +326,14 @@ const ChairsTable = observer(() => {
                 return (
                   <Box
                     key={chair._id}
-                    bg="white"
+                    bg={cardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={borderSubtle}
                     borderRadius="20px"
                     p={3.5}
                     boxShadow="0 4px 14px -6px rgba(15, 23, 42, 0.08)"
                     transition="all 0.15s ease-out"
-                    _active={{ bg: "gray.50" }}
+                    _active={{ bg: useColorModeValue("gray.50", "gray.700") }}
                   >
                     {/* Card Top Row: Color Swatch + Name + Chair No Badge */}
                     <Flex justify="space-between" align="flex-start" gap={3} mb={2}>
@@ -341,7 +358,7 @@ const ChairsTable = observer(() => {
                             <Text
                               fontSize="15px"
                               fontWeight="900"
-                              color="#0C4A6E"
+                              color={textPrimary}
                               noOfLines={1}
                               letterSpacing="-0.2px"
                             >
@@ -350,7 +367,7 @@ const ChairsTable = observer(() => {
                           </HStack>
 
                           {chair.chairDetails ? (
-                            <Text fontSize="12px" color="gray.600" fontWeight="600" mt={0.5} noOfLines={2}>
+                            <Text fontSize="12px" color={textMuted} fontWeight="600" mt={0.5} noOfLines={2}>
                               {chair.chairDetails}
                             </Text>
                           ) : (
@@ -362,10 +379,10 @@ const ChairsTable = observer(() => {
                       </HStack>
 
                       <Badge
-                        bg="cyan.50"
-                        color="cyan.800"
+                        bg={cyanBadgeBg}
+                        color={cyanBadgeColor}
                         border="1px solid"
-                        borderColor="cyan.200"
+                        borderColor={cyanBadgeBorder}
                         borderRadius="full"
                         px={2.5}
                         py={0.5}
@@ -383,7 +400,7 @@ const ChairsTable = observer(() => {
                       align="center"
                       pt={2}
                       borderTop="1px solid"
-                      borderColor="gray.100"
+                      borderColor={borderLight}
                       gap={2}
                     >
                       <HStack spacing={2}>
@@ -394,7 +411,7 @@ const ChairsTable = observer(() => {
                           bg={chairColor}
                           border="1px solid rgba(0,0,0,0.1)"
                         />
-                        <Text fontSize="11px" fontWeight="700" color="gray.500">
+                        <Text fontSize="11px" fontWeight="700" color={useColorModeValue("gray.500", "gray.400")}>
                           {chairColor}
                         </Text>
                       </HStack>
@@ -407,8 +424,9 @@ const ChairsTable = observer(() => {
                             px={2.5}
                             variant="ghost"
                             colorScheme="blue"
-                            bg="blue.50"
-                            _hover={{ bg: "blue.100" }}
+                            bg={editBtnBg}
+                            color={useColorModeValue("blue.700", "blue.200")}
+                            _hover={{ bg: useColorModeValue("blue.100", "blue.800") }}
                             borderRadius="lg"
                             fontWeight="700"
                             fontSize="11px"
@@ -428,8 +446,9 @@ const ChairsTable = observer(() => {
                             h="28px"
                             variant="ghost"
                             colorScheme="red"
-                            bg="red.50"
-                            _hover={{ bg: "red.100" }}
+                            bg={deleteBtnBg}
+                            color={useColorModeValue("red.600", "red.200")}
+                            _hover={{ bg: useColorModeValue("red.100", "red.800") }}
                             borderRadius="lg"
                             icon={<FiTrash2 size={12} />}
                             aria-label="Delete"
@@ -460,7 +479,7 @@ const ChairsTable = observer(() => {
               >
                 Previous
               </Button>
-              <Text fontSize="12px" fontWeight="700" color="gray.600">
+              <Text fontSize="12px" fontWeight="700" color={pageLabelColor}>
                 Page {currentPage} of {totalPages}
               </Text>
               <Button

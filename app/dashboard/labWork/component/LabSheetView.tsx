@@ -201,7 +201,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         >
           <DrawerHeader
             borderBottomWidth="1px"
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             borderRadius={0}
             borderTopRadius={0}
@@ -371,7 +371,7 @@ const LabSheetView = observer(({ data }: { data: any }) => {
               </Text>
             </VStack>
           </Box>
-          <Box p={4} borderRadius="xl" bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white">
+          <Box p={4} borderRadius="xl" bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white">
             <VStack align="start" spacing={1}>
               <Text fontSize="xs" fontWeight="bold" opacity={0.8}>TOTAL BILLING AMOUNT</Text>
               <Text fontSize="xl" fontWeight="bold">₹{data.price || 0}</Text>

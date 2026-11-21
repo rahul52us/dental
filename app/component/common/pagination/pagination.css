@@ -25,7 +25,7 @@
   /* color: #505050; */
   font-weight: normal;
   &:hover {
-    color: #38B2AC;
+    color: var(--primary-color, var(--chakra-colors-brand-500, #0D9488));
   }
 }
 
@@ -36,12 +36,12 @@
   font-size: 18px;
   /* color: #2D3748; */
   &:hover {
-    color: #38B2AC;
+    color: var(--primary-color, var(--chakra-colors-brand-500, #0D9488));
   }
 }
 
 .paginationActive {
-  color: #38B2AC !important;
+  color: var(--primary-color, var(--chakra-colors-brand-500, #0D9488)) !important;
   font-weight: bold !important;
 }
 

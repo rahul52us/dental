@@ -330,4 +330,52 @@ const getSidebarDataByRole = (role: string[] = ["admin", "staff","doctor"]): Sid
   return filterByRoleAndPermission(sidebarDatas);
 };
 
+export interface ActiveModuleInfo {
+  activeItem: SidebarItem | null;
+  parentItem: SidebarItem | null;
+}
+
+export const getActiveModuleFromUrl = (
+  pathname: string,
+  searchParams?: string
+): ActiveModuleInfo => {
+  if (!pathname) return { activeItem: null, parentItem: null };
+  const currentUrl = pathname + (searchParams ? `?${searchParams}` : "");
+
+  let bestMatch: SidebarItem | null = null;
+  let bestParent: SidebarItem | null = null;
+  let maxMatchLength = 0;
+
+  const traverse = (items: SidebarItem[], parent: SidebarItem | null = null) => {
+    for (const item of items) {
+      if (item.url && item.url !== "#") {
+        const isExactMatch = currentUrl === item.url || pathname === item.url;
+        const isQueryMatch = item.url.includes("?") && currentUrl.includes(item.url);
+
+        // For /dashboard, do not match /dashboard/anything else as a prefix!
+        // Only match exact /dashboard or /dashboard?param
+        const isStartsWithMatch =
+          item.url !== "/dashboard" &&
+          (pathname.startsWith(item.url + "/") || currentUrl.startsWith(item.url + "?"));
+
+        if (isExactMatch || isQueryMatch || isStartsWithMatch) {
+          if (item.url.length > maxMatchLength) {
+            maxMatchLength = item.url.length;
+            bestMatch = item;
+            bestParent = parent;
+          }
+        }
+      }
+      if (item.children) {
+        traverse(item.children, item);
+      }
+    }
+  };
+
+  traverse(sidebarDatas);
+  traverse(sidebarFooterData);
+
+  return { activeItem: bestMatch, parentItem: bestParent };
+};
+
 export { getSidebarDataByRole, sidebarDatas };

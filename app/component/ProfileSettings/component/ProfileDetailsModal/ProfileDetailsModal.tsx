@@ -302,9 +302,14 @@ const ProfileDetailsModal = observer(({ user }: any) => {
       });
 
       if (response?.data?.success) {
+        if (stores.auth.user?.companyDetails) {
+          stores.auth.user.companyDetails.sidebarColors = {
+            ...(stores.themeStore.themeConfig.sidebarColors || {}),
+          };
+        }
         toast({
           title: "Configuration Saved",
-          description: "Operating hours updated successfully.",
+          description: "Theme and operating hours updated successfully.",
           status: "success",
           duration: 3000,
           isClosable: true,
@@ -339,6 +344,17 @@ const ProfileDetailsModal = observer(({ user }: any) => {
     createdAt,
   } = user;
 
+  const currentPrimary = stores.themeStore.themeConfig.colors.custom.light.primary || "#0D9488";
+  const currentDarkPrimary = stores.themeStore.themeConfig.colors.custom.dark.primary || "#0C4A6E";
+
+  const tabSelectedStyle = {
+    bg: { base: "white", md: "transparent" },
+    color: { base: currentPrimary, md: currentPrimary },
+    borderColor: { base: "transparent", md: currentPrimary },
+    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+    fontWeight: { base: "800", md: "bold" },
+  };
+
   const joinedDate = createdAt ? new Date(createdAt).toLocaleDateString('en-IN') : "-";
 
   return (
@@ -358,12 +374,12 @@ const ProfileDetailsModal = observer(({ user }: any) => {
       >
         {/* Header Section: Identity */}
         <Box
-          bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+          bgGradient={`linear(135deg, #091E42 0%, ${currentDarkPrimary} 45%, ${currentPrimary} 100%)`}
           px={{ base: 3.5, md: 5 }}
           py={{ base: 2.5, md: 5 }}
           color="white"
           position="relative"
-          boxShadow="0 4px 16px rgba(12, 74, 110, 0.2)"
+          boxShadow={`0 4px 16px ${currentDarkPrimary}33`}
         >
           <DrawerCloseButton
             color="white"
@@ -514,13 +530,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   fontWeight={{ base: "700", md: "bold" }}
                   color={{ base: "gray.600", md: "gray.600" }}
                   borderBottom={{ base: "none", md: "2px solid transparent" }}
-                  _selected={{
-                    bg: { base: "white", md: "transparent" },
-                    color: { base: "teal.800", md: "teal.600" },
-                    borderColor: { base: "transparent", md: "teal.600" },
-                    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
-                    fontWeight: { base: "800", md: "bold" },
-                  }}
+                  _selected={tabSelectedStyle}
                   _hover={{ color: "gray.900" }}
                   transition="all 0.15s ease"
                 >
@@ -540,13 +550,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                     fontWeight={{ base: "700", md: "bold" }}
                     color={{ base: "gray.600", md: "gray.600" }}
                     borderBottom={{ base: "none", md: "2px solid transparent" }}
-                    _selected={{
-                      bg: { base: "white", md: "transparent" },
-                      color: { base: "teal.800", md: "teal.600" },
-                      borderColor: { base: "transparent", md: "teal.600" },
-                      shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
-                      fontWeight: { base: "800", md: "bold" },
-                    }}
+                    _selected={tabSelectedStyle}
                     _hover={{ color: "gray.900" }}
                     transition="all 0.15s ease"
                   >
@@ -567,19 +571,14 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   fontWeight={{ base: "700", md: "bold" }}
                   color={{ base: "gray.600", md: "gray.600" }}
                   borderBottom={{ base: "none", md: "2px solid transparent" }}
-                  _selected={{
-                    bg: { base: "white", md: "transparent" },
-                    color: { base: "teal.800", md: "teal.600" },
-                    borderColor: { base: "transparent", md: "teal.600" },
-                    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
-                    fontWeight: { base: "800", md: "bold" },
-                  }}
+                  _selected={tabSelectedStyle}
                   _hover={{ color: "gray.900" }}
                   transition="all 0.15s ease"
                 >
                   <HStack spacing={1.5}>
                     <Icon as={FiSidebar} fontSize="12px" display={{ base: "inline-block", md: "none" }} />
-                    <Text>Sidebar</Text>
+                    <Text display={{ base: "none", md: "inline" }}>Module Themes</Text>
+                    <Text display={{ base: "inline", md: "none" }}>Modules</Text>
                   </HStack>
                 </Tab>
 
@@ -592,13 +591,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   fontWeight={{ base: "700", md: "bold" }}
                   color={{ base: "gray.600", md: "gray.600" }}
                   borderBottom={{ base: "none", md: "2px solid transparent" }}
-                  _selected={{
-                    bg: { base: "white", md: "transparent" },
-                    color: { base: "teal.800", md: "teal.600" },
-                    borderColor: { base: "transparent", md: "teal.600" },
-                    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
-                    fontWeight: { base: "800", md: "bold" },
-                  }}
+                  _selected={tabSelectedStyle}
                   _hover={{ color: "gray.900" }}
                   transition="all 0.15s ease"
                 >
@@ -618,13 +611,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                     fontWeight={{ base: "700", md: "bold" }}
                     color={{ base: "gray.600", md: "gray.600" }}
                     borderBottom={{ base: "none", md: "2px solid transparent" }}
-                    _selected={{
-                      bg: { base: "white", md: "transparent" },
-                      color: { base: "teal.800", md: "teal.600" },
-                      borderColor: { base: "transparent", md: "teal.600" },
-                      shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
-                      fontWeight: { base: "800", md: "bold" },
-                    }}
+                    _selected={tabSelectedStyle}
                     _hover={{ color: "gray.900" }}
                     transition="all 0.15s ease"
                   >
@@ -942,9 +929,9 @@ const ProfileDetailsModal = observer(({ user }: any) => {
             </Button>
 
             <Button
-              bgGradient="linear(to-r, #0C4A6E, #0D9488)"
+              bgGradient={`linear(to-r, ${currentDarkPrimary}, ${currentPrimary})`}
               color="white"
-              _hover={{ bgGradient: "linear(to-r, #082F49, #0F766E)", shadow: "md" }}
+              _hover={{ bgGradient: `linear(to-r, ${currentDarkPrimary}, ${currentPrimary})`, shadow: "md", filter: "brightness(0.92)" }}
               _active={{ transform: "scale(0.98)" }}
               leftIcon={<CheckIcon />}
               flex={2}
@@ -966,7 +953,9 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               Close
             </Button>
             <Button
-              colorScheme="blue"
+              bg={currentPrimary}
+              color="white"
+              _hover={{ bg: currentDarkPrimary, shadow: "md" }}
               leftIcon={<CheckIcon />}
               minH="40px"
               onClick={handleSave}

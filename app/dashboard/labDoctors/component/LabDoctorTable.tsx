@@ -1,5 +1,7 @@
 "use client";
 import {
+  useColorModeValue,
+
   Avatar,
   Badge,
   Box,
@@ -17,6 +19,7 @@ import {
   Text,
   useBreakpointValue,
   VStack,
+
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -35,11 +38,21 @@ import {
 } from "react-icons/fi";
 import { IoMdAdd } from "react-icons/io";
 import CustomTable from "../../../component/config/component/CustomTable/CustomTable";
+import { CardListSkeleton } from "../../../component/common/Loader/ContentSkeleton";
 import { tablePageLimit } from "../../../component/config/utils/variable";
 import stores from "../../../store/stores";
 
 const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Theme & Dark Mode tokens
+  const labDocTitleColor = useColorModeValue("gray.850", "white");
+  const labDocSubtextColor = useColorModeValue("gray.500", "gray.400");
+  const labDocCardBg = useColorModeValue("white", "gray.800");
+  const labDocCardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const labDocSearchBg = useColorModeValue("white", "gray.800");
+  const labDocSearchBorder = useColorModeValue("gray.200", "gray.700");
+  const labDocSearchColor = useColorModeValue("gray.800", "white");
   const {
     labDoctorStore: { labDoctors, getLabDoctors },
   } = stores;
@@ -134,7 +147,7 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           {/* Top App Bar / Actions Strip */}
           <Flex justify="space-between" align="center" mb={3} gap={2} px={1}>
             <HStack spacing={2}>
-              <Text fontSize="16px" fontWeight="900" color="gray.800" letterSpacing="-0.3px">
+              <Text fontSize="16px" fontWeight="900" color={labDocTitleColor} letterSpacing="-0.3px">
                 Lab Doctors
               </Text>
               <Badge
@@ -155,9 +168,9 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             {stores.auth.hasPermission("lab_doctors", "create") && (
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.96)" }}
                 leftIcon={<IoMdAdd fontSize="16px" />}
                 borderRadius="xl"
@@ -173,8 +186,8 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Flex>
 
           {/* Search Box */}
-          <InputGroup size="sm" mb={3}>
-            <InputLeftElement pointerEvents="none">
+          <InputGroup size="sm" mb={2}>
+            <InputLeftElement pointerEvents="none" h="40px">
               <FiSearch color="#94A3B8" />
             </InputLeftElement>
             <Input
@@ -184,16 +197,18 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              borderRadius="xl"
-              bg="white"
-              borderColor="gray.200"
+              borderRadius="12px"
+              h="40px"
+              bg={labDocSearchBg}
+              borderColor={labDocSearchBorder}
+              color={labDocSearchColor}
               _focus={{
                 borderColor: "teal.500",
                 boxShadow: "0 0 0 1px #0D9488",
               }}
             />
             {search && (
-              <InputRightElement>
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={12} />}
@@ -210,20 +225,17 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
           {/* Cards List or Loading / Empty state */}
           {labDoctors.loading ? (
-            <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500">Loading lab doctors...</Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !labDoctors.data || labDoctors.data.length === 0 ? (
             <Flex
               direction="column"
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={labDocCardBg}
               borderRadius="22px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={labDocCardBorder}
               textAlign="center"
             >
               <Icon as={FiUserX} boxSize="36px" color="gray.400" mb={2} />
@@ -245,9 +257,9 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 return (
                   <Box
                     key={doctor._id || idx}
-                    bg="white"
+                    bg={labDocCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={labDocCardBorder}
                     borderRadius="20px"
                     p={3.5}
                     boxShadow="0 6px 18px -8px rgba(15, 23, 42, 0.12)"
@@ -276,7 +288,7 @@ const LabDoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                         />
 
                         <Box flex={1} minW={0}>
-                          <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          <Text fontSize="15px" fontWeight="850" color={labDocTitleColor} noOfLines={1} letterSpacing="-0.2px">
                             {doctor.labDoctorName}
                           </Text>
                           <HStack spacing={1.5} mt={0.5} wrap="wrap">

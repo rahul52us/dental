@@ -50,11 +50,11 @@ const WaitingRoomPage = observer((): any => {
                 direction={{ base: "column", lg: "row" }}
                 align={{ base: "stretch", lg: "center" }}
                 justify="space-between"
-                mb={{ base: 4, md: 6 }}
+                mb={{ base: 2.5, md: 4 }}
                 bg={containerBg}
                 backdropFilter="blur(20px)"
-                p={{ base: 4, md: 6 }}
-                borderRadius={{ base: "22px", md: "3xl" }}
+                p={{ base: 2.5, md: 4 }}
+                borderRadius={{ base: "18px", md: "2xl" }}
                 boxShadow={useColorModeValue("0 12px 28px -16px rgba(0,0,0,0.16)", "0 20px 40px -20px rgba(0,0,0,0.5)")}
                 border="1px solid"
                 borderColor={borderColor}
@@ -62,9 +62,9 @@ const WaitingRoomPage = observer((): any => {
             >
                 <HStack spacing={{ base: 3, md: 6 }} flexWrap="wrap" align="center">
                     <Box
-                        w={{ base: "48px", md: "64px" }}
-                        h={{ base: "48px", md: "64px" }}
-                        bgGradient="linear(to-br, blue.400, teal.400)"
+                        w={{ base: "38px", md: "50px" }}
+                        h={{ base: "38px", md: "50px" }}
+                        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #2B6CB0) 0%, var(--chakra-colors-custom-light-primary, #319795) 100%)"
                         borderRadius={{ base: "16px", md: "2xl" }}
                         color="white"
                         boxShadow="0 15px 35px -10px rgba(49, 130, 206, 0.6)"
@@ -72,7 +72,7 @@ const WaitingRoomPage = observer((): any => {
                         alignItems="center"
                         justifyContent="center"
                     >
-                        <MdOutlineAirlineSeatReclineExtra size={26} />
+                        <MdOutlineAirlineSeatReclineExtra size={20} />
                     </Box>
                     <VStack align="start" spacing={1} minW={0}>
                         <HStack spacing={{ base: 2, md: 4 }} flexWrap="wrap">
@@ -199,7 +199,7 @@ const WaitingRoomPage = observer((): any => {
                                 justifyContent="center"
                                 position="relative"
                                 overflow="hidden"
-                                bgGradient="linear(to-r, #2B6CB0, #319795)"
+                                bgGradient="linear(to-r, var(--chakra-colors-custom-dark-primary, #2B6CB0), var(--chakra-colors-custom-light-primary, #319795))"
                                 color="white"
                             >
                                 <style>
@@ -269,13 +269,13 @@ const WaitingRoomPage = observer((): any => {
                 align="center"
                 justify="space-between"
                 gap={2}
-                mb={4}
-                px={{ base: 2, md: 4 }}
-                py={3}
+                mb={2.5}
+                px={{ base: 2.5, md: 4 }}
+                py={2}
                 bg={useColorModeValue("white", "gray.800")}
                 border="1px solid"
                 borderColor={borderColor}
-                borderRadius="20px"
+                borderRadius="14px"
                 boxShadow="0 5px 18px rgba(19, 52, 69, 0.05)"
             >
                 <HStack spacing={2} minW={0} display={{ base: "none", sm: "flex" }}>

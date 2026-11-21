@@ -16,6 +16,7 @@ import {
   IconButton,
   Textarea,
   Spacer,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { Formik, Form } from "formik";
@@ -72,6 +73,17 @@ const ProcedureSync = ({
 };
 
 const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onSuccess }: WorkDoneFormProps) => {
+  // Dark mode color tokens
+  const formCardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.400");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+
   const {
     workDoneStore: { createWorkDone, updateWorkDone },
     toothTreatmentStore: { updateToothTreatment },
@@ -331,7 +343,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
   };
 
   return (
-    <Box p={0} bg="white" borderRadius="3xl" overflow="hidden" position="relative">
+    <Box p={0} bg={formCardBg} color={textPrimary} borderRadius="3xl" overflow="hidden" position="relative">
       <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
         {(formikProps) => {
           const { values, setFieldValue, handleSubmit: formikHandleSubmit } = formikProps;
@@ -360,7 +372,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         <Text fontSize="10px" fontWeight="1000" color="blue.500" textTransform="uppercase" letterSpacing="0.1em">
                           CLINICAL ENTRY
                         </Text>
-                        <Heading size="md" color="gray.800" fontWeight="1000">
+                        <Heading size="md" color={textPrimary} fontWeight="1000">
                           {patientDetails?.name || "Patient Work Done"}
                         </Heading>
                       </VStack>
@@ -393,11 +405,11 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                         <VStack align="stretch" spacing={6} w="full" mt={4}>
                           {/* 1. Teeth Chart & Selector Header (100% full-width at the top) */}
                           <VStack align="stretch" spacing={4} w="full">
-                            <HStack bg="white" p={1.5} borderRadius="20px" border="1px solid" borderColor="blue.100" spacing={4} shadow="sm" justify="space-between" wrap="wrap">
+                            <HStack bg={formCardBg} p={1.5} borderRadius="20px" border="1px solid" borderColor={borderSubtle} spacing={4} shadow="sm" justify="space-between" wrap="wrap">
                               {/* 1. Finding Category */}
                               <VStack align="start" spacing={1}>
-                                <Text fontSize="8px" fontWeight="1000" color="gray.400" ml={1}>FINDING CATEGORY</Text>
-                                <HStack bg="gray.100" p={0.5} borderRadius="xl" spacing={0}>
+                                <Text fontSize="8px" fontWeight="1000" color={textFaint} ml={1}>FINDING CATEGORY</Text>
+                                <HStack bg={subtleBg} p={0.5} borderRadius="xl" spacing={0}>
                                   {[
                                     { id: "CHIEF COMPLAINT", label: "CHIEF", color: "red.500" },
                                     { id: "OTHER FINDING", label: "OTHER", color: "orange.400" },
@@ -635,9 +647,9 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
 
                                   return (
                                     <HStack
-                                      bg="white"
+                                      bg={formCardBg}
                                       border="1px solid"
-                                      borderColor="blue.200"
+                                      borderColor={borderSubtle}
                                       borderRadius="2xl"
                                       px={3.5}
                                       py={1.5}
@@ -645,37 +657,37 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                       shadow="xs"
                                     >
                                       <VStack align="start" spacing={0}>
-                                        <Text fontSize="8.5px" fontWeight="900" color="blue.600" letterSpacing="0.08em">
+                                        <Text fontSize="8.5px" fontWeight="900" color="blue.400" letterSpacing="0.08em">
                                           TMT ESTIMATE
                                         </Text>
-                                        <Text fontSize="12px" fontWeight="1000" color="blue.900">
+                                        <Text fontSize="12px" fontWeight="1000" color={textPrimary}>
                                           ₹{baseEstimate.toLocaleString()}{maxEstimate && maxEstimate !== baseEstimate ? ` - ₹${maxEstimate.toLocaleString()}` : ""}
                                         </Text>
                                       </VStack>
 
-                                      <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+                                      <Divider orientation="vertical" h="22px" borderColor={borderSubtle} />
 
                                       <VStack align="start" spacing={0}>
-                                        <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                        <Text fontSize="8.5px" fontWeight="900" color={textFaint} letterSpacing="0.08em">
                                           TOTAL BILLED
                                         </Text>
-                                        <Text fontSize="12px" fontWeight="1000" color="gray.800">
+                                        <Text fontSize="12px" fontWeight="1000" color={textPrimary}>
                                           ₹{realTimeBilled.toLocaleString()}
                                         </Text>
                                       </VStack>
 
                                       {(baseEstimate > 0 || maxEstimate > 0) && (
                                         <>
-                                          <Divider orientation="vertical" h="22px" borderColor="blue.200" />
+                                          <Divider orientation="vertical" h="22px" borderColor={borderSubtle} />
 
                                           <VStack align="start" spacing={0}>
-                                            <Text fontSize="8.5px" fontWeight="900" color="gray.500" letterSpacing="0.08em">
+                                            <Text fontSize="8.5px" fontWeight="900" color={textFaint} letterSpacing="0.08em">
                                               BALANCE
                                             </Text>
                                             <Text
                                               fontSize="12px"
                                               fontWeight="1000"
-                                              color={realTimeBalance <= 0 ? "green.600" : "orange.600"}
+                                              color={realTimeBalance <= 0 ? "green.400" : "orange.400"}
                                             >
                                               ₹{Math.max(0, realTimeBalance).toLocaleString()}
                                             </Text>
@@ -688,18 +700,18 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                               </HStack>
                               <Grid templateColumns="1fr 1fr" gap={4}>
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="11px" fontWeight="bold" color="gray.700">Actual Amount (₹)</Text>
+                                  <Text fontSize="11px" fontWeight="bold" color={textSecondary}>Actual Amount (₹)</Text>
                                   <Input
-                                    size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
+                                    size="lg" type="number" bg={inputBg} color={textPrimary} borderColor={borderSubtle} borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                     value={values.amount}
                                     placeholder="0.00"
                                     onChange={(e) => setFieldValue("amount", e.target.value)}
                                   />
                                 </VStack>
                                 <VStack align="start" spacing={1}>
-                                  <Text fontSize="11px" fontWeight="bold" color="red.600">DISCOUNT (₹)</Text>
+                                  <Text fontSize="11px" fontWeight="bold" color="red.400">DISCOUNT (₹)</Text>
                                   <Input
-                                    size="lg" type="number" bg="white" borderRadius="xl" fontWeight="900" fontSize="15px" h="50px" color="red.600"
+                                    size="lg" type="number" bg={inputBg} color="red.400" borderColor={borderSubtle} borderRadius="xl" fontWeight="900" fontSize="15px" h="50px"
                                     value={values.discount}
                                     placeholder="0.00"
                                     onChange={(e) => setFieldValue("discount", e.target.value)}
@@ -713,7 +725,7 @@ const WorkDoneForm = observer(({ patientDetails, treatmentDetails, editData, onS
                                     ₹{(Number(values.amount || 0) - Number(values.discount || 0)).toLocaleString()}
                                   </Text>
                                 </VStack>
-                                <Circle size="36px" bg="white" color={complaintColor} border="1px solid" borderColor={complaintColor}>
+                                <Circle size="36px" bg={formCardBg} color={complaintColor} border="1px solid" borderColor={complaintColor}>
                                   <FiCheckCircle size={18} />
                                 </Circle>
                               </HStack>

@@ -777,7 +777,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Box
         display={{ base: "block", md: "none" }}
         mb={3.5}
-        bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+        bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
         p={4}
         borderRadius="2xl"
         color="white"
@@ -878,7 +878,7 @@ const GlobalAccountabilityPage = observer(() => {
         align={{ base: "flex-start", md: "center" }}
         gap={{ base: 4, md: 0 }}
         mb={6}
-        bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+        bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
         p={6}
         borderRadius="2xl"
         color="white"
@@ -931,7 +931,7 @@ const GlobalAccountabilityPage = observer(() => {
         <DrawerOverlay backdropFilter="blur(6px)" bg="blackAlpha.600" />
         <DrawerContent borderTopRadius={0} borderRadius={0} maxH="88dvh" bg={bgCard}>
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             py={3.5}
             px={4}
@@ -987,7 +987,7 @@ const GlobalAccountabilityPage = observer(() => {
               </Button>
               <Button
                 flex={2}
-                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="xl"
                 onClick={() => {
@@ -1801,7 +1801,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Modal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.600" />
         <ModalContent borderRadius={{ base: 0, md: "2xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} overflow="hidden">
-          <ModalHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={4} px={5}>
+          <ModalHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={4} px={5}>
             <Flex justify="space-between" align="center">
               <HStack spacing={2.5}>
                 <Center w="32px" h="32px" bg="whiteAlpha.200" borderRadius="lg">
@@ -1835,7 +1835,7 @@ const GlobalAccountabilityPage = observer(() => {
           <ModalFooter borderTop="1px solid" borderColor="gray.100" bg="gray.50" px={5} py={4}>
             <Button variant="ghost" mr={3} onClick={() => setIsPrintModalOpen(false)} borderRadius="xl">Cancel</Button>
             <Button
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               onClick={handlePrintReport}
               isLoading={isPrinting}
@@ -1853,7 +1853,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Modal isOpen={isEditBillModalOpen} onClose={() => setIsEditBillModalOpen(false)} isCentered size="sm" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.600" />
         <ModalContent borderRadius={{ base: 0, md: "2xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} overflow="hidden">
-          <ModalHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={4} px={5}>
+          <ModalHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={4} px={5}>
             <Flex justify="space-between" align="center">
               <HStack spacing={2.5}>
                 <Center w="32px" h="32px" bg="whiteAlpha.200" borderRadius="lg">
@@ -1905,7 +1905,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Modal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.600" />
         <ModalContent borderRadius={{ base: 0, md: "3xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} shadow="2xl" overflow="hidden">
-          <ModalHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={4} px={5}>
+          <ModalHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={4} px={5}>
             <Flex justify="space-between" align="center">
               <HStack spacing={2.5}>
                 <Center w="32px" h="32px" bg="whiteAlpha.200" borderRadius="lg">
@@ -1974,7 +1974,7 @@ const GlobalAccountabilityPage = observer(() => {
             <Button variant="ghost" mr={3} onClick={() => setIsPaymentOpen(false)} borderRadius="xl" fontWeight="bold">Cancel</Button>
             {stores.auth.hasPermission('accountability', 'create') && (
               <Button
-                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 onClick={handleSavePayment}
                 isLoading={isSaving}
@@ -1995,8 +1995,8 @@ const GlobalAccountabilityPage = observer(() => {
 
       <Drawer isOpen={isHistoryOpen} placement={isMobile ? "bottom" : "right"} onClose={() => setIsHistoryOpen(false)} size={isMobile ? "full" : "sm"}>
         <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
-        <DrawerContent borderTopRadius={0} borderRadius={0} maxH={{ base: "85vh", md: "100vh" }} bg="white">
-          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={3.5} px={4}>
+        <DrawerContent borderTopRadius={0} borderRadius={0} maxH={{ base: "85vh", md: "100vh" }} bg={bgCard}>
+          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={3.5} px={4}>
             <Flex justify="space-between" align="center">
               <HStack spacing={2.5}>
                 <Center w="32px" h="32px" bg="whiteAlpha.200" borderRadius="lg">
@@ -2141,8 +2141,8 @@ const GlobalAccountabilityPage = observer(() => {
 
       <Drawer isOpen={isEditAmountOpen} placement={isMobile ? "bottom" : "right"} onClose={() => setIsEditAmountOpen(false)} size={isMobile ? "full" : "sm"}>
         <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
-        <DrawerContent borderTopRadius={0} borderRadius={0} maxH={{ base: "85vh", md: "100vh" }} bg="white">
-          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={3.5} px={4}>
+        <DrawerContent borderTopRadius={0} borderRadius={0} maxH={{ base: "85vh", md: "100vh" }} bg={bgCard}>
+          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={3.5} px={4}>
             <Flex justify="space-between" align="center">
               <VStack align="start" spacing={0}>
                 <Text fontWeight="800" fontSize="md">Edit Payment Amount</Text>
@@ -2240,7 +2240,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
         <ModalContent borderRadius={{ base: 0, md: "3xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} shadow="2xl" overflow="hidden" bg="white">
-          <Box bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" px={6} py={5} position="relative" overflow="hidden">
+          <Box bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" px={6} py={5} position="relative" overflow="hidden">
             <Box position="absolute" top="-20%" right="-10%" opacity={0.1}>
               <Icon as={FiCreditCard} boxSize="150px" color="white" transform="rotate(-15deg)" />
             </Box>
@@ -2302,7 +2302,7 @@ const GlobalAccountabilityPage = observer(() => {
           <ModalFooter bg="gray.50" py={5} px={6} borderTop="1px solid" borderColor="gray.100">
             <Button variant="ghost" mr={3} onClick={() => setIsWalletModalOpen(false)} borderRadius="xl" fontWeight="bold">Cancel</Button>
             <Button
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius="xl"
               px={8}
@@ -2329,7 +2329,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Modal isOpen={isDeleteModalOpen} onClose={() => !isDeletingPayment && setIsDeleteModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(5px)" bg="blackAlpha.600" />
         <ModalContent borderRadius={{ base: 0, md: "2xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} overflow="hidden">
-          <ModalHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={4} px={5}>
+          <ModalHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={4} px={5}>
             <Flex justify="space-between" align="center">
               <VStack align="start" spacing={0}>
                 <Text fontSize="2xs" fontWeight="black" color="red.300" letterSpacing="0.1em">WARNING</Text>
@@ -2432,7 +2432,7 @@ const GlobalAccountabilityPage = observer(() => {
       <Modal isOpen={isMonthlyModalOpen} onClose={() => !isGeneratingMonthly && setIsMonthlyModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
         <ModalContent borderRadius={{ base: 0, md: "2xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} overflow="hidden" boxShadow="2xl">
-          <Box bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" px={6} py={6} position="relative" overflow="hidden">
+          <Box bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" px={6} py={6} position="relative" overflow="hidden">
             <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" bg="whiteAlpha.200" borderRadius="full" filter="blur(15px)" />
             <Flex justify="space-between" align="center" position="relative" zIndex={1}>
               <VStack align="start" spacing={0.5}>
@@ -2495,7 +2495,7 @@ const GlobalAccountabilityPage = observer(() => {
               Cancel
             </Button>
             <Button
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               isLoading={isGeneratingMonthly}
               onClick={handleGenerateMonthlyReport}

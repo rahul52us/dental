@@ -82,26 +82,32 @@ const ColorPickerComponent: React.FC<ColorPickerProps> = ({
 
   const selectedBg = useColorModeValue("blue.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+  const normalBg = useColorModeValue("white", "gray.800");
+  const hoverBg = useColorModeValue("gray.50", "gray.700");
+  const normalTextColor = useColorModeValue("gray.700", "gray.300");
 
   return (
     <SimpleGrid columns={{ base: 4, sm: 4, md: 3 }} spacing={{ base: 2, md: 3 }} w="100%">
       {COLOR_SUGGESTIONS.map((sug, index) => {
-        const isSelected = color.light === sug.light && color.dark === sug.dark;
+        const isSelected =
+          color?.light?.toLowerCase() === sug.light.toLowerCase() &&
+          color?.dark?.toLowerCase() === sug.dark.toLowerCase();
         return (
           <VStack
             key={index}
             as="button"
+            type="button"
             p={{ base: 2, md: 2 }}
             borderRadius={{ base: "xl", md: "md" }}
             border={{ base: "2px solid", md: "1px solid" }}
             borderColor={isSelected ? "blue.500" : borderColor}
-            bg={isSelected ? selectedBg : useColorModeValue("white", "gray.800")}
+            bg={isSelected ? selectedBg : normalBg}
             onClick={() => handleSuggestionClick(sug)}
             spacing={{ base: 1.5, md: 1 }}
             _hover={{
               transform: { base: "translateY(-2px)", md: "none" },
               shadow: { base: "md", md: "none" },
-              bg: isSelected ? selectedBg : useColorModeValue("gray.50", "gray.700"),
+              bg: isSelected ? selectedBg : hoverBg,
               borderColor: isSelected ? "blue.500" : "blue.200",
             }}
             transition="all 0.2s ease"
@@ -148,7 +154,7 @@ const ColorPickerComponent: React.FC<ColorPickerProps> = ({
             <Text
               fontSize={{ base: "9.5px", md: "xs" }}
               fontWeight={isSelected ? { base: "700", md: "bold" } : { base: "700", md: "normal" }}
-              color={isSelected ? "blue.600" : useColorModeValue("gray.700", "gray.300")}
+              color={isSelected ? "blue.600" : normalTextColor}
               textAlign="center"
               lineHeight="1.2"
               noOfLines={{ base: 2, md: 1 }}

@@ -12,6 +12,7 @@ import {
   Button,
   useToast,
   IconButton,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
@@ -37,6 +38,18 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<string | null>(null);
   const [previewFileName, setPreviewFileName] = useState("");
+
+  const outerBg = useColorModeValue("gray.50", "gray.900");
+  const cardBg = useColorModeValue("white", "gray.800");
+  const textHeading = useColorModeValue("gray.800", "gray.100");
+  const textMuted = useColorModeValue("gray.400", "gray.400");
+  const borderColor = useColorModeValue("gray.100", "gray.700");
+  const bentoBlueBg = useColorModeValue("blue.50", "rgba(59, 130, 246, 0.12)");
+  const bentoBlueBorder = useColorModeValue("blue.100", "rgba(59, 130, 246, 0.25)");
+  const bentoGreenBg = useColorModeValue("green.50", "rgba(34, 197, 94, 0.12)");
+  const bentoGreenBorder = useColorModeValue("green.100", "rgba(34, 197, 94, 0.25)");
+  const bentoOrangeBg = useColorModeValue("orange.50", "rgba(249, 115, 22, 0.12)");
+  const bentoOrangeBorder = useColorModeValue("orange.100", "rgba(249, 115, 22, 0.25)");
   
   // Table Filters (if any, currently just page)
   const [tableSearch, setTableSearch] = useState("");

@@ -72,13 +72,13 @@ const SectionCard = ({
     borderRadius="xl"
     shadow="sm"
   >
-    <CardHeader px={{ base: 4, md: 5 }} pt={4} pb={2}>
+    <CardHeader px={{ base: 3, md: 4 }} pt={3} pb={1.5}>
       <HStack spacing={2}>
         <Icon as={icon} boxSize={4} color="teal.500" />
         <Heading size="sm">{title}</Heading>
       </HStack>
     </CardHeader>
-    <CardBody px={{ base: 4, md: 5 }} pt={1} pb={4}>
+    <CardBody px={{ base: 3, md: 4 }} pt={1} pb={3}>
       {children}
     </CardBody>
   </Card>
@@ -95,11 +95,11 @@ const ViewLab = ({ data }: { data: any }) => {
     <Box p={{ base: 2, md: 4 }} pb={{ base: "calc(100px + env(safe-area-inset-bottom, 24px))", md: 6 }}>
       {/* Hero Banner */}
       <Box
-        p={{ base: 4, md: 5 }}
-        borderRadius="2xl"
-        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+        p={{ base: 3, md: 4 }}
+        borderRadius="xl"
+        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
         color="white"
-        mb={4}
+        mb={2.5}
         shadow="md"
       >
         <Flex

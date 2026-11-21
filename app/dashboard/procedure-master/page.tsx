@@ -36,6 +36,7 @@ import {
   Spinner,
   Tooltip,
   useBreakpointValue,
+  useColorModeValue,
   Icon,
 } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
@@ -54,6 +55,19 @@ import { TREATMENT_CATEGORIES } from '../toothTreatment/treatmentDataConstant';
 
 const ProcedureMaster = observer(() => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Dark mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.300");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const modalBg = useColorModeValue("white", "gray.800");
+
   const { procedureStore } = stores;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [search, setSearch] = useState('');
@@ -175,13 +189,13 @@ const ProcedureMaster = observer(() => {
         >
           <VStack align="start" spacing={0}>
             <HStack spacing={2}>
-              <Icon as={FiLayers} color="teal.600" boxSize={5} />
-              <Heading size={{ base: "md", md: "lg" }} color="gray.800">
+              <Icon as={FiLayers} color="teal.500" boxSize={5} />
+              <Heading size={{ base: "md", md: "lg" }} color={textPrimary}>
                 Procedure Master
               </Heading>
               <Badge
                 bg="rgba(13, 148, 136, 0.12)"
-                color="teal.700"
+                color={useColorModeValue("teal.700", "teal.200")}
                 borderRadius="full"
                 px={2}
                 py={0.5}
@@ -191,7 +205,7 @@ const ProcedureMaster = observer(() => {
                 {filteredProcedures.length}
               </Badge>
             </HStack>
-            <Text color="gray.500" fontSize={{ base: "12px", md: "sm" }}>
+            <Text color={textFaint} fontSize={{ base: "12px", md: "sm" }}>
               Manage treatment codes & classifications
             </Text>
           </VStack>
@@ -214,9 +228,9 @@ const ProcedureMaster = observer(() => {
             </Button>
             <Button
               leftIcon={<FiPlus />}
-              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+              bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
-              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+              _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
               _active={{ transform: "scale(0.96)" }}
               onClick={() => { resetForm(); onOpen(); }}
               size="sm"
@@ -243,8 +257,9 @@ const ProcedureMaster = observer(() => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             borderRadius="xl"
-            bg="white"
-            borderColor="gray.200"
+            bg={inputBg}
+            color={textPrimary}
+            borderColor={borderSubtle}
             _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
             h="40px"
             fontSize="13px"
@@ -269,7 +284,7 @@ const ProcedureMaster = observer(() => {
             {procedureStore.procedures.loading ? (
               <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
                 <Spinner size="lg" color="teal.500" thickness="3px" />
-                <Text fontSize="13px" color="gray.500">Loading procedures...</Text>
+                <Text fontSize="13px" color={textFaint}>Loading procedures...</Text>
               </Flex>
             ) : filteredProcedures.length === 0 ? (
               <Flex
@@ -277,17 +292,17 @@ const ProcedureMaster = observer(() => {
                 align="center"
                 justify="center"
                 p={8}
-                bg="white"
+                bg={cardBg}
                 borderRadius="22px"
                 border="1px dashed"
-                borderColor="gray.200"
+                borderColor={borderSubtle}
                 textAlign="center"
               >
                 <Icon as={FiLayers} boxSize="36px" color="gray.400" mb={2} />
-                <Text fontSize="14px" fontWeight="750" color="gray.700">
+                <Text fontSize="14px" fontWeight="750" color={textSecondary}>
                   No Procedures Found
                 </Text>
-                <Text fontSize="12px" color="gray.500" mt={1}>
+                <Text fontSize="12px" color={textFaint} mt={1}>
                   {search ? `No results for "${search}"` : "Tap + Add Procedure or Seed Data to begin."}
                 </Text>
               </Flex>
@@ -296,12 +311,12 @@ const ProcedureMaster = observer(() => {
                 {filteredProcedures.map((p: any) => (
                   <Box
                     key={p._id}
-                    bg="white"
+                    bg={cardBg}
                     p={3.5}
                     borderRadius="20px"
                     boxShadow="0 2px 10px rgba(0,0,0,0.04)"
                     border="1px solid"
-                    borderColor="gray.100"
+                    borderColor={borderSubtle}
                     borderLeft="4px solid #0D9488"
                     transition="all 0.2s"
                   >
@@ -309,7 +324,7 @@ const ProcedureMaster = observer(() => {
                     <Flex justify="space-between" align="center" mb={1.5} gap={2}>
                       <Badge
                         bg="rgba(13, 148, 136, 0.12)"
-                        color="teal.800"
+                        color={useColorModeValue("teal.800", "teal.200")}
                         border="1px solid"
                         borderColor="rgba(13, 148, 136, 0.25)"
                         borderRadius="full"
@@ -321,31 +336,34 @@ const ProcedureMaster = observer(() => {
                         {p.category}
                       </Badge>
                       {p.subcategory && (
-                        <Text fontSize="11px" fontWeight="600" color="gray.500" noOfLines={1}>
+                        <Text fontSize="11px" fontWeight="600" color={textFaint} noOfLines={1}>
                           {p.subcategory}
                         </Text>
                       )}
                     </Flex>
 
                     {/* Procedure Name */}
-                    <Text fontSize="14px" fontWeight="800" color="gray.800" mb={1} lineHeight="1.3">
+                    <Text fontSize="14px" fontWeight="800" color={textPrimary} mb={1} lineHeight="1.3">
                       {p.name}
                     </Text>
 
                     {/* Alternative Names if present */}
                     {(p.name2 || p.name3) && (
-                      <HStack spacing={2} fontSize="11px" color="gray.500" mb={2} wrap="wrap">
+                      <HStack spacing={2} fontSize="11px" color={textFaint} mb={2} wrap="wrap">
                         {p.name2 && <Text noOfLines={1}>• Alt 1: {p.name2}</Text>}
                         {p.name3 && <Text noOfLines={1}>• Alt 2: {p.name3}</Text>}
                       </HStack>
                     )}
 
                     {/* Action buttons */}
-                    <Flex pt={2} borderTop="1px solid" borderColor="gray.100" justify="flex-end" gap={2}>
+                    <Flex pt={2} borderTop="1px solid" borderColor={borderLight} justify="flex-end" gap={2}>
                       <Button
                         size="xs"
                         variant="ghost"
                         colorScheme="blue"
+                        color={useColorModeValue("blue.600", "blue.300")}
+                        bg={useColorModeValue("blue.50", "whiteAlpha.100")}
+                        _hover={{ bg: useColorModeValue("blue.100", "whiteAlpha.200") }}
                         leftIcon={<FiEdit2 fontSize="12px" />}
                         borderRadius="lg"
                         fontSize="12px"
@@ -359,6 +377,9 @@ const ProcedureMaster = observer(() => {
                         size="xs"
                         variant="ghost"
                         colorScheme="red"
+                        color={useColorModeValue("red.600", "red.300")}
+                        bg={useColorModeValue("red.50", "whiteAlpha.100")}
+                        _hover={{ bg: useColorModeValue("red.100", "whiteAlpha.200") }}
                         leftIcon={<FiTrash2 fontSize="12px" />}
                         borderRadius="lg"
                         fontSize="12px"
@@ -376,16 +397,16 @@ const ProcedureMaster = observer(() => {
           </Box>
         ) : (
           /* ================= DESKTOP TABLE VIEW ================= */
-          <Box overflowX="auto" bg="white" borderRadius="xl" shadow="sm" border="1px solid" borderColor="gray.100">
+          <Box overflowX="auto" bg={cardBg} borderRadius="xl" shadow="sm" border="1px solid" borderColor={borderLight}>
             <Table variant="simple">
-              <Thead bg="gray.50">
+              <Thead bg={subtleBg}>
                 <Tr>
-                  <Th>Category</Th>
-                  <Th>Subcategory</Th>
-                  <Th>Procedure Name</Th>
-                  <Th>Name 2</Th>
-                  <Th>Name 3</Th>
-                  <Th textAlign="center">Actions</Th>
+                  <Th color={textFaint}>Category</Th>
+                  <Th color={textFaint}>Subcategory</Th>
+                  <Th color={textFaint}>Procedure Name</Th>
+                  <Th color={textFaint}>Name 2</Th>
+                  <Th color={textFaint}>Name 3</Th>
+                  <Th textAlign="center" color={textFaint}>Actions</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -393,18 +414,18 @@ const ProcedureMaster = observer(() => {
                   <Tr>
                     <Td colSpan={6} textAlign="center" py={10}>
                       <Spinner color="teal.500" />
-                      <Text mt={2} color="gray.500">Loading procedures...</Text>
+                      <Text mt={2} color={textMuted}>Loading procedures...</Text>
                     </Td>
                   </Tr>
                 ) : filteredProcedures.length === 0 ? (
                   <Tr>
                     <Td colSpan={6} textAlign="center" py={10}>
-                      <Text color="gray.400">No procedures found</Text>
+                      <Text color={textFaint}>No procedures found</Text>
                     </Td>
                   </Tr>
                 ) : (
                   filteredProcedures.map((p: any) => (
-                    <Tr key={p._id} _hover={{ bg: "gray.50" }}>
+                    <Tr key={p._id} _hover={{ bg: subtleBg }}>
                       <Td>
                         <Badge
                           bg="rgba(13, 148, 136, 0.12)"
@@ -419,16 +440,16 @@ const ProcedureMaster = observer(() => {
                         </Badge>
                       </Td>
                       <Td>
-                        <Text fontWeight="medium" fontSize="sm">{p.subcategory}</Text>
+                        <Text fontWeight="medium" fontSize="sm" color={textSecondary}>{p.subcategory}</Text>
                       </Td>
                       <Td>
-                        <Text fontWeight="bold">{p.name}</Text>
+                        <Text fontWeight="bold" color={textPrimary}>{p.name}</Text>
                       </Td>
                       <Td>
-                        <Text color="gray.600">{p.name2 || '-'}</Text>
+                        <Text color={textMuted}>{p.name2 || '-'}</Text>
                       </Td>
                       <Td>
-                        <Text color="gray.600">{p.name3 || '-'}</Text>
+                        <Text color={textMuted}>{p.name3 || '-'}</Text>
                       </Td>
                       <Td>
                         <HStack justify="center" spacing={2}>
@@ -472,6 +493,8 @@ const ProcedureMaster = observer(() => {
       >
         <ModalOverlay backdropFilter="blur(4px)" bg="blackAlpha.600" />
         <ModalContent
+          bg={modalBg}
+          color={textPrimary}
           w={isMobile ? "100vw" : undefined}
           maxW={isMobile ? "100vw" : undefined}
           maxH={isMobile ? "88dvh" : undefined}
@@ -498,10 +521,10 @@ const ProcedureMaster = observer(() => {
           }
         >
           <ModalHeader
-            bgGradient={isMobile ? "linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" : undefined}
-            color={isMobile ? "white" : "inherit"}
+            bgGradient={isMobile ? "linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" : undefined}
+            color={isMobile ? "white" : textPrimary}
             borderBottom="1px solid"
-            borderColor={isMobile ? "whiteAlpha.200" : "gray.100"}
+            borderColor={isMobile ? "whiteAlpha.200" : borderLight}
             borderTopRadius={0}
             borderRadius={0}
             py={isMobile ? 3.5 : 4}
@@ -511,24 +534,30 @@ const ProcedureMaster = observer(() => {
           >
             {editingProcedure ? 'Edit Procedure' : 'Add New Procedure'}
           </ModalHeader>
-          <ModalCloseButton color={isMobile ? "white" : "inherit"} top={isMobile ? 3 : 4} right={isMobile ? 3 : 4} />
+          <ModalCloseButton color={isMobile ? "white" : textMuted} top={isMobile ? 3 : 4} right={isMobile ? 3 : 4} />
           <ModalBody py={4} px={isMobile ? 4 : 6} flex={isMobile ? 1 : undefined} overflowY={isMobile ? "auto" : undefined}>
             <VStack spacing={4}>
               <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={3} w="full">
                 <FormControl isRequired>
-                  <FormLabel fontSize="12px" fontWeight="700">Category</FormLabel>
+                  <FormLabel fontSize="12px" fontWeight="700" color={textSecondary}>Category</FormLabel>
                   <Input
                     placeholder="e.g. Diagnostic"
                     borderRadius="xl"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   />
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel fontSize="12px" fontWeight="700">Subcategory</FormLabel>
+                  <FormLabel fontSize="12px" fontWeight="700" color={textSecondary}>Subcategory</FormLabel>
                   <Input
                     placeholder="e.g. Clinical Evaluations"
                     borderRadius="xl"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     value={formData.subcategory}
                     onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
                   />
@@ -536,10 +565,13 @@ const ProcedureMaster = observer(() => {
               </SimpleGrid>
 
               <FormControl isRequired>
-                <FormLabel fontSize="12px" fontWeight="700">Procedure Name</FormLabel>
+                <FormLabel fontSize="12px" fontWeight="700" color={textSecondary}>Procedure Name</FormLabel>
                 <Input
                   placeholder="e.g. Comprehensive Oral Evaluation"
                   borderRadius="xl"
+                  bg={inputBg}
+                  color={textPrimary}
+                  borderColor={borderSubtle}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -547,19 +579,25 @@ const ProcedureMaster = observer(() => {
 
               <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={3} w="full">
                 <FormControl>
-                  <FormLabel fontSize="12px" fontWeight="700">Procedure Name 2</FormLabel>
+                  <FormLabel fontSize="12px" fontWeight="700" color={textSecondary}>Procedure Name 2</FormLabel>
                   <Input
                     placeholder="Alternative name 2..."
                     borderRadius="xl"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     value={formData.name2}
                     onChange={(e) => setFormData({ ...formData, name2: e.target.value })}
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="12px" fontWeight="700">Procedure Name 3</FormLabel>
+                  <FormLabel fontSize="12px" fontWeight="700" color={textSecondary}>Procedure Name 3</FormLabel>
                   <Input
                     placeholder="Alternative name 3..."
                     borderRadius="xl"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     value={formData.name3}
                     onChange={(e) => setFormData({ ...formData, name3: e.target.value })}
                   />
@@ -570,18 +608,18 @@ const ProcedureMaster = observer(() => {
 
           <ModalFooter
             borderTop="1px solid"
-            borderColor="gray.100"
+            borderColor={borderLight}
             p={isMobile ? 3.5 : 4}
-            bg="gray.50"
+            bg={subtleBg}
           >
             <HStack spacing={2} w="full">
               <Button variant="ghost" flex={1} borderRadius="xl" onClick={onClose}>
                 Cancel
               </Button>
               <Button
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 flex={1}
                 borderRadius="xl"
                 fontWeight="700"

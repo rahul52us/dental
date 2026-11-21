@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Box, Spinner, useBreakpointValue, useColorModeValue, useMediaQuery, useTheme } from '@chakra-ui/react';
 import styled from 'styled-components';
 import stores from '../../store/stores';
@@ -14,7 +15,34 @@ import PageLoader from '../../component/common/Loader/PageLoader';
 import ProfileDetailsModal from '../../component/ProfileSettings/component/ProfileDetailsModal/ProfileDetailsModal';
 import AdvertisementBanner from './AdvertisementBanner';
 import MobileBottomNav from './component/MobileBottomNav';
+import { getActiveModuleFromUrl } from './SidebarLayout/utils/SidebarItems';
 
+// Isolated module theme synchronizer wrapped in Suspense to prevent SSG bailout
+const ModuleThemeSync = () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (pathname) {
+      const { activeItem, parentItem } = getActiveModuleFromUrl(
+        pathname,
+        searchParams?.toString()
+      );
+      if (activeItem) {
+        stores.themeStore.applyActiveModuleTheme(
+          activeItem.name,
+          parentItem?.name
+        );
+      } else {
+        stores.themeStore.applyActiveModuleTheme();
+      }
+    }
+    // Only re-run on actual navigation changes, NOT on every sidebarColors update
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, searchParams]);
+
+  return null;
+};
 
 const DashboardLayout = observer(({ children }: { children: React.ReactNode }) => {
   const {
@@ -29,15 +57,23 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
   const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
+  const currentPrimary = themeConfig.colors.custom.light.primary || '#0D9488';
+  const currentDarkPrimary = themeConfig.colors.custom.dark.primary || '#134E4A';
+
   const headerBgColor = useColorModeValue(
     themeConfig.colors.custom.light.primary,
     themeConfig.colors.custom.dark.primary
   );
 
   const headerGradient = useColorModeValue(
-    'linear-gradient(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)',
-    'linear-gradient(135deg, #020617 0%, #0F172A 50%, #134E4A 100%)'
+    `linear-gradient(135deg, #091E42 0%, ${currentDarkPrimary} 45%, ${currentPrimary} 100%)`,
+    `linear-gradient(135deg, #020617 0%, #0F172A 50%, ${currentDarkPrimary} 100%)`
   );
+
+  // Ensure CSS variables are synchronized with current theme on mount and change
+  useEffect(() => {
+    stores.themeStore.applyCssVariables(currentPrimary, currentDarkPrimary);
+  }, [currentPrimary, currentDarkPrimary]);
 
   const closeDrawerModel = () => {
     setOpenMobileSideDrawer(false);
@@ -70,6 +106,9 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
 
   return user ? (
     <Box>
+      <Suspense fallback={null}>
+        <ModuleThemeSync />
+      </Suspense>
       <MainContainer
         $isMobile={isMobile}
         $sidebarWidth={isCallapse ? mediumSidebarWidth : '250px'}
@@ -119,9 +158,8 @@ const DashboardLayout = observer(({ children }: { children: React.ReactNode }) =
     </Box>
   ) : (
     <PageLoader loading={true}>
-    <Spinner />
+      <div />
     </PageLoader>
-    // <RedirectComponent />
   );
 });
 

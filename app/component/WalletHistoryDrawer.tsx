@@ -29,7 +29,8 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  useBreakpointValue
+  useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FiCreditCard, FiArrowDownLeft, FiArrowUpRight, FiAlertCircle, FiUser, FiPlus, FiMinus } from "react-icons/fi";
 import stores from "../store/stores";
@@ -41,6 +42,12 @@ interface WalletHistoryDrawerProps {
 }
 
 const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClose, patient }) => {
+  const drawerBodyBg = useColorModeValue("gray.50", "darkBrand.50");
+  const cardBg = useColorModeValue("white", "darkBrand.100");
+  const borderColor = useColorModeValue("gray.100", "whiteAlpha.200");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textMuted = useColorModeValue("gray.500", "gray.400");
+
   const [walletHistoryData, setWalletHistoryData] = useState<any[]>([]);
   const [walletBalance, setWalletBalance] = useState(0);
   const [isWalletHistoryLoading, setIsWalletHistoryLoading] = useState(false);
@@ -61,14 +68,14 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
   const handleAddCredit = async () => {
     const credits = Number(creditAmount);
     const value = Number(creditValue);
-    
+
     if (!credits || credits <= 0 || !value || value <= 0) {
       toast({ title: "Validation Error", description: "Please enter valid credits and value.", status: "error", duration: 3000 });
       return;
     }
 
     const totalAmount = credits * value;
-    
+
     setIsAddingCredit(true);
     try {
       await stores.workDoneStore.addManualWalletCredit({
@@ -91,7 +98,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
 
   const handleDeductCredit = async () => {
     const amount = Number(deductAmount);
-    
+
     if (!amount || amount <= 0) {
       toast({ title: "Validation Error", description: "Please enter a valid amount.", status: "error", duration: 3000 });
       return;
@@ -210,7 +217,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                   {patient?.name || "Patient"}
                 </Text>
               </VStack>
-              
+
               <VStack spacing={4} align="stretch" w="full">
                 <Box bg="purple.50" px={5} py={3} borderRadius="2xl" border="1px dashed" borderColor="purple.200" shadow="sm" w="full">
                   <VStack align="start" spacing={0}>
@@ -219,24 +226,24 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                   </VStack>
                 </Box>
                 <HStack spacing={4} w="full">
-                  <Button 
+                  <Button
                     flex={1}
-                    leftIcon={<FiPlus />} 
-                    colorScheme="purple" 
-                    variant="solid" 
-                    borderRadius="xl" 
+                    leftIcon={<FiPlus />}
+                    colorScheme="purple"
+                    variant="solid"
+                    borderRadius="xl"
                     onClick={() => setIsCreditModalOpen(true)}
                     shadow="sm"
                     _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
                   >
                     Add Credit
                   </Button>
-                  <Button 
+                  <Button
                     flex={1}
-                    leftIcon={<FiMinus />} 
-                    colorScheme="orange" 
-                    variant="outline" 
-                    borderRadius="xl" 
+                    leftIcon={<FiMinus />}
+                    colorScheme="orange"
+                    variant="outline"
+                    borderRadius="xl"
                     onClick={() => setIsDeductModalOpen(true)}
                     shadow="sm"
                     _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
@@ -247,23 +254,23 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
               </VStack>
             </VStack>
           </DrawerHeader>
-          <DrawerBody p={6} bg="gray.50">
+          <DrawerBody p={6} bg={drawerBodyBg}>
             {isWalletHistoryLoading ? (
               <VStack py={20} spacing={4}>
                 <Spinner size="xl" color="purple.500" thickness="4px" />
-                <Text color="gray.500" fontWeight="bold">Loading wallet history...</Text>
+                <Text color={textMuted} fontWeight="bold">Loading wallet history...</Text>
               </VStack>
             ) : walletHistoryData.length > 0 ? (
               <VStack spacing={4} align="stretch">
                 {walletHistoryData.map((txn: any) => (
-                  <Box key={txn._id} p={5} bg="white" borderRadius="2xl" shadow="sm" border="1px solid" borderColor="gray.100" _hover={{ shadow: "md", transform: "translateY(-2px)", borderColor: "purple.200" }} transition="all 0.2s">
+                  <Box key={txn._id} p={5} bg={cardBg} borderRadius="2xl" shadow="sm" border="1px solid" borderColor={borderColor} _hover={{ shadow: "md", transform: "translateY(-2px)", borderColor: "purple.200" }} transition="all 0.2s">
                     <HStack justify="space-between" align="center">
                       <HStack spacing={4}>
-                        <Center w="48px" h="48px" borderRadius="xl" bg={txn.type === "Deposit" ? "green.50" : "orange.50"} color={txn.type === "Deposit" ? "green.500" : "orange.500"}>
+                        <Center w="48px" h="48px" borderRadius="xl" bg={txn.type === "Deposit" ? (useColorModeValue("green.50", "rgba(34, 197, 94, 0.15)")) : (useColorModeValue("orange.50", "rgba(249, 115, 22, 0.15)"))} color={txn.type === "Deposit" ? "green.400" : "orange.400"}>
                           <Icon as={txn.type === "Deposit" ? FiArrowDownLeft : FiArrowUpRight} boxSize={6} />
                         </Center>
                         <VStack align="start" spacing={1}>
-                          <Text fontWeight="800" color="gray.800" fontSize="md">
+                          <Text fontWeight="800" color={textPrimary} fontSize="md">
                             {txn.type === "Deposit" ? "Added to Wallet" : "Deducted from Wallet"}
                           </Text>
                           <HStack spacing={2}>
@@ -300,7 +307,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
 
       <Modal isOpen={isCreditModalOpen} onClose={() => setIsCreditModalOpen(false)} isCentered size="md" motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.600" />
-        <ModalContent borderRadius={{ base: 0, md: "3xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} shadow="2xl" overflow="hidden" bg="white">
+        <ModalContent borderRadius={{ base: 0, md: "3xl" }} borderTopRadius={0} mt={{ base: "auto", md: "auto" }} mb={{ base: 0, md: "auto" }} shadow="2xl" overflow="hidden" bg={cardBg}>
           <Box bgGradient="linear(to-br, purple.500, purple.700)" px={6} py={8} position="relative" overflow="hidden">
             <Box position="absolute" top="-20%" right="-10%" opacity={0.1}>
               <Icon as={FiPlus} boxSize="150px" color="white" transform="rotate(-15deg)" />
@@ -315,7 +322,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
             <VStack spacing={6}>
               <HStack w="full" spacing={4}>
                 <FormControl>
-                  <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>CREDITS</FormLabel>
+                  <FormLabel fontSize="sm" fontWeight="900" color={textPrimary} mb={3}>CREDITS</FormLabel>
                   <Input
                     type="number"
                     value={creditAmount}
@@ -324,15 +331,15 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                     borderRadius="xl"
                     fontWeight="900"
                     fontSize="xl"
-                    color="gray.800"
-                    bg="gray.50"
+                    color={textPrimary}
+                    bg={drawerBodyBg}
                     borderWidth="2px"
-                    borderColor="gray.200"
+                    borderColor={borderColor}
                     _focus={{ borderColor: "purple.500", bg: "white", shadow: "0 0 0 1px var(--chakra-colors-purple-500)" }}
                     placeholder="e.g. 5"
                   />
                 </FormControl>
-                
+
                 <FormControl>
                   <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>VALUE PER CREDIT</FormLabel>
                   <InputGroup size="lg">
@@ -370,7 +377,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                   </Center>
                 </HStack>
               </Box>
-              
+
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>DESCRIPTION (OPTIONAL)</FormLabel>
                 <Input
@@ -436,7 +443,7 @@ const WalletHistoryDrawer: React.FC<WalletHistoryDrawerProps> = ({ isOpen, onClo
                   />
                 </InputGroup>
               </FormControl>
-              
+
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="900" color="gray.600" mb={3}>DESCRIPTION (MANDATORY)</FormLabel>
                 <Input

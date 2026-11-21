@@ -105,11 +105,14 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
     const inactiveColor = useColorModeValue('#94A3B8', '#64748B');
     const inactiveTextColor = useColorModeValue('#64748B', '#94A3B8');
 
-    const activeColor = useColorModeValue('#0D9488', '#5EEAD4');
-    const activeTextColor = useColorModeValue('#0F766E', '#5EEAD4');
+    const activeColor = useColorModeValue(
+      themeConfig.colors.custom.light.primary || '#0D9488',
+      themeConfig.colors.custom.light.primary || '#2DD4BF'
+    );
+    const activeTextColor = activeColor;
     const activeBgPill = useColorModeValue(
-      'linear-gradient(135deg, rgba(204, 251, 241, 0.9) 0%, rgba(224, 242, 254, 0.9) 100%)',
-      'rgba(20, 184, 166, 0.18)'
+      `linear-gradient(135deg, ${activeColor}24 0%, ${activeColor}12 100%)`,
+      `${activeColor}2E`
     );
 
     const isItemActive = (item: NavItemConfig): boolean => {
@@ -146,6 +149,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
 
       localStorage.setItem('activeSidebarItemId', item.id.toString());
       localStorage.setItem('activeComponentName', item.id.toString());
+      stores.themeStore.applyActiveModuleTheme(item.name);
       onItemClick?.(item);
 
       if (item.url && pathname !== item.url) {
@@ -222,7 +226,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
                 borderRadius="13px"
                 bg={active ? activeBgPill : 'transparent'}
                 boxShadow={
-                  active ? '0 3px 10px rgba(13, 148, 136, 0.14)' : 'none'
+                  active ? `0 3px 10px ${activeColor}40` : 'none'
                 }
                 transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                 transform={active ? 'scale(1.05)' : 'scale(1)'}
@@ -259,7 +263,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = observer(
                 w={active ? '18px' : '0px'}
                 h="3px"
                 borderRadius="full"
-                bgGradient="linear(to-r, #0EA5E9, #0D9488)"
+                bg={activeColor}
                 mt="3px"
                 transition="all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
                 opacity={active ? 1 : 0}

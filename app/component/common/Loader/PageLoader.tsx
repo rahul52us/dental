@@ -1,6 +1,6 @@
 import { Center, Flex, Box, Text, Icon } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import SpinnerLoader from "./SpinnerLoader";
+import { PageSkeleton } from "./ContentSkeleton";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 // it handle loader and it's children for the drawer
@@ -19,13 +19,7 @@ const PageLoader = observer(
     return (
       <>
         {loading ? (
-          <Center height="100%">
-            <Flex alignItems="center" justifyContent="center">
-              <Box p={4} mt={height || "40vh"} mb={'20vh'}>
-                <SpinnerLoader />
-              </Box>
-            </Flex>
-          </Center>
+          <PageSkeleton />
         ) : noRecordFoundText ? (
           <Center height="100%" mb={'20vh'}>
             <Flex

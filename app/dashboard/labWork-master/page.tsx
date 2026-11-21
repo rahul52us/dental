@@ -41,6 +41,7 @@ import {
   Card,
   CardBody,
   useBreakpointValue,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useMemo } from 'react';
@@ -65,6 +66,19 @@ const LabWorkHierarchyMaster = observer(() => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Dark mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("gray.50", "gray.700");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.400");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const headingColor = useColorModeValue("#0C4A6E", "cyan.300");
+  const modalBg = useColorModeValue("white", "gray.800");
 
   const [currentParentId, setCurrentParentId] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<any[]>([]);
@@ -226,7 +240,7 @@ const LabWorkHierarchyMaster = observer(() => {
           <HStack spacing={2} align="center">
             <VStack align="start" spacing={0}>
               <HStack spacing={2}>
-                <Heading size={{ base: "md", md: "lg" }} color="#0C4A6E" fontWeight="900" letterSpacing="-0.3px">
+                <Heading size={{ base: "md", md: "lg" }} color={headingColor} fontWeight="900" letterSpacing="-0.3px">
                   Lab Work Hierarchy
                 </Heading>
                 <Badge
@@ -243,7 +257,7 @@ const LabWorkHierarchyMaster = observer(() => {
                   {currentItems.length}
                 </Badge>
               </HStack>
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
+              <Text fontSize={{ base: "xs", md: "sm" }} color={textFaint}>
                 {breadcrumb.length > 0
                   ? `In folder: ${breadcrumb[breadcrumb.length - 1]?.name}`
                   : "Create infinite levels of lab classifications"}
@@ -269,9 +283,9 @@ const LabWorkHierarchyMaster = observer(() => {
             </Button>
             <Button
               leftIcon={<FiPlus />}
-              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+              bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
-              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+              _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
               _active={{ transform: "scale(0.96)" }}
               onClick={() => { resetForm(); onOpen(); }}
               size="sm"
@@ -288,7 +302,7 @@ const LabWorkHierarchyMaster = observer(() => {
         </Flex>
 
         {/* Navigation & Search Card */}
-        <Card variant="outline" borderRadius="20px" border="1px solid" borderColor="gray.100" shadow="sm" bg="white">
+        <Card variant="outline" borderRadius="20px" border="1px solid" borderColor={borderLight} shadow="sm" bg={cardBg}>
           <CardBody p={{ base: 3, md: 4 }}>
             <Flex
               direction={{ base: 'column', md: 'row' }}
@@ -306,7 +320,7 @@ const LabWorkHierarchyMaster = observer(() => {
                     variant="ghost"
                     size="sm"
                     borderRadius="full"
-                    color="teal.600"
+                    color="teal.400"
                     flexShrink={0}
                   />
                 )}
@@ -315,7 +329,7 @@ const LabWorkHierarchyMaster = observer(() => {
                     <BreadcrumbLink 
                       onClick={() => goToBreadcrumb(-1)} 
                       fontWeight={currentParentId === null ? "800" : "600"}
-                      color={currentParentId === null ? "teal.600" : "gray.600"}
+                      color={currentParentId === null ? "teal.400" : textMuted}
                     >
                       Root
                     </BreadcrumbLink>
@@ -325,7 +339,7 @@ const LabWorkHierarchyMaster = observer(() => {
                       <BreadcrumbLink 
                         onClick={() => goToBreadcrumb(index)}
                         fontWeight={currentParentId === item._id ? "800" : "600"}
-                        color={currentParentId === item._id ? "teal.600" : "gray.600"}
+                        color={currentParentId === item._id ? "teal.400" : textMuted}
                         noOfLines={1}
                         maxW="130px"
                       >
@@ -345,11 +359,12 @@ const LabWorkHierarchyMaster = observer(() => {
                   placeholder="Search in this folder..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  bg="gray.50"
+                  bg={inputBg}
+                  color={textPrimary}
                   borderRadius="xl"
                   border="1px solid"
-                  borderColor="gray.200"
-                  _focus={{ bg: "white", borderColor: "teal.500", boxShadow: "0 0 0 1px #0D9488" }}
+                  borderColor={borderSubtle}
+                  _focus={{ bg: cardBg, borderColor: "teal.400", boxShadow: "0 0 0 1px #0D9488" }}
                 />
                 {searchQuery && (
                   <InputRightElement>
@@ -374,7 +389,7 @@ const LabWorkHierarchyMaster = observer(() => {
           {labWorkHierarchyStore.loading ? (
             <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
               <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500">Loading hierarchy items...</Text>
+              <Text fontSize="13px" color={textFaint}>Loading hierarchy items...</Text>
             </Flex>
           ) : currentItems.length === 0 ? (
             <Flex
@@ -382,22 +397,22 @@ const LabWorkHierarchyMaster = observer(() => {
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={cardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               textAlign="center"
             >
               <Icon as={FiFolder} boxSize="40px" color="gray.400" mb={2} />
-              <Text fontSize="15px" fontWeight="800" color="gray.700">
+              <Text fontSize="15px" fontWeight="800" color={textPrimary}>
                 No items here yet
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1} mb={3}>
+              <Text fontSize="12px" color={textFaint} mt={1} mb={3}>
                 {searchQuery ? `No matching items for "${searchQuery}"` : "Add your first classification or seed default data."}
               </Text>
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="xl"
                 onClick={() => { resetForm(); onOpen(); }}
@@ -410,14 +425,14 @@ const LabWorkHierarchyMaster = observer(() => {
               {currentItems.map((item: any) => (
                 <Box
                   key={item._id}
-                  bg="white"
+                  bg={cardBg}
                   border="1px solid"
-                  borderColor="#E8EEF4"
+                  borderColor={borderLight}
                   borderRadius="20px"
                   p={3.5}
                   boxShadow="0 4px 14px -6px rgba(15, 23, 42, 0.08)"
                   transition="all 0.2s"
-                  _active={{ bg: "gray.50" }}
+                  _active={{ bg: subtleBg }}
                 >
                   {/* Card Row 1: Icon + Name + Level Badge */}
                   <Flex
@@ -433,19 +448,25 @@ const LabWorkHierarchyMaster = observer(() => {
                         w="38px"
                         h="38px"
                         borderRadius="12px"
-                        bg={item.isTextInput ? "purple.50" : "teal.50"}
-                        color={item.isTextInput ? "purple.600" : "teal.700"}
+                        bg={item.isTextInput ? "purple.900" : "teal.900"}
+                        color={item.isTextInput ? "purple.200" : "teal.200"}
                         align="center"
                         justify="center"
                         flexShrink={0}
+                        sx={{
+                          _light: {
+                            bg: item.isTextInput ? "purple.50" : "teal.50",
+                            color: item.isTextInput ? "purple.600" : "teal.700",
+                          }
+                        }}
                       >
                         <Icon as={item.isTextInput ? FiFileText : FiFolder} boxSize={5} />
                       </Flex>
                       <Box minW={0} flex={1}>
-                        <Text fontSize="14px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                        <Text fontSize="14px" fontWeight="850" color={textPrimary} noOfLines={1} letterSpacing="-0.2px">
                           {item.name}
                         </Text>
-                        <HStack spacing={1} color="gray.400" fontSize="11px" mt={0.5}>
+                        <HStack spacing={1} color={textFaint} fontSize="11px" mt={0.5}>
                           <Icon as={FiClock} boxSize={3} />
                           <Text>
                             {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'N/A'}
@@ -455,16 +476,23 @@ const LabWorkHierarchyMaster = observer(() => {
                     </HStack>
 
                     <Badge
-                      bg={item.isTextInput ? "purple.50" : "teal.50"}
-                      color={item.isTextInput ? "purple.700" : "teal.700"}
+                      bg={item.isTextInput ? "purple.900" : "teal.900"}
+                      color={item.isTextInput ? "purple.200" : "teal.200"}
                       border="1px solid"
-                      borderColor={item.isTextInput ? "purple.200" : "teal.200"}
+                      borderColor={item.isTextInput ? "purple.700" : "teal.700"}
                       borderRadius="full"
                       px={2.5}
                       py={0.8}
                       fontSize="10px"
                       fontWeight="800"
                       flexShrink={0}
+                      sx={{
+                        _light: {
+                          bg: item.isTextInput ? "purple.50" : "teal.50",
+                          color: item.isTextInput ? "purple.700" : "teal.700",
+                          borderColor: item.isTextInput ? "purple.200" : "teal.200",
+                        }
+                      }}
                     >
                       {item.isTextInput ? "Custom Text" : `Level ${breadcrumb.length + 1}`}
                     </Badge>
@@ -476,7 +504,7 @@ const LabWorkHierarchyMaster = observer(() => {
                     align="center"
                     pt={2}
                     borderTop="1px solid"
-                    borderColor="gray.100"
+                    borderColor={borderLight}
                     gap={2}
                   >
                     <HStack spacing={2}>
@@ -533,27 +561,27 @@ const LabWorkHierarchyMaster = observer(() => {
         {/* ============================================================== */}
         <Box
           display={{ base: "none", md: "block" }}
-          bg="white"
+          bg={cardBg}
           borderRadius="2xl"
           shadow="sm"
           border="1px solid"
-          borderColor="gray.100"
+          borderColor={borderLight}
           overflow="hidden"
         >
           <Table variant="simple">
-            <Thead bg="gray.50">
+            <Thead bg={subtleBg}>
               <Tr>
-                <Th px={8}>Name</Th>
-                <Th>Type</Th>
-                <Th textAlign="center">Actions</Th>
+                <Th px={8} color={textFaint}>Name</Th>
+                <Th color={textFaint}>Type</Th>
+                <Th textAlign="center" color={textFaint}>Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
               {labWorkHierarchyStore.loading ? (
                 <Tr>
                   <Td colSpan={3} textAlign="center" py={12}>
-                    <Spinner color="blue.500" thickness="3px" size="xl" />
-                    <Text mt={4} color="gray.500" fontWeight="medium">Loading items...</Text>
+                    <Spinner color="teal.500" thickness="3px" size="xl" />
+                    <Text mt={4} color={textFaint} fontWeight="medium">Loading items...</Text>
                   </Td>
                 </Tr>
               ) : currentItems.length === 0 ? (
@@ -561,28 +589,28 @@ const LabWorkHierarchyMaster = observer(() => {
                   <Td colSpan={3} textAlign="center" py={12}>
                     <VStack spacing={2}>
                       <FiFolder size={40} color="#E2E8F0" />
-                      <Text color="gray.400" fontSize="lg">No items here yet</Text>
-                      <Button variant="link" colorScheme="blue" onClick={() => { resetForm(); onOpen(); }}>Click to add your first item</Button>
+                      <Text color={textFaint} fontSize="lg">No items here yet</Text>
+                      <Button variant="link" colorScheme="teal" onClick={() => { resetForm(); onOpen(); }}>Click to add your first item</Button>
                     </VStack>
                   </Td>
                 </Tr>
               ) : (
                 currentItems.map((item: any) => (
-                  <Tr key={item._id} _hover={{ bg: "blue.50" }} transition="all 0.2s" cursor="pointer" onClick={() => navigateTo(item)}>
+                  <Tr key={item._id} _hover={{ bg: subtleBg }} transition="all 0.2s" cursor="pointer" onClick={() => navigateTo(item)}>
                     <Td px={8}>
                       <HStack spacing={3}>
-                        <Icon as={item.isTextInput ? FiFileText : FiFolder} color={item.isTextInput ? "purple.400" : "blue.400"} />
+                        <Icon as={item.isTextInput ? FiFileText : FiFolder} color={item.isTextInput ? "purple.400" : "teal.400"} />
                         <VStack align="start" spacing={0}>
                            <HStack>
-                              <Text fontWeight="bold" fontSize="md" color="gray.700">{item.name}</Text>
+                              <Text fontWeight="bold" fontSize="md" color={textPrimary}>{item.name}</Text>
                               {item.isTextInput && <Badge colorScheme="purple" fontSize="10px">Text Input</Badge>}
                            </HStack>
-                           <Text fontSize="xs" color="gray.400">Created {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'N/A'}</Text>
+                           <Text fontSize="xs" color={textFaint}>Created {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'N/A'}</Text>
                         </VStack>
                       </HStack>
                     </Td>
                     <Td>
-                      <Badge colorScheme={item.isTextInput ? "purple" : "blue"} variant="subtle" px={3} py={1} borderRadius="full">
+                      <Badge colorScheme={item.isTextInput ? "purple" : "teal"} variant="subtle" px={3} py={1} borderRadius="full">
                         {item.isTextInput ? "Custom Text" : `Level ${breadcrumb.length + 1}`}
                       </Badge>
                     </Td>
@@ -640,6 +668,8 @@ const LabWorkHierarchyMaster = observer(() => {
       >
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.700" />
         <ModalContent
+          bg={modalBg}
+          color={textPrimary}
           w={{ base: "100vw", md: undefined }}
           maxW={{ base: "100vw", md: "520px" }}
           m={{ base: 0, md: "auto" }}
@@ -681,7 +711,7 @@ const LabWorkHierarchyMaster = observer(() => {
           }}
         >
           <ModalHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             borderRadius={0}
             borderTopRadius={0}
@@ -707,7 +737,7 @@ const LabWorkHierarchyMaster = observer(() => {
           <ModalBody py={{ base: 4, md: 6 }} px={{ base: 4, md: 6 }} overflowY="auto">
             <VStack align="stretch" spacing={4}>
               <FormControl isRequired>
-                <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Item Name(s)</FormLabel>
+                <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Item Name(s)</FormLabel>
                 {editingItem ? (
                   <Input
                     placeholder="e.g. Zirconia"
@@ -715,17 +745,23 @@ const LabWorkHierarchyMaster = observer(() => {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     size="md"
                     borderRadius="xl"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     focusBorderColor="teal.400"
                   />
                 ) : (
                   <VStack align="stretch" spacing={2}>
-                    <Text fontSize="xs" color="gray.500">You can enter multiple items, one per line.</Text>
+                    <Text fontSize="xs" color={textFaint}>You can enter multiple items, one per line.</Text>
                     <Textarea
                       placeholder="e.g.&#10;Zirconia&#10;E-Max&#10;Ceramic"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       size="md"
                       borderRadius="xl"
+                      bg={inputBg}
+                      color={textPrimary}
+                      borderColor={borderSubtle}
                       focusBorderColor="teal.400"
                       rows={4}
                     />
@@ -733,12 +769,12 @@ const LabWorkHierarchyMaster = observer(() => {
                 )}
               </FormControl>
 
-              <FormControl display="flex" alignItems="center" justifyContent="space-between" p={3} bg="gray.50" borderRadius="xl">
+              <FormControl display="flex" alignItems="center" justifyContent="space-between" p={3} bg={subtleBg} borderRadius="xl">
                 <Box>
-                  <FormLabel mb="0" fontWeight="700" fontSize="13px" color="gray.700">
+                  <FormLabel mb="0" fontWeight="700" fontSize="13px" color={textSecondary}>
                     Enable Custom Text Input?
                   </FormLabel>
-                  <Text fontSize="11px" color="gray.500">
+                  <Text fontSize="11px" color={textFaint}>
                     Shows text box instead of dropdown in lab sheet.
                   </Text>
                 </Box>
@@ -753,10 +789,10 @@ const LabWorkHierarchyMaster = observer(() => {
 
           <ModalFooter
             borderTop="1px solid"
-            borderColor="gray.100"
+            borderColor={borderLight}
             py={3}
             px={{ base: 4, md: 6 }}
-            bg="gray.50"
+            bg={subtleBg}
           >
             <HStack spacing={2} w="full">
               <Button
@@ -769,9 +805,9 @@ const LabWorkHierarchyMaster = observer(() => {
                 Cancel
               </Button>
               <Button
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.98)" }}
                 onClick={handleSubmit}
                 isLoading={loading}

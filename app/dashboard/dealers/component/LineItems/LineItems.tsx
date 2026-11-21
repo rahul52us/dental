@@ -29,6 +29,7 @@ import {
   useToast,
   Icon,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
 import { Formik, Form } from "formik";
@@ -262,7 +263,7 @@ const LineItems = observer(({ data }: any) => {
   };
 
   return (
-    <Box p={{ base: 2, md: 4 }} bg="gray.50" borderRadius={{ base: 0, md: "2xl" }}>
+    <Box p={{ base: 2, md: 4 }} bg={useColorModeValue("gray.50", "darkBrand.50")} borderRadius={{ base: 0, md: "2xl" }}>
       <CustomTable
         title="Portfolio Items"
         data={
@@ -297,14 +298,14 @@ const LineItems = observer(({ data }: any) => {
         }}
         loading={lineItems.loading}
         mobileCard={(item: any) => (
-          <Card bg="white" borderWidth="1px" borderColor="gray.200" borderRadius="xl" shadow="sm">
+          <Card bg={useColorModeValue("white", "darkBrand.100")} borderWidth="1px" borderColor={useColorModeValue("gray.200", "darkBrand.200")} borderRadius="xl" shadow="sm">
             <CardBody p={3}>
               <Flex justify="space-between" align="flex-start" gap={3}>
                 <Box minW={0} flex={1}>
-                  <Text fontWeight="bold" fontSize="sm" color="gray.800" wordBreak="break-word">
+                  <Text fontWeight="bold" fontSize="sm" color={useColorModeValue("gray.800", "gray.100")} wordBreak="break-word">
                     {item.itemName || "Portfolio item"}
                   </Text>
-                  <Text mt={1} fontSize="xs" color="gray.500" wordBreak="break-word">
+                  <Text mt={1} fontSize="xs" color={useColorModeValue("gray.500", "gray.400")} wordBreak="break-word">
                     {item.brandName || "Standard portfolio"}{item.itemCode ? ` · ${item.itemCode}` : ""}
                   </Text>
                 </Box>
@@ -313,15 +314,15 @@ const LineItems = observer(({ data }: any) => {
                 </Badge>
               </Flex>
               <SimpleGrid columns={2} spacing={2} mt={3}>
-                <Box p={2} bg="gray.50" borderRadius="lg">
-                  <Text fontSize="10px" color="gray.500" fontWeight="bold">UNIT PRICE</Text>
-                  <Text fontSize="sm" fontWeight="bold" color="gray.800">
+                <Box p={2} bg={useColorModeValue("gray.50", "darkBrand.50")} borderRadius="lg">
+                  <Text fontSize="10px" color={useColorModeValue("gray.500", "gray.400")} fontWeight="bold">UNIT PRICE</Text>
+                  <Text fontSize="sm" fontWeight="bold" color={useColorModeValue("gray.800", "gray.100")}>
                     ₹{Number(item.price || 0).toLocaleString("en-IN")}
                   </Text>
                 </Box>
-                <Box p={2} bg="teal.50" borderRadius="lg">
-                  <Text fontSize="10px" color="teal.600" fontWeight="bold">TOTAL</Text>
-                  <Text fontSize="sm" fontWeight="bold" color="teal.700">
+                <Box p={2} bg={useColorModeValue("teal.50", "rgba(13, 148, 136, 0.15)")} borderRadius="lg">
+                  <Text fontSize="10px" color={useColorModeValue("teal.600", "teal.300")} fontWeight="bold">TOTAL</Text>
+                  <Text fontSize="sm" fontWeight="bold" color={useColorModeValue("teal.700", "teal.200")}>
                     ₹{Number(item.total || 0).toLocaleString("en-IN")}
                   </Text>
                 </Box>
@@ -387,7 +388,7 @@ const LineItems = observer(({ data }: any) => {
           overflow="hidden"
         >
           <DrawerCloseButton color="white" bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.350" }} top={{ base: 2, md: 4 }} right={{ base: 2, md: 4 }} />
-          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)" color="white" py={{ base: 3, md: 4 }}>
+          <DrawerHeader bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" py={{ base: 3, md: 4 }}>
             <Flex align="center" gap={3}>
               <Icon as={GiPsychicWaves} size="24px" />
               Line Item Overview

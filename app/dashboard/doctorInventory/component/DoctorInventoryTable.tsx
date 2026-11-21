@@ -1,5 +1,7 @@
 "use client";
 import {
+  useColorModeValue,
+
   Avatar,
   Badge,
   Box,
@@ -16,6 +18,7 @@ import {
   Text,
   useBreakpointValue,
   VStack,
+
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -32,12 +35,24 @@ import {
 } from "react-icons/fi";
 import { IoMdAdd } from "react-icons/io";
 import CustomTable from "../../../component/config/component/CustomTable/CustomTable";
+import { CardListSkeleton } from "../../../component/common/Loader/ContentSkeleton";
 import { tablePageLimit } from "../../../component/config/utils/variable";
 import stores from "../../../store/stores";
 import moment from "moment";
 
 const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Theme & Dark Mode tokens
+  const invTitleColor = useColorModeValue("gray.850", "white");
+  const invSubtextColor = useColorModeValue("gray.500", "gray.400");
+  const invCardBg = useColorModeValue("white", "gray.800");
+  const invCardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const invSearchBg = useColorModeValue("white", "gray.800");
+  const invSearchBorder = useColorModeValue("gray.200", "gray.700");
+  const invSearchColor = useColorModeValue("gray.800", "white");
+  const invDescBg = useColorModeValue("gray.50", "gray.700");
+  const invDescBorder = useColorModeValue("gray.150", "gray.600");
   const {
     doctorInventoryStore: { doctorInventories, getDoctorInventories },
   } = stores;
@@ -105,14 +120,14 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           {/* Top App Bar / Actions Strip */}
           <Flex justify="space-between" align="center" mb={3} gap={2} px={1}>
             <HStack spacing={2}>
-              <Text fontSize="16px" fontWeight="900" color="gray.800" letterSpacing="-0.3px">
+              <Text fontSize="16px" fontWeight="900" color={invTitleColor} letterSpacing="-0.3px">
                 In & Out Ledger
               </Text>
               <Badge
-                bg="rgba(13, 148, 136, 0.12)"
-                color="teal.700"
+                bg={useColorModeValue("rgba(13, 148, 136, 0.12)", "rgba(13, 148, 136, 0.25)")}
+                color={useColorModeValue("teal.700", "teal.200")}
                 border="1px solid"
-                borderColor="rgba(13, 148, 136, 0.25)"
+                borderColor={useColorModeValue("rgba(13, 148, 136, 0.25)", "rgba(13, 148, 136, 0.4)")}
                 borderRadius="full"
                 px={2}
                 py={0.5}
@@ -126,9 +141,9 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             {stores.auth.hasPermission("doctorInventory", "create") && (
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.96)" }}
                 leftIcon={<IoMdAdd fontSize="16px" />}
                 borderRadius="xl"
@@ -144,8 +159,8 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Flex>
 
           {/* Search Box */}
-          <InputGroup size="sm" mb={3}>
-            <InputLeftElement pointerEvents="none">
+          <InputGroup size="sm" mb={2}>
+            <InputLeftElement pointerEvents="none" h="40px">
               <FiSearch color="#94A3B8" />
             </InputLeftElement>
             <Input
@@ -155,16 +170,18 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              borderRadius="xl"
-              bg="white"
-              borderColor="gray.200"
+              borderRadius="12px"
+              h="40px"
+              bg={invSearchBg}
+              borderColor={invSearchBorder}
+              color={invSearchColor}
               _focus={{
                 borderColor: "teal.500",
                 boxShadow: "0 0 0 1px #0D9488",
               }}
             />
             {search && (
-              <InputRightElement>
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={12} />}
@@ -181,27 +198,24 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
           {/* Cards List or Loading / Empty state */}
           {doctorInventories.loading ? (
-            <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500">Loading ledger records...</Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !doctorInventories.data || doctorInventories.data.length === 0 ? (
             <Flex
               direction="column"
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={invCardBg}
               borderRadius="22px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={invCardBorder}
               textAlign="center"
             >
-              <Icon as={FiFileText} boxSize="36px" color="gray.400" mb={2} />
-              <Text fontSize="14px" fontWeight="750" color="gray.700">
+              <Icon as={FiFileText} boxSize="36px" color={invSubtextColor} mb={2} />
+              <Text fontSize="14px" fontWeight="750" color={invTitleColor}>
                 No Ledger Records Found
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1}>
+              <Text fontSize="12px" color={invSubtextColor} mt={1}>
                 {search ? `No matching records for "${search}"` : "Tap + Add Ledger to create a new ledger record."}
               </Text>
             </Flex>
@@ -220,9 +234,9 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 return (
                   <Box
                     key={item._id || idx}
-                    bg="white"
+                    bg={invCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={invCardBorder}
                     borderRadius="20px"
                     p={3.5}
                     boxShadow="0 6px 18px -8px rgba(15, 23, 42, 0.12)"
@@ -239,15 +253,16 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           bg="linear-gradient(135deg, #CCFBF1 0%, #99F6E4 100%)"
                           color="teal.800"
                           fontWeight="900"
-                          border="2px solid white"
+                          border="2px solid"
+                          borderColor={invCardBorder}
                           boxShadow="0 2px 8px rgba(15,23,42,0.08)"
                           flexShrink={0}
                         />
                         <Box flex={1} minW={0}>
-                          <Text fontSize="14.5px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          <Text fontSize="14.5px" fontWeight="850" color={invTitleColor} noOfLines={1} letterSpacing="-0.2px">
                             {doctorName}
                           </Text>
-                          <HStack spacing={1} color="gray.400" fontSize="11px" mt={0.5}>
+                          <HStack spacing={1} color={invSubtextColor} fontSize="11px" mt={0.5}>
                             <Icon as={FiCalendar} boxSize={3} />
                             <Text>{dateFormatted}</Text>
                           </HStack>
@@ -258,17 +273,17 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     {/* Description Box */}
                     {item.description ? (
                       <Box
-                        bg="gray.50"
+                        bg={invDescBg}
                         borderRadius="xl"
                         p={2.5}
                         my={2}
                         border="1px solid"
-                        borderColor="gray.150"
+                        borderColor={invDescBorder}
                       >
-                        <Text fontSize="10px" fontWeight="700" color="gray.400" textTransform="uppercase" mb={0.5}>
+                        <Text fontSize="10px" fontWeight="700" color={invSubtextColor} textTransform="uppercase" mb={0.5}>
                           Description
                         </Text>
-                        <Text fontSize="12.5px" color="gray.700" fontWeight="500" wordBreak="break-word">
+                        <Text fontSize="12.5px" color={useColorModeValue("gray.700", "gray.200")} fontWeight="500" wordBreak="break-word">
                           {item.description}
                         </Text>
                       </Box>
@@ -277,7 +292,7 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     )}
 
                     {/* Action Buttons Toolbar */}
-                    <Flex justify="flex-end" align="center" pt={1.5} borderTop="1px dashed" borderColor="gray.100" gap={1}>
+                    <Flex justify="flex-end" align="center" pt={1.5} borderTop="1px dashed" borderColor={invDescBorder} gap={1}>
                       {stores.auth.hasPermission("doctorInventory", "edit") && (
                         <Button
                           size="xs"

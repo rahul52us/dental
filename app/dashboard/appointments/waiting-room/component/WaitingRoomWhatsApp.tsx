@@ -41,6 +41,7 @@ import { GiMedicalDrip, GiPsychicWaves } from "react-icons/gi";
 import { MdOutlineAirlineSeatReclineExtra, MdLocalHospital } from "react-icons/md";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
+import { CardListSkeleton } from "../../../../component/common/Loader/ContentSkeleton";
 import stores from "../../../../store/stores";
 import { copyToClipboard, replaceLabelValueObjects } from "../../../../config/utils/function";
 import { genderOptions } from "../../../../config/constant";
@@ -189,20 +190,20 @@ const WaitingRoomWhatsApp = observer(({ selectedDate }: any): any => {
 
     if (loading) {
         return (
-            <Center py={{ base: 8, md: 10 }}>
-                <Spinner size="lg" color="brand.500" thickness="4px" />
-            </Center>
+            <Box py={2} w="100%">
+                <CardListSkeleton count={3} />
+            </Box>
         );
     }
 
     if (appointments.length === 0) {
         return (
-            <Center py={{ base: 8, md: 24 }} flexDir="column" textAlign="center">
+            <Center py={{ base: 6, md: 14 }} flexDir="column" textAlign="center">
                 <Box
-                    p={{ base: 4, md: 7 }}
+                    p={{ base: 3, md: 5 }}
                     bg={colorMode === 'light' ? "blue.50" : "whiteAlpha.50"}
-                    borderRadius={{ base: "2xl", md: "3xl" }}
-                    mb={{ base: 4, md: 6 }}
+                    borderRadius="2xl"
+                    mb={3}
                     position="relative"
                     _before={{
                         content: '""',

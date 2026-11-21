@@ -1,4 +1,5 @@
 "use client";
+import { CardListSkeleton } from "../../component/common/Loader/ContentSkeleton";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
@@ -145,6 +146,27 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Theme & Dark Mode tokens
+  const titleColor = useColorModeValue("gray.850", "white");
+  const subtextColor = useColorModeValue("gray.500", "gray.400");
+  const cardBg = useColorModeValue("white", "gray.800");
+  const cardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const searchBg = useColorModeValue("white", "gray.800");
+  const searchBorder = useColorModeValue("#E2E8F0", "gray.700");
+  const searchColor = useColorModeValue("gray.800", "white");
+  const pillsBg = useColorModeValue("gray.100", "gray.800");
+  const pillInactiveText = useColorModeValue("gray.600", "gray.400");
+  const pillInactiveHover = useColorModeValue("gray.200", "gray.700");
+  const filterBtnBg = useColorModeValue("white", "gray.800");
+  const filterBtnBorder = useColorModeValue("gray.200", "gray.700");
+  const filterBtnColor = useColorModeValue("gray.700", "gray.200");
+  const stripBg = useColorModeValue("gray.50", "gray.700");
+  const stripBorder = useColorModeValue("gray.100", "gray.600");
+  const stripTextColor = useColorModeValue("gray.600", "gray.300");
+  const timelineBg = useColorModeValue("#F8FAFC", "gray.700");
+  const timelineBorder = useColorModeValue("#E2E8F0", "gray.600");
+  const timelineText = useColorModeValue("gray.800", "gray.100");
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -556,44 +578,44 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 <Text
                   fontSize={{ base: "20px", sm: "22px" }}
                   fontWeight="900"
-                  color="gray.850"
+                  color={titleColor}
                   letterSpacing="-0.4px"
                 >
                   Lab Orders
                 </Text>
                 {labWorkStore.totalCount !== undefined && (
                   <Badge
-                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
                     fontSize="10px"
                     fontWeight="800"
                     px={2}
                     py={0.5}
                     rounded="full"
-                    boxShadow="0 2px 6px rgba(13, 148, 136, 0.25)"
+                    boxShadow="0 2px 6px var(--theme-shadow, rgba(13, 148, 136, 0.25))"
                   >
                     {labWorkStore.totalCount}
                   </Badge>
                 )}
               </HStack>
-              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+              <Text fontSize="12px" color={subtextColor} fontWeight="500" mt={0.5}>
                 Manage dental fabrication & track lab orders
               </Text>
             </Box>
 
             {hasTabPermission("create") && (
               <Button
-                h="40px"
-                leftIcon={<FiPlus size={15} />}
-                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                h="36px"
+                leftIcon={<FiPlus size={14} />}
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="14px"
                 px={4}
                 fontSize="13px"
                 fontWeight="800"
-                boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
+                boxShadow="0 4px 14px -2px var(--theme-shadow, rgba(13, 148, 136, 0.4))"
                 _hover={{
-                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                   transform: "translateY(-1px)",
                 }}
                 _active={{ transform: "scale(0.96)" }}
@@ -605,7 +627,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           </Flex>
 
           {/* Work Type Segmented Pills */}
-          <HStack spacing={1.5} p={1} bg="gray.100" borderRadius="18px" mb={3}>
+          <HStack spacing={1.5} p={1} bg={pillsBg} border="1px solid" borderColor={searchBorder} borderRadius="18px" mb={3}>
             {[
               { id: 0, label: "All Orders" },
               { id: 1, label: "In-House" },
@@ -623,15 +645,15 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                   borderRadius="14px"
                   bg={
                     isActive
-                      ? "linear-gradient(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+                      ? "linear-gradient(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                       : "transparent"
                   }
-                  color={isActive ? "white" : "gray.600"}
-                  boxShadow={isActive ? "0 2px 8px rgba(12, 74, 110, 0.25)" : "none"}
+                  color={isActive ? "white" : pillInactiveText}
+                  boxShadow={isActive ? "0 2px 8px var(--theme-shadow, rgba(12, 74, 110, 0.25))" : "none"}
                   _hover={{
                     bg: isActive
-                      ? "linear-gradient(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
-                      : "gray.200",
+                      ? "linear-gradient(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
+                      : pillInactiveHover,
                   }}
                   onClick={() => handleTabChange(tab.id)}
                 >
@@ -643,29 +665,31 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
           {/* Search Bar */}
           <InputGroup size="md" mb={2.5}>
-            <InputLeftElement pointerEvents="none" h="46px" w="44px">
-              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+            <InputLeftElement pointerEvents="none" h="40px" w="40px">
+              <Icon as={FiSearch} color="brand.500" boxSize={4} />
             </InputLeftElement>
             <Input
               placeholder="Search patient, order or doctor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               borderRadius="15px"
-              bg="white"
-              borderColor="#E2E8F0"
+              bg={searchBg}
+              borderColor={searchBorder}
+              color={searchColor}
               fontSize="13px"
               fontWeight="600"
-              h="46px"
-              px={11}
+              h="40px"
+              pl="38px"
+              pr={searchQuery ? "38px" : 3}
               boxShadow="0 2px 8px rgba(0,0,0,0.03)"
               _focus={{
-                borderColor: "#0EA5E9",
-                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+                borderColor: "brand.500",
+                boxShadow: "0 0 0 3px var(--theme-shadow, rgba(14, 165, 233, 0.15))",
               }}
               _placeholder={{ color: "gray.400", fontWeight: "400" }}
             />
             {searchQuery && (
-              <InputRightElement h="46px">
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={14} />}
@@ -685,10 +709,11 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             <Button
               size="sm"
               borderRadius="12px"
-              bg={activeFiltersCount > 0 ? "teal.50" : "white"}
+              bg={activeFiltersCount > 0 ? useColorModeValue("brand.50", "whiteAlpha.200") : filterBtnBg}
               border="1px solid"
-              borderColor={activeFiltersCount > 0 ? "teal.400" : "gray.200"}
-              color={activeFiltersCount > 0 ? "teal.700" : "gray.700"}
+              borderColor={activeFiltersCount > 0 ? "brand.500" : filterBtnBorder}
+              color={activeFiltersCount > 0 ? "brand.500" : filterBtnColor}
+              _hover={{ bg: useColorModeValue("brand.50", "whiteAlpha.100") }}
               leftIcon={<FiFilter size={13} />}
               fontSize="12px"
               fontWeight="700"
@@ -700,7 +725,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               {activeFiltersCount > 0 && (
                 <Badge
                   ml={1.5}
-                  bg="teal.600"
+                  bg="brand.500"
                   color="white"
                   borderRadius="full"
                   fontSize="10px"
@@ -715,10 +740,11 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               <Button
                 size="sm"
                 borderRadius="12px"
-                bg="white"
+                bg={filterBtnBg}
                 border="1px solid"
-                borderColor="gray.200"
-                color="blue.700"
+                borderColor={filterBtnBorder}
+                color={filterBtnColor}
+                _hover={{ bg: useColorModeValue("gray.50", "gray.700") }}
                 leftIcon={<FiDownload size={13} />}
                 fontSize="12px"
                 fontWeight="700"
@@ -739,10 +765,11 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               <Button
                 size="sm"
                 borderRadius="12px"
-                bg="white"
+                bg={filterBtnBg}
                 border="1px solid"
-                borderColor="gray.200"
-                color="teal.700"
+                borderColor={filterBtnBorder}
+                color={filterBtnColor}
+                _hover={{ bg: useColorModeValue("gray.50", "gray.700") }}
                 leftIcon={<FiDownload size={13} />}
                 fontSize="12px"
                 fontWeight="700"
@@ -840,12 +867,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
 
           {/* Orders Stack */}
           {labWorkStore.loading ? (
-            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500" fontWeight="600">
-                Loading lab orders...
-              </Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !labWorkStore.labWorks || labWorkStore.labWorks.length === 0 ? (
             <Flex
               direction="column"
@@ -853,10 +875,10 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               justify="center"
               py={14}
               textAlign="center"
-              bg="white"
+              bg={cardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={cardBorder}
               px={4}
             >
               <Icon as={FiLayers} boxSize="36px" color="gray.400" mb={2} />
@@ -880,9 +902,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 return (
                   <Box
                     key={item._id || item.id || idx}
-                    bg="white"
+                    bg={cardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={cardBorder}
                     borderRadius="22px"
                     p={3.5}
                     boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
@@ -910,13 +932,13 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                           <Text
                             fontSize="14.5px"
                             fontWeight="800"
-                            color="gray.850"
+                            color={titleColor}
                             noOfLines={1}
                             letterSpacing="-0.2px"
                           >
                             {item.patient?.name || item.patientNameManual || "N/A"}
                           </Text>
-                          <Text fontSize="11px" color="gray.500" noOfLines={1}>
+                          <Text fontSize="11px" color={subtextColor} noOfLines={1}>
                             Dr.{" "}
                             {item.primaryDoctor?.name ||
                               item.primaryDoctor?.labDoctorName ||
@@ -945,17 +967,17 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     <Flex
                       align="center"
                       justify="space-between"
-                      bg="gray.50"
+                      bg={stripBg}
                       borderRadius="xl"
                       px={3}
                       py={1.5}
                       mb={2.5}
                       fontSize="11.5px"
                       border="1px solid"
-                      borderColor="gray.100"
+                      borderColor={stripBorder}
                     >
-                      <HStack spacing={1.5} color="gray.600" flex={1} minW={0} mr={2}>
-                        <Icon as={FiLayers} color="teal.600" boxSize={3.5} flexShrink={0} />
+                      <HStack spacing={1.5} color={stripTextColor} flex={1} minW={0} mr={2}>
+                        <Icon as={FiLayers} color="brand.500" boxSize={3.5} flexShrink={0} />
                         <Text fontWeight="600" noOfLines={1} fontSize="11.5px">
                           {item.workType === "in-house"
                             ? item.technicianName
@@ -967,7 +989,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         </Text>
                       </HStack>
                       {item.price ? (
-                        <Text fontWeight="800" color="teal.700" flexShrink={0} fontSize="12px">
+                        <Text fontWeight="800" color="brand.500" flexShrink={0} fontSize="12px">
                           ₹{item.price}
                         </Text>
                       ) : null}
@@ -979,10 +1001,10 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         {works.slice(0, 3).map((wText: string, wIdx: number) => (
                           <Box
                             key={wIdx}
-                            bg="rgba(14, 165, 233, 0.08)"
-                            color="#0284C7"
+                            bg={useColorModeValue("brand.50", "whiteAlpha.100")}
+                            color={useColorModeValue("brand.700", "brand.200")}
                             border="1px solid"
-                            borderColor="rgba(14, 165, 233, 0.22)"
+                            borderColor={useColorModeValue("brand.200", "brand.800")}
                             borderRadius="10px"
                             px={2.5}
                             py={1}
@@ -1017,22 +1039,22 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       spacing={2}
                       mb={2.5}
                       p={2.5}
-                      bg="#F8FAFC"
+                      bg={timelineBg}
                       borderRadius="14px"
                       border="1px solid"
-                      borderColor="#E2E8F0"
+                      borderColor={timelineBorder}
                     >
                       <VStack spacing={0.5} align="center">
                         <Text
                           fontSize="10px"
                           fontWeight="800"
-                          color="gray.500"
+                          color={subtextColor}
                           textTransform="uppercase"
                           letterSpacing="0.3px"
                         >
                           Send
                         </Text>
-                        <Text fontSize="11px" fontWeight="750" color="gray.800" textAlign="center">
+                        <Text fontSize="11px" fontWeight="750" color={timelineText} textAlign="center">
                           {item.sendDate
                             ? formatDateTime(item.sendDate).split(",")[0]
                             : "—"}
@@ -1043,13 +1065,13 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         <Text
                           fontSize="10px"
                           fontWeight="800"
-                          color="gray.500"
+                          color={subtextColor}
                           textTransform="uppercase"
                           letterSpacing="0.3px"
                         >
                           Due
                         </Text>
-                        <Text fontSize="11px" fontWeight="750" color="orange.700" textAlign="center">
+                        <Text fontSize="11px" fontWeight="750" color="orange.400" textAlign="center">
                           {item.dueDate
                             ? formatDateTime(item.dueDate).split(",")[0]
                             : "—"}
@@ -1060,13 +1082,13 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                         <Text
                           fontSize="10px"
                           fontWeight="800"
-                          color="gray.500"
+                          color={subtextColor}
                           textTransform="uppercase"
                           letterSpacing="0.3px"
                         >
                           Received
                         </Text>
-                        <Text fontSize="11px" fontWeight="750" color="teal.700" textAlign="center">
+                        <Text fontSize="11px" fontWeight="750" color="brand.500" textAlign="center">
                           {item.receivedDate
                             ? formatDateTime(item.receivedDate).split(",")[0]
                             : "—"}
@@ -1465,7 +1487,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
         >
           <DrawerCloseButton color="white" zIndex={3} mt={1} />
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             borderRadius={0}
             borderTopRadius={0}
@@ -1605,7 +1627,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               </Button>
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 flex={1}
                 borderRadius="xl"
@@ -1646,7 +1668,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               mt={2}
             />
             <DrawerHeader
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius={0}
               borderTopRadius={0}
@@ -1692,7 +1714,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               mt={3} 
             />
             <DrawerHeader
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius={0}
               borderTopRadius={0}
@@ -1955,7 +1977,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             />
             <DrawerHeader
               borderBottomWidth="1px"
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius={0}
               borderTopRadius={0}
@@ -2035,7 +2057,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               mt={3} 
             />
             <DrawerHeader
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius={0}
               borderTopRadius={0}

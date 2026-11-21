@@ -7,6 +7,7 @@ import {
   Grid,
   GridItem,
   SimpleGrid,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { observer } from "mobx-react-lite";
@@ -56,6 +57,8 @@ const RecallAppointmentForm = observer(
     } = stores;
     const [loading, setLoading] = useState(false);
     const { t } = useTranslation();
+    const cardBg = useColorModeValue("white", "darkBrand.100");
+    const borderColor = useColorModeValue("gray.200", "darkBrand.200");
 
     return (
       <Formik
@@ -162,7 +165,9 @@ const RecallAppointmentForm = observer(
           return (
             <FormikForm onSubmit={handleSubmit}>
   <Box
-    bg="white"
+    bg={cardBg}
+    border="1px solid"
+    borderColor={borderColor}
     borderRadius={{ base: "none", md: "xl" }}
     boxShadow={{ base: "none", md: "sm" }}
     p={{ base: 3, md: 6 }}
@@ -293,8 +298,8 @@ const RecallAppointmentForm = observer(
       <Button
         type="submit"
         color="white"
-        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
-        _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
+        _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
         _active={{ transform: "scale(0.98)" }}
         borderRadius="xl"
         fontWeight="700"

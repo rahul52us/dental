@@ -237,13 +237,16 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    const currentPrimary = themeConfig.colors.custom.light.primary || '#0D9488';
+    const currentDarkPrimary = themeConfig.colors.custom.dark.primary || '#0C4A6E';
+
     const cardBg = useColorModeValue('#FFFFFF', '#1E293B');
     const cardBorder = useColorModeValue('rgba(226, 232, 240, 0.85)', 'rgba(51, 65, 85, 0.6)');
-    const cardBorderHover = useColorModeValue('teal.300', 'teal.500');
-    const activeBorder = useColorModeValue('teal.500', 'teal.400');
+    const cardBorderHover = useColorModeValue(currentPrimary, currentPrimary);
+    const activeBorder = useColorModeValue(currentPrimary, currentPrimary);
     const activeBg = useColorModeValue(
-      'linear-gradient(135deg, rgba(204, 251, 241, 0.45) 0%, rgba(240, 253, 250, 0.8) 100%)',
-      'rgba(20, 184, 166, 0.14)'
+      `linear-gradient(135deg, ${currentPrimary}22 0%, ${currentPrimary}0D 100%)`,
+      `${currentPrimary}26`
     );
     const textColor = useColorModeValue('#0F172A', '#F8FAFC');
     const subtextColor = useColorModeValue('#64748B', '#94A3B8');
@@ -263,19 +266,13 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
     };
 
     const getItemBadgeStyle = (item: SidebarItem): BadgeStyleConfig => {
-      const predefined = ITEM_BADGE_STYLES[item.name];
-      if (predefined) {
-        return {
-          ...predefined,
-          bg: colorMode === 'dark' ? predefined.darkBg : predefined.bg,
-          color: colorMode === 'dark' ? predefined.darkColor : predefined.color,
-        };
-      }
+      // 1. Custom module theme takes top priority
+      const customColor =
+        themeConfig.sidebarColors?.[item.name] ||
+        stores.themeStore.getModuleColor(item.name);
 
-      const customColor = themeConfig.sidebarColors?.[item.name];
       if (customColor) {
-        const baseColor =
-          colorMode === 'dark' ? customColor.dark : customColor.light;
+        const baseColor = customColor.light || customColor.dark;
         return {
           bg: `${baseColor}1F`,
           gradient: `linear(to-br, ${baseColor}22, ${baseColor}11)`,
@@ -284,6 +281,16 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
           darkBg: `${baseColor}22`,
           darkColor: baseColor,
           sublabel: 'Practice Module',
+        };
+      }
+
+      // 2. Predefined fallback styles
+      const predefined = ITEM_BADGE_STYLES[item.name];
+      if (predefined) {
+        return {
+          ...predefined,
+          bg: colorMode === 'dark' ? predefined.darkBg : predefined.bg,
+          color: colorMode === 'dark' ? predefined.darkColor : predefined.color,
         };
       }
 
@@ -331,13 +338,13 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
         >
           {/* Executive Dental Header */}
           <Box
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
-            px={4}
-            pt={5}
-            pb={4}
+            bgGradient={`linear(135deg, #091E42 0%, ${currentDarkPrimary} 45%, ${currentPrimary} 100%)`}
+            px={3.5}
+            pt={3}
+            pb={2.5}
             position="relative"
             overflow="hidden"
-            boxShadow="0 4px 20px rgba(13, 148, 136, 0.2)"
+            boxShadow={`0 4px 20px ${currentDarkPrimary}33`}
           >
             {/* Ambient Background Glow Circles */}
             <Box
@@ -385,12 +392,13 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
                   backdropFilter="blur(8px)"
                 >
                   <Avatar
-                    size="md"
+                    size="sm"
+                    boxSize="34px"
                     src={
                       user?.companyDetails?.logo?.url || '/images/whiteLogo.png'
                     }
                     name={companyName}
-                    borderRadius="13px"
+                    borderRadius="10px"
                     bg="white"
                     color="teal.800"
                     boxShadow="inset 0 0 0 1px rgba(0,0,0,0.06)"
@@ -445,8 +453,11 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
 
               <IconButton
                 aria-label="Close navigation"
-                icon={<FiX size={17} strokeWidth={2.6} />}
-                size="sm"
+                icon={<FiX size={15} strokeWidth={2.6} />}
+                size="xs"
+                w="28px"
+                h="28px"
+                minW="28px"
                 color="white"
                 bg="whiteAlpha.200"
                 _hover={{ bg: 'whiteAlpha.350', transform: 'scale(1.08)' }}
@@ -462,8 +473,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
             <Flex
               align="center"
               justify="space-between"
-              mt={3.5}
-              pt={2.5}
+              mt={2}
+              pt={1.5}
               borderTop="1px solid"
               borderColor="whiteAlpha.200"
               position="relative"
@@ -596,7 +607,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = observer(
                               top={0}
                               bottom={0}
                               w="3.5px"
-                              bgGradient="linear(to-b, #0EA5E9, #0D9488)"
+                              bgGradient="linear(to-b, var(--chakra-colors-custom-dark-primary, #0EA5E9), var(--chakra-colors-custom-light-primary, #0D9488))"
                               zIndex={2}
                             />
                           )}

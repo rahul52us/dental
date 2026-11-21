@@ -17,6 +17,8 @@ import {
   Box,
   useColorModeValue,
 } from "@chakra-ui/react";
+import stores from "../../../../store/stores";
+import { observer } from "mobx-react-lite";
 
 interface CustomDateRangeProps {
   startDate: any;
@@ -27,15 +29,17 @@ interface CustomDateRangeProps {
   months?: number;
 }
 
-export default function CustomDateRange({
+const CustomDateRange = observer(({
   startDate,
   endDate,
   onStartDateChange,
   onEndDateChange,
   isMobile = false,
   months = 2,
-}: CustomDateRangeProps): any {
+}: CustomDateRangeProps): any => {
   const LargerThanMd = useBreakpointValue({ md: true });
+  const primaryColor =
+    stores.themeStore.themeConfig?.colors?.custom?.light?.primary || "#0D9488";
   
   const isValidDate = (date: any) => date instanceof Date && !isNaN(date.getTime());
 
@@ -106,7 +110,7 @@ export default function CustomDateRange({
             months={1}
             direction="horizontal"
             className="calendarElementMobile"
-            rangeColors={["#38B2AC"]}
+            rangeColors={[primaryColor]}
           />
         </PopoverBody>
       </PopoverContent>
@@ -142,10 +146,12 @@ export default function CustomDateRange({
             months={months}
             direction="horizontal"
             className="calendarElement"
-            rangeColors={["#38B2AC"]}
+            rangeColors={[primaryColor]}
           />
         </PopoverBody>
       </PopoverContent>
     </Popover>
   );
-}
+});
+
+export default CustomDateRange;

@@ -449,7 +449,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
             p={{ base: 4, sm: 5 }}
             mb={3}
             borderRadius="22px"
-            bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             boxShadow="0 10px 24px rgba(18, 83, 96, 0.16)"
           >
@@ -540,16 +540,16 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
             {stores.auth.hasPermission('appointment', 'create') && (
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.96)" }}
                 borderRadius="14px"
                 fontWeight="800"
                 fontSize="12px"
                 px={3.5}
                 h="42px"
-                boxShadow="0 2px 8px rgba(13, 148, 136, 0.25)"
+                boxShadow="0 2px 8px var(--theme-shadow, rgba(13, 148, 136, 0.25))"
                 onClick={() => setOpenReportModal({ open: true, type: "add" })}
               >
                 + Add
@@ -595,7 +595,7 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
                 <Button
                   mt={4}
                   size="sm"
-                  bgGradient="linear(to-r, blue.500, teal.500)"
+                  bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                   color="white"
                   borderRadius="16px"
                   fontWeight="800"

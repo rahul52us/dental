@@ -9,6 +9,7 @@ import {
   DrawerOverlay,
   useBreakpointValue,
   useToast,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { readFileAsBase64 } from "../../config/utils/utils";
@@ -205,48 +206,48 @@ const StaffPage = observer(() => {
             flexDirection="column"
             overflow="hidden"
           >
-              <DrawerHeader
-                bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
-                color="white"
-                fontSize={{ base: "md", md: "lg" }}
-                fontWeight="bold"
-                textAlign="center"
-                py={{ base: 3, md: 6 }}
-                px={{ base: 4, md: 8 }}
-              >
-                {isDrawerOpen?.type === "edit" ? t("staffs.page.editStaffs") : t("staffs.page.addStaffs")}
-              </DrawerHeader>
-              <DrawerCloseButton
-                color="white"
-                bg="whiteAlpha.200"
-                borderRadius="full"
-                _hover={{ bg: "whiteAlpha.300" }}
-                top={{ base: 2, md: 4 }}
-                right={{ base: 2, md: 4 }}
+            <DrawerHeader
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
+              color="white"
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              textAlign="center"
+              py={{ base: 3, md: 6 }}
+              px={{ base: 4, md: 8 }}
+            >
+              {isDrawerOpen?.type === "edit" ? t("staffs.page.editStaffs") : t("staffs.page.addStaffs")}
+            </DrawerHeader>
+            <DrawerCloseButton
+              color="white"
+              bg="whiteAlpha.200"
+              borderRadius="full"
+              _hover={{ bg: "whiteAlpha.300" }}
+              top={{ base: 2, md: 4 }}
+              right={{ base: 2, md: 4 }}
+            />
+            <DrawerBody p={{ base: 2, md: 6 }} bg={useColorModeValue("gray.50", "gray.900")} minH={0} overflowY="auto">
+              <Form
+                initialData={
+                  isDrawerOpen?.type === "edit"
+                    ? { ...initialValues, ...isDrawerOpen?.data }
+                    : initialValues
+                }
+                onSubmit={
+                  isDrawerOpen?.type === "edit"
+                    ? handleEditSubmit
+                    : handleAddSubmit
+                }
+                isOpen={isDrawerOpen}
+                onClose={() =>
+                  setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+                }
+                thumbnail={thumbnail}
+                isEdit={isDrawerOpen.type === "edit" ? true : false}
+                setThumbnail={setThumbnail}
+                loading={formLoading}
+                getAllUsers={getAllUsers}
               />
-              <DrawerBody p={{ base: 2, md: 6 }} bg="gray.50" minH={0} overflowY="auto">
-                <Form
-                  initialData={
-                    isDrawerOpen?.type === "edit"
-                      ? { ...initialValues, ...isDrawerOpen?.data }
-                      : initialValues
-                  }
-                  onSubmit={
-                    isDrawerOpen?.type === "edit"
-                      ? handleEditSubmit
-                      : handleAddSubmit
-                  }
-                  isOpen={isDrawerOpen}
-                  onClose={() =>
-                    setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-                  }
-                  thumbnail={thumbnail}
-                  isEdit={isDrawerOpen.type === "edit" ? true : false}
-                  setThumbnail={setThumbnail}
-                  loading={formLoading}
-                  getAllUsers={getAllUsers}
-                />
-              </DrawerBody>
+            </DrawerBody>
           </DrawerContent>
         </Drawer>
       )}

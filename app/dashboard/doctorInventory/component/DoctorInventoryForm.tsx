@@ -31,6 +31,7 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
 
   const bgBox = useColorModeValue("white", "darkBrand.100");
   const borderColor = useColorModeValue("brand.200", "darkBrand.200");
+  const textColor = useColorModeValue("gray.800", "gray.100");
 
   useEffect(() => {
     if (initialData) {
@@ -74,13 +75,15 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
               <Grid templateColumns="1fr" gap={{ base: 4, md: 6 }} mb={6}>
                 <GridItem>
                   <Flex justify={{ base: "flex-end", md: "space-between" }} align="center" mb={{ base: 3, md: 6 }}>
-                    <Text fontSize="2xl" fontWeight="bold" color="gray.800" display={{ base: "none", md: "block" }}>
+                    <Text fontSize="2xl" fontWeight="bold" color={textColor} display={{ base: "none", md: "block" }}>
                       {isEdit ? "Edit In & Out Ledger" : "New In & Out Ledger"}
                     </Text>
                     <HStack spacing={3} w={{ base: "100%", md: "auto" }}>
                       <Button
                         variant="outline"
-                        colorScheme="gray"
+                        color={useColorModeValue("gray.700", "gray.200")}
+                        borderColor={useColorModeValue("gray.300", "whiteAlpha.300")}
+                        _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.100") }}
                         onClick={onClose}
                         borderRadius="xl"
                         flex={{ base: 1, md: "initial" }}
@@ -89,9 +92,9 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                       </Button>
                       <Button
                         type="submit"
-                        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                         color="white"
-                        _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                        _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                         _active={{ transform: "scale(0.98)" }}
                         isLoading={loading}
                         borderRadius="xl"

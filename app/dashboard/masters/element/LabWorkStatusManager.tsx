@@ -37,6 +37,7 @@ import {
   DrawerFooter,
   useDisclosure,
   Circle,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon, AddIcon } from '@chakra-ui/icons';
 import {
@@ -53,6 +54,21 @@ import stores from '../../../store/stores';
 
 const LabWorkStatusManager = observer(() => {
   const { labWorkStatusStore } = stores;
+
+  // Dark mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const tabBg = useColorModeValue("gray.100", "gray.700");
+  const tabActiveBg = useColorModeValue("white", "gray.600");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.400");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const drawerBg = useColorModeValue("white", "gray.800");
+
   const [status, setStatus] = useState('');
   const [type, setType] = useState<'in-house' | 'outside'>('outside');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -137,7 +153,7 @@ const LabWorkStatusManager = observer(() => {
           <Box
             p={4}
             borderRadius="22px"
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             boxShadow="0 8px 20px -4px rgba(12, 74, 110, 0.35)"
             position="relative"
@@ -179,10 +195,10 @@ const LabWorkStatusManager = observer(() => {
           {/* 2. Modern Segmented Tab Switcher (iOS / Native APK Style) */}
           <Box
             p="3.5px"
-            bg="gray.100"
+            bg={tabBg}
             borderRadius="16px"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor={borderSubtle}
           >
             <SimpleGrid columns={2} spacing={1}>
               <Button
@@ -191,10 +207,10 @@ const LabWorkStatusManager = observer(() => {
                 borderRadius="13px"
                 fontWeight="800"
                 fontSize="12px"
-                bg={type === 'outside' ? "white" : "transparent"}
-                color={type === 'outside' ? "#0C4A6E" : "gray.600"}
+                bg={type === 'outside' ? tabActiveBg : "transparent"}
+                color={type === 'outside' ? textPrimary : textMuted}
                 boxShadow={type === 'outside' ? "0 2px 8px rgba(0,0,0,0.08)" : "none"}
-                _hover={{ bg: type === 'outside' ? "white" : "gray.200" }}
+                _hover={{ bg: type === 'outside' ? tabActiveBg : tabBg }}
                 _active={{ transform: "scale(0.98)" }}
                 onClick={() => {
                   setType('outside');
@@ -205,15 +221,22 @@ const LabWorkStatusManager = observer(() => {
                 <HStack spacing={1.5}>
                   <Text>Outside Lab</Text>
                   <Badge
-                    bg={type === 'outside' ? "teal.50" : "gray.200"}
-                    color={type === 'outside' ? "teal.700" : "gray.600"}
+                    bg={type === 'outside' ? "teal.900" : "whiteAlpha.200"}
+                    color={type === 'outside' ? "teal.200" : textMuted}
                     border="1px solid"
-                    borderColor={type === 'outside' ? "teal.200" : "transparent"}
+                    borderColor={type === 'outside' ? "teal.700" : "transparent"}
                     borderRadius="full"
                     px={1.5}
                     py={0.2}
                     fontSize="10px"
                     fontWeight="800"
+                    sx={{
+                      _light: {
+                        bg: type === 'outside' ? "teal.50" : "gray.200",
+                        color: type === 'outside' ? "teal.700" : "gray.600",
+                        borderColor: type === 'outside' ? "teal.200" : "transparent",
+                      }
+                    }}
                   >
                     {outsideCount}
                   </Badge>
@@ -226,10 +249,10 @@ const LabWorkStatusManager = observer(() => {
                 borderRadius="13px"
                 fontWeight="800"
                 fontSize="12px"
-                bg={type === 'in-house' ? "white" : "transparent"}
-                color={type === 'in-house' ? "#0C4A6E" : "gray.600"}
+                bg={type === 'in-house' ? tabActiveBg : "transparent"}
+                color={type === 'in-house' ? textPrimary : textMuted}
                 boxShadow={type === 'in-house' ? "0 2px 8px rgba(0,0,0,0.08)" : "none"}
-                _hover={{ bg: type === 'in-house' ? "white" : "gray.200" }}
+                _hover={{ bg: type === 'in-house' ? tabActiveBg : tabBg }}
                 _active={{ transform: "scale(0.98)" }}
                 onClick={() => {
                   setType('in-house');
@@ -240,15 +263,22 @@ const LabWorkStatusManager = observer(() => {
                 <HStack spacing={1.5}>
                   <Text>In-House Lab</Text>
                   <Badge
-                    bg={type === 'in-house' ? "purple.50" : "gray.200"}
-                    color={type === 'in-house' ? "purple.700" : "gray.600"}
+                    bg={type === 'in-house' ? "purple.900" : "whiteAlpha.200"}
+                    color={type === 'in-house' ? "purple.200" : textMuted}
                     border="1px solid"
-                    borderColor={type === 'in-house' ? "purple.200" : "transparent"}
+                    borderColor={type === 'in-house' ? "purple.700" : "transparent"}
                     borderRadius="full"
                     px={1.5}
                     py={0.2}
                     fontSize="10px"
                     fontWeight="800"
+                    sx={{
+                      _light: {
+                        bg: type === 'in-house' ? "purple.50" : "gray.200",
+                        color: type === 'in-house' ? "purple.700" : "gray.600",
+                        borderColor: type === 'in-house' ? "purple.200" : "transparent",
+                      }
+                    }}
                   >
                     {inHouseCount}
                   </Badge>
@@ -267,11 +297,12 @@ const LabWorkStatusManager = observer(() => {
                 placeholder="Search statuses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                bg="white"
+                bg={inputBg}
+                color={textPrimary}
                 focusBorderColor="teal.500"
                 borderRadius="16px"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor={borderSubtle}
                 h="40px"
                 fontSize="13px"
                 boxShadow="0 2px 6px rgba(0,0,0,0.02)"
@@ -292,9 +323,9 @@ const LabWorkStatusManager = observer(() => {
             <Button
               size="sm"
               h="40px"
-              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+              bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
-              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+              _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
               _active={{ transform: "scale(0.96)" }}
               leftIcon={<FiPlus fontSize="16px" />}
               borderRadius="16px"
@@ -316,24 +347,24 @@ const LabWorkStatusManager = observer(() => {
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={cardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               textAlign="center"
             >
               <Icon as={FiLayers} boxSize="40px" color="gray.400" mb={2} />
-              <Text fontSize="15px" fontWeight="800" color="gray.700">
+              <Text fontSize="15px" fontWeight="800" color={textPrimary}>
                 No statuses found
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1} mb={3}>
+              <Text fontSize="12px" color={textFaint} mt={1} mb={3}>
                 {searchQuery
                   ? `No results matching "${searchQuery}"`
                   : `Add your first ${type === 'outside' ? 'outside' : 'in-house'} lab status.`}
               </Text>
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="xl"
                 onClick={handleOpenAdd}
@@ -346,14 +377,14 @@ const LabWorkStatusManager = observer(() => {
               {filteredStatuses.map((item) => (
                 <Box
                   key={item._id}
-                  bg="white"
+                  bg={cardBg}
                   border="1px solid"
-                  borderColor="#E8EEF4"
+                  borderColor={borderLight}
                   borderRadius="18px"
                   p={3.5}
                   boxShadow="0 3px 12px -4px rgba(15, 23, 42, 0.06)"
                   transition="all 0.15s ease-out"
-                  _active={{ bg: "gray.50" }}
+                  _active={{ bg: subtleBg }}
                 >
                   <Flex justify="space-between" align="center" gap={3}>
                     <HStack spacing={3} flex={1} minW={0}>
@@ -362,13 +393,20 @@ const LabWorkStatusManager = observer(() => {
                         w="34px"
                         h="34px"
                         borderRadius="11px"
-                        bg={item.type === 'in-house' ? "purple.50" : "teal.50"}
-                        color={item.type === 'in-house' ? "purple.600" : "teal.600"}
+                        bg={item.type === 'in-house' ? "purple.900" : "teal.900"}
+                        color={item.type === 'in-house' ? "purple.200" : "teal.200"}
                         border="1px solid"
-                        borderColor={item.type === 'in-house' ? "purple.100" : "teal.100"}
+                        borderColor={item.type === 'in-house' ? "purple.700" : "teal.700"}
                         align="center"
                         justify="center"
                         flexShrink={0}
+                        sx={{
+                          _light: {
+                            bg: item.type === 'in-house' ? "purple.50" : "teal.50",
+                            color: item.type === 'in-house' ? "purple.600" : "teal.600",
+                            borderColor: item.type === 'in-house' ? "purple.100" : "teal.100",
+                          }
+                        }}
                       >
                         <Icon as={FiCheckCircle} boxSize={4} />
                       </Flex>
@@ -377,7 +415,7 @@ const LabWorkStatusManager = observer(() => {
                         <Text
                           fontSize="14px"
                           fontWeight="800"
-                          color="gray.850"
+                          color={textPrimary}
                           noOfLines={2}
                           lineHeight="1.3"
                           letterSpacing="-0.2px"
@@ -386,16 +424,23 @@ const LabWorkStatusManager = observer(() => {
                         </Text>
                         <Badge
                           mt={1}
-                          bg={item.type === 'in-house' ? "purple.50" : "teal.50"}
-                          color={item.type === 'in-house' ? "purple.700" : "teal.700"}
+                          bg={item.type === 'in-house' ? "purple.900" : "teal.900"}
+                          color={item.type === 'in-house' ? "purple.200" : "teal.200"}
                           border="1px solid"
-                          borderColor={item.type === 'in-house' ? "purple.200" : "teal.200"}
+                          borderColor={item.type === 'in-house' ? "purple.700" : "teal.700"}
                           borderRadius="full"
                           px={2}
                           py={0.2}
                           fontSize="9px"
                           fontWeight="800"
                           textTransform="uppercase"
+                          sx={{
+                            _light: {
+                              bg: item.type === 'in-house' ? "purple.50" : "teal.50",
+                              color: item.type === 'in-house' ? "purple.700" : "teal.700",
+                              borderColor: item.type === 'in-house' ? "purple.200" : "teal.200",
+                            }
+                          }}
                         >
                           {item.type}
                         </Badge>
@@ -412,8 +457,6 @@ const LabWorkStatusManager = observer(() => {
                         h="32px"
                         variant="ghost"
                         colorScheme="teal"
-                        bg="teal.50"
-                        _hover={{ bg: "teal.100" }}
                         borderRadius="full"
                         onClick={() => handleEdit(item)}
                       />
@@ -425,8 +468,6 @@ const LabWorkStatusManager = observer(() => {
                         h="32px"
                         variant="ghost"
                         colorScheme="red"
-                        bg="red.50"
-                        _hover={{ bg: "red.100" }}
                         borderRadius="full"
                         onClick={() => handleDelete(item._id)}
                       />
@@ -453,7 +494,8 @@ const LabWorkStatusManager = observer(() => {
             borderTopRadius={0}
             borderRadius={0}
             maxH="75vh"
-            bg="white"
+            bg={drawerBg}
+            color={textPrimary}
             overflow="hidden"
             sx={{
               "@keyframes modalSlideUpMobile": {
@@ -477,7 +519,7 @@ const LabWorkStatusManager = observer(() => {
           >
             <DrawerCloseButton color="white" zIndex={3} mt={1} />
             <DrawerHeader
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius={0}
               borderTopRadius={0}
@@ -501,18 +543,19 @@ const LabWorkStatusManager = observer(() => {
             <DrawerBody p={4} overflowY="auto">
               <VStack spacing={4} align="stretch">
                 <FormControl isRequired>
-                  <FormLabel fontSize="12px" fontWeight="700" color="gray.600" textTransform="uppercase">
+                  <FormLabel fontSize="12px" fontWeight="700" color={textSecondary} textTransform="uppercase">
                     Status Name
                   </FormLabel>
                   <Input
                     placeholder="e.g. Sent to Lab, Processing, Delivered"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    bg="gray.50"
+                    bg={inputBg}
+                    color={textPrimary}
                     focusBorderColor="teal.500"
                     borderRadius="xl"
                     border="1px solid"
-                    borderColor="gray.200"
+                    borderColor={borderSubtle}
                     fontSize="14px"
                     h="44px"
                     autoFocus
@@ -521,7 +564,7 @@ const LabWorkStatusManager = observer(() => {
               </VStack>
             </DrawerBody>
 
-            <DrawerFooter bg="gray.50" py={3} px={4} borderTop="1px solid" borderColor="gray.100">
+            <DrawerFooter bg={subtleBg} py={3} px={4} borderTop="1px solid" borderColor={borderLight}>
               <HStack spacing={2} w="full">
                 <Button
                   size="md"
@@ -538,9 +581,9 @@ const LabWorkStatusManager = observer(() => {
                 </Button>
                 <Button
                   size="md"
-                  bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                  bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                   color="white"
-                  _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                  _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                   _active={{ transform: "scale(0.98)" }}
                   flex={1.5}
                   borderRadius="xl"
@@ -569,13 +612,13 @@ const LabWorkStatusManager = observer(() => {
           </HStack>
 
           {/* Desktop Tabs */}
-          <HStack spacing={2} p={1} bg="gray.100" borderRadius="xl" w="fit-content">
+          <HStack spacing={2} p={1} bg={tabBg} borderRadius="xl" w="fit-content">
             <Button
               size="sm"
               borderRadius="lg"
               px={8}
               bg={type === 'outside' ? "blue.500" : "transparent"}
-              color={type === 'outside' ? "white" : "gray.600"}
+              color={type === 'outside' ? "white" : textMuted}
               onClick={() => { setType('outside'); setEditingId(null); setStatus(''); }}
             >
               Outside Lab ({outsideCount})
@@ -585,7 +628,7 @@ const LabWorkStatusManager = observer(() => {
               borderRadius="lg"
               px={8}
               bg={type === 'in-house' ? "blue.500" : "transparent"}
-              color={type === 'in-house' ? "white" : "gray.600"}
+              color={type === 'in-house' ? "white" : textMuted}
               onClick={() => { setType('in-house'); setEditingId(null); setStatus(''); }}
             >
               In-House Lab ({inHouseCount})
@@ -593,20 +636,22 @@ const LabWorkStatusManager = observer(() => {
           </HStack>
 
           {/* Desktop Form Card */}
-          <Card variant="outline" borderColor="blue.100" shadow="sm">
+          <Card variant="outline" bg={cardBg} borderColor={borderLight} shadow="sm">
             <CardBody>
               <SimpleGrid columns={2} spacing={6}>
                 <Box>
-                  <FormLabel fontWeight="bold" color="gray.700">Search Statuses</FormLabel>
+                  <FormLabel fontWeight="bold" color={textSecondary}>Search Statuses</FormLabel>
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
                       <FiSearch color="#94A3B8" />
                     </InputLeftElement>
-                    <Input 
-                      placeholder="Search statuses..." 
+                    <Input
+                      placeholder="Search statuses..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      bg="white"
+                      bg={inputBg}
+                      color={textPrimary}
+                      borderColor={borderSubtle}
                       focusBorderColor="blue.400"
                       borderRadius="xl"
                       shadow="sm"
@@ -614,7 +659,7 @@ const LabWorkStatusManager = observer(() => {
                   </InputGroup>
                 </Box>
                 <Box>
-                  <FormLabel fontWeight="bold" color="gray.700">
+                  <FormLabel fontWeight="bold" color={textSecondary}>
                     {editingId ? "Edit" : "Add New"} {type === 'outside' ? 'Outside' : 'In-House'} Status
                   </FormLabel>
                   <HStack w="full">
@@ -622,6 +667,9 @@ const LabWorkStatusManager = observer(() => {
                       placeholder="e.g. Sent to Lab, Processing, etc."
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
+                      bg={inputBg}
+                      color={textPrimary}
+                      borderColor={borderSubtle}
                       focusBorderColor="blue.400"
                       borderRadius="xl"
                       shadow="sm"
@@ -654,19 +702,19 @@ const LabWorkStatusManager = observer(() => {
           </Card>
 
           {/* Desktop List Table */}
-          <Box overflowY="auto" flex={1} borderRadius="xl" border="1px solid" borderColor="gray.100">
+          <Box overflowY="auto" flex={1} bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderLight}>
             <Table variant="simple">
-              <Thead bg="gray.50">
+              <Thead bg={subtleBg}>
                 <Tr>
-                  <Th>Status Name</Th>
-                  <Th>Category</Th>
-                  <Th textAlign="right">Actions</Th>
+                  <Th color={textFaint}>Status Name</Th>
+                  <Th color={textFaint}>Category</Th>
+                  <Th textAlign="right" color={textFaint}>Actions</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {filteredStatuses.map((item) => (
-                  <Tr key={item._id} _hover={{ bg: "blue.50" }} transition="all 0.2s">
-                    <Td fontWeight="semibold" color="gray.700">{item.status}</Td>
+                  <Tr key={item._id} _hover={{ bg: subtleBg }} transition="all 0.2s">
+                    <Td fontWeight="semibold" color={textPrimary}>{item.status}</Td>
                     <Td>
                       <Badge colorScheme={item.type === 'in-house' ? 'purple' : 'orange'} variant="subtle" px={3} py={1} borderRadius="full">
                         {item.type}

@@ -406,13 +406,13 @@ const AppointmentHistoryModal = observer(
             <Button
               w="100%"
               h={isMobile ? "44px" : "56px"}
-              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+              bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
               borderRadius={isMobile ? "xl" : "2xl"}
               fontSize={isMobile ? "sm" : "md"}
               fontWeight="800"
               letterSpacing="wider"
-              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)", transform: "scale(1.01)" }}
+              _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)", transform: "scale(1.01)" }}
               _active={{ transform: "scale(0.98)" }}
               transition="all 0.2s ease"
               onClick={onClose}

@@ -81,6 +81,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const borderColor = useColorModeValue("gray.100", "darkBrand.200");
   const bgCardBox = useColorModeValue("white", "darkBrand.200");
   const inputBg = useColorModeValue("white", "darkBrand.200");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.400");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const subtleBg = useColorModeValue("gray.50", "darkBrand.100");
+  const bentoInnerBg = useColorModeValue("white", "darkBrand.50");
 
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
@@ -173,14 +179,14 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const [walletBalance, setWalletBalance] = useState<number>(patientDetails?.walletBalance || 0);
 
   const fetchWalletBalance = useCallback(async () => {
-    if(patientDetails?._id){
-    try {
-      const res = await workDoneStore.getPatientWalletHistory(patientDetails._id);
-      setWalletBalance(res.walletBalance || 0);
-    } catch (err) {
-      console.error(err);
+    if (patientDetails?._id) {
+      try {
+        const res = await workDoneStore.getPatientWalletHistory(patientDetails._id);
+        setWalletBalance(res.walletBalance || 0);
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
   }, [workDoneStore, patientDetails._id]);
 
   const fetchOverallStats = useCallback(async () => {
@@ -415,12 +421,12 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       metaData: {
         component: (dt: any) => (
           <HStack spacing={3}>
-            <Box p={1.5} bg="blue.50" borderRadius="lg"><Icon as={FiActivity} color="blue.500" /></Box>
+            <Box p={1.5} bg={useColorModeValue("blue.50", "whiteAlpha.100")} borderRadius="lg"><Icon as={FiActivity} color="blue.400" /></Box>
             <VStack align="start" spacing={0}>
-              <Text fontSize="md" fontWeight="900" color="gray.800">{dt.workDoneNote || dt.toothNote || dt.treatmentPlan || dt.treatmentCode || "General"}</Text>
+              <Text fontSize="md" fontWeight="900" color={textPrimary}>{dt.workDoneNote || dt.toothNote || dt.treatmentPlan || dt.treatmentCode || "General"}</Text>
               <HStack spacing={2} mt={1}>
                 <Badge colorScheme="blue" variant="subtle" fontSize="11px" px={2} py={0.5} borderRadius="md">T: {dt.tooth || "N/A"}</Badge>
-                <Text fontSize="xs" color="gray.500" fontWeight="700"><Icon as={FiUser} mr={1} boxSize="12px" />{dt.doctor?.name}</Text>
+                <Text fontSize="xs" color={textFaint} fontWeight="700"><Icon as={FiUser} mr={1} boxSize="12px" />{dt.doctor?.name}</Text>
               </HStack>
             </VStack>
           </HStack>
@@ -892,10 +898,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   spacing={1}
                   px={2}
                   py={0.5}
-                  bg="gray.50"
+                  bg={subtleBg}
                   borderRadius="full"
                   border="1px solid"
-                  borderColor="gray.200"
+                  borderColor={borderColor}
                   h="40px"
                 >
                   <Input
@@ -968,196 +974,196 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         ) : (
           <Flex px={{ base: 0, md: 2 }} mb={6} justify="space-between" align="center" wrap="wrap" gap={3}>
             <HStack spacing={2} wrap="wrap" w={{ base: "100%", md: "auto" }}>
-                {stores.auth.hasPermission('accountability', 'download') && (
-                  <Button
-                    flex={{ base: 1, md: "initial" }}
-                    leftIcon={<FiEye />}
-                    bgGradient="linear(to-r, blue.500, blue.600)"
-                    color="white"
-                    _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
-                    _active={{ transform: "translateY(0)" }}
-                    size={{ base: "sm", md: "md" }}
-                    borderRadius="2xl"
-                    fontWeight="800"
-                    px={{ base: 3, md: 6 }}
-                    shadow="md"
-                    onClick={() => setIsDownloadModalOpen(true)}
-                  >
-                    View Statement
-                  </Button>
-                )}
-
+              {stores.auth.hasPermission('accountability', 'download') && (
                 <Button
                   flex={{ base: 1, md: "initial" }}
-                  leftIcon={<FiCreditCard />}
-                  bgGradient="linear(to-r, pink.500, pink.600)"
+                  leftIcon={<FiEye />}
+                  bgGradient="linear(to-r, blue.500, blue.600)"
                   color="white"
-                  _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                  _hover={{ bgGradient: "linear(to-r, blue.600, blue.700)", shadow: "lg", transform: "translateY(-1px)" }}
                   _active={{ transform: "translateY(0)" }}
                   size={{ base: "sm", md: "md" }}
                   borderRadius="2xl"
                   fontWeight="800"
                   px={{ base: 3, md: 6 }}
                   shadow="md"
-                  onClick={() => { setSelectedWalletPatient({ ...patientDetails, walletBalance }); setIsWalletHistoryOpen(true); }}
+                  onClick={() => setIsDownloadModalOpen(true)}
                 >
-                  Wallet (₹{walletBalance})
+                  View Statement
                 </Button>
+              )}
+
+              <Button
+                flex={{ base: 1, md: "initial" }}
+                leftIcon={<FiCreditCard />}
+                bgGradient="linear(to-r, pink.500, pink.600)"
+                color="white"
+                _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)", shadow: "lg", transform: "translateY(-1px)" }}
+                _active={{ transform: "translateY(0)" }}
+                size={{ base: "sm", md: "md" }}
+                borderRadius="2xl"
+                fontWeight="800"
+                px={{ base: 3, md: 6 }}
+                shadow="md"
+                onClick={() => { setSelectedWalletPatient({ ...patientDetails, walletBalance }); setIsWalletHistoryOpen(true); }}
+              >
+                Wallet (₹{walletBalance})
+              </Button>
             </HStack>
 
             <Flex wrap="wrap" gap={2} justify={{ base: "center", md: "flex-end" }} align="center">
-                <HStack
-                  spacing={0}
-                  p={1}
-                  bg={inputBg}
-                  borderRadius="2xl"
-                  border="1px solid"
-                  borderColor={borderColor}
-                  shadow="sm"
-                  transition="all 0.2s"
-                  _hover={{ borderColor: "blue.200", shadow: "md" }}
-                >
-                  <Box px={3}>
-                    <Icon as={FiSearch} color="gray.400" mt={1} />
-                  </Box>
-                  <Input
-                    variant="unstyled"
-                    placeholder="Search tooth or note..."
-                    size="md"
-                    w={{ base: "100%", sm: "220px" }}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </HStack>
-
-                <Box w={{ base: "100%", sm: "250px" }} zIndex={10}>
-                  {(() => {
-                    const selectOptions = doctorsList.map(doc => ({
-                      label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`,
-                      value: doc.id
-                    }));
-                    const selectedValue = doctorFilter !== "all" ? selectOptions.find(opt => opt.value === doctorFilter) : null;
-
-                    return (
-                      <CustomInput
-                        name="doctorFilter"
-                        type="select"
-                        placeholder="Filter by Doctor..."
-                        isClear={true}
-                        isSearchable={true}
-                        isPortal={true}
-                        value={selectedValue}
-                        onChange={(selectedOption: any) => {
-                          setDoctorFilter(selectedOption ? selectedOption.value : "all");
-                          setCurrentPage(1);
-                        }}
-                        options={selectOptions}
-                      />
-                    );
-                  })()}
+              <HStack
+                spacing={0}
+                p={1}
+                bg={inputBg}
+                borderRadius="2xl"
+                border="1px solid"
+                borderColor={borderColor}
+                shadow="sm"
+                transition="all 0.2s"
+                _hover={{ borderColor: "blue.200", shadow: "md" }}
+              >
+                <Box px={3}>
+                  <Icon as={FiSearch} color="gray.400" mt={1} />
                 </Box>
+                <Input
+                  variant="unstyled"
+                  placeholder="Search tooth or note..."
+                  size="md"
+                  w={{ base: "100%", sm: "220px" }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </HStack>
 
-                <HStack
-                  spacing={2}
-                  p={1}
-                  bg={inputBg}
-                  borderRadius="2xl"
-                  border="1px solid"
-                  borderColor={borderColor}
-                  shadow="sm"
-                  transition="all 0.2s"
-                  _hover={{ borderColor: "blue.200", shadow: "md" }}
+              <Box w={{ base: "100%", sm: "250px" }} zIndex={10}>
+                {(() => {
+                  const selectOptions = doctorsList.map(doc => ({
+                    label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`,
+                    value: doc.id
+                  }));
+                  const selectedValue = doctorFilter !== "all" ? selectOptions.find(opt => opt.value === doctorFilter) : null;
+
+                  return (
+                    <CustomInput
+                      name="doctorFilter"
+                      type="select"
+                      placeholder="Filter by Doctor..."
+                      isClear={true}
+                      isSearchable={true}
+                      isPortal={true}
+                      value={selectedValue}
+                      onChange={(selectedOption: any) => {
+                        setDoctorFilter(selectedOption ? selectedOption.value : "all");
+                        setCurrentPage(1);
+                      }}
+                      options={selectOptions}
+                    />
+                  );
+                })()}
+              </Box>
+
+              <HStack
+                spacing={2}
+                p={1}
+                bg={inputBg}
+                borderRadius="2xl"
+                border="1px solid"
+                borderColor={borderColor}
+                shadow="sm"
+                transition="all 0.2s"
+                _hover={{ borderColor: "blue.200", shadow: "md" }}
+              >
+                <Input
+                  type="date"
+                  variant="unstyled"
+                  size="sm"
+                  px={2}
+                  w="145px"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  fontWeight="800"
+                  color="blue.600"
+                />
+                <Box color="gray.300" fontWeight="bold">-</Box>
+                <Input
+                  type="date"
+                  variant="unstyled"
+                  size="sm"
+                  px={2}
+                  w="145px"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  fontWeight="800"
+                  color="blue.600"
+                />
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  borderRadius="xl"
+                  px={4}
+                  onClick={() => {
+                    setAppliedStartDate(startDate);
+                    setAppliedEndDate(endDate);
+                  }}
                 >
-                  <Input
-                    type="date"
-                    variant="unstyled"
-                    size="sm"
-                    px={2}
-                    w="145px"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    fontWeight="800"
-                    color="blue.600"
-                  />
-                  <Box color="gray.300" fontWeight="bold">-</Box>
-                  <Input
-                    type="date"
-                    variant="unstyled"
-                    size="sm"
-                    px={2}
-                    w="145px"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    fontWeight="800"
-                    color="blue.600"
-                  />
+                  Apply
+                </Button>
+              </HStack>
+
+              <HStack spacing={1}>
+                {stores.auth.hasPermission('accountability', 'view') && (
                   <Button
                     size="sm"
                     colorScheme="blue"
+                    variant="solid"
+                    leftIcon={<FiCalendar />}
                     borderRadius="xl"
-                    px={4}
+                    fontSize="11px"
+                    fontWeight="bold"
                     onClick={() => {
-                      setAppliedStartDate(startDate);
-                      setAppliedEndDate(endDate);
+                      setIsCounting(true);
+                      workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                        .then((res: any) => {
+                          if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                            setBackendCounts(res.data || []);
+                          }
+                        })
+                        .catch((err: any) => console.error("Failed to load accountability counts:", err))
+                        .finally(() => setIsCounting(false));
+                      setIsCountModalOpen(true);
                     }}
                   >
-                    Apply
+                    View Work Dates
                   </Button>
-                </HStack>
+                )}
+                <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
+                  {filteredWork.length || 0}
+                </Circle>
+              </HStack>
 
-                <HStack spacing={1}>
-                  {stores.auth.hasPermission('accountability', 'view') && (
-                    <Button
-                      size="sm"
-                      colorScheme="blue"
-                      variant="solid"
-                      leftIcon={<FiCalendar />}
-                      borderRadius="xl"
-                      fontSize="11px"
-                      fontWeight="bold"
-                      onClick={() => {
-                        setIsCounting(true);
-                        workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
-                          .then((res: any) => {
-                            if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
-                              setBackendCounts(res.data || []);
-                            }
-                          })
-                          .catch((err: any) => console.error("Failed to load accountability counts:", err))
-                          .finally(() => setIsCounting(false));
-                        setIsCountModalOpen(true);
-                      }}
-                    >
-                      View Work Dates
-                    </Button>
-                  )}
-                  <Circle size="28px" bg="blue.50" color="blue.500" fontWeight="900" fontSize="12px" border="1px solid" borderColor="blue.100">
-                    {filteredWork.length || 0}
-                  </Circle>
-                </HStack>
-
-                <Button
-                  size="sm"
-                  variant="solid"
-                  colorScheme="blue"
-                  borderRadius="xl"
-                  fontSize="11px"
-                  fontWeight="bold"
-                  px={4}
-                  ml={2}
-                  shadow="sm"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setDoctorFilter("all");
-                    setStartDate("");
-                    setEndDate("");
-                    setAppliedStartDate("");
-                    setAppliedEndDate("");
-                  }}
-                >
-                  RESET FILTERS
-                </Button>
-              </Flex>
+              <Button
+                size="sm"
+                variant="solid"
+                colorScheme="blue"
+                borderRadius="xl"
+                fontSize="11px"
+                fontWeight="bold"
+                px={4}
+                ml={2}
+                shadow="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setDoctorFilter("all");
+                  setStartDate("");
+                  setEndDate("");
+                  setAppliedStartDate("");
+                  setAppliedEndDate("");
+                }}
+              >
+                RESET FILTERS
+              </Button>
+            </Flex>
           </Flex>
         )}
 
@@ -1165,9 +1171,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
         {isMobile ? (
           <VStack align="stretch" spacing={3} mb={6}>
             {filteredWork.length === 0 ? (
-              <VStack py={12} spacing={3} bg="gray.50" borderRadius="2xl" border="1px dashed" borderColor="gray.300">
-                <Icon as={FiActivity} fontSize="36px" color="gray.400" />
-                <Text fontSize="13px" fontWeight="800" color="gray.600">No transactions found</Text>
+              <VStack py={12} spacing={3} bg={subtleBg} borderRadius="2xl" border="1px dashed" borderColor={borderColor}>
+                <Icon as={FiActivity} fontSize="36px" color={textFaint} />
+                <Text fontSize="13px" fontWeight="800" color={textSecondary}>No transactions found</Text>
               </VStack>
             ) : (
               filteredWork.map((record: any, idx: number) => {
@@ -1197,7 +1203,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         <Badge colorScheme="gray" variant="solid" borderRadius="full" px={2} py={0.5} fontSize="9.5px" fontWeight="900">
                           #{(currentPage - 1) * 10 + (idx + 1)}
                         </Badge>
-                        <HStack spacing={1} color="gray.500">
+                        <HStack spacing={1} color={textFaint}>
                           <Icon as={FiClock} fontSize="11px" />
                           <Text fontSize="11px" fontWeight="700">
                             {record.createdAt ? moment(record.createdAt).format("DD MMM YYYY") : "N/A"}
@@ -1225,8 +1231,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         </Badge>
                       )}
                       {record.doctor?.name && (
-                        <HStack spacing={1} color="gray.600">
-                          <Icon as={FiUser} fontSize="11px" color="blue.500" />
+                        <HStack spacing={1} color={textSecondary}>
+                          <Icon as={FiUser} fontSize="11px" color="blue.400" />
                           <Text fontSize="11px" fontWeight="700" noOfLines={1}>
                             Dr. {record.doctor.name.replace(/^Dr\.\s*/i, '')}
                           </Text>
@@ -1235,53 +1241,53 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     </HStack>
 
                     {/* Procedure Note */}
-                    <Text fontSize="13px" fontWeight="800" color="gray.800" lineHeight="1.35" mb={2.5}>
+                    <Text fontSize="13px" fontWeight="800" color={textPrimary} lineHeight="1.35" mb={2.5}>
                       {record.workDoneNote || record.toothNote || record.treatmentPlan || record.treatmentCode || "General Procedure"}
                     </Text>
 
                     {/* Financials Bento: Total Bill | Paid | Balance */}
-                    <SimpleGrid columns={3} gap={1.5} p={2} bg="gray.50" borderRadius="14px" mb={3} border="1px solid" borderColor="gray.150">
-                      <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Bill</Text>
-                        <Text fontSize="12.5px" fontWeight="900" color="purple.800">
+                    <SimpleGrid columns={3} gap={1.5} p={2} bg={subtleBg} borderRadius="14px" mb={3} border="1px solid" borderColor={borderColor}>
+                      <VStack spacing={0} align="center" bg={bentoInnerBg} p={1.5} borderRadius="10px" border="1px solid" borderColor={borderColor}>
+                        <Text fontSize="10px" fontWeight="800" color={textFaint} textTransform="uppercase">Bill</Text>
+                        <Text fontSize="12.5px" fontWeight="900" color={useColorModeValue("purple.800", "purple.200")}>
                           ₹{bill.toLocaleString('en-IN')}
                         </Text>
                         {record.discount > 0 && (
-                          <Text fontSize="8px" color="gray.400" textDecoration="line-through">
+                          <Text fontSize="8px" color={textFaint} textDecoration="line-through">
                             ₹{(record.amount || 0).toLocaleString('en-IN')}
                           </Text>
                         )}
                       </VStack>
 
-                      <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Paid</Text>
-                        <Text fontSize="12.5px" fontWeight="900" color="green.700">
+                      <VStack spacing={0} align="center" bg={bentoInnerBg} p={1.5} borderRadius="10px" border="1px solid" borderColor={borderColor}>
+                        <Text fontSize="10px" fontWeight="800" color={textFaint} textTransform="uppercase">Paid</Text>
+                        <Text fontSize="12.5px" fontWeight="900" color={useColorModeValue("green.700", "green.300")}>
                           ₹{received.toLocaleString('en-IN')}
                         </Text>
                         {modes.length > 0 && (
-                          <Text fontSize="8px" fontWeight="700" color="green.600" noOfLines={1}>
+                          <Text fontSize="8px" fontWeight="700" color={useColorModeValue("green.600", "green.300")} noOfLines={1}>
                             {modes.join(", ")}
                           </Text>
                         )}
                       </VStack>
 
-                      <VStack spacing={0} align="center" bg="white" p={1.5} borderRadius="10px" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="10px" fontWeight="800" color="gray.500" textTransform="uppercase">Balance</Text>
+                      <VStack spacing={0} align="center" bg={bentoInnerBg} p={1.5} borderRadius="10px" border="1px solid" borderColor={borderColor}>
+                        <Text fontSize="10px" fontWeight="800" color={textFaint} textTransform="uppercase">Balance</Text>
                         <Text
                           fontSize="12.5px"
                           fontWeight="900"
-                          color={remaining < 0 ? "purple.600" : remaining > 0 ? "orange.600" : "green.600"}
+                          color={remaining < 0 ? "purple.400" : remaining > 0 ? "orange.400" : "green.400"}
                         >
                           ₹{Math.abs(remaining).toLocaleString('en-IN')}
                         </Text>
-                        <Text fontSize="8px" fontWeight="800" color={remaining > 0 ? "orange.500" : remaining < 0 ? "purple.500" : "green.500"}>
+                        <Text fontSize="8px" fontWeight="800" color={remaining > 0 ? "orange.400" : remaining < 0 ? "purple.400" : "green.400"}>
                           {remaining < 0 ? "OVERPAID" : remaining > 0 ? "DUE" : "SETTLED"}
                         </Text>
                       </VStack>
                     </SimpleGrid>
 
                     {/* Action Bar */}
-                    <Flex justify="space-between" align="center" pt={1} borderTop="1px dashed" borderColor="gray.200">
+                    <Flex justify="space-between" align="center" pt={1} borderTop="1px dashed" borderColor={borderColor}>
                       <HStack spacing={1.5}>
                         {stores.auth.hasPermission('accountability', 'edit') && (
                           <IconButton
@@ -1405,7 +1411,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
           overflow="hidden"
           boxShadow="2xl"
         >
-          <Box bgGradient="linear(135deg, #091E42 0%, #0C4A6E 60%, #0D9488 100%)" color="white" px={5} py={4}>
+          <Box bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)" color="white" px={5} py={4}>
             <HStack justify="space-between" align="center">
               <HStack spacing={3}>
                 <Box p={2.5} bg="whiteAlpha.200" borderRadius="xl" backdropFilter="blur(4px)">
@@ -1610,7 +1616,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         fontSize="xs"
                         fontWeight="700"
                         value={downloadFilters.startDate}
-                        onChange={(e) => setDownloadFilters({...downloadFilters, startDate: e.target.value})}
+                        onChange={(e) => setDownloadFilters({ ...downloadFilters, startDate: e.target.value })}
                       />
                     </HStack>
                   </FormControl>
@@ -1624,7 +1630,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         fontSize="xs"
                         fontWeight="700"
                         value={downloadFilters.endDate}
-                        onChange={(e) => setDownloadFilters({...downloadFilters, endDate: e.target.value})}
+                        onChange={(e) => setDownloadFilters({ ...downloadFilters, endDate: e.target.value })}
                       />
                     </HStack>
                   </FormControl>
@@ -1645,7 +1651,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       fontWeight="700"
                       h="40px"
                       value={downloadFilters.doctorId}
-                      onChange={(e) => setDownloadFilters({...downloadFilters, doctorId: e.target.value})}
+                      onChange={(e) => setDownloadFilters({ ...downloadFilters, doctorId: e.target.value })}
                     >
                       <option value="all">All Doctors</option>
                       {doctorsList.map(doc => (
@@ -1664,7 +1670,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       fontWeight="700"
                       h="40px"
                       value={downloadFilters.status}
-                      onChange={(e) => setDownloadFilters({...downloadFilters, status: e.target.value})}
+                      onChange={(e) => setDownloadFilters({ ...downloadFilters, status: e.target.value })}
                     >
                       <option value="all">Full History</option>
                       <option value="SETTLED">Settled Only</option>
@@ -1802,9 +1808,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
 
       <Drawer isOpen={isHistoryOpen} placement="right" onClose={() => setIsHistoryOpen(false)} size="sm">
         <DrawerOverlay backdropFilter="blur(4px)" />
-        <DrawerContent borderLeftRadius="3xl" bg="white">
+        <DrawerContent borderLeftRadius="3xl" bg={bgCardBox}>
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100">
+          <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
             <VStack align="start" spacing={0}>
               <Text fontWeight="1000" fontSize="xl" color="blue.600">Transaction History</Text>
               <Text fontSize="xs" color="gray.400">{selectedRecord?.treatmentPlan}</Text>
@@ -1978,9 +1984,9 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
       {/* Edit Amount Drawer */}
       <Drawer isOpen={isEditAmountOpen} placement="right" onClose={() => setIsEditAmountOpen(false)} size="sm">
         <DrawerOverlay backdropFilter="blur(4px)" />
-        <DrawerContent borderLeftRadius="3xl" bg="white">
+        <DrawerContent borderLeftRadius="3xl" bg={bgCardBox}>
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px" borderColor="gray.100">
+          <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
             <VStack align="start" spacing={0}>
               <Text fontWeight="1000" fontSize="xl" color="orange.500">Edit Payment Amount</Text>
               <Text fontSize="xs" color="gray.400">
@@ -2039,24 +2045,24 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     //   return;
                     // }
 
-                      setIsSavingAmount(true);
-                      try {
-                        const paymentToEdit = historyData[editingPaymentIndex];
-                        await workDoneStore.updatePayment(paymentToEdit._id, { amount: newAmt });
+                    setIsSavingAmount(true);
+                    try {
+                      const paymentToEdit = historyData[editingPaymentIndex];
+                      await workDoneStore.updatePayment(paymentToEdit._id, { amount: newAmt });
 
-                        setIsEditAmountOpen(false);
-                        toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
-                        
-                        // Re-fetch everything to ensure background stats match
-                        await fetchData();
-                        await fetchOverallStats();
-                        
-                        // Extract the fresh record directly from the newly fetched data in the store
-                        const freshRecordData = stores.workDoneStore.workDone.data.find((wd: any) => wd._id === selectedRecord._id);
-                        if (freshRecordData) {
-                          setHistoryData([...(freshRecordData.paymentHistory || [])].reverse());
-                          setSelectedRecord(freshRecordData);
-                        }
+                      setIsEditAmountOpen(false);
+                      toast({ title: "Amount updated successfully!", status: "success", duration: 2000 });
+
+                      // Re-fetch everything to ensure background stats match
+                      await fetchData();
+                      await fetchOverallStats();
+
+                      // Extract the fresh record directly from the newly fetched data in the store
+                      const freshRecordData = stores.workDoneStore.workDone.data.find((wd: any) => wd._id === selectedRecord._id);
+                      if (freshRecordData) {
+                        setHistoryData([...(freshRecordData.paymentHistory || [])].reverse());
+                        setSelectedRecord(freshRecordData);
+                      }
                     } catch (err: any) {
                       toast({ title: "Failed to update amount", description: err?.message, status: "error", duration: 3000 });
                     } finally {
@@ -2148,7 +2154,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   This action may also deduct funds from the patient's wallet if this payment originally generated an advance.
                 </Text>
               </Box>
-              
+
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="bold" color="gray.700">
                   Type <Text as="span" color="red.500">DELETE</Text> to confirm
@@ -2181,28 +2187,28 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                   await stores.workDoneStore.secureDeletePayment(paymentToDelete.payment._id);
                   toast({ title: "Payment deleted securely!", status: "success", duration: 2000 });
                   setIsDeleteModalOpen(false);
-                  
+
                   // Optimistically remove from UI
                   const updatedHistory = historyData.filter((_, idx) => idx !== paymentToDelete.index);
                   setHistoryData(updatedHistory);
-                  
+
                   // Re-fetch everything to ensure background stats match
                   await fetchData();
                   await fetchOverallStats();
-                  
+
                   // Extract the fresh record directly from the newly fetched data in the store
                   const freshRecordData = stores.workDoneStore.workDone.data.find((wd: any) => wd._id === selectedRecord._id);
                   if (freshRecordData) {
                     setHistoryData([...(freshRecordData.paymentHistory || [])].reverse());
                     setSelectedRecord(freshRecordData);
                   }
-                  
+
                 } catch (err: any) {
-                  toast({ 
-                    title: "Failed to delete payment", 
-                    description: err?.message || "An error occurred", 
-                    status: "error", 
-                    duration: 5000 
+                  toast({
+                    title: "Failed to delete payment",
+                    description: err?.message || "An error occurred",
+                    status: "error",
+                    duration: 5000
                   });
                 } finally {
                   setIsDeletingPayment(false);

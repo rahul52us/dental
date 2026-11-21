@@ -1,4 +1,6 @@
 import {
+  useColorModeValue,
+
   Avatar,
   Badge,
   Box,
@@ -25,7 +27,9 @@ import {
   InputRightElement,
   Input,
   Spinner,
+
 } from "@chakra-ui/react";
+import { CardListSkeleton } from "../../../../component/common/Loader/ContentSkeleton";
 import FormModel from "../../../../component/common/FormModel/FormModel";
 import {
   FiPower,
@@ -359,6 +363,19 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
+  // Theme & Dark Mode tokens
+  const docTitleColor = useColorModeValue("gray.850", "white");
+  const docSubtextColor = useColorModeValue("gray.500", "gray.400");
+  const docCardBg = useColorModeValue("white", "gray.800");
+  const docCardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const docSearchBg = useColorModeValue("white", "gray.800");
+  const docSearchBorder = useColorModeValue("#E2E8F0", "gray.700");
+  const docSearchColor = useColorModeValue("gray.800", "white");
+  const docInactivePillBg = useColorModeValue("gray.100", "gray.800");
+  const docInactivePillColor = useColorModeValue("gray.600", "gray.400");
+  const docPhoneStripBg = useColorModeValue("gray.50", "gray.700");
+  const docPhoneStripBorder = useColorModeValue("gray.150", "gray.600");
+
   return (
     <Box p={{ base: 2, md: 4 }}>
       {/* ============================================================== */}
@@ -370,42 +387,42 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           <Flex align="center" justify="space-between" gap={2} mb={3}>
             <Box>
               <HStack spacing={2} align="center">
-                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color="gray.850" letterSpacing="-0.4px">
+                <Text fontSize={{ base: "20px", sm: "22px" }} fontWeight="900" color={docTitleColor} letterSpacing="-0.4px">
                   {t("doctors.table.doctors") || "Doctors"}
                 </Text>
                 {user.data?.length !== undefined && (
                   <Badge
-                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
                     fontSize="10px"
                     fontWeight="800"
                     px={2}
                     py={0.5}
                     rounded="full"
-                    boxShadow="0 2px 6px rgba(13, 148, 136, 0.25)"
+                    boxShadow="0 2px 6px var(--theme-shadow, rgba(13, 148, 136, 0.25))"
                   >
                     {user.totalCount || user.data?.length}
                   </Badge>
                 )}
               </HStack>
-              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+              <Text fontSize="12px" color={docSubtextColor} fontWeight="500" mt={0.5}>
                 Clinic Practitioners & Specialists
               </Text>
             </Box>
 
             {stores.auth.hasPermission("doctor", "create") && (
               <Button
-                h="40px"
-                leftIcon={<FiPlus size={15} />}
-                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                h="36px"
+                leftIcon={<FiPlus size={14} />}
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="14px"
                 px={4}
                 fontSize="13px"
                 fontWeight="800"
-                boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
+                boxShadow="0 4px 14px -2px var(--theme-shadow, rgba(13, 148, 136, 0.4))"
                 _hover={{
-                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                   transform: "translateY(-1px)",
                 }}
                 _active={{ transform: "scale(0.96)" }}
@@ -417,30 +434,32 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
           </Flex>
 
           {/* Search Bar */}
-          <InputGroup size="md" mb={3}>
-            <InputLeftElement pointerEvents="none" h="46px" w="44px">
-              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+          <InputGroup size="sm" mb={2}>
+            <InputLeftElement pointerEvents="none" h="40px" w="40px">
+              <Icon as={FiSearch} color="brand.500" boxSize={4} />
             </InputLeftElement>
             <Input
               placeholder="Search doctor by name, mobile, code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               borderRadius="15px"
-              bg="white"
-              borderColor="#E2E8F0"
+              bg={docSearchBg}
+              borderColor={docSearchBorder}
+              color={docSearchColor}
               fontSize="13px"
               fontWeight="600"
-              h="46px"
-              px={11}
+              h="40px"
+              pl="38px"
+              pr={searchQuery ? "38px" : 3}
               boxShadow="0 2px 8px rgba(0,0,0,0.03)"
               _focus={{
-                borderColor: "#0EA5E9",
-                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+                borderColor: "brand.500",
+                boxShadow: "0 0 0 3px var(--theme-shadow, rgba(14, 165, 233, 0.15))",
               }}
               _placeholder={{ color: "gray.400", fontWeight: "400" }}
             />
             {searchQuery && (
-              <InputRightElement h="46px">
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={14} />}
@@ -460,13 +479,14 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <Button
               size="sm"
               rounded="full"
-              minH="36px"
-              px={4}
-              fontSize="12px"
+              minH="32px"
+              h="32px"
+              px={3}
+              fontSize="11.5px"
               fontWeight="750"
-              bg={isActiveFilter === "all" ? "teal.600" : "gray.100"}
-              color={isActiveFilter === "all" ? "white" : "gray.600"}
-              boxShadow={isActiveFilter === "all" ? "0 2px 6px rgba(13, 148, 136, 0.3)" : "none"}
+              bg={isActiveFilter === "all" ? "brand.500" : docInactivePillBg}
+              color={isActiveFilter === "all" ? "white" : docInactivePillColor}
+              boxShadow={isActiveFilter === "all" ? "0 2px 6px var(--theme-shadow, rgba(13, 148, 136, 0.3))" : "none"}
               onClick={() => {
                 setIsActiveFilter("all");
                 setCurrentPage(1);
@@ -477,13 +497,14 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <Button
               size="sm"
               rounded="full"
-              minH="36px"
-              px={4}
-              fontSize="12px"
+              minH="32px"
+              h="32px"
+              px={3}
+              fontSize="11.5px"
               fontWeight="750"
-              bg={isActiveFilter === true ? "teal.600" : "gray.100"}
-              color={isActiveFilter === true ? "white" : "gray.600"}
-              boxShadow={isActiveFilter === true ? "0 2px 6px rgba(13, 148, 136, 0.3)" : "none"}
+              bg={isActiveFilter === true ? "brand.500" : docInactivePillBg}
+              color={isActiveFilter === true ? "white" : docInactivePillColor}
+              boxShadow={isActiveFilter === true ? "0 2px 6px var(--theme-shadow, rgba(13, 148, 136, 0.3))" : "none"}
               leftIcon={<Box as="span" w="7px" h="7px" borderRadius="full" bg={isActiveFilter === true ? "white" : "#10B981"} />}
               onClick={() => {
                 setIsActiveFilter(true);
@@ -495,12 +516,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
             <Button
               size="sm"
               rounded="full"
-              minH="36px"
-              px={4}
-              fontSize="12px"
+              minH="32px"
+              h="32px"
+              px={3}
+              fontSize="11.5px"
               fontWeight="750"
-              bg={isActiveFilter === false ? "red.600" : "gray.100"}
-              color={isActiveFilter === false ? "white" : "gray.600"}
+              bg={isActiveFilter === false ? "red.600" : docInactivePillBg}
+              color={isActiveFilter === false ? "white" : docInactivePillColor}
               boxShadow={isActiveFilter === false ? "0 2px 6px rgba(220, 38, 38, 0.3)" : "none"}
               leftIcon={<Box as="span" w="7px" h="7px" borderRadius="full" bg={isActiveFilter === false ? "white" : "#EF4444"} />}
               onClick={() => {
@@ -514,12 +536,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
 
           {/* Cards Stack */}
           {user.loading ? (
-            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500" fontWeight="600">
-                Loading doctors...
-              </Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !user.data || user.data.length === 0 ? (
             <Flex
               direction="column"
@@ -527,10 +544,10 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
               justify="center"
               py={14}
               textAlign="center"
-              bg="white"
+              bg={docCardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={docCardBorder}
               px={4}
             >
               <Icon as={FiUserX} boxSize="36px" color="gray.400" mb={2} />
@@ -554,9 +571,9 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                 return (
                   <Box
                     key={doctor._id || doctor.id}
-                    bg="white"
+                    bg={docCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={docCardBorder}
                     borderRadius="22px"
                     p={3.5}
                     boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
@@ -591,7 +608,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                         </Box>
 
                         <Box flex={1} minW={0}>
-                          <Text fontSize="15px" fontWeight="850" color="gray.850" noOfLines={1} letterSpacing="-0.2px">
+                          <Text fontSize="15px" fontWeight="850" color={docTitleColor} noOfLines={1} letterSpacing="-0.2px">
                             {displayTitle ? `${displayTitle} ${doctor.name}` : doctor.name}
                           </Text>
                           <HStack spacing={1.5} mt={0.5} wrap="wrap">
@@ -652,13 +669,13 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     <Flex
                       align="center"
                       justify="space-between"
-                      bg="gray.50"
+                      bg={docPhoneStripBg}
                       borderRadius="14px"
                       px={3}
                       py={1.5}
                       mb={2.5}
                       border="1px solid"
-                      borderColor="gray.150"
+                      borderColor={docPhoneStripBorder}
                     >
                       <HStack
                         spacing={2}
@@ -673,7 +690,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                         }}
                       >
                         <Icon as={FiPhone} color="teal.600" fontSize="13px" />
-                        <Text fontSize="12px" fontWeight="600" color={phone ? "gray.750" : "gray.400"} noOfLines={1}>
+                        <Text fontSize="12px" fontWeight="600" color={phone ? docTitleColor : docSubtextColor} noOfLines={1}>
                           {phone ? `+91 •••• ${phone.slice(-4)}` : "No phone registered"}
                         </Text>
                         {phone && <Icon as={FiCopy} color="gray.400" fontSize="11px" />}
@@ -703,11 +720,11 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           flex={1}
                           minH="36px"
                           borderRadius="xl"
-                          bg="teal.50"
-                          color="teal.700"
+                          bg={docInactivePillBg}
+                          color="brand.500"
                           border="1px solid"
-                          borderColor="teal.100"
-                          _hover={{ bg: "teal.100" }}
+                          borderColor={docCardBorder}
+                          _hover={{ bg: docPhoneStripBg }}
                           _active={{ transform: "scale(0.98)" }}
                           leftIcon={<FiEye size={13} />}
                           fontSize="12px"
@@ -724,11 +741,11 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           flex={1}
                           minH="36px"
                           borderRadius="xl"
-                          bg="blue.50"
-                          color="blue.700"
+                          bg={docInactivePillBg}
+                          color="blue.400"
                           border="1px solid"
-                          borderColor="blue.100"
-                          _hover={{ bg: "blue.100" }}
+                          borderColor={docCardBorder}
+                          _hover={{ bg: docPhoneStripBg }}
                           _active={{ transform: "scale(0.98)" }}
                           leftIcon={<FiEdit2 size={13} />}
                           fontSize="12px"
@@ -745,11 +762,11 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           flex={1}
                           minH="36px"
                           borderRadius="xl"
-                          bg="purple.50"
-                          color="purple.700"
+                          bg={docInactivePillBg}
+                          color="purple.400"
                           border="1px solid"
-                          borderColor="purple.100"
-                          _hover={{ bg: "purple.100" }}
+                          borderColor={docCardBorder}
+                          _hover={{ bg: docPhoneStripBg }}
                           _active={{ transform: "scale(0.98)" }}
                           leftIcon={<FiDollarSign size={13} />}
                           fontSize="12px"
@@ -762,7 +779,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     </HStack>
 
                     {/* Security & Secondary Actions */}
-                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor="gray.200">
+                    <Flex justify="space-between" align="center" pt={1.5} borderTop="1px dashed" borderColor={docCardBorder}>
                       <Text fontSize="11px" fontWeight="600" color="gray.400">
                         Account & Security
                       </Text>
@@ -777,8 +794,8 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                                 w="30px"
                                 h="30px"
                                 borderRadius="lg"
-                                bg="gray.100"
-                                color="gray.700"
+                                bg={docInactivePillBg}
+                                color={docTitleColor}
                                 _hover={{ bg: "purple.50", color: "purple.600" }}
                                 onClick={() => {
                                   setPermUser(doctor);
@@ -981,7 +998,7 @@ const DoctorTable = observer(({ onAdd, onEdit, onDelete }: any) => {
         >
           <DrawerCloseButton color="white" bg="whiteAlpha.200" borderRadius="full" _hover={{ bg: "whiteAlpha.350" }} top={{ base: 2, md: 4 }} right={{ base: 2, md: 4 }} />
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             py={{ base: 3, md: 4 }}
             fontSize={{ base: "sm", md: "lg" }}

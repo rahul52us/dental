@@ -39,6 +39,7 @@ import {
   useBreakpointValue,
   Icon,
   Circle,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useMemo } from 'react';
@@ -64,6 +65,24 @@ const PrescriptionMaster = observer(() => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Dark mode color tokens
+  const cardBg = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("white", "gray.800");
+  const subtleBg = useColorModeValue("gray.50", "gray.700");
+  const borderSubtle = useColorModeValue("gray.200", "gray.700");
+  const borderLight = useColorModeValue("gray.100", "gray.700");
+  const textPrimary = useColorModeValue("gray.800", "gray.100");
+  const textSecondary = useColorModeValue("gray.700", "gray.200");
+  const textMuted = useColorModeValue("gray.600", "gray.400");
+  const textFaint = useColorModeValue("gray.500", "gray.400");
+  const headingColor = useColorModeValue("#0C4A6E", "cyan.300");
+  const modalBg = useColorModeValue("white", "gray.800");
+  const selectBg = useColorModeValue("white", "#1A202C");
+  const selectTextColor = useColorModeValue("#2D3748", "#E2E8F0");
+  const selectBorderColor = useColorModeValue("#E2E8F0", "#4A5568");
+  const selectFocusBg = useColorModeValue("#E6FFFA", "#234E52");
+
   const [search, setSearch] = useState('');
   const [editingPrescription, setEditingPrescription] = useState<any>(null);
   const [viewingPrescription, setViewingPrescription] = useState<any>(null);
@@ -233,23 +252,38 @@ const PrescriptionMaster = observer(() => {
       ...base,
       minHeight: '44px',
       borderRadius: '12px',
-      borderColor: '#E2E8F0',
+      borderColor: selectBorderColor,
+      backgroundColor: selectBg,
       fontSize: '13px',
       boxShadow: 'none',
       '&:hover': {
         borderColor: '#0D9488'
       }
     }),
+    singleValue: (base: any) => ({
+      ...base,
+      color: selectTextColor,
+    }),
+    input: (base: any) => ({
+      ...base,
+      color: selectTextColor,
+    }),
+    menu: (base: any) => ({
+      ...base,
+      backgroundColor: selectBg,
+      borderColor: selectBorderColor,
+      zIndex: 9999,
+    }),
     option: (base: any, state: any) => ({
       ...base,
       fontSize: '13px',
-      backgroundColor: state.isFocused ? '#E6FFFA' : 'white',
-      color: state.isFocused ? '#0D9488' : '#4A5568',
+      backgroundColor: state.isFocused ? selectFocusBg : selectBg,
+      color: state.isFocused ? '#0D9488' : selectTextColor,
       cursor: 'pointer'
     }),
     placeholder: (base: any) => ({
       ...base,
-      color: '#A0AEC0'
+      color: textFaint,
     })
   };
 
@@ -264,7 +298,7 @@ const PrescriptionMaster = observer(() => {
           <Box
             p={4}
             borderRadius="22px"
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             boxShadow="0 8px 20px -4px rgba(12, 74, 110, 0.35)"
             position="relative"
@@ -326,11 +360,12 @@ const PrescriptionMaster = observer(() => {
                 placeholder="Search brand, salt, type, company..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                bg="white"
+                bg={inputBg}
+                color={textPrimary}
                 focusBorderColor="teal.500"
                 borderRadius="16px"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor={borderSubtle}
                 h="42px"
                 fontSize="13px"
                 boxShadow="0 2px 6px rgba(0,0,0,0.02)"
@@ -367,8 +402,8 @@ const PrescriptionMaster = observer(() => {
                 borderRadius="16px"
                 variant="outline"
                 colorScheme="teal"
-                bg="white"
-                borderColor="gray.200"
+                bg={inputBg}
+                borderColor={borderSubtle}
                 cursor="pointer"
                 isLoading={loading}
                 flexShrink={0}
@@ -379,9 +414,9 @@ const PrescriptionMaster = observer(() => {
             <Button
               size="sm"
               h="42px"
-              bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+              bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               color="white"
-              _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+              _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
               _active={{ transform: "scale(0.96)" }}
               leftIcon={<FiPlus fontSize="16px" />}
               borderRadius="16px"
@@ -400,7 +435,7 @@ const PrescriptionMaster = observer(() => {
           {prescriptionStore.prescriptionsLoading ? (
             <Flex minH="200px" align="center" justify="center" direction="column" gap={3}>
               <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500">Loading drug library...</Text>
+              <Text fontSize="13px" color={textFaint}>Loading drug library...</Text>
             </Flex>
           ) : filteredPrescriptions.length === 0 ? (
             <Flex
@@ -408,22 +443,22 @@ const PrescriptionMaster = observer(() => {
               align="center"
               justify="center"
               p={8}
-              bg="white"
+              bg={cardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={borderSubtle}
               textAlign="center"
             >
               <Icon as={FaPills} boxSize="40px" color="gray.400" mb={2} />
-              <Text fontSize="15px" fontWeight="800" color="gray.700">
+              <Text fontSize="15px" fontWeight="800" color={textPrimary}>
                 No drugs found
               </Text>
-              <Text fontSize="12px" color="gray.500" mt={1} mb={3}>
+              <Text fontSize="12px" color={textFaint} mt={1} mb={3}>
                 {search ? `No results matching "${search}"` : "Add your first drug to the pharmacy library."}
               </Text>
               <Button
                 size="sm"
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="xl"
                 onClick={() => { resetForm(); onOpen(); }}
@@ -436,14 +471,14 @@ const PrescriptionMaster = observer(() => {
               {filteredPrescriptions.map((p: any) => (
                 <Box
                   key={p._id}
-                  bg="white"
+                  bg={cardBg}
                   border="1px solid"
-                  borderColor="#E8EEF4"
+                  borderColor={borderLight}
                   borderRadius="20px"
                   p={3.5}
                   boxShadow="0 4px 14px -6px rgba(15, 23, 42, 0.08)"
                   transition="all 0.15s ease-out"
-                  _active={{ bg: "gray.50" }}
+                  _active={{ bg: subtleBg }}
                 >
                   {/* Top Row: Pill Icon + Brand Name + Dosage */}
                   <Flex justify="space-between" align="flex-start" gap={2} mb={2}>
@@ -467,7 +502,7 @@ const PrescriptionMaster = observer(() => {
                         <Text
                           fontSize="15px"
                           fontWeight="900"
-                          color="#0C4A6E"
+                          color={headingColor}
                           noOfLines={1}
                           letterSpacing="-0.2px"
                         >
@@ -551,7 +586,7 @@ const PrescriptionMaster = observer(() => {
                   {/* Body Section: Basic Salt, Company, Pattern */}
                   <VStack align="stretch" spacing={1} mb={2.5} pl="50px">
                     {p.basicSalt && (
-                      <HStack spacing={1.5} color="gray.700" fontSize="12px">
+                      <HStack spacing={1.5} color={textSecondary} fontSize="12px">
                         <Icon as={FiActivity} color="teal.500" boxSize={3.5} flexShrink={0} />
                         <Text fontWeight="700" noOfLines={1}>
                           {p.basicSalt}
@@ -559,7 +594,7 @@ const PrescriptionMaster = observer(() => {
                       </HStack>
                     )}
                     {p.companyName && (
-                      <HStack spacing={1.5} color="gray.500" fontSize="11px">
+                      <HStack spacing={1.5} color={textMuted} fontSize="11px">
                         <Icon as={FiPackage} boxSize={3} flexShrink={0} />
                         <Text fontWeight="600" noOfLines={1}>
                           {p.companyName}
@@ -568,7 +603,7 @@ const PrescriptionMaster = observer(() => {
                     )}
                     {p.details && p.details.includes('_') && (
                       <HStack spacing={2} pt={0.5}>
-                        <Text fontSize="10px" color="gray.400" fontWeight="700">Dose Pattern:</Text>
+                        <Text fontSize="10px" color={textFaint} fontWeight="700">Dose Pattern:</Text>
                         <DoseVisualizer pattern={p.details} />
                       </HStack>
                     )}
@@ -580,7 +615,7 @@ const PrescriptionMaster = observer(() => {
                     align="center"
                     pt={2}
                     borderTop="1px solid"
-                    borderColor="gray.100"
+                    borderColor={borderLight}
                     gap={2}
                   >
                     <HStack spacing={1.5}>
@@ -590,8 +625,6 @@ const PrescriptionMaster = observer(() => {
                         px={2.5}
                         variant="ghost"
                         colorScheme="teal"
-                        bg="teal.50"
-                        _hover={{ bg: "teal.100" }}
                         borderRadius="lg"
                         fontWeight="700"
                         fontSize="11px"
@@ -606,8 +639,6 @@ const PrescriptionMaster = observer(() => {
                         px={2.5}
                         variant="ghost"
                         colorScheme="blue"
-                        bg="blue.50"
-                        _hover={{ bg: "blue.100" }}
                         borderRadius="lg"
                         fontWeight="700"
                         fontSize="11px"
@@ -622,8 +653,6 @@ const PrescriptionMaster = observer(() => {
                         h="28px"
                         variant="ghost"
                         colorScheme="red"
-                        bg="red.50"
-                        _hover={{ bg: "red.100" }}
                         borderRadius="lg"
                         icon={<FiTrash2 size={12} />}
                         aria-label="Delete"
@@ -633,7 +662,7 @@ const PrescriptionMaster = observer(() => {
 
                     <HStack spacing={1.5}>
                       {p.doseNo > 0 && (
-                        <Text fontSize="11px" fontWeight="800" color="teal.700">
+                        <Text fontSize="11px" fontWeight="800" color="teal.400">
                           Qty: {p.doseNo}
                         </Text>
                       )}
@@ -705,17 +734,20 @@ const PrescriptionMaster = observer(() => {
             </HStack>
           </Flex>
 
-          <Card variant="outline" borderRadius="xl" shadow="sm">
+          <Card variant="outline" borderRadius="xl" shadow="sm" bg={cardBg} borderColor={borderLight}>
             <CardBody p={4}>
               <InputGroup size="md">
                 <InputLeftElement pointerEvents="none">
-                  <FiSearch color="gray.300" />
+                  <FiSearch color="#94A3B8" />
                 </InputLeftElement>
                 <Input
                   placeholder="Search by brand name, salt, type or company..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   borderRadius="lg"
+                  bg={inputBg}
+                  color={textPrimary}
+                  borderColor={borderSubtle}
                 />
               </InputGroup>
             </CardBody>
@@ -725,30 +757,30 @@ const PrescriptionMaster = observer(() => {
             overflowX="auto" 
             overflowY="auto"
             maxH="650px"
-            bg="white" 
+            bg={cardBg} 
             borderRadius="xl" 
             shadow="sm" 
             border="1px solid" 
-            borderColor="gray.100"
+            borderColor={borderLight}
             className="custom-scrollbar"
           >
             <Table variant="simple" size="sm" colorScheme="gray">
-              <Thead bg="gray.50" position="sticky" top={0} zIndex={1} shadow="sm">
+              <Thead bg={subtleBg} position="sticky" top={0} zIndex={1} shadow="sm">
                 <Tr>
-                  <Th py={4} fontSize="10px">Brandname</Th>
-                  <Th fontSize="10px">Type</Th>
-                  <Th fontSize="10px">Catagory</Th>
-                  <Th fontSize="10px">Form</Th>
-                  <Th fontSize="10px">Companyname</Th>
-                  <Th textAlign="center" fontSize="10px">Actions</Th>
+                  <Th py={4} fontSize="10px" color={textFaint}>Brandname</Th>
+                  <Th fontSize="10px" color={textFaint}>Type</Th>
+                  <Th fontSize="10px" color={textFaint}>Catagory</Th>
+                  <Th fontSize="10px" color={textFaint}>Form</Th>
+                  <Th fontSize="10px" color={textFaint}>Companyname</Th>
+                  <Th textAlign="center" fontSize="10px" color={textFaint}>Actions</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {prescriptionStore.prescriptionsLoading ? (
                   <Tr>
                     <Td colSpan={6} textAlign="center" py={10}>
-                      <Spinner color="blue.500" />
-                      <Text mt={2} color="gray.500">Loading drug library...</Text>
+                      <Spinner color="teal.500" />
+                      <Text mt={2} color={textFaint}>Loading drug library...</Text>
                     </Td>
                   </Tr>
                 ) : filteredPrescriptions.length === 0 ? (
@@ -756,30 +788,30 @@ const PrescriptionMaster = observer(() => {
                     <Td colSpan={6} textAlign="center" py={10}>
                       <VStack spacing={2}>
                         <FiPackage size={40} color="#CBD5E0" />
-                        <Text color="gray.400">No drugs found in library</Text>
+                        <Text color={textFaint}>No drugs found in library</Text>
                       </VStack>
                     </Td>
                   </Tr>
                 ) : (
                   filteredPrescriptions.map((p: any) => (
-                    <Tr key={p._id} _hover={{ bg: "blue.50/40" }} transition="all 0.2s">
+                    <Tr key={p._id} _hover={{ bg: subtleBg }} transition="all 0.2s">
                       <Td py={4}>
-                        <Text fontWeight="bold" color="blue.700" fontSize="13px">{p.brandName}</Text>
+                        <Text fontWeight="bold" color={headingColor} fontSize="13px">{p.brandName}</Text>
                       </Td>
                       <Td>
                         <Badge colorScheme="blue" variant="subtle" fontSize="10px" borderRadius="full" px={2}>{p.type}</Badge>
                       </Td>
                       <Td>
-                        <Text fontSize="12px" color="gray.600" fontWeight="600">{p.category}</Text>
+                        <Text fontSize="12px" color={textSecondary} fontWeight="600">{p.category}</Text>
                       </Td>
                       <Td>
                         <HStack spacing={1}>
-                          <Icon as={FaPills} boxSize={3} color="#4A5568" />
-                          <Text fontWeight="medium" fontSize="12px">{p.form}</Text>
+                          <Icon as={FaPills} boxSize={3} color={textMuted} />
+                          <Text fontWeight="medium" fontSize="12px" color={textPrimary}>{p.form}</Text>
                         </HStack>
                       </Td>
                       <Td>
-                        <Text fontWeight="bold" fontSize="11px" color="gray.500">{p.companyName}</Text>
+                        <Text fontWeight="bold" fontSize="11px" color={textMuted}>{p.companyName}</Text>
                       </Td>
                       <Td>
                         <HStack justify="center" spacing={1}>
@@ -821,12 +853,12 @@ const PrescriptionMaster = observer(() => {
             justify="flex-end"
             px={4}
             py={3}
-            bg="white"
+            bg={cardBg}
             borderRadius="xl"
             border="1px solid"
-            borderColor="gray.100"
+            borderColor={borderLight}
           >
-            <Text fontSize="xs" fontWeight="bold" color="gray.500">
+            <Text fontSize="xs" fontWeight="bold" color={textFaint}>
               Total Records: {prescriptionStore.prescriptionsMetadata.total}
             </Text>
           </Flex>
@@ -843,6 +875,8 @@ const PrescriptionMaster = observer(() => {
       >
         <ModalOverlay backdropFilter="blur(8px)" bg="blackAlpha.700" />
         <ModalContent
+          bg={modalBg}
+          color={textPrimary}
           w={{ base: "100vw", md: undefined }}
           maxW={{ base: "100vw", md: "900px" }}
           m={{ base: 0, md: "auto" }}
@@ -884,7 +918,7 @@ const PrescriptionMaster = observer(() => {
           }}
         >
           <ModalHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             borderRadius={0}
             borderTopRadius={0}
@@ -915,7 +949,7 @@ const PrescriptionMaster = observer(() => {
               {/* Type & Category */}
               <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={{ base: 3, md: 6 }} w="full">
                 <FormControl isRequired>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Type</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Type</FormLabel>
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add type..."
@@ -926,7 +960,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Category</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Category</FormLabel>
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add category..."
@@ -941,7 +975,7 @@ const PrescriptionMaster = observer(() => {
               {/* Brandname, Basic Salt, Form */}
               <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={{ base: 3, md: 6 }} w="full">
                 <FormControl isRequired>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Brand Name</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Brand Name</FormLabel>
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add brand..."
@@ -959,7 +993,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Basic Salt</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Basic Salt</FormLabel>
                   <Input
                     placeholder="e.g. Ciprofloxacin"
                     value={formData.basicSalt}
@@ -967,11 +1001,14 @@ const PrescriptionMaster = observer(() => {
                     h="44px"
                     borderRadius="xl"
                     fontSize="13px"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     focusBorderColor="teal.500"
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Form</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Form</FormLabel>
                   <CreatableSelect
                     isClearable
                     placeholder="Search or add form..."
@@ -986,7 +1023,7 @@ const PrescriptionMaster = observer(() => {
               {/* Company, Dosage, Days, Details */}
               <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={{ base: 3, md: 4 }} w="full">
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Company Name</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Company Name</FormLabel>
                   <CreatableSelect
                     isClearable
                     placeholder="Search company..."
@@ -997,7 +1034,7 @@ const PrescriptionMaster = observer(() => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Dosage</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Dosage</FormLabel>
                   <Input
                     placeholder="e.g. 1bid"
                     value={formData.dosage}
@@ -1005,11 +1042,14 @@ const PrescriptionMaster = observer(() => {
                     h="44px"
                     borderRadius="xl"
                     fontSize="13px"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     focusBorderColor="teal.500"
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Days</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Days</FormLabel>
                   <Input
                     type="number"
                     placeholder="0"
@@ -1030,11 +1070,14 @@ const PrescriptionMaster = observer(() => {
                     h="44px"
                     borderRadius="xl"
                     fontSize="13px"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     focusBorderColor="teal.500"
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Pattern</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Pattern</FormLabel>
                   <Input
                     placeholder="e.g. *_* or *_*_*_*"
                     value={formData.details}
@@ -1050,6 +1093,9 @@ const PrescriptionMaster = observer(() => {
                     h="44px"
                     borderRadius="xl"
                     fontSize="13px"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     focusBorderColor="teal.500"
                   />
                 </FormControl>
@@ -1057,7 +1103,7 @@ const PrescriptionMaster = observer(() => {
               
               <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={{ base: 3, md: 4 }} w="full">
                 <FormControl>
-                  <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Dose No (Total Qty)</FormLabel>
+                  <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Dose No (Total Qty)</FormLabel>
                   <Input
                     type="number"
                     value={formData.doseNo}
@@ -1065,6 +1111,9 @@ const PrescriptionMaster = observer(() => {
                     h="44px"
                     borderRadius="xl"
                     fontSize="13px"
+                    bg={inputBg}
+                    color={textPrimary}
+                    borderColor={borderSubtle}
                     focusBorderColor="teal.500"
                   />
                 </FormControl>
@@ -1079,7 +1128,7 @@ const PrescriptionMaster = observer(() => {
               </SimpleGrid>
 
               <FormControl w="full">
-                <FormLabel fontWeight="700" fontSize="13px" color="gray.700">Description / Instructions</FormLabel>
+                <FormLabel fontWeight="700" fontSize="13px" color={textSecondary}>Description / Instructions</FormLabel>
                 <Textarea
                   placeholder="e.g. 9am after breakfast and 9pm after dinner"
                   value={formData.description}
@@ -1088,13 +1137,16 @@ const PrescriptionMaster = observer(() => {
                   p={3}
                   minH="80px"
                   fontSize="13px"
+                  bg={inputBg}
+                  color={textPrimary}
+                  borderColor={borderSubtle}
                   focusBorderColor="teal.500"
                 />
               </FormControl>
             </VStack>
           </ModalBody>
 
-          <ModalFooter bg="gray.50" py={3} px={{ base: 4, md: 8 }} borderTop="1px solid" borderColor="gray.100">
+          <ModalFooter bg={subtleBg} py={3} px={{ base: 4, md: 8 }} borderTop="1px solid" borderColor={borderLight}>
             <HStack spacing={2} w="full">
               <Button
                 variant="ghost"
@@ -1106,9 +1158,9 @@ const PrescriptionMaster = observer(() => {
                 Cancel
               </Button>
               <Button
-                bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
-                _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)" }}
+                _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)" }}
                 _active={{ transform: "scale(0.98)" }}
                 onClick={handleSubmit}
                 isLoading={loading}
@@ -1137,7 +1189,7 @@ const PrescriptionMaster = observer(() => {
             {/* Header Identity */}
             <Box
               p={4}
-              bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+              bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
               borderRadius="20px"
               color="white"
               shadow="md"
@@ -1177,18 +1229,18 @@ const PrescriptionMaster = observer(() => {
 
             <SimpleGrid columns={2} spacing={3}>
               <Box>
-                <Text fontSize="10px" fontWeight="800" color="gray.500" mb={1} letterSpacing="0.05em">
+                <Text fontSize="10px" fontWeight="800" color={textFaint} mb={1} letterSpacing="0.05em">
                   FORM
                 </Text>
-                <HStack spacing={2} p={3} border="1px solid" borderColor="gray.200" borderRadius="xl">
-                  <Icon as={FaPills} color="#4A5568" />
-                  <Text fontWeight="800" color="gray.700" fontSize="12px" textTransform="uppercase">
+                <HStack spacing={2} p={3} border="1px solid" borderColor={borderSubtle} borderRadius="xl" bg={cardBg}>
+                  <Icon as={FaPills} color={textMuted} />
+                  <Text fontWeight="800" color={textPrimary} fontSize="12px" textTransform="uppercase">
                     {viewingPrescription?.form || 'N/A'}
                   </Text>
                 </HStack>
               </Box>
               <Box>
-                <Text fontSize="10px" fontWeight="800" color="gray.500" mb={1} letterSpacing="0.05em">
+                <Text fontSize="10px" fontWeight="800" color={textFaint} mb={1} letterSpacing="0.05em">
                   COMPANY
                 </Text>
                 <Box p={3} bg="purple.50" borderRadius="xl" border="1px solid" borderColor="purple.100">
@@ -1200,35 +1252,35 @@ const PrescriptionMaster = observer(() => {
             </SimpleGrid>
 
             {/* Technical Specs */}
-            <Box p={4} bg="gray.50" borderRadius="20px" border="1px solid" borderColor="gray.200">
-              <Text fontSize="10px" fontWeight="900" color="gray.500" mb={3} letterSpacing="0.1em">
+            <Box p={4} bg={subtleBg} borderRadius="20px" border="1px solid" borderColor={borderSubtle}>
+              <Text fontSize="10px" fontWeight="900" color={textFaint} mb={3} letterSpacing="0.1em">
                 SPECIFICATIONS
               </Text>
               <VStack align="stretch" spacing={3}>
                 <HStack justify="space-between">
-                  <Text fontSize="11px" color="gray.500" fontWeight="600">Basic Salt</Text>
-                  <Text fontWeight="800" fontSize="12px" textAlign="right" color="gray.800">
+                  <Text fontSize="11px" color={textFaint} fontWeight="600">Basic Salt</Text>
+                  <Text fontWeight="800" fontSize="12px" textAlign="right" color={textPrimary}>
                     {viewingPrescription?.basicSalt || 'N/A'}
                   </Text>
                 </HStack>
                 <HStack justify="space-between">
-                  <Text fontSize="11px" color="gray.500" fontWeight="600">Dosage</Text>
+                  <Text fontSize="11px" color={textFaint} fontWeight="600">Dosage</Text>
                   <Badge colorScheme="orange" variant="solid" borderRadius="full" px={2} fontSize="10px">
                     {viewingPrescription?.dosage || 'N/A'}
                   </Badge>
                 </HStack>
                 <HStack justify="space-between">
-                  <Text fontSize="11px" color="gray.500" fontWeight="600">Total Dose Qty</Text>
-                  <Text fontWeight="900" fontSize="15px" color="teal.700">
+                  <Text fontSize="11px" color={textFaint} fontWeight="600">Total Dose Qty</Text>
+                  <Text fontWeight="900" fontSize="15px" color="teal.400">
                     {viewingPrescription?.doseNo || '0'}
                   </Text>
                 </HStack>
                 {viewingPrescription?.details && (
                   <Box pt={1}>
-                    <Text fontSize="11px" color="gray.500" fontWeight="600" mb={1.5}>
+                    <Text fontSize="11px" color={textFaint} fontWeight="600" mb={1.5}>
                       Pattern
                     </Text>
-                    <Box bg="white" px={3} py={2} borderRadius="lg" border="1px solid" borderColor="gray.200" w="fit-content">
+                    <Box bg={cardBg} px={3} py={2} borderRadius="lg" border="1px solid" borderColor={borderSubtle} w="fit-content">
                       <DoseVisualizer pattern={viewingPrescription?.details} />
                     </Box>
                   </Box>

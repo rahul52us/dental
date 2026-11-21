@@ -541,10 +541,10 @@ const BookAppointmentPage = observer(() => {
                 align={{ base: "stretch", md: "center" }}
                 justify="space-between"
                 gap={4}
-                mb={4}
-                p={{ base: 4, md: 5 }}
-                borderRadius="24px"
-                bgGradient="linear(125deg, #123B50 0%, #126C70 62%, #258F83 100%)"
+                mb={2.5}
+                p={{ base: 3, md: 4 }}
+                borderRadius="18px"
+                bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 boxShadow="0 12px 28px rgba(18, 83, 96, 0.18)"
                 position="relative"

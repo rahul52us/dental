@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useCallback } from "react";
 import {
+  useColorModeValue,
+
   Avatar,
   Badge,
   Box,
@@ -24,6 +26,7 @@ import {
   useBreakpointValue,
   useDisclosure,
   VStack,
+
 } from "@chakra-ui/react";
 import { GiPsychicWaves } from "react-icons/gi";
 import {
@@ -44,6 +47,7 @@ import useDebounce from "../../../../component/config/component/customHooks/useD
 import { tablePageLimit } from "../../../../component/config/utils/variable";
 import CustomTable from "../../../../component/config/component/CustomTable/CustomTable";
 import { formatDate } from "../../../../component/config/utils/dateUtils";
+import { CardListSkeleton } from "../../../../component/common/Loader/ContentSkeleton";
 import ViewDoctor from "./ViewLab";
 import { useTranslation } from "react-i18next";
 
@@ -60,6 +64,16 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
   const debouncedSearchQuery = useDebounce(searchQuery, 1000);
   const { t } = useTranslation();
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+
+  // Theme & Dark Mode tokens
+  const labTitleColor = useColorModeValue("gray.850", "white");
+  const labSubtextColor = useColorModeValue("gray.500", "gray.400");
+  const labCardBg = useColorModeValue("white", "gray.800");
+  const labCardBorder = useColorModeValue("#E8EEF4", "gray.700");
+  const labSearchBg = useColorModeValue("white", "gray.800");
+  const labSearchBorder = useColorModeValue("#E2E8F0", "gray.700");
+  const labSearchColor = useColorModeValue("gray.800", "white");
+  const labActionBg = useColorModeValue("gray.50", "gray.700");
 
   const applyGetAllTherapists = useCallback(
     ({ page = 1, limit = tablePageLimit, reset = false }) => {
@@ -183,14 +197,14 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
                 <Text
                   fontSize={{ base: "20px", sm: "22px" }}
                   fontWeight="900"
-                  color="gray.850"
+                  color={labTitleColor}
                   letterSpacing="-0.4px"
                 >
                   {t("labs.table.labs") || "Labs"}
                 </Text>
                 {labs.data?.length !== undefined && (
                   <Badge
-                    bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                     color="white"
                     fontSize="10px"
                     fontWeight="800"
@@ -203,7 +217,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
                   </Badge>
                 )}
               </HStack>
-              <Text fontSize="12px" color="gray.500" fontWeight="500" mt={0.5}>
+              <Text fontSize="12px" color={labSubtextColor} fontWeight="500" mt={0.5}>
                 Dental Laboratories & Fabrication Partners
               </Text>
             </Box>
@@ -212,7 +226,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
               <Button
                 h="40px"
                 leftIcon={<FiPlus size={15} />}
-                bgGradient="linear(135deg, #0EA5E9 0%, #0D9488 100%)"
+                bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0EA5E9) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                 color="white"
                 borderRadius="14px"
                 px={4}
@@ -220,7 +234,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
                 fontWeight="800"
                 boxShadow="0 4px 14px -2px rgba(13, 148, 136, 0.4)"
                 _hover={{
-                  bgGradient: "linear(135deg, #0284C7 0%, #0F766E 100%)",
+                  bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #0284C7) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                   transform: "translateY(-1px)",
                 }}
                 _active={{ transform: "scale(0.96)" }}
@@ -232,36 +246,38 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
           </Flex>
 
           {/* Search Bar */}
-          <InputGroup size="md" mb={3}>
-            <InputLeftElement pointerEvents="none" h="46px" w="44px">
-              <Icon as={FiSearch} color="#0D9488" boxSize={4} />
+          <InputGroup size="sm" mb={2}>
+            <InputLeftElement pointerEvents="none" h="40px" w="40px">
+              <Icon as={FiSearch} color="brand.500" boxSize={4} />
             </InputLeftElement>
             <Input
               placeholder="Search lab by name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              borderRadius="15px"
-              bg="white"
-              borderColor="#E2E8F0"
-              fontSize="13px"
+              borderRadius="12px"
+              bg={labSearchBg}
+              borderColor={labSearchBorder}
+              color={labSearchColor}
+              fontSize="12.5px"
               fontWeight="600"
-              h="46px"
-              px={11}
-              boxShadow="0 2px 8px rgba(0,0,0,0.03)"
+              h="40px"
+              pl="38px"
+              pr={searchQuery ? "38px" : 3}
+              boxShadow="0 1px 4px rgba(0,0,0,0.03)"
               _focus={{
-                borderColor: "#0EA5E9",
-                boxShadow: "0 0 0 3px rgba(14, 165, 233, 0.15)",
+                borderColor: "brand.500",
+                boxShadow: "0 0 0 3px var(--theme-shadow, rgba(14, 165, 233, 0.15))",
               }}
               _placeholder={{ color: "gray.400", fontWeight: "400" }}
             />
             {searchQuery && (
-              <InputRightElement h="46px">
+              <InputRightElement h="40px">
                 <IconButton
                   aria-label="Clear search"
                   icon={<FiX size={14} />}
                   size="sm"
-                  minW="40px"
-                  h="40px"
+                  minW="36px"
+                  h="36px"
                   variant="ghost"
                   rounded="full"
                   onClick={() => setSearchQuery("")}
@@ -272,12 +288,7 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
 
           {/* Cards Stack */}
           {labs.loading ? (
-            <Flex direction="column" align="center" justify="center" py={16} gap={3}>
-              <Spinner size="lg" color="teal.500" thickness="3px" />
-              <Text fontSize="13px" color="gray.500" fontWeight="600">
-                Loading labs...
-              </Text>
-            </Flex>
+            <CardListSkeleton count={4} />
           ) : !labs.data || labs.data.length === 0 ? (
             <Flex
               direction="column"
@@ -285,10 +296,10 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
               justify="center"
               py={14}
               textAlign="center"
-              bg="white"
+              bg={labCardBg}
               borderRadius="20px"
               border="1px dashed"
-              borderColor="gray.200"
+              borderColor={labCardBorder}
               px={4}
             >
               <Icon as={FiPackage} boxSize="36px" color="gray.400" mb={2} />
@@ -305,9 +316,9 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
                 return (
                   <Box
                     key={lab._id || lab.id}
-                    bg="white"
+                    bg={labCardBg}
                     border="1px solid"
-                    borderColor="#E8EEF4"
+                    borderColor={labCardBorder}
                     borderRadius="22px"
                     p={3.5}
                     boxShadow="0 8px 24px -12px rgba(15, 23, 42, 0.18)"
@@ -377,10 +388,10 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
                         w="full"
                         minH="40px"
                         borderRadius="xl"
-                        bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                        bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                         color="white"
                         _hover={{
-                          bgGradient: "linear(135deg, #082F49, #0F766E)",
+                          bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
                         }}
                         _active={{ transform: "scale(0.99)" }}
                         fontSize="12.5px"
@@ -573,20 +584,35 @@ const LabsTable = observer(({ onAdd, onEdit, onDelete, onItemView }: any) => {
           borderRadius={0}
           overflow="hidden"
         >
-          <DrawerCloseButton color="white" zIndex={2} />
           <DrawerHeader
-            bgGradient="linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"
+            bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
             color="white"
             borderRadius={0}
             borderTopRadius={0}
-            py={4}
-            px={5}
+            py={2.5}
+            px={4}
           >
-            <Flex align="center" gap={3}>
-              <GiPsychicWaves size="24px" />
-              <Text fontSize="lg" fontWeight="bold">
-                {t("labs.table.userProfile") || "Lab Profile"}
-              </Text>
+            <Flex align="center" justify="space-between" w="100%">
+              <Flex align="center" gap={2.5}>
+                <GiPsychicWaves size="22px" />
+                <Text fontSize="md" fontWeight="bold">
+                  {t("labs.table.userProfile") || "Lab Profile"}
+                </Text>
+              </Flex>
+              <IconButton
+                aria-label="Close"
+                icon={<FiX size={16} />}
+                size="xs"
+                w="28px"
+                h="28px"
+                minW="28px"
+                borderRadius="full"
+                variant="ghost"
+                color="white"
+                bg="whiteAlpha.200"
+                _hover={{ bg: "whiteAlpha.350" }}
+                onClick={onClose}
+              />
             </Flex>
           </DrawerHeader>
 

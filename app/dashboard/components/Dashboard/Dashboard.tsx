@@ -310,7 +310,7 @@ const Dashboard = observer(() => {
               position="relative"
               boxShadow="0 10px 24px rgba(16, 51, 68, 0.16)"
               h={{ base: "148px", sm: "158px" }}
-              bgGradient="linear(135deg, #12354B 0%, #116C71 58%, #43A99B 100%)"
+              bgGradient={`linear(135deg, #12354B 0%, ${stores.themeStore.themeConfig.colors.custom.dark.primary || '#116C71'} 45%, ${stores.themeStore.themeConfig.colors.custom.light.primary || '#43A99B'} 100%)`}
             >
               <Box
                 position="absolute"

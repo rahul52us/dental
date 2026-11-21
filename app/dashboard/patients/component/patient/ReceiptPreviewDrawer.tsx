@@ -94,7 +94,7 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
         <DrawerHeader
           px={{ base: 3, md: 6 }}
           py={{ base: 3, md: 5 }}
-          bgGradient={isDesktop ? undefined : "linear(135deg, #091E42 0%, #0C4A6E 52%, #0D9488 100%)"}
+          bgGradient={isDesktop ? undefined : "linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"}
           bg={isDesktop ? "white" : undefined}
           color={isDesktop ? "gray.800" : "white"}
           borderBottom="1px solid"
@@ -137,27 +137,27 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
             </HStack>
 
             {/* Right: Actions */}
-            <HStack spacing={1.5} flexShrink={0}>
-              <Button
-                leftIcon={<FiDownload />}
+            <HStack spacing={2} align="center" flexShrink={0}>
+              <IconButton
+                aria-label="Download Document"
+                title="Download Document"
+                icon={<FiDownload size={15} />}
                 color="white"
-                bg={isDesktop ? "teal.500" : "whiteAlpha.300"}
+                bg={isDesktop ? "teal.500" : "whiteAlpha.250"}
                 _hover={{ bg: isDesktop ? "teal.600" : "whiteAlpha.400" }}
-                _active={{ transform: "scale(0.97)" }}
+                _active={{ transform: "scale(0.95)" }}
+                borderRadius="full"
                 size="sm"
-                h="34px"
-                px={{ base: 2.5, sm: 3.5 }}
+                h="32px"
+                w="32px"
+                minW="32px"
                 onClick={handleDownload}
-                borderRadius="lg"
-                fontWeight="700"
-                fontSize="xs"
-              >
-                <Text display={{ base: "none", sm: "inline" }}>Download</Text>
-              </Button>
+              />
 
               <IconButton
                 aria-label="Close Preview"
-                icon={<FiX size={18} />}
+                title="Close Preview"
+                icon={<FiX size={16} />}
                 onClick={onClose}
                 color={isDesktop ? "gray.600" : "white"}
                 bg={isDesktop ? "gray.100" : "whiteAlpha.200"}
@@ -165,9 +165,9 @@ const ReceiptPreviewDrawer: React.FC<ReceiptPreviewDrawerProps> = ({
                 _active={{ transform: "scale(0.95)" }}
                 borderRadius="full"
                 size="sm"
-                h="34px"
-                w="34px"
-                minW="34px"
+                h="32px"
+                w="32px"
+                minW="32px"
               />
             </HStack>
           </HStack>

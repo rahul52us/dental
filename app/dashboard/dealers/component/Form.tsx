@@ -72,7 +72,7 @@ const Form = ({
                 {/* Header with Actions */}
                 <GridItem colSpan={2}>
                   <Flex justify="space-between" align="center" mb={4}>
-                    <Text fontSize="2xl" fontWeight="bold" color="gray.800" display={{ base: "none", md: "block" }}>
+                    <Text fontSize="2xl" fontWeight="bold" color={useColorModeValue("gray.800", "gray.100")} display={{ base: "none", md: "block" }}>
                       {isEdit ? "Edit Dealer" : "New Dealer"}
                     </Text>
                     <HStack spacing={3} display={{ base: "none", md: "flex" }}>
@@ -190,9 +190,9 @@ const Form = ({
                   flex={2}
                   minH="48px"
                   type="submit"
-                  bgGradient="linear(135deg, #0C4A6E 0%, #0D9488 100%)"
+                  bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
                   color="white"
-                  _hover={{ bgGradient: "linear(135deg, #082F49, #0F766E)", shadow: "lg" }}
+                  _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)", shadow: "lg" }}
                   _active={{ transform: "scale(0.98)" }}
                   isLoading={loading}
                   loadingText="Saving"

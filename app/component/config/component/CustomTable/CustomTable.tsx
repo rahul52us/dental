@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { CardListSkeleton } from "../../../common/Loader/ContentSkeleton";
 import {
   Table,
   Thead,
@@ -315,7 +316,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   // const cellProps = cells ? { border: "1px solid gray" } : {};
-  const headerBg = useColorModeValue("brand.100", "darkBrand.200");
+  const headerBg = useColorModeValue("brand.500", "darkBrand.200");
+  const headerHoverBg = useColorModeValue("brand.600", "darkBrand.300");
   // const borderColor = useColorModeValue("gray.300", "gray.600");
 
   const bodyBg = useColorModeValue("white", "darkBrand.50");
@@ -323,7 +325,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   const hoverBg = useColorModeValue("brand.50", "darkBrand.200");
   const menuItemHover = useColorModeValue("brand.50", "darkBrand.200");
   const menuListBg = useColorModeValue("white", "darkBrand.100");
-  const titleColor = useColorModeValue("brand.500", "white");
+  const titleColor = useColorModeValue("brand.600", "white");
 
   const boxBorder = useColorModeValue("brand.200", "darkBrand.200");
   const mainBox = useColorModeValue("white", "gray.900");
@@ -555,6 +557,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                         boxShadow="sm"
                         transition="all 0.2s ease-in-out"
                         _hover={{
+                          bg: headerHoverBg,
                           boxShadow: "md",
                         }}
                         _active={{
@@ -582,6 +585,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                         boxShadow="sm"
                         transition="all 0.2s ease-in-out"
                         _hover={{
+                          bg: headerHoverBg,
                           boxShadow: "md",
                         }}
                         _active={{
@@ -612,9 +616,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         {mobileCard && (
           <Box display={{ base: "block", md: "none" }} px={3} py={3}>
             {loading ? (
-              <Flex minH="30vh" align="center" justify="center">
-                <Spinner size="lg" color="teal.500" thickness="3px" />
-              </Flex>
+              <CardListSkeleton count={4} />
             ) : data.length === 0 ? (
               <Text py={10} textAlign="center" color="gray.500" fontSize="sm">
                 No related data found

@@ -48,27 +48,27 @@ const components = {
 const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
-      bg: "FFFFFA",
+      bg: props.colorMode === "dark" ? "#0F172A" : "#F8FAFC",
       fontFamily: "var(--font-lato), sans-serif", // Apply Lato globally
-      color: props.colorMode === "light" ? "brand.900" : "darkBrand.50", // Dynamic text color
+      color: props.colorMode === "dark" ? "#F8FAFC" : "#0F172A", // Dynamic text color
     },
   }),
 };
 
 const colors = {
   brand: {
-    50: "#f5f7ff",
-    100: "#045B64",
-    200: "#c5c9ff",
-    300: "#a4a9ff",
-    400: "#8389ff",
-    500: "#6269ff",
-    600: "#4a51cc",
-    700: "#333999",
-    800: "#1b2166",
-    900: "#040933",
+    50: "#F0FDFA",
+    100: "#CCFBF1",
+    200: "#99F6E4",
+    300: "#5EEAD4",
+    400: "#2DD4BF",
+    500: "#0D9488",
+    600: "#0F766E",
+    700: "#115E59",
+    800: "#134E4A",
+    900: "#042F2E",
     1000: "#475467",
-    1100:"#434343"
+    1100: "#434343"
   },
   darkBrand: {
     50: "#1b1f2d",
