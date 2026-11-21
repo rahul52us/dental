@@ -83,7 +83,7 @@ const Form = observer(
               touched,
             }: any) => {
               return (
-                <FormikForm onSubmit={handleSubmit}>
+                <FormikForm id="doctor-form" onSubmit={handleSubmit}>
                   <Grid
                     templateColumns={{ base: "1fr", md: "1fr 1fr" }}
                     gap={6}
@@ -393,51 +393,6 @@ const Form = observer(
                       />
                     )}
                   </Grid>
-
-                  {/* Mobile Actions Only */}
-                  <HStack
-                    spacing={2}
-                    position={{ base: "sticky", md: "static" }}
-                    bottom={0}
-                    display={{ base: "flex", md: "none" }}
-                    zIndex={10}
-                    mx={{ base: -2, md: 0 }}
-                    px={{ base: 3, md: 0 }}
-                    py={{ base: 3, md: 0 }}
-                    pb={{ base: "calc(12px + env(safe-area-inset-bottom))", md: 0 }}
-                    bg={{ base: "white", md: "transparent" }}
-                    borderTop={{ base: "1px solid", md: "none" }}
-                    borderColor="gray.200"
-                    boxShadow={{ base: "0 -6px 18px rgba(15, 23, 42, 0.08)", md: "none" }}
-                  >
-                    <Button
-                      variant="outline"
-                      colorScheme="red"
-                      onClick={onClose}
-                      size="lg"
-                      flex={1}
-                      minH="48px"
-                      borderRadius="xl"
-                    >
-                      {t("doctors.form.cancel")}
-                    </Button>
-                    <Button
-                      type="submit"
-                      bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
-                      color="white"
-                      _hover={{ bgGradient: "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)", shadow: "lg" }}
-                      _active={{ transform: "scale(0.98)" }}
-                      isLoading={loading}
-                      size="lg"
-                      flex={2}
-                      minH="48px"
-                      borderRadius="xl"
-                      shadow="md"
-                      fontWeight="800"
-                    >
-                      {initialData?._id || isEdit ? t("doctors.form.update") : t("doctors.form.save")}
-                    </Button>
-                  </HStack>
                 </FormikForm>
               );
             }}

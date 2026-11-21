@@ -33,7 +33,8 @@ import {
   Input,
   Image,
   Select,
-  Textarea
+  Textarea,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FiUpload, FiUser, FiClock, FiSidebar, FiMoon } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
@@ -47,24 +48,31 @@ import ThemeSettings from "../ThemeSettings/ThemeSettings";
 import WhatsappSettings from './WhatsappSettings';
 
 // Helper component for consistent key-value display
-const DetailItem = ({ label, value, icon }) => (
-  <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
-    <Flex align="center" mb={1}>
-      {icon && <Icon as={icon} color="blue.500" mr={2} boxSize={3} />}
-      <Text
-        fontSize="xs"
-        fontWeight="bold"
-        textTransform="uppercase"
-        color="gray.500"
-      >
-        {label}
+const DetailItem = ({ label, value, icon }: any) => {
+  const itemBg = useColorModeValue("gray.50", "darkBrand.100");
+  const itemBorder = useColorModeValue("gray.200", "darkBrand.200");
+  const labelColor = useColorModeValue("gray.500", "gray.400");
+  const valueColor = useColorModeValue("gray.700", "gray.100");
+
+  return (
+    <Box p={3} borderWidth="1px" borderColor={itemBorder} borderRadius="lg" bg={itemBg}>
+      <Flex align="center" mb={1}>
+        {icon && <Icon as={icon} color="blue.500" mr={2} boxSize={3} />}
+        <Text
+          fontSize="xs"
+          fontWeight="bold"
+          textTransform="uppercase"
+          color={labelColor}
+        >
+          {label}
+        </Text>
+      </Flex>
+      <Text fontSize="md" fontWeight="medium" color={valueColor}>
+        {value || "-"}
       </Text>
-    </Flex>
-    <Text fontSize="md" fontWeight="medium" color="gray.700">
-      {value || "-"}
-    </Text>
-  </Box>
-);
+    </Box>
+  );
+};
 
 const ProfileDetailsModal = observer(({ user }: any) => {
   const [schedule, setSchedule] = useState(
@@ -347,11 +355,23 @@ const ProfileDetailsModal = observer(({ user }: any) => {
   const currentPrimary = stores.themeStore.themeConfig.colors.custom.light.primary || "#0D9488";
   const currentDarkPrimary = stores.themeStore.themeConfig.colors.custom.dark.primary || "#0C4A6E";
 
+  const drawerBg = useColorModeValue("white", "darkBrand.50");
+  const tabHeaderBg = useColorModeValue("white", "darkBrand.50");
+  const tabListBg = useColorModeValue("gray.100", "darkBrand.100");
+  const tabBorderColor = useColorModeValue("gray.150", "darkBrand.200");
+  const tabTextColor = useColorModeValue("gray.600", "gray.300");
+  const tabTextHoverColor = useColorModeValue("gray.900", "white");
+  const tabSelectedBg = useColorModeValue("white", "darkBrand.200");
+  const footerBg = useColorModeValue("white", "darkBrand.50");
+  const footerBorderColor = useColorModeValue("gray.200", "darkBrand.200");
+  const cardBg = useColorModeValue("white", "darkBrand.100");
+  const cardBorder = useColorModeValue("gray.200", "darkBrand.200");
+
   const tabSelectedStyle = {
-    bg: { base: "white", md: "transparent" },
+    bg: { base: tabSelectedBg, md: "transparent" },
     color: { base: currentPrimary, md: currentPrimary },
     borderColor: { base: "transparent", md: currentPrimary },
-    shadow: { base: "0 1px 4px rgba(0,0,0,0.12)", md: "none" },
+    shadow: { base: "0 1px 4px rgba(0,0,0,0.25)", md: "none" },
     fontWeight: { base: "800", md: "bold" },
   };
 
@@ -371,6 +391,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
         h={{ base: "100dvh", md: "100vh" }}
         maxH={{ base: "100dvh", md: "100vh" }}
         borderRadius={0}
+        bg={drawerBg}
       >
         {/* Header Section: Identity */}
         <Box
@@ -500,9 +521,9 @@ const ProfileDetailsModal = observer(({ user }: any) => {
             onChange={(index) => setProfileModal(true, index)}
           >
             <Box
-              bg="white"
+              bg={tabHeaderBg}
               borderBottom="1px solid"
-              borderColor="gray.150"
+              borderColor={tabBorderColor}
               px={{ base: 2, md: 4 }}
               py={{ base: 2, md: 0 }}
               pt={{ base: 2, md: 3 }}
@@ -512,10 +533,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                 overflowX="auto"
                 flexShrink={0}
                 p={{ base: 1, md: 0 }}
-                bg={{ base: "gray.100", md: "transparent" }}
+                bg={{ base: tabListBg, md: "transparent" }}
                 borderRadius={{ base: "14px", md: "none" }}
                 borderBottom={{ base: "none", md: "1px solid" }}
-                borderColor={{ base: "transparent", md: "gray.200" }}
+                borderColor={{ base: "transparent", md: tabBorderColor }}
                 css={{
                   "&::-webkit-scrollbar": { display: "none" },
                   scrollbarWidth: "none",
@@ -528,10 +549,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   borderRadius={{ base: "10px", md: "none" }}
                   fontSize={{ base: "12px", md: "sm" }}
                   fontWeight={{ base: "700", md: "bold" }}
-                  color={{ base: "gray.600", md: "gray.600" }}
+                  color={tabTextColor}
                   borderBottom={{ base: "none", md: "2px solid transparent" }}
                   _selected={tabSelectedStyle}
-                  _hover={{ color: "gray.900" }}
+                  _hover={{ color: tabTextHoverColor }}
                   transition="all 0.15s ease"
                 >
                   <HStack spacing={1.5}>
@@ -548,10 +569,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                     borderRadius={{ base: "10px", md: "none" }}
                     fontSize={{ base: "12px", md: "sm" }}
                     fontWeight={{ base: "700", md: "bold" }}
-                    color={{ base: "gray.600", md: "gray.600" }}
+                    color={tabTextColor}
                     borderBottom={{ base: "none", md: "2px solid transparent" }}
                     _selected={tabSelectedStyle}
-                    _hover={{ color: "gray.900" }}
+                    _hover={{ color: tabTextHoverColor }}
                     transition="all 0.15s ease"
                   >
                     <HStack spacing={1.5}>
@@ -569,10 +590,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   borderRadius={{ base: "10px", md: "none" }}
                   fontSize={{ base: "12px", md: "sm" }}
                   fontWeight={{ base: "700", md: "bold" }}
-                  color={{ base: "gray.600", md: "gray.600" }}
+                  color={tabTextColor}
                   borderBottom={{ base: "none", md: "2px solid transparent" }}
                   _selected={tabSelectedStyle}
-                  _hover={{ color: "gray.900" }}
+                  _hover={{ color: tabTextHoverColor }}
                   transition="all 0.15s ease"
                 >
                   <HStack spacing={1.5}>
@@ -589,10 +610,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   borderRadius={{ base: "10px", md: "none" }}
                   fontSize={{ base: "12px", md: "sm" }}
                   fontWeight={{ base: "700", md: "bold" }}
-                  color={{ base: "gray.600", md: "gray.600" }}
+                  color={tabTextColor}
                   borderBottom={{ base: "none", md: "2px solid transparent" }}
                   _selected={tabSelectedStyle}
-                  _hover={{ color: "gray.900" }}
+                  _hover={{ color: tabTextHoverColor }}
                   transition="all 0.15s ease"
                 >
                   <HStack spacing={1.5}>
@@ -609,10 +630,10 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                     borderRadius={{ base: "10px", md: "none" }}
                     fontSize={{ base: "12px", md: "sm" }}
                     fontWeight={{ base: "700", md: "bold" }}
-                    color={{ base: "gray.600", md: "gray.600" }}
+                    color={tabTextColor}
                     borderBottom={{ base: "none", md: "2px solid transparent" }}
                     _selected={tabSelectedStyle}
-                    _hover={{ color: "gray.900" }}
+                    _hover={{ color: tabTextHoverColor }}
                     transition="all 0.15s ease"
                   >
                     <HStack spacing={1.5}>
@@ -628,7 +649,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
               {/* TAB 1: Profile Overview */}
               <TabPanel p={{ base: 3, md: 6 }}>
                 <VStack spacing={{ base: 4, md: 6 }} align="stretch">
-                  <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                  <Box p={4} borderWidth="1px" borderColor={cardBorder} borderRadius="lg" bg={cardBg} shadow="sm">
                     <Flex align={{ base: "flex-start", sm: "center" }} justify="space-between" direction={{ base: "column", sm: "row" }} gap={3}>
                       <HStack spacing={3} minW={0}>
                         <Avatar size="md" flexShrink={0} src={pic?.url} name={name} />
@@ -651,7 +672,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                   </Box>
 
                   {user?.role === "admin" && (
-                    <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                    <Box p={4} borderWidth="1px" borderColor={cardBorder} borderRadius="lg" bg={cardBg} shadow="sm">
                       <Flex align={{ base: "flex-start", sm: "center" }} justify="space-between" direction={{ base: "column", sm: "row" }} gap={3}>
                         <HStack spacing={3} minW={0}>
                           <Avatar size="md" flexShrink={0} src={companyLogo?.url} name={user?.companyDetail?.company_name} borderRadius="md" />
@@ -783,11 +804,11 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                         icon={InfoIcon}
                       />
                       {user?.role === "admin" ? (
-                        <Box p={3} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                        <Box p={3} borderWidth="1px" borderColor={cardBorder} borderRadius="lg" bg={useColorModeValue("gray.50", "darkBrand.100")}>
                           <Flex align="center" justify="space-between" mb={1}>
                             <Flex align="center">
                               <Icon as={CheckCircleIcon} color="blue.500" mr={2} boxSize={3} />
-                              <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color="gray.500">
+                              <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" color={useColorModeValue("gray.500", "gray.400")}>
                                 Company
                               </Text>
                             </Flex>
@@ -801,11 +822,11 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                             )}
                           </Flex>
                           {!isEditingCompany ? (
-                            <Text fontSize="md" fontWeight="medium" color="gray.700">
+                            <Text fontSize="md" fontWeight="medium" color={useColorModeValue("gray.700", "gray.100")}>
                               {user?.companyDetails?.company_name || user?.companyDetail?.company_name || "-"}
                             </Text>
                           ) : (
-                            <Input size="sm" value={companyName} onChange={(e) => setCompanyName(e.target.value)} bg="white" />
+                            <Input size="sm" value={companyName} onChange={(e) => setCompanyName(e.target.value)} bg={useColorModeValue("white", "darkBrand.50")} borderColor={cardBorder} />
                           )}
                         </Box>
                       ) : (
@@ -832,7 +853,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
                     <>
                       <Divider />
                       {/* Database Export Section */}
-                      <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                      <Box p={4} borderWidth="1px" borderColor={cardBorder} borderRadius="lg" bg={cardBg} shadow="sm">
                         <Flex align={{ base: "flex-start", sm: "center" }} justify="space-between" direction={{ base: "column", sm: "row" }}>
                           <Box mb={{ base: 3, sm: 0 }} mr={4}>
                             <Text fontWeight="bold">Database Backup</Text>
@@ -855,7 +876,7 @@ const ProfileDetailsModal = observer(({ user }: any) => {
 
                   <Divider />
                   {/* Payment Section */}
-                  <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+                  <Box p={4} borderWidth="1px" borderColor={cardBorder} borderRadius="lg" bg={cardBg} shadow="sm">
                     <Flex align="center" justify="space-between" mb={4}>
                       <Box>
                         <Text fontWeight="bold">Make a Payment</Text>
@@ -905,19 +926,21 @@ const ProfileDetailsModal = observer(({ user }: any) => {
         </DrawerBody>
 
         <DrawerFooter
-          bg={{ base: "white", md: "gray.50" }}
+          bg={footerBg}
           px={{ base: 3, md: 6 }}
           py={{ base: 3, md: 4 }}
           pb={{ base: "calc(22px + env(safe-area-inset-bottom, 12px))", md: 4 }}
           borderTop="1px solid"
-          borderColor="gray.200"
-          boxShadow={{ base: "0 -4px 15px rgba(0,0,0,0.04)", md: "none" }}
+          borderColor={footerBorderColor}
+          boxShadow={{ base: "0 -4px 15px rgba(0,0,0,0.12)", md: "none" }}
         >
           {/* MOBILE BUTTONS (base: < md) */}
           <HStack spacing={2.5} w="full" display={{ base: "flex", md: "none" }}>
             <Button
               variant="outline"
-              colorScheme="gray"
+              borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+              color={useColorModeValue("gray.700", "gray.200")}
+              _hover={{ bg: useColorModeValue("gray.100", "darkBrand.100") }}
               flex={1}
               minH="42px"
               borderRadius="xl"

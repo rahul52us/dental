@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
+import { Box, Text, Badge, HStack, Circle, VStack, SimpleGrid, IconButton, Flex, Input, Select, Button, Heading, Icon, Tooltip, Divider, Spinner, Center, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Grid, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState, useMemo } from "react";
@@ -764,14 +764,14 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
               align="center"
               bg={useColorModeValue("gray.50", "whiteAlpha.100")}
               px={3}
-              py={2}
-              borderRadius="16px"
+              py={1.5}
+              borderRadius="14px"
               border="1px solid"
               borderColor={useColorModeValue("gray.150", "whiteAlpha.200")}
-              mb={3}
+              mb={2.5}
             >
-              <Text fontSize="11px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")} textTransform="uppercase">
-                Sitting Wise Plan:
+              <Text fontSize="10.5px" fontWeight="800" color={useColorModeValue("gray.600", "gray.300")} textTransform="uppercase" letterSpacing="0.05em">
+                Plan Sitting:
               </Text>
               <SittingAssigner dt={dt} onSave={() => applyGetAllRecords({ page: currentPage })} />
             </Flex>
@@ -780,23 +780,23 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
           {/* 4. Financial Estimates Bento */}
           {(dt.estimateMin > 0 || dt.estimateMax > 0 || dt.discount > 0 || dt.totalMin > 0) && (
             <SimpleGrid columns={3} gap={1.5} mb={3}>
-              <Box bg="blue.50" p={2} borderRadius="12px" border="1px solid" borderColor="blue.100" textAlign="center">
-                <Text fontSize="8px" fontWeight="900" color="blue.600" textTransform="uppercase">ESTIMATE</Text>
-                <Text fontSize="11px" fontWeight="900" color="blue.800" mt={0.5}>
+              <Box bg={useColorModeValue("blue.50", "rgba(59, 130, 246, 0.15)")} p={2} borderRadius="12px" border="1px solid" borderColor={useColorModeValue("blue.100", "rgba(59, 130, 246, 0.3)")} textAlign="center">
+                <Text fontSize="8px" fontWeight="900" color={useColorModeValue("blue.600", "blue.300")} textTransform="uppercase">ESTIMATE</Text>
+                <Text fontSize="11px" fontWeight="900" color={useColorModeValue("blue.800", "blue.200")} mt={0.5}>
                   ₹{dt.estimateMin?.toLocaleString("en-IN") || 0}
                 </Text>
               </Box>
 
-              <Box bg="red.50" p={2} borderRadius="12px" border="1px solid" borderColor="red.100" textAlign="center">
-                <Text fontSize="8px" fontWeight="900" color="red.600" textTransform="uppercase">DISCOUNT</Text>
-                <Text fontSize="11px" fontWeight="900" color="red.800" mt={0.5}>
+              <Box bg={useColorModeValue("red.50", "rgba(239, 68, 68, 0.15)")} p={2} borderRadius="12px" border="1px solid" borderColor={useColorModeValue("red.100", "rgba(239, 68, 68, 0.3)")} textAlign="center">
+                <Text fontSize="8px" fontWeight="900" color={useColorModeValue("red.600", "red.300")} textTransform="uppercase">DISCOUNT</Text>
+                <Text fontSize="11px" fontWeight="900" color={useColorModeValue("red.800", "red.200")} mt={0.5}>
                   ₹{dt.discount?.toLocaleString("en-IN") || 0}
                 </Text>
               </Box>
 
-              <Box bg="green.50" p={2} borderRadius="12px" border="1px solid" borderColor="green.100" textAlign="center">
-                <Text fontSize="8px" fontWeight="900" color="green.600" textTransform="uppercase">NET</Text>
-                <Text fontSize="11px" fontWeight="900" color="green.800" mt={0.5}>
+              <Box bg={useColorModeValue("green.50", "rgba(34, 197, 94, 0.15)")} p={2} borderRadius="12px" border="1px solid" borderColor={useColorModeValue("green.100", "rgba(34, 197, 94, 0.3)")} textAlign="center">
+                <Text fontSize="8px" fontWeight="900" color={useColorModeValue("green.600", "green.300")} textTransform="uppercase">NET</Text>
+                <Text fontSize="11px" fontWeight="900" color={useColorModeValue("green.800", "green.200")} mt={0.5}>
                   ₹{(dt.totalMin !== undefined ? dt.totalMin : dt.estimateMin || 0)?.toLocaleString("en-IN")}
                 </Text>
               </Box>
@@ -1221,26 +1221,27 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
             <Box>
               {/* Filters Bar */}
               <Flex
-                bg="white"
-                p={4}
+                bg={useColorModeValue("white", "darkBrand.50")}
+                p={{ base: 3, md: 4 }}
                 borderRadius="2xl"
                 shadow="xs"
                 border="1px solid"
-                borderColor="gray.100"
+                borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
                 mb={4}
-                justify="space-between"
-                align="center"
-                wrap="wrap"
-                gap={4}
+                direction="column"
+                gap={3}
+                w="full"
               >
-                <VStack align="start" spacing={0}>
-                  <Heading size="md" color="blue.600">Treatment Records ({toothTreatment?.totalItems || 0})</Heading>
-                  {subTitle && <Text fontSize="xs" color="gray.500" fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
-                </VStack>
+                <Flex justify="space-between" align="center" w="full">
+                  <VStack align="start" spacing={0}>
+                    <Heading size="md" color={useColorModeValue("blue.600", "blue.300")}>Treatment Records ({toothTreatment?.totalItems || 0})</Heading>
+                    {subTitle && <Text fontSize="xs" color={useColorModeValue("gray.500", "gray.400")} fontWeight="bold">PATIENT: {subTitle.toUpperCase()}</Text>}
+                  </VStack>
+                </Flex>
 
-                <Flex direction="column" gap={3} flex={1} w="full">
+                <Flex direction="column" gap={2.5} flex={1} w="full">
                   {/* Search Bar - Full Width on Mobile */}
-                  <HStack bg="gray.50" px={3} borderRadius="full" border="1px solid" borderColor="gray.200" w="full">
+                  <HStack bg={useColorModeValue("gray.50", "darkBrand.100")} px={3} borderRadius="full" border="1px solid" borderColor={useColorModeValue("gray.200", "whiteAlpha.200")} w="full">
                     <Icon as={FiSearch} color="gray.400" />
                     <Input
                       placeholder="Search clinical records..."
@@ -1250,6 +1251,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                       w="full"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      color={useColorModeValue("gray.800", "white")}
                     />
                   </HStack>
 
@@ -1265,7 +1267,7 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                           styles={{
                             control: (base) => ({
                               ...base,
-                              borderRadius: 'full',
+                              borderRadius: '14px',
                               borderColor: '#E2E8F0',
                               minHeight: '44px',
                               fontSize: '13px',
@@ -1285,136 +1287,211 @@ const TreatmentList = observer(({ isPatient, patientDetails, defaultTab }: any) 
                     </Tooltip>
 
                     <Box w="full">
-                      <select
+                      <Select
                         value={complaintTypeFilter}
                         onChange={(e) => setComplaintTypeFilter(e.target.value)}
-                        style={{
-                          width: '100%', height: '44px', borderRadius: '14px',
-                          padding: '0 12px', fontSize: '13px', border: '1px solid #E2E8F0',
-                          background: 'white', fontWeight: '700', color: '#4A5568',
-                          outline: 'none', cursor: 'pointer'
-                        }}
+                        size="sm"
+                        h="44px"
+                        borderRadius="xl"
+                        bg={useColorModeValue("white", "darkBrand.100")}
+                        borderColor={useColorModeValue("gray.200", "whiteAlpha.200")}
+                        color={useColorModeValue("gray.700", "whiteAlpha.900")}
+                        fontWeight="700"
+                        fontSize="13px"
                       >
                         <option value="all">All Complaints</option>
                         <option value="CHIEF COMPLAINT">CHIEF COMPLAINT</option>
                         <option value="OTHER FINDING">OTHER FINDING</option>
                         <option value="EXISTING FINDING">EXISTING FINDING</option>
-                      </select>
+                      </Select>
                     </Box>
 
                     <Box w="full">
-                      <select
+                      <Select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{
-                          width: '100%', height: '44px', borderRadius: '14px',
-                          padding: '0 12px', fontSize: '13px', border: '1px solid #E2E8F0',
-                          background: 'white', fontWeight: '700', color: '#4A5568',
-                          outline: 'none', cursor: 'pointer'
-                        }}
+                        size="sm"
+                        h="44px"
+                        borderRadius="xl"
+                        bg={useColorModeValue("white", "darkBrand.100")}
+                        borderColor={useColorModeValue("gray.200", "whiteAlpha.200")}
+                        color={useColorModeValue("gray.700", "whiteAlpha.900")}
+                        fontWeight="700"
+                        fontSize="13px"
                       >
                         <option value="all">All Statuses</option>
                         <option value="pending">PENDING</option>
                         <option value="complete">COMPLETE</option>
                         <option value="incomplete">INCOMPLETE</option>
-                      </select>
+                      </Select>
                     </Box>
                   </SimpleGrid>
 
-                  {/* Actions & Buttons Row */}
-                  <Flex justify="space-between" align="center" wrap="wrap" gap={2} w="full">
+                  {/* Actions & Buttons Row - Clean, Proportional & Fully Responsive */}
+                  <Flex
+                    direction={{ base: "column", md: "row" }}
+                    justify="space-between"
+                    align={{ base: "stretch", md: "center" }}
+                    gap={2.5}
+                    w="full"
+                    pt={1}
+                  >
+                    {/* Secondary Controls: Total Records Badge & Grid/List View Switcher */}
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      w="full"
+                      gap={3}
+                      order={{ base: 1, md: 2 }}
+                    >
+                      <HStack spacing={2}>
+                        <Badge
+                          colorScheme="blue"
+                          variant="subtle"
+                          borderRadius="full"
+                          px={3}
+                          py={1}
+                          fontSize="xs"
+                          fontWeight="750"
+                        >
+                          {toothTreatment?.totalItems || 0} RECORDS
+                        </Badge>
+                        {selectedDateFilter && (
+                          <Button
+                            size="xs"
+                            colorScheme="red"
+                            variant="outline"
+                            borderRadius="lg"
+                            h="24px"
+                            fontSize="10px"
+                            onClick={() => setSelectedDateFilter(null)}
+                          >
+                            Clear Date ✕
+                          </Button>
+                        )}
+                      </HStack>
 
-                  <HStack spacing={2} wrap="wrap">
-                    {selectedDateFilter && (
+                      <HStack
+                        bg={useColorModeValue("gray.100", "darkBrand.100")}
+                        p="2px"
+                        borderRadius="xl"
+                        border="1px solid"
+                        borderColor={useColorModeValue("gray.200", "whiteAlpha.200")}
+                      >
+                        <IconButton
+                          size="sm"
+                          h="30px"
+                          w="34px"
+                          borderRadius="lg"
+                          variant={isTableView === "card" ? "solid" : "ghost"}
+                          colorScheme={isTableView === "card" ? "blue" : "gray"}
+                          icon={<FiGrid size={14} />}
+                          onClick={() => setIsTableView("card")}
+                          aria-label="Grid View"
+                        />
+                        <IconButton
+                          size="sm"
+                          h="30px"
+                          w="34px"
+                          borderRadius="lg"
+                          variant={isTableView === "table" ? "solid" : "ghost"}
+                          colorScheme={isTableView === "table" ? "blue" : "gray"}
+                          icon={<FiList size={14} />}
+                          onClick={() => setIsTableView("table")}
+                          aria-label="List View"
+                        />
+                      </HStack>
+                    </Flex>
+
+                    {/* Primary Action Buttons */}
+                    <Flex
+                      align="center"
+                      gap={2}
+                      w="full"
+                      order={{ base: 2, md: 1 }}
+                    >
                       <Button
+                        leftIcon={<FiRefreshCw size={12} />}
                         size="sm"
-                        minH={{ base: "44px", md: "36px" }}
-                        colorScheme="red"
+                        h="36px"
+                        fontSize={{ base: "11px", sm: "12px", md: "13px" }}
+                        px={{ base: 2, sm: 3 }}
+                        iconSpacing={1.5}
+                        flex={{ base: 1, md: "initial" }}
+                        minW="0"
+                        colorScheme="blue"
                         variant="outline"
                         borderRadius="xl"
-                        onClick={() => setSelectedDateFilter(null)}
+                        bg={useColorModeValue("white", "darkBrand.100")}
+                        borderColor={useColorModeValue("blue.200", "blue.700")}
+                        color={useColorModeValue("blue.600", "blue.300")}
+                        _hover={{ bg: useColorModeValue("blue.50", "whiteAlpha.100") }}
+                        whiteSpace="nowrap"
+                        onClick={() => applyGetAllRecords({ page: currentPage, limit: tablePageLimit, reset: false })}
                       >
-                        Clear Date
+                        Refresh
                       </Button>
-                    )}
-                    <Button
-                      leftIcon={<FiRefreshCw />}
-                      size="sm"
-                      minH={{ base: "44px", md: "36px" }}
-                      colorScheme="blue"
-                      variant="outline"
-                      borderRadius="xl"
-                      bg="white"
-                      onClick={() => applyGetAllRecords({ page: currentPage, limit: tablePageLimit, reset: false })}
-                    >
-                      Refresh
-                    </Button>
-                    {stores.auth.hasPermission('treatment', 'view') && (
-                      <Button
-                        size="sm"
-                        minH={{ base: "44px", md: "36px" }}
-                        colorScheme="purple"
-                        variant="solid"
-                        borderRadius="xl"
-                        leftIcon={<FiCalendar />}
-                        onClick={() => {
-                          setIsCounting(true);
-                          stores.toothTreatmentStore.getToothTreatmentCountByDate({ patientId: patientDetails?._id })
-                            .then((res: any) => {
-                              if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
-                                setBackendCounts(res.data || []);
-                              }
-                            })
-                            .catch((err: any) => console.error("Failed to load counts:", err))
-                            .finally(() => setIsCounting(false));
-                          setIsCountModalOpen(true);
-                        }}
-                      >
-                        Work Dates
-                      </Button>
-                    )}
-                    {stores.auth.hasPermission('treatment', 'download') && (
-                      <Button
-                        size="sm"
-                        minH={{ base: "44px", md: "36px" }}
-                        colorScheme="orange"
-                        variant="solid"
-                        borderRadius="xl"
-                        leftIcon={<FiDownload />}
-                        isLoading={isDownloadingData}
-                        onClick={handleDownloadTable}
-                        fontSize={{ base: "11px", md: "12px" }}
-                      >
-                        Print
-                      </Button>
-                    )}
-                    <Circle size={{ base: "24px", md: "28px" }} bg="blue.50" color="blue.500" fontWeight="900" fontSize={{ base: "10px", md: "12px" }} border="1px solid" borderColor="blue.100">
-                      {toothTreatment?.totalItems || 0}
-                    </Circle>
-                  </HStack>
-
-                  <HStack bg="gray.100" p={1} borderRadius="xl" ml="auto">
-                    <IconButton
-                      size="sm"
-                      minH={{ base: "44px", md: "36px" }}
-                      variant={isTableView === "card" ? "solid" : "ghost"}
-                      colorScheme={isTableView === "card" ? "blue" : "gray"}
-                      icon={<FiGrid />}
-                      onClick={() => setIsTableView("card")}
-                      aria-label="Grid View"
-                    />
-                    <IconButton
-                      size="sm"
-                      minH={{ base: "44px", md: "36px" }}
-                      variant={isTableView === "table" ? "solid" : "ghost"}
-                      colorScheme={isTableView === "table" ? "blue" : "gray"}
-                      icon={<FiList />}
-                      onClick={() => setIsTableView("table")}
-                      aria-label="List View"
-                    />
-                  </HStack>
+                      {stores.auth.hasPermission('treatment', 'view') && (
+                        <Button
+                          size="sm"
+                          h="36px"
+                          fontSize={{ base: "11px", sm: "12px", md: "13px" }}
+                          px={{ base: 2, sm: 3 }}
+                          iconSpacing={1.5}
+                          flex={{ base: 1, md: "initial" }}
+                          minW="0"
+                          colorScheme="purple"
+                          variant="outline"
+                          borderRadius="xl"
+                          bg={useColorModeValue("white", "darkBrand.100")}
+                          borderColor={useColorModeValue("purple.200", "purple.700")}
+                          color={useColorModeValue("purple.600", "purple.300")}
+                          _hover={{ bg: useColorModeValue("purple.50", "whiteAlpha.100") }}
+                          leftIcon={<FiCalendar size={12} />}
+                          whiteSpace="nowrap"
+                          onClick={() => {
+                            setIsCounting(true);
+                            stores.toothTreatmentStore.getToothTreatmentCountByDate({ patientId: patientDetails?._id })
+                              .then((res: any) => {
+                                if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                                  setBackendCounts(res.data || []);
+                                }
+                              })
+                              .catch((err: any) => console.error("Failed to load counts:", err))
+                              .finally(() => setIsCounting(false));
+                            setIsCountModalOpen(true);
+                          }}
+                        >
+                          Work Dates
+                        </Button>
+                      )}
+                      {stores.auth.hasPermission('treatment', 'download') && (
+                        <Button
+                          size="sm"
+                          h="36px"
+                          fontSize={{ base: "11px", sm: "12px", md: "13px" }}
+                          px={{ base: 2, sm: 3 }}
+                          iconSpacing={1.5}
+                          flex={{ base: 1, md: "initial" }}
+                          minW="0"
+                          colorScheme="teal"
+                          variant="outline"
+                          borderRadius="xl"
+                          bg={useColorModeValue("white", "darkBrand.100")}
+                          borderColor={useColorModeValue("teal.200", "teal.700")}
+                          color={useColorModeValue("teal.600", "teal.300")}
+                          _hover={{ bg: useColorModeValue("teal.50", "whiteAlpha.100") }}
+                          leftIcon={<FiDownload size={12} />}
+                          isLoading={isDownloadingData}
+                          onClick={handleDownloadTable}
+                          whiteSpace="nowrap"
+                        >
+                          Print
+                        </Button>
+                      )}
+                    </Flex>
+                  </Flex>
                 </Flex>
-              </Flex>
               </Flex>
 
               {isTableView === "table" ? (

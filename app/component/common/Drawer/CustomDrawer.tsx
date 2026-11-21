@@ -146,10 +146,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = observer(({
         <DrawerBody
           flex="1"
           overflowY="auto"
-          p={isDesktop ? "15px" : "8px"}
+          overflowX="hidden"
+          p={isDesktop ? "15px" : "6px"}
         >
           <DrawerLoader loading={loading}>
-            <Box>{children}</Box>
+            <Box w="full" maxW="100%" overflowX="hidden">{children}</Box>
           </DrawerLoader>
         </DrawerBody>
 

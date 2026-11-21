@@ -599,8 +599,8 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
   const serverReceived = totalBill - patientPending;
 
   return (
-    <Box p={{ base: 2, md: 4 }} bg={bgOuter} minH="100vh" pb="calc(80px + env(safe-area-inset-bottom, 16px))">
-      <Box bg={bgInner} borderRadius="3xl" shadow="2xl" border="1px solid" borderColor={borderColor} overflow="hidden" p={{ base: 3, md: 6 }}>
+    <Box p={{ base: 1.5, md: 4 }} bg={bgOuter} minH={{ base: "auto", md: "100vh" }} pb="calc(80px + env(safe-area-inset-bottom, 16px))">
+      <Box bg={bgInner} borderRadius={{ base: "2xl", md: "3xl" }} shadow={{ base: "sm", md: "2xl" }} border="1px solid" borderColor={borderColor} overflow="hidden" p={{ base: 2.5, md: 6 }}>
         {/* ============================================================== */}
         {/* MOBILE VIEW (< 768px): Sleek 3-Metric Executive Bento Grid       */}
         {/* ============================================================== */}
@@ -827,149 +827,150 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                 />
               </HStack>
 
-              <Box zIndex={10}>
-                {(() => {
-                  const selectOptions = doctorsList.map(doc => ({
-                    label: `Dr. ${doc.name?.replace(/^Dr\.\s*/i, '')}`,
-                    value: doc.id
-                  }));
-                  const selectedValue = doctorFilter !== "all" ? selectOptions.find(opt => opt.value === doctorFilter) : null;
-
-                  return (
-                    <CustomInput
-                      name="doctorFilter"
-                      type="select"
-                      placeholder="Doctor..."
-                      isClear={true}
-                      isSearchable={true}
-                      isPortal={true}
-                      value={selectedValue}
-                      onChange={(selectedOption: any) => {
-                        setDoctorFilter(selectedOption ? selectedOption.value : "all");
-                        setCurrentPage(1);
-                      }}
-                      options={selectOptions}
-                    />
-                  );
-                })()}
-              </Box>
+              <Select
+                value={doctorFilter}
+                onChange={(e) => {
+                  setDoctorFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                size="sm"
+                h="44px"
+                borderRadius="12px"
+                bg={inputBg}
+                border="1px solid"
+                borderColor={borderColor}
+                color={doctorFilter !== "all" ? textPrimary : "gray.500"}
+                fontWeight="600"
+                fontSize="13px"
+                _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px #3182ce" }}
+              >
+                <option value="all">Doctor: All Doctors</option>
+                {doctorsList.map((doc: any) => (
+                  <option key={doc.id} value={doc.id}>
+                    Dr. {doc.name?.replace(/^Dr\.\s*/i, '')}
+                  </option>
+                ))}
+              </Select>
             </Grid>
 
-            {/* Row 3: Horizontal scrollable quick-action pills */}
-            <Box
-              overflowX="auto"
-              py={1}
-              sx={{
-                "&::-webkit-scrollbar": { display: "none" },
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
-            >
-              <HStack spacing={2} minW="max-content">
-                {stores.auth.hasPermission('accountability', 'view') && (
-                  <Button
-                    size="sm"
-                    h="40px"
-                    colorScheme="blue"
-                    variant="solid"
-                    leftIcon={<FiCalendar />}
-                    borderRadius="full"
-                    fontSize="11px"
-                    fontWeight="800"
-                    px={3}
-                    onClick={() => {
-                      setIsCounting(true);
-                      workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
-                        .then((res: any) => {
-                          if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
-                            setBackendCounts(res.data || []);
-                          }
-                        })
-                        .catch((err: any) => console.error("Failed to load accountability counts:", err))
-                        .finally(() => setIsCounting(false));
-                      setIsCountModalOpen(true);
-                    }}
-                  >
-                    Work Dates ({filteredWork.length || 0})
-                  </Button>
-                )}
-
-                <HStack
-                  spacing={1}
-                  px={2}
-                  py={0.5}
-                  bg={subtleBg}
-                  borderRadius="full"
-                  border="1px solid"
-                  borderColor={borderColor}
-                  h="40px"
+            {/* Row 3: Quick Action & Reset Buttons */}
+            <Flex justify="space-between" align="center" gap={2} w="full">
+              {stores.auth.hasPermission('accountability', 'view') && (
+                <Button
+                  size="sm"
+                  h="38px"
+                  colorScheme="pink"
+                  bgGradient="linear(to-r, pink.500, pink.600)"
+                  _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)" }}
+                  color="white"
+                  variant="solid"
+                  leftIcon={<FiCalendar />}
+                  borderRadius="xl"
+                  fontSize="11.5px"
+                  fontWeight="800"
+                  px={3}
+                  shadow="xs"
+                  onClick={() => {
+                    setIsCounting(true);
+                    workDoneStore.getWorkDoneCountByDate({ patientId: patientDetails?._id })
+                      .then((res: any) => {
+                        if (res?.status === "success" || res?.success === "success" || res?.statusCode === 200) {
+                          setBackendCounts(res.data || []);
+                        }
+                      })
+                      .catch((err: any) => console.error("Failed to load accountability counts:", err))
+                      .finally(() => setIsCounting(false));
+                    setIsCountModalOpen(true);
+                  }}
                 >
-                  <Input
-                    type="date"
-                    variant="unstyled"
-                    fontSize="12px"
-                    w="100px"
-                    h="40px"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    fontWeight="700"
-                    color="blue.700"
-                  />
-                  <Text fontSize="10px" color="gray.400">-</Text>
-                  <Input
-                    type="date"
-                    variant="unstyled"
-                    fontSize="12px"
-                    w="100px"
-                    h="40px"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    fontWeight="700"
-                    color="blue.700"
-                  />
-                  {(startDate || endDate) && (
-                    <Button
-                      size="sm"
-                      h="36px"
-                      colorScheme="blue"
-                      borderRadius="full"
-                      px={2}
-                      fontSize="9.5px"
-                      fontWeight="800"
-                      onClick={() => {
-                        setAppliedStartDate(startDate);
-                        setAppliedEndDate(endDate);
-                      }}
-                    >
-                      Apply
-                    </Button>
-                  )}
-                </HStack>
+                  Work Dates ({filteredWork.length || 0})
+                </Button>
+              )}
 
-                {(searchQuery || doctorFilter !== "all" || startDate || endDate || appliedStartDate || appliedEndDate) && (
-                  <Button
-                    size="sm"
-                    h="40px"
-                    variant="outline"
-                    colorScheme="red"
-                    borderRadius="full"
-                    fontSize="11px"
-                    fontWeight="800"
-                    px={3}
-                    onClick={() => {
-                      setSearchQuery("");
-                      setDoctorFilter("all");
-                      setStartDate("");
-                      setEndDate("");
-                      setAppliedStartDate("");
-                      setAppliedEndDate("");
-                    }}
-                  >
-                    Reset
-                  </Button>
-                )}
+              {(searchQuery || doctorFilter !== "all" || startDate || endDate || appliedStartDate || appliedEndDate) && (
+                <Button
+                  size="sm"
+                  h="38px"
+                  variant="ghost"
+                  colorScheme="red"
+                  borderRadius="xl"
+                  fontSize="11px"
+                  fontWeight="800"
+                  px={2.5}
+                  onClick={() => {
+                    setSearchQuery("");
+                    setDoctorFilter("all");
+                    setStartDate("");
+                    setEndDate("");
+                    setAppliedStartDate("");
+                    setAppliedEndDate("");
+                    setCurrentPage(1);
+                  }}
+                >
+                  Reset Filters
+                </Button>
+              )}
+            </Flex>
+
+            {/* Row 4: Clean Full-Width Responsive Date Range */}
+            <HStack
+              spacing={1.5}
+              px={2.5}
+              bg={subtleBg}
+              borderRadius="xl"
+              border="1px solid"
+              borderColor={borderColor}
+              h="40px"
+              w="full"
+              justify="space-between"
+            >
+              <HStack spacing={1} flex={1} minW="0">
+                <Icon as={FiCalendar} color="gray.400" fontSize="12px" flexShrink={0} />
+                <Input
+                  type="date"
+                  variant="unstyled"
+                  fontSize="12px"
+                  w="full"
+                  h="36px"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  fontWeight="700"
+                  color={useColorModeValue("blue.700", "blue.200")}
+                />
               </HStack>
-            </Box>
+              <Text fontSize="11px" fontWeight="700" color="gray.400" flexShrink={0}>to</Text>
+              <HStack spacing={1} flex={1} minW="0">
+                <Input
+                  type="date"
+                  variant="unstyled"
+                  fontSize="12px"
+                  w="full"
+                  h="36px"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  fontWeight="700"
+                  color={useColorModeValue("blue.700", "blue.200")}
+                />
+              </HStack>
+              {(startDate || endDate) && (
+                <Button
+                  size="xs"
+                  h="28px"
+                  colorScheme="blue"
+                  borderRadius="lg"
+                  px={2.5}
+                  fontSize="10px"
+                  fontWeight="800"
+                  flexShrink={0}
+                  onClick={() => {
+                    setAppliedStartDate(startDate);
+                    setAppliedEndDate(endDate);
+                  }}
+                >
+                  Apply
+                </Button>
+              )}
+            </HStack>
           </VStack>
         ) : (
           <Flex px={{ base: 0, md: 2 }} mb={6} justify="space-between" align="center" wrap="wrap" gap={3}>
@@ -1194,7 +1195,7 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     borderRadius="20px"
                     border="1px solid"
                     borderColor={borderColor}
-                    p={{ base: 3, sm: 4 }}
+                    p={{ base: 2.5, sm: 4 }}
                     shadow="sm"
                   >
                     {/* Header: S.No, Date, Status */}
@@ -1287,15 +1288,15 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                     </SimpleGrid>
 
                     {/* Action Bar */}
-                    <Flex justify="space-between" align="center" pt={1} borderTop="1px dashed" borderColor={borderColor}>
-                      <HStack spacing={1.5}>
+                    <Flex justify="space-between" align="center" pt={2} borderTop="1px dashed" borderColor={borderColor} gap={1.5} w="full">
+                      <HStack spacing={1.5} flexShrink={0}>
                         {stores.auth.hasPermission('accountability', 'edit') && (
                           <IconButton
                             aria-label="Edit Bill"
-                            icon={<FiEdit2 />}
+                            icon={<FiEdit2 size={14} />}
                             size="sm"
-                            minW="44px"
-                            h="44px"
+                            minW="36px"
+                            h="36px"
                             colorScheme="yellow"
                             variant="outline"
                             borderRadius="lg"
@@ -1309,10 +1310,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         {stores.auth.hasPermission('accountability', 'view') && (
                           <IconButton
                             aria-label="History"
-                            icon={<FiEye />}
+                            icon={<FiEye size={14} />}
                             size="sm"
-                            minW="44px"
-                            h="44px"
+                            minW="36px"
+                            h="36px"
                             colorScheme="teal"
                             variant="outline"
                             borderRadius="lg"
@@ -1322,10 +1323,10 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                         {received > 0 && stores.auth.hasPermission('accountability', 'download') && (
                           <IconButton
                             aria-label="Receipt"
-                            icon={downloadingRecordId === record._id ? <Spinner size="xs" /> : <FiDownload />}
+                            icon={downloadingRecordId === record._id ? <Spinner size="xs" /> : <FiDownload size={14} />}
                             size="sm"
-                            minW="44px"
-                            h="44px"
+                            minW="36px"
+                            h="36px"
                             colorScheme="blue"
                             variant="outline"
                             borderRadius="lg"
@@ -1338,13 +1339,20 @@ const PatientAccountHistory = observer(({ patientDetails }: any) => {
                       {stores.auth.hasPermission('accountability', 'create') && (
                         <Button
                           size="sm"
-                          minH="44px"
-                          flexShrink={0}
-                          colorScheme="green"
-                          leftIcon={<FiPlusCircle />}
-                          borderRadius="xl"
+                          h="36px"
+                          flex={1}
+                          maxW={{ base: "145px", sm: "165px" }}
+                          colorScheme="pink"
+                          bgGradient="linear(to-r, pink.500, pink.600)"
+                          _hover={{ bgGradient: "linear(to-r, pink.600, pink.700)" }}
+                          color="white"
+                          leftIcon={<FiPlusCircle size={14} />}
+                          borderRadius="lg"
                           fontWeight="800"
-                          px={3}
+                          fontSize="11px"
+                          px={2}
+                          whiteSpace="nowrap"
+                          shadow="xs"
                           onClick={() => openPaymentModal(record)}
                         >
                           Collect Payment

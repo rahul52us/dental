@@ -723,7 +723,7 @@ export const TreatmentProcedureForm = observer(
                     </VStack>
 
                     {/* 5. Financial - SEPARATE ROW */}
-                    <VStack align="stretch" spacing={5} p={6} bg="blue.50/30" borderRadius="3xl" border="1px solid" borderColor="blue.100">
+                    <VStack align="stretch" spacing={4} p={{ base: 3.5, md: 6 }} bg="blue.50/30" borderRadius={{ base: "2xl", md: "3xl" }} border="1px solid" borderColor="blue.100" w="full">
                         <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.2em">4. FINANCIAL ESTIMATES</Text>
                         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
                             <VStack align="start" spacing={1}>
@@ -1435,33 +1435,7 @@ export const TreatmentProcedureForm = observer(
                                 )}
                                 {isDrawerMode && (
                                     <Box borderTop="1px solid" borderColor="gray.100" pt={6} mt={6}>
-                                        <HStack spacing={4}>
-                                            <Button
-                                                variant="outline"
-                                                colorScheme="gray"
-                                                onClick={onBack}
-                                                borderRadius="xl"
-                                                fontWeight="900"
-                                                flex={1}
-                                                h="54px"
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                colorScheme="blue"
-                                                isLoading={formLoading && saveAction === "save"}
-                                                onClick={() => setSaveAction("save")}
-                                                type="submit"
-                                                borderRadius="xl"
-                                                fontWeight="900"
-                                                flex={1}
-                                                h="54px"
-                                            >
-                                                {teeth.length > 1
-                                                    ? `Save Only (${teeth.length} Records)`
-                                                    : "Save Only"}
-                                            </Button>
+                                        <Flex direction={{ base: "column", md: "row" }} gap={2.5} w="full" align="stretch">
                                             {!editData?._id && !isMultipleSelection && (
                                                 <Button
                                                     colorScheme="blue"
@@ -1471,13 +1445,46 @@ export const TreatmentProcedureForm = observer(
                                                     borderRadius="xl"
                                                     fontWeight="900"
                                                     leftIcon={<FiCheckCircle />}
-                                                    flex={1}
-                                                    h="54px"
+                                                    w={{ base: "full", md: "auto" }}
+                                                    flex={{ base: "none", md: 1.2 }}
+                                                    order={{ base: 1, md: 3 }}
+                                                    h={{ base: "44px", md: "52px" }}
+                                                    fontSize={{ base: "13px", md: "14px" }}
                                                 >
                                                     Save & Create Work Done
                                                 </Button>
                                             )}
-                                        </HStack>
+                                            <Flex gap={2} w={{ base: "full", md: "auto" }} flex={{ base: "none", md: 1 }} order={{ base: 2, md: 1 }}>
+                                                <Button
+                                                    variant="outline"
+                                                    colorScheme="gray"
+                                                    onClick={onBack}
+                                                    borderRadius="xl"
+                                                    fontWeight="800"
+                                                    flex={1}
+                                                    h={{ base: "40px", md: "52px" }}
+                                                    fontSize={{ base: "12px", md: "13px" }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    colorScheme="blue"
+                                                    isLoading={formLoading && saveAction === "save"}
+                                                    onClick={() => setSaveAction("save")}
+                                                    type="submit"
+                                                    borderRadius="xl"
+                                                    fontWeight="800"
+                                                    flex={1}
+                                                    h={{ base: "40px", md: "52px" }}
+                                                    fontSize={{ base: "12px", md: "13px" }}
+                                                >
+                                                    {teeth.length > 1
+                                                        ? `Save (${teeth.length})`
+                                                        : "Save Only"}
+                                                </Button>
+                                            </Flex>
+                                        </Flex>
                                     </Box>
                                 )}
                             </VStack>

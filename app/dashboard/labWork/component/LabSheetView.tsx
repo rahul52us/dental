@@ -297,12 +297,12 @@ const LabSheetView = observer(({ data }: { data: any }) => {
           </Heading>
           <Box borderRadius="xl" border="1px solid" borderColor={borderColor} overflowX="auto">
             <Table variant="simple" size="sm">
-              <Thead bg="gray.50">
+              <Thead bg={useColorModeValue("gray.50", "darkBrand.100")}>
                 <Tr>
-                  <Th>Classification</Th>
-                  <Th>Teeth #</Th>
-                  <Th>Shade</Th>
-                  <Th>Unit</Th>
+                  <Th color={useColorModeValue("gray.600", "gray.300")}>Classification</Th>
+                  <Th color={useColorModeValue("gray.600", "gray.300")}>Teeth #</Th>
+                  <Th color={useColorModeValue("gray.600", "gray.300")}>Shade</Th>
+                  <Th color={useColorModeValue("gray.600", "gray.300")}>Unit</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -324,32 +324,32 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
         {/* Dates, Status & Billing */}
         <SimpleGrid columns={{ base: 1, md: 6 }} gap={4}>
-          <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
+          <Box p={4} borderRadius="xl" bg={useColorModeValue("gray.50", "whiteAlpha.100")} border="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}>
             <VStack align="start" spacing={1}>
-              <HStack color="gray.600"><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
+              <HStack color={useColorModeValue("gray.600", "gray.300")}><Icon as={FiCalendar} /><Text fontSize="xs" fontWeight="bold">SEND DATE</Text></HStack>
               <Text fontWeight="bold">{data.sendDate ? formatDateTime(data.sendDate).split(",")[0] : "Not Sent"}</Text>
             </VStack>
           </Box>
-          <Box p={4} borderRadius="xl" bg="gray.50" border="1px solid" borderColor="gray.100">
+          <Box p={4} borderRadius="xl" bg={useColorModeValue("gray.50", "whiteAlpha.100")} border="1px solid" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}>
             <VStack align="start" spacing={1}>
-              <HStack color="gray.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">DUE DATE</Text></HStack>
+              <HStack color={useColorModeValue("gray.600", "gray.300")}><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">DUE DATE</Text></HStack>
               <Text fontWeight="bold">
                 {data.dueDate ? formatDateTime(data.dueDate).split(",")[0] : "N/A"}
               </Text>
             </VStack>
           </Box>
-          <Box p={4} borderRadius="xl" bg="teal.50" border="1px solid" borderColor="teal.100">
+          <Box p={4} borderRadius="xl" bg={useColorModeValue("teal.50", "rgba(20, 184, 166, 0.12)")} border="1px solid" borderColor={useColorModeValue("teal.100", "rgba(20, 184, 166, 0.25)")}>
             <VStack align="start" spacing={1}>
-              <HStack color="teal.600"><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">RECEIVED DATE</Text></HStack>
-              <Text fontWeight="bold" color="teal.700">
+              <HStack color={useColorModeValue("teal.600", "teal.300")}><Icon as={FiClock} /><Text fontSize="xs" fontWeight="bold">RECEIVED DATE</Text></HStack>
+              <Text fontWeight="bold" color={useColorModeValue("teal.700", "teal.300")}>
                 {data.receivedDate ? formatDateTime(data.receivedDate).split(",")[0] : "Not Received"}
               </Text>
             </VStack>
           </Box>
-          <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
+          <Box p={4} borderRadius="xl" bg={useColorModeValue("orange.50", "rgba(249, 115, 22, 0.12)")} border="1px solid" borderColor={useColorModeValue("orange.100", "rgba(249, 115, 22, 0.25)")}>
             <VStack align="start" spacing={1}>
-              <HStack color="orange.600"><Icon as={FiActivity} /><Text fontSize="xs" fontWeight="bold">DELAY (DAYS)</Text></HStack>
-              <Text fontWeight="bold" color="orange.700">
+              <HStack color={useColorModeValue("orange.600", "orange.300")}><Icon as={FiActivity} /><Text fontSize="xs" fontWeight="bold">DELAY (DAYS)</Text></HStack>
+              <Text fontWeight="bold" color={useColorModeValue("orange.700", "orange.300")}>
                 {data.delay !== undefined && data.delay !== null ? `${data.delay} Days` : "N/A"}
               </Text>
             </VStack>
@@ -383,8 +383,8 @@ const LabSheetView = observer(({ data }: { data: any }) => {
         {/* Instructions */}
         <Box>
           <Heading size="sm" mb={2}>Lab Instructions</Heading>
-          <Box p={4} borderRadius="xl" bg="orange.50" border="1px solid" borderColor="orange.100">
-            <Text fontSize="sm" fontStyle={data.labInstructions ? "normal" : "italic"} color="gray.700">
+          <Box p={4} borderRadius="xl" bg={useColorModeValue("orange.50", "rgba(249, 115, 22, 0.12)")} border="1px solid" borderColor={useColorModeValue("orange.100", "rgba(249, 115, 22, 0.25)")}>
+            <Text fontSize="sm" fontStyle={data.labInstructions ? "normal" : "italic"} color={useColorModeValue("gray.700", "gray.200")}>
               {data.labInstructions || "No special instructions provided."}
             </Text>
           </Box>
@@ -392,14 +392,14 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
         {/* Warranty */}
         {(data.warrantyCardNumber || data.warrantyYears) && (
-          <Box p={4} borderRadius="xl" border="1px solid" borderColor="green.100" bg="green.50">
+          <Box p={4} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("green.100", "rgba(34, 197, 94, 0.25)")} bg={useColorModeValue("green.50", "rgba(34, 197, 94, 0.12)")}>
             <HStack spacing={6}>
               <VStack align="start" spacing={0}>
-                <Text fontSize="xs" color="green.700" fontWeight="bold">WARRANTY CARD #</Text>
+                <Text fontSize="xs" color={useColorModeValue("green.700", "green.300")} fontWeight="bold">WARRANTY CARD #</Text>
                 <Text fontWeight="bold">{data.warrantyCardNumber || "N/A"}</Text>
               </VStack>
               <VStack align="start" spacing={0}>
-                <Text fontSize="xs" color="green.700" fontWeight="bold">DURATION</Text>
+                <Text fontSize="xs" color={useColorModeValue("green.700", "green.300")} fontWeight="bold">DURATION</Text>
                 <Text fontWeight="bold">{data.warrantyYears ? `${data.warrantyYears} Years` : "N/A"}</Text>
               </VStack>
             </HStack>
@@ -408,22 +408,22 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
         {/* Status Tracking History */}
         {data.workType && (
-          <Box bg="blue.50" p={6} borderRadius="2xl" border="1px solid" borderColor="blue.100" shadow="sm">
+          <Box bg={useColorModeValue("blue.50", "rgba(59, 130, 246, 0.12)")} p={6} borderRadius="2xl" border="1px solid" borderColor={useColorModeValue("blue.100", "rgba(59, 130, 246, 0.25)")} shadow="sm">
             <VStack align="stretch" spacing={4}>
               <HStack>
                 <Icon as={FiActivity} color="blue.500" />
                 <VStack align="start" spacing={0}>
-                  <Heading size="sm" color="blue.800">Status Tracking History</Heading>
-                  <Text fontSize="xs" color="blue.600">Complete milestone tracking for this lab order</Text>
+                  <Heading size="sm" color={useColorModeValue("blue.800", "blue.200")}>Status Tracking History</Heading>
+                  <Text fontSize="xs" color={useColorModeValue("blue.600", "blue.300")}>Complete milestone tracking for this lab order</Text>
                 </VStack>
               </HStack>
-              <Box borderRadius="xl" border="1px solid" borderColor="blue.200" overflowX="auto" bg="white">
+              <Box borderRadius="xl" border="1px solid" borderColor={useColorModeValue("blue.200", "darkBrand.200")} overflowX="auto" bg={useColorModeValue("white", "darkBrand.50")}>
                 <Table variant="simple" size="sm">
-                  <Thead bg="blue.50">
+                  <Thead bg={useColorModeValue("blue.50", "darkBrand.100")}>
                     <Tr>
-                      <Th color="blue.700" w="35%">Status</Th>
-                      <Th color="blue.700" w="25%">Date</Th>
-                      <Th color="blue.700">Note</Th>
+                      <Th color={useColorModeValue("blue.700", "blue.300")} w="35%">Status</Th>
+                      <Th color={useColorModeValue("blue.700", "blue.300")} w="25%">Date</Th>
+                      <Th color={useColorModeValue("blue.700", "blue.300")}>Note</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -469,23 +469,23 @@ const LabSheetView = observer(({ data }: { data: any }) => {
 
         {/* Items Received / Sent Tracking - Moved to End */}
         {data.workType === "outside" && (data.itemsSent || data.itemsReceived) && (
-          <Box bg="white" p={6} borderRadius="2xl" border="1px solid" borderColor={borderColor} shadow="sm">
+          <Box bg={useColorModeValue("white", "darkBrand.100")} p={6} borderRadius="2xl" border="1px solid" borderColor={borderColor} shadow="sm">
             <VStack align="stretch" spacing={5}>
               <HStack justify="space-between">
                 <VStack align="start" spacing={0}>
-                  <Heading size="sm" color="blue.800" display="flex" alignItems="center">
+                  <Heading size="sm" color={useColorModeValue("blue.800", "blue.200")} display="flex" alignItems="center">
                     <Icon as={FiActivity} mr={2} color="blue.500" /> Items Received / Sent Tracking
                   </Heading>
-                  <Text fontSize="xs" color="gray.500">Track all items sent to and received from the laboratory</Text>
+                  <Text fontSize="xs" color={useColorModeValue("gray.500", "gray.400")}>Track all items sent to and received from the laboratory</Text>
                 </VStack>
               </HStack>
-              <Box borderRadius="xl" border="1px solid" borderColor="gray.100" overflow="hidden" mb={2}>
-                <Table variant="simple" size="sm">
-                  <Thead bg="gray.50">
+              <Box borderRadius="xl" border="1px solid" borderColor={useColorModeValue("gray.100", "darkBrand.200")} overflowX="auto" mb={2}>
+                <Table variant="simple" size="sm" minW="440px">
+                  <Thead bg={useColorModeValue("gray.50", "darkBrand.100")}>
                     <Tr>
-                      <Th color="gray.600">Item Name</Th>
-                      <Th textAlign="center" color="green.600">Received</Th>
-                      <Th textAlign="center" color="blue.600">Sent</Th>
+                      <Th color={useColorModeValue("gray.600", "gray.300")}>Item Name</Th>
+                      <Th textAlign="center" color="green.500">Received</Th>
+                      <Th textAlign="center" color="blue.500">Sent</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -502,20 +502,20 @@ const LabSheetView = observer(({ data }: { data: any }) => {
                       { label: "Certificate", key: "certificate", type: "boolean" },
                       { label: "Accessories", key: "accessories", type: "string" },
                     ].map((item, idx) => (
-                      <Tr key={idx} _hover={{ bg: "gray.50" }}>
-                        <Td fontWeight="600" color="gray.700">{item.label}</Td>
+                      <Tr key={idx} _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                        <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>{item.label}</Td>
                         <Td textAlign="center">
                           {item.type === "boolean" ? (
                             data.itemsReceived?.[item.key] ? <CheckIcon color="green.500" /> : <CloseIcon color="gray.200" boxSize={2} />
                           ) : (
-                            <Text color="gray.600" fontWeight="500">{data.itemsReceived?.[item.key] || "-"}</Text>
+                            <Text color={useColorModeValue("gray.600", "gray.300")} fontWeight="500">{data.itemsReceived?.[item.key] || "-"}</Text>
                           )}
                         </Td>
                         <Td textAlign="center">
                           {item.type === "boolean" ? (
                             data.itemsSent?.[item.key] ? <CheckIcon color="blue.500" /> : <CloseIcon color="gray.200" boxSize={2} />
                           ) : (
-                            <Text color="gray.600" fontWeight="500">{data.itemsSent?.[item.key] || "-"}</Text>
+                            <Text color={useColorModeValue("gray.600", "gray.300")} fontWeight="500">{data.itemsSent?.[item.key] || "-"}</Text>
                           )}
                         </Td>
                       </Tr>
@@ -525,10 +525,10 @@ const LabSheetView = observer(({ data }: { data: any }) => {
               </Box>
 
               {data.returnableItems && (
-                <Box p={4} borderRadius="xl" bg="blue.50" border="1px dashed" borderColor="blue.200">
+                <Box p={4} borderRadius="xl" bg={useColorModeValue("blue.50", "darkBrand.50")} border="1px dashed" borderColor={useColorModeValue("blue.200", "darkBrand.200")}>
                   <VStack align="start" spacing={1}>
-                    <Text fontSize="xs" fontWeight="bold" color="blue.700">RETURNABLE ITEMS NOTE</Text>
-                    <Text fontSize="sm" color="gray.800" fontWeight="500">{data.returnableItems}</Text>
+                    <Text fontSize="xs" fontWeight="bold" color={useColorModeValue("blue.700", "blue.300")}>RETURNABLE ITEMS NOTE</Text>
+                    <Text fontSize="sm" color={useColorModeValue("gray.800", "gray.200")} fontWeight="500">{data.returnableItems}</Text>
                   </VStack>
                 </Box>
               )}

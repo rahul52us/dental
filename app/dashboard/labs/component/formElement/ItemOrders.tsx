@@ -218,15 +218,15 @@ const ItemOrderingInput = ({
                         justify="space-between"
                         align="center"
                         p={2.5}
-                        bg="white"
+                        bg={useColorModeValue("white", "whiteAlpha.100")}
                         borderRadius="lg"
                         border="1px solid"
-                        borderColor="gray.200"
+                        borderColor={useColorModeValue("gray.200", "whiteAlpha.200")}
                       >
-                        <Text fontSize="xs" fontWeight="700" color="gray.600">
+                        <Text fontSize="xs" fontWeight="700" color={useColorModeValue("gray.600", "gray.300")}>
                           Total Amount:
                         </Text>
-                        <Text fontSize="sm" fontWeight="800" color="teal.700">
+                        <Text fontSize="sm" fontWeight="800" color="teal.500">
                           ₹ {item.total || 0}
                         </Text>
                       </Flex>

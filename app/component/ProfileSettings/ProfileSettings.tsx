@@ -36,6 +36,21 @@ const ProfileSettings = observer(() => {
   const currentPrimary = themeConfig.colors.custom.light.primary || "#0D9488";
   const currentDarkPrimary = themeConfig.colors.custom.dark.primary || "#0C4A6E";
 
+  const accordionBg = useColorModeValue("white", "darkBrand.100");
+  const accordionBorderColor = useColorModeValue("gray.200", "darkBrand.200");
+  const accordionHoverBg = useColorModeValue("gray.50", "whiteAlpha.100");
+  const accordionExpandedBg = useColorModeValue("gray.100", "whiteAlpha.150");
+  const textPrimary = useColorModeValue("gray.800", "white");
+  const textSecondary = useColorModeValue("gray.500", "gray.400");
+  const panelBg = useColorModeValue("gray.50", "darkBrand.50");
+  const summaryBoxBg = useColorModeValue("white", "darkBrand.100");
+  const summaryTextColor = useColorModeValue("gray.700", "gray.200");
+  const iconDefaultBg = useColorModeValue("gray.100", "whiteAlpha.200");
+  const iconDefaultColor = useColorModeValue("gray.600", "gray.300");
+  const desktopContainerBg = useColorModeValue("white", "darkBrand.100");
+  const desktopRowHoverBg = useColorModeValue("gray.50", "whiteAlpha.100");
+  const desktopRowBorderColor = useColorModeValue("gray.100", "darkBrand.200");
+
   const allSidebarItems = [...sidebarDatas, ...sidebarFooterData];
 
   const handleColorChange = (name: string, newColor: { light: string; dark: string }) => {
@@ -91,19 +106,19 @@ const ProfileSettings = observer(() => {
       <AccordionItem
         key={item.id}
         border={isCurrentActive ? "2px solid" : "1px solid"}
-        borderColor={isCurrentActive ? (colorInfo?.light || currentPrimary) : "gray.200"}
+        borderColor={isCurrentActive ? (colorInfo?.light || currentPrimary) : accordionBorderColor}
         borderRadius="16px"
         mb={2.5}
         overflow="hidden"
-        bg="white"
+        bg={accordionBg}
         shadow={isCurrentActive ? "sm" : "xs"}
       >
         <h2>
           <AccordionButton
             px={3}
             py={2.5}
-            _hover={{ bg: "gray.50" }}
-            _expanded={{ bg: "gray.100" }}
+            _hover={{ bg: accordionHoverBg }}
+            _expanded={{ bg: accordionExpandedBg }}
             transition="all 0.15s ease"
           >
             <Flex justify="space-between" align="center" width="100%" pr={1} gap={2}>
@@ -112,8 +127,8 @@ const ProfileSettings = observer(() => {
                   <Box
                     p={2}
                     borderRadius="xl"
-                    bg={colorInfo ? colorInfo.light : "gray.100"}
-                    color={colorInfo ? "white" : "gray.600"}
+                    bg={colorInfo ? colorInfo.light : iconDefaultBg}
+                    color={colorInfo ? "white" : iconDefaultColor}
                     flexShrink={0}
                     fontSize="14px"
                     display="flex"
@@ -130,7 +145,7 @@ const ProfileSettings = observer(() => {
                     <Text
                       fontWeight="800"
                       fontSize="13.5px"
-                      color="gray.800"
+                      color={textPrimary}
                       lineHeight="1.25"
                     >
                       {item.name}
@@ -158,12 +173,12 @@ const ProfileSettings = observer(() => {
                         </Text>
                       </HStack>
                     ) : (
-                      <Text fontSize="10.5px" fontWeight="600" color="gray.400">
+                      <Text fontSize="10.5px" fontWeight="600" color={textSecondary}>
                         Default theme
                       </Text>
                     )}
                     {item.children && (
-                      <Text fontSize="10.5px" color="gray.400">
+                      <Text fontSize="10.5px" color={textSecondary}>
                         • {item.children.length} sub-items
                       </Text>
                     )}
@@ -194,27 +209,27 @@ const ProfileSettings = observer(() => {
                     />
                   </Box>
                 )}
-                <AccordionIcon color="gray.400" fontSize="18px" />
+                <AccordionIcon color={textSecondary} fontSize="18px" />
               </HStack>
             </Flex>
           </AccordionButton>
         </h2>
 
-        <AccordionPanel px={2.5} pt={3} pb={4} bg="gray.50" borderTop="1px solid" borderColor="gray.150">
+        <AccordionPanel px={2.5} pt={3} pb={4} bg={panelBg} borderTop="1px solid" borderColor={accordionBorderColor}>
           <Box mb={item.children ? 4 : 0}>
             <Flex
               justify="space-between"
               align="center"
               mb={2.5}
               p={2}
-              bg="white"
+              bg={summaryBoxBg}
               borderRadius="xl"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor={accordionBorderColor}
             >
               <HStack spacing={2}>
                 <Box w="8px" h="8px" borderRadius="full" bg={colorInfo ? colorInfo.light : "gray.400"} />
-                <Text fontSize="11px" fontWeight="800" color="gray.700">
+                <Text fontSize="11px" fontWeight="800" color={summaryTextColor}>
                   {colorInfo ? colorInfo.label : "Default Theme"}
                 </Text>
               </HStack>
@@ -244,8 +259,8 @@ const ProfileSettings = observer(() => {
           </Box>
 
           {item.children && (
-            <Box mt={3} pt={3} borderTop="1px dashed" borderColor="gray.200">
-              <Text fontSize="11px" fontWeight="800" color="gray.600" textTransform="uppercase" letterSpacing="0.4px" mb={2}>
+            <Box mt={3} pt={3} borderTop="1px dashed" borderColor={accordionBorderColor}>
+              <Text fontSize="11px" fontWeight="800" color={textSecondary} textTransform="uppercase" letterSpacing="0.4px" mb={2}>
                 Sub-navigation Items (Inherit parent theme unless customized)
               </Text>
               <Accordion allowToggle defaultIndex={[]}>
@@ -270,8 +285,8 @@ const ProfileSettings = observer(() => {
           py={4}
           px={4}
           borderBottomWidth="1px"
-          borderColor="gray.100"
-          _hover={{ bg: "gray.50" }}
+          borderColor={desktopRowBorderColor}
+          _hover={{ bg: desktopRowHoverBg }}
           transition="background 0.2s"
           bg={isCurrentActive ? `${colorInfo?.light || currentPrimary}10` : "transparent"}
           borderRadius="lg"
@@ -283,8 +298,8 @@ const ProfileSettings = observer(() => {
                   <Box
                     p={1.5}
                     borderRadius="md"
-                    bg={colorInfo ? colorInfo.light : "gray.100"}
-                    color={colorInfo ? "white" : "gray.600"}
+                    bg={colorInfo ? colorInfo.light : iconDefaultBg}
+                    color={colorInfo ? "white" : iconDefaultColor}
                     fontSize="13px"
                     display="flex"
                     alignItems="center"
@@ -294,7 +309,7 @@ const ProfileSettings = observer(() => {
                     {React.isValidElement(item.icon) ? item.icon : <Icon as={item.icon} />}
                   </Box>
                 )}
-                <Text fontWeight="700" fontSize="md" color="gray.800">
+                <Text fontWeight="700" fontSize="md" color={textPrimary}>
                   {item.name}
                 </Text>
                 {isCurrentActive && (
@@ -321,12 +336,12 @@ const ProfileSettings = observer(() => {
                     </Text>
                   </HStack>
                 ) : (
-                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  <Text fontSize="xs" color={textSecondary} fontWeight="500">
                     Default system theme
                   </Text>
                 )}
                 {item.children && (
-                  <Text fontSize="xs" color="gray.400">
+                  <Text fontSize="xs" color={textSecondary}>
                     • {item.children.length} sub-items
                   </Text>
                 )}
@@ -359,8 +374,8 @@ const ProfileSettings = observer(() => {
           </Flex>
 
           {item.children && (
-            <Box pl={6} mt={3} borderLeftWidth="3px" borderColor="teal.100">
-              <Text fontSize="11px" fontWeight="700" color="gray.500" mb={2} textTransform="uppercase" letterSpacing="0.5px">
+            <Box pl={6} mt={3} borderLeftWidth="3px" borderColor={useColorModeValue("teal.100", "teal.700")}>
+              <Text fontSize="11px" fontWeight="700" color={textSecondary} mb={2} textTransform="uppercase" letterSpacing="0.5px">
                 Sub-items (Inherit {item.name}&apos;s theme unless overridden)
               </Text>
               <VStack align="stretch" spacing={1} width="100%">
@@ -410,10 +425,10 @@ const ProfileSettings = observer(() => {
         display={{ base: "none", md: "block" }}
         w="100%"
         p={5}
-        bg="white"
+        bg={desktopContainerBg}
         borderRadius="xl"
         borderWidth="1px"
-        borderColor="gray.200"
+        borderColor={accordionBorderColor}
         shadow="sm"
       >
         <Box

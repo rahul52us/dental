@@ -36,15 +36,15 @@ const WaitingRoomPage = observer((): any => {
     };
     const { t } = useTranslation();
 
-    const bgColor = useColorModeValue("gray.50", "#0a0a0b");
-    const containerBg = useColorModeValue("whiteAlpha.900", "whiteAlpha.50");
-    const borderColor = useColorModeValue("gray.100", "whiteAlpha.100");
+    const bgColor = useColorModeValue("gray.50", "darkBrand.50");
+    const containerBg = useColorModeValue("white", "darkBrand.100");
+    const borderColor = useColorModeValue("gray.200", "darkBrand.200");
     const resetToToday = () => {
         setSelectedDate(new Date());
     };
 
     return (
-        <Box p={{ base: 2, sm: 3, xl: 6 }} bg={bgColor} minH="100%">
+        <Box p={{ base: 2.5, sm: 3, xl: 6 }} bg={bgColor} minH="100%">
             {/* Elite Command Header */}
             <Flex
                 direction={{ base: "column", lg: "row" }}
@@ -52,56 +52,72 @@ const WaitingRoomPage = observer((): any => {
                 justify="space-between"
                 mb={{ base: 2.5, md: 4 }}
                 bg={containerBg}
-                backdropFilter="blur(20px)"
-                p={{ base: 2.5, md: 4 }}
-                borderRadius={{ base: "18px", md: "2xl" }}
-                boxShadow={useColorModeValue("0 12px 28px -16px rgba(0,0,0,0.16)", "0 20px 40px -20px rgba(0,0,0,0.5)")}
+                p={{ base: 3.5, sm: 4, md: 5 }}
+                borderRadius={{ base: "20px", md: "2xl" }}
+                boxShadow={useColorModeValue("sm", "0 10px 30px -10px rgba(0,0,0,0.5)")}
                 border="1px solid"
                 borderColor={borderColor}
-                gap={{ base: 4, md: 6 }}
+                gap={{ base: 3, md: 6 }}
             >
-                <HStack spacing={{ base: 3, md: 6 }} flexWrap="wrap" align="center">
+                <Flex align="center" gap={{ base: 3, md: 4 }} w={{ base: "full", lg: "auto" }}>
                     <Box
-                        w={{ base: "38px", md: "50px" }}
-                        h={{ base: "38px", md: "50px" }}
+                        w={{ base: "44px", md: "48px" }}
+                        h={{ base: "44px", md: "48px" }}
                         bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #2B6CB0) 0%, var(--chakra-colors-custom-light-primary, #319795) 100%)"
-                        borderRadius={{ base: "16px", md: "2xl" }}
+                        borderRadius={{ base: "14px", md: "18px" }}
                         color="white"
-                        boxShadow="0 15px 35px -10px rgba(49, 130, 206, 0.6)"
+                        boxShadow="0 4px 14px rgba(49, 130, 206, 0.35)"
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
+                        flexShrink={0}
                     >
-                        <MdOutlineAirlineSeatReclineExtra size={20} />
+                        <MdOutlineAirlineSeatReclineExtra size={22} />
                     </Box>
-                    <VStack align="start" spacing={1} minW={0}>
-                        <HStack spacing={{ base: 2, md: 4 }} flexWrap="wrap">
-                            <Heading size={{ base: "md", md: "lg" }} fontWeight="900" letterSpacing="-0.04em" color={useColorModeValue("gray.800", "white")}>
+                    <Box minW={0} flex={1}>
+                        <Flex align="center" gap={2} wrap="nowrap">
+                            <Heading
+                                fontSize={{ base: "16px", sm: "19px", md: "22px" }}
+                                fontWeight="900"
+                                letterSpacing="-0.02em"
+                                color={useColorModeValue("gray.800", "white")}
+                                lineHeight="1.2"
+                                whiteSpace="nowrap"
+                            >
                                 {t("waitingRoom.title")}
                             </Heading>
                             <Badge
                                 variant="outline"
                                 colorScheme="green"
                                 borderRadius="full"
-                                px={3}
+                                px={2}
                                 py={0.5}
                                 border="1px solid"
                                 borderColor="green.500"
-                                fontSize="10px"
+                                fontSize="9px"
                                 fontWeight="900"
-                                display="flex"
+                                display="inline-flex"
                                 alignItems="center"
                                 gap={1.5}
+                                flexShrink={0}
                             >
                                 <Box boxSize={1.5} bg="green.500" borderRadius="full" animation="pulse 1.5s infinite" />
                                 {t("waitingRoom.liveQueue")}
                             </Badge>
-                        </HStack>
-                        <Text fontSize="xs" fontWeight="700" color={useColorModeValue("gray.500", "gray.300")} letterSpacing="0.02em">
+                        </Flex>
+                        <Text
+                            fontSize={{ base: "10px", sm: "11px", md: "xs" }}
+                            fontWeight="700"
+                            color={useColorModeValue("gray.500", "gray.400")}
+                            letterSpacing="0.03em"
+                            textTransform="uppercase"
+                            noOfLines={1}
+                            mt={0.5}
+                        >
                             {t("waitingRoom.subtitle")}
                         </Text>
-                    </VStack>
-                </HStack>
+                    </Box>
+                </Flex>
 
                 <Box
                     display={ads.length > 0 ? "block" : "none"}
@@ -272,11 +288,11 @@ const WaitingRoomPage = observer((): any => {
                 mb={2.5}
                 px={{ base: 2.5, md: 4 }}
                 py={2}
-                bg={useColorModeValue("white", "gray.800")}
+                bg={useColorModeValue("white", "darkBrand.100")}
                 border="1px solid"
                 borderColor={borderColor}
-                borderRadius="14px"
-                boxShadow="0 5px 18px rgba(19, 52, 69, 0.05)"
+                borderRadius="16px"
+                boxShadow={useColorModeValue("sm", "0 5px 18px rgba(0,0,0,0.2)")}
             >
                 <HStack spacing={2} minW={0} display={{ base: "none", sm: "flex" }}>
                     <CalendarIcon color="teal.500" />
@@ -336,7 +352,7 @@ const WaitingRoomPage = observer((): any => {
                 </HStack>
             </Flex>
 
-            <Box bg={useColorModeValue("white", "gray.800")} borderRadius="xl" boxShadow="md" p={2}>
+            <Box bg={useColorModeValue("white", "darkBrand.100")} border="1px solid" borderColor={borderColor} borderRadius="20px" boxShadow="sm" p={2}>
                 <WaitingRoomWhatsApp
                     selectedDate={selectedDate}
                 />

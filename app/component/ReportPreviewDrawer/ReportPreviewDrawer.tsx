@@ -14,6 +14,8 @@ import {
   Icon,
   VStack,
   Skeleton,
+  useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FiDownload } from "react-icons/fi";
 import jsPDF from "jspdf";
@@ -39,6 +41,7 @@ const ReportPreviewDrawer: React.FC<ReportPreviewDrawerProps> = ({
   isDownloading,
 }) => {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
     if (isOpen && columns.length > 0) {
@@ -75,28 +78,66 @@ const ReportPreviewDrawer: React.FC<ReportPreviewDrawerProps> = ({
   }, [isOpen, columns, rows, title]);
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} size="full" placement="right">
-      <DrawerOverlay backdropFilter="blur(4px)" />
-      <DrawerContent maxW="85%">
-        <DrawerHeader bg="blue.600" color="white" borderBottomWidth="1px" py={4}>
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      size="full"
+      placement={isMobile ? "bottom" : "right"}
+    >
+      <DrawerOverlay backdropFilter="blur(4px)" bg="blackAlpha.700" />
+      <DrawerContent
+        w={{ base: "100%", md: "85%" }}
+        maxW={{ base: "100%", md: "85%" }}
+        h={{ base: "100dvh", md: "100%" }}
+        maxH={{ base: "100dvh", md: "100%" }}
+        borderTopRadius={0}
+        borderRadius={0}
+        borderLeftRadius={{ base: "none", md: "3xl" }}
+        bg={useColorModeValue("white", "darkBrand.50")}
+        overflow="hidden"
+        shadow="2xl"
+      >
+        <DrawerHeader
+          bgGradient="linear(135deg, #091E42 0%, var(--chakra-colors-custom-dark-primary, #0C4A6E) 50%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
+          color="white"
+          borderBottom="1px solid"
+          borderColor={useColorModeValue("whiteAlpha.200", "darkBrand.200")}
+          py={{ base: 3.5, md: 4 }}
+          px={{ base: 4, md: 8 }}
+          fontSize={{ base: "md", md: "lg" }}
+          fontWeight="bold"
+        >
           <HStack justify="space-between">
-            <Text>{title}</Text>
+            <Text noOfLines={1}>{title}</Text>
           </HStack>
         </DrawerHeader>
-        <DrawerCloseButton color="white" mt={2} />
+        <DrawerCloseButton
+          color="white"
+          mt={isMobile ? 1 : 2}
+          bg="whiteAlpha.200"
+          borderRadius="full"
+          _hover={{ bg: "whiteAlpha.300" }}
+        />
 
-        <DrawerBody p={8} display="flex" flexDirection="column" alignItems="center" bg="gray.100">
+        <DrawerBody
+          p={{ base: 2, md: 6 }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          bg={useColorModeValue("gray.50", "darkBrand.50")}
+          overflowY="auto"
+        >
           {blobUrl ? (
             <Box 
               w="100%" 
-              bg="white"
+              bg={useColorModeValue("white", "darkBrand.100")}
               borderRadius="xl"
               overflow="hidden"
-              shadow="2xl"
+              shadow="xl"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor={useColorModeValue("gray.200", "darkBrand.200")}
               flex="1"
-              minH="80vh"
+              minH={{ base: "calc(100dvh - 160px)", md: "80vh" }}
             >
               <iframe
                 title="Report PDF Preview"
@@ -114,22 +155,45 @@ const ReportPreviewDrawer: React.FC<ReportPreviewDrawerProps> = ({
           )}
         </DrawerBody>
 
-        <DrawerFooter borderTopWidth="1px" bg="white">
-          <Button variant="ghost" mr={3} onClick={onClose} borderRadius="xl">
-            Cancel
-          </Button>
-          <Button
-            colorScheme="blue"
-            leftIcon={<Icon as={FiDownload} />}
-            onClick={onDownload}
-            isLoading={isDownloading}
-            loadingText="Downloading..."
-            borderRadius="xl"
-            px={8}
-            shadow="md"
-          >
-            Download Excel
-          </Button>
+        <DrawerFooter
+          borderTop="1px solid"
+          borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+          bg={useColorModeValue("gray.50", "darkBrand.100")}
+          p={{ base: 3, md: 4 }}
+        >
+          <HStack spacing={3} w="full">
+            <Button
+              variant="outline"
+              borderColor={useColorModeValue("gray.300", "whiteAlpha.300")}
+              color={useColorModeValue("gray.700", "white")}
+              _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.100") }}
+              onClick={onClose}
+              borderRadius="xl"
+              flex={1}
+              minH="44px"
+              fontWeight="600"
+            >
+              Cancel
+            </Button>
+            <Button
+              colorScheme="green"
+              bgGradient="linear(135deg, green.500 0%, teal.600 100%)"
+              color="white"
+              _hover={{ bgGradient: "linear(135deg, green.600 0%, teal.700 100%)", shadow: "lg" }}
+              leftIcon={<Icon as={FiDownload} />}
+              onClick={onDownload}
+              isLoading={isDownloading}
+              loadingText="Downloading..."
+              borderRadius="xl"
+              flex={{ base: 2, md: "initial" }}
+              minH="44px"
+              px={{ base: 4, md: 8 }}
+              shadow="md"
+              fontWeight="700"
+            >
+              Download Excel
+            </Button>
+          </HStack>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

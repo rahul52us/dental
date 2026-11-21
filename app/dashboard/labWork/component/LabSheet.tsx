@@ -16,6 +16,7 @@ import {
   Text,
   FormLabel,
   Checkbox,
+  Input,
   Table,
   Thead,
   Tbody,
@@ -358,14 +359,14 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                   onChange={(e: any) => setFieldValue("delay", e.target.value)}
                 />
               </Grid>
-              <Box bg="gray.50" p={4} borderRadius="xl" border="1px dashed" borderColor="gray.300">
+              <Box bg={useColorModeValue("gray.50", "darkBrand.100")} p={4} borderRadius="xl" border="1px dashed" borderColor={useColorModeValue("gray.300", "darkBrand.200")}>
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
-                    <Heading size="sm" color="blue.700">Selected Works & Specifications</Heading>
+                    <Heading size="sm" color={useColorModeValue("blue.700", "blue.300")}>Selected Works & Specifications</Heading>
                   </Flex>
 
                   {values.selectedWorks.map((work: any, workIndex: number) => (
-                    <Box key={workIndex} p={4} bg="white" borderRadius="lg" shadow="sm" border="1px solid" borderColor="gray.100" position="relative">
+                    <Box key={workIndex} p={4} bg={useColorModeValue("white", "darkBrand.50")} borderRadius="lg" shadow="sm" border="1px solid" borderColor={useColorModeValue("gray.100", "darkBrand.200")} position="relative">
                       {values.selectedWorks.length > 1 && (
                         <IconButton
                           icon={<FiTrash2 />}
@@ -461,15 +462,15 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
                             return dropdowns;
                           })()}
 
-                            <GridItem>
-                              <CustomInput
-                                label="Technician Name"
-                                placeholder="Enter technician name..."
-                                name={`selectedWorks.${workIndex}.technicianName`}
-                                value={work.technicianName}
-                                onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.technicianName`, e.target.value)}
-                              />
-                            </GridItem>
+                          <GridItem>
+                            <CustomInput
+                              label="Technician Name"
+                              placeholder="Enter technician name..."
+                              name={`selectedWorks.${workIndex}.technicianName`}
+                              value={work.technicianName}
+                              onChange={(e: any) => setFieldValue(`selectedWorks.${workIndex}.technicianName`, e.target.value)}
+                            />
+                          </GridItem>
                         </Grid>
 
                         <Divider />
@@ -550,15 +551,15 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
               </Box>
 
 
-              <Box bg="blue.50" p={4} borderRadius="xl" border="1px solid" borderColor="blue.100">
+              <Box bg={useColorModeValue("blue.50", "darkBrand.100")} p={4} borderRadius="xl" border="1px solid" borderColor={useColorModeValue("blue.100", "darkBrand.200")}>
                 <VStack align="stretch" spacing={4}>
                   <Flex justify="space-between" align="center">
-                    <Heading size="sm" color="blue.700">Status Tracking History</Heading>
+                    <Heading size="sm" color={useColorModeValue("blue.700", "blue.300")}>Status Tracking History</Heading>
                   </Flex>
 
                   <VStack align="stretch" spacing={3}>
                     {values.statusHistory?.map((h: any, i: number) => (
-                      <Stack direction={{ base: "column", md: "row" }} key={i} spacing={4} align={{ base: "stretch", md: "end" }} bg="white" p={3} borderRadius="lg" shadow="sm" position="relative" w="100%">
+                      <Stack direction={{ base: "column", md: "row" }} key={i} spacing={4} align={{ base: "stretch", md: "end" }} bg={useColorModeValue("white", "darkBrand.50")} p={3} borderRadius="lg" shadow="sm" border="1px solid" borderColor={useColorModeValue("gray.100", "darkBrand.200")} position="relative" w="100%">
                         <CustomInput
                           label="Status"
                           name={`statusHistory.${i}.status`}
@@ -655,84 +656,180 @@ const LabSheet = observer(({ initialData, onClose, onSuccess }: any) => {
               </Grid>
 
               {values.workType === "outside" && (
-                <Box bg="white" p={6} borderRadius="2xl" border="1px solid" borderColor="gray.200" shadow="sm">
+                <Box bg={useColorModeValue("white", "darkBrand.100")} p={6} borderRadius="2xl" border="1px solid" borderColor={useColorModeValue("gray.200", "darkBrand.200")} shadow="sm">
                   <VStack align="stretch" spacing={5}>
                     <HStack justify="space-between">
                       <VStack align="start" spacing={0}>
-                        <Heading size="sm" color="blue.800">Items Received / Sent Tracking</Heading>
-                        <Text fontSize="xs" color="gray.500">Track all items sent to and received from the laboratory</Text>
+                        <Heading size="sm" color={useColorModeValue("blue.800", "blue.200")}>Items Received / Sent Tracking</Heading>
+                        <Text fontSize="xs" color={useColorModeValue("gray.500", "gray.400")}>Track all items sent to and received from the laboratory</Text>
                       </VStack>
                     </HStack>
 
-                    <Box overflowX="auto" border="1px solid" borderColor="gray.100" borderRadius="xl" bg="white">
-                      <Table variant="simple" size="sm">
-                        <Thead bg="gray.50">
+                    <Box overflowX="auto" border="1px solid" borderColor={useColorModeValue("gray.100", "darkBrand.200")} borderRadius="xl" bg={useColorModeValue("white", "darkBrand.50")}>
+                      <Table variant="simple" size="sm" minW="440px">
+                        <Thead bg={useColorModeValue("gray.50", "darkBrand.100")}>
                           <Tr>
-                            <Th py={3} color="gray.600">Item Name</Th>
-                            <Th textAlign="center" color="green.600">Received</Th>
-                            <Th textAlign="center" color="blue.600">Sent</Th>
+                            <Th py={3} color={useColorModeValue("gray.600", "gray.300")} w="40%">Item Name</Th>
+                            <Th textAlign="center" color="green.500" w="30%">Received</Th>
+                            <Th textAlign="center" color="blue.500" w="30%">Sent</Th>
                           </Tr>
                         </Thead>
                         <Tbody>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Impression trays (Upper)</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.impressionTraysUpper || false} onChange={(e) => setFieldValue("itemsReceived.impressionTraysUpper", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.impressionTraysUpper || false} onChange={(e) => setFieldValue("itemsSent.impressionTraysUpper", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Impression trays (Upper)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.impressionTraysUpper || false} onChange={(e) => setFieldValue("itemsReceived.impressionTraysUpper", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.impressionTraysUpper || false} onChange={(e) => setFieldValue("itemsSent.impressionTraysUpper", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Impression trays (Lower)</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.impressionTraysLower || false} onChange={(e) => setFieldValue("itemsReceived.impressionTraysLower", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.impressionTraysLower || false} onChange={(e) => setFieldValue("itemsSent.impressionTraysLower", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Impression trays (Lower)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.impressionTraysLower || false} onChange={(e) => setFieldValue("itemsReceived.impressionTraysLower", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.impressionTraysLower || false} onChange={(e) => setFieldValue("itemsSent.impressionTraysLower", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Models (Upper)</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.modelsUpper || false} onChange={(e) => setFieldValue("itemsReceived.modelsUpper", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.modelsUpper || false} onChange={(e) => setFieldValue("itemsSent.modelsUpper", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Models (Upper)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.modelsUpper || false} onChange={(e) => setFieldValue("itemsReceived.modelsUpper", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.modelsUpper || false} onChange={(e) => setFieldValue("itemsSent.modelsUpper", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Models (Lower)</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.modelsLower || false} onChange={(e) => setFieldValue("itemsReceived.modelsLower", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.modelsLower || false} onChange={(e) => setFieldValue("itemsSent.modelsLower", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Models (Lower)</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.modelsLower || false} onChange={(e) => setFieldValue("itemsReceived.modelsLower", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.modelsLower || false} onChange={(e) => setFieldValue("itemsSent.modelsLower", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Articulator</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.articulator || false} onChange={(e) => setFieldValue("itemsReceived.articulator", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.articulator || false} onChange={(e) => setFieldValue("itemsSent.articulator", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Articulator</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.articulator || false} onChange={(e) => setFieldValue("itemsReceived.articulator", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.articulator || false} onChange={(e) => setFieldValue("itemsSent.articulator", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Implant Analog</Td>
-                            <Td><CustomInput name="itemsReceived.implantAnalog" value={values.itemsReceived?.implantAnalog || ""} onChange={(e: any) => setFieldValue("itemsReceived.implantAnalog", e.target.value)} placeholder="Details..." /></Td>
-                            <Td><CustomInput name="itemsSent.implantAnalog" value={values.itemsSent?.implantAnalog || ""} onChange={(e: any) => setFieldValue("itemsSent.implantAnalog", e.target.value)} placeholder="Details..." /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Implant Analog</Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Details..."
+                                value={values.itemsReceived?.implantAnalog || ""}
+                                onChange={(e: any) => setFieldValue("itemsReceived.implantAnalog", e.target.value)}
+                              />
+                            </Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Details..."
+                                value={values.itemsSent?.implantAnalog || ""}
+                                onChange={(e: any) => setFieldValue("itemsSent.implantAnalog", e.target.value)}
+                              />
+                            </Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Implant Impression Coping</Td>
-                            <Td><CustomInput name="itemsReceived.implantImpressionCoping" value={values.itemsReceived?.implantImpressionCoping || ""} onChange={(e: any) => setFieldValue("itemsReceived.implantImpressionCoping", e.target.value)} placeholder="Details..." /></Td>
-                            <Td><CustomInput name="itemsSent.implantImpressionCoping" value={values.itemsSent?.implantImpressionCoping || ""} onChange={(e: any) => setFieldValue("itemsSent.implantImpressionCoping", e.target.value)} placeholder="Details..." /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Implant Impression Coping</Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Details..."
+                                value={values.itemsReceived?.implantImpressionCoping || ""}
+                                onChange={(e: any) => setFieldValue("itemsReceived.implantImpressionCoping", e.target.value)}
+                              />
+                            </Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Details..."
+                                value={values.itemsSent?.implantImpressionCoping || ""}
+                                onChange={(e: any) => setFieldValue("itemsSent.implantImpressionCoping", e.target.value)}
+                              />
+                            </Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Implant Abutment</Td>
-                            <Td><CustomInput name="itemsReceived.implantAbutment" value={values.itemsReceived?.implantAbutment || ""} onChange={(e: any) => setFieldValue("itemsReceived.implantAbutment", e.target.value)} placeholder="Details..." /></Td>
-                            <Td><CustomInput name="itemsSent.implantAbutment" value={values.itemsSent?.implantAbutment || ""} onChange={(e: any) => setFieldValue("itemsSent.implantAbutment", e.target.value)} placeholder="Details..." /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Implant Abutment</Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Details..."
+                                value={values.itemsReceived?.implantAbutment || ""}
+                                onChange={(e: any) => setFieldValue("itemsReceived.implantAbutment", e.target.value)}
+                              />
+                            </Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Details..."
+                                value={values.itemsSent?.implantAbutment || ""}
+                                onChange={(e: any) => setFieldValue("itemsSent.implantAbutment", e.target.value)}
+                              />
+                            </Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Bite</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.bite || false} onChange={(e) => setFieldValue("itemsReceived.bite", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.bite || false} onChange={(e) => setFieldValue("itemsSent.bite", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Bite</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.bite || false} onChange={(e) => setFieldValue("itemsReceived.bite", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.bite || false} onChange={(e) => setFieldValue("itemsSent.bite", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Certificate</Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.certificate || false} onChange={(e) => setFieldValue("itemsReceived.certificate", e.target.checked)} colorScheme="green" /></Td>
-                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.certificate || false} onChange={(e) => setFieldValue("itemsSent.certificate", e.target.checked)} colorScheme="blue" /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Certificate</Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsReceived?.certificate || false} onChange={(e) => setFieldValue("itemsReceived.certificate", e.target.checked)} colorScheme="green" size="md" /></Td>
+                            <Td textAlign="center"><Checkbox isChecked={values.itemsSent?.certificate || false} onChange={(e) => setFieldValue("itemsSent.certificate", e.target.checked)} colorScheme="blue" size="md" /></Td>
                           </Tr>
-                          <Tr _hover={{ bg: "gray.50" }}>
-                            <Td fontWeight="600" color="gray.700">Accessories</Td>
-                            <Td><CustomInput name="itemsReceived.accessories" value={values.itemsReceived?.accessories || ""} onChange={(e: any) => setFieldValue("itemsReceived.accessories", e.target.value)} placeholder="Any accessories..." /></Td>
-                            <Td><CustomInput name="itemsSent.accessories" value={values.itemsSent?.accessories || ""} onChange={(e: any) => setFieldValue("itemsSent.accessories", e.target.value)} placeholder="Any accessories..." /></Td>
+                          <Tr _hover={{ bg: useColorModeValue("gray.50", "whiteAlpha.50") }}>
+                            <Td fontWeight="600" color={useColorModeValue("gray.700", "gray.200")}>Accessories</Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Any accessories..."
+                                value={values.itemsReceived?.accessories || ""}
+                                onChange={(e: any) => setFieldValue("itemsReceived.accessories", e.target.value)}
+                              />
+                            </Td>
+                            <Td>
+                              <Input
+                                size="xs"
+                                h="28px"
+                                borderRadius="md"
+                                bg={useColorModeValue("white", "darkBrand.100")}
+                                borderColor={useColorModeValue("gray.300", "darkBrand.200")}
+                                color={useColorModeValue("gray.800", "white")}
+                                placeholder="Any accessories..."
+                                value={values.itemsSent?.accessories || ""}
+                                onChange={(e: any) => setFieldValue("itemsSent.accessories", e.target.value)}
+                              />
+                            </Td>
                           </Tr>
                         </Tbody>
                       </Table>
                     </Box>
-                    <Box bg="blue.50" p={4} borderRadius="xl" border="1px dashed" borderColor="blue.200">
+                    <Box bg={useColorModeValue("blue.50", "darkBrand.100")} p={4} borderRadius="xl" border="1px dashed" borderColor={useColorModeValue("blue.200", "darkBrand.200")}>
                       <CustomInput
                         label="Returnable Items Note (for Lab Doctor)"
                         name="returnableItems"

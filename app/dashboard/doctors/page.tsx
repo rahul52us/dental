@@ -1,12 +1,15 @@
 "use client";
 import {
   Box,
+  Button,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
+  HStack,
   useBreakpointValue,
   useToast,
   useColorModeValue,
@@ -187,7 +190,7 @@ const DoctorsPage = observer(() => {
         >
           <DrawerOverlay backdropFilter="blur(5px)" />
           <DrawerContent
-            bg="white"
+            bg={useColorModeValue("white", "darkBrand.50")}
             borderRadius={{ base: 0, md: "3xl" }}
             boxShadow="2xl"
             w={{ base: "100vw", md: "80vw" }}
@@ -217,7 +220,7 @@ const DoctorsPage = observer(() => {
                 top={{ base: 2, md: 4 }}
                 right={{ base: 2, md: 4 }}
               />
-              <DrawerBody p={{ base: 2, md: 6 }} bg={useColorModeValue("gray.50", "gray.900")} minH={0} overflowY="auto">
+              <DrawerBody p={{ base: 3, md: 6 }} pb={{ base: 24, md: 6 }} bg={useColorModeValue("gray.50", "darkBrand.50")} minH={0} overflowY="auto">
                 <Form
                   initialData={
                     isDrawerOpen?.type === "edit"
@@ -239,6 +242,58 @@ const DoctorsPage = observer(() => {
                   loading={formLoading}
                 />
               </DrawerBody>
+              <DrawerFooter
+                display={{ base: "flex", md: "none" }}
+                p={3}
+                bg={useColorModeValue("white", "darkBrand.50")}
+                borderTop="1px solid"
+                borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                boxShadow="0 -4px 16px rgba(0, 0, 0, 0.15)"
+                zIndex={10}
+              >
+                <HStack spacing={3} w="full">
+                  <Button
+                    variant="outline"
+                    borderColor={useColorModeValue("gray.300", "whiteAlpha.300")}
+                    bg={useColorModeValue("white", "whiteAlpha.50")}
+                    color={useColorModeValue("gray.700", "white")}
+                    _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.200") }}
+                    onClick={() =>
+                      setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+                    }
+                    size="md"
+                    flex={1}
+                    minH="46px"
+                    borderRadius="xl"
+                    fontWeight="700"
+                  >
+                    {t("doctors.form.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    form="doctor-form"
+                    bgGradient="linear(135deg, var(--chakra-colors-custom-dark-primary, #0C4A6E) 0%, var(--chakra-colors-custom-light-primary, #0D9488) 100%)"
+                    color="white"
+                    _hover={{
+                      bgGradient:
+                        "linear(135deg, var(--chakra-colors-custom-dark-primary, #082F49) 0%, var(--chakra-colors-custom-light-primary, #0F766E) 100%)",
+                      shadow: "lg",
+                    }}
+                    _active={{ transform: "scale(0.98)" }}
+                    isLoading={formLoading}
+                    size="md"
+                    flex={1}
+                    minH="46px"
+                    borderRadius="xl"
+                    shadow="md"
+                    fontWeight="800"
+                  >
+                    {isDrawerOpen?.type === "edit"
+                      ? t("doctors.form.update")
+                      : t("doctors.form.save")}
+                  </Button>
+                </HStack>
+              </DrawerFooter>
           </DrawerContent>
         </Drawer>
       )}

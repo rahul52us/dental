@@ -17,6 +17,7 @@ import {
   SimpleGrid,
   Switch,
   Text,
+  useColorModeValue,
   useToast,
   VStack,
 } from "@chakra-ui/react";
@@ -485,25 +486,43 @@ const AddAppointmentForm = observer(
                     </SectionCard>
                     <Flex
                       align="center"
-                      // justify="space-between"
+                      justify="space-between"
+                      w="full"
                       p={3}
                       borderRadius="md"
-                      bg="gray.50"
+                      bg={useColorModeValue("gray.50", "darkBrand.100")}
                       border="1px solid"
-                      borderColor="gray.200"
+                      borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                      cursor="pointer"
+                      onClick={() =>
+                        setFieldValue(
+                          "showCompleteData",
+                          !values.showCompleteData,
+                        )
+                      }
+                      _hover={{
+                        bg: useColorModeValue("gray.100", "darkBrand.200"),
+                      }}
+                      transition="background-color 0.2s"
                     >
-                      <Text fontSize="md" fontWeight="semibold">
+                      <Text
+                        fontSize="md"
+                        fontWeight="semibold"
+                        color={useColorModeValue("gray.800", "white")}
+                      >
                         Online & Offline
                       </Text>
 
-                      <Switch
-                        colorScheme="teal"
-                        size="md"
-                        isChecked={values.showCompleteData}
-                        onChange={(e) =>
-                          setFieldValue("showCompleteData", e.target.checked)
-                        }
-                      />
+                      <Flex align="center" gap={2} onClick={(e) => e.stopPropagation()}>
+                        <Switch
+                          colorScheme="teal"
+                          size="md"
+                          isChecked={values.showCompleteData}
+                          onChange={(e) =>
+                            setFieldValue("showCompleteData", e.target.checked)
+                          }
+                        />
+                      </Flex>
                     </Flex>
                     <Flex
                       flexDirection="column"

@@ -17,6 +17,8 @@ import {
   Avatar,
   Circle,
   Button,
+  Flex,
+  SimpleGrid,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -177,169 +179,312 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
   })();
 
   return (
-    <Box p={6} bg={outerBg} borderRadius="3xl" maxH="85vh" overflowY="auto" sx={{
-      '&::-webkit-scrollbar': { width: '6px' },
-      '&::-webkit-scrollbar-thumb': { background: 'rgba(0,0,0,0.05)', borderRadius: '10px' }
-    }}>
-      <VStack spacing={6} align="stretch">
+    <Box
+      p={{ base: 2, sm: 3, md: 5 }}
+      bg={outerBg}
+      borderRadius={{ base: "xl", md: "3xl" }}
+      w="full"
+      maxW="100%"
+      overflowX="hidden"
+    >
+      <VStack spacing={{ base: 3, md: 5 }} align="stretch" w="full">
         {/* Record Selection (If Multiple) */}
         {isMultiple && data.length > 1 && (
-          <HStack spacing={3} overflowX="auto" pb={2} px={1}>
+          <HStack
+            spacing={2}
+            overflowX="auto"
+            pb={1.5}
+            px={1}
+            w="full"
+            sx={{
+              "&::-webkit-scrollbar": { display: "none" },
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+            }}
+          >
             {data.map((rec: any, idx: number) => (
               <Button
                 key={rec._id || idx}
-                size="sm"
+                size="xs"
+                h="30px"
                 borderRadius="full"
                 variant={activeRecordIndex === idx ? "solid" : "outline"}
                 colorScheme={activeRecordIndex === idx ? "blue" : "gray"}
                 onClick={() => setActiveRecordIndex(idx)}
                 flexShrink={0}
-                px={6}
-                fontWeight="900"
+                px={4}
+                fontWeight="800"
+                fontSize="11px"
               >
-                {formatDate(rec.treatmentDate || rec.createdAt)} - {rec.complaintType?.split(' ')[0] || "Record"}
+                {formatDate(rec.treatmentDate || rec.createdAt)} - {rec.complaintType?.split(" ")[0] || "Record"}
               </Button>
             ))}
           </HStack>
         )}
 
         {/* Header Section */}
-
-        <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
-          <HStack justify="space-between" align="center">
-            <HStack spacing={6} align="center">
+        <Card
+          variant="unstyled"
+          bg={cardBg}
+          border="1px solid"
+          borderColor={borderColor}
+          borderRadius={{ base: "20px", md: "3xl" }}
+          boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+          p={{ base: 3.5, sm: 4, md: 6 }}
+        >
+          <Flex
+            direction={{ base: "column", md: "row" }}
+            justify="space-between"
+            align={{ base: "stretch", md: "center" }}
+            gap={{ base: 3, md: 6 }}
+          >
+            {/* Top / Left: Tooth Squircle + Patient Details */}
+            <Flex align="center" gap={{ base: 3, md: 5 }} minW={0} flex={1}>
               {/* Premium Tooth Badge */}
               <VStack
-                spacing={1}
+                spacing={0.5}
                 border="1px solid"
                 borderColor={toothBadgeBorder}
                 bg={toothBadgeBg}
                 borderRadius="2xl"
-                p={3}
-                minW="110px"
-                h="100px"
+                p={{ base: 2, md: 3 }}
+                minW={{ base: "72px", sm: "85px", md: "110px" }}
+                h={{ base: "76px", sm: "85px", md: "100px" }}
                 align="center"
                 justify="center"
                 boxShadow="sm"
+                flexShrink={0}
               >
-                <Text fontSize="32px" fontWeight="1000" color={toothNumberColor} lineHeight="1">
+                <Text
+                  fontSize={{ base: "22px", sm: "26px", md: "32px" }}
+                  fontWeight="1000"
+                  color={toothNumberColor}
+                  lineHeight="1"
+                >
                   {toothDisplayNumber}
                 </Text>
-                <Text fontSize="9px" fontWeight="1000" color="blue.400" letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
+                <Text
+                  fontSize={{ base: "8px", md: "9px" }}
+                  fontWeight="1000"
+                  color="blue.400"
+                  letterSpacing="0.05em"
+                  textTransform="uppercase"
+                  textAlign="center"
+                  lineHeight="tight"
+                  noOfLines={1}
+                >
                   {toothObj ? `${toothObj.side} ${toothObj.position}` : "GENERAL"}
                 </Text>
-                <Text fontSize="8px" fontWeight="1000" color={textMuted} letterSpacing="0.05em" textTransform="uppercase" textAlign="center" lineHeight="tight">
+                <Text
+                  fontSize={{ base: "7.5px", md: "8px" }}
+                  fontWeight="1000"
+                  color={textMuted}
+                  letterSpacing="0.05em"
+                  textTransform="uppercase"
+                  textAlign="center"
+                  lineHeight="tight"
+                  noOfLines={1}
+                >
                   {toothObj ? toothObj.name.replace(/primary|left|right|upper|lower/gi, "").trim().replace(/\s+/g, " ") : "RECORD"}
                 </Text>
               </VStack>
-              <VStack align="start" spacing={0}>
-                <HStack mb={1}>
-                  <Badge colorScheme={color} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs" textTransform="uppercase" letterSpacing="wider">
+
+              {/* Patient Identity & Badges */}
+              <Box flex={1} minW={0}>
+                <HStack mb={1.5} spacing={1.5} wrap="wrap">
+                  <Badge
+                    colorScheme={color}
+                    variant="solid"
+                    borderRadius="full"
+                    px={2.5}
+                    py={0.5}
+                    fontSize="10px"
+                    fontWeight="800"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                    whiteSpace="nowrap"
+                    flexShrink={0}
+                  >
                     {status || "Pending"}
                   </Badge>
-                  <Text fontSize="xs" fontWeight="900" color={textMuted} letterSpacing="0.1em">
-                    {workDoneNote !== undefined || amount !== undefined ? "WORK DONE RECORD" : "TREATMENT RECORD"}
-                  </Text>
+                  <Badge
+                    bg={useColorModeValue("purple.50", "rgba(168, 85, 247, 0.15)")}
+                    color={useColorModeValue("purple.700", "purple.200")}
+                    border="1px solid"
+                    borderColor={useColorModeValue("purple.200", "rgba(168, 85, 247, 0.3)")}
+                    borderRadius="full"
+                    px={2}
+                    py={0.5}
+                    fontSize="9.5px"
+                    fontWeight="800"
+                    letterSpacing="0.04em"
+                    textTransform="uppercase"
+                    whiteSpace="nowrap"
+                    flexShrink={0}
+                  >
+                    {workDoneNote !== undefined || amount !== undefined ? "Work Done Record" : "Treatment Record"}
+                  </Badge>
                 </HStack>
-                <Heading size="lg" fontWeight="900" color={textPrimary}>
+                <Heading
+                  fontSize={{ base: "17px", sm: "20px", md: "24px" }}
+                  fontWeight="900"
+                  color={textPrimary}
+                  noOfLines={1}
+                  letterSpacing="-0.3px"
+                >
                   {patient?.name || "Anonymous Patient"}
                 </Heading>
-                <Text fontSize="sm" color={textMuted} fontWeight="600" mt={0.5}>
-                  {notation.toUpperCase()} ID: <Box as="span" color="blue.400" fontWeight="800">{toothDisplayNumber}</Box>
+                <Text fontSize="12px" color={textMuted} fontWeight="600" mt={0.5}>
+                  {notation.toUpperCase()} ID:{" "}
+                  <Box as="span" color="blue.400" fontWeight="800">
+                    {toothDisplayNumber}
+                  </Box>
                 </Text>
-              </VStack>
-            </HStack>
-            <VStack align="end" spacing={1}>
-              <Text fontSize="xs" fontWeight="900" color={textMuted} letterSpacing="wider">SERVICE DATE</Text>
-              <HStack color={textSecondary}>
-                <Icon as={FaCalendarAlt} size="14px" />
-                <Text fontWeight="800" fontSize="lg">{formatDate(treatmentDate)}</Text>
+              </Box>
+            </Flex>
+
+            {/* Service Date Strip */}
+            <Flex
+              justify={{ base: "space-between", md: "flex-end" }}
+              align="center"
+              pt={{ base: 2.5, md: 0 }}
+              borderTop={{ base: "1px dashed", md: "none" }}
+              borderColor={borderColor}
+              gap={2}
+              flexShrink={0}
+            >
+              <Text fontSize="10px" fontWeight="900" color={textMuted} letterSpacing="wider" textTransform="uppercase">
+                Service Date
+              </Text>
+              <HStack color={textSecondary} spacing={1.5}>
+                <Icon as={FaCalendarAlt} size="13px" color="blue.400" />
+                <Text fontWeight="800" fontSize={{ base: "13px", md: "md" }}>
+                  {formatDate(treatmentDate)}
+                </Text>
               </HStack>
-            </VStack>
-          </HStack>
+            </Flex>
+          </Flex>
         </Card>
 
-        <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }} gap={6}>
+        <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }} gap={{ base: 3, md: 5 }}>
           {/* Clinical Context */}
-          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
-            <VStack align="start" spacing={4} w="full">
-
-              <VStack align="stretch" w="full" spacing={4}>
-                <Box>
-                  <Text fontSize="xs" fontWeight="900" color={textMuted} mb={1} textTransform="uppercase">Complaint Type</Text>
-                  <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="lg" fontSize="xs">
-                    {complaintType || "No Complaint Specified"}
-                  </Badge>
-                </Box>
-                <Box>
-                  <Text fontSize="xs" fontWeight="900" color={textMuted} mb={1} textTransform="uppercase">
-                    {workDoneNote !== undefined || amount !== undefined ? "Procedure Completed" : "Procedure Planned"}
-                  </Text>
-                  <Text fontWeight="800" color={textSecondary} fontSize="md">
-                    {treatmentPlan || treatmentCode || "General Consultation"}
-                  </Text>
-                </Box>
-              </VStack>
+          <Card
+            variant="unstyled"
+            bg={cardBg}
+            border="1px solid"
+            borderColor={borderColor}
+            borderRadius={{ base: "20px", md: "3xl" }}
+            boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+            p={{ base: 3.5, sm: 4, md: 6 }}
+          >
+            <VStack align="stretch" w="full" spacing={3}>
+              <Box>
+                <Text fontSize="10px" fontWeight="900" color={textMuted} mb={1} textTransform="uppercase" letterSpacing="0.05em">
+                  Complaint Type
+                </Text>
+                <Badge colorScheme="purple" variant="subtle" px={2.5} py={1} borderRadius="lg" fontSize="11px" fontWeight="750">
+                  {complaintType || "No Complaint Specified"}
+                </Badge>
+              </Box>
+              <Box pt={2} borderTop="1px dashed" borderColor={borderColor}>
+                <Text fontSize="10px" fontWeight="900" color={textMuted} mb={1} textTransform="uppercase" letterSpacing="0.05em">
+                  {workDoneNote !== undefined || amount !== undefined ? "Procedure Completed" : "Procedure Planned"}
+                </Text>
+                <Text fontWeight="850" color={textSecondary} fontSize={{ base: "14px", md: "15px" }}>
+                  {treatmentPlan || treatmentCode || "General Consultation"}
+                </Text>
+              </Box>
             </VStack>
           </Card>
 
           {/* Assigned Staff */}
-          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6}>
-            <VStack align="start" spacing={4} w="full">
-              <Divider borderColor={borderColor} />
-              <VStack align="stretch" w="full" spacing={4}>
-                <HStack spacing={4}>
-                  <Avatar size="sm" name={doctor?.name} src={doctor?.photo} />
-                  <Box>
-                    <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase">Assign Doctor</Text>
-                    <Text fontWeight="800" color={textSecondary}>{doctor?.name || "Unassigned"}</Text>
+          <Card
+            variant="unstyled"
+            bg={cardBg}
+            border="1px solid"
+            borderColor={borderColor}
+            borderRadius={{ base: "20px", md: "3xl" }}
+            boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+            p={{ base: 3.5, sm: 4, md: 6 }}
+          >
+            <VStack align="stretch" w="full" spacing={3}>
+              <HStack spacing={3}>
+                <Avatar size="sm" boxSize="36px" name={doctor?.name} src={doctor?.photo} borderRadius="12px" />
+                <Box minW={0} flex={1}>
+                  <Text fontSize="10px" fontWeight="900" color={textMuted} textTransform="uppercase" letterSpacing="0.05em">
+                    Assigned Doctor
+                  </Text>
+                  <Text fontWeight="850" color={textSecondary} fontSize={{ base: "14px", md: "15px" }} noOfLines={1}>
+                    {doctor?.name || "Unassigned"}
+                  </Text>
+                </Box>
+              </HStack>
+              {examiningDoctor && (
+                <HStack spacing={3} pt={2} borderTop="1px dashed" borderColor={borderColor}>
+                  <Avatar size="sm" boxSize="36px" name={examiningDoctor?.name} src={examiningDoctor?.photo} borderRadius="12px" />
+                  <Box minW={0} flex={1}>
+                    <Text fontSize="10px" fontWeight="900" color={textMuted} textTransform="uppercase" letterSpacing="0.05em">
+                      Examining Doctor
+                    </Text>
+                    <Text fontWeight="850" color={textSecondary} fontSize={{ base: "14px", md: "15px" }} noOfLines={1}>
+                      {examiningDoctor?.name}
+                    </Text>
                   </Box>
                 </HStack>
-                {examiningDoctor && (
-                  <HStack spacing={4}>
-                    <Avatar size="sm" name={examiningDoctor?.name} src={examiningDoctor?.photo} />
-                    <Box>
-                      <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase">Examining Doctor</Text>
-                      <Text fontWeight="800" color={textSecondary}>{examiningDoctor?.name}</Text>
-                    </Box>
-                  </HStack>
-                )}
-              </VStack>
+              )}
             </VStack>
           </Card>
 
-          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
-            <VStack align="start" spacing={4} w="full">
-              <HStack>
-                <Icon as={FaNotesMedical} color="orange.500" />
-                <Heading size="sm" color={textSecondary}>Clinical Findings & Notes</Heading>
+          {/* Clinical Findings & Notes */}
+          <Card
+            variant="unstyled"
+            bg={cardBg}
+            border="1px solid"
+            borderColor={borderColor}
+            borderRadius={{ base: "20px", md: "3xl" }}
+            boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+            p={{ base: 3.5, sm: 4, md: 6 }}
+            gridColumn={{ lg: "span 2" }}
+          >
+            <VStack align="start" spacing={3} w="full">
+              <HStack spacing={2}>
+                <Icon as={FaNotesMedical} color="orange.400" />
+                <Heading fontSize="14px" fontWeight="850" color={textSecondary}>
+                  Clinical Findings & Notes
+                </Heading>
               </HStack>
-              <Divider borderColor={borderColor} />
-              <Box w="full" bg={subtleBg} p={5} borderRadius="2xl" border="1px dashed" borderColor={borderColor}>
-                <Text color={textSecondary} whiteSpace="pre-wrap" fontSize="sm" lineHeight="tall" fontWeight="500">
+              <Box w="full" bg={subtleBg} p={{ base: 3, md: 4 }} borderRadius="xl" border="1px dashed" borderColor={borderColor}>
+                <Text color={textSecondary} whiteSpace="pre-wrap" fontSize="13px" lineHeight="1.6" fontWeight="500">
                   {notes || workDoneNote || toothNote || "No clinical notes provided for this record."}
                 </Text>
               </Box>
             </VStack>
           </Card>
 
-
           {/* Financial Summary */}
-          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
-            <VStack align="start" spacing={4} w="full">
-              <HStack>
-                <Icon as={FaCoins} color="green.500" />
-                <Heading size="sm" color={textSecondary}>
+          <Card
+            variant="unstyled"
+            bg={cardBg}
+            border="1px solid"
+            borderColor={borderColor}
+            borderRadius={{ base: "20px", md: "3xl" }}
+            boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+            p={{ base: 3.5, sm: 4, md: 6 }}
+            gridColumn={{ lg: "span 2" }}
+          >
+            <VStack align="start" spacing={3} w="full">
+              <HStack spacing={2}>
+                <Icon as={FaCoins} color="green.400" />
+                <Heading fontSize="14px" fontWeight="850" color={textSecondary}>
                   {workDoneNote !== undefined || amount !== undefined ? "Billing Summary" : "Financial Summary"}
                 </Heading>
               </HStack>
-              <Divider borderColor={borderColor} />
-              <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6} w="full">
-                <VStack align="start" spacing={1} p={4} bg={bentoBlueBg} borderRadius="2xl" border="1px solid" borderColor={bentoBlueBorder}>
-                  <Text fontSize="10px" fontWeight="900" color="blue.400" letterSpacing="0.05em" textTransform="uppercase">
+              <SimpleGrid columns={{ base: 1, sm: 3 }} gap={2.5} w="full">
+                <VStack align="start" spacing={0.5} p={3} bg={bentoBlueBg} borderRadius="xl" border="1px solid" borderColor={bentoBlueBorder}>
+                  <Text fontSize="9.5px" fontWeight="900" color="blue.400" letterSpacing="0.05em" textTransform="uppercase">
                     {workDoneNote !== undefined || amount !== undefined ? "Actual Amount" : "Gross Estimate"}
                   </Text>
-                  <Text fontSize="18px" fontWeight="1000" color={useColorModeValue("blue.700", "blue.300")}>
+                  <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="1000" color={useColorModeValue("blue.700", "blue.300")}>
                     {workDoneNote !== undefined || amount !== undefined
                       ? `₹${(amount || 0).toLocaleString()}`
                       : estimateMin === estimateMax
@@ -347,15 +492,19 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                         : `₹${(estimateMin || 0).toLocaleString()} - ₹${(estimateMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
-                <VStack align="start" spacing={1} p={4} bg={bentoRedBg} borderRadius="2xl" border="1px solid" borderColor={bentoRedBorder}>
-                  <Text fontSize="10px" fontWeight="900" color="red.400" letterSpacing="0.05em" textTransform="uppercase">Discount</Text>
-                  <Text fontSize="18px" fontWeight="1000" color={useColorModeValue("red.600", "red.300")}>₹{(discount || 0).toLocaleString()}</Text>
+                <VStack align="start" spacing={0.5} p={3} bg={bentoRedBg} borderRadius="xl" border="1px solid" borderColor={bentoRedBorder}>
+                  <Text fontSize="9.5px" fontWeight="900" color="red.400" letterSpacing="0.05em" textTransform="uppercase">
+                    Discount
+                  </Text>
+                  <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="1000" color={useColorModeValue("red.600", "red.300")}>
+                    ₹{(discount || 0).toLocaleString()}
+                  </Text>
                 </VStack>
-                <VStack align="start" spacing={1} p={4} bg={bentoGreenBg} borderRadius="2xl" border="1px solid" borderColor={bentoGreenBorder}>
-                  <Text fontSize="10px" fontWeight="900" color="green.400" letterSpacing="0.05em" textTransform="uppercase">
+                <VStack align="start" spacing={0.5} p={3} bg={bentoGreenBg} borderRadius="xl" border="1px solid" borderColor={bentoGreenBorder}>
+                  <Text fontSize="9.5px" fontWeight="900" color="green.400" letterSpacing="0.05em" textTransform="uppercase">
                     {workDoneNote !== undefined || amount !== undefined ? "Net Total Paid" : "Net Total (Estimated)"}
                   </Text>
-                  <Text fontSize="20px" fontWeight="1000" color={useColorModeValue("green.700", "green.300")}>
+                  <Text fontSize={{ base: "17px", md: "20px" }} fontWeight="1000" color={useColorModeValue("green.700", "green.300")}>
                     {workDoneNote !== undefined || amount !== undefined
                       ? `₹${((amount || 0) - (discount || 0)).toLocaleString()}`
                       : totalMin === totalMax
@@ -363,24 +512,47 @@ const TreatmentDetailsView = observer(({ data }: TreatmentDetailsViewProps) => {
                         : `₹${(totalMin || 0).toLocaleString()} - ₹${(totalMax || 0).toLocaleString()}`}
                   </Text>
                 </VStack>
-              </Grid>
+              </SimpleGrid>
             </VStack>
           </Card>
 
-          {/* Notes & Clinical Findings */}
-
           {/* Administrative Info */}
-          <Card variant="unstyled" bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.03)" p={6} gridColumn={{ lg: "span 2" }}>
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={8}>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase">Record Created</Text>
-                <Text color={textSecondary} fontWeight="800">{formatDate(createdAt)}</Text>
+          <Card
+            variant="unstyled"
+            bg={cardBg}
+            border="1px solid"
+            borderColor={borderColor}
+            borderRadius={{ base: "20px", md: "3xl" }}
+            boxShadow="0 4px 20px rgba(0,0,0,0.03)"
+            p={{ base: 3.5, sm: 4, md: 6 }}
+            gridColumn={{ lg: "span 2" }}
+          >
+            <SimpleGrid columns={{ base: 2, sm: 2 }} gap={4} w="full">
+              <VStack align="start" spacing={0.5}>
+                <Text fontSize="10px" fontWeight="900" color={textMuted} textTransform="uppercase" letterSpacing="0.05em">
+                  Record Created
+                </Text>
+                <Text color={textSecondary} fontWeight="800" fontSize="13px">
+                  {formatDate(createdAt)}
+                </Text>
               </VStack>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="xs" fontWeight="900" color={textMuted} textTransform="uppercase" letterSpacing="wider">DENTITION</Text>
-                <Badge colorScheme={dentition === "child" ? "pink" : "blue"} variant="solid" borderRadius="full" px={3} py={0.5} fontSize="xs">{dentition.toUpperCase()}</Badge>
+              <VStack align="start" spacing={0.5}>
+                <Text fontSize="10px" fontWeight="900" color={textMuted} textTransform="uppercase" letterSpacing="wider">
+                  Dentition
+                </Text>
+                <Badge
+                  colorScheme={dentition === "child" ? "pink" : "blue"}
+                  variant="subtle"
+                  borderRadius="full"
+                  px={2.5}
+                  py={0.5}
+                  fontSize="10px"
+                  fontWeight="800"
+                >
+                  {dentition.toUpperCase()}
+                </Badge>
               </VStack>
-            </Grid>
+            </SimpleGrid>
           </Card>
         </Grid>
       </VStack>

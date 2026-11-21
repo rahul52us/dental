@@ -3,7 +3,6 @@
 import { observer } from "mobx-react-lite";
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { theme } from "./theme/theme";
-import { lato } from "./theme/theme";
 import MainLayout from "./layouts/mainLayout/MainLayout";
 import AuthenticationLayout from "./layouts/authenticationLayout/AuthenticationLayout";
 import DashboardLayout from "./layouts/dashboardLayout/DashboardLayout";
@@ -11,14 +10,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import stores from "./store/stores";
 import Notification from "./component/common/Notification/Notification";
-import { Montserrat } from "next/font/google";
 import { getMetadataForPath, PageMetadata } from "./metadata";
 import "./config/i18n";
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+import "@fontsource/montserrat/400.css";
+import "@fontsource/montserrat/500.css";
+import "@fontsource/montserrat/600.css";
+import "@fontsource/montserrat/700.css";
 
 const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
   const {
@@ -85,7 +82,7 @@ const RootLayout = observer(({ children }: { children: React.ReactNode }) => {
         <meta charSet="UTF-8" />
         <ColorModeScript initialColorMode="light" />
       </head>
-      <body className={`${lato.className} ${montserrat.className}`} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <ChakraProvider theme={theme}>
           <Notification />
           <Suspense fallback={null}>

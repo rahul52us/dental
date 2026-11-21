@@ -16,6 +16,7 @@ import {
   Box,
   useBreakpointValue,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { toJS } from "mobx";
@@ -84,22 +85,36 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
         display="flex"
         flexDirection="column"
         overflow="hidden"
+        bg={useColorModeValue("white", "darkBrand.50")}
       >
-        <DrawerHeader borderBottomWidth="1px" p={{ base: 4, md: 8 }} bg="gray.50">
+        <DrawerHeader
+          borderBottomWidth="1px"
+          borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+          p={{ base: 4, md: 8 }}
+          bg={useColorModeValue("gray.50", "darkBrand.100")}
+        >
           <HStack spacing={{ base: 3, md: 4 }} mb={2} pr={10}>
             <Box p={{ base: 2, md: 3 }} bg="brand.500" borderRadius="xl" shadow="md">
               <Icon as={FiShield} color="white" boxSize={{ base: 5, md: 6 }} />
             </Box>
             <VStack align="start" spacing={0} minW={0}>
-              <Text fontSize={{ base: "lg", md: "2xl" }} fontWeight="900" letterSpacing="tight">Access Control</Text>
-              <Text fontSize="sm" color="gray.500" fontWeight="600" noOfLines={1}>Managing {staff?.name}</Text>
+              <Text fontSize={{ base: "lg", md: "2xl" }} fontWeight="900" letterSpacing="tight" color={useColorModeValue("gray.800", "white")}>
+                Access Control
+              </Text>
+              <Text fontSize="sm" color={useColorModeValue("gray.500", "gray.400")} fontWeight="600" noOfLines={1}>
+                Managing {staff?.name}
+              </Text>
             </VStack>
           </HStack>
         </DrawerHeader>
 
-        <DrawerCloseButton top={{ base: 3, md: 6 }} right={{ base: 3, md: 4 }} />
+        <DrawerCloseButton
+          top={{ base: 3, md: 6 }}
+          right={{ base: 3, md: 4 }}
+          color={useColorModeValue("gray.700", "gray.200")}
+        />
         
-        <DrawerBody p={{ base: 3, md: 4 }} bg="white" minH={0} overflowY="auto">
+        <DrawerBody p={{ base: 3, md: 4 }} bg={useColorModeValue("white", "darkBrand.50")} minH={0} overflowY="auto">
           <PermissionsSelector 
             permissions={permissions} 
             onChange={(newPerms) => setPermissions(newPerms)} 
@@ -108,17 +123,19 @@ const StaffPermissionsModal = ({ isOpen, onClose, staff, onUpdate }: any) => {
 
         <DrawerFooter
           borderTopWidth="1px"
+          borderColor={useColorModeValue("gray.200", "darkBrand.200")}
           py={{ base: 3, md: 4 }}
           px={{ base: 4, md: 8 }}
           pb={{ base: "calc(12px + env(safe-area-inset-bottom))", md: 4 }}
-          bg="gray.50"
+          bg={useColorModeValue("gray.50", "darkBrand.100")}
         >
           <Flex direction={{ base: "column", md: "row" }} gap={2} w="full">
             <Button
               variant="ghost"
               onClick={onClose}
               borderRadius="xl"
-              color="gray.500"
+              color={useColorModeValue("gray.600", "gray.300")}
+              _hover={{ bg: useColorModeValue("gray.200", "whiteAlpha.100") }}
               fontWeight="700"
               minH="48px"
               flex={{ md: 1 }}

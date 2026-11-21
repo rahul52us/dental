@@ -16,6 +16,7 @@ import {
   Switch,
   Text,
   Tooltip,
+  useColorModeValue,
   useToast,
   VStack,
 } from "@chakra-ui/react";
@@ -814,19 +815,35 @@ const EditAppointmentForm = observer(
                     </SectionCard>
                     <Flex
                       align="center"
-                      // justify="space-between"
+                      justify="space-between"
+                      w="full"
                       p={3}
                       borderRadius="md"
-                      bg="gray.50"
+                      bg={useColorModeValue("gray.50", "darkBrand.100")}
                       border="1px solid"
-                      borderColor="gray.200"
+                      borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                      cursor="pointer"
+                      onClick={() =>
+                        setFieldValue(
+                          "showCompleteData",
+                          !values.showCompleteData,
+                        )
+                      }
+                      _hover={{
+                        bg: useColorModeValue("gray.100", "darkBrand.200"),
+                      }}
+                      transition="background-color 0.2s"
                     >
-                      <Text fontSize="md" fontWeight="semibold">
+                      <Text
+                        fontSize="md"
+                        fontWeight="semibold"
+                        color={useColorModeValue("gray.800", "white")}
+                      >
                         Online & Offline
                       </Text>
 
                       {/* Arrow + Switch */}
-                      <Flex align="center" gap={2}>
+                      <Flex align="center" gap={2} onClick={(e) => e.stopPropagation()}>
                         {/* Arrow */}
                         <Flex
                           w="32px"
@@ -842,9 +859,9 @@ const EditAppointmentForm = observer(
                           }
                         >
                           {values.showCompleteData ? (
-                            <ChevronUpIcon boxSize={8} color="gray.700" />
+                            <ChevronUpIcon boxSize={8} color={useColorModeValue("gray.700", "gray.200")} />
                           ) : (
-                            <ChevronDownIcon boxSize={8} color="gray.700" />
+                            <ChevronDownIcon boxSize={8} color={useColorModeValue("gray.700", "gray.200")} />
                           )}
                         </Flex>
 

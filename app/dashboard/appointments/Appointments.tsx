@@ -1099,12 +1099,27 @@ const AppointmentList = observer(({ isPatient, patientDetails, doctorDetails, de
         size="md"
       >
         <DrawerOverlay backdropFilter="blur(5px)" bg="blackAlpha.300" />
-        <DrawerContent borderLeftRadius="xl" overflow="hidden">
+        <DrawerContent
+          borderLeftRadius="xl"
+          overflow="hidden"
+          bg={useColorModeValue("white", "darkBrand.50")}
+        >
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px" bg="gray.50" fontSize="md" fontWeight="800">
+          <DrawerHeader
+            borderBottomWidth="1px"
+            bg={useColorModeValue("gray.50", "darkBrand.100")}
+            borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+            color={useColorModeValue("gray.800", "white")}
+            fontSize="md"
+            fontWeight="800"
+          >
             📋 {t("appointments.table.appointmentAuditTrail")}
           </DrawerHeader>
-          <DrawerBody p={0} overflowY="auto">
+          <DrawerBody
+            p={0}
+            overflowY="auto"
+            bg={useColorModeValue("white", "darkBrand.50")}
+          >
             <Box p={5}>
               {(openAuditDrawer.data || []).map((item: any, index: number) => {
                 const isLast = index === openAuditDrawer.data.length - 1;

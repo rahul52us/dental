@@ -44,7 +44,7 @@ const DoctorInventoryTable = observer(({ onAdd, onEdit, onDelete }: any) => {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
   // Theme & Dark Mode tokens
-  const invTitleColor = useColorModeValue("gray.850", "white");
+  const invTitleColor = useColorModeValue("gray.800", "white");
   const invSubtextColor = useColorModeValue("gray.500", "gray.400");
   const invCardBg = useColorModeValue("white", "gray.800");
   const invCardBorder = useColorModeValue("#E8EEF4", "gray.700");

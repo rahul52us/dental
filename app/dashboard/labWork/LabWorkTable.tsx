@@ -1481,7 +1481,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
           borderTopRadius={0}
           borderRadius={0}
           maxH="75vh"
-          bg="white"
+          bg={useColorModeValue("white", "darkBrand.50")}
           boxShadow="0 -10px 30px rgba(0,0,0,0.2)"
           overflow="hidden"
         >
@@ -1501,10 +1501,10 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               <Text>Filter Lab Orders</Text>
             </HStack>
           </DrawerHeader>
-          <DrawerBody p={4} overflowY="auto">
+          <DrawerBody p={4} overflowY="auto" bg={useColorModeValue("white", "darkBrand.50")}>
             <VStack spacing={3.5} align="stretch">
               <Box>
-                <Text fontSize="11px" fontWeight="700" color="gray.500" mb={1} textTransform="uppercase">
+                <Text fontSize="11px" fontWeight="700" color={useColorModeValue("gray.600", "gray.300")} mb={1} textTransform="uppercase">
                   Status
                 </Text>
                 <Select
@@ -1515,6 +1515,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     setStatusFilter(e.target.value);
                   }}
                   fontWeight="600"
+                  bg={useColorModeValue("white", "darkBrand.100")}
+                  borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                  color={useColorModeValue("gray.800", "white")}
                 >
                   <option value="all">All Statuses</option>
                   {labWorkStatusStore.statuses
@@ -1529,7 +1532,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               </Box>
 
               <Box>
-                <Text fontSize="11px" fontWeight="700" color="gray.500" mb={1} textTransform="uppercase">
+                <Text fontSize="11px" fontWeight="700" color={useColorModeValue("gray.600", "gray.300")} mb={1} textTransform="uppercase">
                   Doctor Name
                 </Text>
                 <InputGroup size="sm">
@@ -1542,17 +1545,20 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     value={doctorSearch}
                     onChange={(e) => setDoctorSearch(e.target.value)}
                     fontWeight="600"
+                    bg={useColorModeValue("white", "darkBrand.100")}
+                    borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                    color={useColorModeValue("gray.800", "white")}
                   />
                 </InputGroup>
               </Box>
 
               <Box>
-                <Text fontSize="11px" fontWeight="700" color="gray.500" mb={1} textTransform="uppercase">
+                <Text fontSize="11px" fontWeight="700" color={useColorModeValue("gray.600", "gray.300")} mb={1} textTransform="uppercase">
                   Date Range
                 </Text>
                 <SimpleGrid columns={2} spacing={2}>
                   <Box>
-                    <Text fontSize="10px" color="gray.400" mb={0.5}>
+                    <Text fontSize="10px" color={useColorModeValue("gray.500", "gray.400")} mb={0.5}>
                       From
                     </Text>
                     <Input
@@ -1561,10 +1567,13 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       borderRadius="lg"
                       value={tempFromDate}
                       onChange={(e) => setTempFromDate(e.target.value)}
+                      bg={useColorModeValue("white", "darkBrand.100")}
+                      borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                      color={useColorModeValue("gray.800", "white")}
                     />
                   </Box>
                   <Box>
-                    <Text fontSize="10px" color="gray.400" mb={0.5}>
+                    <Text fontSize="10px" color={useColorModeValue("gray.500", "gray.400")} mb={0.5}>
                       To
                     </Text>
                     <Input
@@ -1573,6 +1582,9 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                       borderRadius="lg"
                       value={tempToDate}
                       onChange={(e) => setTempToDate(e.target.value)}
+                      bg={useColorModeValue("white", "darkBrand.100")}
+                      borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                      color={useColorModeValue("gray.800", "white")}
                     />
                   </Box>
                 </SimpleGrid>
@@ -1611,13 +1623,15 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               )}
             </VStack>
           </DrawerBody>
-          <DrawerFooter bg="gray.50" py={3} px={4} borderTop="1px solid" borderColor="gray.100">
+          <DrawerFooter bg={useColorModeValue("gray.50", "darkBrand.100")} py={3} px={4} borderTop="1px solid" borderColor={useColorModeValue("gray.200", "darkBrand.200")}>
             <HStack spacing={2} w="full">
               <Button
                 size="sm"
                 variant="ghost"
                 flex={1}
                 borderRadius="xl"
+                color={useColorModeValue("gray.600", "gray.300")}
+                _hover={{ bg: useColorModeValue("gray.200", "whiteAlpha.100") }}
                 onClick={() => {
                   resetTableData();
                   setIsMobileFilterOpen(false);
@@ -1660,6 +1674,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             maxH={isMobile ? "100dvh" : undefined}
             borderTopRadius={0}
             borderRadius={0}
+            bg={useColorModeValue("white", "darkBrand.50")}
             overflow="hidden"
           >
             <DrawerCloseButton 
@@ -1678,7 +1693,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             >
               {selectedLabWork && (selectedLabWork as any)._id ? "Update Lab Order" : "New Lab Order"}
             </DrawerHeader>
-            <DrawerBody p={{ base: 2, md: 6 }}>
+            <DrawerBody p={{ base: 2, md: 6 }} bg={useColorModeValue("white", "darkBrand.50")}>
               <Box mt={{ base: 2, md: 4 }}>
                 <LabSheet
                   initialData={selectedLabWork}
@@ -1706,6 +1721,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             borderRadius={0}
             borderLeftRadius={{ base: "none", md: "3xl" }}
             shadow="2xl"
+            bg={useColorModeValue("white", "darkBrand.50")}
             overflow="hidden"
           >
             <DrawerCloseButton 
@@ -1730,7 +1746,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               </HStack>
             </DrawerHeader>
 
-            <DrawerBody p={{ base: 4, md: 8 }}>
+            <DrawerBody p={{ base: 4, md: 8 }} bg={useColorModeValue("white", "darkBrand.50")}>
               <VStack spacing={8} align="stretch">
 
 
@@ -1738,16 +1754,16 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 <Box>
                   <HStack mb={4} spacing={2}>
                     <Icon as={FiCalendar} color="blue.500" />
-                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">DATE RANGE FILTERS</Text>
+                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color={useColorModeValue("gray.600", "gray.300")}>DATE RANGE FILTERS</Text>
                   </HStack>
 
                   <VStack spacing={4} align="stretch">
-                    <Box bg="gray.50" p={4} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                    <Box bg={useColorModeValue("gray.50", "darkBrand.100")} p={4} borderRadius="2xl" border="1px solid" borderColor={useColorModeValue("gray.100", "darkBrand.200")}>
                       <VStack align="stretch" spacing={3}>
                         <HStack mb={2} spacing={2} justify="space-between">
                           <HStack spacing={2}>
                             <Icon as={FiCalendar} color="teal.500" />
-                            <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">DATE FILTER</Text>
+                            <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color={useColorModeValue("gray.600", "gray.300")}>DATE FILTER</Text>
                           </HStack>
                         </HStack>
                         <CustomInput
@@ -1806,7 +1822,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 <Box>
                   <HStack mb={4} spacing={2}>
                     <Icon as={FiList} color="blue.500" />
-                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">ENTITY FILTERS</Text>
+                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color={useColorModeValue("gray.600", "gray.300")}>ENTITY FILTERS</Text>
                   </HStack>
                   <VStack spacing={5} align="stretch">
                     <SimpleGrid columns={1} spacing={4}>
@@ -1885,18 +1901,18 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                     )}
                   </VStack>
                 </Box>
-                <Divider />
+                <Divider borderColor={useColorModeValue("gray.200", "darkBrand.200")} />
 
                 {/* Columns Selection Section */}
                 <Box>
                   <HStack mb={4} spacing={2}>
                     <Icon as={FiColumns} color="blue.500" />
-                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color="gray.600">REPORT COLUMNS</Text>
+                    <Text fontWeight="extrabold" fontSize="sm" letterSpacing="wider" color={useColorModeValue("gray.600", "gray.300")}>REPORT COLUMNS</Text>
                   </HStack>
                   <VStack spacing={4} align="stretch">
-                    <Box bg="gray.50" p={4} borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                    <Box bg={useColorModeValue("gray.50", "darkBrand.100")} p={4} borderRadius="2xl" border="1px solid" borderColor={useColorModeValue("gray.100", "darkBrand.200")}>
                       <VStack align="stretch" spacing={3}>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color={useColorModeValue("gray.500", "gray.400")}>
                           Select the columns you want to include in the report. The order you select them is the order they will appear in the exported file.
                         </Text>
                         <CustomInput
@@ -1922,32 +1938,53 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
               </VStack>
             </DrawerBody>
 
-            <DrawerFooter bg="gray.50" p={6} borderTopWidth="1px">
-              <HStack w="100%" spacing={4}>
+            <DrawerFooter
+              bg={useColorModeValue("gray.50", "darkBrand.100")}
+              p={{ base: 3, md: 5 }}
+              borderTop="1px solid"
+              borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+            >
+              <Flex w="100%" gap={2} align="center" justify="space-between">
                 <Button
                   variant="ghost"
+                  size={{ base: "sm", md: "md" }}
                   leftIcon={<FiRefreshCw />}
                   onClick={resetReportFilters}
                   borderRadius="xl"
+                  color={useColorModeValue("gray.600", "gray.300")}
+                  _hover={{ bg: useColorModeValue("gray.200", "whiteAlpha.100") }}
+                  px={{ base: 2, md: 4 }}
                 >
                   Reset
                 </Button>
-                <Spacer />
-                <Button variant="outline" onClick={onReportClose} borderRadius="xl">
-                  Cancel
-                </Button>
-                <Button
-                  colorScheme="blue"
-                  leftIcon={<FiList />}
-                  onClick={() => handleDownloadReport(true)}
-                  isLoading={isDownloading}
-                  px={8}
-                  borderRadius="xl"
-                  shadow="md"
-                >
-                  Preview Report
-                </Button>
-              </HStack>
+                <HStack spacing={2}>
+                  <Button
+                    variant="outline"
+                    size={{ base: "sm", md: "md" }}
+                    borderColor={useColorModeValue("gray.300", "whiteAlpha.300")}
+                    color={useColorModeValue("gray.700", "white")}
+                    _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.200") }}
+                    onClick={onReportClose}
+                    borderRadius="xl"
+                    px={{ base: 3, md: 5 }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="green"
+                    size={{ base: "sm", md: "md" }}
+                    leftIcon={<FiList />}
+                    onClick={() => handleDownloadReport(true)}
+                    isLoading={isDownloading}
+                    px={{ base: 3, md: 6 }}
+                    borderRadius="xl"
+                    shadow="md"
+                    whiteSpace="nowrap"
+                  >
+                    Preview Report
+                  </Button>
+                </HStack>
+              </Flex>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
@@ -1968,6 +2005,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             borderRadius={0}
             borderLeftRadius={{ base: "none", md: "3xl" }}
             shadow="2xl"
+            bg={useColorModeValue("white", "darkBrand.50")}
             overflow="hidden"
           >
             <DrawerCloseButton 
@@ -1986,7 +2024,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             >
               Lab Order Details
             </DrawerHeader>
-            <DrawerBody p={0}>
+            <DrawerBody p={0} bg={useColorModeValue("white", "darkBrand.50")}>
               {selectedLabWork && <LabSheetView data={selectedLabWork} />}
             </DrawerBody>
           </DrawerContent>
@@ -2049,6 +2087,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
             borderRadius={0}
             borderLeftRadius={{ base: "none", md: "3xl" }}
             shadow="2xl"
+            bg={useColorModeValue("white", "darkBrand.50")}
             overflow="hidden"
           >
             <DrawerCloseButton 
@@ -2072,7 +2111,7 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 </VStack>
               </HStack>
             </DrawerHeader>
-            <DrawerBody p={{ base: 4, md: 6 }}>
+            <DrawerBody p={{ base: 4, md: 6 }} bg={useColorModeValue("white", "darkBrand.50")}>
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                   <CustomInput
@@ -2144,8 +2183,13 @@ const LabWorkTable = observer(({ patientId, patientDetails, isDrawer, defaultWor
                 </SimpleGrid>
               </VStack>
             </DrawerBody>
-            <DrawerFooter bg="gray.50" borderTopWidth="1px">
-              <Button variant="ghost" mr={3} onClick={() => {
+            <DrawerFooter bg={useColorModeValue("gray.50", "darkBrand.100")} borderTop="1px solid" borderColor={useColorModeValue("gray.200", "darkBrand.200")}>
+              <Button
+                variant="ghost"
+                mr={3}
+                color={useColorModeValue("gray.600", "gray.300")}
+                _hover={{ bg: useColorModeValue("gray.200", "whiteAlpha.100") }}
+                onClick={() => {
                 const today = new Date();
                 const last40Days = new Date();
                 last40Days.setDate(today.getDate() - 40);

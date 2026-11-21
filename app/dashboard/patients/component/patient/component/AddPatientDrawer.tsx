@@ -1,16 +1,7 @@
-import {
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerBody,
-} from "@chakra-ui/react";
 import { initialValues } from "../../utils/constant";
 import Form from "../../Form";
 import { observer } from "mobx-react-lite";
-import stores from "../../../../../store/stores";
-import { useColorModeValue } from "@chakra-ui/react";
+import CustomDrawer from "../../../../../component/common/Drawer/CustomDrawer";
 
 const AddPatientDrawer = observer(({
   isDrawerOpen,
@@ -23,59 +14,36 @@ const AddPatientDrawer = observer(({
   getAllUsers,
 }: any) => {
   return (
-    <Drawer
-      size="md"
-      isOpen={isDrawerOpen.isOpen}
-      placement="right"
-      onClose={() =>
+    <CustomDrawer
+      open={isDrawerOpen.isOpen}
+      close={() =>
         setIsDrawerOpen({ isOpen: false, type: "add", data: null })
       }
-      autoFocus={false}
+      title={isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
+      width="75vw"
     >
-      <DrawerOverlay>
-        <DrawerContent
-          bg={useColorModeValue("white", "gray.800")}
-          borderRadius="lg"
-          boxShadow="xl"
-          maxW={{ base: "100%", md: "92%" }}
-          width={{ base: "100%", md: "92%" }}
-        >
-          <DrawerCloseButton />
-          <DrawerHeader
-            bg={useColorModeValue(stores.themeStore.themeConfig.colors.custom.light.primary, stores.themeStore.themeConfig.colors.custom.dark.primary)}
-            color="white"
-            fontSize="lg"
-            fontWeight="bold"
-            textAlign="center"
-          >
-            {isDrawerOpen?.type === "edit" ? "Edit Patient" : "Add Patient"}
-          </DrawerHeader>
-          <DrawerBody p={6} bg={useColorModeValue("gray.50", "gray.900")}>
-            <Form
-              initialData={
-                isDrawerOpen?.type === "edit"
-                  ? { ...initialValues, ...isDrawerOpen?.data }
-                  : initialValues
-              }
-              onSubmit={
-                isDrawerOpen?.type === "edit"
-                  ? handleEditSubmit
-                  : handleAddSubmit
-              }
-              isOpen={isDrawerOpen}
-              onClose={() =>
-                setIsDrawerOpen({ isOpen: false, type: "add", data: null })
-              }
-              thumbnail={thumbnail}
-              isEdit={isDrawerOpen.type === "edit" ? true : false}
-              setThumbnail={setThumbnail}
-              loading={formLoading}
-              getAllUsers={getAllUsers}
-            />
-          </DrawerBody>
-        </DrawerContent>
-      </DrawerOverlay>
-    </Drawer>
+      <Form
+        initialData={
+          isDrawerOpen?.type === "edit"
+            ? { ...initialValues, ...isDrawerOpen?.data }
+            : initialValues
+        }
+        onSubmit={
+          isDrawerOpen?.type === "edit"
+            ? handleEditSubmit
+            : handleAddSubmit
+        }
+        isOpen={isDrawerOpen}
+        onClose={() =>
+          setIsDrawerOpen({ isOpen: false, type: "add", data: null })
+        }
+        thumbnail={thumbnail}
+        isEdit={isDrawerOpen.type === "edit" ? true : false}
+        setThumbnail={setThumbnail}
+        loading={formLoading}
+        getAllUsers={getAllUsers}
+      />
+    </CustomDrawer>
   );
 });
 

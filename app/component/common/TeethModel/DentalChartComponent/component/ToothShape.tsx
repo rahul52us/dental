@@ -6,7 +6,7 @@ interface ToothShapeProps {
   tooth: ToothData;
   isSelected: boolean;
   onClick: () => void;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   notationType?: "fdi" | "universal" | "palmer";
   complaintType?: string;
   activeComplaintType?: string;
@@ -18,8 +18,9 @@ interface ToothShapeProps {
 
 
 const sizeMap = {
-  sm: { w: "32px", h: "48px" },
-  md: { w: "40px", h: "56px" },
+  xs: { w: "22px", h: "32px" },
+  sm: { w: "26px", h: "38px" },
+  md: { w: "36px", h: "50px" },
   lg: { w: "48px", h: "64px" },
 };
 
@@ -151,8 +152,8 @@ export const ToothShape = ({
         flexDir="column"
         alignItems="center"
         flexShrink={0}
-        gap={1}
-        p={1}
+        gap={{ base: "2px", md: 1 }}
+        p={{ base: "2px", md: 1 }}
         rounded="lg"
         transition="all 0.2s"
         bg={activeStyle.bg}

@@ -14,6 +14,7 @@ import {
   Wrap,
   WrapItem,
   Divider,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   FiUser,
@@ -124,7 +125,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
     return MODULES.filter(
       (m) =>
         (m.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         m.category.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          m.category.toLowerCase().includes(searchQuery.toLowerCase())) &&
         hasModuleAccess(m.id)
     );
   }, [searchQuery, isSuperAdmin, user]);
@@ -140,8 +141,10 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
           size="md"
           h={{ base: "48px", md: "56px" }}
           borderRadius="xl"
-          bg="white"
-          borderWidth="2px"
+          bg={useColorModeValue("white", "darkBrand.100")}
+          borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+          color={useColorModeValue("gray.800", "white")}
+          borderWidth="1px"
           _focus={{ borderColor: "brand.500", shadow: "md" }}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -157,21 +160,21 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
             <Box
               key={m.id}
               p={{ base: 3, md: 5 }}
-              bg="white"
+              bg={useColorModeValue("white", "darkBrand.100")}
               border="1px solid"
-              borderColor={allChecked ? `${m.color}.200` : "gray.100"}
+              borderColor={useColorModeValue(allChecked ? `${m.color}.300` : "gray.200", allChecked ? `${m.color}.500` : "darkBrand.200")}
               borderRadius="xl"
               shadow="sm"
               transition="all 0.2s"
-              _hover={{ shadow: "md", borderColor: `${m.color}.300` }}
+              _hover={{ shadow: "md", borderColor: `${m.color}.400` }}
             >
               <HStack justify="space-between" mb={3} spacing={2}>
                 <HStack spacing={{ base: 2, md: 4 }} minW={0}>
-                  <Box p={{ base: 2, md: 3 }} bg={`${m.color}.50`} borderRadius="xl" flexShrink={0}>
-                    <Icon as={m.icon} color={`${m.color}.500`} boxSize={{ base: 5, md: 6 }} />
+                  <Box p={{ base: 2, md: 3 }} bg={useColorModeValue(`${m.color}.50`, "whiteAlpha.100")} borderRadius="xl" flexShrink={0}>
+                    <Icon as={m.icon} color={`${m.color}.400`} boxSize={{ base: 5, md: 6 }} />
                   </Box>
                   <VStack align="start" spacing={1} minW={0}>
-                    <Text fontWeight="800" color="gray.800" fontSize={{ base: "sm", md: "md" }} noOfLines={2}>{m.label}</Text>
+                    <Text fontWeight="800" color={useColorModeValue("gray.800", "white")} fontSize={{ base: "sm", md: "md" }} noOfLines={2}>{m.label}</Text>
                     <Badge colorScheme={m.color} variant="subtle" fontSize="10px" borderRadius="full" px={3}>
                       {m.category}
                     </Badge>
@@ -184,7 +187,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                   onChange={() => handleRowToggle(m.id)}
                 />
               </HStack>
-              <Divider mb={4} />
+              <Divider mb={4} borderColor={useColorModeValue("gray.100", "darkBrand.200")} />
               <SimpleGrid columns={2} spacing={3}>
                 {PERMISSIONS.filter(p => keysToRender.includes(p.id)).map((p) => {
                   const isChecked = permissions[m.id]?.[p.id] || false;
@@ -199,14 +202,14 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                       minH="44px"
                       p={2}
                       px={3}
-                      bg={isChecked ? `${m.color}.50` : "gray.50"}
+                      bg={useColorModeValue(isChecked ? `${m.color}.50` : "gray.50", isChecked ? `${m.color}.900` : "whiteAlpha.50")}
                       border="1px solid"
-                      borderColor={isChecked ? `${m.color}.200` : "transparent"}
+                      borderColor={useColorModeValue(isChecked ? `${m.color}.200` : "transparent", isChecked ? `${m.color}.600` : "whiteAlpha.100")}
                       borderRadius="xl"
                       cursor={canToggle ? "pointer" : "not-allowed"}
                       opacity={canToggle ? 1 : 0.4}
                       transition="all 0.2s"
-                      _hover={canToggle ? { bg: isChecked ? `${m.color}.100` : "gray.100" } : {}}
+                      _hover={canToggle ? { bg: useColorModeValue(isChecked ? `${m.color}.100` : "gray.100", isChecked ? `${m.color}.800` : "whiteAlpha.100") } : {}}
                     >
                       <Checkbox
                         colorScheme={m.color}
@@ -222,7 +225,7 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
                         }}
                         mr={2}
                       />
-                      <Text fontSize="sm" fontWeight={isChecked ? "700" : "600"} color={isChecked ? `${m.color}.700` : "gray.600"}>
+                      <Text fontSize="sm" fontWeight={isChecked ? "700" : "600"} color={useColorModeValue(isChecked ? `${m.color}.700` : "gray.600", isChecked ? `${m.color}.200` : "gray.300")}>
                         {p.label}
                       </Text>
                     </Box>
@@ -236,10 +239,10 @@ const PermissionsSelector: React.FC<PermissionsSelectorProps> = ({ permissions, 
 
       {filteredModules.length === 0 && (
         <VStack py={16} spacing={4}>
-          <Box p={6} bg="gray.50" borderRadius="full">
+          <Box p={6} bg={useColorModeValue("gray.50", "whiteAlpha.100")} borderRadius="full">
             <Icon as={FiSearch} boxSize={10} color="gray.400" />
           </Box>
-          <Text color="gray.500" fontWeight="700" fontSize="lg">
+          <Text color={useColorModeValue("gray.500", "gray.400")} fontWeight="700" fontSize="lg">
             No modules found matching your search
           </Text>
         </VStack>

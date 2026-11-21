@@ -35,6 +35,7 @@ import {
   Select,
   Avatar,
   useBreakpointValue,
+  useColorModeValue,
   SimpleGrid,
 } from "@chakra-ui/react";
 import {
@@ -522,53 +523,180 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
     const activeTeethForStep = selectedTeeth.length > 0 ? selectedTeeth : [{ id: "General", fdi: "General", name: "General Clinical Record", universal: "", palmer: "", position: "upper", side: "right", type: "molar" } as ToothData];
 
     return (
-      <VStack spacing={4} align="stretch">
-        {isMobile ? (
-          <Box bg="white" p={3.5} borderRadius="24px" border="1px solid" borderColor="gray.100" boxShadow="sm">
-            {/* Row 1: Dentition Toggle + Selected Count */}
-            <Flex justify="space-between" align="center" mb={3}>
+      <VStack spacing={4} align="stretch" w="full">
+        {/* Mobile View: High-Density Layout with 100% Reliability */}
+        <Box
+          display={{ base: "block", lg: "none" }}
+          bg={useColorModeValue("white", "darkBrand.50")}
+          p={{ base: 3, md: 3.5 }}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+          boxShadow="xs"
+          w="full"
+        >
+          {/* Row 1: DENTITION Header with SELECTED Count Badge & Quick Work Dates Action */}
+          <Flex justify="space-between" align="center" mb={1.5} w="full">
+            <HStack spacing={2} align="center">
+              <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em">
+                DENTITION
+              </Text>
+              <Button
+                size="xs"
+                variant="ghost"
+                colorScheme="blue"
+                h="22px"
+                px={2}
+                fontSize="9.5px"
+                fontWeight="800"
+                leftIcon={<FiCalendar size={11} />}
+                onClick={fetchTreatmentCounts}
+                borderRadius="full"
+              >
+                Work Dates ({todayToothTreatment.totalItems || 0})
+              </Button>
+            </HStack>
+            <HStack
+              spacing={1}
+              bg={useColorModeValue(`${activeColor}.50`, "whiteAlpha.100")}
+              px={2.5}
+              py={0.5}
+              borderRadius="full"
+              border="1px solid"
+              borderColor={useColorModeValue(`${activeColor}.200`, `${activeColor}.700`)}
+            >
+              <Text fontSize="10px" fontWeight="800" color={useColorModeValue("gray.500", "gray.400")}>
+                SELECTED:
+              </Text>
+              <Text fontWeight="900" color={useColorModeValue(`${activeColor}.600`, `${activeColor}.300`)} fontSize="13px">
+                {selectedTeeth.length}
+              </Text>
+            </HStack>
+          </Flex>
+
+          {/* Row 2: Dentition Switcher - Takes 100% Full Width */}
+          <Box mb={2.5} w="full">
+            <DentitionToggle
+              value={dentitionType}
+              onChange={(val) => {
+                setDentitionType(val);
+                setSelectedTeeth([]);
+                setToothComplaints({});
+              }}
+            />
+          </Box>
+
+          {/* Row 3: Notation Selector */}
+          <Box mb={2.5} w="full">
+            <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em" mb={1}>
+              NOTATION
+            </Text>
+            <SimpleGrid columns={3} spacing={1.5} bg={useColorModeValue("gray.100", "darkBrand.100")} p="3px" borderRadius="xl" w="full">
+              {["fdi", "universal", "palmer"].map(n => {
+                const isSelected = notation === n;
+                return (
+                  <Button
+                    key={n}
+                    size="xs"
+                    h="28px"
+                    variant={isSelected ? "solid" : "ghost"}
+                    bg={isSelected ? `${activeColor}.500` : "transparent"}
+                    color={isSelected ? "white" : useColorModeValue("gray.600", "gray.300")}
+                    _hover={{ bg: isSelected ? `${activeColor}.600` : useColorModeValue("whiteAlpha.400", "whiteAlpha.200") }}
+                    onClick={() => setNotation(n as any)}
+                    fontWeight="bold"
+                    fontSize="11px"
+                    borderRadius="lg"
+                  >
+                    {n.toUpperCase()}
+                  </Button>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
+
+          {/* Row 4: Record As (Complaint Type) */}
+          <Box w="full">
+            <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em" mb={1}>
+              RECORD AS
+            </Text>
+            <SimpleGrid columns={3} spacing={1.5} bg={useColorModeValue("gray.100", "darkBrand.100")} p="3px" borderRadius="xl" w="full">
+              {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
+                const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
+                const isActive = complaintType === type;
+                const c = buttonColorMap[type];
+                const shortName = type === "CHIEF COMPLAINT" ? "CHIEF" : type === "OTHER FINDING" ? "OTHER" : "EXISTING";
+                return (
+                  <Button
+                    key={type}
+                    size="xs"
+                    h="28px"
+                    bg={isActive ? `${c}.500` : "transparent"}
+                    color={isActive ? "white" : useColorModeValue("gray.600", "gray.300")}
+                    _hover={{ bg: isActive ? `${c}.600` : useColorModeValue("whiteAlpha.400", "whiteAlpha.200") }}
+                    variant={isActive ? "solid" : "ghost"}
+                    onClick={() => setComplaintType(type)}
+                    fontWeight="bold"
+                    fontSize="11px"
+                    borderRadius="lg"
+                  >
+                    {shortName}
+                  </Button>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
+        </Box>
+
+        {/* Desktop View: Horizontal Toolbar */}
+        <Flex
+          display={{ base: "none", lg: "flex" }}
+          justify="space-between"
+          align="center"
+          wrap="wrap"
+          gap={3}
+          bg={useColorModeValue("white", "darkBrand.50")}
+          px={5}
+          py={2.5}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+          boxShadow="xs"
+        >
+            <HStack spacing={{ base: 3, xl: 6 }} wrap="wrap">
               <VStack align="start" spacing={1}>
-                <Text fontSize="10px" fontWeight="900" color="black" letterSpacing="0.1em">DENTITION</Text>
+                <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em">DENTITION</Text>
                 <DentitionToggle value={dentitionType} onChange={(val) => {
                   setDentitionType(val);
                   setSelectedTeeth([]);
                   setToothComplaints({});
                 }} />
               </VStack>
-
-              <HStack spacing={1.5} bg={`${activeColor}.50`} px={3} py={1.5} borderRadius="2xl" border="1px solid" borderColor={`${activeColor}.100`}>
-                <Text fontSize="10px" fontWeight="900" color="gray.500">SELECTED:</Text>
-                <Text fontWeight="900" color={`${activeColor}.600`} fontSize="18px">{selectedTeeth.length}</Text>
-              </HStack>
-            </Flex>
-
-            {/* Row 2: Notation & Record As */}
-            <VStack align="stretch" spacing={2.5}>
-              <Flex justify="space-between" align="center">
-                <Text fontSize="10px" fontWeight="900" color="black" letterSpacing="0.1em">NOTATION</Text>
-                <HStack bg="gray.50" p={1} borderRadius="xl">
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em">NOTATION</Text>
+                <HStack bg={useColorModeValue("gray.100", "darkBrand.100")} p="3px" borderRadius="xl">
                   {["fdi", "universal", "palmer"].map(n => (
                     <Button
                       key={n}
                       size="xs"
+                      h="28px"
                       variant={notation === n ? "solid" : "ghost"}
                       bg={notation === n ? `${activeColor}.500` : "transparent"}
-                      color={notation === n ? "white" : "gray.600"}
-                      _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
+                      color={notation === n ? "white" : useColorModeValue("gray.600", "gray.300")}
+                      _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.200" }}
                       onClick={() => setNotation(n as any)}
-                      fontWeight="900"
-                      fontSize="10px"
-                      px={2}
+                      fontWeight="bold"
+                      fontSize="11px"
+                      borderRadius="lg"
                     >
                       {n.toUpperCase()}
                     </Button>
                   ))}
                 </HStack>
-              </Flex>
-
-              <Box>
-                <Text fontSize="10px" fontWeight="900" color="black" letterSpacing="0.1em" mb={1}>RECORD AS</Text>
-                <SimpleGrid columns={3} spacing={1.5}>
+              </VStack>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em">RECORD AS</Text>
+                <HStack bg={useColorModeValue("gray.100", "darkBrand.100")} p="3px" borderRadius="xl">
                   {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
                     const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
                     const isActive = complaintType === type;
@@ -578,73 +706,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                       <Button
                         key={type}
                         size="xs"
-                        bg={isActive ? `${c}.500` : "gray.50"}
-                        color={isActive ? "white" : "gray.600"}
-                        _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
+                        h="28px"
+                        bg={isActive ? `${c}.500` : "transparent"}
+                        color={isActive ? "white" : useColorModeValue("gray.600", "gray.300")}
+                        _hover={{ bg: isActive ? `${c}.600` : "gray.200" }}
                         variant={isActive ? "solid" : "ghost"}
                         onClick={() => setComplaintType(type)}
-                        fontWeight="900"
-                        fontSize="10px"
-                        borderRadius="xl"
-                        py={1.5}
+                        fontWeight="bold"
+                        fontSize="11px"
+                        borderRadius="lg"
                       >
                         {shortName}
-                      </Button>
-                    );
-                  })}
-                </SimpleGrid>
-              </Box>
-            </VStack>
-          </Box>
-        ) : (
-          <Flex justify="space-between" align="center" bg="white" px={5} py={2} borderRadius="3xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
-            <HStack spacing={8}>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">DENTITION</Text>
-                <DentitionToggle value={dentitionType} onChange={(val) => {
-                  setDentitionType(val);
-                  setSelectedTeeth([]);
-                  setToothComplaints({});
-                }} />
-              </VStack>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">NOTATION</Text>
-                <HStack bg="gray.50" p={1} borderRadius="xl">
-                  {["fdi", "universal", "palmer"].map(n => (
-                    <Button
-                      key={n}
-                      size="xs"
-                      variant={notation === n ? "solid" : "ghost"}
-                      bg={notation === n ? `${activeColor}.500` : "transparent"}
-                      color={notation === n ? "white" : "gray.600"}
-                      _hover={{ bg: notation === n ? `${activeColor}.600` : "gray.100" }}
-                      onClick={() => setNotation(n as any)}
-                      fontWeight="900"
-                    >
-                      {n.toUpperCase()}
-                    </Button>
-                  ))}
-                </HStack>
-              </VStack>
-              <VStack align="start" spacing={1}>
-                <Text fontSize="11px" fontWeight="900" color="black" letterSpacing="0.2em">RECORD AS</Text>
-                <HStack bg="gray.50" p={1} borderRadius="xl">
-                  {["CHIEF COMPLAINT", "OTHER FINDING", "EXISTING FINDING"].map(type => {
-                    const buttonColorMap: any = { "CHIEF COMPLAINT": "red", "OTHER FINDING": "orange", "EXISTING FINDING": "green" };
-                    const isActive = complaintType === type;
-                    const c = buttonColorMap[type];
-                    return (
-                      <Button
-                        key={type}
-                        size="xs"
-                        bg={isActive ? `${c}.500` : "transparent"}
-                        color={isActive ? "white" : "gray.600"}
-                        _hover={{ bg: isActive ? `${c}.600` : "gray.100" }}
-                        variant={isActive ? "solid" : "ghost"}
-                        onClick={() => setComplaintType(type)}
-                        fontWeight="900"
-                      >
-                        {type}
                       </Button>
                     );
                   })}
@@ -652,17 +724,37 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
               </VStack>
             </HStack>
             <VStack align="end" spacing={0}>
-              <Text fontSize="11px" fontWeight="900" color="gray.300">SELECTED</Text>
-              <Text fontWeight="900" color={`${activeColor}.500`} fontSize="3xl">{selectedTeeth.length}</Text>
+              <Text fontSize="10px" fontWeight="900" color={useColorModeValue("gray.400", "gray.500")}>SELECTED</Text>
+              <Text fontWeight="900" color={`${activeColor}.500`} fontSize="2xl">{selectedTeeth.length}</Text>
             </VStack>
           </Flex>
-        )}
-        <Grid templateColumns={{ base: "1fr", xl: "2.5fr 1fr" }} gap={6} w="full">
+        <Grid templateColumns={{ base: "1fr", xl: "2.5fr 1fr" }} gap={{ base: 3, md: 6 }} w="full">
           {/* Column 1: Teeth Chart and Controls */}
-          <VStack bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" p={3} align="stretch" spacing={3} h="auto" flexShrink={0} w="full">
-            <Flex justify="space-between" align="center" borderBottom="1px dashed" borderColor="gray.100" pb={1}>
-              <VStack align="start" spacing={0}>
-                <Text fontSize="9px" fontWeight="1000" color="black" letterSpacing="0.1em">QUADRANTS</Text>
+          <VStack
+            bg={useColorModeValue("white", "darkBrand.50")}
+            borderRadius="2xl"
+            border="1px solid"
+            borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+            p={{ base: 2, md: 3 }}
+            align="stretch"
+            spacing={3}
+            h="auto"
+            flexShrink={0}
+            w="full"
+          >
+            <Flex
+              direction={{ base: "column", md: "row" }}
+              justify="space-between"
+              align={{ base: "stretch", md: "center" }}
+              borderBottom="1px dashed"
+              borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+              pb={2}
+              gap={2.5}
+            >
+              <HStack justify="space-between" align="center" flex={1} w="full">
+                <Text fontSize="9px" fontWeight="1000" color={useColorModeValue("gray.500", "gray.400")} letterSpacing="0.1em">
+                  QUADRANTS
+                </Text>
                 <HStack spacing={1}>
                   {[
                     { label: 'RU', pos: 'upper', side: 'right' },
@@ -689,47 +781,59 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                     );
                   })}
                 </HStack>
-              </VStack>
-              <HStack spacing={4} align="center">
-                {!patientDetails?.editData?._id && (
-                  <HStack bg="gray.100" p={1} borderRadius="xl" spacing={1}>
-                    <Button
-                      size="xs" leftIcon={<FiMousePointer size={11} />}
-                      bg={selectionMode === 'single' ? "white" : "transparent"}
-                      color={selectionMode === 'single' ? `${activeColor}.500` : "gray.600"}
-                      boxShadow={selectionMode === 'single' ? "sm" : "none"}
-                      onClick={() => {
-                        setSelectionMode('single');
-                        setIsMultipleSelection(false);
-                        setSelectedTeeth([]);
-                        setToothComplaints({});
-                      }}
-                      fontWeight="1000"
-                      h="28px"
-                      borderRadius="lg"
-                    >
-                      SINGLE
-                    </Button>
-                    <Button
-                      size="xs" leftIcon={<FiActivity size={11} />}
-                      bg={selectionMode === 'multi' ? "white" : "transparent"}
-                      color={selectionMode === 'multi' ? `${activeColor}.500` : "gray.600"}
-                      boxShadow={selectionMode === 'multi' ? "sm" : "none"}
-                      onClick={() => {
-                        setSelectionMode('multi');
-                        setIsMultipleSelection(true);
-                        setSelectedTeeth([]);
-                        setToothComplaints({});
-                      }}
-                      fontWeight="1000"
-                      h="28px"
-                      borderRadius="lg"
-                    >
-                      MULTI
-                    </Button>
-                  </HStack>
-                )}
               </HStack>
+
+              {!patientDetails?.editData?._id && (
+                <HStack
+                  bg={useColorModeValue("gray.100", "darkBrand.100")}
+                  p="2px"
+                  borderRadius="xl"
+                  spacing={1}
+                  justify="center"
+                  w={{ base: "full", md: "auto" }}
+                >
+                  <Button
+                    size="xs"
+                    leftIcon={<FiMousePointer size={11} />}
+                    bg={selectionMode === 'single' ? useColorModeValue("white", "darkBrand.200") : "transparent"}
+                    color={selectionMode === 'single' ? `${activeColor}.500` : useColorModeValue("gray.600", "gray.300")}
+                    boxShadow={selectionMode === 'single' ? "xs" : "none"}
+                    onClick={() => {
+                      setSelectionMode('single');
+                      setIsMultipleSelection(false);
+                      setSelectedTeeth([]);
+                      setToothComplaints({});
+                    }}
+                    fontWeight="1000"
+                    h="26px"
+                    fontSize="10px"
+                    borderRadius="lg"
+                    flex={{ base: 1, md: "initial" }}
+                  >
+                    SINGLE
+                  </Button>
+                  <Button
+                    size="xs"
+                    leftIcon={<FiActivity size={11} />}
+                    bg={selectionMode === 'multi' ? useColorModeValue("white", "darkBrand.200") : "transparent"}
+                    color={selectionMode === 'multi' ? `${activeColor}.500` : useColorModeValue("gray.600", "gray.300")}
+                    boxShadow={selectionMode === 'multi' ? "xs" : "none"}
+                    onClick={() => {
+                      setSelectionMode('multi');
+                      setIsMultipleSelection(true);
+                      setSelectedTeeth([]);
+                      setToothComplaints({});
+                    }}
+                    fontWeight="1000"
+                    h="26px"
+                    fontSize="10px"
+                    borderRadius="lg"
+                    flex={{ base: 1, md: "initial" }}
+                  >
+                    MULTI
+                  </Button>
+                </HStack>
+              )}
             </Flex>
 
             <Box w="full" h="auto">
@@ -748,14 +852,27 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
             </Box>
           </VStack>
 
-          {/* Column 2: View Work Dates */}
-          <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" boxShadow="md">
-            <HStack justify="space-between" align="center" pb={2} borderBottom="1px dashed" borderColor="gray.100">
-              <VStack align="start" spacing={0}>
-                <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.2em">HISTORY PANELS</Text>
-                <Heading size="xs" fontWeight="1000" color="black">View Work Dates</Heading>
+          {/* Column 2: View Work Dates (Sidebar Widget on Desktop, Stacked on Mobile) */}
+          <VStack
+            display="flex"
+            spacing={4}
+            align="stretch"
+            p={{ base: 3, md: 5 }}
+            bg={useColorModeValue("white", "darkBrand.50")}
+            border="1px solid"
+            borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+            borderRadius={{ base: "2xl", md: "3xl" }}
+            boxShadow="sm"
+            w="full"
+            maxW="100%"
+            overflow="hidden"
+          >
+            <HStack justify="space-between" align="center" pb={2} borderBottom="1px dashed" borderColor={useColorModeValue("gray.100", "whiteAlpha.200")} w="full">
+              <VStack align="start" spacing={0} flex={1} minW="0">
+                <Text fontSize="11px" fontWeight="900" color={useColorModeValue("gray.400", "gray.500")} letterSpacing="0.2em">HISTORY PANELS</Text>
+                <Heading size="xs" fontWeight="1000" color={useColorModeValue("black", "white")} noOfLines={1}>View Work Dates</Heading>
               </VStack>
-              <HStack spacing={2}>
+              <HStack spacing={2} flexShrink={0}>
                 <IconButton aria-label="Summary" icon={<FiCalendar />} size="sm" colorScheme="blue" borderRadius="2xl" onClick={fetchTreatmentCounts} />
                 <Circle size="32px" bg={`${activeColor}.50`} color={`${activeColor}.500`} fontWeight="900" border="1px solid" borderColor={`${activeColor}.100`}>
                   {todayToothTreatment.totalItems || 0}
@@ -764,8 +881,8 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
             </HStack>
             <VStack align="stretch" spacing={4} pt={2}>
               <VStack align="start" spacing={1}>
-                <Text fontSize="11px" fontWeight="900" color="gray.400" letterSpacing="0.1em">SELECT DATE</Text>
-                <HStack bg="blue.50" p={3} borderRadius="2xl" border="1px solid" borderColor="blue.100" justify="space-between" w="full">
+                <Text fontSize="11px" fontWeight="900" color={useColorModeValue("gray.400", "gray.500")} letterSpacing="0.1em">SELECT DATE</Text>
+                <HStack bg={useColorModeValue("blue.50", "whiteAlpha.100")} p={3} borderRadius="2xl" border="1px solid" borderColor={useColorModeValue("blue.100", "whiteAlpha.200")} justify="space-between" w="full">
                   <Input
                     type="date"
                     value={sessionDate}
@@ -773,18 +890,18 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                     size="sm"
                     variant="unstyled"
                     fontWeight="black"
-                    color="black"
+                    color={useColorModeValue("black", "white")}
                     p={0}
                   />
                 </HStack>
               </VStack>
 
               <Box
-                p={5}
-                bg="blue.50/30"
+                p={4}
+                bg={useColorModeValue("blue.50/30", "whiteAlpha.50")}
                 borderRadius="2xl"
                 border="1px solid"
-                borderColor="blue.100"
+                borderColor={useColorModeValue("blue.100", "whiteAlpha.200")}
                 cursor="pointer"
                 onClick={() => {
                   if (patientDetails?._id) {
@@ -793,15 +910,15 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
                   }
                   onHistoryDrawerOpen();
                 }}
-                _hover={{ transform: "translateY(-2px)", bg: "blue.50/50" }}
+                _hover={{ transform: "translateY(-2px)", bg: useColorModeValue("blue.50/50", "whiteAlpha.100") }}
                 transition="all 0.2s"
               >
                 <HStack justify="space-between">
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="10px" fontWeight="black" color="black" letterSpacing="0.05em">PATIENT RECORDS</Text>
-                    <Heading size="xs" fontWeight="black" color="black">View Timeline</Heading>
+                    <Text fontSize="10px" fontWeight="black" color={useColorModeValue("black", "white")} letterSpacing="0.05em">PATIENT RECORDS</Text>
+                    <Heading size="xs" fontWeight="black" color={useColorModeValue("black", "white")}>View Timeline</Heading>
                   </VStack>
-                  <Text fontSize="24px" fontWeight="black" color="black">{todayToothTreatment.totalItems || 0}</Text>
+                  <Text fontSize="24px" fontWeight="black" color={useColorModeValue("black", "white")}>{todayToothTreatment.totalItems || 0}</Text>
                 </HStack>
               </Box>
             </VStack>
@@ -809,7 +926,17 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
         </Grid>
 
         {/* Treatment Procedure Form (Below the grid, Full Width) */}
-        <VStack spacing={4} align="stretch" p={6} bg="white" border="1px solid" borderColor="gray.100" rounded="3xl" boxShadow="md" w="full">
+        <VStack
+          spacing={4}
+          align="stretch"
+          p={{ base: 3, md: 5 }}
+          bg={useColorModeValue("white", "darkBrand.50")}
+          border="1px solid"
+          borderColor={useColorModeValue("gray.100", "whiteAlpha.200")}
+          borderRadius={{ base: "2xl", md: "3xl" }}
+          boxShadow="sm"
+          w="full"
+        >
           <TreatmentProcedureForm
             isPatient={isPatient}
             patientDetails={patientDetails}
@@ -912,7 +1039,7 @@ const Index = observer(({ isPatient, patientDetails, closeWizard, onSaveAndWorkD
         </ModalContent>
       </Modal>
 
-      <Box px={6} pb={6} pt={2}>{renderStep()}</Box>
+      <Box px={{ base: 1.5, md: 6 }} pb={{ base: 3, md: 6 }} pt={{ base: 1, md: 2 }} w="full" maxW="100%" overflowX="hidden">{renderStep()}</Box>
 
       <CustomDrawer open={isEditDrawerOpen} close={handleCloseEditDrawer} title={<PatientHeader title="Edit Clinical Entry" patient={patientDetails} />} width="70vw">
         {(() => {

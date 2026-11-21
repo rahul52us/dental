@@ -162,7 +162,7 @@ const LabPage = observer(() => {
         >
           <DrawerOverlay>
             <DrawerContent
-              bg="white"
+              bg={useColorModeValue("white", "darkBrand.50")}
               borderRadius={isMobile ? 0 : "lg"}
               borderTopRadius={0}
               boxShadow="xl"
@@ -184,7 +184,7 @@ const LabPage = observer(() => {
               >
                 {isDrawerOpen?.type === "edit" ? t("labs.page.editLab") : t("labs.page.addLab")}
               </DrawerHeader>
-              <DrawerBody p={6} bg={useColorModeValue("gray.50", "gray.900")}>
+              <DrawerBody p={6} bg={useColorModeValue("gray.50", "darkBrand.50")}>
                 <Form
                   initialData={
                     isDrawerOpen?.type === "edit"

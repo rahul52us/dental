@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
@@ -75,13 +76,14 @@ const BankDetailsInput = ({
 
   return (
     <GridItem colSpan={3}>
-      <Box  p={4}
+      <Box p={4}
         borderWidth={1}
-        borderRadius="md"
+        borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+        borderRadius="xl"
         boxShadow="sm"
-        bg="white"
+        bg={useColorModeValue("white", "darkBrand.100")}
         mt={3}>
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.600">
+        <Text fontSize="lg" fontWeight="bold" mb={4} color="teal.500">
           Bank Details
         </Text>
         <FieldArray name="bankAccounts">
@@ -89,10 +91,10 @@ const BankDetailsInput = ({
             <Box
               p={6}
               borderWidth={1}
-              borderRadius="md"
+              borderRadius="xl"
               borderStyle="dashed"
               borderColor="teal.400"
-              bg="gray.50"
+              bg={useColorModeValue("gray.50", "whiteAlpha.50")}
               textAlign="center"
               position="relative"
               mt={6}

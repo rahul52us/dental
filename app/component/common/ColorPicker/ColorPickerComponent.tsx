@@ -80,11 +80,12 @@ const ColorPickerComponent: React.FC<ColorPickerProps> = ({
     onChangeComplete(sug);
   };
 
-  const selectedBg = useColorModeValue("blue.50", "gray.700");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const normalBg = useColorModeValue("white", "gray.800");
-  const hoverBg = useColorModeValue("gray.50", "gray.700");
+  const selectedBg = useColorModeValue("blue.50", "whiteAlpha.200");
+  const borderColor = useColorModeValue("gray.200", "darkBrand.200");
+  const normalBg = useColorModeValue("white", "darkBrand.100");
+  const hoverBg = useColorModeValue("gray.50", "whiteAlpha.100");
   const normalTextColor = useColorModeValue("gray.700", "gray.300");
+  const selectedTextColor = useColorModeValue("blue.600", "blue.200");
 
   return (
     <SimpleGrid columns={{ base: 4, sm: 4, md: 3 }} spacing={{ base: 2, md: 3 }} w="100%">
@@ -154,7 +155,7 @@ const ColorPickerComponent: React.FC<ColorPickerProps> = ({
             <Text
               fontSize={{ base: "9.5px", md: "xs" }}
               fontWeight={isSelected ? { base: "700", md: "bold" } : { base: "700", md: "normal" }}
-              color={isSelected ? "blue.600" : normalTextColor}
+              color={isSelected ? selectedTextColor : normalTextColor}
               textAlign="center"
               lineHeight="1.2"
               noOfLines={{ base: 2, md: 1 }}

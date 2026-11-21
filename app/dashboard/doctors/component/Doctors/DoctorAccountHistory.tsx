@@ -39,11 +39,11 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   const [previewData, setPreviewData] = useState<string | null>(null);
   const [previewFileName, setPreviewFileName] = useState("");
 
-  const outerBg = useColorModeValue("gray.50", "gray.900");
-  const cardBg = useColorModeValue("white", "gray.800");
-  const textHeading = useColorModeValue("gray.800", "gray.100");
-  const textMuted = useColorModeValue("gray.400", "gray.400");
-  const borderColor = useColorModeValue("gray.100", "gray.700");
+  const outerBg = useColorModeValue("gray.50", "darkBrand.50");
+  const cardBg = useColorModeValue("white", "darkBrand.100");
+  const textHeading = useColorModeValue("gray.800", "white");
+  const textMuted = useColorModeValue("gray.500", "gray.400");
+  const borderColor = useColorModeValue("gray.100", "darkBrand.200");
   const bentoBlueBg = useColorModeValue("blue.50", "rgba(59, 130, 246, 0.12)");
   const bentoBlueBorder = useColorModeValue("blue.100", "rgba(59, 130, 246, 0.25)");
   const bentoGreenBg = useColorModeValue("green.50", "rgba(34, 197, 94, 0.12)");
@@ -196,38 +196,38 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
   ];
 
   return (
-    <Box p={{ base: 2, md: 4 }} bg="gray.50" minH={{ base: "100%", md: "80vh" }}>
-      <Box bg="white" borderRadius={{ base: "xl", md: "3xl" }} shadow="xl" p={{ base: 2, md: 6 }} overflowX="hidden">
+    <Box p={{ base: 2, md: 4 }} bg={outerBg} minH={{ base: "100%", md: "80vh" }}>
+      <Box bg={cardBg} borderRadius={{ base: "xl", md: "3xl" }} shadow="xl" border="1px solid" borderColor={borderColor} p={{ base: 2, md: 6 }} overflowX="hidden">
         <SimpleGrid columns={{ base: 1, md: 3 }} gap={{ base: 2, md: 6 }} mb={{ base: 5, md: 10 }}>
-            <VStack align="start" p={{ base: 3, md: 5 }} bg="blue.50" borderRadius="2xl" border="1px solid" borderColor="blue.100">
+            <VStack align="start" p={{ base: 3, md: 5 }} bg={bentoBlueBg} borderRadius="2xl" border="1px solid" borderColor={bentoBlueBorder}>
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="blue.500" letterSpacing="0.05em">TOTAL BILLED</Text>
-                    <Icon as={FiPieChart} color="blue.300" />
+                    <Icon as={FiPieChart} color="blue.400" />
                 </HStack>
                 {loading ? <Spinner size="sm" /> : (
-                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color="blue.700">₹{(totalBill || 0).toLocaleString()}</Text>
+                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color={useColorModeValue("blue.700", "blue.300")}>₹{(totalBill || 0).toLocaleString()}</Text>
                 )}
                 <Text fontSize="9px" color="blue.400" fontWeight="bold">GROSS EARNINGS</Text>
             </VStack>
 
-            <VStack align="start" p={{ base: 3, md: 5 }} bg="green.50" borderRadius="2xl" border="1px solid" borderColor="green.100">
+            <VStack align="start" p={{ base: 3, md: 5 }} bg={bentoGreenBg} borderRadius="2xl" border="1px solid" borderColor={bentoGreenBorder}>
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="green.500" letterSpacing="0.05em">TOTAL COLLECTED</Text>
-                    <Icon as={FiDownloadCloud} color="green.300" />
+                    <Icon as={FiDownloadCloud} color="green.400" />
                 </HStack>
                 {loading ? <Spinner size="sm" /> : (
-                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color="green.700">₹{(collected || 0).toLocaleString()}</Text>
+                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color={useColorModeValue("green.700", "green.300")}>₹{(collected || 0).toLocaleString()}</Text>
                 )}
                 <Text fontSize="9px" color="green.400" fontWeight="bold">CASH IN HAND</Text>
             </VStack>
 
-            <VStack align="start" p={{ base: 3, md: 5 }} bg="orange.50" borderRadius="2xl" border="1px solid" borderColor="orange.100">
+            <VStack align="start" p={{ base: 3, md: 5 }} bg={bentoOrangeBg} borderRadius="2xl" border="1px solid" borderColor={bentoOrangeBorder}>
                 <HStack w="full" justify="space-between" mb={1}>
                     <Text fontSize="xs" fontWeight="900" color="orange.500" letterSpacing="0.05em">PENDING</Text>
-                    <Icon as={FiTrendingUp} color="orange.300" />
+                    <Icon as={FiTrendingUp} color="orange.400" />
                 </HStack>
                 {loading ? <Spinner size="sm" /> : (
-                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color="orange.700">₹{(pending || 0).toLocaleString()}</Text>
+                  <Text fontSize={{ base: "xl", md: "24px" }} fontWeight="1000" color={useColorModeValue("orange.700", "orange.300")}>₹{(pending || 0).toLocaleString()}</Text>
                 )}
                 <Text fontSize="9px" color="orange.400" fontWeight="bold">REMAINING TO COLLECT</Text>
             </VStack>
@@ -236,8 +236,8 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
         <Box px={2} mb={6}>
             <Flex direction={{ base: "column", md: "row" }} justify="space-between" align={{ base: "flex-start", md: "flex-end" }} gap={4}>
                 <VStack align="start" spacing={0}>
-                    <Text fontSize="xl" fontWeight="900" color="gray.800">Doctor's Financial Ledger</Text>
-                    <Text fontSize="xs" color="gray.400">Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
+                    <Text fontSize="xl" fontWeight="900" color={textHeading}>Doctor's Financial Ledger</Text>
+                    <Text fontSize="xs" color={textMuted}>Showing all treatments performed by Dr. {doctorDetails?.name}</Text>
                 </VStack>
                 {stores.auth.hasPermission('accountability', 'download') && (
                   <Button 
@@ -328,7 +328,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
       {/* Download Configuration Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} isCentered size="xl">
         <ModalOverlay backdropFilter="blur(10px)" bg="blackAlpha.300" />
-        <ModalContent borderRadius="3xl" overflow="hidden" shadow="2xl">
+        <ModalContent borderRadius="3xl" overflow="hidden" shadow="2xl" bg={cardBg} border="1px solid" borderColor={borderColor}>
           <ModalHeader 
             bg="purple.600" 
             color="white" 
@@ -353,7 +353,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
           <ModalBody p={8}>
             <VStack spacing={8} align="stretch">
               <Box>
-                <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">FILTER BY PATIENT</Text>
+                <Text fontWeight="bold" mb={3} color={useColorModeValue("gray.700", "gray.200")} fontSize="sm">FILTER BY PATIENT</Text>
                 <CustomInput
                   name="patientFilter"
                   type="real-time-user-search"
@@ -378,7 +378,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
                   />
                 </Box>
                 <Box>
-                  <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">TO DATE</Text>
+                  <Text fontWeight="bold" mb={3} color={useColorModeValue("gray.700", "gray.200")} fontSize="sm">TO DATE</Text>
                   <CustomInput
                     name="toDate"
                     type="date"
@@ -390,7 +390,7 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
               </SimpleGrid>
 
               <Box>
-                <Text fontWeight="bold" mb={3} color="gray.700" fontSize="sm">PAYMENT STATUS</Text>
+                <Text fontWeight="bold" mb={3} color={useColorModeValue("gray.700", "gray.200")} fontSize="sm">PAYMENT STATUS</Text>
                 <CustomInput
                   name="statusFilter"
                   type="select"
@@ -408,13 +408,15 @@ const DoctorAccountHistory = observer(({ doctorDetails }: any) => {
             </VStack>
           </ModalBody>
 
-          <ModalFooter bg="gray.50" p={6} borderTop="1px solid" borderColor="gray.100">
+          <ModalFooter bg={outerBg} p={6} borderTop="1px solid" borderColor={borderColor}>
             <Flex direction={{ base: "column", md: "row" }} gap={4} w="full">
               <Button 
                 variant="ghost" 
                 w={{ base: "100%", md: "auto" }}
                 flex={{ md: 1 }}
                 borderRadius="full" 
+                color={useColorModeValue("gray.600", "gray.300")}
+                _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.200") }}
                 onClick={resetModalFilters}
                 leftIcon={<FiX />}
               >

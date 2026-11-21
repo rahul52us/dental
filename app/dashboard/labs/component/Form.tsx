@@ -6,6 +6,7 @@ import {
   GridItem,
   Text,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Formik, Form as FormikForm } from "formik";
@@ -68,7 +69,7 @@ const Form = ({
               >
                 {/* Section 1: Personal Info */}
                 <GridItem colSpan={2}>
-                  <Text fontSize="lg" fontWeight="semibold" mb={4}>
+                  <Text fontSize="lg" fontWeight="semibold" mb={4} color={useColorModeValue("gray.800", "white")}>
                     {t("labs.form.labInformation")}
                   </Text>
 
@@ -79,9 +80,10 @@ const Form = ({
                       gap={5}
                       p={4}
                       borderWidth={1}
-                      borderRadius="md"
+                      borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                      borderRadius="xl"
                       boxShadow="sm"
-                      bg="white"
+                      bg={useColorModeValue("white", "darkBrand.100")}
                       mt={3}
                     >
                       <CustomInput

@@ -6,6 +6,7 @@ import {
   IconButton,
   Text,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FieldArray } from "formik";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
@@ -28,8 +29,15 @@ const StaffInput = ({ values, setFieldValue, errors }: StaffInputProps) => {
   return (
     <FieldArray name="staffs">
       {({ remove, push }) => (
-        <Box bg="white" p={4} borderRadius="md" boxShadow="md">
-          <Text fontWeight="bold" fontSize="lg" mb={4}>
+        <Box
+          bg={useColorModeValue("white", "darkBrand.100")}
+          borderWidth="1px"
+          borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+          p={4}
+          borderRadius="xl"
+          boxShadow="md"
+        >
+          <Text fontWeight="bold" fontSize="lg" mb={4} color={useColorModeValue("gray.800", "white")}>
             Staff Members
           </Text>
 
@@ -38,7 +46,9 @@ const StaffInput = ({ values, setFieldValue, errors }: StaffInputProps) => {
               <Box
                 key={index}
                 borderWidth="1px"
-                borderRadius="md"
+                borderColor={useColorModeValue("gray.200", "darkBrand.200")}
+                bg={useColorModeValue("gray.50", "whiteAlpha.50")}
+                borderRadius="xl"
                 p={3}
                 position="relative"
               >

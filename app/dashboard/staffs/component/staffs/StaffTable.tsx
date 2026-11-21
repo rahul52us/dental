@@ -614,9 +614,11 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                             borderRadius="xl"
                             colorScheme={staff.is_active ? "green" : "red"}
                             variant="ghost"
-                            bg={staff.is_active ? "green.50" : "red.50"}
-                            color={staff.is_active ? "green.600" : "red.500"}
-                            _hover={{ bg: staff.is_active ? "green.100" : "red.100" }}
+                            bg={useColorModeValue(staff.is_active ? "green.50" : "red.50", "whiteAlpha.100")}
+                            color={staff.is_active ? "green.500" : "red.400"}
+                            border="1px solid"
+                            borderColor={useColorModeValue(staff.is_active ? "green.200" : "red.200", "whiteAlpha.200")}
+                            _hover={{ bg: useColorModeValue(staff.is_active ? "green.100" : "red.100", "whiteAlpha.200") }}
                             onClick={() => handleStatusClick(staff)}
                           />
                         </Tooltip>
@@ -627,13 +629,13 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                     <Flex
                       align="center"
                       justify="space-between"
-                      bg="gray.50"
+                      bg={useColorModeValue("gray.50", "whiteAlpha.100")}
                       borderRadius="14px"
                       px={3}
                       py={1.5}
                       mb={2.5}
                       border="1px solid"
-                      borderColor="gray.150"
+                      borderColor={useColorModeValue("gray.200", "whiteAlpha.200")}
                     >
                       <HStack
                         spacing={2}
@@ -647,8 +649,8 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           }
                         }}
                       >
-                        <Icon as={FiPhone} color="teal.600" fontSize="13px" />
-                        <Text fontSize="12px" fontWeight="600" color={phone ? "gray.750" : "gray.400"} noOfLines={1}>
+                        <Icon as={FiPhone} color="teal.500" fontSize="13px" />
+                        <Text fontSize="12px" fontWeight="600" color={phone ? staffTitleColor : staffSubtextColor} noOfLines={1}>
                           {phone ? `+91 •••• ${phone.slice(-4)}` : "No phone registered"}
                         </Text>
                         {phone && <Icon as={FiCopy} color="gray.400" fontSize="11px" />}
@@ -678,11 +680,11 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           flex={1}
                           minH="36px"
                           borderRadius="xl"
-                          bg="teal.50"
-                          color="teal.700"
+                          bg={useColorModeValue("teal.50", "whiteAlpha.100")}
+                          color={useColorModeValue("teal.700", "teal.300")}
                           border="1px solid"
-                          borderColor="teal.100"
-                          _hover={{ bg: "teal.100" }}
+                          borderColor={useColorModeValue("teal.200", "whiteAlpha.200")}
+                          _hover={{ bg: useColorModeValue("teal.100", "whiteAlpha.200") }}
                           _active={{ transform: "scale(0.98)" }}
                           leftIcon={<FiEye size={13} />}
                           fontSize="12px"
@@ -699,11 +701,11 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           flex={1}
                           minH="36px"
                           borderRadius="xl"
-                          bg="blue.50"
-                          color="blue.700"
+                          bg={useColorModeValue("blue.50", "whiteAlpha.100")}
+                          color={useColorModeValue("blue.700", "blue.300")}
                           border="1px solid"
-                          borderColor="blue.100"
-                          _hover={{ bg: "blue.100" }}
+                          borderColor={useColorModeValue("blue.200", "whiteAlpha.200")}
+                          _hover={{ bg: useColorModeValue("blue.100", "whiteAlpha.200") }}
                           _active={{ transform: "scale(0.98)" }}
                           leftIcon={<FiEdit2 size={13} />}
                           fontSize="12px"
@@ -720,11 +722,11 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                           flex={1}
                           minH="36px"
                           borderRadius="xl"
-                          bg="purple.50"
-                          color="purple.700"
+                          bg={useColorModeValue("purple.50", "whiteAlpha.100")}
+                          color={useColorModeValue("purple.700", "purple.300")}
                           border="1px solid"
-                          borderColor="purple.100"
-                          _hover={{ bg: "purple.100" }}
+                          borderColor={useColorModeValue("purple.200", "whiteAlpha.200")}
+                          _hover={{ bg: useColorModeValue("purple.100", "whiteAlpha.200") }}
                           _active={{ transform: "scale(0.98)" }}
                           leftIcon={<FiLock size={13} />}
                           fontSize="12px"
@@ -754,9 +756,11 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                               w="30px"
                               h="30px"
                               borderRadius="lg"
-                              bg="orange.50"
-                              color="orange.600"
-                              _hover={{ bg: "orange.100" }}
+                              bg={useColorModeValue("orange.50", "whiteAlpha.100")}
+                              color={useColorModeValue("orange.600", "orange.300")}
+                              border="1px solid"
+                              borderColor={useColorModeValue("orange.200", "whiteAlpha.200")}
+                              _hover={{ bg: useColorModeValue("orange.100", "whiteAlpha.200") }}
                               onClick={() => {
                                 setSelectedPassUser(staff);
                                 setIsPassModalOpen(true);
@@ -773,9 +777,11 @@ const StaffTable = observer(({ onAdd, onEdit, onDelete }: any) => {
                               w="30px"
                               h="30px"
                               borderRadius="lg"
-                              bg="red.50"
-                              color="red.600"
-                              _hover={{ bg: "red.100" }}
+                              bg={useColorModeValue("red.50", "whiteAlpha.100")}
+                              color={useColorModeValue("red.600", "red.300")}
+                              border="1px solid"
+                              borderColor={useColorModeValue("red.200", "whiteAlpha.200")}
+                              _hover={{ bg: useColorModeValue("red.100", "whiteAlpha.200") }}
                               onClick={() => onDelete(staff)}
                             />
                           </Tooltip>

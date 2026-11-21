@@ -81,11 +81,14 @@ const Form = observer(({ loading, initialData, onSubmit, isOpen, onClose, isEdit
                     <HStack spacing={3} w={{ base: "100%", md: "auto" }}>
                       <Button
                         variant="outline"
-                        color={useColorModeValue("gray.700", "gray.200")}
+                        colorScheme="gray"
+                        bg={useColorModeValue("white", "whiteAlpha.100")}
+                        color={useColorModeValue("gray.700", "gray.100")}
                         borderColor={useColorModeValue("gray.300", "whiteAlpha.300")}
-                        _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.100") }}
+                        _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.200") }}
                         onClick={onClose}
                         borderRadius="xl"
+                        fontWeight="700"
                         flex={{ base: 1, md: "initial" }}
                       >
                         Cancel
